@@ -45,7 +45,14 @@ paml:Activity rdf:type owl:Class ;
 paml:Control rdf:type owl:Class ;
 	      rdfs:subClassOf paml:Activity ;
               rdfs:comment "Abstract class; Control activities regulate progress through the activity graph" ;
-
+#	      [ rdf:type owl:Restriction ;
+#                owl:onProperty paml:controlType ;
+#                owl:allValuesFrom xsd:anyURI
+#                owl:minCardinality "1"^^xsd:nonNegativeInteger ;
+#                owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
+#              ] ;
+	      
+# change control subclasses can be changed into an enum on Control?
 paml:Fork rdf:type owl:Class ;
 	      rdfs:subClassOf paml:Control ;
               rdfs:comment "Fork executes multiples paths in parallel" ;
@@ -83,12 +90,13 @@ paml:Executable rdf:type owl:Class ;
 	      [ rdf:type owl:Restriction ;
                 owl:onProperty paml:output ;
                 owl:onClass paml:Pin
-              ] ;
+              ] ;	      
 
 paml:Pin rdf:type owl:Class ;
 	      rdfs:subClassOf paml:Activity ;
               rdfs:comment "A Pin is a typed input or output of an Executable" ;
 
+# should the Value vs. Physical distinction be turned into a type rather than a class distinction?
 paml:ValuePin rdf:type owl:Class ;
 	      rdfs:subClassOf paml:Pin ;
               rdfs:comment "A ValuePin represents information as an input or output" ;
@@ -108,6 +116,12 @@ paml:PhysicalPin rdf:type owl:Class ;
 paml:SubProtocol rdf:type owl:Class ;
 	      rdfs:subClassOf paml:Executable ;
               rdfs:comment "An executable that is implemented as a Protocol, with its Pins determined by the input and output properties" ;
+	      [ rdf:type owl:Restriction ;
+                owl:onProperty paml:implementedBy ;
+                owl:onClass paml:Protocol
+                owl:minCardinality "1"^^xsd:nonNegativeInteger ;
+                owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
+              ] ;
 
 paml:InformationExecutable rdf:type owl:Class ;
 	      rdfs:subClassOf paml:Executable ;
@@ -182,7 +196,7 @@ paml:PhysicalFlow rdf:type owl:Class ;
 
 # Protocol
 paml:Protocol rdf:type owl:Class ;
-	      rdfs:subClassOf sbol:Identified ;
+	      rdfs:subClassOf sbol:TopLevel ;
               rdfs:comment "A protocol is an acyclic directed graph made of activities (nodes) and flows (edges). It must have precisely one Initial and one Final that are the unique top and bottom nodes of the graph" ; 
 	      [ rdf:type owl:Restriction ;
                 owl:onProperty paml:hasActivity ;
