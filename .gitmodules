@@ -1,0 +1,3 @@
+[submodule "paml/opil"]
+	path = paml/opil
+	url = https://github.com/SD2E/opil.git
