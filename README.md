@@ -11,7 +11,7 @@ git clone --recursive https://github.com/SD2E/paml.git
 
 # API
 
-To use PAML in your client application:
+To use PAML in your client application, go to the root directory of the project repository:
 ```
 import paml
 ```
