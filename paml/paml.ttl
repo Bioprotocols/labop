@@ -95,7 +95,11 @@ paml:Executable rdf:type owl:Class ;
  
 paml:Pin rdf:type owl:Class ;
        rdfs:subClassOf paml:Activity ;
-         rdfs:comment "A Pin is a typed input or output of an Executable" .
+         rdfs:comment "A Pin is a typed input or output of an Executable. Pins are Activities so that control can be applied to flows between them" ,
+                              [ rdf:type owl:Restriction ;
+                                  owl:onProperty paml:instanceOf ;
+                                 owl:onClass paml:PinSpecification
+                                ] .
 
 # should the Value vs. Physical distinction be turned into a type rather than a class distinction?
 paml:ValuePin rdf:type owl:Class ;
@@ -112,6 +116,16 @@ paml:PhysicalPin rdf:type owl:Class ;
         [ rdf:type owl:Restriction ;
                 owl:onProperty paml:type ;
                 owl:onClass sbol:Component
+              ] .
+
+paml:PrimitiveExecutable rdf:type owl:Class ;
+              rdfs:comment "An executable that is a base-level library function, with its Pins determined by the specification of the function" ;
+        rdfs:subClassOf paml:Executable ,
+        [ rdf:type owl:Restriction ;
+                owl:onProperty paml:instanceOf ;
+                owl:onClass paml:Primitive ;
+                owl:minCardinality "1"^^xsd:nonNegativeInteger ;
+                owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
               ] .
 
 paml:SubProtocol rdf:type owl:Class ;
@@ -173,13 +187,14 @@ paml:source rdf:type owl:ObjectProperty ;
               rdfs:domain paml:Flow ;
               rdfs:range paml:Activity ;
               rdfs:label "source" ;
-              rdfs:comment "The source of " .
+              rdfs:comment "Activity from which a flow originates" .
 
 paml:sink rdf:type owl:ObjectProperty ;
               rdfs:subPropertyOf opil:compositionalProperty ;
               rdfs:domain paml:Flow ;
               rdfs:range paml:Activity ;
-              rdfs:label "sink" .
+              rdfs:label "sink" ;
+              rdfs:comment "Activity at which a flow arrives" .
 
 
 paml:ControlFlow rdf:type owl:Class ;
@@ -205,7 +220,7 @@ paml:Protocol rdf:type owl:Class ;
               ] ,
         [ rdf:type owl:Restriction ;
                 owl:onProperty paml:hasFlow ;
-                owl:onClass paml:Activity
+                owl:onClass paml:Flow
               ] ,
         [ rdf:type owl:Restriction ;
                 owl:onProperty paml:input ;
@@ -213,5 +228,99 @@ paml:Protocol rdf:type owl:Class ;
               ] ,
         [ rdf:type owl:Restriction ;
                 owl:onProperty paml:output ;
-                owl:onClass paml:Activity
+                owl:onClass paml:Activity ;
+              rdfs:comment "Designation of an activity as an output of a Protocol"
               ] .
+
+paml:hasActivity rdf:type owl:ObjectProperty ;
+              rdfs:subPropertyOf opil:compositionalProperty ;
+              rdfs:domain paml:Protocol ;
+              rdfs:range paml:Activity ;
+              rdfs:label "hasActivity" ;
+              rdfs:comment "Activity in a Protocol" .
+
+paml:hasFlow rdf:type owl:ObjectProperty ;
+              rdfs:subPropertyOf opil:compositionalProperty ;
+              rdfs:domain paml:Protocol ;
+              rdfs:range paml:Flow ;
+              rdfs:label "hasFlow" ;
+              rdfs:comment "Flow in a Protocol" .
+
+paml:input rdf:type owl:ObjectProperty ;
+              rdfs:subPropertyOf opil:compositionalProperty ;
+              rdfs:domain paml:Protocol ;
+              rdfs:range paml:Activity ;
+              rdfs:label "input" ;
+              rdfs:comment "Designation of an activity as an input of a Protocol" .
+
+paml:output rdf:type owl:ObjectProperty ;
+              rdfs:subPropertyOf opil:compositionalProperty ;
+              rdfs:label "output" ;
+              rdfs:domain sbol:TopLevel ;
+              rdfs:range sbol:Identified .
+
+paml:Primitive rdf:type owl:Class ;
+              rdfs:comment "An atomic protocol step, to be implemented by various platform-specific libraries" ;
+        rdfs:subClassOf sbol:TopLevel ,
+        [ rdf:type owl:Restriction ;
+                owl:onProperty paml:input ;
+                owl:onClass paml:PinSpecification
+              ] ,
+        [ rdf:type owl:Restriction ;
+                owl:onProperty paml:output ;
+                owl:onClass paml:PinSpecification
+              ] .
+
+#paml:input rdf:type owl:ObjectProperty ;
+#              rdfs:subPropertyOf opil:compositionalProperty ;
+#              rdfs:domain paml:Primitive ;
+#              rdfs:range paml:PinSpecification ;
+#              rdfs:label "input" ;
+#              rdfs:comment "Specification for the input of a Primitive" .
+
+#paml:output rdf:type owl:ObjectProperty ;
+#              rdfs:subPropertyOf opil:compositionalProperty ;
+#              rdfs:domain paml:Primitive ;
+#              rdfs:range paml:PinSpecification ;
+#              rdfs:label "hasActivity" ;
+#              rdfs:comment "Specification for the output of a Primitive" .
+
+paml:PinSpecification rdf:type owl:Class ;
+              rdfs:comment "A ValuePin represents information as an input or output" ;
+            rdfs:subClassOf sbol:Identified ,
+                            [ rdf:type owl:Restriction ;
+                                owl:onProperty sbol:name ;
+                                owl:allValuesFrom xsd:string
+                              ] ,
+                            [ rdf:type owl:Restriction ;
+                                owl:onProperty paml:type ;
+                                owl:allValuesFrom xsd:anyURI
+                              ] ,
+                            [ rdf:type owl:Restriction ;
+                                owl:onProperty paml:optional ;
+                                owl:allValuesFrom xsd:boolean ;
+                                rdfs:comment "Optional is not needed for output pins, which can always be ignored"
+                              ] .
+
+
+paml:Location rdf:type owl:Class ;
+              rdfs:comment "Locations are containers, wells, etc." ;
+            rdfs:subClassOf sbol:TopLevel .
+
+paml:Microplate rdf:type owl:Class ;
+              rdfs:comment "A standard well-array plate, such as a 96-well plate or 384-well plate" ;
+        rdfs:subClassOf paml:Location .
+
+paml:MicroplateWells rdf:type owl:Class ;
+              rdfs:comment "A standard well-array plate, such as a 96-well plate or 384-well plate" ;
+        rdfs:subClassOf paml:Location .
+                            [ rdf:type owl:Restriction ;
+                              owl:onProperty paml:plateCoordinates ;
+                              owl:onClass xsd:string ;
+                              rdfs:comment "Coordinates use Excel form, e.g., A1, B3:B6"
+                              ] .
+                            [ rdf:type owl:Restriction ;
+                                owl:onProperty paml:inPlate ;
+                                owl:onClass paml:Microplate
+                              ] .
+
