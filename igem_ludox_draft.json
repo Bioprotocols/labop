@@ -1,0 +1,519 @@
+{
+  "@context": {
+    "@om": "http://www.ontology-of-units-of-measure.org/resource/om-2/",
+    "@prov": "http://www.w3.org/ns/prov#",
+    "@sbol": "http://sbols.org/v3#",
+    "@vocab": "https://sbolstandard.org/examples/"
+  },
+  "@graph": [
+    {
+      "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable4/LocalValuePin2/Measure1",
+      "@om:hasNumericalValue": 600.0,
+      "@om:hasUnit": {
+        "@id": "@om:nanometre"
+      },
+      "@sbol:displayId": "Measure1",
+      "@type": [
+        "@om:Measure",
+        "@sbol:Identified"
+      ]
+    },
+    {
+      "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable6/LocalValuePin4/ContainerCoordinates1",
+      "@sbol:displayId": "ContainerCoordinates1",
+      "@type": [
+        "@sbol:Identified",
+        "http://bioprotocols.org/paml#ContainerCoordinates"
+      ],
+      "http://bioprotocols.org/paml#coordinates": {
+        "@id": "A2:D2"
+      },
+      "http://bioprotocols.org/paml#inContainer": {
+        "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable6/LocalValuePin4/ContainerCoordinates1/Container2"
+      }
+    },
+    {
+      "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable5",
+      "@sbol:displayId": "PrimitiveExecutable5",
+      "@type": [
+        "http://bioprotocols.org/paml#PrimitiveExecutable",
+        "@sbol:Identified"
+      ],
+      "http://bioprotocols.org/paml#input": [
+        {
+          "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable5/LocalValuePin4"
+        },
+        {
+          "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable5/LocalValuePin3"
+        },
+        {
+          "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable5/LocalValuePin2"
+        }
+      ],
+      "http://bioprotocols.org/paml#instanceOf": {
+        "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable6/Provision"
+      },
+      "http://bioprotocols.org/paml#output": {
+        "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable5/LocalValuePin1"
+      }
+    },
+    {
+      "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable6",
+      "@sbol:displayId": "PrimitiveExecutable6",
+      "@type": [
+        "@sbol:Identified",
+        "http://bioprotocols.org/paml#PrimitiveExecutable"
+      ],
+      "http://bioprotocols.org/paml#input": [
+        {
+          "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable6/LocalValuePin2"
+        },
+        {
+          "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable6/LocalValuePin3"
+        },
+        {
+          "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable6/LocalValuePin4"
+        }
+      ],
+      "http://bioprotocols.org/paml#instanceOf": {
+        "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable6/Provision"
+      },
+      "http://bioprotocols.org/paml#output": {
+        "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable6/LocalValuePin1"
+      }
+    },
+    {
+      "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable6/Provision/PinSpecification14",
+      "@sbol:displayId": "PinSpecification14",
+      "@sbol:name": "dispenseVelosity",
+      "@type": [
+        "@sbol:Identified",
+        "http://bioprotocols.org/paml#PinSpecification"
+      ],
+      "http://bioprotocols.org/paml#optional": {
+        "@id": "True"
+      },
+      "http://bioprotocols.org/paml#type": {
+        "@id": "@om:Measure"
+      }
+    },
+    {
+      "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable6/LocalValuePin2/Component3",
+      "@sbol:displayId": "Component3",
+      "@sbol:name": "Water, sterile-filtered, BioReagent, suitable for cell culture",
+      "@sbol:type": {
+        "@id": "https://identifiers.org/pubchem.substance:24901740"
+      },
+      "@type": "@sbol:Component"
+    },
+    {
+      "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable6/LocalValuePin2",
+      "@sbol:displayId": "LocalValuePin2",
+      "@type": [
+        "@sbol:Identified",
+        "http://bioprotocols.org/paml#LocalValuePin"
+      ],
+      "http://bioprotocols.org/paml#value": {
+        "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable6/LocalValuePin2/Component3"
+      }
+    },
+    {
+      "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable6/Provision/PinSpecification12",
+      "@sbol:displayId": "PinSpecification12",
+      "@sbol:name": "location",
+      "@type": [
+        "http://bioprotocols.org/paml#PinSpecification",
+        "@sbol:Identified"
+      ],
+      "http://bioprotocols.org/paml#optional": {
+        "@id": "False"
+      },
+      "http://bioprotocols.org/paml#type": {
+        "@id": "http://bioprotocols.org/paml#Location"
+      }
+    },
+    {
+      "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable5/LocalValuePin2",
+      "@sbol:displayId": "LocalValuePin2",
+      "@type": [
+        "http://bioprotocols.org/paml#LocalValuePin",
+        "@sbol:Identified"
+      ],
+      "http://bioprotocols.org/paml#value": {
+        "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable5/LocalValuePin2/Component4"
+      }
+    },
+    {
+      "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable4/MeasureAbsorbance/PinSpecification5",
+      "@sbol:displayId": "PinSpecification5",
+      "@sbol:name": "wavelength",
+      "@type": [
+        "http://bioprotocols.org/paml#PinSpecification",
+        "@sbol:Identified"
+      ],
+      "http://bioprotocols.org/paml#optional": {
+        "@id": "False"
+      },
+      "http://bioprotocols.org/paml#type": {
+        "@id": "@om:Measure"
+      }
+    },
+    {
+      "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable6/LocalValuePin4/ContainerCoordinates1/Container2",
+      "@sbol:displayId": "Container2",
+      "@type": [
+        "@sbol:Identified",
+        "http://bioprotocols.org/paml#Container"
+      ],
+      "http://bioprotocols.org/paml#type": {
+        "@id": "http://identifiers.org/NCIT:C43377"
+      }
+    },
+    {
+      "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable6/Provision/PinSpecification11",
+      "@sbol:displayId": "PinSpecification11",
+      "@sbol:name": "resource",
+      "@type": [
+        "@sbol:Identified",
+        "http://bioprotocols.org/paml#PinSpecification"
+      ],
+      "http://bioprotocols.org/paml#optional": {
+        "@id": "False"
+      },
+      "http://bioprotocols.org/paml#type": {
+        "@id": "@sbol:Component"
+      }
+    },
+    {
+      "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable6/LocalValuePin3",
+      "@sbol:displayId": "LocalValuePin3",
+      "@type": [
+        "@sbol:Identified",
+        "http://bioprotocols.org/paml#LocalValuePin"
+      ],
+      "http://bioprotocols.org/paml#value": {
+        "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable6/LocalValuePin3/Measure1"
+      }
+    },
+    {
+      "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Join2",
+      "@sbol:displayId": "Join2",
+      "@type": [
+        "http://bioprotocols.org/paml#Join",
+        "@sbol:Identified"
+      ]
+    },
+    {
+      "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Final3",
+      "@sbol:displayId": "Final3",
+      "@type": [
+        "http://bioprotocols.org/paml#Final",
+        "@sbol:Identified"
+      ]
+    },
+    {
+      "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable6/Provision",
+      "@sbol:displayId": "Provision",
+      "@type": [
+        "http://bioprotocols.org/paml#Primitive",
+        "@sbol:TopLevel"
+      ],
+      "http://bioprotocols.org/paml#input": [
+        {
+          "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable6/Provision/PinSpecification13"
+        },
+        {
+          "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable6/Provision/PinSpecification11"
+        },
+        {
+          "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable6/Provision/PinSpecification12"
+        },
+        {
+          "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable6/Provision/PinSpecification14"
+        }
+      ],
+      "http://bioprotocols.org/paml#output": {
+        "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable6/Provision/PinSpecification16"
+      }
+    },
+    {
+      "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable5/LocalValuePin2/Component4",
+      "@sbol:displayId": "Component4",
+      "@sbol:name": "LUDOX(R) CL-X colloidal silica, 45 wt. % suspension in H2O",
+      "@sbol:type": {
+        "@id": "https://identifiers.org/pubchem.substance:24866361"
+      },
+      "@type": "@sbol:Component"
+    },
+    {
+      "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable4/LocalValuePin3",
+      "@sbol:displayId": "LocalValuePin3",
+      "@type": [
+        "http://bioprotocols.org/paml#LocalValuePin",
+        "@sbol:Identified"
+      ]
+    },
+    {
+      "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable4",
+      "@sbol:displayId": "PrimitiveExecutable4",
+      "@type": [
+        "@sbol:Identified",
+        "http://bioprotocols.org/paml#PrimitiveExecutable"
+      ],
+      "http://bioprotocols.org/paml#input": [
+        {
+          "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable4/LocalValuePin3"
+        },
+        {
+          "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable4/LocalValuePin2"
+        }
+      ],
+      "http://bioprotocols.org/paml#instanceOf": {
+        "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable4/MeasureAbsorbance"
+      },
+      "http://bioprotocols.org/paml#output": {
+        "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable4/LocalValuePin1"
+      }
+    },
+    {
+      "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable5/LocalValuePin3/Measure1",
+      "@om:hasNumericalValue": 100.0,
+      "@om:hasUnit": {
+        "@id": "@om:microlitre"
+      },
+      "@sbol:displayId": "Measure1",
+      "@type": [
+        "@sbol:Identified",
+        "@om:Measure"
+      ]
+    },
+    {
+      "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018",
+      "@sbol:displayId": "iGEM_LUDOX_OD_calibration_2018",
+      "@type": [
+        "@sbol:TopLevel",
+        "http://bioprotocols.org/paml#Protocol"
+      ],
+      "http://bioprotocols.org/paml#hasActivity": [
+        {
+          "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable5"
+        },
+        {
+          "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Join2"
+        },
+        {
+          "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Final3"
+        },
+        {
+          "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable4"
+        },
+        {
+          "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Initial3"
+        },
+        {
+          "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable6"
+        },
+        {
+          "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Value4"
+        }
+      ],
+      "http://bioprotocols.org/paml#hasContainer": {
+        "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable6/LocalValuePin4/ContainerCoordinates1/Container2"
+      },
+      "http://bioprotocols.org/paml#material": [
+        {
+          "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable5/LocalValuePin2/Component4"
+        },
+        {
+          "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable6/LocalValuePin2/Component3"
+        }
+      ],
+      "http://bioprotocols.org/paml#output": {
+        "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Value4"
+      }
+    },
+    {
+      "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable4/MeasureAbsorbance",
+      "@sbol:displayId": "MeasureAbsorbance",
+      "@type": [
+        "@sbol:TopLevel",
+        "http://bioprotocols.org/paml#Primitive"
+      ],
+      "http://bioprotocols.org/paml#input": [
+        {
+          "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable4/MeasureAbsorbance/PinSpecification4"
+        },
+        {
+          "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable4/MeasureAbsorbance/PinSpecification5"
+        }
+      ],
+      "http://bioprotocols.org/paml#output": {
+        "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable4/MeasureAbsorbance/PinSpecification7"
+      }
+    },
+    {
+      "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable5/LocalValuePin4",
+      "@sbol:displayId": "LocalValuePin4",
+      "@type": [
+        "http://bioprotocols.org/paml#LocalValuePin",
+        "@sbol:Identified"
+      ],
+      "http://bioprotocols.org/paml#value": {
+        "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable5/LocalValuePin4/ContainerCoordinates1"
+      }
+    },
+    {
+      "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable6/LocalValuePin1",
+      "@sbol:displayId": "LocalValuePin1",
+      "@type": [
+        "@sbol:Identified",
+        "http://bioprotocols.org/paml#LocalValuePin"
+      ]
+    },
+    {
+      "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable4/MeasureAbsorbance/PinSpecification7",
+      "@sbol:displayId": "PinSpecification7",
+      "@sbol:name": "measurements",
+      "@type": [
+        "@sbol:Identified",
+        "http://bioprotocols.org/paml#PinSpecification"
+      ],
+      "http://bioprotocols.org/paml#type": {
+        "@id": "http://bioprotocols.org/paml#LocatedData"
+      }
+    },
+    {
+      "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Initial3",
+      "@sbol:displayId": "Initial3",
+      "@type": [
+        "@sbol:Identified",
+        "http://bioprotocols.org/paml#Initial"
+      ]
+    },
+    {
+      "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable6/Provision/PinSpecification16",
+      "@sbol:displayId": "PinSpecification16",
+      "@sbol:name": "samples",
+      "@type": [
+        "@sbol:Identified",
+        "http://bioprotocols.org/paml#PinSpecification"
+      ],
+      "http://bioprotocols.org/paml#type": {
+        "@id": "http://bioprotocols.org/paml#LocatedSamples"
+      }
+    },
+    {
+      "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable5/LocalValuePin3",
+      "@sbol:displayId": "LocalValuePin3",
+      "@type": [
+        "@sbol:Identified",
+        "http://bioprotocols.org/paml#LocalValuePin"
+      ],
+      "http://bioprotocols.org/paml#value": {
+        "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable5/LocalValuePin3/Measure1"
+      }
+    },
+    {
+      "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable4/MeasureAbsorbance/PinSpecification4",
+      "@sbol:displayId": "PinSpecification4",
+      "@sbol:name": "location",
+      "@type": [
+        "@sbol:Identified",
+        "http://bioprotocols.org/paml#PinSpecification"
+      ],
+      "http://bioprotocols.org/paml#optional": {
+        "@id": "False"
+      },
+      "http://bioprotocols.org/paml#type": {
+        "@id": "http://bioprotocols.org/paml#LocatedSamples"
+      }
+    },
+    {
+      "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable5/LocalValuePin1",
+      "@sbol:displayId": "LocalValuePin1",
+      "@type": [
+        "@sbol:Identified",
+        "http://bioprotocols.org/paml#LocalValuePin"
+      ]
+    },
+    {
+      "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable6/Provision/PinSpecification13",
+      "@sbol:displayId": "PinSpecification13",
+      "@sbol:name": "volume",
+      "@type": [
+        "@sbol:Identified",
+        "http://bioprotocols.org/paml#PinSpecification"
+      ],
+      "http://bioprotocols.org/paml#optional": {
+        "@id": "False"
+      },
+      "http://bioprotocols.org/paml#type": {
+        "@id": "@om:Measure"
+      }
+    },
+    {
+      "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable6/LocalValuePin3/Measure1",
+      "@om:hasNumericalValue": 100.0,
+      "@om:hasUnit": {
+        "@id": "@om:microlitre"
+      },
+      "@sbol:displayId": "Measure1",
+      "@type": [
+        "@sbol:Identified",
+        "@om:Measure"
+      ]
+    },
+    {
+      "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Value4",
+      "@sbol:displayId": "Value4",
+      "@type": [
+        "http://bioprotocols.org/paml#Value",
+        "@sbol:Identified"
+      ]
+    },
+    {
+      "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable4/LocalValuePin1",
+      "@sbol:displayId": "LocalValuePin1",
+      "@type": [
+        "@sbol:Identified",
+        "http://bioprotocols.org/paml#LocalValuePin"
+      ]
+    },
+    {
+      "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable4/LocalValuePin2",
+      "@sbol:displayId": "LocalValuePin2",
+      "@type": [
+        "@sbol:Identified",
+        "http://bioprotocols.org/paml#LocalValuePin"
+      ],
+      "http://bioprotocols.org/paml#value": {
+        "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable4/LocalValuePin2/Measure1"
+      }
+    },
+    {
+      "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable5/LocalValuePin4/ContainerCoordinates1",
+      "@sbol:displayId": "ContainerCoordinates1",
+      "@type": [
+        "http://bioprotocols.org/paml#ContainerCoordinates",
+        "@sbol:Identified"
+      ],
+      "http://bioprotocols.org/paml#coordinates": {
+        "@id": "A1:D1"
+      },
+      "http://bioprotocols.org/paml#inContainer": {
+        "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable6/LocalValuePin4/ContainerCoordinates1/Container2"
+      }
+    },
+    {
+      "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable6/LocalValuePin4",
+      "@sbol:displayId": "LocalValuePin4",
+      "@type": [
+        "http://bioprotocols.org/paml#LocalValuePin",
+        "@sbol:Identified"
+      ],
+      "http://bioprotocols.org/paml#value": {
+        "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable6/LocalValuePin4/ContainerCoordinates1"
+      }
+    }
+  ]
+}

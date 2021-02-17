@@ -107,8 +107,27 @@ paml:ValuePin rdf:type owl:Class ;
             rdfs:subClassOf paml:Pin ,
                             [ rdf:type owl:Restriction ;
                                 owl:onProperty paml:type ;
-                                owl:allValuesFrom xsd:anyURI
+                                owl:allValuesFrom xsd:anyURI ;
+                                owl:minCardinality "1"^^xsd:nonNegativeInteger ;
+                                owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
                               ] .
+
+paml:LocalValuePin rdf:type owl:Class ;
+              rdfs:comment "A LocalValuePin is an input pin with a constant value" ;
+            rdfs:subClassOf paml:ValuePin ,
+                            [ rdf:type owl:Restriction ;
+                                owl:onProperty paml:value ;
+                                owl:onClass sbol:Identified ;
+                                owl:minCardinality "1"^^xsd:nonNegativeInteger ;
+                                owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
+                              ] .
+
+paml:value rdf:type owl:ObjectProperty ;
+              rdfs:subPropertyOf opil:compositionalProperty ;
+              rdfs:domain paml:LocalValuePin ;
+              rdfs:range sbol:Identified ;
+              rdfs:label "value" ;
+              rdfs:comment "Constant value to be supplied to the pin" .
 
 paml:PhysicalPin rdf:type owl:Class ;
                  rdfs:comment "A PhysicalPin represents a physical input or output" ;
@@ -128,6 +147,13 @@ paml:PrimitiveExecutable rdf:type owl:Class ;
                 owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
               ] .
 
+paml:instanceOf rdf:type owl:ObjectProperty ;
+              rdfs:subPropertyOf opil:compositionalProperty ;
+              rdfs:domain paml:PrimitiveExecutable ;
+              rdfs:range paml:Primitive ;
+              rdfs:label "instanceOf" ;
+              rdfs:comment "Primitive to be executed" .
+
 paml:SubProtocol rdf:type owl:Class ;
               rdfs:comment "An executable that is implemented as a Protocol, with its Pins determined by the input and output properties" ;
         rdfs:subClassOf paml:Executable ,
@@ -137,6 +163,13 @@ paml:SubProtocol rdf:type owl:Class ;
                 owl:minCardinality "1"^^xsd:nonNegativeInteger ;
                 owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
               ] .
+
+paml:implementedBy rdf:type owl:ObjectProperty ;
+              rdfs:subPropertyOf opil:compositionalProperty ;
+              rdfs:domain paml:SubProtocol ;
+              rdfs:range paml:Protocol ;
+              rdfs:label "implementedBy" ;
+              rdfs:comment "Protocol to be executed as a sub-protocol" .
 
 paml:InformationExecutable rdf:type owl:Class ;
         rdfs:subClassOf paml:Executable ;
@@ -152,7 +185,8 @@ paml:Value rdf:type owl:Class ;
         rdfs:subClassOf paml:Activity ,
         [ rdf:type owl:Restriction ;
                 owl:onProperty paml:type ;
-                owl:allValuesFrom xsd:anyURI
+                owl:minCardinality "1"^^xsd:nonNegativeInteger ;
+                owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
               ] .
 
 paml:Physical rdf:type owl:Class ;
@@ -160,9 +194,17 @@ paml:Physical rdf:type owl:Class ;
         rdfs:subClassOf paml:Activity ,
         [ rdf:type owl:Restriction ;
                 owl:onProperty paml:type ;
-                owl:onClass sbol:Component
+                owl:onClass sbol:Component ;
+                owl:minCardinality "1"^^xsd:nonNegativeInteger ;
+                owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
               ] .
-        
+
+paml:type rdf:type owl:ObjectProperty ;
+              rdfs:domain paml:Activity ;
+              rdfs:range xsd:anyURI ;
+              rdfs:label "type" ;
+              rdfs:comment "Type specification of a Value or Physical material" .
+
 
 # Flows (edges)
 paml:Flow rdf:type owl:Class ;
@@ -223,8 +265,17 @@ paml:Protocol rdf:type owl:Class ;
                 owl:onClass paml:Flow
               ] ,
         [ rdf:type owl:Restriction ;
+                owl:onProperty paml:material ;
+                owl:onClass sbol:Component
+              ] ,
+        [ rdf:type owl:Restriction ;
+                owl:onProperty paml:hasContainer ;
+                owl:onClass paml:Container
+              ] ,
+        [ rdf:type owl:Restriction ;
                 owl:onProperty paml:input ;
-                owl:onClass paml:Activity
+                owl:onClass paml:Activity ;
+              rdfs:comment "Designation of an activity as an input of a Protocol"
               ] ,
         [ rdf:type owl:Restriction ;
                 owl:onProperty paml:output ;
@@ -245,6 +296,20 @@ paml:hasFlow rdf:type owl:ObjectProperty ;
               rdfs:range paml:Flow ;
               rdfs:label "hasFlow" ;
               rdfs:comment "Flow in a Protocol" .
+
+paml:material rdf:type owl:ObjectProperty ;
+              rdfs:subPropertyOf opil:compositionalProperty ;
+              rdfs:domain paml:Protocol ;
+              rdfs:range sbol:Component ;
+              rdfs:label "material" ;
+              rdfs:comment "Specification for material used in a Protocol" .
+
+paml:hasContainer rdf:type owl:ObjectProperty ;
+              rdfs:subPropertyOf opil:compositionalProperty ;
+              rdfs:domain paml:Protocol ;
+              rdfs:range paml:Container ;
+              rdfs:label "hasContainer" ;
+              rdfs:comment "Root-level container used in a Protocol" .
 
 paml:input rdf:type owl:ObjectProperty ;
               rdfs:subPropertyOf opil:compositionalProperty ;
@@ -271,56 +336,116 @@ paml:Primitive rdf:type owl:Class ;
                 owl:onClass paml:PinSpecification
               ] .
 
-#paml:input rdf:type owl:ObjectProperty ;
-#              rdfs:subPropertyOf opil:compositionalProperty ;
-#              rdfs:domain paml:Primitive ;
-#              rdfs:range paml:PinSpecification ;
-#              rdfs:label "input" ;
-#              rdfs:comment "Specification for the input of a Primitive" .
-
-#paml:output rdf:type owl:ObjectProperty ;
-#              rdfs:subPropertyOf opil:compositionalProperty ;
-#              rdfs:domain paml:Primitive ;
-#              rdfs:range paml:PinSpecification ;
-#              rdfs:label "hasActivity" ;
-#              rdfs:comment "Specification for the output of a Primitive" .
-
 paml:PinSpecification rdf:type owl:Class ;
               rdfs:comment "A ValuePin represents information as an input or output" ;
             rdfs:subClassOf sbol:Identified ,
                             [ rdf:type owl:Restriction ;
                                 owl:onProperty sbol:name ;
-                                owl:allValuesFrom xsd:string
+                                owl:allValuesFrom xsd:string ;
+                              owl:minCardinality "1"^^xsd:nonNegativeInteger ;
+                              owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
                               ] ,
                             [ rdf:type owl:Restriction ;
                                 owl:onProperty paml:type ;
-                                owl:allValuesFrom xsd:anyURI
+                                owl:allValuesFrom xsd:anyURI ;
+                              owl:minCardinality "1"^^xsd:nonNegativeInteger ;
+                              owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
                               ] ,
                             [ rdf:type owl:Restriction ;
                                 owl:onProperty paml:optional ;
                                 owl:allValuesFrom xsd:boolean ;
+                              owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
                                 rdfs:comment "Optional is not needed for output pins, which can always be ignored"
                               ] .
 
+paml:optional rdf:type owl:ObjectProperty ;
+              rdfs:domain paml:PinSpecification ;
+              rdfs:range xsd:boolean ;
+              rdfs:label "optional" .
 
 paml:Location rdf:type owl:Class ;
               rdfs:comment "Locations are containers, wells, etc." ;
-            rdfs:subClassOf sbol:TopLevel .
+            rdfs:subClassOf sbol:Identified .
 
-paml:Microplate rdf:type owl:Class ;
+paml:Container rdf:type owl:Class ;
               rdfs:comment "A standard well-array plate, such as a 96-well plate or 384-well plate" ;
-        rdfs:subClassOf paml:Location .
-
-paml:MicroplateWells rdf:type owl:Class ;
-              rdfs:comment "A standard well-array plate, such as a 96-well plate or 384-well plate" ;
-        rdfs:subClassOf paml:Location .
+        rdfs:subClassOf paml:Location ,
                             [ rdf:type owl:Restriction ;
-                              owl:onProperty paml:plateCoordinates ;
+                              owl:onProperty paml:type ;
+                              owl:onClass xsd:anyURI ;
+                              owl:minCardinality "1"^^xsd:nonNegativeInteger ;
+                              owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
+                              rdfs:comment "SHOULD be an NCIT equipment class (branch http://purl.obolibrary.org/obo/NCIT_C19238)"
+                              ] .
+
+
+paml:ContainerCoordinates rdf:type owl:Class ;
+              rdfs:comment "A standard well-array plate, such as a 96-well plate or 384-well plate" ;
+        rdfs:subClassOf paml:Location ,
+                            [ rdf:type owl:Restriction ;
+                              owl:onProperty paml:coordinates ;
                               owl:onClass xsd:string ;
-                              rdfs:comment "Coordinates use Excel form, e.g., A1, B3:B6"
-                              ] .
+                                owl:minCardinality "1"^^xsd:nonNegativeInteger ;
+                                owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
+                              rdfs:comment "Coordinates SHOULD use Excel form, e.g., A1, B3:C6"
+                              ] ,
                             [ rdf:type owl:Restriction ;
-                                owl:onProperty paml:inPlate ;
-                                owl:onClass paml:Microplate
+                                owl:onProperty paml:inContainer ;
+                                owl:onClass paml:Container ;
+                                owl:minCardinality "1"^^xsd:nonNegativeInteger ;
+                                owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
                               ] .
 
+paml:LocatedSamples rdf:type owl:Class ;
+              rdfs:comment "Locations are containers, wells, etc." ;
+            rdfs:subClassOf sbol:Identified ,
+                            [ rdf:type owl:Restriction ;
+                              owl:onProperty paml:specification ;
+                              owl:onClass sbol:Component ;
+                              owl:minCardinality "1"^^xsd:nonNegativeInteger ;
+                              owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
+                              ] ,
+                            [ rdf:type owl:Restriction ;
+                                owl:onProperty paml:hasLocation ;
+                                owl:onClass paml:Location ;
+                              owl:minCardinality "1"^^xsd:nonNegativeInteger ;
+                              ] .
+
+paml:LocatedData rdf:type owl:Class ;
+              rdfs:comment "Locations are containers, wells, etc." ;
+            rdfs:subClassOf paml:LocatedSamples ,
+                            [ rdf:type owl:Restriction ;
+                              owl:onProperty paml:hasExperimentalData ;
+                              owl:onClass sbol:ExperimentalData ;
+                              owl:minCardinality "1"^^xsd:nonNegativeInteger ;
+                              owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
+                              ] .
+
+paml:coordinates rdf:type owl:ObjectProperty ;
+              rdfs:domain paml:ContainerCoordinates ;
+              rdfs:range xsd:string ;
+              rdfs:label "coordinates" .
+
+paml:inContainer rdf:type owl:ObjectProperty ;
+              rdfs:subPropertyOf opil:compositionalProperty ;
+              rdfs:domain paml:ContainerCoordinates ;
+              rdfs:range paml:Container ;
+              rdfs:label "inContainer" .
+
+paml:specification rdf:type owl:ObjectProperty ;
+              rdfs:subPropertyOf opil:compositionalProperty ;
+              rdfs:domain paml:LocatedSamples ;
+              rdfs:range sbol:Component ;
+              rdfs:label "specification" .
+
+paml:hasLocation rdf:type owl:ObjectProperty ;
+              rdfs:subPropertyOf opil:compositionalProperty ;
+              rdfs:domain paml:LocatedSamples ;
+              rdfs:range paml:Location ;
+              rdfs:label "hasLocation" .
+
+paml:hasExperimentalData rdf:type owl:ObjectProperty ;
+              rdfs:subPropertyOf opil:compositionalProperty ;
+              rdfs:domain paml:LocatedData ;
+              rdfs:range sbol:ExperimentalData ;
+              rdfs:label "hasExperimentalData" .
