@@ -23,21 +23,23 @@ def make_flow(source, sink):
     flow.sink = sink
     return flow
 
+############
+# PROBLEM: the instanceOfPin should be a single field, but is coming through as a list!!!
 def constant_input_pin(executable, pin_spec_name, value):
     pin = paml.LocalValuePin()
-    pin.instanceOf = next(x for x in executable.instanceOf.input if x.name==pin_spec_name)
+    pin.instanceOfPin = {next(x for x in executable.instanceOf.input if x.name==pin_spec_name)}
     pin.value = value
     executable.input += {pin}
 
 def make_input_pin(executable, pin_spec_name):
     pin = paml.LocalValuePin()
-    pin.instanceOf = next(x for x in executable.instanceOf.input if x.name==pin_spec_name)
+    pin.instanceOfPin = {next(x for x in executable.instanceOf.input if x.name==pin_spec_name)}
     executable.input += {pin}
     return pin
 
 def make_output_pin(executable, pin_spec_name):
     pin = paml.LocalValuePin()
-    pin.instanceOf = next(x for x in executable.instanceOf.output if x.name==pin_spec_name)
+    pin.instanceOfPin = {next(x for x in executable.instanceOf.output if x.name==pin_spec_name)}
     executable.output += {pin}
     return pin
 
@@ -70,6 +72,18 @@ print('making protocol')
 
 paml.set_namespace('https://bbn.com/scratch/')
 protocol = paml.Protocol('iGEM_LUDOX_OD_calibration_2018')
+protocol.name = "iGEM 2018 LUDOX OD calibration protocol"
+protocol.description = '''
+With this protocol you will use LUDOX CL-X (a 45% colloidal silica suspension) as a single point reference to
+obtain a conversion factor to transform absorbance (OD600) data from your plate reader into a comparable
+OD600 measurement as would be obtained in a spectrophotometer. This conversion is necessary because plate
+reader measurements of absorbance are volume dependent; the depth of the fluid in the well defines the path
+length of the light passing through the sample, which can vary slightly from well to well. In a standard
+spectrophotometer, the path length is fixed and is defined by the width of the cuvette, which is constant.
+Therefore this conversion calculation can transform OD600 measurements from a plate reader (i.e. absorbance
+at 600 nm, the basic output of most instruments) into comparable OD600 measurements. The LUDOX solution
+is only weakly scattering and so will give a low absorbance value.
+'''
 doc.add(protocol)
 
 # add the initial and final control nodes
@@ -80,6 +94,7 @@ protocol.hasActivity += {initial, final}
 # create the materials to be provisioned
 plate = paml.Container()
 plate.type = 'http://identifiers.org/NCIT:C43377' # NCIT microplate
+plate.name = 'Microplate'
 protocol.hasContainer += {plate}
 
 ddH2O = sbol3.Component('ddH2O', 'https://identifiers.org/pubchem.substance:24901740')
@@ -99,6 +114,7 @@ location = paml.ContainerCoordinates()
 location.inContainer = plate
 location.coordinates = 'A1:D1'
 constant_input_pin(provision_LUDOX, 'location', location)
+protocol.hasFlow += {make_flow(initial, provision_LUDOX)}
 
 provision_ddH2O = paml.PrimitiveExecutable()
 provision_ddH2O.instanceOf = provision
@@ -108,20 +124,21 @@ location = paml.ContainerCoordinates()
 location.inContainer = plate
 location.coordinates = 'A2:D2'
 constant_input_pin(provision_ddH2O, 'location', location)
+protocol.hasFlow += {make_flow(initial, provision_ddH2O)}
 
 all_provisioned = paml.Join()
-make_flow(make_output_pin(provision_LUDOX, 'samples'), all_provisioned)
-make_flow(make_output_pin(provision_ddH2O, 'samples'), all_provisioned)
+protocol.hasFlow += {make_flow(make_output_pin(provision_LUDOX, 'samples'), all_provisioned)}
+protocol.hasFlow += {make_flow(make_output_pin(provision_ddH2O, 'samples'), all_provisioned)}
 
 execute_measurement = paml.PrimitiveExecutable()
 execute_measurement.instanceOf = measure_absorbance
 constant_input_pin(execute_measurement, 'wavelength', sbol3.Measure(600, tyto.OM.get_uri_by_term('nanometer')))
-make_flow(all_provisioned, make_input_pin(execute_measurement, 'location'))
+protocol.hasFlow += {make_flow(all_provisioned, make_input_pin(execute_measurement, 'location'))}
 
 result = paml.Value()
-make_flow(make_output_pin(execute_measurement, 'measurements'), result)
+protocol.hasFlow += {make_flow(make_output_pin(execute_measurement, 'measurements'), result)}
 
-make_flow(result, final)
+protocol.hasFlow += {make_flow(result, final)}
 
 protocol.hasActivity += {provision_LUDOX, provision_ddH2O, all_provisioned, execute_measurement, result}
 

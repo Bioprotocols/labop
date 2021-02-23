@@ -96,10 +96,20 @@ paml:Executable rdf:type owl:Class ;
 paml:Pin rdf:type owl:Class ;
        rdfs:subClassOf paml:Activity ;
          rdfs:comment "A Pin is a typed input or output of an Executable. Pins are Activities so that control can be applied to flows between them" ,
-                              [ rdf:type owl:Restriction ;
-                                  owl:onProperty paml:instanceOf ;
-                                 owl:onClass paml:PinSpecification
-                                ] .
+        [ rdf:type owl:Restriction ;
+                owl:onProperty paml:instanceOfPin ;
+                owl:onClass paml:PinSpecification ;
+                owl:minCardinality "1"^^xsd:nonNegativeInteger ;
+                owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
+              ] .
+
+paml:instanceOfPin rdf:type owl:ObjectProperty ;
+              rdfs:subPropertyOf opil:compositionalProperty ;
+              rdfs:domain paml:Pin ;
+              rdfs:range paml:PinSpecification ;
+              rdfs:label "instanceOfPin" ;
+              rdfs:comment "Primitive pin to be instantiated" .
+
 
 # should the Value vs. Physical distinction be turned into a type rather than a class distinction?
 paml:ValuePin rdf:type owl:Class ;
@@ -302,7 +312,7 @@ paml:material rdf:type owl:ObjectProperty ;
               rdfs:domain paml:Protocol ;
               rdfs:range sbol:Component ;
               rdfs:label "material" ;
-              rdfs:comment "Specification for material used in a Protocol" .
+              rdfs:comment "Specification for material used in a Protocol: all sbol:Component objects referred to by protocol" .
 
 paml:hasContainer rdf:type owl:ObjectProperty ;
               rdfs:subPropertyOf opil:compositionalProperty ;
