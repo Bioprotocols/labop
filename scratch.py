@@ -32,13 +32,13 @@ def constant_input_pin(executable, pin_spec_name, value):
     executable.input += {pin}
 
 def make_input_pin(executable, pin_spec_name):
-    pin = paml.LocalValuePin()
+    pin = paml.Pin()
     pin.instanceOfPin = {next(x for x in executable.instanceOf.input if x.name==pin_spec_name)}
     executable.input += {pin}
     return pin
 
 def make_output_pin(executable, pin_spec_name):
-    pin = paml.LocalValuePin()
+    pin = paml.Pin()
     pin.instanceOfPin = {next(x for x in executable.instanceOf.output if x.name==pin_spec_name)}
     executable.output += {pin}
     return pin
@@ -109,7 +109,7 @@ protocol.material += {ddH2O, LUDOX}
 provision_LUDOX = paml.PrimitiveExecutable()
 provision_LUDOX.instanceOf = provision
 constant_input_pin(provision_LUDOX, 'resource', LUDOX)
-constant_input_pin(provision_LUDOX, 'volume', sbol3.Measure(100, tyto.OM.get_uri_by_term('microliter')))
+constant_input_pin(provision_LUDOX, 'volume', sbol3.Measure(100, tyto.OM.microliter))
 location = paml.ContainerCoordinates()
 location.inContainer = plate
 location.coordinates = 'A1:D1'
@@ -119,7 +119,7 @@ protocol.hasFlow += {make_flow(initial, provision_LUDOX)}
 provision_ddH2O = paml.PrimitiveExecutable()
 provision_ddH2O.instanceOf = provision
 constant_input_pin(provision_ddH2O, 'resource', ddH2O)
-constant_input_pin(provision_ddH2O, 'volume', sbol3.Measure(100, tyto.OM.get_uri_by_term('microliter')))
+constant_input_pin(provision_ddH2O, 'volume', sbol3.Measure(100, tyto.OM.microliter))
 location = paml.ContainerCoordinates()
 location.inContainer = plate
 location.coordinates = 'A2:D2'
@@ -132,7 +132,7 @@ protocol.hasFlow += {make_flow(make_output_pin(provision_ddH2O, 'samples'), all_
 
 execute_measurement = paml.PrimitiveExecutable()
 execute_measurement.instanceOf = measure_absorbance
-constant_input_pin(execute_measurement, 'wavelength', sbol3.Measure(600, tyto.OM.get_uri_by_term('nanometer')))
+constant_input_pin(execute_measurement, 'wavelength', sbol3.Measure(600, tyto.OM.nanometer))
 protocol.hasFlow += {make_flow(all_provisioned, make_input_pin(execute_measurement, 'location'))}
 
 result = paml.Value()

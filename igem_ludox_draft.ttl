@@ -8,9 +8,9 @@
     ns1:hasActivity <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Final3>,
         <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Initial3>,
         <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Join3>,
+        <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable4>,
         <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable5>,
         <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable6>,
-        <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable7>,
         <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Value5> ;
     ns1:hasContainer <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable6/LocalValuePin3/ContainerCoordinates1/Container2> ;
     ns1:hasFlow <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Flow29>,
@@ -20,8 +20,8 @@
         <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Flow33>,
         <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Flow34>,
         <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Flow35> ;
-    ns1:material <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable5/LocalValuePin1/Component4>,
-        <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable6/LocalValuePin1/Component3> ;
+    ns1:material <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable5/LocalValuePin1/Component3>,
+        <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable6/LocalValuePin1/Component4> ;
     ns1:output <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Value5> ;
     sbol:description """
 With this protocol you will use LUDOX CL-X (a 45% colloidal silica suspension) as a single point reference to
@@ -52,25 +52,25 @@ is only weakly scattering and so will give a low absorbance value.
 <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Flow31> a ns1:Flow,
         sbol:Identified ;
     ns1:sink <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Join3> ;
-    ns1:source <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable5/LocalValuePin5> ;
+    ns1:source <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable5/Pin2> ;
     sbol:displayId "Flow31" .
 
 <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Flow32> a ns1:Flow,
         sbol:Identified ;
     ns1:sink <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Join3> ;
-    ns1:source <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable6/LocalValuePin5> ;
+    ns1:source <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable6/Pin2> ;
     sbol:displayId "Flow32" .
 
 <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Flow33> a ns1:Flow,
         sbol:Identified ;
-    ns1:sink <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable7/LocalValuePin1> ;
+    ns1:sink <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable4/Pin1> ;
     ns1:source <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Join3> ;
     sbol:displayId "Flow33" .
 
 <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Flow34> a ns1:Flow,
         sbol:Identified ;
     ns1:sink <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Value5> ;
-    ns1:source <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable7/LocalValuePin1> ;
+    ns1:source <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable4/Pin1> ;
     sbol:displayId "Flow34" .
 
 <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Flow35> a ns1:Flow,
@@ -79,10 +79,37 @@ is only weakly scattering and so will give a low absorbance value.
     ns1:source <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Value5> ;
     sbol:displayId "Flow35" .
 
+<https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable4> a ns1:PrimitiveExecutable,
+        sbol:Identified ;
+    ns1:input <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable4/LocalValuePin1>,
+        <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable4/Pin1> ;
+    ns1:instanceOf <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable4/MeasureAbsorbance> ;
+    ns1:output <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable4/Pin1> ;
+    sbol:displayId "PrimitiveExecutable4" .
+
+<https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable4/LocalValuePin1> a ns1:LocalValuePin,
+        sbol:Identified ;
+    ns1:instanceOfPin <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable4/MeasureAbsorbance/PinSpecification5> ;
+    ns1:value <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable4/LocalValuePin1/Measure1> ;
+    sbol:displayId "LocalValuePin1" .
+
+<https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable4/LocalValuePin1/Measure1> a sbol:Identified,
+        om:Measure ;
+    sbol:displayId "Measure1" ;
+    om:hasNumericalValue 6e+02 ;
+    om:hasUnit om:nanometre .
+
+<https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable4/MeasureAbsorbance> a ns1:Primitive,
+        sbol:TopLevel ;
+    ns1:input <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable4/MeasureAbsorbance/PinSpecification4>,
+        <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable4/MeasureAbsorbance/PinSpecification5> ;
+    ns1:output <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable4/MeasureAbsorbance/PinSpecification7> ;
+    sbol:displayId "MeasureAbsorbance" .
+
 <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable5/LocalValuePin1> a ns1:LocalValuePin,
         sbol:Identified ;
     ns1:instanceOfPin <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable6/Provision/PinSpecification11> ;
-    ns1:value <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable5/LocalValuePin1/Component4> ;
+    ns1:value <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable5/LocalValuePin1/Component3> ;
     sbol:displayId "LocalValuePin1" .
 
 <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable5/LocalValuePin2> a ns1:LocalValuePin,
@@ -105,14 +132,14 @@ is only weakly scattering and so will give a low absorbance value.
 
 <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable5/LocalValuePin3/ContainerCoordinates1> a ns1:ContainerCoordinates,
         sbol:Identified ;
-    ns1:coordinates <A1:D1> ;
+    ns1:coordinates "A1:D1" ;
     ns1:inContainer <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable6/LocalValuePin3/ContainerCoordinates1/Container2> ;
     sbol:displayId "ContainerCoordinates1" .
 
 <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable6/LocalValuePin1> a ns1:LocalValuePin,
         sbol:Identified ;
     ns1:instanceOfPin <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable6/Provision/PinSpecification11> ;
-    ns1:value <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable6/LocalValuePin1/Component3> ;
+    ns1:value <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable6/LocalValuePin1/Component4> ;
     sbol:displayId "LocalValuePin1" .
 
 <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable6/LocalValuePin2> a ns1:LocalValuePin,
@@ -135,7 +162,7 @@ is only weakly scattering and so will give a low absorbance value.
 
 <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable6/LocalValuePin3/ContainerCoordinates1> a ns1:ContainerCoordinates,
         sbol:Identified ;
-    ns1:coordinates <A2:D2> ;
+    ns1:coordinates "A2:D2" ;
     ns1:inContainer <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable6/LocalValuePin3/ContainerCoordinates1/Container2> ;
     sbol:displayId "ContainerCoordinates1" .
 
@@ -146,36 +173,29 @@ is only weakly scattering and so will give a low absorbance value.
     sbol:displayId "PinSpecification14" ;
     sbol:name "dispenseVelosity" .
 
-<https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable7> a ns1:PrimitiveExecutable,
-        sbol:Identified ;
-    ns1:input <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable7/LocalValuePin1>,
-        <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable7/LocalValuePin2> ;
-    ns1:instanceOf <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable7/MeasureAbsorbance> ;
-    ns1:output <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable7/LocalValuePin1> ;
-    sbol:displayId "PrimitiveExecutable7" .
-
-<https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable7/LocalValuePin2> a ns1:LocalValuePin,
-        sbol:Identified ;
-    ns1:instanceOfPin <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable7/MeasureAbsorbance/PinSpecification5> ;
-    ns1:value <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable7/LocalValuePin2/Measure1> ;
-    sbol:displayId "LocalValuePin2" .
-
-<https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable7/LocalValuePin2/Measure1> a sbol:Identified,
-        om:Measure ;
-    sbol:displayId "Measure1" ;
-    om:hasNumericalValue 6e+02 ;
-    om:hasUnit om:nanometre .
-
-<https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable7/MeasureAbsorbance> a ns1:Primitive,
-        sbol:TopLevel ;
-    ns1:input <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable7/MeasureAbsorbance/PinSpecification4>,
-        <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable7/MeasureAbsorbance/PinSpecification5> ;
-    ns1:output <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable7/MeasureAbsorbance/PinSpecification7> ;
-    sbol:displayId "MeasureAbsorbance" .
-
 <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Final3> a ns1:Final,
         sbol:Identified ;
     sbol:displayId "Final3" .
+
+<https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable4/MeasureAbsorbance/PinSpecification4> a ns1:PinSpecification,
+        sbol:Identified ;
+    ns1:optional <False> ;
+    ns1:type ns1:LocatedSamples ;
+    sbol:displayId "PinSpecification4" ;
+    sbol:name "location" .
+
+<https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable4/MeasureAbsorbance/PinSpecification5> a ns1:PinSpecification,
+        sbol:Identified ;
+    ns1:optional <False> ;
+    ns1:type om:Measure ;
+    sbol:displayId "PinSpecification5" ;
+    sbol:name "wavelength" .
+
+<https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable4/MeasureAbsorbance/PinSpecification7> a ns1:PinSpecification,
+        sbol:Identified ;
+    ns1:type ns1:LocatedData ;
+    sbol:displayId "PinSpecification7" ;
+    sbol:name "measurements" .
 
 <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable5> a ns1:PrimitiveExecutable,
         sbol:Identified ;
@@ -183,18 +203,18 @@ is only weakly scattering and so will give a low absorbance value.
         <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable5/LocalValuePin2>,
         <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable5/LocalValuePin3> ;
     ns1:instanceOf <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable6/Provision> ;
-    ns1:output <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable5/LocalValuePin5> ;
+    ns1:output <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable5/Pin2> ;
     sbol:displayId "PrimitiveExecutable5" .
 
-<https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable5/LocalValuePin1/Component4> a sbol:Component ;
-    sbol:displayId "Component4" ;
+<https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable5/LocalValuePin1/Component3> a sbol:Component ;
+    sbol:displayId "Component3" ;
     sbol:name "LUDOX(R) CL-X colloidal silica, 45 wt. % suspension in H2O" ;
     sbol:type <https://identifiers.org/pubchem.substance:24866361> .
 
-<https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable5/LocalValuePin5> a ns1:LocalValuePin,
+<https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable5/Pin2> a ns1:Pin,
         sbol:Identified ;
     ns1:instanceOfPin <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable6/Provision/PinSpecification16> ;
-    sbol:displayId "LocalValuePin5" .
+    sbol:displayId "Pin2" .
 
 <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable6> a ns1:PrimitiveExecutable,
         sbol:Identified ;
@@ -202,18 +222,18 @@ is only weakly scattering and so will give a low absorbance value.
         <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable6/LocalValuePin2>,
         <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable6/LocalValuePin3> ;
     ns1:instanceOf <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable6/Provision> ;
-    ns1:output <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable6/LocalValuePin5> ;
+    ns1:output <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable6/Pin2> ;
     sbol:displayId "PrimitiveExecutable6" .
 
-<https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable6/LocalValuePin1/Component3> a sbol:Component ;
-    sbol:displayId "Component3" ;
+<https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable6/LocalValuePin1/Component4> a sbol:Component ;
+    sbol:displayId "Component4" ;
     sbol:name "Water, sterile-filtered, BioReagent, suitable for cell culture" ;
     sbol:type <https://identifiers.org/pubchem.substance:24901740> .
 
-<https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable6/LocalValuePin5> a ns1:LocalValuePin,
+<https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable6/Pin2> a ns1:Pin,
         sbol:Identified ;
     ns1:instanceOfPin <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable6/Provision/PinSpecification16> ;
-    sbol:displayId "LocalValuePin5" .
+    sbol:displayId "Pin2" .
 
 <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable6/Provision> a ns1:Primitive,
         sbol:TopLevel ;
@@ -223,26 +243,6 @@ is only weakly scattering and so will give a low absorbance value.
         <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable6/Provision/PinSpecification14> ;
     ns1:output <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable6/Provision/PinSpecification16> ;
     sbol:displayId "Provision" .
-
-<https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable7/MeasureAbsorbance/PinSpecification4> a ns1:PinSpecification,
-        sbol:Identified ;
-    ns1:optional <False> ;
-    ns1:type ns1:LocatedSamples ;
-    sbol:displayId "PinSpecification4" ;
-    sbol:name "location" .
-
-<https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable7/MeasureAbsorbance/PinSpecification5> a ns1:PinSpecification,
-        sbol:Identified ;
-    ns1:optional <False> ;
-    ns1:type om:Measure ;
-    sbol:displayId "PinSpecification5" ;
-    sbol:name "wavelength" .
-
-<https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable7/MeasureAbsorbance/PinSpecification7> a ns1:PinSpecification,
-        sbol:Identified ;
-    ns1:type ns1:LocatedData ;
-    sbol:displayId "PinSpecification7" ;
-    sbol:name "measurements" .
 
 <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Initial3> a ns1:Initial,
         sbol:Identified ;
@@ -285,11 +285,11 @@ is only weakly scattering and so will give a low absorbance value.
         sbol:Identified ;
     sbol:displayId "Join3" .
 
-<https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable7/LocalValuePin1> a ns1:LocalValuePin,
+<https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable4/Pin1> a ns1:Pin,
         sbol:Identified ;
-    ns1:instanceOfPin <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable7/MeasureAbsorbance/PinSpecification4>,
-        <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable7/MeasureAbsorbance/PinSpecification7> ;
-    sbol:displayId "LocalValuePin1" .
+    ns1:instanceOfPin <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable4/MeasureAbsorbance/PinSpecification4>,
+        <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable4/MeasureAbsorbance/PinSpecification7> ;
+    sbol:displayId "Pin1" .
 
 <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Value5> a ns1:Value,
         sbol:Identified ;

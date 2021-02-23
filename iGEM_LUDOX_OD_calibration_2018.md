@@ -21,14 +21,14 @@ is only weakly scattering and so will give a low absorbance value.
 
  ## Steps
 ### Step 0
-Pipette <opil.opil_factory.LocalValuePin object at 0x10ecbaa90> of <opil.opil_factory.LocalValuePin object at 0x10e187c70> into <opil.opil_factory.LocalValuePin object at 0x10eae9c10>
+Pipette 100.0 microlitre of [LUDOX(R) CL-X colloidal silica, 45 wt. % suspension in H2O](https://identifiers.org/pubchem.substance:24866361) into [Microplate](http://identifiers.org/NCIT:C43377) A1:D1
 
 ### Step 1
-Pipette <opil.opil_factory.LocalValuePin object at 0x10eb62760> of <opil.opil_factory.LocalValuePin object at 0x10eaabc40> into <opil.opil_factory.LocalValuePin object at 0x10ec18ca0>
+Pipette 100.0 microlitre of [Water, sterile-filtered, BioReagent, suitable for cell culture](https://identifiers.org/pubchem.substance:24901740) into [Microplate](http://identifiers.org/NCIT:C43377) A2:D2
 
 ### Step 2
-Measure absorbance of <opil.opil_factory.LocalValuePin object at 0x10ec6fe50> at <opil.opil_factory.LocalValuePin object at 0x10ece03a0>
+Measure absorbance of [couldn't find input location at 600.0 nanometer
 
 ### Step 3
-Report values in [need to infer location information]
+Report values in <opil.opil_factory.Flow object at 0x10c40e5e0>
 
