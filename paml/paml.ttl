@@ -92,24 +92,25 @@ paml:Executable rdf:type owl:Class ;
                                   owl:onProperty paml:output ;
                                  owl:onClass paml:Pin
                                 ] .     
- 
+
+paml:instanceOf rdf:type owl:ObjectProperty ;
+              rdfs:domain paml:PrimitiveExecutable ;
+              rdfs:range paml:Primitive ;
+              rdfs:domain paml:Pin ;
+              rdfs:range paml:PinSpecification ;
+              rdfs:label "instanceOf" ;
+              rdfs:comment "Primitive to be executed" .
+
+
 paml:Pin rdf:type owl:Class ;
-       rdfs:subClassOf paml:Activity ;
-         rdfs:comment "A Pin is a typed input or output of an Executable. Pins are Activities so that control can be applied to flows between them" ,
-        [ rdf:type owl:Restriction ;
-                owl:onProperty paml:instanceOfPin ;
+         rdfs:comment "A Pin is a typed input or output of an Executable. Pins are Activities so that control can be applied to flows between them" ;
+         rdfs:subClassOf paml:Activity ,
+            [ rdf:type owl:Restriction ;
+                owl:onProperty paml:instanceOf ;
                 owl:onClass paml:PinSpecification ;
                 owl:minCardinality "1"^^xsd:nonNegativeInteger ;
                 owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
-              ] .
-
-paml:instanceOfPin rdf:type owl:ObjectProperty ;
-              rdfs:subPropertyOf opil:compositionalProperty ;
-              rdfs:domain paml:Pin ;
-              rdfs:range paml:PinSpecification ;
-              rdfs:label "instanceOfPin" ;
-              rdfs:comment "Primitive pin to be instantiated" .
-
+            ] .
 
 # should the Value vs. Physical distinction be turned into a type rather than a class distinction?
 paml:ValuePin rdf:type owl:Class ;
@@ -125,7 +126,7 @@ paml:ValuePin rdf:type owl:Class ;
 paml:LocalValuePin rdf:type owl:Class ;
               rdfs:comment "A LocalValuePin is an input pin with a constant value" ;
             rdfs:subClassOf paml:ValuePin ,
-                            [ rdf:type owl:Restriction ;
+                           [ rdf:type owl:Restriction ;
                                 owl:onProperty paml:value ;
                                 owl:onClass sbol:Identified ;
                                 owl:minCardinality "1"^^xsd:nonNegativeInteger ;
@@ -156,13 +157,6 @@ paml:PrimitiveExecutable rdf:type owl:Class ;
                 owl:minCardinality "1"^^xsd:nonNegativeInteger ;
                 owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
               ] .
-
-paml:instanceOf rdf:type owl:ObjectProperty ;
-              rdfs:subPropertyOf opil:compositionalProperty ;  # this is incorrect - it's causing the TopLevel to be treated like a child object, but not doing it is causing worse problems associated with lookup right now
-              rdfs:domain paml:PrimitiveExecutable ;
-              rdfs:range paml:Primitive ;
-              rdfs:label "instanceOf" ;
-              rdfs:comment "Primitive to be executed" .
 
 paml:SubProtocol rdf:type owl:Class ;
               rdfs:comment "An executable that is implemented as a Protocol, with its Pins determined by the input and output properties" ;
@@ -235,14 +229,12 @@ paml:Flow rdf:type owl:Class ;
               ] .
 
 paml:source rdf:type owl:ObjectProperty ;
-              rdfs:subPropertyOf opil:compositionalProperty ;
               rdfs:domain paml:Flow ;
               rdfs:range paml:Activity ;
               rdfs:label "source" ;
               rdfs:comment "Activity from which a flow originates" .
 
 paml:sink rdf:type owl:ObjectProperty ;
-              rdfs:subPropertyOf opil:compositionalProperty ;
               rdfs:domain paml:Flow ;
               rdfs:range paml:Activity ;
               rdfs:label "sink" ;
@@ -308,7 +300,6 @@ paml:hasFlow rdf:type owl:ObjectProperty ;
               rdfs:comment "Flow in a Protocol" .
 
 paml:material rdf:type owl:ObjectProperty ;
-              rdfs:subPropertyOf opil:compositionalProperty ;
               rdfs:domain paml:Protocol ;
               rdfs:range sbol:Component ;
               rdfs:label "material" ;
@@ -437,13 +428,11 @@ paml:coordinates rdf:type owl:DatatypeProperty ;
               rdfs:label "coordinates" .
 
 paml:inContainer rdf:type owl:ObjectProperty ;
-              rdfs:subPropertyOf opil:compositionalProperty ;
               rdfs:domain paml:ContainerCoordinates ;
               rdfs:range paml:Container ;
               rdfs:label "inContainer" .
 
 paml:specification rdf:type owl:ObjectProperty ;
-              rdfs:subPropertyOf opil:compositionalProperty ;
               rdfs:domain paml:LocatedSamples ;
               rdfs:range sbol:Component ;
               rdfs:label "specification" .
@@ -455,7 +444,6 @@ paml:hasLocation rdf:type owl:ObjectProperty ;
               rdfs:label "hasLocation" .
 
 paml:hasExperimentalData rdf:type owl:ObjectProperty ;
-              rdfs:subPropertyOf opil:compositionalProperty ;
               rdfs:domain paml:LocatedData ;
               rdfs:range sbol:ExperimentalData ;
               rdfs:label "hasExperimentalData" .

@@ -26,11 +26,11 @@ def markdown_location(location):
 
 
 ############
-# PROBLEM: the instanceOfPin should be a single field, but is coming through as a list!!!
-def input_pin_value(executable, pin_name):
-    pin_set = [x for x in executable.input if x.instanceOfPin[0].name == pin_name]
+# BUG: this should not need the document; this is due to pySBOL3 bug #176
+def input_pin_value(document, executable, pin_name):
+    pin_set = [x for x in executable.input if document.find(x.instanceOf).name == pin_name]
     if len(pin_set) != 1:
-        return "[couldn't find input "+pin_name
+        return "[couldn't find input "+pin_name+"]"
     pin = pin_set[0]
     if isinstance(pin, paml.LocalValuePin):
         if isinstance(pin.value, paml.Measure):
@@ -44,16 +44,20 @@ def input_pin_value(executable, pin_name):
     else:
         return str(pin)
 
-def markdown_provision(executable):
-    volume = input_pin_value(executable, 'volume')
-    resource = input_pin_value(executable, 'resource')
-    location = input_pin_value(executable, 'location')
+############
+# BUG: this should not need the document; this is due to pySBOL3 bug #176
+def markdown_provision(document, executable):
+    volume = input_pin_value(document, executable, 'volume')
+    resource = input_pin_value(document, executable, 'resource')
+    location = input_pin_value(document, executable, 'location')
     instruction = 'Pipette '+volume+' of '+resource+' into '+location+'\n'
     return instruction
 
-def markdown_absorbance(executable):
-    location = input_pin_value(executable, 'location')
-    wavelength = input_pin_value(executable, 'wavelength')
+############
+# BUG: this should not need the document; this is due to pySBOL3 bug #176
+def markdown_absorbance(document, executable):
+    location = input_pin_value(document, executable, 'location')
+    wavelength = input_pin_value(document, executable, 'wavelength')
     instruction = 'Measure absorbance of '+location+' at '+wavelength+'\n'
     return instruction
 
@@ -74,11 +78,13 @@ def markdown_header(protocol):
     header += '## Description:\n' + ('No description given' if protocol.description is None else protocol.description) + '\n'
     return header
 
-def markdown_activity(activity):
+#############
+# BUG: this should not need the document; this is due to pySBOL3 bug #176
+def markdown_activity(document, activity):
     if isinstance(activity, paml.PrimitiveExecutable):
-        stepwriter = primitive_library[activity.instanceOf.display_id]
+        stepwriter = primitive_library[document.find(activity.instanceOf).display_id]
         assert stepwriter
-        return stepwriter(activity)
+        return stepwriter(document, activity)
     elif isinstance(activity, paml.Value):
         return markdown_value(activity)
     else:
@@ -105,7 +111,7 @@ def unpin_activity(protocol, activity):
 
 def direct_precedents(protocol, activity):
     assert activity in protocol.hasActivity
-    flows = (x for x in protocol.hasFlow if (x.sink == activity) or (isinstance(activity,paml.Executable) and x.sink in activity.input))
+    flows = (x for x in protocol.hasFlow if (x.sink.lookup() == activity) or (isinstance(activity,paml.Executable) and x.sink in activity.input))
     precedents = {unpin_activity(protocol,x.source) for x in flows}
     return precedents
 
@@ -164,7 +170,7 @@ with open(protocol.display_id+'.md', 'w') as file:
 
     file.write('\n\n ## Steps\n')
     for step in range(len(serialized_noncontrol_activities)):
-        file.write('### Step '+str(step)+'\n'+markdown_activity(serialized_noncontrol_activities[step])+'\n')
+        file.write('### Step '+str(step+1)+'\n'+markdown_activity(doc,serialized_noncontrol_activities[step])+'\n')
 
     # make sure the file is fully written
     file.flush()

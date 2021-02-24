@@ -24,22 +24,22 @@ def make_flow(source, sink):
     return flow
 
 ############
-# PROBLEM: the instanceOfPin should be a single field, but is coming through as a list!!!
-def constant_input_pin(executable, pin_spec_name, value):
+# BUG: these should not need the document; this is due to pySBOL3 bug #176
+def constant_input_pin(document, executable, pin_spec_name, value):
     pin = paml.LocalValuePin()
-    pin.instanceOfPin = {next(x for x in executable.instanceOf.input if x.name==pin_spec_name)}
+    pin.instanceOf = next(x for x in document.find(executable.instanceOf).input if x.name==pin_spec_name)
     pin.value = value
     executable.input += {pin}
 
-def make_input_pin(executable, pin_spec_name):
+def make_input_pin(document, executable, pin_spec_name):
     pin = paml.Pin()
-    pin.instanceOfPin = {next(x for x in executable.instanceOf.input if x.name==pin_spec_name)}
+    pin.instanceOf = next(x for x in document.find(executable.instanceOf).input if x.name==pin_spec_name)
     executable.input += {pin}
     return pin
 
-def make_output_pin(executable, pin_spec_name):
+def make_output_pin(document, executable, pin_spec_name):
     pin = paml.Pin()
-    pin.instanceOfPin = {next(x for x in executable.instanceOf.output if x.name==pin_spec_name)}
+    pin.instanceOf = next(x for x in document.find(executable.instanceOf).output if x.name==pin_spec_name)
     executable.output += {pin}
     return pin
 
@@ -59,12 +59,13 @@ add_input(provision, 'location', 'http://bioprotocols.org/paml#Location')
 add_input(provision, 'volume', sbol3.OM_MEASURE)
 add_input(provision, 'dispenseVelosity', sbol3.OM_MEASURE, "True")
 add_output(provision, 'samples', 'http://bioprotocols.org/paml#LocatedSamples')
-
+doc.add(provision)
 
 measure_absorbance = paml.Primitive('MeasureAbsorbance') # one mode of autoprotocol spectrophotometry
 add_input(measure_absorbance, 'location', 'http://bioprotocols.org/paml#LocatedSamples')
 add_input(measure_absorbance, 'wavelength', sbol3.OM_MEASURE)
 add_output(measure_absorbance, 'measurements', 'http://bioprotocols.org/paml#LocatedData')
+doc.add(measure_absorbance)
 
 #############################################
 # Create the protocol
@@ -107,40 +108,43 @@ protocol.material += {ddH2O, LUDOX}
 
 # actual steps of the protocol
 provision_LUDOX = paml.PrimitiveExecutable()
+protocol.hasActivity += {provision_LUDOX}
 provision_LUDOX.instanceOf = provision
-constant_input_pin(provision_LUDOX, 'resource', LUDOX)
-constant_input_pin(provision_LUDOX, 'volume', sbol3.Measure(100, tyto.OM.microliter))
+constant_input_pin(doc, provision_LUDOX, 'resource', LUDOX)
+constant_input_pin(doc, provision_LUDOX, 'volume', sbol3.Measure(100, tyto.OM.microliter))
 location = paml.ContainerCoordinates()
 location.inContainer = plate
 location.coordinates = 'A1:D1'
-constant_input_pin(provision_LUDOX, 'location', location)
+constant_input_pin(doc, provision_LUDOX, 'location', location)
 protocol.hasFlow += {make_flow(initial, provision_LUDOX)}
 
 provision_ddH2O = paml.PrimitiveExecutable()
+protocol.hasActivity += {provision_ddH2O}
 provision_ddH2O.instanceOf = provision
-constant_input_pin(provision_ddH2O, 'resource', ddH2O)
-constant_input_pin(provision_ddH2O, 'volume', sbol3.Measure(100, tyto.OM.microliter))
+constant_input_pin(doc, provision_ddH2O, 'resource', ddH2O)
+constant_input_pin(doc, provision_ddH2O, 'volume', sbol3.Measure(100, tyto.OM.microliter))
 location = paml.ContainerCoordinates()
 location.inContainer = plate
 location.coordinates = 'A2:D2'
-constant_input_pin(provision_ddH2O, 'location', location)
+constant_input_pin(doc, provision_ddH2O, 'location', location)
 protocol.hasFlow += {make_flow(initial, provision_ddH2O)}
 
 all_provisioned = paml.Join()
-protocol.hasFlow += {make_flow(make_output_pin(provision_LUDOX, 'samples'), all_provisioned)}
-protocol.hasFlow += {make_flow(make_output_pin(provision_ddH2O, 'samples'), all_provisioned)}
+protocol.hasActivity += {all_provisioned}
+protocol.hasFlow += {make_flow(make_output_pin(doc, provision_LUDOX, 'samples'), all_provisioned)}
+protocol.hasFlow += {make_flow(make_output_pin(doc, provision_ddH2O, 'samples'), all_provisioned)}
 
 execute_measurement = paml.PrimitiveExecutable()
+protocol.hasActivity += {execute_measurement}
 execute_measurement.instanceOf = measure_absorbance
-constant_input_pin(execute_measurement, 'wavelength', sbol3.Measure(600, tyto.OM.nanometer))
-protocol.hasFlow += {make_flow(all_provisioned, make_input_pin(execute_measurement, 'location'))}
+constant_input_pin(doc, execute_measurement, 'wavelength', sbol3.Measure(600, tyto.OM.nanometer))
+protocol.hasFlow += {make_flow(all_provisioned, make_input_pin(doc, execute_measurement, 'location'))}
 
 result = paml.Value()
-protocol.hasFlow += {make_flow(make_output_pin(execute_measurement, 'measurements'), result)}
+protocol.hasActivity += {result}
+protocol.hasFlow += {make_flow(make_output_pin(doc, execute_measurement, 'measurements'), result)}
 
 protocol.hasFlow += {make_flow(result, final)}
-
-protocol.hasActivity += {provision_LUDOX, provision_ddH2O, all_provisioned, execute_measurement, result}
 
 protocol.output += {result}
 
