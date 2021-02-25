@@ -14,7 +14,7 @@ def markdown_container(container):
     return '[' + (container.display_id if (container.name is None) else container.name) + ']('+container.type+')'
 
 def markdown_containercoodinates(coordinates):
-    return markdown_container(coordinates.inContainer) + ' ' + coordinates.coordinates
+    return markdown_container(coordinates.inContainer.lookup()) + ' ' + coordinates.coordinates
 
 def markdown_location(location):
     if isinstance(location, paml.ContainerCoordinates):
@@ -23,6 +23,23 @@ def markdown_location(location):
         return markdown_container(location)
     else:
         return str(location)
+
+def markdown_mergedlocations(location_list):
+    this = markdown_location(location_list.pop())
+    if len(location_list) == 0:
+        return this
+    if len(location_list) == 1:
+        return this + ' and ' + markdown_mergedlocations(location_list)
+    else:
+        return this + ', ' + markdown_mergedlocations(location_list)
+
+def markdown_flow_value(document, value):
+    if isinstance(value, paml.ReplicateSamples):
+        return markdown_mergedlocations({x.lookup() for x in value.inLocation})
+    elif isinstance(value, paml.HeterogeneousSamples):
+        flat_locations = [item for x in value.hasReplicateSamples for item in x.inLocation]
+        return markdown_mergedlocations(
+            {document.find(loc) for rep in value.hasReplicateSamples for loc in rep.inLocation})
 
 
 ############
@@ -35,14 +52,17 @@ def input_pin_value(document, executable, pin_name):
     if isinstance(pin, paml.LocalValuePin):
         if isinstance(pin.value, paml.Measure):
             return markdown_measure(pin.value)
-        elif isinstance(pin.value, sbol3.Component):
-            return markdown_component(pin.value)
-        elif isinstance(pin.value, paml.Location):
-            return markdown_location(pin.value)
-        else:
-            return str(pin)
-    else:
-        return str(pin)
+    elif isinstance(pin, paml.ReferenceValuePin):
+        value = pin.value.lookup()
+        if isinstance(value, sbol3.Component):
+            return markdown_component(value)
+        elif isinstance(value, paml.Location):
+            return markdown_location(value)
+    elif flow_values[next(x for x in protocol.hasFlow if x.sink.lookup() in executable.input)]:
+        value = flow_values[next(x for x in protocol.hasFlow if x.sink.lookup() in executable.input)]
+        return markdown_flow_value(document, value)
+    # if we fall through to here:
+    return str(pin)
 
 ############
 # BUG: this should not need the document; this is due to pySBOL3 bug #176
@@ -62,15 +82,17 @@ def markdown_absorbance(document, executable):
     return instruction
 
 #################
-# The IDs on the primitive executables are problematic
+# All this stuff should be transformed into visitor patterns
 primitive_library = {
-    'Provision' : markdown_provision,
-    'MeasureAbsorbance' : markdown_absorbance
+    'https://bioprotocols.org/paml/primitives/Provision' : markdown_provision,
+    'https://bioprotocols.org/paml/primitives/MeasureAbsorbance' : markdown_absorbance
 }
 
-def markdown_value(activity):
-    flows = (x for x in protocol.hasFlow if (x.sink == activity)) # need to generalize to multiple
-    return 'Report values in '+str(next(flows))+'\n'
+def markdown_value(document, activity):
+    flows = (x for x in protocol.hasFlow if (x.sink.lookup() == activity)) # need to generalize to multiple
+    ########
+    # TODO: remove this evil kludge where we're dipping into a global variable
+    return 'Report values from '+markdown_flow_value(document, flow_values[next(flows)])+'\n'
 
 def markdown_header(protocol):
     header = '# ' + (protocol.display_id if (protocol.name is None) else protocol.name) + '\n'
@@ -82,11 +104,11 @@ def markdown_header(protocol):
 # BUG: this should not need the document; this is due to pySBOL3 bug #176
 def markdown_activity(document, activity):
     if isinstance(activity, paml.PrimitiveExecutable):
-        stepwriter = primitive_library[document.find(activity.instanceOf).display_id]
+        stepwriter = primitive_library[document.find(activity.instanceOf).identity]
         assert stepwriter
         return stepwriter(document, activity)
     elif isinstance(activity, paml.Value):
-        return markdown_value(activity)
+        return markdown_value(document, activity)
     else:
         raise ValueError("Don't know how to serialize activity "+activity)
 
@@ -109,10 +131,106 @@ def unpin_activity(protocol, activity):
     else:
         return activity
 
+##############################
+# Visitors for computing flow types
+def get_input_pin(executable, pin_name):
+    return next(x for x in executable.input if x.instanceOf.lookup().name == pin_name)
+def get_output_pin(executable, pin_name):
+    return next(x for x in executable.output if x.instanceOf.lookup().name == pin_name)
+
+def type_from_pin_or_flow(protocol, executable, pin_name, flow_values):
+    pin = get_input_pin(executable, pin_name)
+    if isinstance(pin, paml.LocalValuePin) or isinstance(pin, paml.ReferenceValuePin):
+        return pin.value
+    else:
+        return flow_values[next(x for x in protocol.hasFlow if (x.sink.lookup() == pin))]
+
+def inference_provision(protocol, executable, flow_values):
+    resource = type_from_pin_or_flow(protocol, executable, 'resource', flow_values)
+    location = type_from_pin_or_flow(protocol, executable, 'location', flow_values)
+    samples = paml.ReplicateSamples()
+    samples.inLocation.append(location)
+    samples.specification = resource
+    samples_flow = next(x for x in protocol.hasFlow if x.source.lookup()==get_output_pin(executable, 'samples'))
+    return {samples_flow : samples}
+
+def inference_absorbance(protocol, executable, flow_values):
+    location = type_from_pin_or_flow(protocol, executable, 'location', flow_values)
+    # TODO: make this a LocatedData rather than just copying the samples
+    # samples = paml.LocatedData()
+    samples_flow = next(x for x in protocol.hasFlow if x.source.lookup()==get_output_pin(executable, 'measurements'))
+    return {samples_flow : location}
+
+primitive_inference = {
+    'https://bioprotocols.org/paml/primitives/Provision' : inference_provision,
+    'https://bioprotocols.org/paml/primitives/MeasureAbsorbance' : inference_absorbance
+}
+
+def primitive_types(protocol, activity, flow_values):
+    inference_function = primitive_inference[activity.instanceOf.lookup().identity]
+    assert inference_function
+    return inference_function(protocol, activity, flow_values)
+
+def inflows_satisfied(protocol,flow_values,activity):
+    inflows = {x for x in protocol.hasFlow if (x.sink.lookup() == activity) or (isinstance(activity,paml.Executable) and x.sink.lookup() in activity.input)}
+    unsatisfied = inflows - flow_values.keys()
+    return len(unsatisfied) == 0
+
+# kludge for now
+def join_locations(value_set):
+    if not value_set:
+        return paml.HeterogeneousSamples()
+    next = value_set.pop()
+    rest = join_locations(value_set)
+    if isinstance(next, paml.ReplicateSamples):
+        rest.hasReplicateSamples.append(next)
+    elif isinstance(next, paml.HeterogeneousSamples):
+        for x in next.hasReplicateSamples: rest.hasReplicateSamples.append(x)
+    else:
+        raise ValueError("Don't know how to join locations for "+str(value_set))
+    return rest
+
+def join_values(value_set):
+    if all(isinstance(x,paml.LocatedSamples) for x in value_set):
+        return join_locations(value_set)
+    # if we fall through to the end, then we didn't know how to infer
+    raise ValueError("Don't know how to join values types for "+str(value_set))
+
+# returns a dictionary of outflow to type
+def outflow_types(protocol,activity,flow_values):
+    direct_outflows = {x for x in protocol.hasFlow if (x.source.lookup() == activity)}
+    direct_inflows = {x for x in protocol.hasFlow if (x.sink.lookup() == activity)}
+    if isinstance(activity, paml.Control):
+        if isinstance(activity, paml.Initial):
+            return {x: None for x in direct_outflows}
+        elif isinstance(activity, paml.Final):
+            assert len(direct_outflows)==0 # should be no outputs
+            return {}
+        elif isinstance(activity, paml.Fork) or isinstance(activity, paml.Decision):
+            assert len(direct_inflows)==1 # should be precisely one input
+            in_type = flow_values[next(direct_inflows)]
+            return {x: in_type for x in direct_outflows}
+        elif isinstance(activity, paml.Join):
+            assert len(direct_outflows)==1 # should be precisely one output
+            return {direct_outflows.pop() : join_values({flow_values[x] for x in direct_inflows})}
+    elif isinstance(activity, paml.PrimitiveExecutable):
+        direct_types = {x:None for x in direct_outflows}
+        pin_types = primitive_types(protocol, activity, flow_values)
+        return direct_types | pin_types
+    elif isinstance(activity, paml.Value):
+        assert len(direct_outflows) == 1  # should be precisely one output
+        return {x: None for x in direct_outflows}
+    # if we fall through to the end, then we didn't know how to infer
+    raise ValueError("Don't know how to infer outflow types for "+str(activity))
+
+
+
+##############################
+# For serializing activities
 def direct_precedents(protocol, activity):
     assert activity in protocol.hasActivity
-    flows = (x for x in protocol.hasFlow if (x.sink.lookup() == activity) or (isinstance(activity,paml.Executable) and x.sink in activity.input))
-    precedents = {unpin_activity(protocol,x.source) for x in flows}
+    flows = (x for x in protocol.hasFlow if (x.sink.lookup() == activity) or (isinstance(activity,paml.Executable) and x.sink.lookup() in activity.input))
+    precedents = {unpin_activity(protocol,x.source.lookup()) for x in flows}
     return precedents
 
 ##############################
@@ -135,13 +253,29 @@ protocol = protocols.pop()
 print('Found protocol: '+protocol.display_id)
 
 ##############################
+# Infer values carried on flows
+print('Inferring flow values')
+
+flow_values = {} # dictionary of flow : type mappings
+pending_activities = set(protocol.hasActivity)
+while pending_activities:
+    non_blocked = {x for x in pending_activities if inflows_satisfied(protocol,flow_values,x)}
+    if not non_blocked:
+        raise ValueError("Could not infer all flow types: circular dependency?")
+        break
+    for activity in non_blocked:
+        flow_values.update(outflow_types(protocol,activity,flow_values))
+    pending_activities -= non_blocked
+
+
+##############################
 # Serialize order of steps
 print('Serializing activities')
 
 serialized_activities = []
 pending_activities = set(protocol.hasActivity)
 while pending_activities:
-    non_blocked = {x for x in pending_activities if not (direct_precedents(protocol,x) &  set(pending_activities))}
+    non_blocked = {x for x in pending_activities if not (direct_precedents(protocol,x) & set(pending_activities))}
     if not non_blocked:
         raise ValueError("Could not serialize all activities: circular dependency?")
         break
@@ -164,8 +298,8 @@ with open(protocol.display_id+'.md', 'w') as file:
 
     file.write('\n\n ## Materials\n')
     for material in protocol.material:
-        file.write(markdown_material(material))
-    for container in protocol.hasContainer:
+        file.write(markdown_material(material.lookup()))
+    for container in (x for x in protocol.hasLocation if isinstance(x,paml.Container)):
         file.write(markdown_container_toplevel(container))
 
     file.write('\n\n ## Steps\n')

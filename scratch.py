@@ -9,13 +9,13 @@ def add_input(primitive, name, type, optional="False"):
     pin.name = name
     pin.type = type
     pin.optional = optional
-    primitive.input += {pin}
+    primitive.input.append(pin)
 
 def add_output(primitive, name, type):
     pin = paml.PinSpecification()
     pin.name = name
     pin.type = type
-    primitive.output += {pin}
+    primitive.output.append(pin)
 
 def make_flow(source, sink):
     flow = paml.Flow()
@@ -25,22 +25,28 @@ def make_flow(source, sink):
 
 ############
 # BUG: these should not need the document; this is due to pySBOL3 bug #176
-def constant_input_pin(document, executable, pin_spec_name, value):
+def local_input_pin(document, executable, pin_spec_name, value):
     pin = paml.LocalValuePin()
     pin.instanceOf = next(x for x in document.find(executable.instanceOf).input if x.name==pin_spec_name)
     pin.value = value
-    executable.input += {pin}
+    executable.input.append(pin)
+
+def reference_input_pin(document, executable, pin_spec_name, value):
+    pin = paml.ReferenceValuePin()
+    pin.instanceOf = next(x for x in document.find(executable.instanceOf).input if x.name==pin_spec_name)
+    pin.value = value
+    executable.input.append(pin)
 
 def make_input_pin(document, executable, pin_spec_name):
     pin = paml.Pin()
     pin.instanceOf = next(x for x in document.find(executable.instanceOf).input if x.name==pin_spec_name)
-    executable.input += {pin}
+    executable.input.append(pin)
     return pin
 
 def make_output_pin(document, executable, pin_spec_name):
     pin = paml.Pin()
     pin.instanceOf = next(x for x in document.find(executable.instanceOf).output if x.name==pin_spec_name)
-    executable.output += {pin}
+    executable.output.append(pin)
     return pin
 
 # set up the document
@@ -89,14 +95,15 @@ doc.add(protocol)
 
 # add the initial and final control nodes
 initial = paml.Initial()
+protocol.hasActivity.append(initial)
 final = paml.Final()
-protocol.hasActivity += {initial, final}
+protocol.hasActivity.append(final)
 
 # create the materials to be provisioned
 plate = paml.Container()
 plate.type = 'http://identifiers.org/NCIT:C43377' # NCIT microplate
 plate.name = 'Microplate'
-protocol.hasContainer += {plate}
+protocol.hasLocation.append(plate)
 
 ddH2O = sbol3.Component('ddH2O', 'https://identifiers.org/pubchem.substance:24901740')
 ddH2O.name = 'Water, sterile-filtered, BioReagent, suitable for cell culture'  # I'd like to get the names from PubChem with tyto
@@ -108,43 +115,45 @@ protocol.material += {ddH2O, LUDOX}
 
 # actual steps of the protocol
 provision_LUDOX = paml.PrimitiveExecutable()
-protocol.hasActivity += {provision_LUDOX}
+protocol.hasActivity.append(provision_LUDOX)
 provision_LUDOX.instanceOf = provision
-constant_input_pin(doc, provision_LUDOX, 'resource', LUDOX)
-constant_input_pin(doc, provision_LUDOX, 'volume', sbol3.Measure(100, tyto.OM.microliter))
+reference_input_pin(doc, provision_LUDOX, 'resource', LUDOX)
+local_input_pin(doc, provision_LUDOX, 'volume', sbol3.Measure(100, tyto.OM.microliter))
 location = paml.ContainerCoordinates()
+protocol.hasLocation.append(location)
 location.inContainer = plate
 location.coordinates = 'A1:D1'
-constant_input_pin(doc, provision_LUDOX, 'location', location)
+reference_input_pin(doc, provision_LUDOX, 'location', location)
 protocol.hasFlow += {make_flow(initial, provision_LUDOX)}
 
 provision_ddH2O = paml.PrimitiveExecutable()
-protocol.hasActivity += {provision_ddH2O}
+protocol.hasActivity.append(provision_ddH2O)
 provision_ddH2O.instanceOf = provision
-constant_input_pin(doc, provision_ddH2O, 'resource', ddH2O)
-constant_input_pin(doc, provision_ddH2O, 'volume', sbol3.Measure(100, tyto.OM.microliter))
+reference_input_pin(doc, provision_ddH2O, 'resource', ddH2O)
+local_input_pin(doc, provision_ddH2O, 'volume', sbol3.Measure(100, tyto.OM.microliter))
 location = paml.ContainerCoordinates()
+protocol.hasLocation.append(location)
 location.inContainer = plate
 location.coordinates = 'A2:D2'
-constant_input_pin(doc, provision_ddH2O, 'location', location)
-protocol.hasFlow += {make_flow(initial, provision_ddH2O)}
+reference_input_pin(doc, provision_ddH2O, 'location', location)
+protocol.hasFlow.append(make_flow(initial, provision_ddH2O))
 
 all_provisioned = paml.Join()
-protocol.hasActivity += {all_provisioned}
-protocol.hasFlow += {make_flow(make_output_pin(doc, provision_LUDOX, 'samples'), all_provisioned)}
-protocol.hasFlow += {make_flow(make_output_pin(doc, provision_ddH2O, 'samples'), all_provisioned)}
+protocol.hasActivity.append(all_provisioned)
+protocol.hasFlow.append(make_flow(make_output_pin(doc, provision_LUDOX, 'samples'), all_provisioned))
+protocol.hasFlow.append(make_flow(make_output_pin(doc, provision_ddH2O, 'samples'), all_provisioned))
 
 execute_measurement = paml.PrimitiveExecutable()
-protocol.hasActivity += {execute_measurement}
+protocol.hasActivity.append(execute_measurement)
 execute_measurement.instanceOf = measure_absorbance
-constant_input_pin(doc, execute_measurement, 'wavelength', sbol3.Measure(600, tyto.OM.nanometer))
-protocol.hasFlow += {make_flow(all_provisioned, make_input_pin(doc, execute_measurement, 'location'))}
+local_input_pin(doc, execute_measurement, 'wavelength', sbol3.Measure(600, tyto.OM.nanometer))
+protocol.hasFlow.append(make_flow(all_provisioned, make_input_pin(doc, execute_measurement, 'location')))
 
 result = paml.Value()
-protocol.hasActivity += {result}
-protocol.hasFlow += {make_flow(make_output_pin(doc, execute_measurement, 'measurements'), result)}
+protocol.hasActivity.append(result)
+protocol.hasFlow.append(make_flow(make_output_pin(doc, execute_measurement, 'measurements'), result))
 
-protocol.hasFlow += {make_flow(result, final)}
+protocol.hasFlow.append(make_flow(result, final))
 
 protocol.output += {result}
 
