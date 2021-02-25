@@ -1,8 +1,8 @@
-from typing import List, Any
-
 import sbol3
 import paml
 import tyto
+import openpyxl
+from copy import copy
 
 def markdown_measure(measure):
     return str(measure.value) + ' ' + str(tyto.OM.get_term_by_uri(measure.unit))
@@ -37,9 +37,9 @@ def markdown_flow_value(document, value):
     if isinstance(value, paml.ReplicateSamples):
         return markdown_mergedlocations({x.lookup() for x in value.inLocation})
     elif isinstance(value, paml.HeterogeneousSamples):
-        flat_locations = [item for x in value.hasReplicateSamples for item in x.inLocation]
-        return markdown_mergedlocations(
-            {document.find(loc) for rep in value.hasReplicateSamples for loc in rep.inLocation})
+        return markdown_mergedlocations({document.find(loc) for rep in value.hasReplicateSamples for loc in rep.inLocation})
+    # if we fall through to here:
+    return str(value)
 
 
 ############
@@ -88,11 +88,14 @@ primitive_library = {
     'https://bioprotocols.org/paml/primitives/MeasureAbsorbance' : markdown_absorbance
 }
 
-def markdown_value(document, activity):
+def get_value_flow_input(protocol, activity):
     flows = (x for x in protocol.hasFlow if (x.sink.lookup() == activity)) # need to generalize to multiple
     ########
     # TODO: remove this evil kludge where we're dipping into a global variable
-    return 'Report values from '+markdown_flow_value(document, flow_values[next(flows)])+'\n'
+    return flow_values[next(flows)]
+
+def markdown_value(document, protocol, activity):
+    return 'Report values from '+markdown_flow_value(document, get_value_flow_input(protocol, activity))+'\n'
 
 def markdown_header(protocol):
     header = '# ' + (protocol.display_id if (protocol.name is None) else protocol.name) + '\n'
@@ -108,7 +111,7 @@ def markdown_activity(document, activity):
         assert stepwriter
         return stepwriter(document, activity)
     elif isinstance(activity, paml.Value):
-        return markdown_value(document, activity)
+        return markdown_value(document, protocol, activity)
     else:
         raise ValueError("Don't know how to serialize activity "+activity)
 
@@ -308,5 +311,92 @@ with open(protocol.display_id+'.md', 'w') as file:
 
     # make sure the file is fully written
     file.flush()
+
+##############################
+# Write to an accompanying Excel file
+
+def excel_container_name(container):
+   return (container.display_id if (container.name is None) else container.name)
+
+# def excel_write_container(ws, row_offset, container):
+#     return '[' + (container.display_id if (container.name is None) else container.name) + ']('+container.type+')'
+
+def excel_write_containercoodinates(ws, row_offset, col_offset, coordinates):
+    # get the column letter
+    col = openpyxl.utils.cell.get_column_letter(col_offset+1)
+    # make the header
+    ws[col+str(row_offset)] = excel_container_name(coordinates.inContainer.lookup())
+    # write the materials
+    block = openpyxl.utils.cell.range_boundaries(coordinates.coordinates)
+    # use plate coordinates, which are the opposite of excel coordinates
+    height = block[2]-block[0]+1
+    width = block[3]-block[1]+1
+    # write the plate coordinate frame
+    for plate_row in range(height):
+        coord = col+str(row_offset+plate_row+2)
+        ws[coord] = openpyxl.utils.cell.get_column_letter(block[0]+plate_row)
+        ws[coord].fill = copy(fixed_style)
+    for plate_col in range(width):
+        coord = openpyxl.utils.cell.get_column_letter(col_offset+plate_col+2)+str(row_offset+1)
+        ws[coord] = str(block[1]+plate_col)
+        ws[coord].fill = copy(fixed_style)
+    # style the blanks
+    for plate_row in range(height):
+        for plate_col in range(width):
+            coord = openpyxl.utils.cell.get_column_letter(col_offset+plate_col+2)+str(row_offset+plate_row+2)
+            ws[coord].fill = copy(entry_style)
+            ws[coord].alignment = openpyxl.styles.Alignment(horizontal="center")
+
+    return (height+2, width+1)
+
+def excel_write_location(ws, row_offset, col_offset, location):
+    if isinstance(location, paml.ContainerCoordinates):
+        return excel_write_containercoodinates(ws, row_offset, col_offset, location)
+    # elif isinstance(location, paml.Container):
+    #     return excel_write_container(location)
+    else:
+        return str(location)
+
+def excel_write_mergedlocations(ws, row_offset, location_list):
+    col_offset = 0
+    block_height = 0
+    while location_list:
+        block = excel_write_location(ws, row_offset, col_offset, location_list.pop())
+        col_offset += block[1] + 1
+        block_height = max(block_height,block[0])
+    return block_height
+
+def excel_write_flow_value(document, value, ws, row_offset):
+    if isinstance(value, paml.ReplicateSamples):
+        return excel_write_mergedlocations(ws, row_offset, {x.lookup() for x in value.inLocation})
+    elif isinstance(value, paml.HeterogeneousSamples):
+        return excel_write_mergedlocations(ws, row_offset, {document.find(loc) for rep in value.hasReplicateSamples for loc in rep.inLocation})
+    # if we fall through to here:
+    return str(value)
+
+print('Writing Excel file')
+
+wb = openpyxl.load_workbook(filename = 'template.xlsx')
+ws = wb.active # get the default worksheet
+
+# write header & metadata
+ws.title = "Data Reporting"
+ws['D1'] = protocol.name
+fixed_style = ws['A2'].fill
+entry_style = ws['C2'].fill
+header_style = ws['A1'].font
+row_offset = 7 # starting point for entries
+
+# write each value set, incrementing each time
+value_steps = (step for step in range(len(serialized_noncontrol_activities)) if isinstance(serialized_noncontrol_activities[step], paml.Value))
+for step in value_steps:
+    coord = 'A'+str(row_offset)
+    ws[coord] = 'Report from Step '+str(step)
+    ws[coord].font = copy(header_style)
+    value_locations = get_value_flow_input(protocol, serialized_noncontrol_activities[step])
+    block_height = excel_write_flow_value(doc, value_locations, ws, row_offset+1)
+    row_offset += block_height + 2
+
+wb.save(protocol.display_id+'.xlsx')
 
 print('Export complete')

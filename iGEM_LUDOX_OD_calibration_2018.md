@@ -15,20 +15,20 @@ is only weakly scattering and so will give a low absorbance value.
 
 
  ## Materials
-* [Water, sterile-filtered, BioReagent, suitable for cell culture](https://identifiers.org/pubchem.substance:24901740)
 * [LUDOX(R) CL-X colloidal silica, 45 wt. % suspension in H2O](https://identifiers.org/pubchem.substance:24866361)
+* [Water, sterile-filtered, BioReagent, suitable for cell culture](https://identifiers.org/pubchem.substance:24901740)
 * [Microplate](http://identifiers.org/NCIT:C43377)
 
  ## Steps
 ### Step 1
-Pipette 100.0 microlitre of [Water, sterile-filtered, BioReagent, suitable for cell culture](https://identifiers.org/pubchem.substance:24901740) into [Microplate](http://identifiers.org/NCIT:C43377) A2:D2
+Pipette 100.0 microliter of [LUDOX(R) CL-X colloidal silica, 45 wt. % suspension in H2O](https://identifiers.org/pubchem.substance:24866361) into [Microplate](http://identifiers.org/NCIT:C43377) A1:D1
 
 ### Step 2
-Pipette 100.0 microlitre of [LUDOX(R) CL-X colloidal silica, 45 wt. % suspension in H2O](https://identifiers.org/pubchem.substance:24866361) into [Microplate](http://identifiers.org/NCIT:C43377) A1:D1
+Pipette 100.0 microliter of [Water, sterile-filtered, BioReagent, suitable for cell culture](https://identifiers.org/pubchem.substance:24901740) into [Microplate](http://identifiers.org/NCIT:C43377) A2:D2
 
 ### Step 3
-Measure absorbance of [Microplate](http://identifiers.org/NCIT:C43377) A1:D1 and [Microplate](http://identifiers.org/NCIT:C43377) A2:D2 at 600.0 nanometer
+Measure absorbance of [Microplate](http://identifiers.org/NCIT:C43377) A2:D2 and [Microplate](http://identifiers.org/NCIT:C43377) A1:D1 at 600.0 nanometre
 
 ### Step 4
-Report values from [Microplate](http://identifiers.org/NCIT:C43377) A1:D1 and [Microplate](http://identifiers.org/NCIT:C43377) A2:D2
+Report values from [Microplate](http://identifiers.org/NCIT:C43377) A2:D2 and [Microplate](http://identifiers.org/NCIT:C43377) A1:D1
 
