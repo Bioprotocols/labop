@@ -391,7 +391,7 @@ row_offset = 7 # starting point for entries
 value_steps = (step for step in range(len(serialized_noncontrol_activities)) if isinstance(serialized_noncontrol_activities[step], paml.Value))
 for step in value_steps:
     coord = 'A'+str(row_offset)
-    ws[coord] = 'Report from Step '+str(step)
+    ws[coord] = 'Report from Step '+str(step+1)
     ws[coord].font = copy(header_style)
     value_locations = get_value_flow_input(protocol, serialized_noncontrol_activities[step])
     block_height = excel_write_flow_value(doc, value_locations, ws, row_offset+1)
