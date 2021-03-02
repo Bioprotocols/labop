@@ -157,13 +157,13 @@ paml:valueReference rdf:type owl:ObjectProperty ;
               rdfs:comment "Constant value from TopLevel to be supplied to the pin" .
 
 
-paml:PhysicalPin rdf:type owl:Class ;
-                 rdfs:comment "A PhysicalPin represents a physical input or output" ;
-        rdfs:subClassOf paml:Pin ,
-        [ rdf:type owl:Restriction ;
-                owl:onProperty paml:type ;
-                owl:onClass sbol:Component
-              ] .
+#paml:PhysicalPin rdf:type owl:Class ;
+#                 rdfs:comment "A PhysicalPin represents a physical input or output" ;
+#        rdfs:subClassOf paml:Pin ,
+#        [ rdf:type owl:Restriction ;
+#                owl:onProperty paml:type ;
+#                owl:onClass sbol:Component
+#              ] .
 
 paml:PrimitiveExecutable rdf:type owl:Class ;
               rdfs:comment "An executable that is a base-level library function, with its Pins determined by the specification of the function" ;
@@ -191,13 +191,13 @@ paml:implementedBy rdf:type owl:ObjectProperty ;
               rdfs:label "implementedBy" ;
               rdfs:comment "Protocol to be executed as a sub-protocol" .
 
-paml:InformationExecutable rdf:type owl:Class ;
-        rdfs:subClassOf paml:Executable ;
-              rdfs:comment "Abstract class; Executable activities that interact only with information flows (i.e., has no PhysicalPin)" .
-
-paml:PhysicalExecutable rdf:type owl:Class ;
-        rdfs:subClassOf paml:Executable ;
-              rdfs:comment "Abstract class; Executable activities that can interact with physical flows (i.e., has at least one PhysicalPin)" .
+#paml:InformationExecutable rdf:type owl:Class ;
+#        rdfs:subClassOf paml:Executable ;
+#              rdfs:comment "Abstract class; Executable activities that interact only with information flows (i.e., has no PhysicalPin)" .
+#
+#paml:PhysicalExecutable rdf:type owl:Class ;
+#        rdfs:subClassOf paml:Executable ;
+#              rdfs:comment "Abstract class; Executable activities that can interact with physical flows (i.e., has at least one PhysicalPin)" .
 
 
 paml:Value rdf:type owl:Class ;
@@ -205,19 +205,20 @@ paml:Value rdf:type owl:Class ;
         rdfs:subClassOf paml:Activity ,
         [ rdf:type owl:Restriction ;
                 owl:onProperty paml:type ;
+                owl:allValuesFrom xsd:anyURI ;
                 owl:minCardinality "1"^^xsd:nonNegativeInteger ;
                 owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
               ] .
 
-paml:Physical rdf:type owl:Class ;
-              rdfs:comment "Physical activities are unilateral sources and sinks of physical materials in the graph" ;
-        rdfs:subClassOf paml:Activity ,
-        [ rdf:type owl:Restriction ;
-                owl:onProperty paml:type ;
-                owl:onClass sbol:Component ;
-                owl:minCardinality "1"^^xsd:nonNegativeInteger ;
-                owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
-              ] .
+#paml:Physical rdf:type owl:Class ;
+#              rdfs:comment "Physical activities are unilateral sources and sinks of physical materials in the graph" ;
+#        rdfs:subClassOf paml:Activity ,
+#        [ rdf:type owl:Restriction ;
+#                owl:onProperty paml:type ;
+#                owl:onClass sbol:Component ;
+#                owl:minCardinality "1"^^xsd:nonNegativeInteger ;
+#                owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
+#              ] .
 
 paml:type rdf:type owl:ObjectProperty ;
               rdfs:domain paml:Activity ;
@@ -406,7 +407,7 @@ paml:Container rdf:type owl:Class ;
         rdfs:subClassOf paml:Location ,
                             [ rdf:type owl:Restriction ;
                               owl:onProperty paml:type ;
-                              owl:onClass xsd:anyURI ;
+                              owl:allValuesFrom xsd:anyURI ;
                               owl:minCardinality "1"^^xsd:nonNegativeInteger ;
                               owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
                               rdfs:comment "SHOULD be an NCIT equipment class (branch http://purl.obolibrary.org/obo/NCIT_C19238)"
