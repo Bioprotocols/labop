@@ -1,0 +1,241 @@
+{
+  "@context": {
+    "@om": "http://www.ontology-of-units-of-measure.org/resource/om-2/",
+    "@prov": "http://www.w3.org/ns/prov#",
+    "@sbol": "http://sbols.org/v3#",
+    "@vocab": "https://sbolstandard.org/examples/"
+  },
+  "@graph": [
+    {
+      "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Container1_B1_Execution_451cfa80_1af3_4d7d_beda_bac649826d36",
+      "@prov:wasDerivedFrom": {
+        "@id": "https://bbn.com/scratch/LUDOX"
+      },
+      "@sbol:displayId": "Container1_B1_Execution_451cfa80_1af3_4d7d_beda_bac649826d36",
+      "@sbol:hasMeasure": {
+        "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Container1_B1_Execution_451cfa80_1af3_4d7d_beda_bac649826d36/Measure1"
+      },
+      "@type": "@sbol:Implementation"
+    },
+    {
+      "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Container1_C2_Execution_451cfa80_1af3_4d7d_beda_bac649826d36/Measure1",
+      "@om:hasNumericalValue": 0.077,
+      "@om:hasUnit": {
+        "@id": "@om:Number"
+      },
+      "@sbol:displayId": "Measure1",
+      "@type": [
+        "@sbol:Identified",
+        "@om:Measure"
+      ]
+    },
+    {
+      "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Container1_B2_Execution_451cfa80_1af3_4d7d_beda_bac649826d36",
+      "@prov:wasDerivedFrom": {
+        "@id": "https://bbn.com/scratch/ddH2O"
+      },
+      "@sbol:displayId": "Container1_B2_Execution_451cfa80_1af3_4d7d_beda_bac649826d36",
+      "@sbol:hasMeasure": {
+        "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Container1_B2_Execution_451cfa80_1af3_4d7d_beda_bac649826d36/Measure1"
+      },
+      "@type": "@sbol:Implementation"
+    },
+    {
+      "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Container1_A2_Execution_451cfa80_1af3_4d7d_beda_bac649826d36/Measure1",
+      "@om:hasNumericalValue": 0.066,
+      "@om:hasUnit": {
+        "@id": "@om:Number"
+      },
+      "@sbol:displayId": "Measure1",
+      "@type": [
+        "@sbol:Identified",
+        "@om:Measure"
+      ]
+    },
+    {
+      "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018_Results_451cfa80_1af3_4d7d_beda_bac649826d36",
+      "@prov:wasGeneratedBy": {
+        "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018_Execution_451cfa80_1af3_4d7d_beda_bac649826d36"
+      },
+      "@sbol:description": "Executed by Miles Rogers on 2021-03-01 00:00:00; reported on 2021-03-01 00:00:00",
+      "@sbol:displayId": "iGEM_LUDOX_OD_calibration_2018_Results_451cfa80_1af3_4d7d_beda_bac649826d36",
+      "@sbol:member": [
+        {
+          "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Container1_A1_Execution_451cfa80_1af3_4d7d_beda_bac649826d36"
+        },
+        {
+          "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Container1_D2_Execution_451cfa80_1af3_4d7d_beda_bac649826d36"
+        },
+        {
+          "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Container1_A2_Execution_451cfa80_1af3_4d7d_beda_bac649826d36"
+        },
+        {
+          "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Container1_B2_Execution_451cfa80_1af3_4d7d_beda_bac649826d36"
+        },
+        {
+          "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Container1_B1_Execution_451cfa80_1af3_4d7d_beda_bac649826d36"
+        },
+        {
+          "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Container1_C1_Execution_451cfa80_1af3_4d7d_beda_bac649826d36"
+        },
+        {
+          "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Container1_D1_Execution_451cfa80_1af3_4d7d_beda_bac649826d36"
+        },
+        {
+          "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Container1_C2_Execution_451cfa80_1af3_4d7d_beda_bac649826d36"
+        }
+      ],
+      "@sbol:name": "iGEM 2018 LUDOX OD calibration protocol Execution",
+      "@type": "@sbol:Experiment"
+    },
+    {
+      "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Container1_D1_Execution_451cfa80_1af3_4d7d_beda_bac649826d36/Measure1",
+      "@om:hasNumericalValue": 0.083,
+      "@om:hasUnit": {
+        "@id": "@om:Number"
+      },
+      "@sbol:displayId": "Measure1",
+      "@type": [
+        "@om:Measure",
+        "@sbol:Identified"
+      ]
+    },
+    {
+      "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Container1_B2_Execution_451cfa80_1af3_4d7d_beda_bac649826d36/Measure1",
+      "@om:hasNumericalValue": 0.054,
+      "@om:hasUnit": {
+        "@id": "@om:Number"
+      },
+      "@sbol:displayId": "Measure1",
+      "@type": [
+        "@sbol:Identified",
+        "@om:Measure"
+      ]
+    },
+    {
+      "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Container1_C2_Execution_451cfa80_1af3_4d7d_beda_bac649826d36",
+      "@prov:wasDerivedFrom": {
+        "@id": "https://bbn.com/scratch/ddH2O"
+      },
+      "@sbol:displayId": "Container1_C2_Execution_451cfa80_1af3_4d7d_beda_bac649826d36",
+      "@sbol:hasMeasure": {
+        "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Container1_C2_Execution_451cfa80_1af3_4d7d_beda_bac649826d36/Measure1"
+      },
+      "@type": "@sbol:Implementation"
+    },
+    {
+      "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Container1_B1_Execution_451cfa80_1af3_4d7d_beda_bac649826d36/Measure1",
+      "@om:hasNumericalValue": 0.108,
+      "@om:hasUnit": {
+        "@id": "@om:Number"
+      },
+      "@sbol:displayId": "Measure1",
+      "@type": [
+        "@sbol:Identified",
+        "@om:Measure"
+      ]
+    },
+    {
+      "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Container1_C1_Execution_451cfa80_1af3_4d7d_beda_bac649826d36/Measure1",
+      "@om:hasNumericalValue": 0.119,
+      "@om:hasUnit": {
+        "@id": "@om:Number"
+      },
+      "@sbol:displayId": "Measure1",
+      "@type": [
+        "@sbol:Identified",
+        "@om:Measure"
+      ]
+    },
+    {
+      "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Container1_D2_Execution_451cfa80_1af3_4d7d_beda_bac649826d36",
+      "@prov:wasDerivedFrom": {
+        "@id": "https://bbn.com/scratch/ddH2O"
+      },
+      "@sbol:displayId": "Container1_D2_Execution_451cfa80_1af3_4d7d_beda_bac649826d36",
+      "@sbol:hasMeasure": {
+        "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Container1_D2_Execution_451cfa80_1af3_4d7d_beda_bac649826d36/Measure1"
+      },
+      "@type": "@sbol:Implementation"
+    },
+    {
+      "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Container1_A1_Execution_451cfa80_1af3_4d7d_beda_bac649826d36",
+      "@prov:wasDerivedFrom": {
+        "@id": "https://bbn.com/scratch/LUDOX"
+      },
+      "@sbol:displayId": "Container1_A1_Execution_451cfa80_1af3_4d7d_beda_bac649826d36",
+      "@sbol:hasMeasure": {
+        "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Container1_A1_Execution_451cfa80_1af3_4d7d_beda_bac649826d36/Measure1"
+      },
+      "@type": "@sbol:Implementation"
+    },
+    {
+      "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Container1_A2_Execution_451cfa80_1af3_4d7d_beda_bac649826d36",
+      "@prov:wasDerivedFrom": {
+        "@id": "https://bbn.com/scratch/ddH2O"
+      },
+      "@sbol:displayId": "Container1_A2_Execution_451cfa80_1af3_4d7d_beda_bac649826d36",
+      "@sbol:hasMeasure": {
+        "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Container1_A2_Execution_451cfa80_1af3_4d7d_beda_bac649826d36/Measure1"
+      },
+      "@type": "@sbol:Implementation"
+    },
+    {
+      "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Container1_D1_Execution_451cfa80_1af3_4d7d_beda_bac649826d36",
+      "@prov:wasDerivedFrom": {
+        "@id": "https://bbn.com/scratch/LUDOX"
+      },
+      "@sbol:displayId": "Container1_D1_Execution_451cfa80_1af3_4d7d_beda_bac649826d36",
+      "@sbol:hasMeasure": {
+        "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Container1_D1_Execution_451cfa80_1af3_4d7d_beda_bac649826d36/Measure1"
+      },
+      "@type": "@sbol:Implementation"
+    },
+    {
+      "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Container1_A1_Execution_451cfa80_1af3_4d7d_beda_bac649826d36/Measure1",
+      "@om:hasNumericalValue": 0.11,
+      "@om:hasUnit": {
+        "@id": "@om:Number"
+      },
+      "@sbol:displayId": "Measure1",
+      "@type": [
+        "@sbol:Identified",
+        "@om:Measure"
+      ]
+    },
+    {
+      "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Container1_C1_Execution_451cfa80_1af3_4d7d_beda_bac649826d36",
+      "@prov:wasDerivedFrom": {
+        "@id": "https://bbn.com/scratch/LUDOX"
+      },
+      "@sbol:displayId": "Container1_C1_Execution_451cfa80_1af3_4d7d_beda_bac649826d36",
+      "@sbol:hasMeasure": {
+        "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Container1_C1_Execution_451cfa80_1af3_4d7d_beda_bac649826d36/Measure1"
+      },
+      "@type": "@sbol:Implementation"
+    },
+    {
+      "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Container1_D2_Execution_451cfa80_1af3_4d7d_beda_bac649826d36/Measure1",
+      "@om:hasNumericalValue": 0.05,
+      "@om:hasUnit": {
+        "@id": "@om:Number"
+      },
+      "@sbol:displayId": "Measure1",
+      "@type": [
+        "@sbol:Identified",
+        "@om:Measure"
+      ]
+    },
+    {
+      "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018_Execution_451cfa80_1af3_4d7d_beda_bac649826d36",
+      "@sbol:displayId": "iGEM_LUDOX_OD_calibration_2018_Execution_451cfa80_1af3_4d7d_beda_bac649826d36",
+      "@sbol:type": {
+        "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018"
+      },
+      "@type": [
+        "@prov:Activity",
+        "@sbol:TopLevel"
+      ]
+    }
+  ]
+}

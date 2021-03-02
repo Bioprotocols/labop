@@ -1,0 +1,112 @@
+@prefix om: <http://www.ontology-of-units-of-measure.org/resource/om-2/> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix sbol: <http://sbols.org/v3#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+<https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018_Results_451cfa80_1af3_4d7d_beda_bac649826d36> a sbol:Experiment ;
+    sbol:description "Executed by Miles Rogers on 2021-03-01 00:00:00; reported on 2021-03-01 00:00:00" ;
+    sbol:displayId "iGEM_LUDOX_OD_calibration_2018_Results_451cfa80_1af3_4d7d_beda_bac649826d36" ;
+    sbol:member <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Container1_A1_Execution_451cfa80_1af3_4d7d_beda_bac649826d36>,
+        <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Container1_A2_Execution_451cfa80_1af3_4d7d_beda_bac649826d36>,
+        <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Container1_B1_Execution_451cfa80_1af3_4d7d_beda_bac649826d36>,
+        <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Container1_B2_Execution_451cfa80_1af3_4d7d_beda_bac649826d36>,
+        <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Container1_C1_Execution_451cfa80_1af3_4d7d_beda_bac649826d36>,
+        <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Container1_C2_Execution_451cfa80_1af3_4d7d_beda_bac649826d36>,
+        <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Container1_D1_Execution_451cfa80_1af3_4d7d_beda_bac649826d36>,
+        <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Container1_D2_Execution_451cfa80_1af3_4d7d_beda_bac649826d36> ;
+    sbol:name "iGEM 2018 LUDOX OD calibration protocol Execution" ;
+    prov:wasGeneratedBy <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018_Execution_451cfa80_1af3_4d7d_beda_bac649826d36> .
+
+<https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Container1_A1_Execution_451cfa80_1af3_4d7d_beda_bac649826d36> a sbol:Implementation ;
+    sbol:displayId "Container1_A1_Execution_451cfa80_1af3_4d7d_beda_bac649826d36" ;
+    sbol:hasMeasure <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Container1_A1_Execution_451cfa80_1af3_4d7d_beda_bac649826d36/Measure1> ;
+    prov:wasDerivedFrom <https://bbn.com/scratch/LUDOX> .
+
+<https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Container1_A1_Execution_451cfa80_1af3_4d7d_beda_bac649826d36/Measure1> a sbol:Identified,
+        om:Measure ;
+    sbol:displayId "Measure1" ;
+    om:hasNumericalValue 1.1e-01 ;
+    om:hasUnit om:Number .
+
+<https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Container1_A2_Execution_451cfa80_1af3_4d7d_beda_bac649826d36> a sbol:Implementation ;
+    sbol:displayId "Container1_A2_Execution_451cfa80_1af3_4d7d_beda_bac649826d36" ;
+    sbol:hasMeasure <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Container1_A2_Execution_451cfa80_1af3_4d7d_beda_bac649826d36/Measure1> ;
+    prov:wasDerivedFrom <https://bbn.com/scratch/ddH2O> .
+
+<https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Container1_A2_Execution_451cfa80_1af3_4d7d_beda_bac649826d36/Measure1> a sbol:Identified,
+        om:Measure ;
+    sbol:displayId "Measure1" ;
+    om:hasNumericalValue 6.6e-02 ;
+    om:hasUnit om:Number .
+
+<https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Container1_B1_Execution_451cfa80_1af3_4d7d_beda_bac649826d36> a sbol:Implementation ;
+    sbol:displayId "Container1_B1_Execution_451cfa80_1af3_4d7d_beda_bac649826d36" ;
+    sbol:hasMeasure <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Container1_B1_Execution_451cfa80_1af3_4d7d_beda_bac649826d36/Measure1> ;
+    prov:wasDerivedFrom <https://bbn.com/scratch/LUDOX> .
+
+<https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Container1_B1_Execution_451cfa80_1af3_4d7d_beda_bac649826d36/Measure1> a sbol:Identified,
+        om:Measure ;
+    sbol:displayId "Measure1" ;
+    om:hasNumericalValue 1.08e-01 ;
+    om:hasUnit om:Number .
+
+<https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Container1_B2_Execution_451cfa80_1af3_4d7d_beda_bac649826d36> a sbol:Implementation ;
+    sbol:displayId "Container1_B2_Execution_451cfa80_1af3_4d7d_beda_bac649826d36" ;
+    sbol:hasMeasure <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Container1_B2_Execution_451cfa80_1af3_4d7d_beda_bac649826d36/Measure1> ;
+    prov:wasDerivedFrom <https://bbn.com/scratch/ddH2O> .
+
+<https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Container1_B2_Execution_451cfa80_1af3_4d7d_beda_bac649826d36/Measure1> a sbol:Identified,
+        om:Measure ;
+    sbol:displayId "Measure1" ;
+    om:hasNumericalValue 5.4e-02 ;
+    om:hasUnit om:Number .
+
+<https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Container1_C1_Execution_451cfa80_1af3_4d7d_beda_bac649826d36> a sbol:Implementation ;
+    sbol:displayId "Container1_C1_Execution_451cfa80_1af3_4d7d_beda_bac649826d36" ;
+    sbol:hasMeasure <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Container1_C1_Execution_451cfa80_1af3_4d7d_beda_bac649826d36/Measure1> ;
+    prov:wasDerivedFrom <https://bbn.com/scratch/LUDOX> .
+
+<https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Container1_C1_Execution_451cfa80_1af3_4d7d_beda_bac649826d36/Measure1> a sbol:Identified,
+        om:Measure ;
+    sbol:displayId "Measure1" ;
+    om:hasNumericalValue 1.19e-01 ;
+    om:hasUnit om:Number .
+
+<https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Container1_C2_Execution_451cfa80_1af3_4d7d_beda_bac649826d36> a sbol:Implementation ;
+    sbol:displayId "Container1_C2_Execution_451cfa80_1af3_4d7d_beda_bac649826d36" ;
+    sbol:hasMeasure <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Container1_C2_Execution_451cfa80_1af3_4d7d_beda_bac649826d36/Measure1> ;
+    prov:wasDerivedFrom <https://bbn.com/scratch/ddH2O> .
+
+<https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Container1_C2_Execution_451cfa80_1af3_4d7d_beda_bac649826d36/Measure1> a sbol:Identified,
+        om:Measure ;
+    sbol:displayId "Measure1" ;
+    om:hasNumericalValue 7.7e-02 ;
+    om:hasUnit om:Number .
+
+<https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Container1_D1_Execution_451cfa80_1af3_4d7d_beda_bac649826d36> a sbol:Implementation ;
+    sbol:displayId "Container1_D1_Execution_451cfa80_1af3_4d7d_beda_bac649826d36" ;
+    sbol:hasMeasure <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Container1_D1_Execution_451cfa80_1af3_4d7d_beda_bac649826d36/Measure1> ;
+    prov:wasDerivedFrom <https://bbn.com/scratch/LUDOX> .
+
+<https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Container1_D1_Execution_451cfa80_1af3_4d7d_beda_bac649826d36/Measure1> a sbol:Identified,
+        om:Measure ;
+    sbol:displayId "Measure1" ;
+    om:hasNumericalValue 8.3e-02 ;
+    om:hasUnit om:Number .
+
+<https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Container1_D2_Execution_451cfa80_1af3_4d7d_beda_bac649826d36> a sbol:Implementation ;
+    sbol:displayId "Container1_D2_Execution_451cfa80_1af3_4d7d_beda_bac649826d36" ;
+    sbol:hasMeasure <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Container1_D2_Execution_451cfa80_1af3_4d7d_beda_bac649826d36/Measure1> ;
+    prov:wasDerivedFrom <https://bbn.com/scratch/ddH2O> .
+
+<https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Container1_D2_Execution_451cfa80_1af3_4d7d_beda_bac649826d36/Measure1> a sbol:Identified,
+        om:Measure ;
+    sbol:displayId "Measure1" ;
+    om:hasNumericalValue 5e-02 ;
+    om:hasUnit om:Number .
+
+<https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018_Execution_451cfa80_1af3_4d7d_beda_bac649826d36> a sbol:TopLevel,
+        prov:Activity ;
+    sbol:displayId "iGEM_LUDOX_OD_calibration_2018_Execution_451cfa80_1af3_4d7d_beda_bac649826d36" ;
+    sbol:type <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018> .
+

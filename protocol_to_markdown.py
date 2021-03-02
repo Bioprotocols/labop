@@ -299,13 +299,13 @@ print('Writing markdown file')
 with open(protocol.display_id+'.md', 'w') as file:
     file.write(markdown_header(protocol))
 
-    file.write('\n\n ## Materials\n')
+    file.write('\n\n## Materials\n')
     for material in protocol.material:
         file.write(markdown_material(material.lookup()))
     for container in (x for x in protocol.hasLocation if isinstance(x,paml.Container)):
         file.write(markdown_container_toplevel(container))
 
-    file.write('\n\n ## Steps\n')
+    file.write('\n\n## Steps\n')
     for step in range(len(serialized_noncontrol_activities)):
         file.write('### Step '+str(step+1)+'\n'+markdown_activity(doc,serialized_noncontrol_activities[step])+'\n')
 
@@ -321,7 +321,7 @@ def excel_container_name(container):
 # def excel_write_container(ws, row_offset, container):
 #     return '[' + (container.display_id if (container.name is None) else container.name) + ']('+container.type+')'
 
-def excel_write_containercoodinates(ws, row_offset, col_offset, coordinates):
+def excel_write_containercoodinates(ws, row_offset, col_offset, coordinates, specification_URI):
     # get the column letter
     col = openpyxl.utils.cell.get_column_letter(col_offset+1)
     # make the header
@@ -346,31 +346,35 @@ def excel_write_containercoodinates(ws, row_offset, col_offset, coordinates):
             coord = openpyxl.utils.cell.get_column_letter(col_offset+plate_col+2)+str(row_offset+plate_row+2)
             ws[coord].fill = copy(entry_style)
             ws[coord].alignment = openpyxl.styles.Alignment(horizontal="center")
+            plate_coord = openpyxl.utils.cell.get_column_letter(block[0]+plate_row)+str(block[1]+plate_col)
+            ws[coord].comment = openpyxl.comments.Comment(coordinates.inContainer+"_"+plate_coord+" "+specification_URI, "PAML autogeneration, do not modify", height=24, width=1000)
+            ws[coord].protection = openpyxl.styles.Protection(locked=False)
 
     return (height+2, width+1)
 
-def excel_write_location(ws, row_offset, col_offset, location):
+def excel_write_location(ws, row_offset, col_offset, location, specification_URI):
     if isinstance(location, paml.ContainerCoordinates):
-        return excel_write_containercoodinates(ws, row_offset, col_offset, location)
+        return excel_write_containercoodinates(ws, row_offset, col_offset, location, specification_URI)
     # elif isinstance(location, paml.Container):
     #     return excel_write_container(location)
     else:
         return str(location)
 
-def excel_write_mergedlocations(ws, row_offset, location_list):
+def excel_write_mergedlocations(ws, row_offset, location_spec_list):
     col_offset = 0
     block_height = 0
-    while location_list:
-        block = excel_write_location(ws, row_offset, col_offset, location_list.pop())
+    while location_spec_list:
+        pair = location_spec_list.popitem()
+        block = excel_write_location(ws, row_offset, col_offset, pair[0], pair[1])
         col_offset += block[1] + 1
         block_height = max(block_height,block[0])
     return block_height
 
 def excel_write_flow_value(document, value, ws, row_offset):
     if isinstance(value, paml.ReplicateSamples):
-        return excel_write_mergedlocations(ws, row_offset, {x.lookup() for x in value.inLocation})
+        return excel_write_mergedlocations(ws, row_offset, {x.lookup():value.specification for x in value.inLocation})
     elif isinstance(value, paml.HeterogeneousSamples):
-        return excel_write_mergedlocations(ws, row_offset, {document.find(loc) for rep in value.hasReplicateSamples for loc in rep.inLocation})
+        return excel_write_mergedlocations(ws, row_offset, {document.find(loc):rep.specification for rep in value.hasReplicateSamples for loc in rep.inLocation})
     # if we fall through to here:
     return str(value)
 
@@ -381,7 +385,11 @@ ws = wb.active # get the default worksheet
 
 # write header & metadata
 ws.title = "Data Reporting"
+ws.protection.enable()
 ws['D1'] = protocol.name
+ws['D1'].comment = openpyxl.comments.Comment(protocol.identity, "PAML autogeneration, do not modify", height=24, width=1000)
+for row in ws['C2:C4']:
+    for cell in row: cell.protection = openpyxl.styles.Protection(locked=False) # unlock metadata locations
 fixed_style = ws['A2'].fill
 entry_style = ws['C2'].fill
 header_style = ws['A1'].font
