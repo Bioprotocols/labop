@@ -1,15 +1,12 @@
-import sys
+from sbol_factory import SBOLFactory, Document, ValidationReport, UMLFactory
+import sbol3 as sbol
 import os
 import posixpath
-import argparse
 
-sys.path.insert(0, posixpath.join(os.path.dirname(os.path.abspath(__file__)), 'opil'))
+# Import ontology
+__factory__ = SBOLFactory(locals(), 
+                          posixpath.join(os.path.dirname(os.path.realpath(__file__)),
+                                         'paml.ttl'),
+                          'http://bioprotocols.org/paml#')
+__umlfactory__ = UMLFactory(__factory__)
 
-
-if not '-i' in sys.argv:
-    sys.argv.append('-i')
-    sys.argv.append(posixpath.join(os.path.dirname(os.path.abspath(__file__)), 'paml.ttl'))
-    sys.argv.append('-n')
-    sys.argv.append('http://bioprotocols.org/paml#')
-
-from opil.opil_factory import *
