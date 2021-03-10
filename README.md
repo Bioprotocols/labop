@@ -3,10 +3,8 @@ Protocol Activity Modeling Language
 
 # Installation
 
-This repository contains a git submodule that is required for PAML to work.  When cloning the PAML repo, use:
-
 ```
-git clone --recursive https://github.com/SD2E/paml.git
+pip3 install paml
 ```
 
 # API
@@ -17,6 +15,9 @@ import paml
 ```
 The API follows the same conventions as [OPIL](https://github.com/sd2e/opil).
 
-# Running from the commandline
+# Building documentation
 
-The PAML module can also be run as a commandline executable. Use these commandline options to generate documentation or print a summary report of the data model. See [OPIL](https://github.com/sd2e/opil).
+Running the following at the commandline will generate UML diagrams for the PAML data model.
+```
+python3 -c "from paml import __umlfactory__; __umlfactory__.generate('uml')"
+```
