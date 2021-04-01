@@ -50,7 +50,7 @@ def input_pin_value(document, executable, pin_name):
         return "[couldn't find input "+pin_name+"]"
     pin = pin_set[0]
     if isinstance(pin, paml.LocalValuePin):
-        if isinstance(pin.value, paml.Measure):
+        if isinstance(pin.value, sbol3.Measure):
             return markdown_measure(pin.value)
     elif isinstance(pin, paml.ReferenceValuePin):
         value = pin.value.lookup()
@@ -241,7 +241,7 @@ def direct_precedents(protocol, activity):
 print('Reading document')
 
 doc = paml.Document()
-doc.read('igem_ludox_draft.json','json-ld')
+doc.read('test/igem_ludox_draft.json','json-ld')
 
 # extract set of protocols from document
 protocols = {x for x in doc.objects if isinstance(x, paml.Protocol)}

@@ -56,7 +56,7 @@ for row in ws.iter_rows(min_row=6):
                 implementation = doc.find(implementation_id)
                 if implementation is None:
                     implementation = sbol3.Implementation(implementation_id)
-                    #doc.add(implementation) #kludge, since member adding is repeating the addition
+                    doc.add(implementation)
                     experiment.members.append(implementation)
                     implementation.derived_from.append(component_id)
                 else:
