@@ -50,14 +50,14 @@ def make_output_pin(document, executable, pin_spec_name):
     return pin
 
 # set up the document
-doc = paml.Document()
+doc = sbol3.Document()
 
 
 #############################################
 # Create the primitives
 print('making primitives')
 
-paml.set_namespace('https://bioprotocols.org/paml/primitives/')
+sbol3.set_namespace('https://bioprotocols.org/paml/primitives/')
 
 provision = paml.Primitive('Provision')
 add_input(provision, 'resource', sbol3.SBOL_COMPONENT)
@@ -77,7 +77,7 @@ doc.add(measure_absorbance)
 # Create the protocol
 print('making protocol')
 
-paml.set_namespace('https://bbn.com/scratch/')
+sbol3.set_namespace('https://bbn.com/scratch/')
 protocol = paml.Protocol('iGEM_LUDOX_OD_calibration_2018')
 protocol.name = "iGEM 2018 LUDOX OD calibration protocol"
 protocol.description = '''
@@ -107,9 +107,11 @@ protocol.hasLocation.append(plate)
 
 ddH2O = sbol3.Component('ddH2O', 'https://identifiers.org/pubchem.substance:24901740')
 ddH2O.name = 'Water, sterile-filtered, BioReagent, suitable for cell culture'  # I'd like to get the names from PubChem with tyto
+doc.add(ddH2O)
 
 LUDOX = sbol3.Component('LUDOX', 'https://identifiers.org/pubchem.substance:24866361')
 LUDOX.name = 'LUDOX(R) CL-X colloidal silica, 45 wt. % suspension in H2O'
+doc.add(LUDOX)
 
 protocol.material += {ddH2O, LUDOX}
 

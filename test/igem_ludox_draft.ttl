@@ -12,13 +12,13 @@
         <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable2>,
         <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable3>,
         <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Value1> ;
-    ns1:hasFlow <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Flow2>,
+    ns1:hasFlow <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Flow1>,
+        <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Flow2>,
         <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Flow3>,
         <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Flow4>,
         <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Flow5>,
         <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Flow6>,
-        <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Flow7>,
-        <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Flow8> ;
+        <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Flow7> ;
     ns1:hasLocation <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Container1>,
         <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/ContainerCoordinates1>,
         <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/ContainerCoordinates2> ;
@@ -39,47 +39,47 @@ is only weakly scattering and so will give a low absorbance value.
     sbol:displayId "iGEM_LUDOX_OD_calibration_2018" ;
     sbol:name "iGEM 2018 LUDOX OD calibration protocol" .
 
-<https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Flow2> a ns1:Flow,
+<https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Flow1> a ns1:Flow,
         sbol:Identified ;
     ns1:sink <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable1> ;
+    ns1:source <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Initial1> ;
+    sbol:displayId "Flow1" .
+
+<https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Flow2> a ns1:Flow,
+        sbol:Identified ;
+    ns1:sink <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable2> ;
     ns1:source <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Initial1> ;
     sbol:displayId "Flow2" .
 
 <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Flow3> a ns1:Flow,
         sbol:Identified ;
-    ns1:sink <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable2> ;
-    ns1:source <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Initial1> ;
+    ns1:sink <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Join1> ;
+    ns1:source <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable1/Pin1> ;
     sbol:displayId "Flow3" .
 
 <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Flow4> a ns1:Flow,
         sbol:Identified ;
     ns1:sink <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Join1> ;
-    ns1:source <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable1/Pin1> ;
+    ns1:source <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable2/Pin1> ;
     sbol:displayId "Flow4" .
 
 <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Flow5> a ns1:Flow,
         sbol:Identified ;
-    ns1:sink <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Join1> ;
-    ns1:source <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable2/Pin1> ;
+    ns1:sink <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable3/Pin1> ;
+    ns1:source <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Join1> ;
     sbol:displayId "Flow5" .
 
 <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Flow6> a ns1:Flow,
         sbol:Identified ;
-    ns1:sink <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable3/Pin1> ;
-    ns1:source <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Join1> ;
+    ns1:sink <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Value1> ;
+    ns1:source <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable3/Pin2> ;
     sbol:displayId "Flow6" .
 
 <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Flow7> a ns1:Flow,
         sbol:Identified ;
-    ns1:sink <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Value1> ;
-    ns1:source <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable3/Pin2> ;
-    sbol:displayId "Flow7" .
-
-<https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Flow8> a ns1:Flow,
-        sbol:Identified ;
     ns1:sink <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Final1> ;
     ns1:source <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Value1> ;
-    sbol:displayId "Flow8" .
+    sbol:displayId "Flow7" .
 
 <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable1/LocalValuePin1> a ns1:LocalValuePin,
         sbol:Identified ;
