@@ -6,7 +6,8 @@
 | :--- | :--- |
 | `provision | `Provision` |
 | `liquid_handle`, `mode=dispense` | `Dispense` |
-| `liquid_handle` | `LiquidHandle` |
+| `liquid_handle` up one place, down another | `Transfer` |
+| `liquid_handle` up & down in one source | `PipetteMix` |
 
 Note: this assumes the internal Strateos operation `DISPENSE` is equivalent to `liquid_handle`, `mode=dispense`
 
@@ -17,13 +18,6 @@ This library handles plate readers and other spectrophotometers
 | :--- | :--- |
 | `spectrophotometry`, `mode=absorbance` | `MeasureAbsorbance` |
 | `spectrophotometry`, `mode=fluorescence` | `MeasureFluorescence` |
-| `spectrophotometry`, `mode=luminescence` | `MeasureLuminescence` |
-
-## flow_cytometry
-
-| autoprotocol | PAML |
-| :--- | :--- |
-| `flow_cytometry` | `FlowCytometry` |
 
 ## plate_handling
 | autoprotocol | PAML |
@@ -37,8 +31,10 @@ This library handles plate readers and other spectrophotometers
 ## Currently unmapped:
 
 - `acoustic_transfer`
+- `flow_cytometry`
 - `measure_mass`
 - `measure_volume`
+- `spectrophotometry`, `mode=luminescence`
 - `spectrophotometry`, `mode=shake`
 - `spin`
 
