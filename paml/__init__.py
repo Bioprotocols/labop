@@ -86,3 +86,31 @@ class PrimitiveExecutable(PrimitiveExecutableBase):
         
         # Add new instance to Document
         #primitive.document.add(self)
+
+    def get_pin(self, pin_id):
+
+########################
+# Another helper; this one should probably be added as an extension
+
+# Alias Protocol because we are going to supplant it
+ProtocolBase = Protocol
+
+class Protocol(ProtocolBase):
+
+    # Create and add a flow between the designated child source and sink activities
+    def add_flow(self, source, sink):
+        assert source in self.hasActivity, ValueError('Source activity '+print(source.identity)+' is not a member of protocol '+print(self.identity))
+        assert sink in self.hasActivity, ValueError('Sink activity '+print(sink.identity)+' is not a member of protocol '+print(self.identity))
+        flow = Flow()
+        flow.source = source
+        flow.sink = sink
+        self.hasFlow.append(flow)
+        return flow
+
+
+
+def import_library(doc:sbol.Document, location:str, file_format:str = None ):
+    tmp = sbol.Document()
+    tmp.read(location, file_format)
+    # copy all of the objects into the working document
+    for o in tmp.objects: o.copy(doc)
