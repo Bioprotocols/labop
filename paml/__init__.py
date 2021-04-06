@@ -87,7 +87,7 @@ class PrimitiveExecutable(PrimitiveExecutableBase):
         # Add new instance to Document
         #primitive.document.add(self)
 
-    def get_pin(self, pin_id):
+#    def get_pin(self, pin_id):
 
 ########################
 # Another helper; this one should probably be added as an extension
