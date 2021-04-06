@@ -77,10 +77,11 @@ composition_relationship = {
 
 def graph_sbol(doc, outfile='out'):
     g = doc.graph()
-    dot_master = graphviz.Digraph()
+    dot_master = graphviz.Graph()
 
     for obj in doc.objects:
-        dot = graphviz.Digraph(name='cluster_%s' %strip_scheme(obj.identity))
+        dot = graphviz.Graph(name='cluster_%s' %strip_scheme(obj.identity))
+        dot.graph_attr['style'] = 'invis'
 
         # Graph TopLevel
         obj_label = get_node_label(g, obj.identity)
@@ -108,7 +109,6 @@ def graph_sbol(doc, outfile='out'):
             dot.edge(strip_scheme(start_node), strip_scheme(end_node), label=edge, **association_relationship)
         
         dot_master.subgraph(dot)
-    print(dot_master.source)
     dot_master.render(outfile, view=True)
  
 
