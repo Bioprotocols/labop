@@ -69,7 +69,7 @@ provision_LUDOX = paml.PrimitiveExecutable(doc.find('Provision'), resource=LUDOX
                                            volume=sbol3.Measure(100, tyto.OM.microliter),
                                            samples=samples)
 protocol.hasActivity.append(provision_LUDOX)
-protocol.make_flow(initial, provision_LUDOX)
+protocol.add_flow(initial, provision_LUDOX)
 
 
 location = paml.ContainerCoordinates()
@@ -81,23 +81,23 @@ provision_ddH2O = paml.PrimitiveExecutable(doc.find('Provision'), resource=ddH2O
                                            volume=sbol3.Measure(100, tyto.OM.microliter),
                                            samples=samples)
 protocol.hasActivity.append(provision_ddH2O)
-protocol.make_flow(initial, provision_ddH2O)
+protocol.add_flow(initial, provision_ddH2O)
 
 
 all_provisioned = paml.Join()
 samples = sbol3.Collection('samples', name='samples')
 protocol.hasActivity.append(all_provisioned)
-protocol.make_flow(make_output_pin(doc, provision_LUDOX, 'samples'), all_provisioned)
-protocol.make_flow(make_output_pin(doc, provision_ddH2O, 'samples'), all_provisioned)
+protocol.add_flow(provision_LUDOX.output_pin('samples'), all_provisioned)
+protocol.add_flow(make_output_pin(doc, provision_ddH2O, 'samples'), all_provisioned)
 
 execute_measurement = paml.PrimitiveExecutable(doc.find('MeasureAbsorbance'), location=location,
                                                wavelength=sbol3.Measure(600, tyto.OM.nanometer))
 protocol.hasActivity.append(execute_measurement)
-protocol.make_flow(all_provisioned, make_input_pin(doc, execute_measurement, 'location'))
+protocol.add_flow(all_provisioned, make_input_pin(doc, execute_measurement, 'location'))
 
 result = paml.Value()
 protocol.hasActivity.append(result)
-protocol.make_flow(make_output_pin(doc, execute_measurement, 'measurements'), result)
+protocol.add_flow(make_output_pin(doc, execute_measurement, 'measurements'), result)
 
 protocol.make_flow(result, final)
 
