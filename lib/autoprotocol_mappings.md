@@ -4,7 +4,7 @@
 
 | autoprotocol | PAML |
 | :--- | :--- |
-| `provision | `Provision` |
+| `provision` | `Provision` |
 | `liquid_handle`, `mode=dispense` | `Dispense` |
 | `liquid_handle` up one place, down another | `Transfer` |
 | `liquid_handle` up & down in one source | `PipetteMix` |
