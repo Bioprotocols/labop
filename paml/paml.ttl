@@ -220,7 +220,7 @@ paml:Value rdf:type owl:Class ;
 #                owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
 #              ] .
 
-paml:type rdf:type owl:ObjectProperty ;
+paml:type rdf:type owl:DatatypeProperty ;
               rdfs:domain paml:Activity ;
               rdfs:range xsd:anyURI ;
               rdfs:label "type" ;
@@ -393,7 +393,7 @@ paml:PinSpecification rdf:type owl:Class ;
                                 rdfs:comment "Optional is not needed for output pins, which can always be ignored"
                               ] .
 
-paml:optional rdf:type owl:ObjectProperty ;
+paml:optional rdf:type owl:DatatypeProperty ;
               rdfs:domain paml:PinSpecification ;
               rdfs:range xsd:boolean ;
               rdfs:label "optional" .
