@@ -21,3 +21,11 @@ Running the following at the commandline will generate UML diagrams for the PAML
 ```
 python3 -c "from paml import __umlfactory__; __umlfactory__.generate('uml')"
 ```
+
+# Visualizing Documents
+
+A commandline script is included to aid in visualizing a Document tree:
+```
+python3 graph_paml.py -i lib/liquid_handling.ttl
+```
+

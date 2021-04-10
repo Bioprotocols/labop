@@ -89,7 +89,6 @@ def PrimitiveExecutable_output_pin(self, pin_name, doc):
     return pin_set[0]
 PrimitiveExecutable.output_pin = PrimitiveExecutable_output_pin
 
-
 ########################
 # Another helper; this one should probably be added as an extension
 
