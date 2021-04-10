@@ -39,6 +39,95 @@ is only weakly scattering and so will give a low absorbance value.
     sbol:displayId "iGEM_LUDOX_OD_calibration_2018" ;
     sbol:name "iGEM 2018 LUDOX OD calibration protocol" .
 
+<https://bioprotocols.org/paml/primitives/liquid_handling/Dispense> a ns1:Primitive,
+        sbol:TopLevel ;
+    ns1:input <https://bioprotocols.org/paml/primitives/liquid_handling/Dispense/PinSpecification1>,
+        <https://bioprotocols.org/paml/primitives/liquid_handling/Dispense/PinSpecification2>,
+        <https://bioprotocols.org/paml/primitives/liquid_handling/Dispense/PinSpecification3>,
+        <https://bioprotocols.org/paml/primitives/liquid_handling/Dispense/PinSpecification4> ;
+    ns1:output <https://bioprotocols.org/paml/primitives/liquid_handling/Dispense/PinSpecification5> ;
+    sbol:description "Move a measured volume of liquid from one source location to multiple destination locations" ;
+    sbol:displayId "Dispense" .
+
+<https://bioprotocols.org/paml/primitives/liquid_handling/PipetteMix> a ns1:Primitive,
+        sbol:TopLevel ;
+    ns1:input <https://bioprotocols.org/paml/primitives/liquid_handling/PipetteMix/PinSpecification1>,
+        <https://bioprotocols.org/paml/primitives/liquid_handling/PipetteMix/PinSpecification2>,
+        <https://bioprotocols.org/paml/primitives/liquid_handling/PipetteMix/PinSpecification3>,
+        <https://bioprotocols.org/paml/primitives/liquid_handling/PipetteMix/PinSpecification4> ;
+    ns1:output <https://bioprotocols.org/paml/primitives/liquid_handling/PipetteMix/PinSpecification5> ;
+    sbol:description "Mix by cycling a measured volume of liquid in and out at an array of locations a fixed number of times" ;
+    sbol:displayId "PipetteMix" .
+
+<https://bioprotocols.org/paml/primitives/liquid_handling/Transfer> a ns1:Primitive,
+        sbol:TopLevel ;
+    ns1:input <https://bioprotocols.org/paml/primitives/liquid_handling/Transfer/PinSpecification1>,
+        <https://bioprotocols.org/paml/primitives/liquid_handling/Transfer/PinSpecification2>,
+        <https://bioprotocols.org/paml/primitives/liquid_handling/Transfer/PinSpecification3>,
+        <https://bioprotocols.org/paml/primitives/liquid_handling/Transfer/PinSpecification4> ;
+    ns1:output <https://bioprotocols.org/paml/primitives/liquid_handling/Transfer/PinSpecification5> ;
+    sbol:description "Move a measured volume of liquid from an array of source locations to an identically shaped array of destination locations" ;
+    sbol:displayId "Transfer" .
+
+<https://bioprotocols.org/paml/primitives/plate_handling/Cover> a ns1:Primitive,
+        sbol:TopLevel ;
+    ns1:input <https://bioprotocols.org/paml/primitives/plate_handling/Cover/PinSpecification1>,
+        <https://bioprotocols.org/paml/primitives/plate_handling/Cover/PinSpecification2> ;
+    sbol:description "Cover a location to keep materials from entering or exiting" ;
+    sbol:displayId "Cover" .
+
+<https://bioprotocols.org/paml/primitives/plate_handling/Incubate> a ns1:Primitive,
+        sbol:TopLevel ;
+    ns1:input <https://bioprotocols.org/paml/primitives/plate_handling/Incubate/PinSpecification1>,
+        <https://bioprotocols.org/paml/primitives/plate_handling/Incubate/PinSpecification2>,
+        <https://bioprotocols.org/paml/primitives/plate_handling/Incubate/PinSpecification3>,
+        <https://bioprotocols.org/paml/primitives/plate_handling/Incubate/PinSpecification4> ;
+    sbol:description "Incubate a sample under specified conditions for a fixed period of time" ;
+    sbol:displayId "Incubate" .
+
+<https://bioprotocols.org/paml/primitives/plate_handling/Seal> a ns1:Primitive,
+        sbol:TopLevel ;
+    ns1:input <https://bioprotocols.org/paml/primitives/plate_handling/Seal/PinSpecification1>,
+        <https://bioprotocols.org/paml/primitives/plate_handling/Seal/PinSpecification2>,
+        <https://bioprotocols.org/paml/primitives/plate_handling/Seal/PinSpecification3> ;
+    sbol:description "Seal a location to guarantee isolation from the external environment" ;
+    sbol:displayId "Seal" .
+
+<https://bioprotocols.org/paml/primitives/plate_handling/Uncover> a ns1:Primitive,
+        sbol:TopLevel ;
+    ns1:input <https://bioprotocols.org/paml/primitives/plate_handling/Uncover/PinSpecification1> ;
+    sbol:description "Uncover a location to allow materials to enter or exit" ;
+    sbol:displayId "Uncover" .
+
+<https://bioprotocols.org/paml/primitives/plate_handling/Unseal> a ns1:Primitive,
+        sbol:TopLevel ;
+    ns1:input <https://bioprotocols.org/paml/primitives/plate_handling/Unseal/PinSpecification1> ;
+    sbol:description "Unseal a sealed location to break its isolation from the external environment" ;
+    sbol:displayId "Unseal" .
+
+<https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureFluorescence> a ns1:Primitive,
+        sbol:TopLevel ;
+    ns1:input <https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureFluorescence/PinSpecification1>,
+        <https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureFluorescence/PinSpecification2>,
+        <https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureFluorescence/PinSpecification3>,
+        <https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureFluorescence/PinSpecification4>,
+        <https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureFluorescence/PinSpecification5>,
+        <https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureFluorescence/PinSpecification6>,
+        <https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureFluorescence/PinSpecification7> ;
+    ns1:output <https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureFluorescence/PinSpecification8> ;
+    sbol:description "Measure fluorescence intensity from a set of samples stimulated by a given wavelength, with an optional bandpass or lowpass filter" ;
+    sbol:displayId "MeasureFluorescence" .
+
+<https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureFluorescenceSpectrum> a ns1:Primitive,
+        sbol:TopLevel ;
+    ns1:input <https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureFluorescenceSpectrum/PinSpecification1>,
+        <https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureFluorescenceSpectrum/PinSpecification2>,
+        <https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureFluorescenceSpectrum/PinSpecification3>,
+        <https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureFluorescenceSpectrum/PinSpecification4> ;
+    ns1:output <https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureFluorescenceSpectrum/PinSpecification5> ;
+    sbol:description "Measure fluorescence spectrum from a set of samples stimulated by a given wavelength" ;
+    sbol:displayId "MeasureFluorescenceSpectrum" .
+
 <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Flow1> a ns1:Flow,
         sbol:Identified ;
     ns1:sink <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable1> ;
@@ -54,25 +143,25 @@ is only weakly scattering and so will give a low absorbance value.
 <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Flow3> a ns1:Flow,
         sbol:Identified ;
     ns1:sink <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Join1> ;
-    ns1:source <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable1/Pin1> ;
+    ns1:source <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable1/Pin2> ;
     sbol:displayId "Flow3" .
 
 <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Flow4> a ns1:Flow,
         sbol:Identified ;
     ns1:sink <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Join1> ;
-    ns1:source <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable2/Pin1> ;
+    ns1:source <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable2/Pin2> ;
     sbol:displayId "Flow4" .
 
 <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Flow5> a ns1:Flow,
         sbol:Identified ;
-    ns1:sink <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable3/Pin1> ;
+    ns1:sink <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable3/Pin2> ;
     ns1:source <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Join1> ;
     sbol:displayId "Flow5" .
 
 <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Flow6> a ns1:Flow,
         sbol:Identified ;
     ns1:sink <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Value1> ;
-    ns1:source <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable3/Pin2> ;
+    ns1:source <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable3/Pin3> ;
     sbol:displayId "Flow6" .
 
 <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Flow7> a ns1:Flow,
@@ -83,9 +172,11 @@ is only weakly scattering and so will give a low absorbance value.
 
 <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable1/LocalValuePin1> a ns1:LocalValuePin,
         sbol:Identified ;
-    ns1:instanceOf <https://bioprotocols.org/paml/primitives/Provision/PinSpecification3> ;
+    ns1:activityType om:Measure ;
+    ns1:instanceOfPinSpecification <https://bioprotocols.org/paml/primitives/liquid_handling/Provision/PinSpecification3> ;
     ns1:value <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable1/LocalValuePin1/Measure1> ;
-    sbol:displayId "LocalValuePin1" .
+    sbol:displayId "LocalValuePin1" ;
+    sbol:name "amount" .
 
 <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable1/LocalValuePin1/Measure1> a sbol:Identified,
         om:Measure ;
@@ -93,23 +184,36 @@ is only weakly scattering and so will give a low absorbance value.
     om:hasNumericalValue 1e+02 ;
     om:hasUnit om:microlitre .
 
+<https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable1/Pin1> a ns1:Pin,
+        sbol:Identified ;
+    ns1:activityType om:Measure ;
+    ns1:instanceOfPinSpecification <https://bioprotocols.org/paml/primitives/liquid_handling/Provision/PinSpecification4> ;
+    sbol:displayId "Pin1" ;
+    sbol:name "dispenseVelocity" .
+
 <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable1/ReferenceValuePin1> a ns1:ReferenceValuePin,
         sbol:Identified ;
-    ns1:instanceOf <https://bioprotocols.org/paml/primitives/Provision/PinSpecification1> ;
+    ns1:activityType sbol:Component ;
+    ns1:instanceOfPinSpecification <https://bioprotocols.org/paml/primitives/liquid_handling/Provision/PinSpecification1> ;
     ns1:valueReference <https://bbn.com/scratch/LUDOX> ;
-    sbol:displayId "ReferenceValuePin1" .
+    sbol:displayId "ReferenceValuePin1" ;
+    sbol:name "resource" .
 
 <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable1/ReferenceValuePin2> a ns1:ReferenceValuePin,
         sbol:Identified ;
-    ns1:instanceOf <https://bioprotocols.org/paml/primitives/Provision/PinSpecification2> ;
+    ns1:activityType ns1:Location ;
+    ns1:instanceOfPinSpecification <https://bioprotocols.org/paml/primitives/liquid_handling/Provision/PinSpecification2> ;
     ns1:valueReference <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/ContainerCoordinates1> ;
-    sbol:displayId "ReferenceValuePin2" .
+    sbol:displayId "ReferenceValuePin2" ;
+    sbol:name "destination" .
 
 <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable2/LocalValuePin1> a ns1:LocalValuePin,
         sbol:Identified ;
-    ns1:instanceOf <https://bioprotocols.org/paml/primitives/Provision/PinSpecification3> ;
+    ns1:activityType om:Measure ;
+    ns1:instanceOfPinSpecification <https://bioprotocols.org/paml/primitives/liquid_handling/Provision/PinSpecification3> ;
     ns1:value <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable2/LocalValuePin1/Measure1> ;
-    sbol:displayId "LocalValuePin1" .
+    sbol:displayId "LocalValuePin1" ;
+    sbol:name "amount" .
 
 <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable2/LocalValuePin1/Measure1> a sbol:Identified,
         om:Measure ;
@@ -117,31 +221,45 @@ is only weakly scattering and so will give a low absorbance value.
     om:hasNumericalValue 1e+02 ;
     om:hasUnit om:microlitre .
 
+<https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable2/Pin1> a ns1:Pin,
+        sbol:Identified ;
+    ns1:activityType om:Measure ;
+    ns1:instanceOfPinSpecification <https://bioprotocols.org/paml/primitives/liquid_handling/Provision/PinSpecification4> ;
+    sbol:displayId "Pin1" ;
+    sbol:name "dispenseVelocity" .
+
 <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable2/ReferenceValuePin1> a ns1:ReferenceValuePin,
         sbol:Identified ;
-    ns1:instanceOf <https://bioprotocols.org/paml/primitives/Provision/PinSpecification1> ;
+    ns1:activityType sbol:Component ;
+    ns1:instanceOfPinSpecification <https://bioprotocols.org/paml/primitives/liquid_handling/Provision/PinSpecification1> ;
     ns1:valueReference <https://bbn.com/scratch/ddH2O> ;
-    sbol:displayId "ReferenceValuePin1" .
+    sbol:displayId "ReferenceValuePin1" ;
+    sbol:name "resource" .
 
 <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable2/ReferenceValuePin2> a ns1:ReferenceValuePin,
         sbol:Identified ;
-    ns1:instanceOf <https://bioprotocols.org/paml/primitives/Provision/PinSpecification2> ;
+    ns1:activityType ns1:Location ;
+    ns1:instanceOfPinSpecification <https://bioprotocols.org/paml/primitives/liquid_handling/Provision/PinSpecification2> ;
     ns1:valueReference <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/ContainerCoordinates2> ;
-    sbol:displayId "ReferenceValuePin2" .
+    sbol:displayId "ReferenceValuePin2" ;
+    sbol:name "destination" .
 
 <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable3> a ns1:PrimitiveExecutable,
         sbol:Identified ;
     ns1:input <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable3/LocalValuePin1>,
-        <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable3/Pin1> ;
-    ns1:instanceOf <https://bioprotocols.org/paml/primitives/MeasureAbsorbance> ;
-    ns1:output <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable3/Pin2> ;
+        <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable3/Pin1>,
+        <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable3/Pin2> ;
+    ns1:instanceOfPrimitive <https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureAbsorbance> ;
+    ns1:output <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable3/Pin3> ;
     sbol:displayId "PrimitiveExecutable3" .
 
 <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable3/LocalValuePin1> a ns1:LocalValuePin,
         sbol:Identified ;
-    ns1:instanceOf <https://bioprotocols.org/paml/primitives/MeasureAbsorbance/PinSpecification2> ;
+    ns1:activityType <https://github.com/synbiodex/pysbol3#missing> ;
+    ns1:instanceOfPinSpecification <https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureAbsorbance/PinSpecification2> ;
     ns1:value <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable3/LocalValuePin1/Measure1> ;
-    sbol:displayId "LocalValuePin1" .
+    sbol:displayId "LocalValuePin1" ;
+    sbol:name "wavelength" .
 
 <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable3/LocalValuePin1/Measure1> a sbol:Identified,
         om:Measure ;
@@ -149,19 +267,313 @@ is only weakly scattering and so will give a low absorbance value.
     om:hasNumericalValue 6e+02 ;
     om:hasUnit om:nanometre .
 
-<https://bioprotocols.org/paml/primitives/MeasureAbsorbance> a ns1:Primitive,
-        sbol:TopLevel ;
-    ns1:input <https://bioprotocols.org/paml/primitives/MeasureAbsorbance/PinSpecification1>,
-        <https://bioprotocols.org/paml/primitives/MeasureAbsorbance/PinSpecification2> ;
-    ns1:output <https://bioprotocols.org/paml/primitives/MeasureAbsorbance/PinSpecification3> ;
-    sbol:displayId "MeasureAbsorbance" .
-
-<https://bioprotocols.org/paml/primitives/Provision/PinSpecification4> a ns1:PinSpecification,
+<https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable3/Pin1> a ns1:Pin,
         sbol:Identified ;
-    ns1:optional <True> ;
+    ns1:activityType <https://github.com/synbiodex/pysbol3#missing> ;
+    ns1:instanceOfPinSpecification <https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureAbsorbance/PinSpecification3> ;
+    sbol:displayId "Pin1" ;
+    sbol:name "numFlashes" .
+
+<https://bioprotocols.org/paml/primitives/liquid_handling/Dispense/PinSpecification1> a ns1:PinSpecification,
+        sbol:Identified ;
+    ns1:activityType ns1:Location ;
+    ns1:optional false ;
+    sbol:displayId "PinSpecification1" ;
+    sbol:name "source" .
+
+<https://bioprotocols.org/paml/primitives/liquid_handling/Dispense/PinSpecification2> a ns1:PinSpecification,
+        sbol:Identified ;
+    ns1:activityType ns1:Location ;
+    ns1:optional false ;
+    sbol:displayId "PinSpecification2" ;
+    sbol:name "destination" .
+
+<https://bioprotocols.org/paml/primitives/liquid_handling/Dispense/PinSpecification3> a ns1:PinSpecification,
+        sbol:Identified ;
+    ns1:activityType om:Measure ;
+    ns1:optional false ;
+    sbol:displayId "PinSpecification3" ;
+    sbol:name "dispenseAmount" .
+
+<https://bioprotocols.org/paml/primitives/liquid_handling/Dispense/PinSpecification4> a ns1:PinSpecification,
+        sbol:Identified ;
+    ns1:activityType om:Measure ;
+    ns1:optional true ;
+    sbol:displayId "PinSpecification4" ;
+    sbol:name "dispenseVelocity" .
+
+<https://bioprotocols.org/paml/primitives/liquid_handling/Dispense/PinSpecification5> a ns1:PinSpecification,
+        sbol:Identified ;
+    ns1:activityType ns1:LocatedSamples ;
+    sbol:displayId "PinSpecification5" ;
+    sbol:name "samples" .
+
+<https://bioprotocols.org/paml/primitives/liquid_handling/PipetteMix/PinSpecification1> a ns1:PinSpecification,
+        sbol:Identified ;
+    ns1:activityType ns1:Location ;
+    ns1:optional false ;
+    sbol:displayId "PinSpecification1" ;
+    sbol:name "source" .
+
+<https://bioprotocols.org/paml/primitives/liquid_handling/PipetteMix/PinSpecification2> a ns1:PinSpecification,
+        sbol:Identified ;
+    ns1:activityType om:Measure ;
+    ns1:optional false ;
+    sbol:displayId "PinSpecification2" ;
+    sbol:name "dispenseAmount" .
+
+<https://bioprotocols.org/paml/primitives/liquid_handling/PipetteMix/PinSpecification3> a ns1:PinSpecification,
+        sbol:Identified ;
+    ns1:activityType om:Measure ;
+    ns1:optional true ;
+    sbol:displayId "PinSpecification3" ;
+    sbol:name "dispenseVelocity" .
+
+<https://bioprotocols.org/paml/primitives/liquid_handling/PipetteMix/PinSpecification4> a ns1:PinSpecification,
+        sbol:Identified ;
+    ns1:activityType om:Measure ;
+    ns1:optional true ;
+    sbol:displayId "PinSpecification4" ;
+    sbol:name "cycleCount" .
+
+<https://bioprotocols.org/paml/primitives/liquid_handling/PipetteMix/PinSpecification5> a ns1:PinSpecification,
+        sbol:Identified ;
+    ns1:activityType ns1:LocatedSamples ;
+    sbol:displayId "PinSpecification5" ;
+    sbol:name "samples" .
+
+<https://bioprotocols.org/paml/primitives/liquid_handling/Transfer/PinSpecification1> a ns1:PinSpecification,
+        sbol:Identified ;
+    ns1:activityType ns1:Location ;
+    ns1:optional false ;
+    sbol:displayId "PinSpecification1" ;
+    sbol:name "source" .
+
+<https://bioprotocols.org/paml/primitives/liquid_handling/Transfer/PinSpecification2> a ns1:PinSpecification,
+        sbol:Identified ;
+    ns1:activityType ns1:Location ;
+    ns1:optional false ;
+    sbol:displayId "PinSpecification2" ;
+    sbol:name "destination" .
+
+<https://bioprotocols.org/paml/primitives/liquid_handling/Transfer/PinSpecification3> a ns1:PinSpecification,
+        sbol:Identified ;
+    ns1:activityType om:Measure ;
+    ns1:optional false ;
+    sbol:displayId "PinSpecification3" ;
+    sbol:name "dispenseAmount" .
+
+<https://bioprotocols.org/paml/primitives/liquid_handling/Transfer/PinSpecification4> a ns1:PinSpecification,
+        sbol:Identified ;
+    ns1:activityType om:Measure ;
+    ns1:optional true ;
+    sbol:displayId "PinSpecification4" ;
+    sbol:name "dispenseVelocity" .
+
+<https://bioprotocols.org/paml/primitives/liquid_handling/Transfer/PinSpecification5> a ns1:PinSpecification,
+        sbol:Identified ;
+    ns1:activityType ns1:LocatedSamples ;
+    sbol:displayId "PinSpecification5" ;
+    sbol:name "samples" .
+
+<https://bioprotocols.org/paml/primitives/plate_handling/Cover/PinSpecification1> a ns1:PinSpecification,
+        sbol:Identified ;
+    ns1:activityType <https://github.com/synbiodex/pysbol3#missing> ;
+    ns1:optional false ;
+    ns1:type ns1:Location ;
+    sbol:displayId "PinSpecification1" ;
+    sbol:name "location" .
+
+<https://bioprotocols.org/paml/primitives/plate_handling/Cover/PinSpecification2> a ns1:PinSpecification,
+        sbol:Identified ;
+    ns1:activityType <https://github.com/synbiodex/pysbol3#missing> ;
+    ns1:optional false ;
+    ns1:type xsd:anyURI ;
+    sbol:displayId "PinSpecification2" ;
+    sbol:name "type" .
+
+<https://bioprotocols.org/paml/primitives/plate_handling/Incubate/PinSpecification1> a ns1:PinSpecification,
+        sbol:Identified ;
+    ns1:activityType <https://github.com/synbiodex/pysbol3#missing> ;
+    ns1:optional false ;
+    ns1:type ns1:Location ;
+    sbol:displayId "PinSpecification1" ;
+    sbol:name "location" .
+
+<https://bioprotocols.org/paml/primitives/plate_handling/Incubate/PinSpecification2> a ns1:PinSpecification,
+        sbol:Identified ;
+    ns1:activityType <https://github.com/synbiodex/pysbol3#missing> ;
+    ns1:optional false ;
+    ns1:type om:Measure ;
+    sbol:displayId "PinSpecification2" ;
+    sbol:name "duration" .
+
+<https://bioprotocols.org/paml/primitives/plate_handling/Incubate/PinSpecification3> a ns1:PinSpecification,
+        sbol:Identified ;
+    ns1:activityType <https://github.com/synbiodex/pysbol3#missing> ;
+    ns1:optional false ;
+    ns1:type om:Measure ;
+    sbol:displayId "PinSpecification3" ;
+    sbol:name "temperature" .
+
+<https://bioprotocols.org/paml/primitives/plate_handling/Incubate/PinSpecification4> a ns1:PinSpecification,
+        sbol:Identified ;
+    ns1:activityType <https://github.com/synbiodex/pysbol3#missing> ;
+    ns1:optional true ;
     ns1:type om:Measure ;
     sbol:displayId "PinSpecification4" ;
-    sbol:name "dispenseVelosity" .
+    sbol:name "shakingFrequency" .
+
+<https://bioprotocols.org/paml/primitives/plate_handling/Seal/PinSpecification1> a ns1:PinSpecification,
+        sbol:Identified ;
+    ns1:activityType <https://github.com/synbiodex/pysbol3#missing> ;
+    ns1:optional false ;
+    ns1:type ns1:Location ;
+    sbol:displayId "PinSpecification1" ;
+    sbol:name "location" .
+
+<https://bioprotocols.org/paml/primitives/plate_handling/Seal/PinSpecification2> a ns1:PinSpecification,
+        sbol:Identified ;
+    ns1:activityType <https://github.com/synbiodex/pysbol3#missing> ;
+    ns1:optional false ;
+    ns1:type xsd:anyURI ;
+    sbol:displayId "PinSpecification2" ;
+    sbol:name "type" .
+
+<https://bioprotocols.org/paml/primitives/plate_handling/Seal/PinSpecification3> a ns1:PinSpecification,
+        sbol:Identified ;
+    ns1:activityType <https://github.com/synbiodex/pysbol3#missing> ;
+    ns1:optional false ;
+    ns1:type xsd:anyURI ;
+    sbol:displayId "PinSpecification3" ;
+    sbol:name "method" .
+
+<https://bioprotocols.org/paml/primitives/plate_handling/Uncover/PinSpecification1> a ns1:PinSpecification,
+        sbol:Identified ;
+    ns1:activityType <https://github.com/synbiodex/pysbol3#missing> ;
+    ns1:optional false ;
+    ns1:type ns1:Location ;
+    sbol:displayId "PinSpecification1" ;
+    sbol:name "location" .
+
+<https://bioprotocols.org/paml/primitives/plate_handling/Unseal/PinSpecification1> a ns1:PinSpecification,
+        sbol:Identified ;
+    ns1:activityType <https://github.com/synbiodex/pysbol3#missing> ;
+    ns1:optional false ;
+    ns1:type ns1:Location ;
+    sbol:displayId "PinSpecification1" ;
+    sbol:name "location" .
+
+<https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureAbsorbance> a ns1:Primitive,
+        sbol:TopLevel ;
+    ns1:input <https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureAbsorbance/PinSpecification1>,
+        <https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureAbsorbance/PinSpecification2>,
+        <https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureAbsorbance/PinSpecification3> ;
+    ns1:output <https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureAbsorbance/PinSpecification4> ;
+    sbol:description "Measure absorbance at a given wavelength from a set of samples" ;
+    sbol:displayId "MeasureAbsorbance" .
+
+<https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureFluorescence/PinSpecification1> a ns1:PinSpecification,
+        sbol:Identified ;
+    ns1:activityType <https://github.com/synbiodex/pysbol3#missing> ;
+    ns1:optional false ;
+    ns1:type ns1:LocatedSamples ;
+    sbol:displayId "PinSpecification1" ;
+    sbol:name "location" .
+
+<https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureFluorescence/PinSpecification2> a ns1:PinSpecification,
+        sbol:Identified ;
+    ns1:activityType <https://github.com/synbiodex/pysbol3#missing> ;
+    ns1:optional false ;
+    ns1:type om:Measure ;
+    sbol:displayId "PinSpecification2" ;
+    sbol:name "excitationWavelength" .
+
+<https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureFluorescence/PinSpecification3> a ns1:PinSpecification,
+        sbol:Identified ;
+    ns1:activityType <https://github.com/synbiodex/pysbol3#missing> ;
+    ns1:optional false ;
+    ns1:type om:Measure ;
+    sbol:displayId "PinSpecification3" ;
+    sbol:name "emissionBandpassWavelength" .
+
+<https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureFluorescence/PinSpecification4> a ns1:PinSpecification,
+        sbol:Identified ;
+    ns1:activityType <https://github.com/synbiodex/pysbol3#missing> ;
+    ns1:optional false ;
+    ns1:type om:Measure ;
+    sbol:displayId "PinSpecification4" ;
+    sbol:name "emissionBandpassWidth" .
+
+<https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureFluorescence/PinSpecification5> a ns1:PinSpecification,
+        sbol:Identified ;
+    ns1:activityType <https://github.com/synbiodex/pysbol3#missing> ;
+    ns1:optional false ;
+    ns1:type om:Measure ;
+    sbol:displayId "PinSpecification5" ;
+    sbol:name "emissionLowpassCutoff" .
+
+<https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureFluorescence/PinSpecification6> a ns1:PinSpecification,
+        sbol:Identified ;
+    ns1:activityType <https://github.com/synbiodex/pysbol3#missing> ;
+    ns1:optional true ;
+    ns1:type xsd:integer ;
+    sbol:displayId "PinSpecification6" ;
+    sbol:name "numFlashes" .
+
+<https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureFluorescence/PinSpecification7> a ns1:PinSpecification,
+        sbol:Identified ;
+    ns1:activityType <https://github.com/synbiodex/pysbol3#missing> ;
+    ns1:optional true ;
+    ns1:type xsd:double ;
+    sbol:displayId "PinSpecification7" ;
+    sbol:name "gain" .
+
+<https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureFluorescence/PinSpecification8> a ns1:PinSpecification,
+        sbol:Identified ;
+    ns1:activityType <https://github.com/synbiodex/pysbol3#missing> ;
+    ns1:type ns1:LocatedData ;
+    sbol:displayId "PinSpecification8" ;
+    sbol:name "measurements" .
+
+<https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureFluorescenceSpectrum/PinSpecification1> a ns1:PinSpecification,
+        sbol:Identified ;
+    ns1:activityType <https://github.com/synbiodex/pysbol3#missing> ;
+    ns1:optional false ;
+    ns1:type ns1:LocatedSamples ;
+    sbol:displayId "PinSpecification1" ;
+    sbol:name "location" .
+
+<https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureFluorescenceSpectrum/PinSpecification2> a ns1:PinSpecification,
+        sbol:Identified ;
+    ns1:activityType <https://github.com/synbiodex/pysbol3#missing> ;
+    ns1:optional false ;
+    ns1:type om:Measure ;
+    sbol:displayId "PinSpecification2" ;
+    sbol:name "excitationWavelength" .
+
+<https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureFluorescenceSpectrum/PinSpecification3> a ns1:PinSpecification,
+        sbol:Identified ;
+    ns1:activityType <https://github.com/synbiodex/pysbol3#missing> ;
+    ns1:optional true ;
+    ns1:type xsd:integer ;
+    sbol:displayId "PinSpecification3" ;
+    sbol:name "numFlashes" .
+
+<https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureFluorescenceSpectrum/PinSpecification4> a ns1:PinSpecification,
+        sbol:Identified ;
+    ns1:activityType <https://github.com/synbiodex/pysbol3#missing> ;
+    ns1:optional true ;
+    ns1:type xsd:double ;
+    sbol:displayId "PinSpecification4" ;
+    sbol:name "gain" .
+
+<https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureFluorescenceSpectrum/PinSpecification5> a ns1:PinSpecification,
+        sbol:Identified ;
+    ns1:activityType <https://github.com/synbiodex/pysbol3#missing> ;
+    ns1:type ns1:LocatedData ;
+    sbol:displayId "PinSpecification5" ;
+    sbol:name "measurements" .
 
 <https://bbn.com/scratch/LUDOX> a sbol:Component ;
     sbol:displayId "LUDOX" ;
@@ -192,73 +604,92 @@ is only weakly scattering and so will give a low absorbance value.
 <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable1> a ns1:PrimitiveExecutable,
         sbol:Identified ;
     ns1:input <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable1/LocalValuePin1>,
+        <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable1/Pin1>,
         <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable1/ReferenceValuePin1>,
         <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable1/ReferenceValuePin2> ;
-    ns1:instanceOf <https://bioprotocols.org/paml/primitives/Provision> ;
-    ns1:output <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable1/Pin1> ;
+    ns1:instanceOfPrimitive <https://bioprotocols.org/paml/primitives/liquid_handling/Provision> ;
+    ns1:output <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable1/Pin2> ;
     sbol:displayId "PrimitiveExecutable1" .
 
-<https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable1/Pin1> a ns1:Pin,
+<https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable1/Pin2> a ns1:Pin,
         sbol:Identified ;
-    ns1:instanceOf <https://bioprotocols.org/paml/primitives/Provision/PinSpecification5> ;
-    sbol:displayId "Pin1" .
+    ns1:instanceOfPinSpecification <https://bioprotocols.org/paml/primitives/liquid_handling/Provision/PinSpecification5> ;
+    sbol:displayId "Pin2" ;
+    sbol:name "samples" .
 
 <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable2> a ns1:PrimitiveExecutable,
         sbol:Identified ;
     ns1:input <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable2/LocalValuePin1>,
+        <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable2/Pin1>,
         <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable2/ReferenceValuePin1>,
         <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable2/ReferenceValuePin2> ;
-    ns1:instanceOf <https://bioprotocols.org/paml/primitives/Provision> ;
-    ns1:output <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable2/Pin1> ;
+    ns1:instanceOfPrimitive <https://bioprotocols.org/paml/primitives/liquid_handling/Provision> ;
+    ns1:output <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable2/Pin2> ;
     sbol:displayId "PrimitiveExecutable2" .
 
-<https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable2/Pin1> a ns1:Pin,
+<https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable2/Pin2> a ns1:Pin,
         sbol:Identified ;
-    ns1:instanceOf <https://bioprotocols.org/paml/primitives/Provision/PinSpecification5> ;
-    sbol:displayId "Pin1" .
-
-<https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable3/Pin1> a ns1:Pin,
-        sbol:Identified ;
-    ns1:instanceOf <https://bioprotocols.org/paml/primitives/MeasureAbsorbance/PinSpecification1> ;
-    sbol:displayId "Pin1" .
+    ns1:instanceOfPinSpecification <https://bioprotocols.org/paml/primitives/liquid_handling/Provision/PinSpecification5> ;
+    sbol:displayId "Pin2" ;
+    sbol:name "samples" .
 
 <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable3/Pin2> a ns1:Pin,
         sbol:Identified ;
-    ns1:instanceOf <https://bioprotocols.org/paml/primitives/MeasureAbsorbance/PinSpecification3> ;
-    sbol:displayId "Pin2" .
+    ns1:activityType <https://github.com/synbiodex/pysbol3#missing> ;
+    ns1:instanceOfPinSpecification <https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureAbsorbance/PinSpecification1> ;
+    sbol:displayId "Pin2" ;
+    sbol:name "location" .
 
-<https://bioprotocols.org/paml/primitives/MeasureAbsorbance/PinSpecification1> a ns1:PinSpecification,
+<https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable3/Pin3> a ns1:Pin,
         sbol:Identified ;
-    ns1:optional <False> ;
+    ns1:instanceOfPinSpecification <https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureAbsorbance/PinSpecification4> ;
+    sbol:displayId "Pin3" ;
+    sbol:name "measurements" .
+
+<https://bioprotocols.org/paml/primitives/liquid_handling/Provision> a ns1:Primitive,
+        sbol:TopLevel ;
+    ns1:input <https://bioprotocols.org/paml/primitives/liquid_handling/Provision/PinSpecification1>,
+        <https://bioprotocols.org/paml/primitives/liquid_handling/Provision/PinSpecification2>,
+        <https://bioprotocols.org/paml/primitives/liquid_handling/Provision/PinSpecification3>,
+        <https://bioprotocols.org/paml/primitives/liquid_handling/Provision/PinSpecification4> ;
+    ns1:output <https://bioprotocols.org/paml/primitives/liquid_handling/Provision/PinSpecification5> ;
+    sbol:description "Place a measured amount (mass or volume) of a specified component into a location, where it may then be used in executing the protocol." ;
+    sbol:displayId "Provision" .
+
+<https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureAbsorbance/PinSpecification1> a ns1:PinSpecification,
+        sbol:Identified ;
+    ns1:activityType <https://github.com/synbiodex/pysbol3#missing> ;
+    ns1:optional false ;
     ns1:type ns1:LocatedSamples ;
     sbol:displayId "PinSpecification1" ;
     sbol:name "location" .
 
-<https://bioprotocols.org/paml/primitives/MeasureAbsorbance/PinSpecification2> a ns1:PinSpecification,
+<https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureAbsorbance/PinSpecification2> a ns1:PinSpecification,
         sbol:Identified ;
-    ns1:optional <False> ;
+    ns1:activityType <https://github.com/synbiodex/pysbol3#missing> ;
+    ns1:optional false ;
     ns1:type om:Measure ;
     sbol:displayId "PinSpecification2" ;
     sbol:name "wavelength" .
 
-<https://bioprotocols.org/paml/primitives/MeasureAbsorbance/PinSpecification3> a ns1:PinSpecification,
+<https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureAbsorbance/PinSpecification3> a ns1:PinSpecification,
         sbol:Identified ;
-    ns1:type ns1:LocatedData ;
+    ns1:activityType <https://github.com/synbiodex/pysbol3#missing> ;
+    ns1:optional true ;
+    ns1:type xsd:integer ;
     sbol:displayId "PinSpecification3" ;
-    sbol:name "measurements" .
+    sbol:name "numFlashes" .
 
-<https://bioprotocols.org/paml/primitives/Provision> a ns1:Primitive,
-        sbol:TopLevel ;
-    ns1:input <https://bioprotocols.org/paml/primitives/Provision/PinSpecification1>,
-        <https://bioprotocols.org/paml/primitives/Provision/PinSpecification2>,
-        <https://bioprotocols.org/paml/primitives/Provision/PinSpecification3>,
-        <https://bioprotocols.org/paml/primitives/Provision/PinSpecification4> ;
-    ns1:output <https://bioprotocols.org/paml/primitives/Provision/PinSpecification5> ;
-    sbol:displayId "Provision" .
+<https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureAbsorbance/PinSpecification4> a ns1:PinSpecification,
+        sbol:Identified ;
+    ns1:activityType <https://github.com/synbiodex/pysbol3#missing> ;
+    ns1:type ns1:LocatedData ;
+    sbol:displayId "PinSpecification4" ;
+    sbol:name "measurements" .
 
 <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Container1> a ns1:Container,
         sbol:Identified ;
-    ns1:type <http://identifiers.org/NCIT:C43377> ;
+    ns1:containerType <http://identifiers.org/NCIT:C43377> ;
     sbol:displayId "Container1" ;
     sbol:name "Microplate" .
 
@@ -266,30 +697,37 @@ is only weakly scattering and so will give a low absorbance value.
         sbol:Identified ;
     sbol:displayId "Initial1" .
 
-<https://bioprotocols.org/paml/primitives/Provision/PinSpecification1> a ns1:PinSpecification,
+<https://bioprotocols.org/paml/primitives/liquid_handling/Provision/PinSpecification1> a ns1:PinSpecification,
         sbol:Identified ;
-    ns1:optional <False> ;
-    ns1:type sbol:Component ;
+    ns1:activityType sbol:Component ;
+    ns1:optional false ;
     sbol:displayId "PinSpecification1" ;
     sbol:name "resource" .
 
-<https://bioprotocols.org/paml/primitives/Provision/PinSpecification2> a ns1:PinSpecification,
+<https://bioprotocols.org/paml/primitives/liquid_handling/Provision/PinSpecification2> a ns1:PinSpecification,
         sbol:Identified ;
-    ns1:optional <False> ;
-    ns1:type ns1:Location ;
+    ns1:activityType ns1:Location ;
+    ns1:optional false ;
     sbol:displayId "PinSpecification2" ;
-    sbol:name "location" .
+    sbol:name "destination" .
 
-<https://bioprotocols.org/paml/primitives/Provision/PinSpecification3> a ns1:PinSpecification,
+<https://bioprotocols.org/paml/primitives/liquid_handling/Provision/PinSpecification3> a ns1:PinSpecification,
         sbol:Identified ;
-    ns1:optional <False> ;
-    ns1:type om:Measure ;
+    ns1:activityType om:Measure ;
+    ns1:optional false ;
     sbol:displayId "PinSpecification3" ;
-    sbol:name "volume" .
+    sbol:name "amount" .
 
-<https://bioprotocols.org/paml/primitives/Provision/PinSpecification5> a ns1:PinSpecification,
+<https://bioprotocols.org/paml/primitives/liquid_handling/Provision/PinSpecification4> a ns1:PinSpecification,
         sbol:Identified ;
-    ns1:type ns1:LocatedSamples ;
+    ns1:activityType om:Measure ;
+    ns1:optional true ;
+    sbol:displayId "PinSpecification4" ;
+    sbol:name "dispenseVelocity" .
+
+<https://bioprotocols.org/paml/primitives/liquid_handling/Provision/PinSpecification5> a ns1:PinSpecification,
+        sbol:Identified ;
+    ns1:activityType ns1:LocatedSamples ;
     sbol:displayId "PinSpecification5" ;
     sbol:name "samples" .
 

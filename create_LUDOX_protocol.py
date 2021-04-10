@@ -11,6 +11,7 @@ sbol3.set_namespace('https://bbn.com/scratch/')
 
 #############################################
 # Import the primitive libraries
+print('Importing libraries')
 paml.import_library(doc, 'lib/liquid_handling.ttl','ttl')
 paml.import_library(doc, 'lib/plate_handling.ttl','ttl')
 paml.import_library(doc, 'lib/spectrophotometry.ttl','ttl')
@@ -18,7 +19,7 @@ paml.import_library(doc, 'lib/spectrophotometry.ttl','ttl')
 
 #############################################
 # Create the protocol
-print('making protocol')
+print('Making protocol')
 
 protocol = paml.Protocol('iGEM_LUDOX_OD_calibration_2018')
 protocol.name = "iGEM 2018 LUDOX OD calibration protocol"
@@ -57,17 +58,13 @@ doc.add(LUDOX)
 
 protocol.material += {ddH2O, LUDOX}
 
-samples = paml.LocatedSamples()
-protocol.hasLocation.append(samples)
-
 # actual steps of the protocol
 location = paml.ContainerCoordinates()
 protocol.hasLocation.append(location)
 location.inContainer = plate
 location.coordinates = 'A1:D1'
-provision_LUDOX = paml.PrimitiveExecutable(doc.find('Provision'), resource=LUDOX, location=location,
-                                           volume=sbol3.Measure(100, tyto.OM.microliter),
-                                           samples=samples)
+provision_LUDOX = paml.make_PrimitiveExecutable(doc.find('Provision'), resource=LUDOX, destination=location,
+                                           amount=sbol3.Measure(100, tyto.OM.microliter))
 protocol.hasActivity.append(provision_LUDOX)
 protocol.add_flow(initial, provision_LUDOX)
 
@@ -76,36 +73,39 @@ location = paml.ContainerCoordinates()
 protocol.hasLocation.append(location)
 location.inContainer = plate
 location.coordinates = 'A2:D2'
-
-provision_ddH2O = paml.PrimitiveExecutable(doc.find('Provision'), resource=ddH2O, location=location,
-                                           volume=sbol3.Measure(100, tyto.OM.microliter),
-                                           samples=samples)
+provision_ddH2O = paml.make_PrimitiveExecutable(doc.find('Provision'), resource=ddH2O, destination=location,
+                                           amount=sbol3.Measure(100, tyto.OM.microliter))
 protocol.hasActivity.append(provision_ddH2O)
 protocol.add_flow(initial, provision_ddH2O)
 
 
 all_provisioned = paml.Join()
-samples = sbol3.Collection('samples', name='samples')
 protocol.hasActivity.append(all_provisioned)
-protocol.add_flow(provision_LUDOX.output_pin('samples'), all_provisioned)
-protocol.add_flow(make_output_pin(doc, provision_ddH2O, 'samples'), all_provisioned)
+protocol.add_flow(provision_LUDOX.output_pin('samples',doc), all_provisioned)
+protocol.add_flow(provision_ddH2O.output_pin('samples',doc), all_provisioned)
 
-execute_measurement = paml.PrimitiveExecutable(doc.find('MeasureAbsorbance'), location=location,
+execute_measurement = paml.make_PrimitiveExecutable(doc.find('MeasureAbsorbance'),
                                                wavelength=sbol3.Measure(600, tyto.OM.nanometer))
 protocol.hasActivity.append(execute_measurement)
-protocol.add_flow(all_provisioned, make_input_pin(doc, execute_measurement, 'location'))
+protocol.add_flow(all_provisioned, execute_measurement.input_pin('location',doc))
 
 result = paml.Value()
 protocol.hasActivity.append(result)
-protocol.add_flow(make_output_pin(doc, execute_measurement, 'measurements'), result)
+protocol.add_flow(execute_measurement.output_pin('measurements',doc), result)
 
-protocol.make_flow(result, final)
+protocol.add_flow(result, final)
 
 protocol.output += {result}
 
-print('construction complete')
+print('Protocol construction complete')
+
+print('Validating document')
+for e in doc.validate().errors: print(e);
+for w in doc.validate().warnings: print(w);
+
+print('Writing document')
 
 doc.write('igem_ludox_draft.json','json-ld')
 doc.write('igem_ludox_draft.ttl','turtle')
 
-print('writing complete')
+print('Complete')

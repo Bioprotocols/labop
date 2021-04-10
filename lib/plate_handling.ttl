@@ -41,78 +41,78 @@
 
 <https://bioprotocols.org/paml/primitives/plate_handling/Cover/PinSpecification1> a ns1:PinSpecification,
         sbol:Identified ;
-    ns1:optional <False> ;
-    ns1:type ns1:Location ;
+    ns1:activityType ns1:Location ;
+    ns1:optional false ;
     sbol:displayId "PinSpecification1" ;
     sbol:name "location" .
 
 <https://bioprotocols.org/paml/primitives/plate_handling/Cover/PinSpecification2> a ns1:PinSpecification,
         sbol:Identified ;
-    ns1:optional <False> ;
-    ns1:type xsd:anyURI ;
+    ns1:activityType xsd:anyURI ;
+    ns1:optional false ;
     sbol:displayId "PinSpecification2" ;
     sbol:name "type" .
 
 <https://bioprotocols.org/paml/primitives/plate_handling/Incubate/PinSpecification1> a ns1:PinSpecification,
         sbol:Identified ;
-    ns1:optional <False> ;
-    ns1:type ns1:Location ;
+    ns1:activityType ns1:Location ;
+    ns1:optional false ;
     sbol:displayId "PinSpecification1" ;
     sbol:name "location" .
 
 <https://bioprotocols.org/paml/primitives/plate_handling/Incubate/PinSpecification2> a ns1:PinSpecification,
         sbol:Identified ;
-    ns1:optional <False> ;
-    ns1:type om:Measure ;
+    ns1:activityType om:Measure ;
+    ns1:optional false ;
     sbol:displayId "PinSpecification2" ;
     sbol:name "duration" .
 
 <https://bioprotocols.org/paml/primitives/plate_handling/Incubate/PinSpecification3> a ns1:PinSpecification,
         sbol:Identified ;
-    ns1:optional <False> ;
-    ns1:type om:Measure ;
+    ns1:activityType om:Measure ;
+    ns1:optional false ;
     sbol:displayId "PinSpecification3" ;
     sbol:name "temperature" .
 
 <https://bioprotocols.org/paml/primitives/plate_handling/Incubate/PinSpecification4> a ns1:PinSpecification,
         sbol:Identified ;
-    ns1:optional <True> ;
-    ns1:type om:Measure ;
+    ns1:activityType om:Measure ;
+    ns1:optional true ;
     sbol:displayId "PinSpecification4" ;
     sbol:name "shakingFrequency" .
 
 <https://bioprotocols.org/paml/primitives/plate_handling/Seal/PinSpecification1> a ns1:PinSpecification,
         sbol:Identified ;
-    ns1:optional <False> ;
-    ns1:type ns1:Location ;
+    ns1:activityType ns1:Location ;
+    ns1:optional false ;
     sbol:displayId "PinSpecification1" ;
     sbol:name "location" .
 
 <https://bioprotocols.org/paml/primitives/plate_handling/Seal/PinSpecification2> a ns1:PinSpecification,
         sbol:Identified ;
-    ns1:optional <False> ;
-    ns1:type xsd:anyURI ;
+    ns1:activityType xsd:anyURI ;
+    ns1:optional false ;
     sbol:displayId "PinSpecification2" ;
     sbol:name "type" .
 
 <https://bioprotocols.org/paml/primitives/plate_handling/Seal/PinSpecification3> a ns1:PinSpecification,
         sbol:Identified ;
-    ns1:optional <False> ;
-    ns1:type xsd:anyURI ;
+    ns1:activityType xsd:anyURI ;
+    ns1:optional false ;
     sbol:displayId "PinSpecification3" ;
     sbol:name "method" .
 
 <https://bioprotocols.org/paml/primitives/plate_handling/Uncover/PinSpecification1> a ns1:PinSpecification,
         sbol:Identified ;
-    ns1:optional <False> ;
-    ns1:type ns1:Location ;
+    ns1:activityType ns1:Location ;
+    ns1:optional false ;
     sbol:displayId "PinSpecification1" ;
     sbol:name "location" .
 
 <https://bioprotocols.org/paml/primitives/plate_handling/Unseal/PinSpecification1> a ns1:PinSpecification,
         sbol:Identified ;
-    ns1:optional <False> ;
-    ns1:type ns1:Location ;
+    ns1:activityType ns1:Location ;
+    ns1:optional false ;
     sbol:displayId "PinSpecification1" ;
     sbol:name "location" .
 

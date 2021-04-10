@@ -40,10 +40,14 @@ p.description = 'Incubate a sample under specified conditions for a fixed period
 p.add_input('location', 'http://bioprotocols.org/paml#Location')
 p.add_input('duration', sbol3.OM_MEASURE) # time
 p.add_input('temperature', sbol3.OM_MEASURE) # temperature
-p.add_input('shakingFrequency', sbol3.OM_MEASURE, 'True') # Hertz
+p.add_input('shakingFrequency', sbol3.OM_MEASURE, True) # Hertz; defaults to zero
 doc.add(p)
 
 print('Library construction complete')
+print('Validating library')
+for e in doc.validate().errors: print(e);
+for w in doc.validate().warnings: print(w);
+
 filename = LIBRARY_NAME+'.ttl'
 doc.write(filename,'turtle')
 print('Library written as '+filename)

@@ -11,102 +11,109 @@ __factory__ = SBOLFactory(locals(),
 __umlfactory__ = UMLFactory(__factory__)
 
 # Define extension methods for Primitive
-def add_input(self, name, type, optional="False"):
+def primitive_add_input(self, name, type, optional=False):
     pin = PinSpecification()
     pin.name = name
     pin.type = type
     pin.optional = optional
     self.input.append(pin)
 
-def add_output(self, name, type):
+def primitive_add_output(self, name, type):
     pin = PinSpecification()
     pin.name = name
     pin.type = type
     self.output.append(pin)
 
 # Monkey patch
-Primitive.add_input = add_input
-Primitive.add_output = add_output
+Primitive.add_input = primitive_add_input
+Primitive.add_output = primitive_add_output
 
-# Alias PrimitiveExecutable because we are going to supplant it
-PrimitiveExecutableBase = PrimitiveExecutable
+# PrimitiveExecutable factory function (can't override iterator)
+def make_PrimitiveExecutable(primitive: Primitive, **input_pin_map):
+    self = PrimitiveExecutable()
 
-class PrimitiveExecutable(PrimitiveExecutableBase):
+    # link to primitive prototype
+    self.instanceOf = primitive
 
-    def __init__(self, primitive: PrimitiveExecutableBase, **pin_map):
-        PrimitiveExecutableBase.__init__(self)       
+    # Instantiate input pins
+    for pin_spec in primitive.input:
+        if pin_spec.name not in input_pin_map: # Note: affected by pySBOL3 issue 229
+            val = None # if not wired to a constant, it will be a generic Pin
+        else:
+            val = input_pin_map[pin_spec.name]
+            # Turning off type checking for now, since I don't know how to check subclass relations efficiently
+            #if val.type_uri != pin_spec.type:
+            #    raise TypeError(f'Value for input pin "{pin_spec.name or pin_spec.display_id}" must be of type {pin_spec.type}')
 
-        # Validate keyword arguments, one Pin value for every PinSpec
-        for p in primitive.input:
-            if p.name not in pin_map:
-                raise ValueError(f'{primitive.name} requires a {p.name} input Pin')
-        for p in primitive.output:
-            if p.name not in pin_map:
-                raise ValueError(f'{primitive.name} requires a {p.name} output Pin')
-
-        # Instantiate input pins
-        for pin_spec in primitive.input:
-            val = pin_map[pin_spec.name]
-            if val.type_uri != pin_spec.type:
-                raise TypeError(f'{pin_spec.name} must be of type {pin_spec.type}')
-
-            # Construct Pin of appropriate subtype
-            if isinstance(val, sbol.TopLevel):
+        # Construct Pin of appropriate subtype
+        if val:
+            if isinstance(val, sbol.TopLevel) or isinstance(val, Location):
                 pin = ReferenceValuePin()
-            elif type(val) is sbol.Measure:
-                pin = LocalValuePin()
             else:
-                pin = Pin()
-
-            # Set properties
-            pin.name = pin_spec.name
-            pin.instanceOf = pin_spec
-            pin_spec.value = val
-            self.input.append(pin)
-
-        # Instantiate output pins
-        for pin_spec in primitive.output:
-            val = pin_map[pin_spec.name]
-            if val.type_uri != pin_spec.type:
-                raise TypeError(f'{pin_spec.name} must be of type {pin_spec.type}')
-
-            # Construct Pin of appropriate subtype
-            if isinstance(val, sbol.TopLevel):
-                pin = ReferenceValuePin()
-            elif type(val) is sbol.Measure:
                 pin = LocalValuePin()
-            else:
-                pin = Pin()
-            
-            # Set properties
-            pin.name = pin_spec.name
-            pin.instanceOf = pin_spec
-            pin_spec.value = val
-            self.output.append(pin)
-        
-        # Add new instance to Document
-        #primitive.document.add(self)
+            pin.value = val
+        else:
+            pin = Pin()
 
-    def output_pin(self, pin_id):
+        # Set properties
+        pin.instanceOf = pin_spec
+        pin.name = pin_spec.name
+        pin.type = pin_spec.type
+        self.input.append(pin)
+
+    # Instantiate output pins
+    for pin_spec in primitive.output:
+        # Construct Pin of appropriate subtype
+        pin = Pin()
+
+        # Set properties
+        pin.name = pin_spec.name
+        pin.instanceOf = pin_spec
+        self.output.append(pin)
+
+    return self
+
+def PrimitiveExecutable_input_pin(self, pin_name, doc):
+    #pin_set = [x for x in self.input if x.instanceOf.lookup().name == pin_name or doc.find(x.instanceOf).display_id == pin_name] # note: pySBOL3 issue 229
+    pin_set = [x for x in self.input if doc.find(x.instanceOf).name == pin_name or doc.find(x.instanceOf).display_id == pin_name] # workaround for PAML issue #5
+    assert len(pin_set)>0, ValueError("Couldn't find input pin named "+pin_name)
+    assert len(pin_set)<2, ValueError("Found more than one input pin named "+pin_name)
+    return pin_set[0]
+PrimitiveExecutable.input_pin = PrimitiveExecutable_input_pin
+
+def PrimitiveExecutable_output_pin(self, pin_name, doc):
+    #pin_set = [x for x in self.output if x.instanceOf.lookup().name == pin_name or doc.find(x.instanceOf).display_id == pin_name] # note: pySBOL3 issue 229
+    pin_set = [x for x in self.output if doc.find(x.instanceOf).name == pin_name or doc.find(x.instanceOf).display_id == pin_name] # workaround for PAML issue #5
+    assert len(pin_set)>0, ValueError("Couldn't find output pin named "+pin_name)
+    assert len(pin_set)<2, ValueError("Found more than one output pin named "+pin_name)
+    return pin_set[0]
+PrimitiveExecutable.output_pin = PrimitiveExecutable_output_pin
+
 
 ########################
 # Another helper; this one should probably be added as an extension
 
-# Alias Protocol because we are going to supplant it
-ProtocolBase = Protocol
+def protocol_contains_activity(self, activity):
+    return (activity in self.hasActivity) or \
+           next((x for x in self.hasActivity if
+                 isinstance(x, Executable) and (activity in x.input or activity in x.output)), False)
+# Monkey patch:
+Protocol.contains_activity = protocol_contains_activity
 
-class Protocol(ProtocolBase):
 
-    # Create and add a flow between the designated child source and sink activities
-    def add_flow(self, source, sink):
-        assert source in self.hasActivity, ValueError('Source activity '+print(source.identity)+' is not a member of protocol '+print(self.identity))
-        assert sink in self.hasActivity, ValueError('Sink activity '+print(sink.identity)+' is not a member of protocol '+print(self.identity))
-        flow = Flow()
-        flow.source = source
-        flow.sink = sink
-        self.hasFlow.append(flow)
-        return flow
-
+# Create and add a flow between the designated child source and sink activities
+def protocol_add_flow(self, source, sink):
+    assert self.contains_activity(source), ValueError(
+        'Source activity ' + source.identity + ' is not a member of protocol ' + self.identity)
+    assert self.contains_activity(sink), ValueError(
+        'Sink activity ' + sink.identity + ' is not a member of protocol ' + self.identity)
+    flow = Flow()
+    flow.source = source
+    flow.sink = sink
+    self.hasFlow.append(flow)
+    return flow
+# Monkey patch:
+Protocol.add_flow = protocol_add_flow
 
 
 def import_library(doc:sbol.Document, location:str, file_format:str = None ):

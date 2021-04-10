@@ -67,9 +67,9 @@ def input_pin_value(document, executable, pin_name):
 ############
 # BUG: this should not need the document; this is due to pySBOL3 bug #176
 def markdown_provision(document, executable):
-    volume = input_pin_value(document, executable, 'volume')
+    volume = input_pin_value(document, executable, 'amount')
     resource = input_pin_value(document, executable, 'resource')
-    location = input_pin_value(document, executable, 'location')
+    location = input_pin_value(document, executable, 'destination')
     instruction = 'Pipette '+volume+' of '+resource+' into '+location+'\n'
     return instruction
 
@@ -84,8 +84,8 @@ def markdown_absorbance(document, executable):
 #################
 # All this stuff should be transformed into visitor patterns
 primitive_library = {
-    'https://bioprotocols.org/paml/primitives/Provision' : markdown_provision,
-    'https://bioprotocols.org/paml/primitives/MeasureAbsorbance' : markdown_absorbance
+    'https://bioprotocols.org/paml/primitives/liquid_handling/Provision' : markdown_provision,
+    'https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureAbsorbance' : markdown_absorbance
 }
 
 def get_value_flow_input(protocol, activity):
@@ -150,7 +150,7 @@ def type_from_pin_or_flow(protocol, executable, pin_name, flow_values):
 
 def inference_provision(protocol, executable, flow_values):
     resource = type_from_pin_or_flow(protocol, executable, 'resource', flow_values)
-    location = type_from_pin_or_flow(protocol, executable, 'location', flow_values)
+    location = type_from_pin_or_flow(protocol, executable, 'destination', flow_values)
     samples = paml.ReplicateSamples()
     samples.inLocation.append(location)
     samples.specification = resource
@@ -165,8 +165,8 @@ def inference_absorbance(protocol, executable, flow_values):
     return {samples_flow : location}
 
 primitive_inference = {
-    'https://bioprotocols.org/paml/primitives/Provision' : inference_provision,
-    'https://bioprotocols.org/paml/primitives/MeasureAbsorbance' : inference_absorbance
+    'https://bioprotocols.org/paml/primitives/liquid_handling/Provision' : inference_provision,
+    'https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureAbsorbance' : inference_absorbance
 }
 
 def primitive_types(protocol, activity, flow_values):
@@ -240,7 +240,7 @@ def direct_precedents(protocol, activity):
 # Get the protocol
 print('Reading document')
 
-doc = paml.Document()
+doc = sbol3.Document()
 doc.read('test/igem_ludox_draft.json','json-ld')
 
 # extract set of protocols from document
