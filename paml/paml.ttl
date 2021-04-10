@@ -93,39 +93,36 @@ paml:Executable rdf:type owl:Class ;
                                  owl:onClass paml:Pin
                                 ] .     
 
-paml:instanceOf rdf:type owl:ObjectProperty ;
-              rdfs:domain paml:PrimitiveExecutable ;
-              rdfs:range paml:Primitive ;
+paml:instanceOfPinSpecification rdf:type owl:ObjectProperty ;
               rdfs:domain paml:Pin ;
               rdfs:range paml:PinSpecification ;
               rdfs:label "instanceOf" ;
-              rdfs:comment "Primitive to be executed" .
+              rdfs:comment "Pin specification linked from Primitive definition" .
 
+paml:instanceOfPrimitive rdf:type owl:ObjectProperty ;
+              rdfs:domain paml:PrimitiveExecutable ;
+              rdfs:range paml:Primitive ;
+              rdfs:label "instanceOf" ;
+              rdfs:comment "Primitive to be executed" .
 
 paml:Pin rdf:type owl:Class ;
          rdfs:comment "A Pin is a typed input or output of an Executable. Pins are Activities so that control can be applied to flows between them" ;
          rdfs:subClassOf paml:Activity ,
             [ rdf:type owl:Restriction ;
-                owl:onProperty paml:instanceOf ;
+                owl:onProperty paml:instanceOfPinSpecification ;
                 owl:onClass paml:PinSpecification ;
                 owl:minCardinality "1"^^xsd:nonNegativeInteger ;
                 owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
+            ] ,
+            [ rdf:type owl:Restriction ;
+                owl:onProperty paml:activityType ;
+              owl:allValuesFrom xsd:anyURI ;
+              owl:maxCardinality "1"^^xsd:nonNegativeInteger ; # min cardinality zero, as sometimes will be inferred
             ] .
-
-# should the Value vs. Physical distinction be turned into a type rather than a class distinction?
-paml:ValuePin rdf:type owl:Class ;
-              rdfs:comment "A ValuePin represents information as an input or output" ;
-            rdfs:subClassOf paml:Pin ,
-                            [ rdf:type owl:Restriction ;
-                                owl:onProperty paml:type ;
-                                owl:allValuesFrom xsd:anyURI ;
-                                owl:minCardinality "1"^^xsd:nonNegativeInteger ;
-                                owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
-                              ] .
 
 paml:LocalValuePin rdf:type owl:Class ;
               rdfs:comment "A LocalValuePin is an input pin with a constant value" ;
-            rdfs:subClassOf paml:ValuePin ,
+            rdfs:subClassOf paml:Pin ,
                            [ rdf:type owl:Restriction ;
                                 owl:onProperty paml:value ;
                                 owl:onClass sbol:Identified ;
@@ -141,8 +138,8 @@ paml:value rdf:type owl:ObjectProperty ;
               rdfs:comment "Constant value to be supplied to the pin" .
 
 paml:ReferenceValuePin rdf:type owl:Class ;
-              rdfs:comment "A LocalValuePin is an input pin with a constant value" ;
-            rdfs:subClassOf paml:ValuePin ,
+              rdfs:comment "A ReferenceValuePin is an input pin with a constant value" ;
+            rdfs:subClassOf paml:Pin ,
                            [ rdf:type owl:Restriction ;
                                 owl:onProperty paml:valueReference ;
                                 owl:onClass sbol:TopLevel ;
@@ -156,20 +153,11 @@ paml:valueReference rdf:type owl:ObjectProperty ;
               rdfs:label "value" ;
               rdfs:comment "Constant value from TopLevel to be supplied to the pin" .
 
-
-#paml:PhysicalPin rdf:type owl:Class ;
-#                 rdfs:comment "A PhysicalPin represents a physical input or output" ;
-#        rdfs:subClassOf paml:Pin ,
-#        [ rdf:type owl:Restriction ;
-#                owl:onProperty paml:type ;
-#                owl:onClass sbol:Component
-#              ] .
-
 paml:PrimitiveExecutable rdf:type owl:Class ;
               rdfs:comment "An executable that is a base-level library function, with its Pins determined by the specification of the function" ;
         rdfs:subClassOf paml:Executable ,
         [ rdf:type owl:Restriction ;
-                owl:onProperty paml:instanceOf ;
+                owl:onProperty paml:instanceOfPrimitive ;
                 owl:onClass paml:Primitive ;
                 owl:minCardinality "1"^^xsd:nonNegativeInteger ;
                 owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
@@ -191,37 +179,17 @@ paml:implementedBy rdf:type owl:ObjectProperty ;
               rdfs:label "implementedBy" ;
               rdfs:comment "Protocol to be executed as a sub-protocol" .
 
-#paml:InformationExecutable rdf:type owl:Class ;
-#        rdfs:subClassOf paml:Executable ;
-#              rdfs:comment "Abstract class; Executable activities that interact only with information flows (i.e., has no PhysicalPin)" .
-#
-#paml:PhysicalExecutable rdf:type owl:Class ;
-#        rdfs:subClassOf paml:Executable ;
-#              rdfs:comment "Abstract class; Executable activities that can interact with physical flows (i.e., has at least one PhysicalPin)" .
-
-
 paml:Value rdf:type owl:Class ;
               rdfs:comment "Value activities are unilateral sources and sinks of information in the graph" ;
         rdfs:subClassOf paml:Activity ,
         [ rdf:type owl:Restriction ;
-                owl:onProperty paml:type ;
+                owl:onProperty paml:activityType ;
                 owl:allValuesFrom xsd:anyURI ;
-                owl:minCardinality "1"^^xsd:nonNegativeInteger ;
-                owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
+                owl:maxCardinality "1"^^xsd:nonNegativeInteger ; # min cardinality zero, as sometimes will be inferred
               ] .
 
-#paml:Physical rdf:type owl:Class ;
-#              rdfs:comment "Physical activities are unilateral sources and sinks of physical materials in the graph" ;
-#        rdfs:subClassOf paml:Activity ,
-#        [ rdf:type owl:Restriction ;
-#                owl:onProperty paml:type ;
-#                owl:onClass sbol:Component ;
-#                owl:minCardinality "1"^^xsd:nonNegativeInteger ;
-#                owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
-#              ] .
-
-paml:type rdf:type owl:ObjectProperty ;
-              rdfs:domain paml:Activity ;
+paml:activityType rdf:type owl:DatatypeProperty ;
+              rdfs:domain paml:Pin ;
               rdfs:range xsd:anyURI ;
               rdfs:label "type" ;
               rdfs:comment "Type specification of a Value or Physical material" .
@@ -381,7 +349,7 @@ paml:PinSpecification rdf:type owl:Class ;
                               owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
                               ] ,
                             [ rdf:type owl:Restriction ;
-                                owl:onProperty paml:type ;
+                                owl:onProperty paml:activityType ;
                                 owl:allValuesFrom xsd:anyURI ;
                               owl:minCardinality "1"^^xsd:nonNegativeInteger ;
                               owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
@@ -393,7 +361,7 @@ paml:PinSpecification rdf:type owl:Class ;
                                 rdfs:comment "Optional is not needed for output pins, which can always be ignored"
                               ] .
 
-paml:optional rdf:type owl:ObjectProperty ;
+paml:optional rdf:type owl:DatatypeProperty ;
               rdfs:domain paml:PinSpecification ;
               rdfs:range xsd:boolean ;
               rdfs:label "optional" .
@@ -406,12 +374,18 @@ paml:Container rdf:type owl:Class ;
               rdfs:comment "A standard well-array plate, such as a 96-well plate or 384-well plate" ;
         rdfs:subClassOf paml:Location ,
                             [ rdf:type owl:Restriction ;
-                              owl:onProperty paml:type ;
+                              owl:onProperty paml:containerType ;
                               owl:allValuesFrom xsd:anyURI ;
                               owl:minCardinality "1"^^xsd:nonNegativeInteger ;
                               owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
                               rdfs:comment "SHOULD be an NCIT equipment class (branch http://purl.obolibrary.org/obo/NCIT_C19238)"
                               ] .
+
+paml:containerType rdf:type owl:DatatypeProperty ;
+              rdfs:domain paml:Container ;
+              rdfs:range xsd:anyURI ;
+              rdfs:label "type" ;
+              rdfs:comment "Type specification of a Value or Physical material" .
 
 
 paml:ContainerCoordinates rdf:type owl:Class ;

@@ -1,0 +1,153 @@
+@prefix ns1: <http://bioprotocols.org/paml#> .
+@prefix om: <http://www.ontology-of-units-of-measure.org/resource/om-2/> .
+@prefix sbol: <http://sbols.org/v3#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+<https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureAbsorbance> a ns1:Primitive,
+        sbol:TopLevel ;
+    ns1:input <https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureAbsorbance/PinSpecification1>,
+        <https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureAbsorbance/PinSpecification2>,
+        <https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureAbsorbance/PinSpecification3> ;
+    ns1:output <https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureAbsorbance/PinSpecification4> ;
+    sbol:description "Measure absorbance at a given wavelength from a set of samples" ;
+    sbol:displayId "MeasureAbsorbance" .
+
+<https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureFluorescence> a ns1:Primitive,
+        sbol:TopLevel ;
+    ns1:input <https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureFluorescence/PinSpecification1>,
+        <https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureFluorescence/PinSpecification2>,
+        <https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureFluorescence/PinSpecification3>,
+        <https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureFluorescence/PinSpecification4>,
+        <https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureFluorescence/PinSpecification5>,
+        <https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureFluorescence/PinSpecification6>,
+        <https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureFluorescence/PinSpecification7> ;
+    ns1:output <https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureFluorescence/PinSpecification8> ;
+    sbol:description "Measure fluorescence intensity from a set of samples stimulated by a given wavelength, with an optional bandpass or lowpass filter" ;
+    sbol:displayId "MeasureFluorescence" .
+
+<https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureFluorescenceSpectrum> a ns1:Primitive,
+        sbol:TopLevel ;
+    ns1:input <https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureFluorescenceSpectrum/PinSpecification1>,
+        <https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureFluorescenceSpectrum/PinSpecification2>,
+        <https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureFluorescenceSpectrum/PinSpecification3>,
+        <https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureFluorescenceSpectrum/PinSpecification4> ;
+    ns1:output <https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureFluorescenceSpectrum/PinSpecification5> ;
+    sbol:description "Measure fluorescence spectrum from a set of samples stimulated by a given wavelength" ;
+    sbol:displayId "MeasureFluorescenceSpectrum" .
+
+<https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureAbsorbance/PinSpecification1> a ns1:PinSpecification,
+        sbol:Identified ;
+    ns1:activityType ns1:LocatedSamples ;
+    ns1:optional false ;
+    sbol:displayId "PinSpecification1" ;
+    sbol:name "location" .
+
+<https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureAbsorbance/PinSpecification2> a ns1:PinSpecification,
+        sbol:Identified ;
+    ns1:activityType om:Measure ;
+    ns1:optional false ;
+    sbol:displayId "PinSpecification2" ;
+    sbol:name "wavelength" .
+
+<https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureAbsorbance/PinSpecification3> a ns1:PinSpecification,
+        sbol:Identified ;
+    ns1:activityType xsd:integer ;
+    ns1:optional true ;
+    sbol:displayId "PinSpecification3" ;
+    sbol:name "numFlashes" .
+
+<https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureAbsorbance/PinSpecification4> a ns1:PinSpecification,
+        sbol:Identified ;
+    ns1:activityType ns1:LocatedData ;
+    sbol:displayId "PinSpecification4" ;
+    sbol:name "measurements" .
+
+<https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureFluorescence/PinSpecification1> a ns1:PinSpecification,
+        sbol:Identified ;
+    ns1:activityType ns1:LocatedSamples ;
+    ns1:optional false ;
+    sbol:displayId "PinSpecification1" ;
+    sbol:name "location" .
+
+<https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureFluorescence/PinSpecification2> a ns1:PinSpecification,
+        sbol:Identified ;
+    ns1:activityType om:Measure ;
+    ns1:optional false ;
+    sbol:displayId "PinSpecification2" ;
+    sbol:name "excitationWavelength" .
+
+<https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureFluorescence/PinSpecification3> a ns1:PinSpecification,
+        sbol:Identified ;
+    ns1:activityType om:Measure ;
+    ns1:optional false ;
+    sbol:displayId "PinSpecification3" ;
+    sbol:name "emissionBandpassWavelength" .
+
+<https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureFluorescence/PinSpecification4> a ns1:PinSpecification,
+        sbol:Identified ;
+    ns1:activityType om:Measure ;
+    ns1:optional false ;
+    sbol:displayId "PinSpecification4" ;
+    sbol:name "emissionBandpassWidth" .
+
+<https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureFluorescence/PinSpecification5> a ns1:PinSpecification,
+        sbol:Identified ;
+    ns1:activityType om:Measure ;
+    ns1:optional false ;
+    sbol:displayId "PinSpecification5" ;
+    sbol:name "emissionLowpassCutoff" .
+
+<https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureFluorescence/PinSpecification6> a ns1:PinSpecification,
+        sbol:Identified ;
+    ns1:activityType xsd:integer ;
+    ns1:optional true ;
+    sbol:displayId "PinSpecification6" ;
+    sbol:name "numFlashes" .
+
+<https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureFluorescence/PinSpecification7> a ns1:PinSpecification,
+        sbol:Identified ;
+    ns1:activityType xsd:double ;
+    ns1:optional true ;
+    sbol:displayId "PinSpecification7" ;
+    sbol:name "gain" .
+
+<https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureFluorescence/PinSpecification8> a ns1:PinSpecification,
+        sbol:Identified ;
+    ns1:activityType ns1:LocatedData ;
+    sbol:displayId "PinSpecification8" ;
+    sbol:name "measurements" .
+
+<https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureFluorescenceSpectrum/PinSpecification1> a ns1:PinSpecification,
+        sbol:Identified ;
+    ns1:activityType ns1:LocatedSamples ;
+    ns1:optional false ;
+    sbol:displayId "PinSpecification1" ;
+    sbol:name "location" .
+
+<https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureFluorescenceSpectrum/PinSpecification2> a ns1:PinSpecification,
+        sbol:Identified ;
+    ns1:activityType om:Measure ;
+    ns1:optional false ;
+    sbol:displayId "PinSpecification2" ;
+    sbol:name "excitationWavelength" .
+
+<https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureFluorescenceSpectrum/PinSpecification3> a ns1:PinSpecification,
+        sbol:Identified ;
+    ns1:activityType xsd:integer ;
+    ns1:optional true ;
+    sbol:displayId "PinSpecification3" ;
+    sbol:name "numFlashes" .
+
+<https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureFluorescenceSpectrum/PinSpecification4> a ns1:PinSpecification,
+        sbol:Identified ;
+    ns1:activityType xsd:double ;
+    ns1:optional true ;
+    sbol:displayId "PinSpecification4" ;
+    sbol:name "gain" .
+
+<https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureFluorescenceSpectrum/PinSpecification5> a ns1:PinSpecification,
+        sbol:Identified ;
+    ns1:activityType ns1:LocatedData ;
+    sbol:displayId "PinSpecification5" ;
+    sbol:name "measurements" .
+

@@ -1,0 +1,118 @@
+@prefix ns1: <http://bioprotocols.org/paml#> .
+@prefix om: <http://www.ontology-of-units-of-measure.org/resource/om-2/> .
+@prefix sbol: <http://sbols.org/v3#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+<https://bioprotocols.org/paml/primitives/plate_handling/Cover> a ns1:Primitive,
+        sbol:TopLevel ;
+    ns1:input <https://bioprotocols.org/paml/primitives/plate_handling/Cover/PinSpecification1>,
+        <https://bioprotocols.org/paml/primitives/plate_handling/Cover/PinSpecification2> ;
+    sbol:description "Cover a location to keep materials from entering or exiting" ;
+    sbol:displayId "Cover" .
+
+<https://bioprotocols.org/paml/primitives/plate_handling/Incubate> a ns1:Primitive,
+        sbol:TopLevel ;
+    ns1:input <https://bioprotocols.org/paml/primitives/plate_handling/Incubate/PinSpecification1>,
+        <https://bioprotocols.org/paml/primitives/plate_handling/Incubate/PinSpecification2>,
+        <https://bioprotocols.org/paml/primitives/plate_handling/Incubate/PinSpecification3>,
+        <https://bioprotocols.org/paml/primitives/plate_handling/Incubate/PinSpecification4> ;
+    sbol:description "Incubate a sample under specified conditions for a fixed period of time" ;
+    sbol:displayId "Incubate" .
+
+<https://bioprotocols.org/paml/primitives/plate_handling/Seal> a ns1:Primitive,
+        sbol:TopLevel ;
+    ns1:input <https://bioprotocols.org/paml/primitives/plate_handling/Seal/PinSpecification1>,
+        <https://bioprotocols.org/paml/primitives/plate_handling/Seal/PinSpecification2>,
+        <https://bioprotocols.org/paml/primitives/plate_handling/Seal/PinSpecification3> ;
+    sbol:description "Seal a location to guarantee isolation from the external environment" ;
+    sbol:displayId "Seal" .
+
+<https://bioprotocols.org/paml/primitives/plate_handling/Uncover> a ns1:Primitive,
+        sbol:TopLevel ;
+    ns1:input <https://bioprotocols.org/paml/primitives/plate_handling/Uncover/PinSpecification1> ;
+    sbol:description "Uncover a location to allow materials to enter or exit" ;
+    sbol:displayId "Uncover" .
+
+<https://bioprotocols.org/paml/primitives/plate_handling/Unseal> a ns1:Primitive,
+        sbol:TopLevel ;
+    ns1:input <https://bioprotocols.org/paml/primitives/plate_handling/Unseal/PinSpecification1> ;
+    sbol:description "Unseal a sealed location to break its isolation from the external environment" ;
+    sbol:displayId "Unseal" .
+
+<https://bioprotocols.org/paml/primitives/plate_handling/Cover/PinSpecification1> a ns1:PinSpecification,
+        sbol:Identified ;
+    ns1:activityType ns1:Location ;
+    ns1:optional false ;
+    sbol:displayId "PinSpecification1" ;
+    sbol:name "location" .
+
+<https://bioprotocols.org/paml/primitives/plate_handling/Cover/PinSpecification2> a ns1:PinSpecification,
+        sbol:Identified ;
+    ns1:activityType xsd:anyURI ;
+    ns1:optional false ;
+    sbol:displayId "PinSpecification2" ;
+    sbol:name "type" .
+
+<https://bioprotocols.org/paml/primitives/plate_handling/Incubate/PinSpecification1> a ns1:PinSpecification,
+        sbol:Identified ;
+    ns1:activityType ns1:Location ;
+    ns1:optional false ;
+    sbol:displayId "PinSpecification1" ;
+    sbol:name "location" .
+
+<https://bioprotocols.org/paml/primitives/plate_handling/Incubate/PinSpecification2> a ns1:PinSpecification,
+        sbol:Identified ;
+    ns1:activityType om:Measure ;
+    ns1:optional false ;
+    sbol:displayId "PinSpecification2" ;
+    sbol:name "duration" .
+
+<https://bioprotocols.org/paml/primitives/plate_handling/Incubate/PinSpecification3> a ns1:PinSpecification,
+        sbol:Identified ;
+    ns1:activityType om:Measure ;
+    ns1:optional false ;
+    sbol:displayId "PinSpecification3" ;
+    sbol:name "temperature" .
+
+<https://bioprotocols.org/paml/primitives/plate_handling/Incubate/PinSpecification4> a ns1:PinSpecification,
+        sbol:Identified ;
+    ns1:activityType om:Measure ;
+    ns1:optional true ;
+    sbol:displayId "PinSpecification4" ;
+    sbol:name "shakingFrequency" .
+
+<https://bioprotocols.org/paml/primitives/plate_handling/Seal/PinSpecification1> a ns1:PinSpecification,
+        sbol:Identified ;
+    ns1:activityType ns1:Location ;
+    ns1:optional false ;
+    sbol:displayId "PinSpecification1" ;
+    sbol:name "location" .
+
+<https://bioprotocols.org/paml/primitives/plate_handling/Seal/PinSpecification2> a ns1:PinSpecification,
+        sbol:Identified ;
+    ns1:activityType xsd:anyURI ;
+    ns1:optional false ;
+    sbol:displayId "PinSpecification2" ;
+    sbol:name "type" .
+
+<https://bioprotocols.org/paml/primitives/plate_handling/Seal/PinSpecification3> a ns1:PinSpecification,
+        sbol:Identified ;
+    ns1:activityType xsd:anyURI ;
+    ns1:optional false ;
+    sbol:displayId "PinSpecification3" ;
+    sbol:name "method" .
+
+<https://bioprotocols.org/paml/primitives/plate_handling/Uncover/PinSpecification1> a ns1:PinSpecification,
+        sbol:Identified ;
+    ns1:activityType ns1:Location ;
+    ns1:optional false ;
+    sbol:displayId "PinSpecification1" ;
+    sbol:name "location" .
+
+<https://bioprotocols.org/paml/primitives/plate_handling/Unseal/PinSpecification1> a ns1:PinSpecification,
+        sbol:Identified ;
+    ns1:activityType ns1:Location ;
+    ns1:optional false ;
+    sbol:displayId "PinSpecification1" ;
+    sbol:name "location" .
+
