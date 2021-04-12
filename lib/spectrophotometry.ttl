@@ -40,7 +40,7 @@
     ns1:activityType ns1:LocatedSamples ;
     ns1:optional false ;
     sbol:displayId "PinSpecification1" ;
-    sbol:name "location" .
+    sbol:name "samples" .
 
 <https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureAbsorbance/PinSpecification2> a ns1:PinSpecification,
         sbol:Identified ;
@@ -67,7 +67,7 @@
     ns1:activityType ns1:LocatedSamples ;
     ns1:optional false ;
     sbol:displayId "PinSpecification1" ;
-    sbol:name "location" .
+    sbol:name "samples" .
 
 <https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureFluorescence/PinSpecification2> a ns1:PinSpecification,
         sbol:Identified ;
@@ -122,7 +122,7 @@
     ns1:activityType ns1:LocatedSamples ;
     ns1:optional false ;
     sbol:displayId "PinSpecification1" ;
-    sbol:name "location" .
+    sbol:name "samples" .
 
 <https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureFluorescenceSpectrum/PinSpecification2> a ns1:PinSpecification,
         sbol:Identified ;

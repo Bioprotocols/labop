@@ -22,30 +22,29 @@ p.add_output('samples', 'http://bioprotocols.org/paml#LocatedSamples')
 doc.add(p)
 
 p = paml.Primitive('Dispense')
-p.description = 'Move a measured volume of liquid from one source location to multiple destination locations'
-p.add_input('source', 'http://bioprotocols.org/paml#Location')
+p.description = 'Move a measured volume of liquid from one source sample to create samples at multiple destination locations'
+p.add_input('source', 'http://bioprotocols.org/paml#LocatedSamples')
 p.add_input('destination', 'http://bioprotocols.org/paml#Location')
-p.add_input('dispenseAmount', sbol3.OM_MEASURE) # Must be volume
+p.add_input('amount', sbol3.OM_MEASURE) # Must be volume
 p.add_input('dispenseVelocity', sbol3.OM_MEASURE, True)
 p.add_output('samples', 'http://bioprotocols.org/paml#LocatedSamples')
 doc.add(p)
 
 p = paml.Primitive('Transfer')
-p.description = 'Move a measured volume of liquid from an array of source locations to an identically shaped array of destination locations'
-p.add_input('source', 'http://bioprotocols.org/paml#Location')
+p.description = 'Move a measured volume of from an array of source samples to an identically shaped array in a destination locations'
+p.add_input('source', 'http://bioprotocols.org/paml#LocatedSamples')
 p.add_input('destination', 'http://bioprotocols.org/paml#Location')
-p.add_input('dispenseAmount', sbol3.OM_MEASURE) # Must be volume
+p.add_input('amount', sbol3.OM_MEASURE) # Must be volume
 p.add_input('dispenseVelocity', sbol3.OM_MEASURE, True)
 p.add_output('samples', 'http://bioprotocols.org/paml#LocatedSamples')
 doc.add(p)
 
 p = paml.Primitive('PipetteMix')
-p.description = 'Mix by cycling a measured volume of liquid in and out at an array of locations a fixed number of times'
-p.add_input('source', 'http://bioprotocols.org/paml#Location')
-p.add_input('dispenseAmount', sbol3.OM_MEASURE) # Must be volume
+p.description = 'Mix by cycling a measured volume of liquid in and out at an array of samples a fixed number of times'
+p.add_input('samples', 'http://bioprotocols.org/paml#LocatedSamples')
+p.add_input('amount', sbol3.OM_MEASURE) # Must be volume
 p.add_input('dispenseVelocity', sbol3.OM_MEASURE, True)
 p.add_input('cycleCount', sbol3.OM_MEASURE, True)
-p.add_output('samples', 'http://bioprotocols.org/paml#LocatedSamples')
 doc.add(p)
 
 print('Library construction complete')

@@ -43,9 +43,7 @@ final = paml.Final()
 protocol.hasActivity.append(final)
 
 # create the materials to be provisioned
-plate = paml.Container()
-plate.type = 'http://identifiers.org/NCIT:C43377' # NCIT microplate
-plate.name = 'Microplate'
+plate = paml.Container(name='Microplate', type=tyto.NCIT.get_uri_by_term('Microplate'))
 protocol.hasLocation.append(plate)
 
 ddH2O = sbol3.Component('ddH2O', 'https://identifiers.org/pubchem.substance:24901740')
@@ -87,7 +85,7 @@ protocol.add_flow(provision_ddH2O.output_pin('samples',doc), all_provisioned)
 execute_measurement = paml.make_PrimitiveExecutable(doc.find('MeasureAbsorbance'),
                                                wavelength=sbol3.Measure(600, tyto.OM.nanometer))
 protocol.hasActivity.append(execute_measurement)
-protocol.add_flow(all_provisioned, execute_measurement.input_pin('location',doc))
+protocol.add_flow(all_provisioned, execute_measurement.input_pin('samples',doc))
 
 result = paml.Value()
 protocol.hasActivity.append(result)

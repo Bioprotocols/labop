@@ -76,9 +76,9 @@ def markdown_provision(document, executable):
 ############
 # BUG: this should not need the document; this is due to pySBOL3 bug #176
 def markdown_absorbance(document, executable):
-    location = input_pin_value(document, executable, 'location')
+    samples = input_pin_value(document, executable, 'samples')
     wavelength = input_pin_value(document, executable, 'wavelength')
-    instruction = 'Measure absorbance of '+location+' at '+wavelength+'\n'
+    instruction = 'Measure absorbance of '+samples+' at '+wavelength+'\n'
     return instruction
 
 #################
@@ -158,11 +158,11 @@ def inference_provision(protocol, executable, flow_values):
     return {samples_flow : samples}
 
 def inference_absorbance(protocol, executable, flow_values):
-    location = type_from_pin_or_flow(protocol, executable, 'location', flow_values)
+    samples = type_from_pin_or_flow(protocol, executable, 'samples', flow_values)
     # TODO: make this a LocatedData rather than just copying the samples
     # samples = paml.LocatedData()
     samples_flow = next(x for x in protocol.hasFlow if x.source.lookup()==get_output_pin(executable, 'measurements'))
-    return {samples_flow : location}
+    return {samples_flow : samples}
 
 primitive_inference = {
     'https://bioprotocols.org/paml/primitives/liquid_handling/Provision' : inference_provision,

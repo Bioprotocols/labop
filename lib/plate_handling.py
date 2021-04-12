@@ -13,34 +13,41 @@ sbol3.set_namespace('https://bioprotocols.org/paml/primitives/'+LIBRARY_NAME)
 print('Making primitives for '+LIBRARY_NAME)
 
 p = paml.Primitive('Cover')
-p.description = 'Cover a location to keep materials from entering or exiting'
-p.add_input('location', 'http://bioprotocols.org/paml#Location')
+p.description = 'Cover a set of samples to keep materials from entering or exiting'
+p.add_input('location', 'http://bioprotocols.org/paml#LocatedSamples')
 p.add_input('type', 'http://www.w3.org/2001/XMLSchema#anyURI')
 doc.add(p)
 
-p = paml.Primitive('Seal')
-p.description = 'Seal a location to guarantee isolation from the external environment'
-p.add_input('location', 'http://bioprotocols.org/paml#Location')
+p = paml.Primitive('AdhesiveSeal')
+p.description = 'Seal a collection of samples using adhesive to fix the seal, in order to guarantee isolation from the external environment'
+p.add_input('location', 'http://bioprotocols.org/paml#LocatedSamples')
 p.add_input('type', 'http://www.w3.org/2001/XMLSchema#anyURI') # e.g., breathable vs. non-breathable
-p.add_input('method', 'http://www.w3.org/2001/XMLSchema#anyURI') # e.g., thermal vs. adhesive
+doc.add(p)
+
+p = paml.Primitive('ThermalSeal')
+p.description = 'Seal a collection of samples using heat to fix the seal, in order to guarantee isolation from the external environment'
+p.add_input('location', 'http://bioprotocols.org/paml#LocatedSamples')
+p.add_input('type', 'http://www.w3.org/2001/XMLSchema#anyURI') # e.g., breathable vs. non-breathable
+p.add_input('temperature', sbol3.OM_MEASURE)
+p.add_input('duration', sbol3.OM_MEASURE) # length of time to apply the sealing temperature in order to get the seal in place
 doc.add(p)
 
 p = paml.Primitive('Uncover')
-p.description = 'Uncover a location to allow materials to enter or exit'
-p.add_input('location', 'http://bioprotocols.org/paml#Location')
+p.description = 'Uncover a collection of samples to allow materials to enter or exit'
+p.add_input('location', 'http://bioprotocols.org/paml#LocatedSamples')
 doc.add(p)
 
 p = paml.Primitive('Unseal')
-p.description = 'Unseal a sealed location to break its isolation from the external environment'
-p.add_input('location', 'http://bioprotocols.org/paml#Location')
+p.description = 'Unseal a sealed collection of samples to break their isolation from the external environment'
+p.add_input('location', 'http://bioprotocols.org/paml#LocatedSamples')
 doc.add(p)
 
 p = paml.Primitive('Incubate')
-p.description = 'Incubate a sample under specified conditions for a fixed period of time'
-p.add_input('location', 'http://bioprotocols.org/paml#Location')
+p.description = 'Incubate a set of samples under specified conditions for a fixed period of time'
+p.add_input('location', 'http://bioprotocols.org/paml#LocatedSamples')
 p.add_input('duration', sbol3.OM_MEASURE) # time
 p.add_input('temperature', sbol3.OM_MEASURE) # temperature
-p.add_input('shakingFrequency', sbol3.OM_MEASURE, True) # Hertz; defaults to zero
+p.add_input('shakingFrequency', sbol3.OM_MEASURE, True) # Hertz or RPM?; in either case, defaults to zero
 doc.add(p)
 
 print('Library construction complete')
