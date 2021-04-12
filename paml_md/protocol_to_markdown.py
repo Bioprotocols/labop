@@ -241,7 +241,7 @@ def direct_precedents(protocol, activity):
 print('Reading document')
 
 doc = sbol3.Document()
-doc.read('test/igem_ludox_draft.json','json-ld')
+doc.read('test/testfiles/igem_ludox_draft.json','json-ld')
 
 # extract set of protocols from document
 protocols = {x for x in doc.objects if isinstance(x, paml.Protocol)}
@@ -380,7 +380,7 @@ def excel_write_flow_value(document, value, ws, row_offset):
 
 print('Writing Excel file')
 
-wb = openpyxl.load_workbook(filename = 'template.xlsx')
+wb = openpyxl.load_workbook(filename ='template.xlsx')
 ws = wb.active # get the default worksheet
 
 # write header & metadata
