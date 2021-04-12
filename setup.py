@@ -14,7 +14,8 @@ setup(name='paml',
             'requests',
             'graphviz', 'tyto'
       ],
-      packages=['paml'],
-      package_data={'paml': ['paml.ttl', 'lib/*.ttl']},
+      packages=['paml', 'paml_md'],
+      package_data={'paml': ['paml.ttl', 'lib/*.ttl'],
+                    'paml_md': ['template.xlsx']},
       include_package_data=True,
 )

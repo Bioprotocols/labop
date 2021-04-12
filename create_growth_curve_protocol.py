@@ -44,7 +44,7 @@ split_and_measure.material = {PBS}
 source_plate = paml.Container(name='Source Plate', type=tyto.NCIT.get_uri_by_term('Microplate'))
 od_plate = paml.Container(name='OD Plate', type=tyto.NCIT.get_uri_by_term('Microplate'))
 pbs_source = paml.Container(name='PBS Source', type=tyto.NCIT.get_uri_by_term('Bottle'))
-split_and_measure.hasLocation = {source_plate, od_plate, pbs_source}
+split_and_measure.locations = {source_plate, od_plate, pbs_source}
 
 #################
 # Inputs: source_plate, pbs_source
@@ -64,14 +64,14 @@ split_and_measure.add_flow(s_t.output_pin('samples',doc), s_m.input_pin('samples
 
 # add the measurements, in parallel
 ready_to_measure = paml.Fork()
-split_and_measure.hasActivity.append(ready_to_measure)
+split_and_measure.activities.append(ready_to_measure)
 split_and_measure.add_flow(s_m.output_pin('mixedSamples',doc), ready_to_measure)
 
 s_a = split_and_measure.execute_primitive(doc.find('MeasureAbsorbance'), location=od_plate,
                                           wavelength=sbol3.Measure(600, tyto.OM.nanometer), numFlashes=25)
 split_and_measure.add_flow(ready_to_measure, s_a.input_pin('sample',doc))
 v_a = paml.Value()
-split_and_measure.hasActivity.append(v_a)
+split_and_measure.activities.append(v_a)
 split_and_measure.add_flow(s_a.output_pin('measurements',doc), v_a)
 
 measurement_complete = paml.Join()
@@ -85,7 +85,7 @@ for g in gains:
                                                numFlashes=25, gain=g)
     split_and_measure.add_flow(ready_to_measure, s_f.input_pin('sample', doc))
     v_f = paml.Value()
-    split_and_measure.hasActivity.append(v_f)
+    split_and_measure.activities.append(v_f)
     split_and_measure.add_flow(s_f.output_pin('measurements', doc), v_f)
     split_and_measure.add_flow(v_f, measurement_complete)
 
@@ -131,7 +131,7 @@ om_source = paml.Container(name='Overnight SC Media Source', type=tyto.NCIT.get_
 overnight_plate = paml.Container(name='Overnight Growth Plate', type=tyto.NCIT.get_uri_by_term('Microplate'))
 growth_plate = paml.Container(name='Growth Curve Plate', type=tyto.NCIT.get_uri_by_term('Microplate'))
 strain_plate = paml.Container(name='Strain Plate', type=tyto.NCIT.get_uri_by_term('Microplate'))
-protocol.hasLocation = {pbs_source, sc_source, om_source, overnight_plate, growth_plate}
+protocol.locations = {pbs_source, sc_source, om_source, overnight_plate, growth_plate}
 
 print('Constructing protocol steps')
 
