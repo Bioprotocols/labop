@@ -2,6 +2,7 @@ import sbol3
 import paml
 import tyto
 import unittest
+import filecmp
 
 
 class TestProtocolEndToEnd(unittest.TestCase):
@@ -98,6 +99,8 @@ class TestProtocolEndToEnd(unittest.TestCase):
 
         doc.write('igem_ludox_draft.json', 'json-ld')
         doc.write('igem_ludox_draft.ttl', 'turtle')
+
+        filecmp.cmp('igem_ludox_draft.ttl','test/testfiles/igem_ludox_draft.ttl')
 
 
 if __name__ == '__main__':
