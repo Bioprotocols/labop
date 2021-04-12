@@ -2,6 +2,8 @@ import sbol3
 import paml
 import tyto
 import openpyxl
+import os
+import posixpath
 from copy import copy
 
 def markdown_measure(measure):
@@ -14,7 +16,7 @@ def markdown_container(container):
     return '[' + (container.display_id if (container.name is None) else container.name) + ']('+container.type+')'
 
 def markdown_containercoodinates(coordinates):
-    return markdown_container(coordinates.inContainer.lookup()) + ' ' + coordinates.coordinates
+    return markdown_container(coordinates.in_container.lookup()) + ' ' + coordinates.coordinates
 
 def markdown_location(location):
     if isinstance(location, paml.ContainerCoordinates):
@@ -35,17 +37,17 @@ def markdown_mergedlocations(location_list):
 
 def markdown_flow_value(document, value):
     if isinstance(value, paml.ReplicateSamples):
-        return markdown_mergedlocations({x.lookup() for x in value.inLocation})
+        return markdown_mergedlocations({x.lookup() for x in value.in_location})
     elif isinstance(value, paml.HeterogeneousSamples):
-        return markdown_mergedlocations({document.find(loc) for rep in value.hasReplicateSamples for loc in rep.inLocation})
+        return markdown_mergedlocations({document.find(loc) for rep in value.replicate_samples for loc in rep.in_location})
     # if we fall through to here:
     return str(value)
 
 
 ############
 # BUG: this should not need the document; this is due to pySBOL3 bug #176
-def input_pin_value(document, executable, pin_name):
-    pin_set = [x for x in executable.input if document.find(x.instanceOf).name == pin_name]
+def input_pin_value(document, protocol, executable, pin_name):
+    pin_set = [x for x in executable.input if document.find(x.instance_of).name == pin_name]
     if len(pin_set) != 1:
         return "[couldn't find input "+pin_name+"]"
     pin = pin_set[0]
@@ -58,26 +60,26 @@ def input_pin_value(document, executable, pin_name):
             return markdown_component(value)
         elif isinstance(value, paml.Location):
             return markdown_location(value)
-    elif flow_values[next(x for x in protocol.hasFlow if x.sink.lookup() in executable.input)]:
-        value = flow_values[next(x for x in protocol.hasFlow if x.sink.lookup() in executable.input)]
+    elif flow_values[next(x for x in protocol.flows if x.sink.lookup() in executable.input)]:
+        value = flow_values[next(x for x in protocol.flows if x.sink.lookup() in executable.input)]
         return markdown_flow_value(document, value)
     # if we fall through to here:
     return str(pin)
 
 ############
 # BUG: this should not need the document; this is due to pySBOL3 bug #176
-def markdown_provision(document, executable):
-    volume = input_pin_value(document, executable, 'amount')
-    resource = input_pin_value(document, executable, 'resource')
-    location = input_pin_value(document, executable, 'destination')
+def markdown_provision(document, protocol, executable):
+    volume = input_pin_value(document, protocol, executable, 'amount')
+    resource = input_pin_value(document, protocol, executable, 'resource')
+    location = input_pin_value(document, protocol, executable, 'destination')
     instruction = 'Pipette '+volume+' of '+resource+' into '+location+'\n'
     return instruction
 
 ############
 # BUG: this should not need the document; this is due to pySBOL3 bug #176
-def markdown_absorbance(document, executable):
-    samples = input_pin_value(document, executable, 'samples')
-    wavelength = input_pin_value(document, executable, 'wavelength')
+def markdown_absorbance(document, protocol, executable):
+    samples = input_pin_value(document, protocol, executable, 'samples')
+    wavelength = input_pin_value(document, protocol, executable, 'wavelength')
     instruction = 'Measure absorbance of '+samples+' at '+wavelength+'\n'
     return instruction
 
@@ -89,7 +91,7 @@ primitive_library = {
 }
 
 def get_value_flow_input(protocol, activity):
-    flows = (x for x in protocol.hasFlow if (x.sink.lookup() == activity)) # need to generalize to multiple
+    flows = (x for x in protocol.flows if (x.sink.lookup() == activity)) # need to generalize to multiple
     ########
     # TODO: remove this evil kludge where we're dipping into a global variable
     return flow_values[next(flows)]
@@ -105,11 +107,11 @@ def markdown_header(protocol):
 
 #############
 # BUG: this should not need the document; this is due to pySBOL3 bug #176
-def markdown_activity(document, activity):
+def markdown_activity(document, protocol, activity):
     if isinstance(activity, paml.PrimitiveExecutable):
-        stepwriter = primitive_library[document.find(activity.instanceOf).identity]
+        stepwriter = primitive_library[document.find(activity.instance_of).identity]
         assert stepwriter
-        return stepwriter(document, activity)
+        return stepwriter(document, protocol, activity)
     elif isinstance(activity, paml.Value):
         return markdown_value(document, protocol, activity)
     else:
@@ -128,7 +130,7 @@ def markdown_container_toplevel(container):
 
 def unpin_activity(protocol, activity):
     if isinstance(activity,paml.Pin):
-        owner = next(x for x in protocol.hasActivity if isinstance(x,paml.Executable) and
+        owner = next(x for x in protocol.activities if isinstance(x,paml.Executable) and
                      (activity in x.output or activity in protocol.input))
         return owner
     else:
@@ -137,31 +139,31 @@ def unpin_activity(protocol, activity):
 ##############################
 # Visitors for computing flow types
 def get_input_pin(executable, pin_name):
-    return next(x for x in executable.input if x.instanceOf.lookup().name == pin_name)
+    return next(x for x in executable.input if x.instance_of.lookup().name == pin_name)
 def get_output_pin(executable, pin_name):
-    return next(x for x in executable.output if x.instanceOf.lookup().name == pin_name)
+    return next(x for x in executable.output if x.instance_of.lookup().name == pin_name)
 
 def type_from_pin_or_flow(protocol, executable, pin_name, flow_values):
     pin = get_input_pin(executable, pin_name)
     if isinstance(pin, paml.LocalValuePin) or isinstance(pin, paml.ReferenceValuePin):
         return pin.value
     else:
-        return flow_values[next(x for x in protocol.hasFlow if (x.sink.lookup() == pin))]
+        return flow_values[next(x for x in protocol.flows if (x.sink.lookup() == pin))]
 
 def inference_provision(protocol, executable, flow_values):
     resource = type_from_pin_or_flow(protocol, executable, 'resource', flow_values)
     location = type_from_pin_or_flow(protocol, executable, 'destination', flow_values)
     samples = paml.ReplicateSamples()
-    samples.inLocation.append(location)
+    samples.in_location.append(location)
     samples.specification = resource
-    samples_flow = next(x for x in protocol.hasFlow if x.source.lookup()==get_output_pin(executable, 'samples'))
+    samples_flow = next(x for x in protocol.flows if x.source.lookup()==get_output_pin(executable, 'samples'))
     return {samples_flow : samples}
 
 def inference_absorbance(protocol, executable, flow_values):
     samples = type_from_pin_or_flow(protocol, executable, 'samples', flow_values)
     # TODO: make this a LocatedData rather than just copying the samples
     # samples = paml.LocatedData()
-    samples_flow = next(x for x in protocol.hasFlow if x.source.lookup()==get_output_pin(executable, 'measurements'))
+    samples_flow = next(x for x in protocol.flows if x.source.lookup()==get_output_pin(executable, 'measurements'))
     return {samples_flow : samples}
 
 primitive_inference = {
@@ -170,12 +172,12 @@ primitive_inference = {
 }
 
 def primitive_types(protocol, activity, flow_values):
-    inference_function = primitive_inference[activity.instanceOf.lookup().identity]
+    inference_function = primitive_inference[activity.instance_of.lookup().identity]
     assert inference_function
     return inference_function(protocol, activity, flow_values)
 
 def inflows_satisfied(protocol,flow_values,activity):
-    inflows = {x for x in protocol.hasFlow if (x.sink.lookup() == activity) or (isinstance(activity,paml.Executable) and x.sink.lookup() in activity.input)}
+    inflows = {x for x in protocol.flows if (x.sink.lookup() == activity) or (isinstance(activity,paml.Executable) and x.sink.lookup() in activity.input)}
     unsatisfied = inflows - flow_values.keys()
     return len(unsatisfied) == 0
 
@@ -186,9 +188,9 @@ def join_locations(value_set):
     next = value_set.pop()
     rest = join_locations(value_set)
     if isinstance(next, paml.ReplicateSamples):
-        rest.hasReplicateSamples.append(next)
+        rest.replicate_samples.append(next)
     elif isinstance(next, paml.HeterogeneousSamples):
-        for x in next.hasReplicateSamples: rest.hasReplicateSamples.append(x)
+        for x in next.replicate_samples: rest.replicate_samples.append(x)
     else:
         raise ValueError("Don't know how to join locations for "+str(value_set))
     return rest
@@ -201,8 +203,8 @@ def join_values(value_set):
 
 # returns a dictionary of outflow to type
 def outflow_types(protocol,activity,flow_values):
-    direct_outflows = {x for x in protocol.hasFlow if (x.source.lookup() == activity)}
-    direct_inflows = {x for x in protocol.hasFlow if (x.sink.lookup() == activity)}
+    direct_outflows = {x for x in protocol.flows if (x.source.lookup() == activity)}
+    direct_inflows = {x for x in protocol.flows if (x.sink.lookup() == activity)}
     if isinstance(activity, paml.Control):
         if isinstance(activity, paml.Initial):
             return {x: None for x in direct_outflows}
@@ -231,86 +233,81 @@ def outflow_types(protocol,activity,flow_values):
 ##############################
 # For serializing activities
 def direct_precedents(protocol, activity):
-    assert activity in protocol.hasActivity
-    flows = (x for x in protocol.hasFlow if (x.sink.lookup() == activity) or (isinstance(activity,paml.Executable) and x.sink.lookup() in activity.input))
+    assert activity in protocol.activities
+    flows = (x for x in protocol.flows if (x.sink.lookup() == activity) or (isinstance(activity,paml.Executable) and x.sink.lookup() in activity.input))
     precedents = {unpin_activity(protocol,x.source.lookup()) for x in flows}
     return precedents
 
 ##############################
 # Get the protocol
-print('Reading document')
+def get_protocol(doc:sbol3.Document):
+    # extract set of protocols from document
+    protocols = {x for x in doc.objects if isinstance(x, paml.Protocol)}
+    if len(protocols) == 0:
+        raise ValueError("Cannot find any protocols in document")
+    elif len(protocols) > 1:
+        raise ValueError("Found multiple protocols; don't know which to write")
 
-doc = sbol3.Document()
-doc.read('test/igem_ludox_draft.json','json-ld')
-
-# extract set of protocols from document
-protocols = {x for x in doc.objects if isinstance(x, paml.Protocol)}
-if len(protocols)==0:
-    raise ValueError("Cannot find any protocols in document")
-elif len(protocols)>1:
-    raise ValueError("Found multiple protocols; don't know which to write")
-
-# pull the first and only
-protocol = protocols.pop()
-
-print('Found protocol: '+protocol.display_id)
+    # pull the first and only
+    return protocols.pop()
 
 ##############################
 # Infer values carried on flows
-print('Inferring flow values')
 
 flow_values = {} # dictionary of flow : type mappings
-pending_activities = set(protocol.hasActivity)
-while pending_activities:
-    non_blocked = {x for x in pending_activities if inflows_satisfied(protocol,flow_values,x)}
-    if not non_blocked:
-        raise ValueError("Could not infer all flow types: circular dependency?")
-        break
-    for activity in non_blocked:
-        flow_values.update(outflow_types(protocol,activity,flow_values))
-    pending_activities -= non_blocked
+def infer_flow_values(protocol:paml.Protocol):
+    pending_activities = set(protocol.activities)
+    while pending_activities:
+        non_blocked = {x for x in pending_activities if inflows_satisfied(protocol, flow_values, x)}
+        if not non_blocked:
+            raise ValueError("Could not infer all flow types: circular dependency?")
+            break
+        for activity in non_blocked:
+            flow_values.update(outflow_types(protocol, activity, flow_values))
+        pending_activities -= non_blocked
 
 
 ##############################
 # Serialize order of steps
-print('Serializing activities')
 
-serialized_activities = []
-pending_activities = set(protocol.hasActivity)
-while pending_activities:
-    non_blocked = {x for x in pending_activities if not (direct_precedents(protocol,x) & set(pending_activities))}
-    if not non_blocked:
-        raise ValueError("Could not serialize all activities: circular dependency?")
-        break
-    serialized_activities += non_blocked
-    pending_activities -= non_blocked
+def serialize_activities(protocol:paml.Protocol):
+    serialized_activities = []
+    pending_activities = set(protocol.activities)
+    while pending_activities:
+        non_blocked = {x for x in pending_activities if not (direct_precedents(protocol, x) & set(pending_activities))}
+        if not non_blocked:
+            raise ValueError("Could not serialize all activities: circular dependency?")
+        serialized_activities += non_blocked
+        pending_activities -= non_blocked
 
-assert isinstance(serialized_activities[0],paml.Initial)
-assert isinstance(serialized_activities[-1],paml.Final)
+    assert isinstance(serialized_activities[0], paml.Initial)
+    assert isinstance(serialized_activities[-1], paml.Final)
 
-# filter out control flow statements
-serialized_noncontrol_activities = [x for x in serialized_activities if not isinstance(x,paml.Control)]
+    # filter out control flow statements
+    serialized_noncontrol_activities = [x for x in serialized_activities if not isinstance(x, paml.Control)]
+    return serialized_noncontrol_activities
 
 ##############################
 # Write to a markdown file
 
-print('Writing markdown file')
+def write_markdown_file(doc, protocol, serialized_noncontrol_activities):
+    with open(protocol.display_id + '.md', 'w') as file:
+        file.write(markdown_header(protocol))
 
-with open(protocol.display_id+'.md', 'w') as file:
-    file.write(markdown_header(protocol))
+        file.write('\n\n## Materials\n')
+        for material in protocol.material:
+            file.write(markdown_material(material.lookup()))
+        for container in (x for x in protocol.locations if isinstance(x, paml.Container)):
+            file.write(markdown_container_toplevel(container))
 
-    file.write('\n\n## Materials\n')
-    for material in protocol.material:
-        file.write(markdown_material(material.lookup()))
-    for container in (x for x in protocol.hasLocation if isinstance(x,paml.Container)):
-        file.write(markdown_container_toplevel(container))
+        file.write('\n\n## Steps\n')
+        for step in range(len(serialized_noncontrol_activities)):
+            file.write('### Step ' + str(step + 1) + '\n' + markdown_activity(doc, protocol, serialized_noncontrol_activities[
+                step]) + '\n')
 
-    file.write('\n\n## Steps\n')
-    for step in range(len(serialized_noncontrol_activities)):
-        file.write('### Step '+str(step+1)+'\n'+markdown_activity(doc,serialized_noncontrol_activities[step])+'\n')
+        # make sure the file is fully written
+        file.flush()
 
-    # make sure the file is fully written
-    file.flush()
 
 ##############################
 # Write to an accompanying Excel file
@@ -322,10 +319,13 @@ def excel_container_name(container):
 #     return '[' + (container.display_id if (container.name is None) else container.name) + ']('+container.type+')'
 
 def excel_write_containercoodinates(ws, row_offset, col_offset, coordinates, specification_URI):
+    fixed_style = ws['A2'].fill
+    entry_style = ws['C2'].fill
+
     # get the column letter
     col = openpyxl.utils.cell.get_column_letter(col_offset+1)
     # make the header
-    ws[col+str(row_offset)] = excel_container_name(coordinates.inContainer.lookup())
+    ws[col+str(row_offset)] = excel_container_name(coordinates.in_container.lookup())
     # write the materials
     block = openpyxl.utils.cell.range_boundaries(coordinates.coordinates)
     # use plate coordinates, which are the opposite of excel coordinates
@@ -347,7 +347,7 @@ def excel_write_containercoodinates(ws, row_offset, col_offset, coordinates, spe
             ws[coord].fill = copy(entry_style)
             ws[coord].alignment = openpyxl.styles.Alignment(horizontal="center")
             plate_coord = openpyxl.utils.cell.get_column_letter(block[0]+plate_row)+str(block[1]+plate_col)
-            ws[coord].comment = openpyxl.comments.Comment(coordinates.inContainer+"_"+plate_coord+" "+specification_URI, "PAML autogeneration, do not modify", height=24, width=1000)
+            ws[coord].comment = openpyxl.comments.Comment(coordinates.in_container+"_"+plate_coord+" "+specification_URI, "PAML autogeneration, do not modify", height=24, width=1000)
             ws[coord].protection = openpyxl.styles.Protection(locked=False)
 
     return (height+2, width+1)
@@ -372,39 +372,61 @@ def excel_write_mergedlocations(ws, row_offset, location_spec_list):
 
 def excel_write_flow_value(document, value, ws, row_offset):
     if isinstance(value, paml.ReplicateSamples):
-        return excel_write_mergedlocations(ws, row_offset, {x.lookup():value.specification for x in value.inLocation})
+        return excel_write_mergedlocations(ws, row_offset, {x.lookup():value.specification for x in value.in_location})
     elif isinstance(value, paml.HeterogeneousSamples):
-        return excel_write_mergedlocations(ws, row_offset, {document.find(loc):rep.specification for rep in value.hasReplicateSamples for loc in rep.inLocation})
+        return excel_write_mergedlocations(ws, row_offset, {document.find(loc):rep.specification for rep in value.replicate_samples for loc in rep.in_location})
     # if we fall through to here:
     return str(value)
 
-print('Writing Excel file')
 
-wb = openpyxl.load_workbook(filename = 'template.xlsx')
-ws = wb.active # get the default worksheet
+def write_excel_file(doc, protocol, serialized_noncontrol_activities):
+    template_path = posixpath.join(os.path.dirname(os.path.realpath(__file__)),'template.xlsx')
+    wb = openpyxl.load_workbook(filename=template_path)
+    ws = wb.active  # get the default worksheet
 
-# write header & metadata
-ws.title = "Data Reporting"
-ws.protection.enable()
-ws['D1'] = protocol.name
-ws['D1'].comment = openpyxl.comments.Comment(protocol.identity, "PAML autogeneration, do not modify", height=24, width=1000)
-for row in ws['C2:C4']:
-    for cell in row: cell.protection = openpyxl.styles.Protection(locked=False) # unlock metadata locations
-fixed_style = ws['A2'].fill
-entry_style = ws['C2'].fill
-header_style = ws['A1'].font
-row_offset = 7 # starting point for entries
+    # write header & metadata
+    ws.title = "Data Reporting"
+    ws.protection.enable()
+    ws['D1'] = protocol.name
+    ws['D1'].comment = openpyxl.comments.Comment(protocol.identity, "PAML autogeneration, do not modify", height=24,
+                                                 width=1000)
+    for row in ws['C2:C4']:
+        for cell in row: cell.protection = openpyxl.styles.Protection(locked=False)  # unlock metadata locations
+    header_style = ws['A1'].font
+    row_offset = 7  # starting point for entries
 
-# write each value set, incrementing each time
-value_steps = (step for step in range(len(serialized_noncontrol_activities)) if isinstance(serialized_noncontrol_activities[step], paml.Value))
-for step in value_steps:
-    coord = 'A'+str(row_offset)
-    ws[coord] = 'Report from Step '+str(step+1)
-    ws[coord].font = copy(header_style)
-    value_locations = get_value_flow_input(protocol, serialized_noncontrol_activities[step])
-    block_height = excel_write_flow_value(doc, value_locations, ws, row_offset+1)
-    row_offset += block_height + 2
+    # write each value set, incrementing each time
+    value_steps = (step for step in range(len(serialized_noncontrol_activities)) if
+                   isinstance(serialized_noncontrol_activities[step], paml.Value))
+    for step in value_steps:
+        coord = 'A' + str(row_offset)
+        ws[coord] = 'Report from Step ' + str(step + 1)
+        ws[coord].font = copy(header_style)
+        value_locations = get_value_flow_input(protocol, serialized_noncontrol_activities[step])
+        block_height = excel_write_flow_value(doc, value_locations, ws, row_offset + 1)
+        row_offset += block_height + 2
 
-wb.save(protocol.display_id+'.xlsx')
+    wb.save(protocol.display_id + '.xlsx')
 
-print('Export complete')
+##############################
+# Entry-point for document conversion
+
+# TODO: allow us to control the name of the output
+def convert_document(doc:sbol3.Document):
+    print('Finding protocol')
+    protocol = get_protocol(doc)
+    print('Found protocol: '+protocol.display_id)
+
+    print('Inferring flow values')
+    infer_flow_values(protocol)
+
+    print('Serializing activities')
+    serialized_noncontrol_activities = serialize_activities(protocol)
+
+    print('Writing markdown file')
+    write_markdown_file(doc, protocol, serialized_noncontrol_activities)
+
+    print('Writing Excel file')
+    write_excel_file(doc, protocol, serialized_noncontrol_activities)
+
+    print('Export complete')

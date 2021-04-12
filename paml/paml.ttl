@@ -89,13 +89,13 @@ paml:Executable rdf:type owl:Class ;
 paml:instanceOfPinSpecification rdf:type owl:ObjectProperty ;
               rdfs:domain paml:Pin ;
               rdfs:range paml:PinSpecification ;
-              rdfs:label "instanceOf" ;
+              rdfs:label "instance_of" ;
               rdfs:comment "Pin specification linked from Primitive definition" .
 
 paml:instanceOfPrimitive rdf:type owl:ObjectProperty ;
               rdfs:domain paml:PrimitiveExecutable ;
               rdfs:range paml:Primitive ;
-              rdfs:label "instanceOf" ;
+              rdfs:label "instance_of" ;
               rdfs:comment "Primitive to be executed" .
 
 paml:Pin rdf:type owl:Class ;
@@ -160,17 +160,17 @@ paml:SubProtocol rdf:type owl:Class ;
               rdfs:comment "An executable that is implemented as a Protocol, with its Pins determined by the input and output properties" ;
         rdfs:subClassOf paml:Executable ,
         [ rdf:type owl:Restriction ;
-                owl:onProperty paml:implementedBy ;
+                owl:onProperty paml:instanceOfSubProtocol ;
                 owl:onClass paml:Protocol ;
                 owl:minCardinality "1"^^xsd:nonNegativeInteger ;
                 owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
               ] .
 
-paml:implementedBy rdf:type owl:ObjectProperty ;
+paml:instanceOfSubProtocol rdf:type owl:ObjectProperty ;
               rdfs:domain paml:SubProtocol ;
               rdfs:range paml:Protocol ;
-              rdfs:label "implementedBy" ;
-              rdfs:comment "Protocol to be executed as a sub-protocol" .
+              rdfs:label "instance_of" ;
+              rdfs:comment "Primitive to be executed" .
 
 paml:Value rdf:type owl:Class ;
               rdfs:comment "Value activities are unilateral sources and sinks of information in the graph" ;
@@ -219,19 +219,6 @@ paml:sink rdf:type owl:ObjectProperty ;
               rdfs:comment "Activity at which a flow arrives" .
 
 
-paml:ControlFlow rdf:type owl:Class ;
-        rdfs:subClassOf paml:Flow ;
-              rdfs:comment "Control flows indicate that the source activity must occur before the sink activity" .
-
-paml:InformationFlow rdf:type owl:Class ;
-        rdfs:subClassOf paml:Flow ;
-              rdfs:comment "Information flows indicate that information produced by an activity is used by another activity" .
-
-paml:PhysicalFlow rdf:type owl:Class ;
-        rdfs:subClassOf paml:Flow ;
-              rdfs:comment "Physical flows indicate that a material produced by an activity is used by another activity" .
-
-
 # Protocol
 paml:Protocol rdf:type owl:Class ;
               rdfs:comment "A protocol is an acyclic directed graph made of activities (nodes) and flows (edges). It must have precisely one Initial and one Final that are the unique top and bottom nodes of the graph" ; 
@@ -267,14 +254,14 @@ paml:hasActivity rdf:type owl:ObjectProperty ;
               rdfs:subPropertyOf opil:compositionalProperty ;
               rdfs:domain paml:Protocol ;
               rdfs:range paml:Activity ;
-              rdfs:label "hasActivity" ;
+              rdfs:label "activities" ;
               rdfs:comment "Activity in a Protocol" .
 
 paml:hasFlow rdf:type owl:ObjectProperty ;
               rdfs:subPropertyOf opil:compositionalProperty ;
               rdfs:domain paml:Protocol ;
               rdfs:range paml:Flow ;
-              rdfs:label "hasFlow" ;
+              rdfs:label "flows" ;
               rdfs:comment "Flow in a Protocol" .
 
 paml:material rdf:type owl:ObjectProperty ;
@@ -287,7 +274,7 @@ paml:hasLocation rdf:type owl:ObjectProperty ;
               rdfs:subPropertyOf opil:compositionalProperty ;
               rdfs:domain paml:Protocol ;
               rdfs:range paml:Location ;
-              rdfs:label "hasLocation" ;
+              rdfs:label "locations" ;
               rdfs:comment "Any location referenced in a Protocol" .
 
 paml:inputActivity rdf:type owl:ObjectProperty ;
@@ -443,7 +430,7 @@ paml:coordinates rdf:type owl:DatatypeProperty ;
 paml:inContainer rdf:type owl:ObjectProperty ;
               rdfs:domain paml:ContainerCoordinates ;
               rdfs:range paml:Container ;
-              rdfs:label "inContainer" .
+              rdfs:label "in_container" .
 
 paml:specification rdf:type owl:ObjectProperty ;
               rdfs:domain paml:ReplicateSamples ;
@@ -453,15 +440,15 @@ paml:specification rdf:type owl:ObjectProperty ;
 paml:inLocation rdf:type owl:ObjectProperty ;
               rdfs:domain paml:ReplicateSamples ;
               rdfs:range paml:Location ;
-              rdfs:label "inLocation" .
+              rdfs:label "in_location" .
 
 paml:hasReplicateSamples rdf:type owl:ObjectProperty ;
               rdfs:subPropertyOf opil:compositionalProperty ;
               rdfs:domain paml:HeterogeneousSamples ;
               rdfs:range paml:ReplicateSamples ;
-              rdfs:label "hasReplicateSamples" .
+              rdfs:label "replicate_samples" .
 
 paml:hasExperimentalData rdf:type owl:ObjectProperty ;
               rdfs:domain paml:LocatedData ;
               rdfs:range sbol:ExperimentalData ;
-              rdfs:label "hasExperimentalData" .
+              rdfs:label "experimental_data" .

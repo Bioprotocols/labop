@@ -37,7 +37,7 @@ def make_PrimitiveExecutable(primitive: Primitive, **input_pin_map):
     self = PrimitiveExecutable()
 
     # link to primitive prototype
-    self.instanceOf = primitive
+    self.instance_of = primitive
 
     # Instantiate input pins
     for pin_spec in primitive.input:
@@ -60,7 +60,7 @@ def make_PrimitiveExecutable(primitive: Primitive, **input_pin_map):
             pin = Pin()
 
         # Set properties
-        pin.instanceOf = pin_spec
+        pin.instance_of = pin_spec
         pin.name = pin_spec.name
         pin.type = pin_spec.type
         self.input.append(pin)
@@ -72,22 +72,22 @@ def make_PrimitiveExecutable(primitive: Primitive, **input_pin_map):
 
         # Set properties
         pin.name = pin_spec.name
-        pin.instanceOf = pin_spec
+        pin.instance_of = pin_spec
         self.output.append(pin)
 
     return self
 
 def PrimitiveExecutable_input_pin(self, pin_name, doc):
-    #pin_set = [x for x in self.input if x.instanceOf.lookup().name == pin_name or doc.find(x.instanceOf).display_id == pin_name] # note: pySBOL3 issue 229
-    pin_set = [x for x in self.input if doc.find(x.instanceOf).name == pin_name or doc.find(x.instanceOf).display_id == pin_name] # workaround for PAML issue #5
+    #pin_set = [x for x in self.input if x.instance_of.lookup().name == pin_name or doc.find(x.instance_of).display_id == pin_name] # note: pySBOL3 issue 229
+    pin_set = [x for x in self.input if doc.find(x.instance_of).name == pin_name or doc.find(x.instance_of).display_id == pin_name] # workaround for PAML issue #5
     assert len(pin_set)>0, ValueError("Couldn't find input pin named "+pin_name)
     assert len(pin_set)<2, ValueError("Found more than one input pin named "+pin_name)
     return pin_set[0]
 PrimitiveExecutable.input_pin = PrimitiveExecutable_input_pin
 
 def PrimitiveExecutable_output_pin(self, pin_name, doc):
-    #pin_set = [x for x in self.output if x.instanceOf.lookup().name == pin_name or doc.find(x.instanceOf).display_id == pin_name] # note: pySBOL3 issue 229
-    pin_set = [x for x in self.output if doc.find(x.instanceOf).name == pin_name or doc.find(x.instanceOf).display_id == pin_name] # workaround for PAML issue #5
+    #pin_set = [x for x in self.output if x.instance_of.lookup().name == pin_name or doc.find(x.instance_of).display_id == pin_name] # note: pySBOL3 issue 229
+    pin_set = [x for x in self.output if doc.find(x.instance_of).name == pin_name or doc.find(x.instance_of).display_id == pin_name] # workaround for PAML issue #5
     assert len(pin_set)>0, ValueError("Couldn't find output pin named "+pin_name)
     assert len(pin_set)<2, ValueError("Found more than one output pin named "+pin_name)
     return pin_set[0]
@@ -97,16 +97,16 @@ PrimitiveExecutable.output_pin = PrimitiveExecutable_output_pin
 # Another helper; this one should probably be added as an extension
 
 def protocol_contains_activity(self, activity):
-    return (activity in self.hasActivity) or \
-           next((x for x in self.hasActivity if
+    return (activity in self.activities) or \
+           next((x for x in self.activities if
                  isinstance(x, Executable) and (activity in x.input or activity in x.output)), False)
 # Monkey patch:
 Protocol.contains_activity = protocol_contains_activity
 
 def Protocol_initial(self):
-    initial = [a for a in self.hasActivity if isinstance(a, Initial)]
+    initial = [a for a in self.activities if isinstance(a, Initial)]
     if not initial:
-        self.hasActivity.append(Initial())
+        self.activities.append(Initial())
         return Protocol_initial(self)
     elif len(initial)==1:
         return initial[0]
@@ -116,9 +116,9 @@ def Protocol_initial(self):
 Protocol.initial = Protocol_initial
 
 def Protocol_final(self):
-    final = [a for a in self.hasActivity if isinstance(a, Final)]
+    final = [a for a in self.activities if isinstance(a, Final)]
     if not final:
-        self.hasActivity.append(Final())
+        self.activities.append(Final())
         return Protocol_final(self)
     elif len(final)==1:
         return final[0]
@@ -130,7 +130,7 @@ Protocol.final = Protocol_final
 # Create and add an execution of a primitive to a protocol
 def protocol_execute_primitive(self, primitive: Primitive, **input_pin_map):
     pe = make_PrimitiveExecutable(primitive, **input_pin_map)
-    self.hasActivity.append(pe)
+    self.activities.append(pe)
     return pe
 # Monkey patch:
 Protocol.execute_primitive = protocol_execute_primitive
@@ -144,7 +144,7 @@ def protocol_add_flow(self, source, sink):
     flow = Flow()
     flow.source = source
     flow.sink = sink
-    self.hasFlow.append(flow)
+    self.flows.append(flow)
     return flow
 # Monkey patch:
 Protocol.add_flow = protocol_add_flow
@@ -152,6 +152,8 @@ Protocol.add_flow = protocol_add_flow
 
 #########################################
 # Library handling
+current_libraries = {}
+
 def import_library(doc:sbol.Document, library:str, file_format:str = 'ttl' ):
     if not os.path.isfile(library):
         library = posixpath.join(os.path.dirname(os.path.realpath(__file__)),
