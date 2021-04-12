@@ -160,17 +160,17 @@ paml:SubProtocol rdf:type owl:Class ;
               rdfs:comment "An executable that is implemented as a Protocol, with its Pins determined by the input and output properties" ;
         rdfs:subClassOf paml:Executable ,
         [ rdf:type owl:Restriction ;
-                owl:onProperty paml:implementedBy ;
+                owl:onProperty paml:instanceOfSubProtocol ;
                 owl:onClass paml:Protocol ;
                 owl:minCardinality "1"^^xsd:nonNegativeInteger ;
                 owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
               ] .
 
-paml:implementedBy rdf:type owl:ObjectProperty ;
+paml:instanceOfSubProtocol rdf:type owl:ObjectProperty ;
               rdfs:domain paml:SubProtocol ;
               rdfs:range paml:Protocol ;
-              rdfs:label "implemented_by" ;
-              rdfs:comment "Protocol to be executed as a sub-protocol" .
+              rdfs:label "instance_of" ;
+              rdfs:comment "Primitive to be executed" .
 
 paml:Value rdf:type owl:Class ;
               rdfs:comment "Value activities are unilateral sources and sinks of information in the graph" ;
@@ -217,19 +217,6 @@ paml:sink rdf:type owl:ObjectProperty ;
               rdfs:range paml:Activity ;
               rdfs:label "sink" ;
               rdfs:comment "Activity at which a flow arrives" .
-
-
-paml:ControlFlow rdf:type owl:Class ;
-        rdfs:subClassOf paml:Flow ;
-              rdfs:comment "Control flows indicate that the source activity must occur before the sink activity" .
-
-paml:InformationFlow rdf:type owl:Class ;
-        rdfs:subClassOf paml:Flow ;
-              rdfs:comment "Information flows indicate that information produced by an activity is used by another activity" .
-
-paml:PhysicalFlow rdf:type owl:Class ;
-        rdfs:subClassOf paml:Flow ;
-              rdfs:comment "Physical flows indicate that a material produced by an activity is used by another activity" .
 
 
 # Protocol

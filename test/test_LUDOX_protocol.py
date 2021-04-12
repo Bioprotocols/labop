@@ -54,19 +54,15 @@ is only weakly scattering and so will give a low absorbance value.
         protocol.material += {ddh2o, ludox}
 
         # actual steps of the protocol
-        location = paml.ContainerCoordinates()
+        location = paml.ContainerCoordinates(in_container = plate, coordinates = 'A1:D1')
         protocol.locations.append(location)
-        location.in_container = plate
-        location.coordinates = 'A1:D1'
         provision_ludox = paml.make_PrimitiveExecutable(doc.find('Provision'), resource=ludox, destination=location,
                                                         amount=sbol3.Measure(100, tyto.OM.microliter))
         protocol.activities.append(provision_ludox)
         protocol.add_flow(protocol.initial(), provision_ludox)
 
-        location = paml.ContainerCoordinates()
+        location = paml.ContainerCoordinates(in_container = plate, coordinates = 'A2:D2')
         protocol.locations.append(location)
-        location.in_container = plate
-        location.coordinates = 'A2:D2'
         provision_ddh2o = paml.make_PrimitiveExecutable(doc.find('Provision'), resource=ddh2o, destination=location,
                                                         amount=sbol3.Measure(100, tyto.OM.microliter))
         protocol.activities.append(provision_ddh2o)
