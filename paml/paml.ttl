@@ -46,14 +46,7 @@ paml:Activity rdf:type owl:Class ;
 paml:Control rdf:type owl:Class ;
         rdfs:subClassOf paml:Activity ;
               rdfs:comment "Abstract class; Control activities regulate progress through the activity graph" .
-#       [ rdf:type owl:Restriction ;
-#                owl:onProperty paml:controlType ;
-#                owl:allValuesFrom xsd:anyURI
-#                owl:minCardinality "1"^^xsd:nonNegativeInteger ;
-#                owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
-#              ] ;
-        
-# change control subclasses can be changed into an enum on Control?
+
 paml:Fork rdf:type owl:Class ;
         rdfs:subClassOf paml:Control ;
               rdfs:comment "Fork executes multiples paths in parallel" .

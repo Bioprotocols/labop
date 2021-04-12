@@ -17,19 +17,23 @@ def primitive_add_input(self, name, type, optional=False):
     pin.type = type
     pin.optional = optional
     self.input.append(pin)
+# Monkey patch
+Primitive.add_input = primitive_add_input
 
 def primitive_add_output(self, name, type):
     pin = PinSpecification()
     pin.name = name
     pin.type = type
     self.output.append(pin)
-
 # Monkey patch
-Primitive.add_input = primitive_add_input
 Primitive.add_output = primitive_add_output
 
 # PrimitiveExecutable factory function (can't override iterator)
 def make_PrimitiveExecutable(primitive: Primitive, **input_pin_map):
+    # first, make sure that all of the keyword arguments are in the inputs of the selected primitive
+    unmatched_keys = [key for key in input_pin_map.keys() if key not in (i.name for i in primitive.input)]
+    assert not unmatched_keys, ValueError("Primitive '"+primitive.display_id+"' does not have specified keys: "+str(unmatched_keys))
+
     self = PrimitiveExecutable()
 
     # link to primitive prototype
@@ -99,6 +103,37 @@ def protocol_contains_activity(self, activity):
 # Monkey patch:
 Protocol.contains_activity = protocol_contains_activity
 
+def Protocol_initial(self):
+    initial = [a for a in self.hasActivity if isinstance(a, Initial)]
+    if not initial:
+        self.hasActivity.append(Initial())
+        return Protocol_initial(self)
+    elif len(initial)==1:
+        return initial[0]
+    else:
+        raise ValueError("Protocol '"+self.display_id+"'must have only one Initial node, but found "+str(len(initial)))
+# Monkey patch:
+Protocol.get_initial = Protocol_initial
+
+def Protocol_final(self):
+    final = [a for a in self.hasActivity if isinstance(a, Final)]
+    if not final:
+        self.hasActivity.append(Final())
+        return Protocol_final(self)
+    elif len(final)==1:
+        return final[0]
+    else:
+        raise ValueError("Protocol '"+self.display_id+"'must have only one Final node, but found "+str(len(final)))
+# Monkey patch:
+Protocol.get_final = Protocol_final
+
+# Create and add an execution of a primitive to a protocol
+def protocol_execute_primitive(self, primitive: Primitive, **input_pin_map):
+    pe = make_PrimitiveExecutable(primitive, **input_pin_map)
+    self.hasActivity.append(pe)
+    return pe
+# Monkey patch:
+Protocol.execute_primitive = protocol_execute_primitive
 
 # Create and add a flow between the designated child source and sink activities
 def protocol_add_flow(self, source, sink):
@@ -115,8 +150,12 @@ def protocol_add_flow(self, source, sink):
 Protocol.add_flow = protocol_add_flow
 
 
-def import_library(doc:sbol.Document, location:str, file_format:str = None ):
+#########################################
+# Library handling
+def import_library(doc:sbol.Document, library:str, file_format:str = 'ttl' ):
+    libpath = (library if os.path.isfile(library) else ('../lib/'+library+'.ttl'))
     tmp = sbol.Document()
-    tmp.read(location, file_format)
+    tmp.read(libpath, file_format)
     # copy all of the objects into the working document
     for o in tmp.objects: o.copy(doc)
+    # TODO: change library imports to copy lazily, using either display_id or lib:display_id to disambiguate
