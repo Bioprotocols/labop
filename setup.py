@@ -12,7 +12,9 @@ setup(name='paml',
             'python-dateutil>=2.8.1',
             'sbol-factory==1.0a2.post0',
             'requests',
-            'graphviz', 'tyto'
+            'graphviz',
+            'tyto',
+            'openpyxl'
       ],
       packages=['paml', 'paml_md'],
       package_data={'paml': ['paml.ttl', 'lib/*.ttl'],
