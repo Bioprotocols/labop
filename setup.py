@@ -1,9 +1,5 @@
 from setuptools import setup
 
-# This version includes a patch that squelches logging in
-# the opil factory, which was conflicting with logging in
-# other modules
-
 setup(name='paml',
       description='Protocol Activity Modeling Language',
       version='1.0a1',
