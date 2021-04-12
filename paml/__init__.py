@@ -113,7 +113,7 @@ def Protocol_initial(self):
     else:
         raise ValueError("Protocol '"+self.display_id+"'must have only one Initial node, but found "+str(len(initial)))
 # Monkey patch:
-Protocol.get_initial = Protocol_initial
+Protocol.initial = Protocol_initial
 
 def Protocol_final(self):
     final = [a for a in self.hasActivity if isinstance(a, Final)]
@@ -125,7 +125,7 @@ def Protocol_final(self):
     else:
         raise ValueError("Protocol '"+self.display_id+"'must have only one Final node, but found "+str(len(final)))
 # Monkey patch:
-Protocol.get_final = Protocol_final
+Protocol.final = Protocol_final
 
 # Create and add an execution of a primitive to a protocol
 def protocol_execute_primitive(self, primitive: Primitive, **input_pin_map):
@@ -153,9 +153,11 @@ Protocol.add_flow = protocol_add_flow
 #########################################
 # Library handling
 def import_library(doc:sbol.Document, library:str, file_format:str = 'ttl' ):
-    libpath = (library if os.path.isfile(library) else ('../lib/'+library+'.ttl'))
+    if not os.path.isfile(library):
+        library = posixpath.join(os.path.dirname(os.path.realpath(__file__)),
+                                 ('lib/'+library+'.ttl'))
     tmp = sbol.Document()
-    tmp.read(libpath, file_format)
+    tmp.read(library, file_format)
     # copy all of the objects into the working document
     for o in tmp.objects: o.copy(doc)
     # TODO: change library imports to copy lazily, using either display_id or lib:display_id to disambiguate

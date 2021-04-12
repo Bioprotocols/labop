@@ -8,17 +8,20 @@ class TestProtocolEndToEnd(unittest.TestCase):
     def test_create_protocol(self):
         #############################################
         # set up the document
+        print('Setting up document')
         doc = sbol3.Document()
         sbol3.set_namespace('https://bbn.com/scratch/')
 
         #############################################
         # Import the primitive libraries
+        print('Importing libraries')
         paml.import_library(doc, 'liquid_handling')
         paml.import_library(doc, 'plate_handling')
         paml.import_library(doc, 'spectrophotometry')
 
         #############################################
         # Create the protocol
+        print('Creating protocol')
         protocol = paml.Protocol('iGEM_LUDOX_OD_calibration_2018')
         protocol.name = "iGEM 2018 LUDOX OD calibration protocol"
         protocol.description = '''
@@ -89,8 +92,9 @@ class TestProtocolEndToEnd(unittest.TestCase):
 
         ########################################
         # Validate and write the document
+        print('Validating and writing protocol')
         v = doc.validate()
-        assert not v.errors and v.warnings
+        assert not v.errors and not v.warnings
 
         doc.write('igem_ludox_draft.json', 'json-ld')
         doc.write('igem_ludox_draft.ttl', 'turtle')

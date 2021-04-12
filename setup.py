@@ -19,11 +19,6 @@ setup(name='paml',
             'graphviz', 'tyto'
       ],
       packages=['paml'],
-      package_data={'paml': ['paml.ttl']},
+      package_data={'paml': ['paml.ttl', 'lib/*.ttl']},
       include_package_data=True,
-#      entry_points = {
-#            'rdf.plugins.sparqleval': [
-#            'custom_eval =  custom_eval:customEval',
-#        ],
-#      }
 )
