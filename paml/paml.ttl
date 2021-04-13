@@ -113,17 +113,33 @@ paml:Pin rdf:type owl:Class ;
               owl:maxCardinality "1"^^xsd:nonNegativeInteger ; # min cardinality zero, as sometimes will be inferred
             ] .
 
-paml:LocalValuePin rdf:type owl:Class ;
-              rdfs:comment "A LocalValuePin is an input pin with a constant value" ;
+paml:SimpleValuePin rdf:type owl:Class ;
+              rdfs:comment "A SimpleValuePin is an input pin with a constant value in the form of a simple type" ;
             rdfs:subClassOf paml:Pin ,
                            [ rdf:type owl:Restriction ;
-                                owl:onProperty paml:value ;
+                                owl:onProperty paml:simpleValue ;
+                                owl:onClass xsd:anySimpleType ;
+                                owl:minCardinality "1"^^xsd:nonNegativeInteger ;
+                                owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
+                              ] .
+
+paml:simpleValue rdf:type owl:DatatypeProperty ;
+              rdfs:domain paml:SimpleValuePin ;
+              rdfs:range xsd:anySimpleType ;
+              rdfs:label "value" ;
+              rdfs:comment "Constant value to be supplied to the pin" .
+
+paml:LocalValuePin rdf:type owl:Class ;
+              rdfs:comment "A LocalValuePin is an input pin with a constant value in the form of a child object" ;
+            rdfs:subClassOf paml:Pin ,
+                           [ rdf:type owl:Restriction ;
+                                owl:onProperty paml:localValue ;
                                 owl:onClass sbol:Identified ;
                                 owl:minCardinality "1"^^xsd:nonNegativeInteger ;
                                 owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
                               ] .
 
-paml:value rdf:type owl:ObjectProperty ;
+paml:localValue rdf:type owl:ObjectProperty ;
               rdfs:subPropertyOf opil:compositionalProperty ;
               rdfs:domain paml:LocalValuePin ;
               rdfs:range sbol:Identified ;
@@ -131,16 +147,16 @@ paml:value rdf:type owl:ObjectProperty ;
               rdfs:comment "Constant value to be supplied to the pin" .
 
 paml:ReferenceValuePin rdf:type owl:Class ;
-              rdfs:comment "A ReferenceValuePin is an input pin with a constant value" ;
+              rdfs:comment "A ReferenceValuePin is an input pin with a constant value in the form of an object reference" ;
             rdfs:subClassOf paml:Pin ,
                            [ rdf:type owl:Restriction ;
-                                owl:onProperty paml:valueReference ;
+                                owl:onProperty paml:referenceValue ;
                                 owl:onClass sbol:TopLevel ;
                                 owl:minCardinality "1"^^xsd:nonNegativeInteger ;
                                 owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
                               ] .
 
-paml:valueReference rdf:type owl:ObjectProperty ;
+paml:referenceValue rdf:type owl:ObjectProperty ;
               rdfs:domain paml:ReferenceValuePin ;
               rdfs:range sbol:TopLevel ;
               rdfs:label "value" ;

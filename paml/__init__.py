@@ -46,8 +46,10 @@ def executable_make_pins(self, specification, **input_pin_map):
         if val:
             if isinstance(val, sbol.TopLevel) or isinstance(val, Location):
                 pin = ReferenceValuePin()
-            else:
+            elif isinstance(val, sbol.Identified):
                 pin = LocalValuePin()
+            else:
+                pin = SimpleValuePin()
             pin.value = val
         else:
             pin = Pin()
@@ -188,9 +190,7 @@ def protocol_add_flow(self, source, sink):
         'Source activity ' + source.identity + ' is not a member of protocol ' + self.identity)
     assert self.contains_activity(sink), ValueError(
         'Sink activity ' + sink.identity + ' is not a member of protocol ' + self.identity)
-    flow = Flow()
-    flow.source = source
-    flow.sink = sink
+    flow = Flow(source = source, sink = sink)
     self.flows.append(flow)
     return flow
 # Monkey patch:

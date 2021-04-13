@@ -12,9 +12,9 @@ sbol3.set_namespace('https://sd2e.org/PAML/')
 #############################################
 # Import the primitive libraries
 print('Importing libraries')
-paml.import_library('lib/liquid_handling.ttl','ttl')
-paml.import_library('lib/plate_handling.ttl','ttl')
-paml.import_library('lib/spectrophotometry.ttl','ttl')
+paml.import_library('liquid_handling')
+paml.import_library('plate_handling')
+paml.import_library('spectrophotometry')
 
 # this should really get pulled into a common library somewhere
 rpm = sbol3.UnitDivision('rpm',symbol='rpm',label='revolutions per minute',numerator=tyto.OM.revolution,denominator=tyto.OM.minute)
@@ -33,66 +33,55 @@ Subprotocol to split a portion of each sample in a plate into another plate, the
 '''
 doc.add(split_and_measure)
 
-# Create the materials to be provisioned
-PBS = sbol3.Component('PBS', 'https://identifiers.org/pubchem.substance:24978514')
-PBS.name = 'Phosphate-Buffered Saline'  # I'd like to get this name from PubChem with tyto
-doc.add(PBS)
-
-split_and_measure.material = {PBS}
-
 # plate for split-and-measure subroutine
 od_plate = paml.Container(name='OD Plate', type=tyto.NCIT.get_uri_by_term('Microplate'))
 split_and_measure.locations = {od_plate}
 
-# inputs:
-samples = paml.Value(type='http://bioprotocols.org/paml#LocatedSamples')
-pbs_source = paml.Value(type='http://bioprotocols.org/paml#LocatedSamples')
-
 #################
-# Inputs: source_plate, pbs_source
+# Inputs: collection of samples, pbs_source
+samples = split_and_measure.add_input(name='samples')
+pbs_source = split_and_measure.add_input(name='pbs')
+
 
 # subprotocol steps
-s_p = split_and_measure.execute_primitive(doc.find('Dispense'), source=pbs_source, destination=od_plate,
+s_p = split_and_measure.execute_primitive('Dispense', source=pbs_source, destination=od_plate,
                                           amount=sbol3.Measure(90, tyto.OM.microliter))
 split_and_measure.add_flow(split_and_measure.initial(), s_p) # dispensing OD can be a first action
-s_u = split_and_measure.execute_primitive(doc.find('Unseal'), location=samples)
+s_u = split_and_measure.execute_primitive('Unseal', location=samples)
 split_and_measure.add_flow(split_and_measure.initial(), s_u) # unsealing the growth plate can be a first action
-s_t = split_and_measure.execute_primitive(doc.find('Transfer'), source=samples, destination=s_p.output_pin('samples',doc),
-                                          amount=sbol3.Measure(10, tyto.OM.microliter), mixCycles=10)
+s_t = split_and_measure.execute_primitive('TransferInto', source=samples, destination=s_p.output_pin('samples'),
+                                          amount=sbol3.Measure(10, tyto.OM.microliter),
+                                          mixCycles=sbol3.Measure(10, tyto.OM.number))
 split_and_measure.add_flow(s_u, s_t) # transfer can't happen until growth plate is unsealed
 
 # add the measurements, in parallel
 ready_to_measure = paml.Fork()
 split_and_measure.activities.append(ready_to_measure)
-split_and_measure.add_flow(s_t.output_pin('samples',doc), ready_to_measure)
-
-s_a = split_and_measure.execute_primitive(doc.find('MeasureAbsorbance'), location=ready_to_measure,
-                                          wavelength=sbol3.Measure(600, tyto.OM.nanometer), numFlashes=25)
-split_and_measure.add_flow(ready_to_measure, s_a.input_pin('sample',doc))
-v_a = paml.Value()
-split_and_measure.activities.append(v_a)
-split_and_measure.add_flow(s_a.output_pin('measurements',doc), v_a)
-
+split_and_measure.add_flow(s_t.output_pin('samples'), ready_to_measure)
 measurement_complete = paml.Join()
+split_and_measure.activities.append(measurement_complete)
+
+s_a = split_and_measure.execute_primitive('MeasureAbsorbance', samples=ready_to_measure,
+                                          wavelength=sbol3.Measure(600, tyto.OM.nanometer),
+                                          numFlashes=sbol3.Measure(25, tyto.OM.number))
+v_a = split_and_measure.add_output('absorbance', s_a.output_pin('measurements'))
 split_and_measure.add_flow(v_a, measurement_complete)
 
 gains = {0.1, 0.2, 0.16}
 for g in gains:
-    s_f = split_and_measure.execute_primitive(doc.find('MeasureFluorescence'), location=od_plate,
-                                               excitation=sbol3.Measure(488, tyto.OM.nanometer),
-                                               emissionBandpassWavelength=sbol3.Measure(530, tyto.OM.nanometer),
-                                               numFlashes=25, gain=g)
-    split_and_measure.add_flow(ready_to_measure, s_f.input_pin('sample', doc))
-    v_f = paml.Value()
-    split_and_measure.activities.append(v_f)
-    split_and_measure.add_flow(s_f.output_pin('measurements', doc), v_f)
+    s_f = split_and_measure.execute_primitive('MeasureFluorescence', samples=ready_to_measure,
+                                              excitationWavelength=sbol3.Measure(488, tyto.OM.nanometer),
+                                              emissionBandpassWavelength=sbol3.Measure(530, tyto.OM.nanometer),
+                                              numFlashes=sbol3.Measure(25, tyto.OM.number),
+                                              gain=sbol3.Measure(g, tyto.OM.number))
+    v_f = split_and_measure.add_output('fluorescence_'+str(g), s_f.output_pin('measurements'))
     split_and_measure.add_flow(v_f, measurement_complete)
 
-s_c = split_and_measure.execute_primitive(doc.find('Cover'), location=od_plate)
+s_c = split_and_measure.execute_primitive('Cover', location=od_plate)
 split_and_measure.add_flow(measurement_complete, s_c)
 split_and_measure.add_flow(s_c, split_and_measure.final())
 
-s_s = split_and_measure.execute_primitive(doc.find('ThermalSeal'), location=source_plate,
+s_s = split_and_measure.execute_primitive('ThermalSeal', location=samples,
                                           temperature=sbol3.Measure(170, tyto.OM.get_uri_by_term('degree Celsius')),
                                           duration=sbol3.Measure(1, tyto.OM.second),
                                           type='http://autoprotocol.org/lids/breathable') # need to turn this into a proper ontology
@@ -115,6 +104,14 @@ doc.add(protocol)
 
 # create the materials to be provisioned
 # need to retrieve and convert this one
+# Create the material to be provisioned
+PBS = sbol3.Component('PBS', 'https://identifiers.org/pubchem.substance:24978514')
+PBS.name = 'Phosphate-Buffered Saline'  # I'd like to get this name from PubChem with tyto
+doc.add(PBS)
+
+split_and_measure.material = {PBS}
+
+
 SC_media = sbol3.Component('SC_Media', 'TBD', name='Synthetic Complete Media')
 doc.add(SC_media)
 SC_plus_dox = sbol3.Component('SC_Media_plus_dox', 'TBD', name='Synthetic Complete Media plus 40nM Doxycycline')
