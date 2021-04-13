@@ -129,6 +129,8 @@ Protocol.final = Protocol_final
 
 # Create and add an execution of a primitive to a protocol
 def protocol_execute_primitive(self, primitive: Primitive, **input_pin_map):
+    if isinstance(primitive,str):
+        primitive = get_primitive(self.document, primitive)
     pe = make_PrimitiveExecutable(primitive, **input_pin_map)
     self.activities.append(pe)
     return pe
@@ -152,14 +154,24 @@ Protocol.add_flow = protocol_add_flow
 
 #########################################
 # Library handling
-current_libraries = {}
+loaded_libraries = {}
 
-def import_library(doc:sbol.Document, library:str, file_format:str = 'ttl' ):
+def import_library(library:str, file_format:str = 'ttl', nickname:str=None ):
+    if not nickname:
+        nickname = library
     if not os.path.isfile(library):
         library = posixpath.join(os.path.dirname(os.path.realpath(__file__)),
                                  ('lib/'+library+'.ttl'))
-    tmp = sbol.Document()
-    tmp.read(library, file_format)
-    # copy all of the objects into the working document
-    for o in tmp.objects: o.copy(doc)
-    # TODO: change library imports to copy lazily, using either display_id or lib:display_id to disambiguate
+    # read in the library and put the document in the library collection
+    lib = sbol.Document()
+    lib.read(library, file_format)
+    loaded_libraries[nickname] = lib
+
+def get_primitive(doc:sbol.Document, name:str):
+    found = doc.find(name)
+    if not found:
+        found = {n:l.find(name) for (n,l) in loaded_libraries.items() if l.find(name)}
+        assert len(found)<2, ValueError("Ambiguous primitive: found '"+name+"' in multiple libraries: "+str(found.keys()))
+        assert len(found)>0, ValueError("Couldn't find primitive '"+name+"' in any library")
+        found = next(iter(found.values())).copy(doc)
+    return found

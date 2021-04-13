@@ -17,9 +17,9 @@ class TestProtocolEndToEnd(unittest.TestCase):
         #############################################
         # Import the primitive libraries
         print('Importing libraries')
-        paml.import_library(doc, 'liquid_handling')
-        paml.import_library(doc, 'plate_handling')
-        paml.import_library(doc, 'spectrophotometry')
+        paml.import_library('liquid_handling')
+        paml.import_library('plate_handling')
+        paml.import_library('spectrophotometry')
 
         #############################################
         # Create the protocol
@@ -56,16 +56,14 @@ is only weakly scattering and so will give a low absorbance value.
         # actual steps of the protocol
         location = paml.ContainerCoordinates(in_container = plate, coordinates = 'A1:D1')
         protocol.locations.append(location)
-        provision_ludox = paml.make_PrimitiveExecutable(doc.find('Provision'), resource=ludox, destination=location,
-                                                        amount=sbol3.Measure(100, tyto.OM.microliter))
-        protocol.activities.append(provision_ludox)
+        provision_ludox = protocol.execute_primitive('Provision', resource=ludox, destination=location,
+                                                     amount=sbol3.Measure(100, tyto.OM.microliter))
         protocol.add_flow(protocol.initial(), provision_ludox)
 
         location = paml.ContainerCoordinates(in_container = plate, coordinates = 'A2:D2')
         protocol.locations.append(location)
-        provision_ddh2o = paml.make_PrimitiveExecutable(doc.find('Provision'), resource=ddh2o, destination=location,
-                                                        amount=sbol3.Measure(100, tyto.OM.microliter))
-        protocol.activities.append(provision_ddh2o)
+        provision_ddh2o = protocol.execute_primitive('Provision', resource=ddh2o, destination=location,
+                                                     amount=sbol3.Measure(100, tyto.OM.microliter))
         protocol.add_flow(protocol.initial(), provision_ddh2o)
         # For consistent serialization for this test, also order the two provisions
         protocol.add_flow(provision_ludox, provision_ddh2o)
@@ -75,9 +73,8 @@ is only weakly scattering and so will give a low absorbance value.
         protocol.add_flow(provision_ludox.output_pin('samples', doc), all_provisioned)
         protocol.add_flow(provision_ddh2o.output_pin('samples', doc), all_provisioned)
 
-        execute_measurement = paml.make_PrimitiveExecutable(doc.find('MeasureAbsorbance'),
-                                                            wavelength=sbol3.Measure(600, tyto.OM.nanometer))
-        protocol.activities.append(execute_measurement)
+        execute_measurement = protocol.execute_primitive('MeasureAbsorbance',
+                                                         wavelength=sbol3.Measure(600, tyto.OM.nanometer))
         protocol.add_flow(all_provisioned, execute_measurement.input_pin('samples', doc))
 
         result = paml.Value()
