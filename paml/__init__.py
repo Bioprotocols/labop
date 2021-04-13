@@ -77,17 +77,17 @@ def make_PrimitiveExecutable(primitive: Primitive, **input_pin_map):
 
     return self
 
-def PrimitiveExecutable_input_pin(self, pin_name, doc):
+def PrimitiveExecutable_input_pin(self, pin_name):
     #pin_set = [x for x in self.input if x.instance_of.lookup().name == pin_name or doc.find(x.instance_of).display_id == pin_name] # note: pySBOL3 issue 229
-    pin_set = [x for x in self.input if doc.find(x.instance_of).name == pin_name or doc.find(x.instance_of).display_id == pin_name] # workaround for PAML issue #5
+    pin_set = [x for x in self.input if self.document.find(x.instance_of).name == pin_name or self.document.find(x.instance_of).display_id == pin_name] # workaround for PAML issue #5
     assert len(pin_set)>0, ValueError("Couldn't find input pin named "+pin_name)
     assert len(pin_set)<2, ValueError("Found more than one input pin named "+pin_name)
     return pin_set[0]
 PrimitiveExecutable.input_pin = PrimitiveExecutable_input_pin
 
-def PrimitiveExecutable_output_pin(self, pin_name, doc):
+def PrimitiveExecutable_output_pin(self, pin_name):
     #pin_set = [x for x in self.output if x.instance_of.lookup().name == pin_name or doc.find(x.instance_of).display_id == pin_name] # note: pySBOL3 issue 229
-    pin_set = [x for x in self.output if doc.find(x.instance_of).name == pin_name or doc.find(x.instance_of).display_id == pin_name] # workaround for PAML issue #5
+    pin_set = [x for x in self.output if self.document.find(x.instance_of).name == pin_name or self.document.find(x.instance_of).display_id == pin_name] # workaround for PAML issue #5
     assert len(pin_set)>0, ValueError("Couldn't find output pin named "+pin_name)
     assert len(pin_set)<2, ValueError("Found more than one output pin named "+pin_name)
     return pin_set[0]
@@ -131,8 +131,14 @@ Protocol.final = Protocol_final
 def protocol_execute_primitive(self, primitive: Primitive, **input_pin_map):
     if isinstance(primitive,str):
         primitive = get_primitive(self.document, primitive)
-    pe = make_PrimitiveExecutable(primitive, **input_pin_map)
+    # strip any activities in the pin map, which will be held for connecting via flows instead
+    activity_inputs = {k: v for k, v in input_pin_map.items() if isinstance(v,Activity)}
+    non_activity_inputs = {k: v for k, v in input_pin_map.items() if k not in activity_inputs}
+    pe = make_PrimitiveExecutable(primitive, **non_activity_inputs)
     self.activities.append(pe)
+    # add flows for activities being connected implicitly
+    for k,v in activity_inputs.items():
+        self.add_flow(v, pe.input_pin(k))
     return pe
 # Monkey patch:
 Protocol.execute_primitive = protocol_execute_primitive

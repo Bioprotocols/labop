@@ -18,8 +18,7 @@
         <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Flow4>,
         <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Flow5>,
         <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Flow6>,
-        <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Flow7>,
-        <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Flow8> ;
+        <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Flow7> ;
     ns1:hasLocation <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Container1>,
         <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/ContainerCoordinates1>,
         <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/ContainerCoordinates2> ;
@@ -54,39 +53,33 @@ is only weakly scattering and so will give a low absorbance value.
 
 <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Flow3> a ns1:Flow,
         sbol:Identified ;
-    ns1:sink <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable2> ;
-    ns1:source <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable1> ;
+    ns1:sink <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Join1> ;
+    ns1:source <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable1/Pin2> ;
     sbol:displayId "Flow3" .
 
 <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Flow4> a ns1:Flow,
         sbol:Identified ;
     ns1:sink <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Join1> ;
-    ns1:source <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable1/Pin2> ;
+    ns1:source <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable2/Pin2> ;
     sbol:displayId "Flow4" .
 
 <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Flow5> a ns1:Flow,
         sbol:Identified ;
-    ns1:sink <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Join1> ;
-    ns1:source <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable2/Pin2> ;
+    ns1:sink <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable3/Pin2> ;
+    ns1:source <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Join1> ;
     sbol:displayId "Flow5" .
 
 <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Flow6> a ns1:Flow,
         sbol:Identified ;
-    ns1:sink <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable3/Pin1> ;
-    ns1:source <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Join1> ;
+    ns1:sink <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Value1> ;
+    ns1:source <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable3/Pin3> ;
     sbol:displayId "Flow6" .
 
 <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Flow7> a ns1:Flow,
         sbol:Identified ;
-    ns1:sink <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Value1> ;
-    ns1:source <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable3/Pin3> ;
-    sbol:displayId "Flow7" .
-
-<https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Flow8> a ns1:Flow,
-        sbol:Identified ;
     ns1:sink <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Final1> ;
     ns1:source <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Value1> ;
-    sbol:displayId "Flow8" .
+    sbol:displayId "Flow7" .
 
 <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable1/LocalValuePin1> a ns1:LocalValuePin,
         sbol:Identified ;
@@ -185,11 +178,11 @@ is only weakly scattering and so will give a low absorbance value.
     om:hasNumericalValue 6e+02 ;
     om:hasUnit om:nanometre .
 
-<https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable3/Pin2> a ns1:Pin,
+<https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable3/Pin1> a ns1:Pin,
         sbol:Identified ;
     ns1:activityType xsd:integer ;
     ns1:instanceOfPinSpecification <https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureAbsorbance/PinSpecification3> ;
-    sbol:displayId "Pin2" ;
+    sbol:displayId "Pin1" ;
     sbol:name "numFlashes" .
 
 <https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureAbsorbance> a ns1:Primitive,
@@ -227,11 +220,31 @@ is only weakly scattering and so will give a low absorbance value.
         sbol:Identified ;
     sbol:displayId "Final1" .
 
+<https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable1> a ns1:PrimitiveExecutable,
+        sbol:Identified ;
+    ns1:input <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable1/LocalValuePin1>,
+        <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable1/Pin1>,
+        <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable1/ReferenceValuePin1>,
+        <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable1/ReferenceValuePin2> ;
+    ns1:instanceOfPrimitive <https://bioprotocols.org/paml/primitives/liquid_handling/Provision> ;
+    ns1:output <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable1/Pin2> ;
+    sbol:displayId "PrimitiveExecutable1" .
+
 <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable1/Pin2> a ns1:Pin,
         sbol:Identified ;
     ns1:instanceOfPinSpecification <https://bioprotocols.org/paml/primitives/liquid_handling/Provision/PinSpecification5> ;
     sbol:displayId "Pin2" ;
     sbol:name "samples" .
+
+<https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable2> a ns1:PrimitiveExecutable,
+        sbol:Identified ;
+    ns1:input <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable2/LocalValuePin1>,
+        <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable2/Pin1>,
+        <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable2/ReferenceValuePin1>,
+        <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable2/ReferenceValuePin2> ;
+    ns1:instanceOfPrimitive <https://bioprotocols.org/paml/primitives/liquid_handling/Provision> ;
+    ns1:output <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable2/Pin2> ;
+    sbol:displayId "PrimitiveExecutable2" .
 
 <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable2/Pin2> a ns1:Pin,
         sbol:Identified ;
@@ -239,11 +252,11 @@ is only weakly scattering and so will give a low absorbance value.
     sbol:displayId "Pin2" ;
     sbol:name "samples" .
 
-<https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable3/Pin1> a ns1:Pin,
+<https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable3/Pin2> a ns1:Pin,
         sbol:Identified ;
     ns1:activityType ns1:LocatedSamples ;
     ns1:instanceOfPinSpecification <https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureAbsorbance/PinSpecification1> ;
-    sbol:displayId "Pin1" ;
+    sbol:displayId "Pin2" ;
     sbol:name "samples" .
 
 <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable3/Pin3> a ns1:Pin,
@@ -298,26 +311,6 @@ is only weakly scattering and so will give a low absorbance value.
 <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Initial1> a ns1:Initial,
         sbol:Identified ;
     sbol:displayId "Initial1" .
-
-<https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable1> a ns1:PrimitiveExecutable,
-        sbol:Identified ;
-    ns1:input <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable1/LocalValuePin1>,
-        <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable1/Pin1>,
-        <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable1/ReferenceValuePin1>,
-        <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable1/ReferenceValuePin2> ;
-    ns1:instanceOfPrimitive <https://bioprotocols.org/paml/primitives/liquid_handling/Provision> ;
-    ns1:output <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable1/Pin2> ;
-    sbol:displayId "PrimitiveExecutable1" .
-
-<https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable2> a ns1:PrimitiveExecutable,
-        sbol:Identified ;
-    ns1:input <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable2/LocalValuePin1>,
-        <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable2/Pin1>,
-        <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable2/ReferenceValuePin1>,
-        <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable2/ReferenceValuePin2> ;
-    ns1:instanceOfPrimitive <https://bioprotocols.org/paml/primitives/liquid_handling/Provision> ;
-    ns1:output <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable2/Pin2> ;
-    sbol:displayId "PrimitiveExecutable2" .
 
 <https://bioprotocols.org/paml/primitives/liquid_handling/Provision/PinSpecification1> a ns1:PinSpecification,
         sbol:Identified ;

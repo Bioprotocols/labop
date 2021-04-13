@@ -12,9 +12,9 @@ sbol3.set_namespace('https://sd2e.org/PAML/')
 #############################################
 # Import the primitive libraries
 print('Importing libraries')
-paml.import_library(doc, 'lib/liquid_handling.ttl','ttl')
-paml.import_library(doc, 'lib/plate_handling.ttl','ttl')
-paml.import_library(doc, 'lib/spectrophotometry.ttl','ttl')
+paml.import_library('lib/liquid_handling.ttl','ttl')
+paml.import_library('lib/plate_handling.ttl','ttl')
+paml.import_library('lib/spectrophotometry.ttl','ttl')
 
 # this should really get pulled into a common library somewhere
 rpm = sbol3.UnitDivision('rpm',symbol='rpm',label='revolutions per minute',numerator=tyto.OM.revolution,denominator=tyto.OM.minute)
@@ -40,11 +40,13 @@ doc.add(PBS)
 
 split_and_measure.material = {PBS}
 
-# plates for split-and-measure subroutine
-source_plate = paml.Container(name='Source Plate', type=tyto.NCIT.get_uri_by_term('Microplate'))
+# plate for split-and-measure subroutine
 od_plate = paml.Container(name='OD Plate', type=tyto.NCIT.get_uri_by_term('Microplate'))
-pbs_source = paml.Container(name='PBS Source', type=tyto.NCIT.get_uri_by_term('Bottle'))
-split_and_measure.locations = {source_plate, od_plate, pbs_source}
+split_and_measure.locations = {od_plate}
+
+# inputs:
+samples = paml.Value(type='http://bioprotocols.org/paml#LocatedSamples')
+pbs_source = paml.Value(type='http://bioprotocols.org/paml#LocatedSamples')
 
 #################
 # Inputs: source_plate, pbs_source
@@ -53,21 +55,18 @@ split_and_measure.locations = {source_plate, od_plate, pbs_source}
 s_p = split_and_measure.execute_primitive(doc.find('Dispense'), source=pbs_source, destination=od_plate,
                                           amount=sbol3.Measure(90, tyto.OM.microliter))
 split_and_measure.add_flow(split_and_measure.initial(), s_p) # dispensing OD can be a first action
-s_u = split_and_measure.execute_primitive(doc.find('Unseal'), location=source_plate)
+s_u = split_and_measure.execute_primitive(doc.find('Unseal'), location=samples)
 split_and_measure.add_flow(split_and_measure.initial(), s_u) # unsealing the growth plate can be a first action
-s_t = split_and_measure.execute_primitive(doc.find('Transfer'), source=source_plate, destination=od_plate,
-                                          amount=sbol3.Measure(10, tyto.OM.microliter))
-split_and_measure.add_flow(s_u, s_t) # transfer can't happen until growth plate is unsealed ...
-split_and_measure.add_flow(s_p, s_t) # ... and PBS is already deposited
-s_m = split_and_measure.execute_primitive(doc.find('PipetteMix'), cycleCount=10, amount=sbol3.Measure(10, tyto.OM.microliter))
-split_and_measure.add_flow(s_t.output_pin('samples',doc), s_m.input_pin('samples',doc))
+s_t = split_and_measure.execute_primitive(doc.find('Transfer'), source=samples, destination=s_p.output_pin('samples',doc),
+                                          amount=sbol3.Measure(10, tyto.OM.microliter), mixCycles=10)
+split_and_measure.add_flow(s_u, s_t) # transfer can't happen until growth plate is unsealed
 
 # add the measurements, in parallel
 ready_to_measure = paml.Fork()
 split_and_measure.activities.append(ready_to_measure)
-split_and_measure.add_flow(s_m.output_pin('mixedSamples',doc), ready_to_measure)
+split_and_measure.add_flow(s_t.output_pin('samples',doc), ready_to_measure)
 
-s_a = split_and_measure.execute_primitive(doc.find('MeasureAbsorbance'), location=od_plate,
+s_a = split_and_measure.execute_primitive(doc.find('MeasureAbsorbance'), location=ready_to_measure,
                                           wavelength=sbol3.Measure(600, tyto.OM.nanometer), numFlashes=25)
 split_and_measure.add_flow(ready_to_measure, s_a.input_pin('sample',doc))
 v_a = paml.Value()
