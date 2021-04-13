@@ -57,7 +57,8 @@ def executable_make_pins(self, specification, **input_pin_map):
         # Set properties
         pin.instance_of = pin_spec
         pin.name = pin_spec.name
-        pin.type = pin_spec.type
+        if pin_spec.type:
+            pin.type = pin_spec.type
         self.input.append(pin)
 
     # Instantiate output pins
