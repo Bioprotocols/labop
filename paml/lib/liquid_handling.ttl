@@ -1,174 +1,204 @@
 @prefix ns1: <http://bioprotocols.org/paml#> .
 @prefix om: <http://www.ontology-of-units-of-measure.org/resource/om-2/> .
 @prefix sbol: <http://sbols.org/v3#> .
-@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
 <https://bioprotocols.org/paml/primitives/liquid_handling/Dispense> a ns1:Primitive,
         sbol:TopLevel ;
-    ns1:input <https://bioprotocols.org/paml/primitives/liquid_handling/Dispense/PinSpecification1>,
-        <https://bioprotocols.org/paml/primitives/liquid_handling/Dispense/PinSpecification2>,
-        <https://bioprotocols.org/paml/primitives/liquid_handling/Dispense/PinSpecification3>,
-        <https://bioprotocols.org/paml/primitives/liquid_handling/Dispense/PinSpecification4> ;
-    ns1:output <https://bioprotocols.org/paml/primitives/liquid_handling/Dispense/PinSpecification5> ;
+    ns1:input <https://bioprotocols.org/paml/primitives/liquid_handling/Dispense/PrimitivePinSpecification1>,
+        <https://bioprotocols.org/paml/primitives/liquid_handling/Dispense/PrimitivePinSpecification2>,
+        <https://bioprotocols.org/paml/primitives/liquid_handling/Dispense/PrimitivePinSpecification3>,
+        <https://bioprotocols.org/paml/primitives/liquid_handling/Dispense/PrimitivePinSpecification4> ;
+    ns1:output <https://bioprotocols.org/paml/primitives/liquid_handling/Dispense/PrimitivePinSpecification5> ;
     sbol:description "Move a measured volume of liquid from one source sample to create samples at multiple destination locations" ;
     sbol:displayId "Dispense" .
 
 <https://bioprotocols.org/paml/primitives/liquid_handling/PipetteMix> a ns1:Primitive,
         sbol:TopLevel ;
-    ns1:input <https://bioprotocols.org/paml/primitives/liquid_handling/PipetteMix/PinSpecification1>,
-        <https://bioprotocols.org/paml/primitives/liquid_handling/PipetteMix/PinSpecification2>,
-        <https://bioprotocols.org/paml/primitives/liquid_handling/PipetteMix/PinSpecification3>,
-        <https://bioprotocols.org/paml/primitives/liquid_handling/PipetteMix/PinSpecification4> ;
+    ns1:input <https://bioprotocols.org/paml/primitives/liquid_handling/PipetteMix/PrimitivePinSpecification1>,
+        <https://bioprotocols.org/paml/primitives/liquid_handling/PipetteMix/PrimitivePinSpecification2>,
+        <https://bioprotocols.org/paml/primitives/liquid_handling/PipetteMix/PrimitivePinSpecification3>,
+        <https://bioprotocols.org/paml/primitives/liquid_handling/PipetteMix/PrimitivePinSpecification4> ;
     sbol:description "Mix by cycling a measured volume of liquid in and out at an array of samples a fixed number of times" ;
     sbol:displayId "PipetteMix" .
 
 <https://bioprotocols.org/paml/primitives/liquid_handling/Provision> a ns1:Primitive,
         sbol:TopLevel ;
-    ns1:input <https://bioprotocols.org/paml/primitives/liquid_handling/Provision/PinSpecification1>,
-        <https://bioprotocols.org/paml/primitives/liquid_handling/Provision/PinSpecification2>,
-        <https://bioprotocols.org/paml/primitives/liquid_handling/Provision/PinSpecification3>,
-        <https://bioprotocols.org/paml/primitives/liquid_handling/Provision/PinSpecification4> ;
-    ns1:output <https://bioprotocols.org/paml/primitives/liquid_handling/Provision/PinSpecification5> ;
+    ns1:input <https://bioprotocols.org/paml/primitives/liquid_handling/Provision/PrimitivePinSpecification1>,
+        <https://bioprotocols.org/paml/primitives/liquid_handling/Provision/PrimitivePinSpecification2>,
+        <https://bioprotocols.org/paml/primitives/liquid_handling/Provision/PrimitivePinSpecification3>,
+        <https://bioprotocols.org/paml/primitives/liquid_handling/Provision/PrimitivePinSpecification4> ;
+    ns1:output <https://bioprotocols.org/paml/primitives/liquid_handling/Provision/PrimitivePinSpecification5> ;
     sbol:description "Place a measured amount (mass or volume) of a specified component into a location, where it may then be used in executing the protocol." ;
     sbol:displayId "Provision" .
 
 <https://bioprotocols.org/paml/primitives/liquid_handling/Transfer> a ns1:Primitive,
         sbol:TopLevel ;
-    ns1:input <https://bioprotocols.org/paml/primitives/liquid_handling/Transfer/PinSpecification1>,
-        <https://bioprotocols.org/paml/primitives/liquid_handling/Transfer/PinSpecification2>,
-        <https://bioprotocols.org/paml/primitives/liquid_handling/Transfer/PinSpecification3>,
-        <https://bioprotocols.org/paml/primitives/liquid_handling/Transfer/PinSpecification4> ;
-    ns1:output <https://bioprotocols.org/paml/primitives/liquid_handling/Transfer/PinSpecification5> ;
-    sbol:description "Move a measured volume of from an array of source samples to an identically shaped array in a destination locations" ;
+    ns1:input <https://bioprotocols.org/paml/primitives/liquid_handling/Transfer/PrimitivePinSpecification1>,
+        <https://bioprotocols.org/paml/primitives/liquid_handling/Transfer/PrimitivePinSpecification2>,
+        <https://bioprotocols.org/paml/primitives/liquid_handling/Transfer/PrimitivePinSpecification3>,
+        <https://bioprotocols.org/paml/primitives/liquid_handling/Transfer/PrimitivePinSpecification4> ;
+    ns1:output <https://bioprotocols.org/paml/primitives/liquid_handling/Transfer/PrimitivePinSpecification5> ;
+    sbol:description "Move a measured volume taken from an array of source samples to an identically shaped array in a destination locations" ;
     sbol:displayId "Transfer" .
 
-<https://bioprotocols.org/paml/primitives/liquid_handling/Dispense/PinSpecification1> a ns1:PinSpecification,
+<https://bioprotocols.org/paml/primitives/liquid_handling/TransferInto> a ns1:Primitive,
+        sbol:TopLevel ;
+    ns1:input <https://bioprotocols.org/paml/primitives/liquid_handling/TransferInto/PrimitivePinSpecification1>,
+        <https://bioprotocols.org/paml/primitives/liquid_handling/TransferInto/PrimitivePinSpecification2>,
+        <https://bioprotocols.org/paml/primitives/liquid_handling/TransferInto/PrimitivePinSpecification3>,
+        <https://bioprotocols.org/paml/primitives/liquid_handling/TransferInto/PrimitivePinSpecification4>,
+        <https://bioprotocols.org/paml/primitives/liquid_handling/TransferInto/PrimitivePinSpecification5> ;
+    ns1:output <https://bioprotocols.org/paml/primitives/liquid_handling/TransferInto/PrimitivePinSpecification6> ;
+    sbol:description "Mix a measured volume taken from an array of source samples intto an identically shaped array of destination samples" ;
+    sbol:displayId "TransferInto" .
+
+<https://bioprotocols.org/paml/primitives/liquid_handling/Dispense/PrimitivePinSpecification1> a ns1:PrimitivePinSpecification,
         sbol:Identified ;
     ns1:activityType ns1:LocatedSamples ;
-    ns1:optional false ;
-    sbol:displayId "PinSpecification1" ;
+    sbol:displayId "PrimitivePinSpecification1" ;
     sbol:name "source" .
 
-<https://bioprotocols.org/paml/primitives/liquid_handling/Dispense/PinSpecification2> a ns1:PinSpecification,
+<https://bioprotocols.org/paml/primitives/liquid_handling/Dispense/PrimitivePinSpecification2> a ns1:PrimitivePinSpecification,
         sbol:Identified ;
     ns1:activityType ns1:Location ;
-    ns1:optional false ;
-    sbol:displayId "PinSpecification2" ;
+    sbol:displayId "PrimitivePinSpecification2" ;
     sbol:name "destination" .
 
-<https://bioprotocols.org/paml/primitives/liquid_handling/Dispense/PinSpecification3> a ns1:PinSpecification,
+<https://bioprotocols.org/paml/primitives/liquid_handling/Dispense/PrimitivePinSpecification3> a ns1:PrimitivePinSpecification,
         sbol:Identified ;
     ns1:activityType om:Measure ;
-    ns1:optional false ;
-    sbol:displayId "PinSpecification3" ;
+    sbol:displayId "PrimitivePinSpecification3" ;
     sbol:name "amount" .
 
-<https://bioprotocols.org/paml/primitives/liquid_handling/Dispense/PinSpecification4> a ns1:PinSpecification,
+<https://bioprotocols.org/paml/primitives/liquid_handling/Dispense/PrimitivePinSpecification4> a ns1:PrimitivePinSpecification,
         sbol:Identified ;
     ns1:activityType om:Measure ;
-    ns1:optional true ;
-    sbol:displayId "PinSpecification4" ;
+    sbol:displayId "PrimitivePinSpecification4" ;
     sbol:name "dispenseVelocity" .
 
-<https://bioprotocols.org/paml/primitives/liquid_handling/Dispense/PinSpecification5> a ns1:PinSpecification,
+<https://bioprotocols.org/paml/primitives/liquid_handling/Dispense/PrimitivePinSpecification5> a ns1:PrimitivePinSpecification,
         sbol:Identified ;
     ns1:activityType ns1:LocatedSamples ;
-    sbol:displayId "PinSpecification5" ;
+    sbol:displayId "PrimitivePinSpecification5" ;
     sbol:name "samples" .
 
-<https://bioprotocols.org/paml/primitives/liquid_handling/PipetteMix/PinSpecification1> a ns1:PinSpecification,
+<https://bioprotocols.org/paml/primitives/liquid_handling/PipetteMix/PrimitivePinSpecification1> a ns1:PrimitivePinSpecification,
         sbol:Identified ;
     ns1:activityType ns1:LocatedSamples ;
-    ns1:optional false ;
-    sbol:displayId "PinSpecification1" ;
+    sbol:displayId "PrimitivePinSpecification1" ;
     sbol:name "samples" .
 
-<https://bioprotocols.org/paml/primitives/liquid_handling/PipetteMix/PinSpecification2> a ns1:PinSpecification,
+<https://bioprotocols.org/paml/primitives/liquid_handling/PipetteMix/PrimitivePinSpecification2> a ns1:PrimitivePinSpecification,
         sbol:Identified ;
     ns1:activityType om:Measure ;
-    ns1:optional false ;
-    sbol:displayId "PinSpecification2" ;
+    sbol:displayId "PrimitivePinSpecification2" ;
     sbol:name "amount" .
 
-<https://bioprotocols.org/paml/primitives/liquid_handling/PipetteMix/PinSpecification3> a ns1:PinSpecification,
+<https://bioprotocols.org/paml/primitives/liquid_handling/PipetteMix/PrimitivePinSpecification3> a ns1:PrimitivePinSpecification,
         sbol:Identified ;
     ns1:activityType om:Measure ;
-    ns1:optional true ;
-    sbol:displayId "PinSpecification3" ;
+    sbol:displayId "PrimitivePinSpecification3" ;
     sbol:name "dispenseVelocity" .
 
-<https://bioprotocols.org/paml/primitives/liquid_handling/PipetteMix/PinSpecification4> a ns1:PinSpecification,
+<https://bioprotocols.org/paml/primitives/liquid_handling/PipetteMix/PrimitivePinSpecification4> a ns1:PrimitivePinSpecification,
         sbol:Identified ;
     ns1:activityType om:Measure ;
-    ns1:optional true ;
-    sbol:displayId "PinSpecification4" ;
+    sbol:displayId "PrimitivePinSpecification4" ;
     sbol:name "cycleCount" .
 
-<https://bioprotocols.org/paml/primitives/liquid_handling/Provision/PinSpecification1> a ns1:PinSpecification,
+<https://bioprotocols.org/paml/primitives/liquid_handling/Provision/PrimitivePinSpecification1> a ns1:PrimitivePinSpecification,
         sbol:Identified ;
     ns1:activityType sbol:Component ;
-    ns1:optional false ;
-    sbol:displayId "PinSpecification1" ;
+    sbol:displayId "PrimitivePinSpecification1" ;
     sbol:name "resource" .
 
-<https://bioprotocols.org/paml/primitives/liquid_handling/Provision/PinSpecification2> a ns1:PinSpecification,
+<https://bioprotocols.org/paml/primitives/liquid_handling/Provision/PrimitivePinSpecification2> a ns1:PrimitivePinSpecification,
         sbol:Identified ;
     ns1:activityType ns1:Location ;
-    ns1:optional false ;
-    sbol:displayId "PinSpecification2" ;
+    sbol:displayId "PrimitivePinSpecification2" ;
     sbol:name "destination" .
 
-<https://bioprotocols.org/paml/primitives/liquid_handling/Provision/PinSpecification3> a ns1:PinSpecification,
+<https://bioprotocols.org/paml/primitives/liquid_handling/Provision/PrimitivePinSpecification3> a ns1:PrimitivePinSpecification,
         sbol:Identified ;
     ns1:activityType om:Measure ;
-    ns1:optional false ;
-    sbol:displayId "PinSpecification3" ;
+    sbol:displayId "PrimitivePinSpecification3" ;
     sbol:name "amount" .
 
-<https://bioprotocols.org/paml/primitives/liquid_handling/Provision/PinSpecification4> a ns1:PinSpecification,
+<https://bioprotocols.org/paml/primitives/liquid_handling/Provision/PrimitivePinSpecification4> a ns1:PrimitivePinSpecification,
         sbol:Identified ;
     ns1:activityType om:Measure ;
-    ns1:optional true ;
-    sbol:displayId "PinSpecification4" ;
+    sbol:displayId "PrimitivePinSpecification4" ;
     sbol:name "dispenseVelocity" .
 
-<https://bioprotocols.org/paml/primitives/liquid_handling/Provision/PinSpecification5> a ns1:PinSpecification,
+<https://bioprotocols.org/paml/primitives/liquid_handling/Provision/PrimitivePinSpecification5> a ns1:PrimitivePinSpecification,
         sbol:Identified ;
     ns1:activityType ns1:LocatedSamples ;
-    sbol:displayId "PinSpecification5" ;
+    sbol:displayId "PrimitivePinSpecification5" ;
     sbol:name "samples" .
 
-<https://bioprotocols.org/paml/primitives/liquid_handling/Transfer/PinSpecification1> a ns1:PinSpecification,
+<https://bioprotocols.org/paml/primitives/liquid_handling/Transfer/PrimitivePinSpecification1> a ns1:PrimitivePinSpecification,
         sbol:Identified ;
     ns1:activityType ns1:LocatedSamples ;
-    ns1:optional false ;
-    sbol:displayId "PinSpecification1" ;
+    sbol:displayId "PrimitivePinSpecification1" ;
     sbol:name "source" .
 
-<https://bioprotocols.org/paml/primitives/liquid_handling/Transfer/PinSpecification2> a ns1:PinSpecification,
+<https://bioprotocols.org/paml/primitives/liquid_handling/Transfer/PrimitivePinSpecification2> a ns1:PrimitivePinSpecification,
         sbol:Identified ;
     ns1:activityType ns1:Location ;
-    ns1:optional false ;
-    sbol:displayId "PinSpecification2" ;
+    sbol:displayId "PrimitivePinSpecification2" ;
     sbol:name "destination" .
 
-<https://bioprotocols.org/paml/primitives/liquid_handling/Transfer/PinSpecification3> a ns1:PinSpecification,
+<https://bioprotocols.org/paml/primitives/liquid_handling/Transfer/PrimitivePinSpecification3> a ns1:PrimitivePinSpecification,
         sbol:Identified ;
     ns1:activityType om:Measure ;
-    ns1:optional false ;
-    sbol:displayId "PinSpecification3" ;
+    sbol:displayId "PrimitivePinSpecification3" ;
     sbol:name "amount" .
 
-<https://bioprotocols.org/paml/primitives/liquid_handling/Transfer/PinSpecification4> a ns1:PinSpecification,
+<https://bioprotocols.org/paml/primitives/liquid_handling/Transfer/PrimitivePinSpecification4> a ns1:PrimitivePinSpecification,
         sbol:Identified ;
     ns1:activityType om:Measure ;
-    ns1:optional true ;
-    sbol:displayId "PinSpecification4" ;
+    sbol:displayId "PrimitivePinSpecification4" ;
     sbol:name "dispenseVelocity" .
 
-<https://bioprotocols.org/paml/primitives/liquid_handling/Transfer/PinSpecification5> a ns1:PinSpecification,
+<https://bioprotocols.org/paml/primitives/liquid_handling/Transfer/PrimitivePinSpecification5> a ns1:PrimitivePinSpecification,
         sbol:Identified ;
     ns1:activityType ns1:LocatedSamples ;
-    sbol:displayId "PinSpecification5" ;
+    sbol:displayId "PrimitivePinSpecification5" ;
+    sbol:name "samples" .
+
+<https://bioprotocols.org/paml/primitives/liquid_handling/TransferInto/PrimitivePinSpecification1> a ns1:PrimitivePinSpecification,
+        sbol:Identified ;
+    ns1:activityType ns1:LocatedSamples ;
+    sbol:displayId "PrimitivePinSpecification1" ;
+    sbol:name "source" .
+
+<https://bioprotocols.org/paml/primitives/liquid_handling/TransferInto/PrimitivePinSpecification2> a ns1:PrimitivePinSpecification,
+        sbol:Identified ;
+    ns1:activityType ns1:LocatedSamples ;
+    sbol:displayId "PrimitivePinSpecification2" ;
+    sbol:name "destination" .
+
+<https://bioprotocols.org/paml/primitives/liquid_handling/TransferInto/PrimitivePinSpecification3> a ns1:PrimitivePinSpecification,
+        sbol:Identified ;
+    ns1:activityType om:Measure ;
+    sbol:displayId "PrimitivePinSpecification3" ;
+    sbol:name "amount" .
+
+<https://bioprotocols.org/paml/primitives/liquid_handling/TransferInto/PrimitivePinSpecification4> a ns1:PrimitivePinSpecification,
+        sbol:Identified ;
+    ns1:activityType om:Measure ;
+    sbol:displayId "PrimitivePinSpecification4" ;
+    sbol:name "mixCycles" .
+
+<https://bioprotocols.org/paml/primitives/liquid_handling/TransferInto/PrimitivePinSpecification5> a ns1:PrimitivePinSpecification,
+        sbol:Identified ;
+    ns1:activityType om:Measure ;
+    sbol:displayId "PrimitivePinSpecification5" ;
+    sbol:name "dispenseVelocity" .
+
+<https://bioprotocols.org/paml/primitives/liquid_handling/TransferInto/PrimitivePinSpecification6> a ns1:PrimitivePinSpecification,
+        sbol:Identified ;
+    ns1:activityType ns1:LocatedSamples ;
+    sbol:displayId "PrimitivePinSpecification6" ;
     sbol:name "samples" .
 

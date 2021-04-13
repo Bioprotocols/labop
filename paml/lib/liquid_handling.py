@@ -31,13 +31,24 @@ p.add_output('samples', 'http://bioprotocols.org/paml#LocatedSamples')
 doc.add(p)
 
 p = paml.Primitive('Transfer')
-p.description = 'Move a measured volume of from an array of source samples to an identically shaped array in a destination locations'
+p.description = 'Move a measured volume taken from an array of source samples to an identically shaped array in a destination locations'
 p.add_input('source', 'http://bioprotocols.org/paml#LocatedSamples')
 p.add_input('destination', 'http://bioprotocols.org/paml#Location')
 p.add_input('amount', sbol3.OM_MEASURE) # Must be volume
 p.add_input('dispenseVelocity', sbol3.OM_MEASURE, True)
 p.add_output('samples', 'http://bioprotocols.org/paml#LocatedSamples')
 doc.add(p)
+
+p = paml.Primitive('TransferInto')
+p.description = 'Mix a measured volume taken from an array of source samples intto an identically shaped array of destination samples'
+p.add_input('source', 'http://bioprotocols.org/paml#LocatedSamples')
+p.add_input('destination', 'http://bioprotocols.org/paml#LocatedSamples')
+p.add_input('amount', sbol3.OM_MEASURE) # Must be volume
+p.add_input('mixCycles', sbol3.OM_MEASURE, True)
+p.add_input('dispenseVelocity', sbol3.OM_MEASURE, True)
+p.add_output('samples', 'http://bioprotocols.org/paml#LocatedSamples')
+doc.add(p)
+
 
 p = paml.Primitive('PipetteMix')
 p.description = 'Mix by cycling a measured volume of liquid in and out at an array of samples a fixed number of times'

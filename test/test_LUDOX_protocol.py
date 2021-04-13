@@ -65,31 +65,23 @@ is only weakly scattering and so will give a low absorbance value.
         provision_ddh2o = protocol.execute_primitive('Provision', resource=ddh2o, destination=location,
                                                      amount=sbol3.Measure(100, tyto.OM.microliter))
         protocol.add_flow(protocol.initial(), provision_ddh2o)
-        # For consistent serialization for this test, also order the two provisions
-        protocol.add_flow(provision_ludox, provision_ddh2o)
 
         all_provisioned = paml.Join()
         protocol.activities.append(all_provisioned)
-        protocol.add_flow(provision_ludox.output_pin('samples', doc), all_provisioned)
-        protocol.add_flow(provision_ddh2o.output_pin('samples', doc), all_provisioned)
+        protocol.add_flow(provision_ludox.output_pin('samples'), all_provisioned)
+        protocol.add_flow(provision_ddh2o.output_pin('samples'), all_provisioned)
 
-        execute_measurement = protocol.execute_primitive('MeasureAbsorbance',
+        execute_measurement = protocol.execute_primitive('MeasureAbsorbance', samples=all_provisioned,
                                                          wavelength=sbol3.Measure(600, tyto.OM.nanometer))
-        protocol.add_flow(all_provisioned, execute_measurement.input_pin('samples', doc))
 
-        result = paml.Value()
-        protocol.activities.append(result)
-        protocol.add_flow(execute_measurement.output_pin('measurements', doc), result)
-
+        result = protocol.add_output('absorbance', execute_measurement.output_pin('measurements'))
         protocol.add_flow(result, protocol.final())
-
-        protocol.output += {result}
 
         ########################################
         # Validate and write the document
         print('Validating and writing protocol')
         v = doc.validate()
-        assert not v.errors and not v.warnings
+        assert not v.errors and not v.warnings, "".join(str(e) for e in doc.validate().errors)
 
         doc.write('igem_ludox_draft.json', 'json-ld')
         doc.write('igem_ludox_draft.ttl', 'turtle')

@@ -5,143 +5,129 @@
 
 <https://bioprotocols.org/paml/primitives/plate_handling/AdhesiveSeal> a ns1:Primitive,
         sbol:TopLevel ;
-    ns1:input <https://bioprotocols.org/paml/primitives/plate_handling/AdhesiveSeal/PinSpecification1>,
-        <https://bioprotocols.org/paml/primitives/plate_handling/AdhesiveSeal/PinSpecification2> ;
+    ns1:input <https://bioprotocols.org/paml/primitives/plate_handling/AdhesiveSeal/PrimitivePinSpecification1>,
+        <https://bioprotocols.org/paml/primitives/plate_handling/AdhesiveSeal/PrimitivePinSpecification2> ;
     sbol:description "Seal a collection of samples using adhesive to fix the seal, in order to guarantee isolation from the external environment" ;
     sbol:displayId "AdhesiveSeal" .
 
 <https://bioprotocols.org/paml/primitives/plate_handling/Cover> a ns1:Primitive,
         sbol:TopLevel ;
-    ns1:input <https://bioprotocols.org/paml/primitives/plate_handling/Cover/PinSpecification1>,
-        <https://bioprotocols.org/paml/primitives/plate_handling/Cover/PinSpecification2> ;
+    ns1:input <https://bioprotocols.org/paml/primitives/plate_handling/Cover/PrimitivePinSpecification1>,
+        <https://bioprotocols.org/paml/primitives/plate_handling/Cover/PrimitivePinSpecification2> ;
     sbol:description "Cover a set of samples to keep materials from entering or exiting" ;
     sbol:displayId "Cover" .
 
 <https://bioprotocols.org/paml/primitives/plate_handling/Incubate> a ns1:Primitive,
         sbol:TopLevel ;
-    ns1:input <https://bioprotocols.org/paml/primitives/plate_handling/Incubate/PinSpecification1>,
-        <https://bioprotocols.org/paml/primitives/plate_handling/Incubate/PinSpecification2>,
-        <https://bioprotocols.org/paml/primitives/plate_handling/Incubate/PinSpecification3>,
-        <https://bioprotocols.org/paml/primitives/plate_handling/Incubate/PinSpecification4> ;
+    ns1:input <https://bioprotocols.org/paml/primitives/plate_handling/Incubate/PrimitivePinSpecification1>,
+        <https://bioprotocols.org/paml/primitives/plate_handling/Incubate/PrimitivePinSpecification2>,
+        <https://bioprotocols.org/paml/primitives/plate_handling/Incubate/PrimitivePinSpecification3>,
+        <https://bioprotocols.org/paml/primitives/plate_handling/Incubate/PrimitivePinSpecification4> ;
     sbol:description "Incubate a set of samples under specified conditions for a fixed period of time" ;
     sbol:displayId "Incubate" .
 
 <https://bioprotocols.org/paml/primitives/plate_handling/ThermalSeal> a ns1:Primitive,
         sbol:TopLevel ;
-    ns1:input <https://bioprotocols.org/paml/primitives/plate_handling/ThermalSeal/PinSpecification1>,
-        <https://bioprotocols.org/paml/primitives/plate_handling/ThermalSeal/PinSpecification2>,
-        <https://bioprotocols.org/paml/primitives/plate_handling/ThermalSeal/PinSpecification3>,
-        <https://bioprotocols.org/paml/primitives/plate_handling/ThermalSeal/PinSpecification4> ;
+    ns1:input <https://bioprotocols.org/paml/primitives/plate_handling/ThermalSeal/PrimitivePinSpecification1>,
+        <https://bioprotocols.org/paml/primitives/plate_handling/ThermalSeal/PrimitivePinSpecification2>,
+        <https://bioprotocols.org/paml/primitives/plate_handling/ThermalSeal/PrimitivePinSpecification3>,
+        <https://bioprotocols.org/paml/primitives/plate_handling/ThermalSeal/PrimitivePinSpecification4> ;
     sbol:description "Seal a collection of samples using heat to fix the seal, in order to guarantee isolation from the external environment" ;
     sbol:displayId "ThermalSeal" .
 
 <https://bioprotocols.org/paml/primitives/plate_handling/Uncover> a ns1:Primitive,
         sbol:TopLevel ;
-    ns1:input <https://bioprotocols.org/paml/primitives/plate_handling/Uncover/PinSpecification1> ;
+    ns1:input <https://bioprotocols.org/paml/primitives/plate_handling/Uncover/PrimitivePinSpecification1> ;
     sbol:description "Uncover a collection of samples to allow materials to enter or exit" ;
     sbol:displayId "Uncover" .
 
 <https://bioprotocols.org/paml/primitives/plate_handling/Unseal> a ns1:Primitive,
         sbol:TopLevel ;
-    ns1:input <https://bioprotocols.org/paml/primitives/plate_handling/Unseal/PinSpecification1> ;
+    ns1:input <https://bioprotocols.org/paml/primitives/plate_handling/Unseal/PrimitivePinSpecification1> ;
     sbol:description "Unseal a sealed collection of samples to break their isolation from the external environment" ;
     sbol:displayId "Unseal" .
 
-<https://bioprotocols.org/paml/primitives/plate_handling/AdhesiveSeal/PinSpecification1> a ns1:PinSpecification,
+<https://bioprotocols.org/paml/primitives/plate_handling/AdhesiveSeal/PrimitivePinSpecification1> a ns1:PrimitivePinSpecification,
         sbol:Identified ;
     ns1:activityType ns1:LocatedSamples ;
-    ns1:optional false ;
-    sbol:displayId "PinSpecification1" ;
+    sbol:displayId "PrimitivePinSpecification1" ;
     sbol:name "location" .
 
-<https://bioprotocols.org/paml/primitives/plate_handling/AdhesiveSeal/PinSpecification2> a ns1:PinSpecification,
+<https://bioprotocols.org/paml/primitives/plate_handling/AdhesiveSeal/PrimitivePinSpecification2> a ns1:PrimitivePinSpecification,
         sbol:Identified ;
     ns1:activityType xsd:anyURI ;
-    ns1:optional false ;
-    sbol:displayId "PinSpecification2" ;
+    sbol:displayId "PrimitivePinSpecification2" ;
     sbol:name "type" .
 
-<https://bioprotocols.org/paml/primitives/plate_handling/Cover/PinSpecification1> a ns1:PinSpecification,
+<https://bioprotocols.org/paml/primitives/plate_handling/Cover/PrimitivePinSpecification1> a ns1:PrimitivePinSpecification,
         sbol:Identified ;
     ns1:activityType ns1:LocatedSamples ;
-    ns1:optional false ;
-    sbol:displayId "PinSpecification1" ;
+    sbol:displayId "PrimitivePinSpecification1" ;
     sbol:name "location" .
 
-<https://bioprotocols.org/paml/primitives/plate_handling/Cover/PinSpecification2> a ns1:PinSpecification,
+<https://bioprotocols.org/paml/primitives/plate_handling/Cover/PrimitivePinSpecification2> a ns1:PrimitivePinSpecification,
         sbol:Identified ;
     ns1:activityType xsd:anyURI ;
-    ns1:optional false ;
-    sbol:displayId "PinSpecification2" ;
+    sbol:displayId "PrimitivePinSpecification2" ;
     sbol:name "type" .
 
-<https://bioprotocols.org/paml/primitives/plate_handling/Incubate/PinSpecification1> a ns1:PinSpecification,
+<https://bioprotocols.org/paml/primitives/plate_handling/Incubate/PrimitivePinSpecification1> a ns1:PrimitivePinSpecification,
         sbol:Identified ;
     ns1:activityType ns1:LocatedSamples ;
-    ns1:optional false ;
-    sbol:displayId "PinSpecification1" ;
+    sbol:displayId "PrimitivePinSpecification1" ;
     sbol:name "location" .
 
-<https://bioprotocols.org/paml/primitives/plate_handling/Incubate/PinSpecification2> a ns1:PinSpecification,
+<https://bioprotocols.org/paml/primitives/plate_handling/Incubate/PrimitivePinSpecification2> a ns1:PrimitivePinSpecification,
         sbol:Identified ;
     ns1:activityType om:Measure ;
-    ns1:optional false ;
-    sbol:displayId "PinSpecification2" ;
+    sbol:displayId "PrimitivePinSpecification2" ;
     sbol:name "duration" .
 
-<https://bioprotocols.org/paml/primitives/plate_handling/Incubate/PinSpecification3> a ns1:PinSpecification,
+<https://bioprotocols.org/paml/primitives/plate_handling/Incubate/PrimitivePinSpecification3> a ns1:PrimitivePinSpecification,
         sbol:Identified ;
     ns1:activityType om:Measure ;
-    ns1:optional false ;
-    sbol:displayId "PinSpecification3" ;
+    sbol:displayId "PrimitivePinSpecification3" ;
     sbol:name "temperature" .
 
-<https://bioprotocols.org/paml/primitives/plate_handling/Incubate/PinSpecification4> a ns1:PinSpecification,
+<https://bioprotocols.org/paml/primitives/plate_handling/Incubate/PrimitivePinSpecification4> a ns1:PrimitivePinSpecification,
         sbol:Identified ;
     ns1:activityType om:Measure ;
-    ns1:optional true ;
-    sbol:displayId "PinSpecification4" ;
+    sbol:displayId "PrimitivePinSpecification4" ;
     sbol:name "shakingFrequency" .
 
-<https://bioprotocols.org/paml/primitives/plate_handling/ThermalSeal/PinSpecification1> a ns1:PinSpecification,
+<https://bioprotocols.org/paml/primitives/plate_handling/ThermalSeal/PrimitivePinSpecification1> a ns1:PrimitivePinSpecification,
         sbol:Identified ;
     ns1:activityType ns1:LocatedSamples ;
-    ns1:optional false ;
-    sbol:displayId "PinSpecification1" ;
+    sbol:displayId "PrimitivePinSpecification1" ;
     sbol:name "location" .
 
-<https://bioprotocols.org/paml/primitives/plate_handling/ThermalSeal/PinSpecification2> a ns1:PinSpecification,
+<https://bioprotocols.org/paml/primitives/plate_handling/ThermalSeal/PrimitivePinSpecification2> a ns1:PrimitivePinSpecification,
         sbol:Identified ;
     ns1:activityType xsd:anyURI ;
-    ns1:optional false ;
-    sbol:displayId "PinSpecification2" ;
+    sbol:displayId "PrimitivePinSpecification2" ;
     sbol:name "type" .
 
-<https://bioprotocols.org/paml/primitives/plate_handling/ThermalSeal/PinSpecification3> a ns1:PinSpecification,
+<https://bioprotocols.org/paml/primitives/plate_handling/ThermalSeal/PrimitivePinSpecification3> a ns1:PrimitivePinSpecification,
         sbol:Identified ;
     ns1:activityType om:Measure ;
-    ns1:optional false ;
-    sbol:displayId "PinSpecification3" ;
+    sbol:displayId "PrimitivePinSpecification3" ;
     sbol:name "temperature" .
 
-<https://bioprotocols.org/paml/primitives/plate_handling/ThermalSeal/PinSpecification4> a ns1:PinSpecification,
+<https://bioprotocols.org/paml/primitives/plate_handling/ThermalSeal/PrimitivePinSpecification4> a ns1:PrimitivePinSpecification,
         sbol:Identified ;
     ns1:activityType om:Measure ;
-    ns1:optional false ;
-    sbol:displayId "PinSpecification4" ;
+    sbol:displayId "PrimitivePinSpecification4" ;
     sbol:name "duration" .
 
-<https://bioprotocols.org/paml/primitives/plate_handling/Uncover/PinSpecification1> a ns1:PinSpecification,
+<https://bioprotocols.org/paml/primitives/plate_handling/Uncover/PrimitivePinSpecification1> a ns1:PrimitivePinSpecification,
         sbol:Identified ;
     ns1:activityType ns1:LocatedSamples ;
-    ns1:optional false ;
-    sbol:displayId "PinSpecification1" ;
+    sbol:displayId "PrimitivePinSpecification1" ;
     sbol:name "location" .
 
-<https://bioprotocols.org/paml/primitives/plate_handling/Unseal/PinSpecification1> a ns1:PinSpecification,
+<https://bioprotocols.org/paml/primitives/plate_handling/Unseal/PrimitivePinSpecification1> a ns1:PrimitivePinSpecification,
         sbol:Identified ;
     ns1:activityType ns1:LocatedSamples ;
-    ns1:optional false ;
-    sbol:displayId "PinSpecification1" ;
+    sbol:displayId "PrimitivePinSpecification1" ;
     sbol:name "location" .
 
