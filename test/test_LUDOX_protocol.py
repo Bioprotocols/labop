@@ -74,14 +74,14 @@ is only weakly scattering and so will give a low absorbance value.
         execute_measurement = protocol.execute_primitive('MeasureAbsorbance', samples=all_provisioned,
                                                          wavelength=sbol3.Measure(600, tyto.OM.nanometer))
 
-        result = protocol.add_output(execute_measurement.output_pin('measurements'))
+        result = protocol.add_output('absorbance', execute_measurement.output_pin('measurements'))
         protocol.add_flow(result, protocol.final())
 
         ########################################
         # Validate and write the document
         print('Validating and writing protocol')
         v = doc.validate()
-        assert not v.errors and not v.warnings
+        assert not v.errors and not v.warnings, "".join(str(e) for e in doc.validate().errors)
 
         doc.write('igem_ludox_draft.json', 'json-ld')
         doc.write('igem_ludox_draft.ttl', 'turtle')
