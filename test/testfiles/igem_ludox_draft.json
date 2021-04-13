@@ -7,116 +7,9 @@
   },
   "@graph": [
     {
-      "@id": "https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureFluorescence",
-      "@sbol:description": "Measure fluorescence intensity from a set of samples stimulated by a given wavelength, with an optional bandpass or lowpass filter",
-      "@sbol:displayId": "MeasureFluorescence",
-      "@type": [
-        "@sbol:TopLevel",
-        "http://bioprotocols.org/paml#Primitive"
-      ],
-      "http://bioprotocols.org/paml#input": [
-        {
-          "@id": "https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureFluorescence/PinSpecification3"
-        },
-        {
-          "@id": "https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureFluorescence/PinSpecification5"
-        },
-        {
-          "@id": "https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureFluorescence/PinSpecification7"
-        },
-        {
-          "@id": "https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureFluorescence/PinSpecification6"
-        },
-        {
-          "@id": "https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureFluorescence/PinSpecification2"
-        },
-        {
-          "@id": "https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureFluorescence/PinSpecification1"
-        },
-        {
-          "@id": "https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureFluorescence/PinSpecification4"
-        }
-      ],
-      "http://bioprotocols.org/paml#output": {
-        "@id": "https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureFluorescence/PinSpecification8"
-      }
-    },
-    {
-      "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable1/Pin2",
-      "@sbol:displayId": "Pin2",
-      "@sbol:name": "dispenseVelocity",
-      "@type": [
-        "http://bioprotocols.org/paml#Pin",
-        "@sbol:Identified"
-      ],
-      "http://bioprotocols.org/paml#activityType": {
-        "@id": "@om:Measure"
-      },
-      "http://bioprotocols.org/paml#instanceOfPinSpecification": {
-        "@id": "https://bioprotocols.org/paml/primitives/liquid_handling/Provision/PinSpecification4"
-      }
-    },
-    {
-      "@id": "https://bioprotocols.org/paml/primitives/liquid_handling/Transfer/PinSpecification1",
-      "@sbol:displayId": "PinSpecification1",
-      "@sbol:name": "source",
-      "@type": [
-        "@sbol:Identified",
-        "http://bioprotocols.org/paml#PinSpecification"
-      ],
-      "http://bioprotocols.org/paml#activityType": {
-        "@id": "http://bioprotocols.org/paml#LocatedSamples"
-      },
-      "http://bioprotocols.org/paml#optional": false
-    },
-    {
-      "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Value1",
-      "@sbol:displayId": "Value1",
-      "@type": [
-        "@sbol:Identified",
-        "http://bioprotocols.org/paml#Value"
-      ]
-    },
-    {
-      "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/ContainerCoordinates1",
-      "@sbol:displayId": "ContainerCoordinates1",
-      "@type": [
-        "@sbol:Identified",
-        "http://bioprotocols.org/paml#ContainerCoordinates"
-      ],
-      "http://bioprotocols.org/paml#coordinates": "A1:D1",
-      "http://bioprotocols.org/paml#inContainer": {
-        "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Container1"
-      }
-    },
-    {
-      "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/ContainerCoordinates2",
-      "@sbol:displayId": "ContainerCoordinates2",
-      "@type": [
-        "@sbol:Identified",
-        "http://bioprotocols.org/paml#ContainerCoordinates"
-      ],
-      "http://bioprotocols.org/paml#coordinates": "A2:D2",
-      "http://bioprotocols.org/paml#inContainer": {
-        "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Container1"
-      }
-    },
-    {
-      "@id": "https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureFluorescence/PinSpecification8",
-      "@sbol:displayId": "PinSpecification8",
-      "@sbol:name": "measurements",
-      "@type": [
-        "http://bioprotocols.org/paml#PinSpecification",
-        "@sbol:Identified"
-      ],
-      "http://bioprotocols.org/paml#activityType": {
-        "@id": "http://bioprotocols.org/paml#LocatedData"
-      }
-    },
-    {
-      "@id": "https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureFluorescence/PinSpecification3",
+      "@id": "https://bioprotocols.org/paml/primitives/liquid_handling/Provision/PinSpecification3",
       "@sbol:displayId": "PinSpecification3",
-      "@sbol:name": "emissionBandpassWavelength",
+      "@sbol:name": "amount",
       "@type": [
         "http://bioprotocols.org/paml#PinSpecification",
         "@sbol:Identified"
@@ -125,323 +18,113 @@
         "@id": "@om:Measure"
       },
       "http://bioprotocols.org/paml#optional": false
-    },
-    {
-      "@id": "https://bioprotocols.org/paml/primitives/plate_handling/ThermalSeal/PinSpecification1",
-      "@sbol:displayId": "PinSpecification1",
-      "@sbol:name": "location",
-      "@type": [
-        "http://bioprotocols.org/paml#PinSpecification",
-        "@sbol:Identified"
-      ],
-      "http://bioprotocols.org/paml#activityType": {
-        "@id": "http://bioprotocols.org/paml#LocatedSamples"
-      },
-      "http://bioprotocols.org/paml#optional": false
-    },
-    {
-      "@id": "https://bioprotocols.org/paml/primitives/liquid_handling/PipetteMix/PinSpecification3",
-      "@sbol:displayId": "PinSpecification3",
-      "@sbol:name": "dispenseVelocity",
-      "@type": [
-        "http://bioprotocols.org/paml#PinSpecification",
-        "@sbol:Identified"
-      ],
-      "http://bioprotocols.org/paml#activityType": {
-        "@id": "@om:Measure"
-      },
-      "http://bioprotocols.org/paml#optional": true
-    },
-    {
-      "@id": "https://bioprotocols.org/paml/primitives/liquid_handling/Provision/PinSpecification1",
-      "@sbol:displayId": "PinSpecification1",
-      "@sbol:name": "resource",
-      "@type": [
-        "@sbol:Identified",
-        "http://bioprotocols.org/paml#PinSpecification"
-      ],
-      "http://bioprotocols.org/paml#activityType": {
-        "@id": "@sbol:Component"
-      },
-      "http://bioprotocols.org/paml#optional": false
-    },
-    {
-      "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018",
-      "@sbol:description": "\n        With this protocol you will use LUDOX CL-X (a 45% colloidal silica suspension) as a single point reference to\n        obtain a conversion factor to transform absorbance (OD600) data from your plate reader into a comparable\n        OD600 measurement as would be obtained in a spectrophotometer. This conversion is necessary because plate\n        reader measurements of absorbance are volume dependent; the depth of the fluid in the well defines the path\n        length of the light passing through the sample, which can vary slightly from well to well. In a standard\n        spectrophotometer, the path length is fixed and is defined by the width of the cuvette, which is constant.\n        Therefore this conversion calculation can transform OD600 measurements from a plate reader (i.e. absorbance\n        at 600 nm, the basic output of most instruments) into comparable OD600 measurements. The LUDOX solution\n        is only weakly scattering and so will give a low absorbance value.\n        ",
-      "@sbol:displayId": "iGEM_LUDOX_OD_calibration_2018",
-      "@sbol:name": "iGEM 2018 LUDOX OD calibration protocol",
-      "@type": [
-        "http://bioprotocols.org/paml#Protocol",
-        "@sbol:TopLevel"
-      ],
-      "http://bioprotocols.org/paml#hasActivity": [
-        {
-          "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Initial1"
-        },
-        {
-          "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable3"
-        },
-        {
-          "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable1"
-        },
-        {
-          "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable2"
-        },
-        {
-          "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Final1"
-        },
-        {
-          "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Value1"
-        },
-        {
-          "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Join1"
-        }
-      ],
-      "http://bioprotocols.org/paml#hasFlow": [
-        {
-          "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Flow8"
-        },
-        {
-          "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Flow7"
-        },
-        {
-          "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Flow3"
-        },
-        {
-          "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Flow2"
-        },
-        {
-          "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Flow6"
-        },
-        {
-          "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Flow1"
-        },
-        {
-          "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Flow4"
-        },
-        {
-          "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Flow5"
-        }
-      ],
-      "http://bioprotocols.org/paml#hasLocation": [
-        {
-          "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Container1"
-        },
-        {
-          "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/ContainerCoordinates2"
-        },
-        {
-          "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/ContainerCoordinates1"
-        }
-      ],
-      "http://bioprotocols.org/paml#material": [
-        {
-          "@id": "https://bbn.com/scratch/LUDOX"
-        },
-        {
-          "@id": "https://bbn.com/scratch/ddH2O"
-        }
-      ],
-      "http://bioprotocols.org/paml#outputActivity": {
-        "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Value1"
-      }
     },
     {
       "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable2",
       "@sbol:displayId": "PrimitiveExecutable2",
       "@type": [
-        "http://bioprotocols.org/paml#PrimitiveExecutable",
-        "@sbol:Identified"
+        "@sbol:Identified",
+        "http://bioprotocols.org/paml#PrimitiveExecutable"
       ],
       "http://bioprotocols.org/paml#input": [
         {
-          "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable2/LocalValuePin1"
+          "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable2/ReferenceValuePin1"
         },
         {
           "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable2/ReferenceValuePin2"
         },
         {
-          "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable2/ReferenceValuePin1"
+          "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable2/Pin1"
         },
         {
-          "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable2/Pin2"
+          "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable2/LocalValuePin1"
         }
       ],
       "http://bioprotocols.org/paml#instanceOfPrimitive": {
         "@id": "https://bioprotocols.org/paml/primitives/liquid_handling/Provision"
       },
       "http://bioprotocols.org/paml#output": {
-        "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable2/Pin1"
+        "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable2/Pin2"
       }
     },
     {
-      "@id": "https://bioprotocols.org/paml/primitives/plate_handling/Cover/PinSpecification1",
-      "@sbol:displayId": "PinSpecification1",
-      "@sbol:name": "location",
+      "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Flow8",
+      "@sbol:displayId": "Flow8",
       "@type": [
-        "http://bioprotocols.org/paml#PinSpecification",
+        "http://bioprotocols.org/paml#Flow",
         "@sbol:Identified"
       ],
-      "http://bioprotocols.org/paml#activityType": {
-        "@id": "http://bioprotocols.org/paml#LocatedSamples"
+      "http://bioprotocols.org/paml#sink": {
+        "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Final1"
       },
-      "http://bioprotocols.org/paml#optional": false
+      "http://bioprotocols.org/paml#source": {
+        "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Value1"
+      }
     },
     {
-      "@id": "https://bioprotocols.org/paml/primitives/liquid_handling/PipetteMix",
-      "@sbol:description": "Mix by cycling a measured volume of liquid in and out at an array of samples a fixed number of times",
-      "@sbol:displayId": "PipetteMix",
+      "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable3",
+      "@sbol:displayId": "PrimitiveExecutable3",
       "@type": [
-        "http://bioprotocols.org/paml#Primitive",
-        "@sbol:TopLevel"
+        "@sbol:Identified",
+        "http://bioprotocols.org/paml#PrimitiveExecutable"
       ],
       "http://bioprotocols.org/paml#input": [
         {
-          "@id": "https://bioprotocols.org/paml/primitives/liquid_handling/PipetteMix/PinSpecification2"
+          "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable3/LocalValuePin1"
         },
         {
-          "@id": "https://bioprotocols.org/paml/primitives/liquid_handling/PipetteMix/PinSpecification4"
+          "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable3/Pin2"
         },
         {
-          "@id": "https://bioprotocols.org/paml/primitives/liquid_handling/PipetteMix/PinSpecification1"
-        },
-        {
-          "@id": "https://bioprotocols.org/paml/primitives/liquid_handling/PipetteMix/PinSpecification3"
+          "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable3/Pin1"
         }
+      ],
+      "http://bioprotocols.org/paml#instanceOfPrimitive": {
+        "@id": "https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureAbsorbance"
+      },
+      "http://bioprotocols.org/paml#output": {
+        "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable3/Pin3"
+      }
+    },
+    {
+      "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable1/LocalValuePin1/Measure1",
+      "@om:hasNumericalValue": 100.0,
+      "@om:hasUnit": {
+        "@id": "@om:microlitre"
+      },
+      "@sbol:displayId": "Measure1",
+      "@type": [
+        "@om:Measure",
+        "@sbol:Identified"
       ]
     },
     {
-      "@id": "https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureAbsorbance/PinSpecification3",
-      "@sbol:displayId": "PinSpecification3",
-      "@sbol:name": "numFlashes",
-      "@type": [
-        "@sbol:Identified",
-        "http://bioprotocols.org/paml#PinSpecification"
-      ],
-      "http://bioprotocols.org/paml#activityType": {
-        "@id": "http://www.w3.org/2001/XMLSchema#integer"
-      },
-      "http://bioprotocols.org/paml#optional": true
-    },
-    {
-      "@id": "https://bioprotocols.org/paml/primitives/plate_handling/Incubate/PinSpecification3",
-      "@sbol:displayId": "PinSpecification3",
-      "@sbol:name": "temperature",
-      "@type": [
-        "http://bioprotocols.org/paml#PinSpecification",
-        "@sbol:Identified"
-      ],
-      "http://bioprotocols.org/paml#activityType": {
-        "@id": "@om:Measure"
-      },
-      "http://bioprotocols.org/paml#optional": false
-    },
-    {
-      "@id": "https://bioprotocols.org/paml/primitives/liquid_handling/Dispense/PinSpecification5",
-      "@sbol:displayId": "PinSpecification5",
+      "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable1/Pin2",
+      "@sbol:displayId": "Pin2",
       "@sbol:name": "samples",
       "@type": [
-        "http://bioprotocols.org/paml#PinSpecification",
-        "@sbol:Identified"
+        "@sbol:Identified",
+        "http://bioprotocols.org/paml#Pin"
       ],
-      "http://bioprotocols.org/paml#activityType": {
-        "@id": "http://bioprotocols.org/paml#LocatedSamples"
+      "http://bioprotocols.org/paml#instanceOfPinSpecification": {
+        "@id": "https://bioprotocols.org/paml/primitives/liquid_handling/Provision/PinSpecification5"
       }
     },
     {
-      "@id": "https://bioprotocols.org/paml/primitives/liquid_handling/Dispense/PinSpecification4",
-      "@sbol:displayId": "PinSpecification4",
-      "@sbol:name": "dispenseVelocity",
-      "@type": [
-        "http://bioprotocols.org/paml#PinSpecification",
-        "@sbol:Identified"
-      ],
-      "http://bioprotocols.org/paml#activityType": {
-        "@id": "@om:Measure"
-      },
-      "http://bioprotocols.org/paml#optional": true
-    },
-    {
-      "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Flow7",
-      "@sbol:displayId": "Flow7",
+      "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Final1",
+      "@sbol:displayId": "Final1",
       "@type": [
         "@sbol:Identified",
-        "http://bioprotocols.org/paml#Flow"
-      ],
-      "http://bioprotocols.org/paml#sink": {
-        "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Value1"
-      },
-      "http://bioprotocols.org/paml#source": {
-        "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable3/Pin1"
-      }
+        "http://bioprotocols.org/paml#Final"
+      ]
     },
     {
-      "@id": "https://bbn.com/scratch/ddH2O",
-      "@sbol:displayId": "ddH2O",
-      "@sbol:name": "Water, sterile-filtered, BioReagent, suitable for cell culture",
-      "@sbol:type": {
-        "@id": "https://identifiers.org/pubchem.substance:24901740"
-      },
-      "@type": "@sbol:Component"
-    },
-    {
-      "@id": "https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureFluorescence/PinSpecification1",
-      "@sbol:displayId": "PinSpecification1",
-      "@sbol:name": "samples",
-      "@type": [
-        "http://bioprotocols.org/paml#PinSpecification",
-        "@sbol:Identified"
-      ],
-      "http://bioprotocols.org/paml#activityType": {
-        "@id": "http://bioprotocols.org/paml#LocatedSamples"
-      },
-      "http://bioprotocols.org/paml#optional": false
-    },
-    {
-      "@id": "https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureFluorescenceSpectrum/PinSpecification3",
-      "@sbol:displayId": "PinSpecification3",
-      "@sbol:name": "numFlashes",
-      "@type": [
-        "http://bioprotocols.org/paml#PinSpecification",
-        "@sbol:Identified"
-      ],
-      "http://bioprotocols.org/paml#activityType": {
-        "@id": "http://www.w3.org/2001/XMLSchema#integer"
-      },
-      "http://bioprotocols.org/paml#optional": true
-    },
-    {
-      "@id": "https://bioprotocols.org/paml/primitives/liquid_handling/Provision/PinSpecification4",
-      "@sbol:displayId": "PinSpecification4",
-      "@sbol:name": "dispenseVelocity",
-      "@type": [
-        "http://bioprotocols.org/paml#PinSpecification",
-        "@sbol:Identified"
-      ],
-      "http://bioprotocols.org/paml#activityType": {
-        "@id": "@om:Measure"
-      },
-      "http://bioprotocols.org/paml#optional": true
-    },
-    {
-      "@id": "https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureAbsorbance/PinSpecification4",
-      "@sbol:displayId": "PinSpecification4",
-      "@sbol:name": "measurements",
-      "@type": [
-        "http://bioprotocols.org/paml#PinSpecification",
-        "@sbol:Identified"
-      ],
-      "http://bioprotocols.org/paml#activityType": {
-        "@id": "http://bioprotocols.org/paml#LocatedData"
-      }
-    },
-    {
-      "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable1/ReferenceValuePin1",
-      "@sbol:displayId": "ReferenceValuePin1",
+      "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable2/ReferenceValuePin2",
+      "@sbol:displayId": "ReferenceValuePin2",
       "@sbol:name": "destination",
       "@type": [
-        "@sbol:Identified",
-        "http://bioprotocols.org/paml#ReferenceValuePin"
+        "http://bioprotocols.org/paml#ReferenceValuePin",
+        "@sbol:Identified"
       ],
       "http://bioprotocols.org/paml#activityType": {
         "@id": "http://bioprotocols.org/paml#Location"
@@ -450,148 +133,47 @@
         "@id": "https://bioprotocols.org/paml/primitives/liquid_handling/Provision/PinSpecification2"
       },
       "http://bioprotocols.org/paml#valueReference": {
-        "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/ContainerCoordinates1"
+        "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/ContainerCoordinates2"
       }
-    },
-    {
-      "@id": "https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureFluorescenceSpectrum/PinSpecification4",
-      "@sbol:displayId": "PinSpecification4",
-      "@sbol:name": "gain",
-      "@type": [
-        "http://bioprotocols.org/paml#PinSpecification",
-        "@sbol:Identified"
-      ],
-      "http://bioprotocols.org/paml#activityType": {
-        "@id": "http://www.w3.org/2001/XMLSchema#double"
-      },
-      "http://bioprotocols.org/paml#optional": true
     },
     {
       "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Initial1",
       "@sbol:displayId": "Initial1",
       "@type": [
-        "@sbol:Identified",
-        "http://bioprotocols.org/paml#Initial"
+        "http://bioprotocols.org/paml#Initial",
+        "@sbol:Identified"
       ]
     },
     {
-      "@id": "https://bioprotocols.org/paml/primitives/plate_handling/Incubate/PinSpecification4",
-      "@sbol:displayId": "PinSpecification4",
-      "@sbol:name": "shakingFrequency",
+      "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Join1",
+      "@sbol:displayId": "Join1",
       "@type": [
-        "http://bioprotocols.org/paml#PinSpecification",
+        "http://bioprotocols.org/paml#Join",
         "@sbol:Identified"
-      ],
-      "http://bioprotocols.org/paml#activityType": {
-        "@id": "@om:Measure"
-      },
-      "http://bioprotocols.org/paml#optional": true
+      ]
     },
     {
-      "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable1/LocalValuePin1",
-      "@sbol:displayId": "LocalValuePin1",
-      "@sbol:name": "amount",
-      "@type": [
-        "http://bioprotocols.org/paml#LocalValuePin",
-        "@sbol:Identified"
-      ],
-      "http://bioprotocols.org/paml#activityType": {
-        "@id": "@om:Measure"
-      },
-      "http://bioprotocols.org/paml#instanceOfPinSpecification": {
-        "@id": "https://bioprotocols.org/paml/primitives/liquid_handling/Provision/PinSpecification3"
-      },
-      "http://bioprotocols.org/paml#value": {
-        "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable1/LocalValuePin1/Measure1"
-      }
-    },
-    {
-      "@id": "https://bioprotocols.org/paml/primitives/plate_handling/Uncover",
-      "@sbol:description": "Uncover a collection of samples to allow materials to enter or exit",
-      "@sbol:displayId": "Uncover",
-      "@type": [
-        "@sbol:TopLevel",
-        "http://bioprotocols.org/paml#Primitive"
-      ],
-      "http://bioprotocols.org/paml#input": {
-        "@id": "https://bioprotocols.org/paml/primitives/plate_handling/Uncover/PinSpecification1"
-      }
-    },
-    {
-      "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable3/Pin1",
-      "@sbol:displayId": "Pin1",
-      "@sbol:name": "measurements",
-      "@type": [
-        "http://bioprotocols.org/paml#Pin",
-        "@sbol:Identified"
-      ],
-      "http://bioprotocols.org/paml#instanceOfPinSpecification": {
-        "@id": "https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureAbsorbance/PinSpecification4"
-      }
-    },
-    {
-      "@id": "https://bioprotocols.org/paml/primitives/liquid_handling/PipetteMix/PinSpecification4",
-      "@sbol:displayId": "PinSpecification4",
-      "@sbol:name": "cycleCount",
-      "@type": [
-        "http://bioprotocols.org/paml#PinSpecification",
-        "@sbol:Identified"
-      ],
-      "http://bioprotocols.org/paml#activityType": {
-        "@id": "@om:Measure"
-      },
-      "http://bioprotocols.org/paml#optional": true
-    },
-    {
-      "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable2/Pin1",
-      "@sbol:displayId": "Pin1",
-      "@sbol:name": "samples",
-      "@type": [
-        "http://bioprotocols.org/paml#Pin",
-        "@sbol:Identified"
-      ],
-      "http://bioprotocols.org/paml#instanceOfPinSpecification": {
-        "@id": "https://bioprotocols.org/paml/primitives/liquid_handling/Provision/PinSpecification5"
-      }
-    },
-    {
-      "@id": "https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureFluorescenceSpectrum",
-      "@sbol:description": "Measure fluorescence spectrum from a set of samples stimulated by a given wavelength",
-      "@sbol:displayId": "MeasureFluorescenceSpectrum",
+      "@id": "https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureAbsorbance",
+      "@sbol:description": "Measure absorbance at a given wavelength from a set of samples",
+      "@sbol:displayId": "MeasureAbsorbance",
       "@type": [
         "http://bioprotocols.org/paml#Primitive",
         "@sbol:TopLevel"
       ],
       "http://bioprotocols.org/paml#input": [
         {
-          "@id": "https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureFluorescenceSpectrum/PinSpecification4"
+          "@id": "https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureAbsorbance/PinSpecification1"
         },
         {
-          "@id": "https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureFluorescenceSpectrum/PinSpecification1"
+          "@id": "https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureAbsorbance/PinSpecification3"
         },
         {
-          "@id": "https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureFluorescenceSpectrum/PinSpecification2"
-        },
-        {
-          "@id": "https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureFluorescenceSpectrum/PinSpecification3"
+          "@id": "https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureAbsorbance/PinSpecification2"
         }
       ],
       "http://bioprotocols.org/paml#output": {
-        "@id": "https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureFluorescenceSpectrum/PinSpecification5"
+        "@id": "https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureAbsorbance/PinSpecification4"
       }
-    },
-    {
-      "@id": "https://bioprotocols.org/paml/primitives/liquid_handling/Dispense/PinSpecification2",
-      "@sbol:displayId": "PinSpecification2",
-      "@sbol:name": "destination",
-      "@type": [
-        "http://bioprotocols.org/paml#PinSpecification",
-        "@sbol:Identified"
-      ],
-      "http://bioprotocols.org/paml#activityType": {
-        "@id": "http://bioprotocols.org/paml#Location"
-      },
-      "http://bioprotocols.org/paml#optional": false
     },
     {
       "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable3/LocalValuePin1",
@@ -612,204 +194,12 @@
       }
     },
     {
-      "@id": "https://bioprotocols.org/paml/primitives/plate_handling/Cover/PinSpecification2",
-      "@sbol:displayId": "PinSpecification2",
-      "@sbol:name": "type",
-      "@type": [
-        "http://bioprotocols.org/paml#PinSpecification",
-        "@sbol:Identified"
-      ],
-      "http://bioprotocols.org/paml#activityType": {
-        "@id": "http://www.w3.org/2001/XMLSchema#anyURI"
-      },
-      "http://bioprotocols.org/paml#optional": false
-    },
-    {
-      "@id": "https://bioprotocols.org/paml/primitives/plate_handling/Incubate/PinSpecification2",
-      "@sbol:displayId": "PinSpecification2",
-      "@sbol:name": "duration",
-      "@type": [
-        "http://bioprotocols.org/paml#PinSpecification",
-        "@sbol:Identified"
-      ],
-      "http://bioprotocols.org/paml#activityType": {
-        "@id": "@om:Measure"
-      },
-      "http://bioprotocols.org/paml#optional": false
-    },
-    {
-      "@id": "https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureFluorescenceSpectrum/PinSpecification5",
-      "@sbol:displayId": "PinSpecification5",
-      "@sbol:name": "measurements",
-      "@type": [
-        "http://bioprotocols.org/paml#PinSpecification",
-        "@sbol:Identified"
-      ],
-      "http://bioprotocols.org/paml#activityType": {
-        "@id": "http://bioprotocols.org/paml#LocatedData"
-      }
-    },
-    {
-      "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable3",
-      "@sbol:displayId": "PrimitiveExecutable3",
-      "@type": [
-        "http://bioprotocols.org/paml#PrimitiveExecutable",
-        "@sbol:Identified"
-      ],
-      "http://bioprotocols.org/paml#input": [
-        {
-          "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable3/LocalValuePin1"
-        },
-        {
-          "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable3/Pin2"
-        },
-        {
-          "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable3/Pin3"
-        }
-      ],
-      "http://bioprotocols.org/paml#instanceOfPrimitive": {
-        "@id": "https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureAbsorbance"
-      },
-      "http://bioprotocols.org/paml#output": {
-        "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable3/Pin1"
-      }
-    },
-    {
-      "@id": "https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureAbsorbance/PinSpecification1",
-      "@sbol:displayId": "PinSpecification1",
-      "@sbol:name": "samples",
-      "@type": [
-        "http://bioprotocols.org/paml#PinSpecification",
-        "@sbol:Identified"
-      ],
-      "http://bioprotocols.org/paml#activityType": {
-        "@id": "http://bioprotocols.org/paml#LocatedSamples"
-      },
-      "http://bioprotocols.org/paml#optional": false
-    },
-    {
-      "@id": "https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureFluorescenceSpectrum/PinSpecification1",
-      "@sbol:displayId": "PinSpecification1",
-      "@sbol:name": "samples",
-      "@type": [
-        "http://bioprotocols.org/paml#PinSpecification",
-        "@sbol:Identified"
-      ],
-      "http://bioprotocols.org/paml#activityType": {
-        "@id": "http://bioprotocols.org/paml#LocatedSamples"
-      },
-      "http://bioprotocols.org/paml#optional": false
-    },
-    {
-      "@id": "https://bioprotocols.org/paml/primitives/liquid_handling/Transfer/PinSpecification2",
-      "@sbol:displayId": "PinSpecification2",
-      "@sbol:name": "destination",
-      "@type": [
-        "http://bioprotocols.org/paml#PinSpecification",
-        "@sbol:Identified"
-      ],
-      "http://bioprotocols.org/paml#activityType": {
-        "@id": "http://bioprotocols.org/paml#Location"
-      },
-      "http://bioprotocols.org/paml#optional": false
-    },
-    {
-      "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable3/LocalValuePin1/Measure1",
-      "@om:hasNumericalValue": 600.0,
-      "@om:hasUnit": {
-        "@id": "@om:nanometre"
-      },
-      "@sbol:displayId": "Measure1",
-      "@type": [
-        "@sbol:Identified",
-        "@om:Measure"
-      ]
-    },
-    {
-      "@id": "https://bioprotocols.org/paml/primitives/plate_handling/AdhesiveSeal/PinSpecification2",
-      "@sbol:displayId": "PinSpecification2",
-      "@sbol:name": "type",
-      "@type": [
-        "@sbol:Identified",
-        "http://bioprotocols.org/paml#PinSpecification"
-      ],
-      "http://bioprotocols.org/paml#activityType": {
-        "@id": "http://www.w3.org/2001/XMLSchema#anyURI"
-      },
-      "http://bioprotocols.org/paml#optional": false
-    },
-    {
-      "@id": "https://bioprotocols.org/paml/primitives/plate_handling/ThermalSeal/PinSpecification3",
-      "@sbol:displayId": "PinSpecification3",
-      "@sbol:name": "temperature",
-      "@type": [
-        "http://bioprotocols.org/paml#PinSpecification",
-        "@sbol:Identified"
-      ],
-      "http://bioprotocols.org/paml#activityType": {
-        "@id": "@om:Measure"
-      },
-      "http://bioprotocols.org/paml#optional": false
-    },
-    {
-      "@id": "https://bioprotocols.org/paml/primitives/plate_handling/ThermalSeal/PinSpecification2",
-      "@sbol:displayId": "PinSpecification2",
-      "@sbol:name": "type",
-      "@type": [
-        "http://bioprotocols.org/paml#PinSpecification",
-        "@sbol:Identified"
-      ],
-      "http://bioprotocols.org/paml#activityType": {
-        "@id": "http://www.w3.org/2001/XMLSchema#anyURI"
-      },
-      "http://bioprotocols.org/paml#optional": false
-    },
-    {
-      "@id": "https://bioprotocols.org/paml/primitives/liquid_handling/Dispense/PinSpecification1",
-      "@sbol:displayId": "PinSpecification1",
-      "@sbol:name": "source",
-      "@type": [
-        "@sbol:Identified",
-        "http://bioprotocols.org/paml#PinSpecification"
-      ],
-      "http://bioprotocols.org/paml#activityType": {
-        "@id": "http://bioprotocols.org/paml#LocatedSamples"
-      },
-      "http://bioprotocols.org/paml#optional": false
-    },
-    {
-      "@id": "https://bioprotocols.org/paml/primitives/liquid_handling/Transfer",
-      "@sbol:description": "Move a measured volume of from an array of source samples to an identically shaped array in a destination locations",
-      "@sbol:displayId": "Transfer",
-      "@type": [
-        "http://bioprotocols.org/paml#Primitive",
-        "@sbol:TopLevel"
-      ],
-      "http://bioprotocols.org/paml#input": [
-        {
-          "@id": "https://bioprotocols.org/paml/primitives/liquid_handling/Transfer/PinSpecification4"
-        },
-        {
-          "@id": "https://bioprotocols.org/paml/primitives/liquid_handling/Transfer/PinSpecification3"
-        },
-        {
-          "@id": "https://bioprotocols.org/paml/primitives/liquid_handling/Transfer/PinSpecification1"
-        },
-        {
-          "@id": "https://bioprotocols.org/paml/primitives/liquid_handling/Transfer/PinSpecification2"
-        }
-      ],
-      "http://bioprotocols.org/paml#output": {
-        "@id": "https://bioprotocols.org/paml/primitives/liquid_handling/Transfer/PinSpecification5"
-      }
-    },
-    {
       "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable2/LocalValuePin1",
       "@sbol:displayId": "LocalValuePin1",
       "@sbol:name": "amount",
       "@type": [
-        "http://bioprotocols.org/paml#LocalValuePin",
-        "@sbol:Identified"
+        "@sbol:Identified",
+        "http://bioprotocols.org/paml#LocalValuePin"
       ],
       "http://bioprotocols.org/paml#activityType": {
         "@id": "@om:Measure"
@@ -822,21 +212,64 @@
       }
     },
     {
-      "@id": "https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureFluorescence/PinSpecification4",
-      "@sbol:displayId": "PinSpecification4",
-      "@sbol:name": "emissionBandpassWidth",
+      "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable1/Pin1",
+      "@sbol:displayId": "Pin1",
+      "@sbol:name": "dispenseVelocity",
       "@type": [
-        "http://bioprotocols.org/paml#PinSpecification",
+        "http://bioprotocols.org/paml#Pin",
         "@sbol:Identified"
       ],
       "http://bioprotocols.org/paml#activityType": {
         "@id": "@om:Measure"
       },
-      "http://bioprotocols.org/paml#optional": false
+      "http://bioprotocols.org/paml#instanceOfPinSpecification": {
+        "@id": "https://bioprotocols.org/paml/primitives/liquid_handling/Provision/PinSpecification4"
+      }
     },
     {
-      "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable2/ReferenceValuePin2",
-      "@sbol:displayId": "ReferenceValuePin2",
+      "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable2/Pin1",
+      "@sbol:displayId": "Pin1",
+      "@sbol:name": "dispenseVelocity",
+      "@type": [
+        "@sbol:Identified",
+        "http://bioprotocols.org/paml#Pin"
+      ],
+      "http://bioprotocols.org/paml#activityType": {
+        "@id": "@om:Measure"
+      },
+      "http://bioprotocols.org/paml#instanceOfPinSpecification": {
+        "@id": "https://bioprotocols.org/paml/primitives/liquid_handling/Provision/PinSpecification4"
+      }
+    },
+    {
+      "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Value1",
+      "@sbol:displayId": "Value1",
+      "@type": [
+        "@sbol:Identified",
+        "http://bioprotocols.org/paml#Value"
+      ]
+    },
+    {
+      "@id": "https://bbn.com/scratch/ddH2O",
+      "@sbol:displayId": "ddH2O",
+      "@sbol:name": "Water, sterile-filtered, BioReagent, suitable for cell culture",
+      "@sbol:type": {
+        "@id": "https://identifiers.org/pubchem.substance:24901740"
+      },
+      "@type": "@sbol:Component"
+    },
+    {
+      "@id": "https://bbn.com/scratch/LUDOX",
+      "@sbol:displayId": "LUDOX",
+      "@sbol:name": "LUDOX(R) CL-X colloidal silica, 45 wt. % suspension in H2O",
+      "@sbol:type": {
+        "@id": "https://identifiers.org/pubchem.substance:24866361"
+      },
+      "@type": "@sbol:Component"
+    },
+    {
+      "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable2/ReferenceValuePin1",
+      "@sbol:displayId": "ReferenceValuePin1",
       "@sbol:name": "resource",
       "@type": [
         "@sbol:Identified",
@@ -853,26 +286,9 @@
       }
     },
     {
-      "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Final1",
-      "@sbol:displayId": "Final1",
-      "@type": [
-        "@sbol:Identified",
-        "http://bioprotocols.org/paml#Final"
-      ]
-    },
-    {
-      "@id": "https://bbn.com/scratch/LUDOX",
-      "@sbol:displayId": "LUDOX",
-      "@sbol:name": "LUDOX(R) CL-X colloidal silica, 45 wt. % suspension in H2O",
-      "@sbol:type": {
-        "@id": "https://identifiers.org/pubchem.substance:24866361"
-      },
-      "@type": "@sbol:Component"
-    },
-    {
-      "@id": "https://bioprotocols.org/paml/primitives/liquid_handling/Transfer/PinSpecification4",
-      "@sbol:displayId": "PinSpecification4",
-      "@sbol:name": "dispenseVelocity",
+      "@id": "https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureAbsorbance/PinSpecification2",
+      "@sbol:displayId": "PinSpecification2",
+      "@sbol:name": "wavelength",
       "@type": [
         "http://bioprotocols.org/paml#PinSpecification",
         "@sbol:Identified"
@@ -880,61 +296,54 @@
       "http://bioprotocols.org/paml#activityType": {
         "@id": "@om:Measure"
       },
-      "http://bioprotocols.org/paml#optional": true
+      "http://bioprotocols.org/paml#optional": false
     },
     {
-      "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Join1",
-      "@sbol:displayId": "Join1",
-      "@type": [
-        "@sbol:Identified",
-        "http://bioprotocols.org/paml#Join"
-      ]
-    },
-    {
-      "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable3/Pin2",
-      "@sbol:displayId": "Pin2",
+      "@id": "https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureAbsorbance/PinSpecification3",
+      "@sbol:displayId": "PinSpecification3",
       "@sbol:name": "numFlashes",
-      "@type": [
-        "http://bioprotocols.org/paml#Pin",
-        "@sbol:Identified"
-      ],
-      "http://bioprotocols.org/paml#activityType": {
-        "@id": "http://www.w3.org/2001/XMLSchema#integer"
-      },
-      "http://bioprotocols.org/paml#instanceOfPinSpecification": {
-        "@id": "https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureAbsorbance/PinSpecification3"
-      }
-    },
-    {
-      "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Flow6",
-      "@sbol:displayId": "Flow6",
-      "@type": [
-        "http://bioprotocols.org/paml#Flow",
-        "@sbol:Identified"
-      ],
-      "http://bioprotocols.org/paml#sink": {
-        "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable3/Pin3"
-      },
-      "http://bioprotocols.org/paml#source": {
-        "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Join1"
-      }
-    },
-    {
-      "@id": "https://bioprotocols.org/paml/primitives/plate_handling/Unseal/PinSpecification1",
-      "@sbol:displayId": "PinSpecification1",
-      "@sbol:name": "location",
       "@type": [
         "@sbol:Identified",
         "http://bioprotocols.org/paml#PinSpecification"
       ],
       "http://bioprotocols.org/paml#activityType": {
-        "@id": "http://bioprotocols.org/paml#LocatedSamples"
+        "@id": "http://www.w3.org/2001/XMLSchema#integer"
       },
-      "http://bioprotocols.org/paml#optional": false
+      "http://bioprotocols.org/paml#optional": true
     },
     {
-      "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable3/Pin3",
-      "@sbol:displayId": "Pin3",
+      "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable2/Pin2",
+      "@sbol:displayId": "Pin2",
+      "@sbol:name": "samples",
+      "@type": [
+        "@sbol:Identified",
+        "http://bioprotocols.org/paml#Pin"
+      ],
+      "http://bioprotocols.org/paml#instanceOfPinSpecification": {
+        "@id": "https://bioprotocols.org/paml/primitives/liquid_handling/Provision/PinSpecification5"
+      }
+    },
+    {
+      "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable1/LocalValuePin1",
+      "@sbol:displayId": "LocalValuePin1",
+      "@sbol:name": "amount",
+      "@type": [
+        "@sbol:Identified",
+        "http://bioprotocols.org/paml#LocalValuePin"
+      ],
+      "http://bioprotocols.org/paml#activityType": {
+        "@id": "@om:Measure"
+      },
+      "http://bioprotocols.org/paml#instanceOfPinSpecification": {
+        "@id": "https://bioprotocols.org/paml/primitives/liquid_handling/Provision/PinSpecification3"
+      },
+      "http://bioprotocols.org/paml#value": {
+        "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable1/LocalValuePin1/Measure1"
+      }
+    },
+    {
+      "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable3/Pin1",
+      "@sbol:displayId": "Pin1",
       "@sbol:name": "samples",
       "@type": [
         "http://bioprotocols.org/paml#Pin",
@@ -948,20 +357,64 @@
       }
     },
     {
-      "@id": "https://bioprotocols.org/paml/primitives/liquid_handling/Provision/PinSpecification5",
-      "@sbol:displayId": "PinSpecification5",
-      "@sbol:name": "samples",
+      "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Flow1",
+      "@sbol:displayId": "Flow1",
       "@type": [
-        "http://bioprotocols.org/paml#PinSpecification",
-        "@sbol:Identified"
+        "@sbol:Identified",
+        "http://bioprotocols.org/paml#Flow"
       ],
-      "http://bioprotocols.org/paml#activityType": {
-        "@id": "http://bioprotocols.org/paml#LocatedSamples"
+      "http://bioprotocols.org/paml#sink": {
+        "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable1"
+      },
+      "http://bioprotocols.org/paml#source": {
+        "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Initial1"
       }
     },
     {
-      "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable1/ReferenceValuePin2",
-      "@sbol:displayId": "ReferenceValuePin2",
+      "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable1",
+      "@sbol:displayId": "PrimitiveExecutable1",
+      "@type": [
+        "@sbol:Identified",
+        "http://bioprotocols.org/paml#PrimitiveExecutable"
+      ],
+      "http://bioprotocols.org/paml#input": [
+        {
+          "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable1/LocalValuePin1"
+        },
+        {
+          "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable1/Pin1"
+        },
+        {
+          "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable1/ReferenceValuePin2"
+        },
+        {
+          "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable1/ReferenceValuePin1"
+        }
+      ],
+      "http://bioprotocols.org/paml#instanceOfPrimitive": {
+        "@id": "https://bioprotocols.org/paml/primitives/liquid_handling/Provision"
+      },
+      "http://bioprotocols.org/paml#output": {
+        "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable1/Pin2"
+      }
+    },
+    {
+      "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Flow6",
+      "@sbol:displayId": "Flow6",
+      "@type": [
+        "http://bioprotocols.org/paml#Flow",
+        "@sbol:Identified"
+      ],
+      "http://bioprotocols.org/paml#sink": {
+        "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable3/Pin1"
+      },
+      "http://bioprotocols.org/paml#source": {
+        "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Join1"
+      }
+    },
+    {
+      "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable1/ReferenceValuePin1",
+      "@sbol:displayId": "ReferenceValuePin1",
       "@sbol:name": "resource",
       "@type": [
         "http://bioprotocols.org/paml#ReferenceValuePin",
@@ -978,528 +431,15 @@
       }
     },
     {
-      "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable1/LocalValuePin1/Measure1",
-      "@om:hasNumericalValue": 100.0,
-      "@om:hasUnit": {
-        "@id": "@om:microlitre"
-      },
-      "@sbol:displayId": "Measure1",
-      "@type": [
-        "@sbol:Identified",
-        "@om:Measure"
-      ]
-    },
-    {
-      "@id": "https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureFluorescence/PinSpecification5",
-      "@sbol:displayId": "PinSpecification5",
-      "@sbol:name": "emissionLowpassCutoff",
-      "@type": [
-        "http://bioprotocols.org/paml#PinSpecification",
-        "@sbol:Identified"
-      ],
-      "http://bioprotocols.org/paml#activityType": {
-        "@id": "@om:Measure"
-      },
-      "http://bioprotocols.org/paml#optional": false
-    },
-    {
-      "@id": "https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureFluorescence/PinSpecification7",
-      "@sbol:displayId": "PinSpecification7",
-      "@sbol:name": "gain",
-      "@type": [
-        "http://bioprotocols.org/paml#PinSpecification",
-        "@sbol:Identified"
-      ],
-      "http://bioprotocols.org/paml#activityType": {
-        "@id": "http://www.w3.org/2001/XMLSchema#double"
-      },
-      "http://bioprotocols.org/paml#optional": true
-    },
-    {
-      "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable1",
-      "@sbol:displayId": "PrimitiveExecutable1",
-      "@type": [
-        "http://bioprotocols.org/paml#PrimitiveExecutable",
-        "@sbol:Identified"
-      ],
-      "http://bioprotocols.org/paml#input": [
-        {
-          "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable1/LocalValuePin1"
-        },
-        {
-          "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable1/Pin2"
-        },
-        {
-          "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable1/ReferenceValuePin2"
-        },
-        {
-          "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable1/ReferenceValuePin1"
-        }
-      ],
-      "http://bioprotocols.org/paml#instanceOfPrimitive": {
-        "@id": "https://bioprotocols.org/paml/primitives/liquid_handling/Provision"
-      },
-      "http://bioprotocols.org/paml#output": {
-        "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable1/Pin1"
-      }
-    },
-    {
-      "@id": "https://bioprotocols.org/paml/primitives/plate_handling/ThermalSeal",
-      "@sbol:description": "Seal a collection of samples using heat to fix the seal, in order to guarantee isolation from the external environment",
-      "@sbol:displayId": "ThermalSeal",
-      "@type": [
-        "http://bioprotocols.org/paml#Primitive",
-        "@sbol:TopLevel"
-      ],
-      "http://bioprotocols.org/paml#input": [
-        {
-          "@id": "https://bioprotocols.org/paml/primitives/plate_handling/ThermalSeal/PinSpecification2"
-        },
-        {
-          "@id": "https://bioprotocols.org/paml/primitives/plate_handling/ThermalSeal/PinSpecification3"
-        },
-        {
-          "@id": "https://bioprotocols.org/paml/primitives/plate_handling/ThermalSeal/PinSpecification1"
-        },
-        {
-          "@id": "https://bioprotocols.org/paml/primitives/plate_handling/ThermalSeal/PinSpecification4"
-        }
-      ]
-    },
-    {
-      "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable2/Pin2",
-      "@sbol:displayId": "Pin2",
-      "@sbol:name": "dispenseVelocity",
-      "@type": [
-        "@sbol:Identified",
-        "http://bioprotocols.org/paml#Pin"
-      ],
-      "http://bioprotocols.org/paml#activityType": {
-        "@id": "@om:Measure"
-      },
-      "http://bioprotocols.org/paml#instanceOfPinSpecification": {
-        "@id": "https://bioprotocols.org/paml/primitives/liquid_handling/Provision/PinSpecification4"
-      }
-    },
-    {
-      "@id": "https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureFluorescenceSpectrum/PinSpecification2",
-      "@sbol:displayId": "PinSpecification2",
-      "@sbol:name": "excitationWavelength",
-      "@type": [
-        "http://bioprotocols.org/paml#PinSpecification",
-        "@sbol:Identified"
-      ],
-      "http://bioprotocols.org/paml#activityType": {
-        "@id": "@om:Measure"
-      },
-      "http://bioprotocols.org/paml#optional": false
-    },
-    {
-      "@id": "https://bioprotocols.org/paml/primitives/plate_handling/AdhesiveSeal",
-      "@sbol:description": "Seal a collection of samples using adhesive to fix the seal, in order to guarantee isolation from the external environment",
-      "@sbol:displayId": "AdhesiveSeal",
-      "@type": [
-        "http://bioprotocols.org/paml#Primitive",
-        "@sbol:TopLevel"
-      ],
-      "http://bioprotocols.org/paml#input": [
-        {
-          "@id": "https://bioprotocols.org/paml/primitives/plate_handling/AdhesiveSeal/PinSpecification1"
-        },
-        {
-          "@id": "https://bioprotocols.org/paml/primitives/plate_handling/AdhesiveSeal/PinSpecification2"
-        }
-      ]
-    },
-    {
-      "@id": "https://bioprotocols.org/paml/primitives/liquid_handling/Dispense/PinSpecification3",
-      "@sbol:displayId": "PinSpecification3",
-      "@sbol:name": "amount",
-      "@type": [
-        "http://bioprotocols.org/paml#PinSpecification",
-        "@sbol:Identified"
-      ],
-      "http://bioprotocols.org/paml#activityType": {
-        "@id": "@om:Measure"
-      },
-      "http://bioprotocols.org/paml#optional": false
-    },
-    {
-      "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Flow8",
-      "@sbol:displayId": "Flow8",
-      "@type": [
-        "http://bioprotocols.org/paml#Flow",
-        "@sbol:Identified"
-      ],
-      "http://bioprotocols.org/paml#sink": {
-        "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Final1"
-      },
-      "http://bioprotocols.org/paml#source": {
-        "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Value1"
-      }
-    },
-    {
-      "@id": "https://bioprotocols.org/paml/primitives/plate_handling/Incubate",
-      "@sbol:description": "Incubate a set of samples under specified conditions for a fixed period of time",
-      "@sbol:displayId": "Incubate",
-      "@type": [
-        "@sbol:TopLevel",
-        "http://bioprotocols.org/paml#Primitive"
-      ],
-      "http://bioprotocols.org/paml#input": [
-        {
-          "@id": "https://bioprotocols.org/paml/primitives/plate_handling/Incubate/PinSpecification2"
-        },
-        {
-          "@id": "https://bioprotocols.org/paml/primitives/plate_handling/Incubate/PinSpecification1"
-        },
-        {
-          "@id": "https://bioprotocols.org/paml/primitives/plate_handling/Incubate/PinSpecification4"
-        },
-        {
-          "@id": "https://bioprotocols.org/paml/primitives/plate_handling/Incubate/PinSpecification3"
-        }
-      ]
-    },
-    {
-      "@id": "https://bioprotocols.org/paml/primitives/liquid_handling/Dispense",
-      "@sbol:description": "Move a measured volume of liquid from one source sample to create samples at multiple destination locations",
-      "@sbol:displayId": "Dispense",
-      "@type": [
-        "http://bioprotocols.org/paml#Primitive",
-        "@sbol:TopLevel"
-      ],
-      "http://bioprotocols.org/paml#input": [
-        {
-          "@id": "https://bioprotocols.org/paml/primitives/liquid_handling/Dispense/PinSpecification3"
-        },
-        {
-          "@id": "https://bioprotocols.org/paml/primitives/liquid_handling/Dispense/PinSpecification2"
-        },
-        {
-          "@id": "https://bioprotocols.org/paml/primitives/liquid_handling/Dispense/PinSpecification4"
-        },
-        {
-          "@id": "https://bioprotocols.org/paml/primitives/liquid_handling/Dispense/PinSpecification1"
-        }
-      ],
-      "http://bioprotocols.org/paml#output": {
-        "@id": "https://bioprotocols.org/paml/primitives/liquid_handling/Dispense/PinSpecification5"
-      }
-    },
-    {
-      "@id": "https://bioprotocols.org/paml/primitives/plate_handling/Uncover/PinSpecification1",
+      "@id": "https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureAbsorbance/PinSpecification1",
       "@sbol:displayId": "PinSpecification1",
-      "@sbol:name": "location",
-      "@type": [
-        "http://bioprotocols.org/paml#PinSpecification",
-        "@sbol:Identified"
-      ],
-      "http://bioprotocols.org/paml#activityType": {
-        "@id": "http://bioprotocols.org/paml#LocatedSamples"
-      },
-      "http://bioprotocols.org/paml#optional": false
-    },
-    {
-      "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Flow2",
-      "@sbol:displayId": "Flow2",
-      "@type": [
-        "http://bioprotocols.org/paml#Flow",
-        "@sbol:Identified"
-      ],
-      "http://bioprotocols.org/paml#sink": {
-        "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable2"
-      },
-      "http://bioprotocols.org/paml#source": {
-        "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Initial1"
-      }
-    },
-    {
-      "@id": "https://bioprotocols.org/paml/primitives/liquid_handling/Transfer/PinSpecification3",
-      "@sbol:displayId": "PinSpecification3",
-      "@sbol:name": "amount",
+      "@sbol:name": "samples",
       "@type": [
         "@sbol:Identified",
         "http://bioprotocols.org/paml#PinSpecification"
       ],
       "http://bioprotocols.org/paml#activityType": {
-        "@id": "@om:Measure"
-      },
-      "http://bioprotocols.org/paml#optional": false
-    },
-    {
-      "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable2/ReferenceValuePin1",
-      "@sbol:displayId": "ReferenceValuePin1",
-      "@sbol:name": "destination",
-      "@type": [
-        "http://bioprotocols.org/paml#ReferenceValuePin",
-        "@sbol:Identified"
-      ],
-      "http://bioprotocols.org/paml#activityType": {
-        "@id": "http://bioprotocols.org/paml#Location"
-      },
-      "http://bioprotocols.org/paml#instanceOfPinSpecification": {
-        "@id": "https://bioprotocols.org/paml/primitives/liquid_handling/Provision/PinSpecification2"
-      },
-      "http://bioprotocols.org/paml#valueReference": {
-        "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/ContainerCoordinates2"
-      }
-    },
-    {
-      "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Flow4",
-      "@sbol:displayId": "Flow4",
-      "@type": [
-        "http://bioprotocols.org/paml#Flow",
-        "@sbol:Identified"
-      ],
-      "http://bioprotocols.org/paml#sink": {
-        "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Join1"
-      },
-      "http://bioprotocols.org/paml#source": {
-        "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable1/Pin1"
-      }
-    },
-    {
-      "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Flow5",
-      "@sbol:displayId": "Flow5",
-      "@type": [
-        "http://bioprotocols.org/paml#Flow",
-        "@sbol:Identified"
-      ],
-      "http://bioprotocols.org/paml#sink": {
-        "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Join1"
-      },
-      "http://bioprotocols.org/paml#source": {
-        "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable2/Pin1"
-      }
-    },
-    {
-      "@id": "https://bioprotocols.org/paml/primitives/liquid_handling/Provision/PinSpecification2",
-      "@sbol:displayId": "PinSpecification2",
-      "@sbol:name": "destination",
-      "@type": [
-        "http://bioprotocols.org/paml#PinSpecification",
-        "@sbol:Identified"
-      ],
-      "http://bioprotocols.org/paml#activityType": {
-        "@id": "http://bioprotocols.org/paml#Location"
-      },
-      "http://bioprotocols.org/paml#optional": false
-    },
-    {
-      "@id": "https://bioprotocols.org/paml/primitives/plate_handling/AdhesiveSeal/PinSpecification1",
-      "@sbol:displayId": "PinSpecification1",
-      "@sbol:name": "location",
-      "@type": [
-        "http://bioprotocols.org/paml#PinSpecification",
-        "@sbol:Identified"
-      ],
-      "http://bioprotocols.org/paml#activityType": {
         "@id": "http://bioprotocols.org/paml#LocatedSamples"
-      },
-      "http://bioprotocols.org/paml#optional": false
-    },
-    {
-      "@id": "https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureAbsorbance",
-      "@sbol:description": "Measure absorbance at a given wavelength from a set of samples",
-      "@sbol:displayId": "MeasureAbsorbance",
-      "@type": [
-        "@sbol:TopLevel",
-        "http://bioprotocols.org/paml#Primitive"
-      ],
-      "http://bioprotocols.org/paml#input": [
-        {
-          "@id": "https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureAbsorbance/PinSpecification1"
-        },
-        {
-          "@id": "https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureAbsorbance/PinSpecification3"
-        },
-        {
-          "@id": "https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureAbsorbance/PinSpecification2"
-        }
-      ],
-      "http://bioprotocols.org/paml#output": {
-        "@id": "https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureAbsorbance/PinSpecification4"
-      }
-    },
-    {
-      "@id": "https://bioprotocols.org/paml/primitives/plate_handling/Unseal",
-      "@sbol:description": "Unseal a sealed collection of samples to break their isolation from the external environment",
-      "@sbol:displayId": "Unseal",
-      "@type": [
-        "http://bioprotocols.org/paml#Primitive",
-        "@sbol:TopLevel"
-      ],
-      "http://bioprotocols.org/paml#input": {
-        "@id": "https://bioprotocols.org/paml/primitives/plate_handling/Unseal/PinSpecification1"
-      }
-    },
-    {
-      "@id": "https://bioprotocols.org/paml/primitives/plate_handling/ThermalSeal/PinSpecification4",
-      "@sbol:displayId": "PinSpecification4",
-      "@sbol:name": "duration",
-      "@type": [
-        "@sbol:Identified",
-        "http://bioprotocols.org/paml#PinSpecification"
-      ],
-      "http://bioprotocols.org/paml#activityType": {
-        "@id": "@om:Measure"
-      },
-      "http://bioprotocols.org/paml#optional": false
-    },
-    {
-      "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable2/LocalValuePin1/Measure1",
-      "@om:hasNumericalValue": 100.0,
-      "@om:hasUnit": {
-        "@id": "@om:microlitre"
-      },
-      "@sbol:displayId": "Measure1",
-      "@type": [
-        "@sbol:Identified",
-        "@om:Measure"
-      ]
-    },
-    {
-      "@id": "https://bioprotocols.org/paml/primitives/liquid_handling/Provision",
-      "@sbol:description": "Place a measured amount (mass or volume) of a specified component into a location, where it may then be used in executing the protocol.",
-      "@sbol:displayId": "Provision",
-      "@type": [
-        "http://bioprotocols.org/paml#Primitive",
-        "@sbol:TopLevel"
-      ],
-      "http://bioprotocols.org/paml#input": [
-        {
-          "@id": "https://bioprotocols.org/paml/primitives/liquid_handling/Provision/PinSpecification2"
-        },
-        {
-          "@id": "https://bioprotocols.org/paml/primitives/liquid_handling/Provision/PinSpecification1"
-        },
-        {
-          "@id": "https://bioprotocols.org/paml/primitives/liquid_handling/Provision/PinSpecification4"
-        },
-        {
-          "@id": "https://bioprotocols.org/paml/primitives/liquid_handling/Provision/PinSpecification3"
-        }
-      ],
-      "http://bioprotocols.org/paml#output": {
-        "@id": "https://bioprotocols.org/paml/primitives/liquid_handling/Provision/PinSpecification5"
-      }
-    },
-    {
-      "@id": "https://bioprotocols.org/paml/primitives/liquid_handling/Transfer/PinSpecification5",
-      "@sbol:displayId": "PinSpecification5",
-      "@sbol:name": "samples",
-      "@type": [
-        "http://bioprotocols.org/paml#PinSpecification",
-        "@sbol:Identified"
-      ],
-      "http://bioprotocols.org/paml#activityType": {
-        "@id": "http://bioprotocols.org/paml#LocatedSamples"
-      }
-    },
-    {
-      "@id": "https://bioprotocols.org/paml/primitives/liquid_handling/PipetteMix/PinSpecification1",
-      "@sbol:displayId": "PinSpecification1",
-      "@sbol:name": "samples",
-      "@type": [
-        "http://bioprotocols.org/paml#PinSpecification",
-        "@sbol:Identified"
-      ],
-      "http://bioprotocols.org/paml#activityType": {
-        "@id": "http://bioprotocols.org/paml#LocatedSamples"
-      },
-      "http://bioprotocols.org/paml#optional": false
-    },
-    {
-      "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable1/Pin1",
-      "@sbol:displayId": "Pin1",
-      "@sbol:name": "samples",
-      "@type": [
-        "@sbol:Identified",
-        "http://bioprotocols.org/paml#Pin"
-      ],
-      "http://bioprotocols.org/paml#instanceOfPinSpecification": {
-        "@id": "https://bioprotocols.org/paml/primitives/liquid_handling/Provision/PinSpecification5"
-      }
-    },
-    {
-      "@id": "https://bioprotocols.org/paml/primitives/plate_handling/Cover",
-      "@sbol:description": "Cover a set of samples to keep materials from entering or exiting",
-      "@sbol:displayId": "Cover",
-      "@type": [
-        "@sbol:TopLevel",
-        "http://bioprotocols.org/paml#Primitive"
-      ],
-      "http://bioprotocols.org/paml#input": [
-        {
-          "@id": "https://bioprotocols.org/paml/primitives/plate_handling/Cover/PinSpecification1"
-        },
-        {
-          "@id": "https://bioprotocols.org/paml/primitives/plate_handling/Cover/PinSpecification2"
-        }
-      ]
-    },
-    {
-      "@id": "https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureFluorescence/PinSpecification6",
-      "@sbol:displayId": "PinSpecification6",
-      "@sbol:name": "numFlashes",
-      "@type": [
-        "http://bioprotocols.org/paml#PinSpecification",
-        "@sbol:Identified"
-      ],
-      "http://bioprotocols.org/paml#activityType": {
-        "@id": "http://www.w3.org/2001/XMLSchema#integer"
-      },
-      "http://bioprotocols.org/paml#optional": true
-    },
-    {
-      "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Container1",
-      "@sbol:displayId": "Container1",
-      "@sbol:name": "Microplate",
-      "@type": [
-        "http://bioprotocols.org/paml#Container",
-        "@sbol:Identified"
-      ],
-      "http://bioprotocols.org/paml#containerType": {
-        "@id": "https://identifiers.org/ncit:C43377"
-      }
-    },
-    {
-      "@id": "https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureAbsorbance/PinSpecification2",
-      "@sbol:displayId": "PinSpecification2",
-      "@sbol:name": "wavelength",
-      "@type": [
-        "http://bioprotocols.org/paml#PinSpecification",
-        "@sbol:Identified"
-      ],
-      "http://bioprotocols.org/paml#activityType": {
-        "@id": "@om:Measure"
-      },
-      "http://bioprotocols.org/paml#optional": false
-    },
-    {
-      "@id": "https://bioprotocols.org/paml/primitives/liquid_handling/PipetteMix/PinSpecification2",
-      "@sbol:displayId": "PinSpecification2",
-      "@sbol:name": "amount",
-      "@type": [
-        "http://bioprotocols.org/paml#PinSpecification",
-        "@sbol:Identified"
-      ],
-      "http://bioprotocols.org/paml#activityType": {
-        "@id": "@om:Measure"
-      },
-      "http://bioprotocols.org/paml#optional": false
-    },
-    {
-      "@id": "https://bioprotocols.org/paml/primitives/liquid_handling/Provision/PinSpecification3",
-      "@sbol:displayId": "PinSpecification3",
-      "@sbol:name": "amount",
-      "@type": [
-        "http://bioprotocols.org/paml#PinSpecification",
-        "@sbol:Identified"
-      ],
-      "http://bioprotocols.org/paml#activityType": {
-        "@id": "@om:Measure"
       },
       "http://bioprotocols.org/paml#optional": false
     },
@@ -1518,9 +458,129 @@
       }
     },
     {
-      "@id": "https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureFluorescence/PinSpecification2",
+      "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable3/LocalValuePin1/Measure1",
+      "@om:hasNumericalValue": 600.0,
+      "@om:hasUnit": {
+        "@id": "@om:nanometre"
+      },
+      "@sbol:displayId": "Measure1",
+      "@type": [
+        "@om:Measure",
+        "@sbol:Identified"
+      ]
+    },
+    {
+      "@id": "https://bioprotocols.org/paml/primitives/liquid_handling/Provision/PinSpecification2",
       "@sbol:displayId": "PinSpecification2",
-      "@sbol:name": "excitationWavelength",
+      "@sbol:name": "destination",
+      "@type": [
+        "@sbol:Identified",
+        "http://bioprotocols.org/paml#PinSpecification"
+      ],
+      "http://bioprotocols.org/paml#activityType": {
+        "@id": "http://bioprotocols.org/paml#Location"
+      },
+      "http://bioprotocols.org/paml#optional": false
+    },
+    {
+      "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Flow7",
+      "@sbol:displayId": "Flow7",
+      "@type": [
+        "http://bioprotocols.org/paml#Flow",
+        "@sbol:Identified"
+      ],
+      "http://bioprotocols.org/paml#sink": {
+        "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Value1"
+      },
+      "http://bioprotocols.org/paml#source": {
+        "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable3/Pin3"
+      }
+    },
+    {
+      "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018",
+      "@sbol:description": "\nWith this protocol you will use LUDOX CL-X (a 45% colloidal silica suspension) as a single point reference to\nobtain a conversion factor to transform absorbance (OD600) data from your plate reader into a comparable\nOD600 measurement as would be obtained in a spectrophotometer. This conversion is necessary because plate\nreader measurements of absorbance are volume dependent; the depth of the fluid in the well defines the path\nlength of the light passing through the sample, which can vary slightly from well to well. In a standard\nspectrophotometer, the path length is fixed and is defined by the width of the cuvette, which is constant.\nTherefore this conversion calculation can transform OD600 measurements from a plate reader (i.e. absorbance\nat 600 nm, the basic output of most instruments) into comparable OD600 measurements. The LUDOX solution\nis only weakly scattering and so will give a low absorbance value.\n        ",
+      "@sbol:displayId": "iGEM_LUDOX_OD_calibration_2018",
+      "@sbol:name": "iGEM 2018 LUDOX OD calibration protocol",
+      "@type": [
+        "http://bioprotocols.org/paml#Protocol",
+        "@sbol:TopLevel"
+      ],
+      "http://bioprotocols.org/paml#hasActivity": [
+        {
+          "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable3"
+        },
+        {
+          "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Initial1"
+        },
+        {
+          "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable2"
+        },
+        {
+          "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Join1"
+        },
+        {
+          "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Final1"
+        },
+        {
+          "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Value1"
+        },
+        {
+          "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable1"
+        }
+      ],
+      "http://bioprotocols.org/paml#hasFlow": [
+        {
+          "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Flow3"
+        },
+        {
+          "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Flow1"
+        },
+        {
+          "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Flow7"
+        },
+        {
+          "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Flow5"
+        },
+        {
+          "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Flow2"
+        },
+        {
+          "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Flow4"
+        },
+        {
+          "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Flow6"
+        },
+        {
+          "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Flow8"
+        }
+      ],
+      "http://bioprotocols.org/paml#hasLocation": [
+        {
+          "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/ContainerCoordinates1"
+        },
+        {
+          "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/ContainerCoordinates2"
+        },
+        {
+          "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Container1"
+        }
+      ],
+      "http://bioprotocols.org/paml#material": [
+        {
+          "@id": "https://bbn.com/scratch/LUDOX"
+        },
+        {
+          "@id": "https://bbn.com/scratch/ddH2O"
+        }
+      ],
+      "http://bioprotocols.org/paml#outputActivity": {
+        "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Value1"
+      }
+    },
+    {
+      "@id": "https://bioprotocols.org/paml/primitives/liquid_handling/Provision/PinSpecification4",
+      "@sbol:displayId": "PinSpecification4",
+      "@sbol:name": "dispenseVelocity",
       "@type": [
         "@sbol:Identified",
         "http://bioprotocols.org/paml#PinSpecification"
@@ -1528,34 +588,205 @@
       "http://bioprotocols.org/paml#activityType": {
         "@id": "@om:Measure"
       },
-      "http://bioprotocols.org/paml#optional": false
+      "http://bioprotocols.org/paml#optional": true
     },
     {
-      "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Flow1",
-      "@sbol:displayId": "Flow1",
+      "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable3/Pin2",
+      "@sbol:displayId": "Pin2",
+      "@sbol:name": "numFlashes",
       "@type": [
-        "http://bioprotocols.org/paml#Flow",
-        "@sbol:Identified"
+        "@sbol:Identified",
+        "http://bioprotocols.org/paml#Pin"
       ],
-      "http://bioprotocols.org/paml#sink": {
-        "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable1"
+      "http://bioprotocols.org/paml#activityType": {
+        "@id": "http://www.w3.org/2001/XMLSchema#integer"
       },
-      "http://bioprotocols.org/paml#source": {
-        "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Initial1"
+      "http://bioprotocols.org/paml#instanceOfPinSpecification": {
+        "@id": "https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureAbsorbance/PinSpecification3"
       }
     },
     {
-      "@id": "https://bioprotocols.org/paml/primitives/plate_handling/Incubate/PinSpecification1",
-      "@sbol:displayId": "PinSpecification1",
-      "@sbol:name": "location",
+      "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Flow5",
+      "@sbol:displayId": "Flow5",
+      "@type": [
+        "@sbol:Identified",
+        "http://bioprotocols.org/paml#Flow"
+      ],
+      "http://bioprotocols.org/paml#sink": {
+        "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Join1"
+      },
+      "http://bioprotocols.org/paml#source": {
+        "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable2/Pin2"
+      }
+    },
+    {
+      "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable2/LocalValuePin1/Measure1",
+      "@om:hasNumericalValue": 100.0,
+      "@om:hasUnit": {
+        "@id": "@om:microlitre"
+      },
+      "@sbol:displayId": "Measure1",
+      "@type": [
+        "@om:Measure",
+        "@sbol:Identified"
+      ]
+    },
+    {
+      "@id": "https://bioprotocols.org/paml/primitives/liquid_handling/Provision",
+      "@sbol:description": "Place a measured amount (mass or volume) of a specified component into a location, where it may then be used in executing the protocol.",
+      "@sbol:displayId": "Provision",
+      "@type": [
+        "@sbol:TopLevel",
+        "http://bioprotocols.org/paml#Primitive"
+      ],
+      "http://bioprotocols.org/paml#input": [
+        {
+          "@id": "https://bioprotocols.org/paml/primitives/liquid_handling/Provision/PinSpecification3"
+        },
+        {
+          "@id": "https://bioprotocols.org/paml/primitives/liquid_handling/Provision/PinSpecification4"
+        },
+        {
+          "@id": "https://bioprotocols.org/paml/primitives/liquid_handling/Provision/PinSpecification1"
+        },
+        {
+          "@id": "https://bioprotocols.org/paml/primitives/liquid_handling/Provision/PinSpecification2"
+        }
+      ],
+      "http://bioprotocols.org/paml#output": {
+        "@id": "https://bioprotocols.org/paml/primitives/liquid_handling/Provision/PinSpecification5"
+      }
+    },
+    {
+      "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable1/ReferenceValuePin2",
+      "@sbol:displayId": "ReferenceValuePin2",
+      "@sbol:name": "destination",
+      "@type": [
+        "@sbol:Identified",
+        "http://bioprotocols.org/paml#ReferenceValuePin"
+      ],
+      "http://bioprotocols.org/paml#activityType": {
+        "@id": "http://bioprotocols.org/paml#Location"
+      },
+      "http://bioprotocols.org/paml#instanceOfPinSpecification": {
+        "@id": "https://bioprotocols.org/paml/primitives/liquid_handling/Provision/PinSpecification2"
+      },
+      "http://bioprotocols.org/paml#valueReference": {
+        "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/ContainerCoordinates1"
+      }
+    },
+    {
+      "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Container1",
+      "@sbol:displayId": "Container1",
+      "@sbol:name": "Microplate",
+      "@type": [
+        "@sbol:Identified",
+        "http://bioprotocols.org/paml#Container"
+      ],
+      "http://bioprotocols.org/paml#containerType": {
+        "@id": "https://identifiers.org/ncit:C43377"
+      }
+    },
+    {
+      "@id": "https://bioprotocols.org/paml/primitives/liquid_handling/Provision/PinSpecification5",
+      "@sbol:displayId": "PinSpecification5",
+      "@sbol:name": "samples",
       "@type": [
         "http://bioprotocols.org/paml#PinSpecification",
         "@sbol:Identified"
       ],
       "http://bioprotocols.org/paml#activityType": {
         "@id": "http://bioprotocols.org/paml#LocatedSamples"
+      }
+    },
+    {
+      "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable3/Pin3",
+      "@sbol:displayId": "Pin3",
+      "@sbol:name": "measurements",
+      "@type": [
+        "@sbol:Identified",
+        "http://bioprotocols.org/paml#Pin"
+      ],
+      "http://bioprotocols.org/paml#instanceOfPinSpecification": {
+        "@id": "https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureAbsorbance/PinSpecification4"
+      }
+    },
+    {
+      "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/ContainerCoordinates2",
+      "@sbol:displayId": "ContainerCoordinates2",
+      "@type": [
+        "http://bioprotocols.org/paml#ContainerCoordinates",
+        "@sbol:Identified"
+      ],
+      "http://bioprotocols.org/paml#coordinates": "A2:D2",
+      "http://bioprotocols.org/paml#inContainer": {
+        "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Container1"
+      }
+    },
+    {
+      "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Flow4",
+      "@sbol:displayId": "Flow4",
+      "@type": [
+        "@sbol:Identified",
+        "http://bioprotocols.org/paml#Flow"
+      ],
+      "http://bioprotocols.org/paml#sink": {
+        "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Join1"
+      },
+      "http://bioprotocols.org/paml#source": {
+        "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable1/Pin2"
+      }
+    },
+    {
+      "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/ContainerCoordinates1",
+      "@sbol:displayId": "ContainerCoordinates1",
+      "@type": [
+        "http://bioprotocols.org/paml#ContainerCoordinates",
+        "@sbol:Identified"
+      ],
+      "http://bioprotocols.org/paml#coordinates": "A1:D1",
+      "http://bioprotocols.org/paml#inContainer": {
+        "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Container1"
+      }
+    },
+    {
+      "@id": "https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureAbsorbance/PinSpecification4",
+      "@sbol:displayId": "PinSpecification4",
+      "@sbol:name": "measurements",
+      "@type": [
+        "http://bioprotocols.org/paml#PinSpecification",
+        "@sbol:Identified"
+      ],
+      "http://bioprotocols.org/paml#activityType": {
+        "@id": "http://bioprotocols.org/paml#LocatedData"
+      }
+    },
+    {
+      "@id": "https://bioprotocols.org/paml/primitives/liquid_handling/Provision/PinSpecification1",
+      "@sbol:displayId": "PinSpecification1",
+      "@sbol:name": "resource",
+      "@type": [
+        "@sbol:Identified",
+        "http://bioprotocols.org/paml#PinSpecification"
+      ],
+      "http://bioprotocols.org/paml#activityType": {
+        "@id": "@sbol:Component"
       },
       "http://bioprotocols.org/paml#optional": false
+    },
+    {
+      "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Flow2",
+      "@sbol:displayId": "Flow2",
+      "@type": [
+        "http://bioprotocols.org/paml#Flow",
+        "@sbol:Identified"
+      ],
+      "http://bioprotocols.org/paml#sink": {
+        "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/PrimitiveExecutable2"
+      },
+      "http://bioprotocols.org/paml#source": {
+        "@id": "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/Initial1"
+      }
     }
   ]
 }
