@@ -74,13 +74,8 @@ is only weakly scattering and so will give a low absorbance value.
         execute_measurement = protocol.execute_primitive('MeasureAbsorbance', samples=all_provisioned,
                                                          wavelength=sbol3.Measure(600, tyto.OM.nanometer))
 
-        result = paml.Value()
-        protocol.activities.append(result)
-        protocol.add_flow(execute_measurement.output_pin('measurements'), result)
-
+        result = protocol.add_output(execute_measurement.output_pin('measurements'))
         protocol.add_flow(result, protocol.final())
-
-        protocol.output += {result}
 
         ########################################
         # Validate and write the document

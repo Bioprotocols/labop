@@ -127,6 +127,24 @@ def Protocol_final(self):
 # Monkey patch:
 Protocol.final = Protocol_final
 
+def protocol_add_input(self, **kwargs):
+    input = Value(**kwargs)
+    self.activities.append(input)
+    self.input.append(input)
+    return input
+# Monkey patch:
+Protocol.add_input = protocol_add_input
+
+def protocol_add_output(self, value_source:Activity=None):
+    output = Value()
+    self.activities.append(output)
+    self.output.append(output)
+    if value_source:
+        self.add_flow(value_source, output)
+    return output
+# Monkey patch:
+Protocol.add_output = protocol_add_output
+
 # Create and add an execution of a primitive to a protocol
 def protocol_execute_primitive(self, primitive: Primitive, **input_pin_map):
     if isinstance(primitive,str):
