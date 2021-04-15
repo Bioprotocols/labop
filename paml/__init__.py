@@ -1,5 +1,5 @@
 from sbol_factory import SBOLFactory, Document, ValidationReport, UMLFactory
-import sbol3 as sbol
+import sbol3
 import os
 import posixpath
 
@@ -10,6 +10,42 @@ __factory__ = SBOLFactory(locals(),
                           'http://bioprotocols.org/paml#')
 __umlfactory__ = UMLFactory(__factory__)
 
+#########################################
+# Kludge for getting parents and toplevels
+# TODO: remove after resolution of https://github.com/SynBioDex/pySBOL3/issues/234
+def identified_get_parent(self):
+    if self.identity:
+        return self.document.find(self.identity.rsplit('/',1)[0])
+    else:
+        return None
+sbol3.Identified.get_parent = identified_get_parent
+
+def identified_get_toplevel(self):
+    if isinstance(self, sbol3.TopLevel):
+        return self
+    else:
+        parent = self.get_parent()
+        if parent:
+            return identified_get_toplevel(parent)
+        else:
+            return None
+sbol3.Identified.get_toplevel = identified_get_toplevel
+
+
+###########################################
+# Define extension methods for Activity
+def activity_input_flow(self):
+    protocol = self.get_toplevel()
+    return next(f for f in protocol.flows if (f.sink.lookup() == self))
+Activity.input_flow = activity_input_flow
+
+def activity_output_flow(self):
+    protocol = self.get_toplevel()
+    return next(f for f in protocol.flows if (f.source.lookup() == self))
+Activity.output_flow = activity_output_flow
+
+
+###########################################
 # Define extension methods for Primitive
 def primitive_add_input(self, name, type, optional=False):
     pin = PrimitivePinSpecification(name = name, type = type)
@@ -44,9 +80,9 @@ def executable_make_pins(self, specification, **input_pin_map):
 
         # Construct Pin of appropriate subtype
         if val:
-            if isinstance(val, sbol.TopLevel) or isinstance(val, Location):
+            if isinstance(val, sbol3.TopLevel) or isinstance(val, Location):
                 pin = ReferenceValuePin()
-            elif isinstance(val, sbol.Identified):
+            elif isinstance(val, sbol3.Identified):
                 pin = LocalValuePin()
             else:
                 pin = SimpleValuePin()
@@ -197,7 +233,6 @@ def protocol_add_flow(self, source, sink):
 # Monkey patch:
 Protocol.add_flow = protocol_add_flow
 
-
 #########################################
 # Library handling
 loaded_libraries = {}
@@ -209,11 +244,11 @@ def import_library(library:str, file_format:str = 'ttl', nickname:str=None ):
         library = posixpath.join(os.path.dirname(os.path.realpath(__file__)),
                                  ('lib/'+library+'.ttl'))
     # read in the library and put the document in the library collection
-    lib = sbol.Document()
+    lib = sbol3.Document()
     lib.read(library, file_format)
     loaded_libraries[nickname] = lib
 
-def get_primitive(doc:sbol.Document, name:str):
+def get_primitive(doc:sbol3.Document, name:str):
     found = doc.find(name)
     if not found:
         found = {n:l.find(name) for (n,l) in loaded_libraries.items() if l.find(name)}
@@ -221,3 +256,4 @@ def get_primitive(doc:sbol.Document, name:str):
         assert len(found)>0, ValueError("Couldn't find primitive '"+name+"' in any library")
         found = next(iter(found.values())).copy(doc)
     return found
+

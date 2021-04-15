@@ -201,7 +201,7 @@ paml:activityType rdf:type owl:DatatypeProperty ;
               rdfs:domain paml:Pin ;
               rdfs:range xsd:anyURI ;
               rdfs:label "type" ;
-              rdfs:comment "Type specification of a Value or Physical material" .
+              rdfs:comment "Type specification of a Value" .
 
 
 # Flows (edges)
@@ -220,6 +220,11 @@ paml:Flow rdf:type owl:Class ;
                 owl:minCardinality "1"^^xsd:nonNegativeInteger ;
                 owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
                 owl:onClass paml:Activity
+              ] ,
+        [ rdf:type owl:Restriction ;
+                owl:onProperty paml:flowType ;
+                owl:allValuesFrom xsd:anyURI ;
+                owl:maxCardinality "1"^^xsd:nonNegativeInteger ; # min cardinality zero, as sometimes will be inferred
               ] .
 
 paml:source rdf:type owl:ObjectProperty ;
@@ -233,6 +238,12 @@ paml:sink rdf:type owl:ObjectProperty ;
               rdfs:range paml:Activity ;
               rdfs:label "sink" ;
               rdfs:comment "Activity at which a flow arrives" .
+
+paml:flowType rdf:type owl:DatatypeProperty ;
+              rdfs:domain paml:Pin ;
+              rdfs:range xsd:anyURI ;
+              rdfs:label "type" ;
+              rdfs:comment "Type specification of a Flow" .
 
 
 # Protocol

@@ -4,6 +4,7 @@ import tyto
 import openpyxl
 import os
 import posixpath
+import paml.type_inference
 from copy import copy
 
 def markdown_measure(measure):
@@ -136,99 +137,6 @@ def unpin_activity(protocol, activity):
     else:
         return activity
 
-##############################
-# Visitors for computing flow types
-def get_input_pin(executable, pin_name):
-    return next(x for x in executable.input if x.instance_of.lookup().name == pin_name)
-def get_output_pin(executable, pin_name):
-    return next(x for x in executable.output if x.instance_of.lookup().name == pin_name)
-
-def type_from_pin_or_flow(protocol, executable, pin_name, flow_values):
-    pin = get_input_pin(executable, pin_name)
-    if isinstance(pin, paml.LocalValuePin) or isinstance(pin, paml.ReferenceValuePin):
-        return pin.value
-    else:
-        return flow_values[next(x for x in protocol.flows if (x.sink.lookup() == pin))]
-
-def inference_provision(protocol, executable, flow_values):
-    resource = type_from_pin_or_flow(protocol, executable, 'resource', flow_values)
-    location = type_from_pin_or_flow(protocol, executable, 'destination', flow_values)
-    samples = paml.ReplicateSamples()
-    samples.in_location.append(location)
-    samples.specification = resource
-    samples_flow = next(x for x in protocol.flows if x.source.lookup()==get_output_pin(executable, 'samples'))
-    return {samples_flow : samples}
-
-def inference_absorbance(protocol, executable, flow_values):
-    samples = type_from_pin_or_flow(protocol, executable, 'samples', flow_values)
-    # TODO: make this a LocatedData rather than just copying the samples
-    # samples = paml.LocatedData()
-    samples_flow = next(x for x in protocol.flows if x.source.lookup()==get_output_pin(executable, 'measurements'))
-    return {samples_flow : samples}
-
-primitive_inference = {
-    'https://bioprotocols.org/paml/primitives/liquid_handling/Provision' : inference_provision,
-    'https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureAbsorbance' : inference_absorbance
-}
-
-def primitive_types(protocol, activity, flow_values):
-    inference_function = primitive_inference[activity.instance_of.lookup().identity]
-    assert inference_function
-    return inference_function(protocol, activity, flow_values)
-
-def inflows_satisfied(protocol,flow_values,activity):
-    inflows = {x for x in protocol.flows if (x.sink.lookup() == activity) or (isinstance(activity,paml.Executable) and x.sink.lookup() in activity.input)}
-    unsatisfied = inflows - flow_values.keys()
-    return len(unsatisfied) == 0
-
-# kludge for now
-def join_locations(value_set):
-    if not value_set:
-        return paml.HeterogeneousSamples()
-    next = value_set.pop()
-    rest = join_locations(value_set)
-    if isinstance(next, paml.ReplicateSamples):
-        rest.replicate_samples.append(next)
-    elif isinstance(next, paml.HeterogeneousSamples):
-        for x in next.replicate_samples: rest.replicate_samples.append(x)
-    else:
-        raise ValueError("Don't know how to join locations for "+str(value_set))
-    return rest
-
-def join_values(value_set):
-    if all(isinstance(x,paml.LocatedSamples) for x in value_set):
-        return join_locations(value_set)
-    # if we fall through to the end, then we didn't know how to infer
-    raise ValueError("Don't know how to join values types for "+str(value_set))
-
-# returns a dictionary of outflow to type
-def outflow_types(protocol,activity,flow_values):
-    direct_outflows = {x for x in protocol.flows if (x.source.lookup() == activity)}
-    direct_inflows = {x for x in protocol.flows if (x.sink.lookup() == activity)}
-    if isinstance(activity, paml.Control):
-        if isinstance(activity, paml.Initial):
-            return {x: None for x in direct_outflows}
-        elif isinstance(activity, paml.Final):
-            assert len(direct_outflows)==0 # should be no outputs
-            return {}
-        elif isinstance(activity, paml.Fork) or isinstance(activity, paml.Decision):
-            assert len(direct_inflows)==1 # should be precisely one input
-            in_type = flow_values[next(direct_inflows)]
-            return {x: in_type for x in direct_outflows}
-        elif isinstance(activity, paml.Join):
-            assert len(direct_outflows)==1 # should be precisely one output
-            return {direct_outflows.pop() : join_values({flow_values[x] for x in direct_inflows})}
-    elif isinstance(activity, paml.PrimitiveExecutable):
-        direct_types = {x:None for x in direct_outflows}
-        pin_types = primitive_types(protocol, activity, flow_values)
-        return direct_types | pin_types
-    elif isinstance(activity, paml.Value):
-        assert len(direct_outflows) == 1  # should be precisely one output
-        return {x: None for x in direct_outflows}
-    # if we fall through to the end, then we didn't know how to infer
-    raise ValueError("Don't know how to infer outflow types for "+str(activity))
-
-
 
 ##############################
 # For serializing activities
@@ -250,22 +158,6 @@ def get_protocol(doc:sbol3.Document):
 
     # pull the first and only
     return protocols.pop()
-
-##############################
-# Infer values carried on flows
-
-flow_values = {} # dictionary of flow : type mappings
-def infer_flow_values(protocol:paml.Protocol):
-    pending_activities = set(protocol.activities)
-    while pending_activities:
-        non_blocked = {x for x in pending_activities if inflows_satisfied(protocol, flow_values, x)}
-        if not non_blocked:
-            raise ValueError("Could not infer all flow types: circular dependency?")
-            break
-        for activity in non_blocked:
-            flow_values.update(outflow_types(protocol, activity, flow_values))
-        pending_activities -= non_blocked
-
 
 ##############################
 # Serialize order of steps
@@ -411,6 +303,7 @@ def write_excel_file(doc, protocol, serialized_noncontrol_activities):
 ##############################
 # Entry-point for document conversion
 
+flow_values = {}
 # TODO: allow us to control the name of the output
 def convert_document(doc:sbol3.Document):
     print('Finding protocol')
@@ -418,7 +311,8 @@ def convert_document(doc:sbol3.Document):
     print('Found protocol: '+protocol.display_id)
 
     print('Inferring flow values')
-    infer_flow_values(protocol)
+    global flow_values
+    flow_values = paml.type_inference.infer_flow_values(protocol)
 
     print('Serializing activities')
     serialized_noncontrol_activities = serialize_activities(protocol)
