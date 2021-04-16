@@ -34,16 +34,25 @@ sbol3.Identified.get_toplevel = identified_get_toplevel
 
 ###########################################
 # Define extension methods for Activity
-def activity_input_flow(self):
-    protocol = self.get_toplevel()
-    return next(f for f in protocol.flows if (f.sink.lookup() == self))
-Activity.input_flow = activity_input_flow
+def activity_input_flows(self):
+    return {x for x in self.get_toplevel().flows if
+            (x.sink.lookup() == self) or
+            (isinstance(self, Executable) and x.sink.lookup() in self.input)}
+Activity.input_flows = activity_input_flows
 
-def activity_output_flow(self):
-    protocol = self.get_toplevel()
-    return next(f for f in protocol.flows if (f.source.lookup() == self))
-Activity.output_flow = activity_output_flow
+def activity_output_flows(self):
+    return {x for x in self.get_toplevel().flows if
+            (x.source.lookup() == self) or
+            (isinstance(self, Executable) and x.source.lookup() in self.output)}
+Activity.output_flows = activity_output_flows
 
+def activity_direct_input_flows(self):
+    return {x for x in self.get_toplevel().flows if (x.sink.lookup() == self)}
+Activity.direct_input_flows = activity_direct_input_flows
+
+def activity_direct_output_flows(self):
+    return {x for x in self.get_toplevel().flows if (x.source.lookup() == self)}
+Activity.direct_output_flows = activity_direct_output_flows
 
 ###########################################
 # Define extension methods for Primitive

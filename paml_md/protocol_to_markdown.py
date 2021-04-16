@@ -61,8 +61,9 @@ def input_pin_value(document, protocol, executable, pin_name):
             return markdown_component(value)
         elif isinstance(value, paml.Location):
             return markdown_location(value)
-    elif flow_values[next(x for x in protocol.flows if x.sink.lookup() in executable.input)]:
-        value = flow_values[next(x for x in protocol.flows if x.sink.lookup() in executable.input)]
+    elif protocol_typing.flow_values[next(x for x in protocol.flows if x.sink.lookup() in executable.input)]:
+        value = protocol_typing.flow_values[next(x for x in protocol.flows if x.sink.lookup() in executable.input)]
+        print('assigning '+str(value.identity)+" for "+pin.identity)
         return markdown_flow_value(document, value)
     # if we fall through to here:
     return str(pin)
@@ -93,9 +94,7 @@ primitive_library = {
 
 def get_value_flow_input(protocol, activity):
     flows = (x for x in protocol.flows if (x.sink.lookup() == activity)) # need to generalize to multiple
-    ########
-    # TODO: remove this evil kludge where we're dipping into a global variable
-    return flow_values[next(flows)]
+    return protocol_typing.flow_values[next(flows)]
 
 def markdown_value(document, protocol, activity):
     return 'Report values from '+markdown_flow_value(document, get_value_flow_input(protocol, activity))+'\n'
@@ -303,7 +302,7 @@ def write_excel_file(doc, protocol, serialized_noncontrol_activities):
 ##############################
 # Entry-point for document conversion
 
-flow_values = {}
+protocol_typing = None
 # TODO: allow us to control the name of the output
 def convert_document(doc:sbol3.Document):
     print('Finding protocol')
@@ -311,8 +310,8 @@ def convert_document(doc:sbol3.Document):
     print('Found protocol: '+protocol.display_id)
 
     print('Inferring flow values')
-    global flow_values
-    flow_values = paml.type_inference.infer_flow_values(protocol)
+    global protocol_typing # TODO: remove this nasty kludge
+    protocol_typing = paml.type_inference.ProtocolTyping(protocol)
 
     print('Serializing activities')
     serialized_noncontrol_activities = serialize_activities(protocol)
