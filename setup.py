@@ -16,7 +16,7 @@ setup(name='paml',
             'tyto',
             'openpyxl'
       ],
-      packages=['paml', 'paml_md'],
+      packages=['paml', 'paml_md', 'paml.lib'],
       package_data={'paml': ['paml.ttl', 'lib/*.ttl'],
                     'paml_md': ['template.xlsx']},
       include_package_data=True,
