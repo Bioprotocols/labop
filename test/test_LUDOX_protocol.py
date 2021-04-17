@@ -83,7 +83,7 @@ is only weakly scattering and so will give a low absorbance value.
         v = doc.validate()
         assert not v.errors and not v.warnings, "".join(str(e) for e in doc.validate().errors)
 
-        doc.write('igem_ludox_draft.json', 'json-ld')
+        doc.write('igem_ludox_draft.nt', 'sorted nt')
         doc.write('igem_ludox_draft.ttl', 'turtle')
 
         # Checking if files are identical needs to wait for increased stability
@@ -91,7 +91,7 @@ is only weakly scattering and so will give a low absorbance value.
 
     def test_protocol_to_markdown(self):
         doc = sbol3.Document()
-        doc.read('test/testfiles/igem_ludox_draft.json', 'json-ld')
+        doc.read('test/testfiles/igem_ludox_draft.nt', 'sorted nt')
         paml_md.convert_document(doc)
 
         # Checking if files are identical needs to wait for increased stability

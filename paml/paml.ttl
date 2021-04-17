@@ -406,6 +406,13 @@ paml:Container rdf:type owl:Class ;
                               owl:minCardinality "1"^^xsd:nonNegativeInteger ;
                               owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
                               rdfs:comment "SHOULD be an NCIT equipment class (branch http://purl.obolibrary.org/obo/NCIT_C19238)"
+                              ] ,
+                            [ rdf:type owl:Restriction ;
+                              owl:onProperty paml:containerMaxCoordinate ;
+                              owl:allValuesFrom xsd:string ;
+                                owl:minCardinality "1"^^xsd:nonNegativeInteger ;
+                                owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
+                              rdfs:comment "Maximum alloed coordinates, which SHOULD use Excel form, e.g., A1, B3:C6"
                               ] .
 
 paml:containerType rdf:type owl:DatatypeProperty ;
@@ -413,6 +420,12 @@ paml:containerType rdf:type owl:DatatypeProperty ;
               rdfs:range xsd:anyURI ;
               rdfs:label "type" ;
               rdfs:comment "Type specification of a Value or Physical material" .
+
+paml:containerMaxCoordinate rdf:type owl:DatatypeProperty ;
+              rdfs:domain paml:Container ;
+              rdfs:range xsd:string ;
+              rdfs:label "max_coordinate" .
+
 
 
 paml:ContainerCoordinates rdf:type owl:Class ;

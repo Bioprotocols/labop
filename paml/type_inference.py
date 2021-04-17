@@ -70,12 +70,16 @@ def join_infer_typing(self, typing: ProtocolTyping):
         join_values({typing.flow_values[f] for f in self.direct_input_flows()})
 paml.Join.infer_typing = join_infer_typing
 
+# TODO: add type inference for Merge
+
 
 def primitiveexecutable_infer_typing(self, typing: ProtocolTyping):
     typing.flow_values.update({f: None for f in self.direct_output_flows()})
     inference_function = primitive_type_inference_functions[self.instance_of.lookup().identity]
     inference_function(self, typing)
 paml.PrimitiveExecutable.infer_typing = primitiveexecutable_infer_typing
+
+# TODO: add type inference for SubProtocol
 
 
 def value_infer_typing(self, typing: ProtocolTyping):
@@ -87,6 +91,7 @@ paml.Value.infer_typing = value_infer_typing
 
 #################
 # Join is a kludge for now
+# TODO: Make a more principled approach to inference of Join, which will also provide an architcture for Merge
 def join_locations(value_set):
     if not value_set:
         return paml.HeterogeneousSamples()
@@ -106,3 +111,7 @@ def join_values(value_set):
         return join_locations(value_set)
     # if we fall through to the end, then we didn't know how to infer
     raise ValueError("Don't know how to join values types for "+str(value_set))
+
+
+
+
