@@ -323,3 +323,30 @@ def convert_document(doc:sbol3.Document):
     write_excel_file(doc, protocol, serialized_noncontrol_activities)
 
     print('Export complete')
+
+
+
+#################################################
+# Scraps from elsewhere that will be useful
+
+# # Actually, all of this is more of a forward-looking simulation to be determined later in the .md process itself
+# # The type inference can be simpler
+# # TODO: generalize to allow multiple containers, non-identical locations
+# # TODO: track amounts as well
+#
+# # TODO: this is a kludge that needs to be generalized to handle transfers between non-identical locations
+# def translate_sublocation(source: paml.ContainerCoordinates, destination: paml.Container):
+#     return paml.ContainerCoordinates(in_location = destination, coordinates = source.coordinates)
+#
+# def heterogeneous_relocated_samples(self, destination: paml.Location):
+#     assert (len(self.containers == 1))
+#     relocated = paml.HeterogeneousSamples()
+#     relocated.replicate_samples = {r.relocated_samples(translate_sublocation(r.in_location,destination)) for r in self.replicate_samples}
+# paml.HeterogeneousSamples.relocated_samples = heterogeneous_relocated_samples
+#
+# def replicate_relocated_samples(self, destination: paml.Location):
+#     assert(len(self.containers==1))
+#     relocated = paml.ReplicateSamples(specification=self.specification)
+#     relocated.in_location.append(destination)
+#     return relocated
+# paml.ReplicateSamples.relocated_samples = replicate_relocated_samples
