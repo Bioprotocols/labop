@@ -14,6 +14,7 @@ setup(name='paml',
             'requests',
             'graphviz',
             'tyto',
+            'numpy',
             'openpyxl'
       ],
       packages=['paml', 'paml_md', 'paml.lib'],
