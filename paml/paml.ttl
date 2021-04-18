@@ -398,7 +398,7 @@ paml:Location rdf:type owl:Class ;
             rdfs:subClassOf sbol:Identified .
 
 paml:Container rdf:type owl:Class ;
-              rdfs:comment "A standard well-array plate, such as a 96-well plate or 384-well plate" ;
+              rdfs:comment "A container such as a flask, bottle, 96-well plate, or 384-well plate" ;
         rdfs:subClassOf paml:Location ,
                             [ rdf:type owl:Restriction ;
                               owl:onProperty paml:containerType ;
@@ -410,9 +410,8 @@ paml:Container rdf:type owl:Class ;
                             [ rdf:type owl:Restriction ;
                               owl:onProperty paml:containerMaxCoordinate ;
                               owl:allValuesFrom xsd:string ;
-                                owl:minCardinality "1"^^xsd:nonNegativeInteger ;
                                 owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
-                              rdfs:comment "Maximum alloed coordinates, which SHOULD use Excel form, e.g., A1, B3:C6"
+                              rdfs:comment "Maximum allowed coordinates (if applicable), which SHOULD use Excel form, e.g., A1, B3:C6"
                               ] .
 
 paml:containerType rdf:type owl:DatatypeProperty ;

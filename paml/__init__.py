@@ -261,10 +261,6 @@ Protocol.add_flow = protocol_add_flow
 ###########################################
 # Define extension methods for LocatedSamples
 
-def heterogeneous_samples_locations(self: HeterogeneousSamples):
-    return [s.in_location for s in self.replicate_samples for l in s.in_location]
-HeterogeneousSamples.locations = heterogeneous_samples_locations
-
 # Transform an Excel-style range (col:row, inclusive, alpha-numeric) to numpy-style (row:col, start/stop, numeric)
 def excel_to_numpy_range(excel_range):
     bounds = openpyxl.utils.cell.range_boundaries(excel_range)
@@ -305,16 +301,21 @@ def reduce_range_set(ranges):
         reduced.add(extract_range_from_top_left(region))
     return reduced
 
-def heterogeneous_samples_reduced_locations(self : HeterogeneousSamples):
-    locations = self.locations()
-    # perform a greedy reduction until stable
-    containers = {(l if isinstance(l, Container) else l.in_container) for l in locations} # pull containers from locations
-HeterogeneousSamples.reduced_locations = heterogeneous_samples_reduced_locations
 
-#
-# def heterogeneoussamples_reduced_locations(self : HeterogeneousSamples):
-#
-# HeterogeneousSamples.reduced_locations = heterogeneoussamples_reduced_locations
+def heterogeneous_samples_locations(self: HeterogeneousSamples):
+    return [s.in_location for s in self.replicate_samples for l in s.in_location]
+HeterogeneousSamples.locations = heterogeneous_samples_locations
+
+def heterogeneous_samples_containers(self : HeterogeneousSamples):
+    return {(l if isinstance(l, Container) else l.in_container) for l in self.locations()} # pull containers from locations
+HeterogeneousSamples.containers = heterogeneous_samples_containers
+
+def heterogeneous_samples_locations_by_container(self : HeterogeneousSamples):
+    locations = self.locations()
+    containers = self.containers()
+    return {c:{l for l in locations if l==c or (isinstance(l, ContainerCoordinates) and l.in_container==c)} for c in containers}
+HeterogeneousSamples.locations_by_container = heterogeneous_samples_locations_by_container
+
 
 #########################################
 # Library handling

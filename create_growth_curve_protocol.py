@@ -35,7 +35,7 @@ with PBS, then measure OD and fluorescence from that other plate
 doc.add(split_and_measure)
 
 # plate for split-and-measure subroutine
-od_plate = paml.Container(name='OD Plate', type=tyto.NCIT.Microplate)
+od_plate = paml.Container(name='OD Plate', type=tyto.NCIT.Microplate, max_coordinate='H12')
 split_and_measure.locations = {od_plate}
 
 # Inputs: collection of samples, pbs_source
@@ -96,7 +96,7 @@ Subprotocol to split a portion of each sample in an unsealed plate into another 
 doc.add(overnight_od_measure)
 
 # plate for split-and-measure subroutine
-od_plate = paml.Container(name='OD Plate', type=tyto.NCIT.Microplate)
+od_plate = paml.Container(name='OD Plate', type=tyto.NCIT.Microplate, max_coordinate='H12')
 overnight_od_measure.locations = {od_plate}
 
 # Input: collection of samples
@@ -165,9 +165,9 @@ pbs_source = paml.Container(name='PBS Source', type=tyto.NCIT.Bottle)
 sc_source = paml.Container(name='SC Media + 40nM Doxycycline Source', type=tyto.NCIT.Bottle)
 om_source = paml.Container(name='Overnight SC Media Source', type=tyto.NCIT.Bottle)
 # plates for the general protocol
-overnight_plate = paml.Container(name='Overnight Growth Plate', type=tyto.NCIT.Microplate)
-overnight_od_plate = paml.Container(name='Overnight Growth Plate', type=tyto.NCIT.Microplate)
-growth_plate = paml.Container(name='Growth Curve Plate', type=tyto.NCIT.Microplate)
+overnight_plate = paml.Container(name='Overnight Growth Plate', type=tyto.NCIT.Microplate, max_coordinate='H12')
+overnight_od_plate = paml.Container(name='Overnight Growth Plate', type=tyto.NCIT.Microplate, max_coordinate='H12')
+growth_plate = paml.Container(name='Growth Curve Plate', type=tyto.NCIT.Microplate, max_coordinate='H12')
 protocol.locations = {pbs_source, sc_source, om_source, overnight_plate, growth_plate}
 
 # One input: a microplate full of strains
@@ -250,7 +250,7 @@ print('Protocol construction complete')
 # Invocation of protocol on a plate:;
 
 # plate for invoking the protocol
-input_plate = paml.Container(name='497943_4_UWBF_to_stratoes', type=tyto.NCIT.get_uri_by_term('Microplate'))
+input_plate = paml.Container(name='497943_4_UWBF_to_stratoes', type=tyto.NCIT.Microplate, max_coordinate='H12')
 
 
 print('Validating document')

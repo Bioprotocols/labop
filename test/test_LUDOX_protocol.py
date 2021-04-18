@@ -40,7 +40,7 @@ is only weakly scattering and so will give a low absorbance value.
         doc.add(protocol)
 
         # create the materials to be provisioned
-        plate = paml.Container(name='Microplate', type=tyto.NCIT.get_uri_by_term('Microplate'))
+        plate = paml.Container(name='Microplate', type=tyto.NCIT.get_uri_by_term('Microplate'), max_coordinate='H12')
         protocol.locations.append(plate)
 
         ddh2o = sbol3.Component('ddH2O', 'https://identifiers.org/pubchem.substance:24901740')
@@ -91,7 +91,7 @@ is only weakly scattering and so will give a low absorbance value.
 
     def test_protocol_to_markdown(self):
         doc = sbol3.Document()
-        doc.read('test/testfiles/igem_ludox_draft.nt', 'sorted nt')
+        doc.read('test/testfiles/igem_ludox_draft.ttl', 'ttl')
         paml_md.convert_document(doc)
 
         # Checking if files are identical needs to wait for increased stability
