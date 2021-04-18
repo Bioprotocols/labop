@@ -159,7 +159,6 @@ def subprotocol_input_value(self: SubProtocol, pin: Pin):
     return pin.instance_of.lookup().activity
 SubProtocol.input_value = subprotocol_input_value
 
-subprotocol.output_value(f.sink)
 # Get the Value activity associated with the specified output of a subprotocol
 def subprotocol_output_value(self: SubProtocol, pin: Pin):
     assert pin in self.output, ValueError("SubProtocol '" + self.identity + "' does not have an output Pin '" + pin + "'")

@@ -13,7 +13,7 @@ class ProtocolTyping:
         self.infer_typing(protocol)
 
     def infer_typing(self, protocol : paml.Protocol):
-        typed_protocols.append(protocol)
+        self.typed_protocols.add(protocol)
         pending_activities = set(protocol.activities)
         while pending_activities:
             non_blocked = {a for a in pending_activities if self.inflows_satisfied(a)}
