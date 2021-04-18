@@ -265,55 +265,45 @@ def heterogeneous_samples_locations(self: HeterogeneousSamples):
     return [s.in_location for s in self.replicate_samples for l in s.in_location]
 HeterogeneousSamples.locations = heterogeneous_samples_locations
 
-def merge_adjacent_coordinates(r1, r2):
-    t1 = openpyxl.utils.cell.range_boundaries(r1)  # [mincol minrow maxcol maxrow]
-    t2 = openpyxl.utils.cell.range_boundaries(r2)
-    try: # try vertical merge
-        assert t1[0]==t2[0] and t1[2]==t2[2]  # same columns
-        assert t1[3]+1==t2[1] or t2[3]+1==t1[1]  # maxrow of one is one less than minrow of another
-        return openpyxl.utils.cell.get_column_letter(t1[0]) + str(min(t1[1], t2[1])) + ':' + \
-               openpyxl.utils.cell.get_column_letter(t1[2]) + str(max(t1[3], t2[3]))
-    except: # try horizontal merge
-        try:
-            assert t1[1]==t2[1] and t1[3]==t2[3]  # same rows
-            assert t1[2]+1==t2[0] or t2[2]+1==t1[0]  # maxcol of one is one less than mincol of another
-            return openpyxl.utils.cell.get_column_letter(min(t1[0],t2[0])) + str(t1[1]) + ':' + \
-                   openpyxl.utils.cell.get_column_letter(max(t1[2],t2[2])) + str(t1[3])
-        except:
-            raise ValueError("Can't merge coordinates '"+r1+"' and '"+r2+"'")
+# Transform an Excel-style range (col:row, inclusive, alpha-numeric) to numpy-style (row:col, start/stop, numeric)
+def excel_to_numpy_range(excel_range):
+    bounds = openpyxl.utils.cell.range_boundaries(excel_range)
+    return [bounds[1]-1,bounds[0]-1,bounds[3],bounds[2]]
 
+def numpy_to_excel_range(top,left,bottom,right):
+    if top+1==bottom and left+1==right: # degenerate case of a single cell
+        return openpyxl.utils.cell.get_column_letter(left+1)+str(top+1)
+    else:
+        return openpyxl.utils.cell.get_column_letter(left+1)+str(top+1) + ":" + \
+               openpyxl.utils.cell.get_column_letter(right) + str(bottom)
 
-# Note that since this function is greedy, it can potentially be tricked into failing to converge correctly.
-# TODO: consider switching to a deterministic range reduction based on grid occupancy instead
-def reduce_range_set(safe_ranges):
-    # try reduction of first element against all other elements until one hits or get an exception from length under 2
-    def reduce_first_range(sub_ranges):
-        print(' Reducing first of ' + str(sub_ranges))
-        first = sub_ranges.pop()
-        second = sub_ranges.pop()
-        try:
-            joint = merge_adjacent_coordinates(first,second)  # try merging first two
-            return {joint}|sub_ranges
-        except ValueError:
-            return {second}|reduce_first_range({first}|sub_ranges)  # if that fails, bubble down to try first vs. next
+def extract_range_from_top_left(region: numpy.ndarray):
+    # find the largest rectangular region starting at the first top-left zero
+    top = numpy.where(region)[0][0]
+    left = numpy.where(region)[1][0]
+    right = numpy.where(region[top,:])[0][-1]+1
+    for bottom in range(top,region.shape[0]):
+        if not region[bottom,left:right].all():
+            bottom -= 1
+            break
+    bottom += 1 # adjust to stop coordinate
+    region[top:bottom, left:right] = False
+    return numpy_to_excel_range(top, left, bottom, right)
 
-    def reduce_internal(ranges):
-        print('Reducing '+str(ranges))
-        if not ranges:
-            return ranges # if the set is empty, return immediately
-        try:
-            return reduce_internal(reduce_first_range(ranges.copy()))  # try merging against the result of merging the first
-        except KeyError: # if the first fails to merge, try using the second instead
-            print('Failed to merge; trying rest')
-            first = ranges.pop()
-            try:
-                reduced = reduce_internal(ranges)
-                return reduce_internal({first}|reduced) if len(reduced)<len(ranges) else {first}|ranges  #  try merging against results of merging the rest
-            except KeyError:
-                print("Couldn't merge anything")
-                return {first}|ranges
-
-    return reduce_internal(safe_ranges.copy())
+def reduce_range_set(ranges):
+    assert len(ranges)>0, "Range set to reduce must have at least one element"
+    bounds = [max(openpyxl.utils.cell.range_boundaries(r)[i] for r in ranges) for i in range(2,4)]
+    region = numpy.zeros([bounds[1],bounds[0]],dtype=bool) # make an array of zeros
+    # mark each range in turn, ensuring that they don't overlap
+    for r in ranges:
+        nr = excel_to_numpy_range(r)
+        assert not (region[nr[0]:nr[2], nr[1]:nr[3]]).any(), ValueError("Found overlapping range in "+str(ranges))
+        region[nr[0]:nr[2], nr[1]:nr[3]] = True
+    # pull chunks out until all zeros
+    reduced = set()
+    while region.any():
+        reduced.add(extract_range_from_top_left(region))
+    return reduced
 
 def heterogeneous_samples_reduced_locations(self : HeterogeneousSamples):
     locations = self.locations()
