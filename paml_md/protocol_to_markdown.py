@@ -37,6 +37,9 @@ def markdown_mergedlocations(location_list):
         return this + ', ' + markdown_mergedlocations(location_list)
 
 def markdown_flow_value(document, value):
+    if isinstance(value, paml.LocatedData):
+        value = value.from_samples  # unwrap value
+
     if isinstance(value, paml.ReplicateSamples):
         return markdown_mergedlocations({x.lookup() for x in value.in_location})
     elif isinstance(value, paml.HeterogeneousSamples):
@@ -63,7 +66,6 @@ def input_pin_value(document, protocol, executable, pin_name):
             return markdown_location(value)
     elif protocol_typing.flow_values[next(x for x in protocol.flows if x.sink.lookup() in executable.input)]:
         value = protocol_typing.flow_values[next(x for x in protocol.flows if x.sink.lookup() in executable.input)]
-        print('assigning '+str(value.identity)+" for "+pin.identity)
         return markdown_flow_value(document, value)
     # if we fall through to here:
     return str(pin)
@@ -262,6 +264,8 @@ def excel_write_mergedlocations(ws, row_offset, location_spec_list):
     return block_height
 
 def excel_write_flow_value(document, value, ws, row_offset):
+    if isinstance(value, paml.LocatedData):
+        value = value.from_samples  # unwrap value
     if isinstance(value, paml.ReplicateSamples):
         return excel_write_mergedlocations(ws, row_offset, {x.lookup():value.specification for x in value.in_location})
     elif isinstance(value, paml.HeterogeneousSamples):

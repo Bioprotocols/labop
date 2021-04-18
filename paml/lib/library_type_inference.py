@@ -34,8 +34,9 @@ primitive_type_inference_functions[LIQUID_HANDLING_PREFIX+'Provision'] = liquid_
 
 def liquid_handling_dispense_infer_typing(executable, typing: ProtocolTyping):
     source = executable.input_pin('source').input_type(typing)  # Assumed singular replicate
+    assert isinstance(source, paml.ReplicateSamples), ValueError('Dispense must not come form a heterogeneous source')
     location = executable.input_pin('destination').input_type(typing)
-    samples = paml.ReplicateSamples(specification = resource)
+    samples = paml.ReplicateSamples(specification=source.specification)
     samples.in_location.append(location)
     executable.output_pin('samples').assert_output_type(typing, samples)
 primitive_type_inference_functions[LIQUID_HANDLING_PREFIX+'Dispense'] = liquid_handling_dispense_infer_typing
@@ -95,9 +96,10 @@ SPECTROPHOTOMETRY = 'https://bioprotocols.org/paml/primitives/spectrophotometry/
 
 def spectrophotometry_infer_typing(executable, typing: ProtocolTyping):
     samples = executable.input_pin('samples').input_type(typing)
-    # TODO: make this a LocatedData rather than just copying the samples
-    # samples = paml.LocatedData()
-    executable.output_pin('measurements').assert_output_type(typing, samples)
+    # TODO: figure out how to add appropriate metadata onto these
+    data = paml.LocatedData()
+    data.from_samples = samples
+    executable.output_pin('measurements').assert_output_type(typing, data)
 primitive_type_inference_functions[SPECTROPHOTOMETRY+'MeasureAbsorbance'] = spectrophotometry_infer_typing
 primitive_type_inference_functions[SPECTROPHOTOMETRY+'MeasureFluorescence'] = spectrophotometry_infer_typing
 primitive_type_inference_functions[SPECTROPHOTOMETRY+'MeasureFluorescenceSpectrum'] = spectrophotometry_infer_typing

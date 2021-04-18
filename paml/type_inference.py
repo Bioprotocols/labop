@@ -7,7 +7,13 @@ from paml.lib.library_type_inference import primitive_type_inference_functions
 
 class ProtocolTyping:
     def __init__(self, protocol: paml.Protocol):
-        self.flow_values = {}  # dictionary of paml.Flow : type value
+        self.flow_values = {}  # dictionary of paml.Flow : type value, includes subprotocols too
+        self.typed_protocols = set()  # protocol and subprotocols already evaluated or in process of evaluation
+        # actually trigger the inference
+        self.infer_typing(protocol)
+
+    def infer_typing(self, protocol : paml.Protocol):
+        typed_protocols.append(protocol)
         pending_activities = set(protocol.activities)
         while pending_activities:
             non_blocked = {a for a in pending_activities if self.inflows_satisfied(a)}
@@ -80,6 +86,19 @@ def primitiveexecutable_infer_typing(self, typing: ProtocolTyping):
 paml.PrimitiveExecutable.infer_typing = primitiveexecutable_infer_typing
 
 # TODO: add type inference for SubProtocol
+def subprotocol_infer_typing(self: paml.SubProtocol, typing: ProtocolTyping):
+    typing.flow_values.update({f: None for f in self.direct_output_flows()})
+    subprotocol = self.instance_of.lookup()
+    if subprotocol not in typing.typed_protocols():
+        # add types for inputs
+        input_pin_flows = self.input_flows() - self.direct_input_flows()
+        typing.flow_values.update({subprotocol.input_value(f.sink).direct_input_flows(): typing.flow_values[f] for f in input_pin_flows})
+        # run the actual inference
+        typing.infer_typing(subprotocol)
+    # pull values from outputs' inferred values
+    output_pin_flows = self.output_flows() - self.direct_output_flows()
+    typing.flow_values.update({f:typing.flow_values[subprotocol.output_value(f.sink).direct_output_flows()] for f in output_pin_flows})
+paml.SubProtocol.infer_typing = subprotocol_infer_typing
 
 
 def value_infer_typing(self, typing: ProtocolTyping):

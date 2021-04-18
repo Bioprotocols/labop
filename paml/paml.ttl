@@ -473,10 +473,16 @@ paml:HeterogeneousSamples rdf:type owl:Class ;
 
 paml:LocatedData rdf:type owl:Class ;
               rdfs:comment "Collection of samples with data at locations" ;
-            rdfs:subClassOf paml:LocatedSamples ,
+            rdfs:subClassOf sbol:Identified ,
                             [ rdf:type owl:Restriction ;
                               owl:onProperty paml:hasExperimentalData ;
                               owl:onClass sbol:ExperimentalData ;
+                              owl:minCardinality "1"^^xsd:nonNegativeInteger ;
+                              owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
+                              ] ,
+                            [ rdf:type owl:Restriction ;
+                              owl:onProperty paml:fromSamples ;
+                              owl:onClass sbol:LocatedSamples ;
                               owl:minCardinality "1"^^xsd:nonNegativeInteger ;
                               owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
                               ] .
@@ -511,3 +517,9 @@ paml:hasExperimentalData rdf:type owl:ObjectProperty ;
               rdfs:domain paml:LocatedData ;
               rdfs:range sbol:ExperimentalData ;
               rdfs:label "experimental_data" .
+
+paml:fromSamples rdf:type owl:ObjectProperty ;
+              rdfs:subPropertyOf opil:compositionalProperty ;
+              rdfs:domain paml:LocatedData ;
+              rdfs:range sbol:LocatedSamples ;
+              rdfs:label "from_samples" .
