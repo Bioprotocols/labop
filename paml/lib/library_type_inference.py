@@ -66,7 +66,7 @@ def liquid_handling_transferinto_infer_typing(executable, typing: ProtocolTyping
     elif isinstance(source, paml.LocatedSamples) and isinstance(destination, paml.LocatedSamples):
         mixture = paml.HeterogeneousSamples()  # leave it generic for now
     else:
-        raise ValueError("Don't know how to infer type for TransferInto with source and destination types "+str(type(source))+', '+str(type(destination)))
+        raise ValueError("Don't know how to infer type for TransferInto "+executable.identity+" with source and destination types "+str(type(source))+', '+str(type(destination)))
     executable.output_pin('samples').assert_output_type(typing, mixture)
 primitive_type_inference_functions[LIQUID_HANDLING_PREFIX + 'TransferInto'] = liquid_handling_transferinto_infer_typing
 
@@ -76,7 +76,7 @@ primitive_type_inference_functions[LIQUID_HANDLING_PREFIX+'PipetteMix'] = no_out
 #############################################
 # Plate handling primitives
 
-PLATE_HANDLING_PREFIX = 'https://bioprotocols.org/paml/primitives/liquid_handling/'
+PLATE_HANDLING_PREFIX = 'https://bioprotocols.org/paml/primitives/plate_handling/'
 
 
 primitive_type_inference_functions[PLATE_HANDLING_PREFIX+'Cover'] = no_output_primitive_infer_typing

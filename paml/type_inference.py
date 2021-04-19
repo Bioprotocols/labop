@@ -44,9 +44,12 @@ paml.Pin.input_type = pin_input_type
 
 def pin_assert_output_type(self, typing: ProtocolTyping, value):
     out_flows = self.output_flows()
-    assert len(out_flows) == 1, \
-        ValueError("Expected one output flow for '" + self.get_parent().identity + "' but found " + len(out_flows))
-    typing.flow_values[out_flows.pop()] = value
+    # TODO: need to decide if this type of implicit fork is acceptable
+    for f in out_flows:
+        typing.flow_values[f] = value
+    # assert len(out_flows) == 1, \
+    #     ValueError("Expected one output flow for '" + self.get_parent().identity + "' but found " + str(len(out_flows)))
+    # typing.flow_values[out_flows.pop()] = value
 paml.Pin.assert_output_type = pin_assert_output_type
 
 
@@ -102,7 +105,7 @@ paml.SubProtocol.infer_typing = subprotocol_infer_typing
 
 
 def value_infer_typing(self, typing: ProtocolTyping):
-    assert len(self.direct_output_flows()) == 1  # should be precisely one output
+    #assert len(self.direct_output_flows()) == 1  # should be precisely one output
     typing.flow_values.update({f: None for f in self.direct_output_flows()})
 paml.Value.infer_typing = value_infer_typing
 
