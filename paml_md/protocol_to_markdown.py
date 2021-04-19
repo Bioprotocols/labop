@@ -1,21 +1,66 @@
 import sbol3
 import paml
+import paml.type_inference
 import tyto
 import openpyxl
+import numpy
 import os
 import posixpath
-import paml.type_inference
 from copy import copy
 from paml_md.markdown_primitives import primitive_to_markdown_functions
 
+###########################################
+# Functions for reasoning about ranges
+
+# Transform an Excel-style range (col:row, inclusive, alpha-numeric) to numpy-style (row:col, start/stop, numeric)
+def excel_to_numpy_range(excel_range):
+    bounds = openpyxl.utils.cell.range_boundaries(excel_range)
+    return [bounds[1]-1,bounds[0]-1,bounds[3],bounds[2]]
+
+def numpy_to_excel_range(top,left,bottom,right):
+    if top+1==bottom and left+1==right: # degenerate case of a single cell
+        return openpyxl.utils.cell.get_column_letter(left+1)+str(top+1)
+    else:
+        return openpyxl.utils.cell.get_column_letter(left+1)+str(top+1) + ":" + \
+               openpyxl.utils.cell.get_column_letter(right) + str(bottom)
+
+def extract_range_from_top_left(region: numpy.ndarray):
+    # find the largest rectangular region starting at the first top-left zero
+    top = numpy.where(region)[0][0]
+    left = numpy.where(region)[1][0]
+    right = numpy.where(region[top,:])[0][-1]+1
+    for bottom in range(top,region.shape[0]):
+        if not region[bottom,left:right].all():
+            bottom -= 1
+            break
+    bottom += 1 # adjust to stop coordinate
+    region[top:bottom, left:right] = False
+    return numpy_to_excel_range(top, left, bottom, right)
+
+def reduce_range_set(ranges):
+    assert len(ranges)>0, "Range set to reduce must have at least one element"
+    bounds = [max(openpyxl.utils.cell.range_boundaries(r)[i] for r in ranges) for i in range(2,4)]
+    region = numpy.zeros([bounds[1],bounds[0]],dtype=bool) # make an array of zeros
+    # mark each range in turn, ensuring that they don't overlap
+    for r in ranges:
+        nr = excel_to_numpy_range(r)
+        assert not (region[nr[0]:nr[2], nr[1]:nr[3]]).any(), ValueError("Found overlapping range in "+str(ranges))
+        region[nr[0]:nr[2], nr[1]:nr[3]] = True
+    # pull chunks out until all zeros
+    reduced = set()
+    while region.any():
+        reduced.add(extract_range_from_top_left(region))
+    return reduced
+
+
 ##############################################
-# Direct conversion of individual PAML objects to markdown
+# Converter state object, to be carried along with "to_markdown" functions
 
 # TODO: make this build PROV-O as it goes?
 class MarkdownConverter():
     def __init__(self, document: sbol3.Document, protocol_typing: paml.type_inference.ProtocolTyping):
         self.protocol_typing = protocol_typing
-        self.document = document
+        self.document = document    # TODO: this shouldn't be needed, but there are reference problems
 
     def markdown_header(self, protocol):
         header = '# ' + (protocol.display_id if (protocol.name is None) else protocol.name) + '\n'
@@ -26,7 +71,17 @@ class MarkdownConverter():
 
 
 ##############################################
-# Direct conversion of individual PAML objects to markdown representations
+# Direct conversion of individual objects to their markdown representations
+
+def list_to_markdown(l: list, mdc: MarkdownConverter):
+    this = l.pop().to_markdown(mdc)
+    if len(l) == 0:
+        return this
+    if len(l) == 1:
+        return this + ' and ' + list_to_markdown(l, mdc)
+    else:
+        return this + ', ' + list_to_markdown(l, mdc)
+
 
 def measure_to_markdown(self: sbol3.Measure, mdc: MarkdownConverter):
     return str(self.value) + ' ' + str(tyto.OM.get_term_by_uri(self.unit))
@@ -44,21 +99,23 @@ paml.Container.to_markdown = container_to_markdown
 
 
 def containercoodinates_to_markdown(self: paml.ContainerCoordinates, mdc: MarkdownConverter):
-    return self.in_container.lookup().to_markdown(mdc) + ' ' + self.coordinates
+    return mdc.document.find(self.in_container).to_markdown(mdc) + ' ' + self.coordinates # TODO: figure out how to set document to enable changing doc.find to lookup
 paml.ContainerCoordinates.to_markdown = containercoodinates_to_markdown
 
-##############################################
-# old code being reprocessed
 
+
+# Helper function for reducing coordinates shown for LocatedSamples
 def markdown_mergedlocations(location_list, mdc: MarkdownConverter):
-
-    this = location_list.pop().to_markdown(mdc)
-    if len(location_list) == 0:
-        return this
-    if len(location_list) == 1:
-        return this + ' and ' + markdown_mergedlocations(location_list, mdc)
-    else:
-        return this + ', ' + markdown_mergedlocations(location_list, mdc)
+    containers = [c for c in location_list if isinstance(c, paml.Container)]
+    coords = {coord for coord in location_list if isinstance(coord, paml.ContainerCoordinates)}
+    reduced = []
+    for c in {coord.in_container.lookup() for coord in location_list}:
+        ranges = reduce_range_set({l.coordinates for l in location_list if l.in_container.lookup()==c})
+        for r in ranges:  # BUG: should be a list comprehension, but in_container argument can't be set in constructor
+            cc = paml.ContainerCoordinates(coordinates=r)
+            cc.in_container = c
+            reduced.append(cc)
+    return list_to_markdown(containers+reduced, mdc)
 
 
 def locateddata_to_markdown(self: paml.LocatedData, mdc: MarkdownConverter):
@@ -256,6 +313,7 @@ def excel_write_mergedlocations(ws, row_offset, location_spec_list):
         block_height = max(block_height,block[0])
     return block_height
 
+# TODO: consolidate the Excel reporting squares, like we've already done for the protocol above
 def excel_write_flow_value(document, value, ws, row_offset):
     if isinstance(value, paml.LocatedData):
         value = value.from_samples  # unwrap value

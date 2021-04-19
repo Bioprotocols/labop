@@ -2,8 +2,6 @@ from sbol_factory import SBOLFactory, Document, ValidationReport, UMLFactory
 import sbol3
 import os
 import posixpath
-import openpyxl
-import numpy
 
 # Import ontology
 __factory__ = SBOLFactory(locals(), 
@@ -269,66 +267,6 @@ def protocol_add_flow(self, source, sink):
     return flow
 # Monkey patch:
 Protocol.add_flow = protocol_add_flow
-
-
-###########################################
-# Define extension methods for LocatedSamples
-
-# Transform an Excel-style range (col:row, inclusive, alpha-numeric) to numpy-style (row:col, start/stop, numeric)
-def excel_to_numpy_range(excel_range):
-    bounds = openpyxl.utils.cell.range_boundaries(excel_range)
-    return [bounds[1]-1,bounds[0]-1,bounds[3],bounds[2]]
-
-def numpy_to_excel_range(top,left,bottom,right):
-    if top+1==bottom and left+1==right: # degenerate case of a single cell
-        return openpyxl.utils.cell.get_column_letter(left+1)+str(top+1)
-    else:
-        return openpyxl.utils.cell.get_column_letter(left+1)+str(top+1) + ":" + \
-               openpyxl.utils.cell.get_column_letter(right) + str(bottom)
-
-def extract_range_from_top_left(region: numpy.ndarray):
-    # find the largest rectangular region starting at the first top-left zero
-    top = numpy.where(region)[0][0]
-    left = numpy.where(region)[1][0]
-    right = numpy.where(region[top,:])[0][-1]+1
-    for bottom in range(top,region.shape[0]):
-        if not region[bottom,left:right].all():
-            bottom -= 1
-            break
-    bottom += 1 # adjust to stop coordinate
-    region[top:bottom, left:right] = False
-    return numpy_to_excel_range(top, left, bottom, right)
-
-def reduce_range_set(ranges):
-    assert len(ranges)>0, "Range set to reduce must have at least one element"
-    bounds = [max(openpyxl.utils.cell.range_boundaries(r)[i] for r in ranges) for i in range(2,4)]
-    region = numpy.zeros([bounds[1],bounds[0]],dtype=bool) # make an array of zeros
-    # mark each range in turn, ensuring that they don't overlap
-    for r in ranges:
-        nr = excel_to_numpy_range(r)
-        assert not (region[nr[0]:nr[2], nr[1]:nr[3]]).any(), ValueError("Found overlapping range in "+str(ranges))
-        region[nr[0]:nr[2], nr[1]:nr[3]] = True
-    # pull chunks out until all zeros
-    reduced = set()
-    while region.any():
-        reduced.add(extract_range_from_top_left(region))
-    return reduced
-
-
-def heterogeneous_samples_locations(self: HeterogeneousSamples):
-    return [s.in_location for s in self.replicate_samples for l in s.in_location]
-HeterogeneousSamples.locations = heterogeneous_samples_locations
-
-def heterogeneous_samples_containers(self : HeterogeneousSamples):
-    return {(l if isinstance(l, Container) else l.in_container) for l in self.locations()} # pull containers from locations
-HeterogeneousSamples.containers = heterogeneous_samples_containers
-
-def heterogeneous_samples_locations_by_container(self : HeterogeneousSamples):
-    locations = self.locations()
-    containers = self.containers()
-    return {c:{l for l in locations if l==c or (isinstance(l, ContainerCoordinates) and l.in_container==c)} for c in containers}
-HeterogeneousSamples.locations_by_container = heterogeneous_samples_locations_by_container
-
 
 #########################################
 # Library handling
