@@ -6,6 +6,7 @@ import os
 import posixpath
 import paml.type_inference
 from copy import copy
+from paml_md.markdown_primitives import primitive_to_markdown_functions
 
 ##############################################
 # Direct conversion of individual PAML objects to markdown
@@ -25,8 +26,7 @@ class MarkdownConverter():
 
 
 ##############################################
-# Direct conversion of individual PAML objects to markdown
-
+# Direct conversion of individual PAML objects to markdown representations
 
 def measure_to_markdown(self: sbol3.Measure, mdc: MarkdownConverter):
     return str(self.value) + ' ' + str(tyto.OM.get_term_by_uri(self.unit))
@@ -51,6 +51,7 @@ paml.ContainerCoordinates.to_markdown = containercoodinates_to_markdown
 # old code being reprocessed
 
 def markdown_mergedlocations(location_list, mdc: MarkdownConverter):
+
     this = location_list.pop().to_markdown(mdc)
     if len(location_list) == 0:
         return this
@@ -59,16 +60,20 @@ def markdown_mergedlocations(location_list, mdc: MarkdownConverter):
     else:
         return this + ', ' + markdown_mergedlocations(location_list, mdc)
 
-def markdown_flow_value(value, mdc: MarkdownConverter):
-    if isinstance(value, paml.LocatedData):
-        value = value.from_samples  # unwrap value
 
-    if isinstance(value, paml.ReplicateSamples):
-        return markdown_mergedlocations({x.lookup() for x in value.in_location}, mdc)
-    elif isinstance(value, paml.HeterogeneousSamples):
-        return markdown_mergedlocations({mdc.document.find(loc) for rep in value.replicate_samples for loc in rep.in_location}, mdc)
-    # if we fall through to here:
-    return str(value)
+def locateddata_to_markdown(self: paml.LocatedData, mdc: MarkdownConverter):
+    return self.from_samples.to_markdown(mdc)
+paml.LocatedData.to_markdown = locateddata_to_markdown
+
+
+def replicatesamples_to_markdown(self: paml.ReplicateSamples, mdc: MarkdownConverter):
+    return markdown_mergedlocations({x.lookup() for x in self.in_location}, mdc)
+paml.ReplicateSamples.to_markdown = replicatesamples_to_markdown
+
+
+def heterogeneoussamples_to_markdown(self: paml.HeterogeneousSamples, mdc: MarkdownConverter):
+    return markdown_mergedlocations({mdc.document.find(loc) for rep in self.replicate_samples for loc in rep.in_location}, mdc)
+paml.HeterogeneousSamples.to_markdown = heterogeneoussamples_to_markdown
 
 
 def simplevaluepin_to_markdown(self: paml.SimpleValuePin, mdc: MarkdownConverter):
@@ -85,52 +90,31 @@ def referencevaluepin_to_markdown(self: paml.ReferenceValuePin, mdc: MarkdownCon
     return self.value.lookup().to_markdown(mdc)
 paml.ReferenceValuePin.to_markdown = referencevaluepin_to_markdown
 
-
+# A non-constant pin needs to pull its value from the flow
 def pin_to_markdown(self: paml.Pin, mdc: MarkdownConverter):
     protocol = self.get_toplevel()
     executable = self.get_parent()
     value = mdc.protocol_typing.flow_values[next(x for x in protocol.flows if x.sink.lookup() in executable.input)]
-    return markdown_flow_value(value, mdc)
+    return value.to_markdown(mdc)
 paml.Pin.to_markdown = pin_to_markdown
 
-
-############
-# BUG: this should not need the document; this is due to pySBOL3 bug #176
-def markdown_provision(executable, mdc: MarkdownConverter):
-    volume = executable.input_pin('amount').to_markdown(mdc)
-    resource = executable.input_pin('resource').to_markdown(mdc)
-    location = executable.input_pin('destination').to_markdown(mdc)
-    instruction = 'Pipette '+volume+' of '+resource+' into '+location+'\n'
-    return instruction
-
-############
-# BUG: this should not need the document; this is due to pySBOL3 bug #176
-def markdown_absorbance(executable, mdc: MarkdownConverter):
-    samples = executable.input_pin('samples').to_markdown(mdc)
-    wavelength = executable.input_pin('wavelength').to_markdown(mdc)
-    instruction = 'Measure absorbance of '+samples+' at '+wavelength+'\n'
-    return instruction
-
-#################
-# All this stuff should be transformed into visitor patterns
-primitive_library = {
-    'https://bioprotocols.org/paml/primitives/liquid_handling/Provision' : markdown_provision,
-    'https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureAbsorbance' : markdown_absorbance
-}
+###############################
+# Base activities to markdown
 
 def primitiveexecutable_to_markdown(self: paml.PrimitiveExecutable, mdc: MarkdownConverter):
-    stepwriter = primitive_library[mdc.document.find(self.instance_of).identity]
-    assert stepwriter
+    stepwriter = primitive_to_markdown_functions[mdc.document.find(self.instance_of).identity]
     return stepwriter(self, mdc)
 paml.PrimitiveExecutable.to_markdown = primitiveexecutable_to_markdown
 
 
 def value_to_markdown(self: paml.Value, mdc: MarkdownConverter):
-    return 'Report values from '+markdown_flow_value(mdc.protocol_typing.flow_values[self.input_flows().pop()], mdc)+'\n'
+    value = mdc.protocol_typing.flow_values[self.input_flows().pop()]
+    return 'Report values from '+value.to_markdown(mdc)+'\n'
 paml.Value.to_markdown = value_to_markdown
 
 
-#############
+#############################
+# Other sorts of markdown functions
 
 def markdown_material(component, mdc: MarkdownConverter):
     bullet = '* ' + component.to_markdown(mdc)
@@ -138,18 +122,15 @@ def markdown_material(component, mdc: MarkdownConverter):
     bullet += '\n'
     return bullet
 
+
 def markdown_container_toplevel(container, mdc: MarkdownConverter):
     bullet = '* ' + container.to_markdown(mdc)
     if container.description is not None: bullet += ': ' + container.description
     return bullet
 
+
 def unpin_activity(protocol, activity):
-    if isinstance(activity,paml.Pin):
-        owner = next(x for x in protocol.activities if isinstance(x,paml.Executable) and
-                     (activity in x.output or activity in protocol.input))
-        return owner
-    else:
-        return activity
+    return activity.get_parent() if isinstance(activity, paml.Pin) else activity
 
 
 ##############################
