@@ -189,7 +189,7 @@ Grow up cells and read every interval
 
 <https://sd2e.org/PAML/GrowthCurve/Flow18> a ns1:Flow,
         sbol:Identified ;
-    ns1:sink <https://sd2e.org/PAML/GrowthCurve/PrimitiveExecutable11/Pin3> ;
+    ns1:sink <https://sd2e.org/PAML/GrowthCurve/PrimitiveExecutable11/Pin2> ;
     ns1:source <https://sd2e.org/PAML/GrowthCurve/PrimitiveExecutable3/Pin1> ;
     sbol:displayId "Flow18" .
 
@@ -333,7 +333,7 @@ Grow up cells and read every interval
 
 <https://sd2e.org/PAML/GrowthCurve/Flow4> a ns1:Flow,
         sbol:Identified ;
-    ns1:sink <https://sd2e.org/PAML/GrowthCurve/PrimitiveExecutable4/Pin3> ;
+    ns1:sink <https://sd2e.org/PAML/GrowthCurve/PrimitiveExecutable4/Pin2> ;
     ns1:source <https://sd2e.org/PAML/GrowthCurve/PrimitiveExecutable2/Pin1> ;
     sbol:displayId "Flow4" .
 
@@ -574,7 +574,7 @@ Grow up cells and read every interval
         sbol:Identified ;
     ns1:activityType ns1:Location ;
     ns1:instanceOfPinSpecification <https://bioprotocols.org/paml/primitives/liquid_handling/Provision/PrimitivePinSpecification2> ;
-    ns1:referenceValue <https://sd2e.org/PAML/GrowthCurve/Container5> ;
+    ns1:referenceValue <https://sd2e.org/PAML/GrowthCurve/Container2> ;
     sbol:displayId "ReferenceValuePin2" ;
     sbol:name "destination" .
 
@@ -602,18 +602,18 @@ Grow up cells and read every interval
     om:hasNumericalValue 7e+02 ;
     om:hasUnit om:microlitre .
 
-<https://sd2e.org/PAML/GrowthCurve/PrimitiveExecutable11/Pin2> a ns1:Pin,
+<https://sd2e.org/PAML/GrowthCurve/PrimitiveExecutable11/Pin3> a ns1:Pin,
         sbol:Identified ;
     ns1:activityType om:Measure ;
     ns1:instanceOfPinSpecification <https://bioprotocols.org/paml/primitives/liquid_handling/Dispense/PrimitivePinSpecification4> ;
-    sbol:displayId "Pin2" ;
+    sbol:displayId "Pin3" ;
     sbol:name "dispenseVelocity" .
 
 <https://sd2e.org/PAML/GrowthCurve/PrimitiveExecutable11/ReferenceValuePin1> a ns1:ReferenceValuePin,
         sbol:Identified ;
     ns1:activityType ns1:Location ;
     ns1:instanceOfPinSpecification <https://bioprotocols.org/paml/primitives/liquid_handling/Dispense/PrimitivePinSpecification2> ;
-    ns1:referenceValue <https://sd2e.org/PAML/GrowthCurve/Container2> ;
+    ns1:referenceValue <https://sd2e.org/PAML/GrowthCurve/Container5> ;
     sbol:displayId "ReferenceValuePin1" ;
     sbol:name "destination" .
 
@@ -662,254 +662,254 @@ Grow up cells and read every interval
 <https://sd2e.org/PAML/GrowthCurve/PrimitiveExecutable14/LocalValuePin1> a ns1:LocalValuePin,
         sbol:Identified ;
     ns1:activityType om:Measure ;
-    ns1:instanceOfPinSpecification <https://bioprotocols.org/paml/primitives/plate_handling/Incubate/PrimitivePinSpecification2> ;
+    ns1:instanceOfPinSpecification <https://bioprotocols.org/paml/primitives/plate_handling/Incubate/PrimitivePinSpecification4> ;
     ns1:localValue <https://sd2e.org/PAML/GrowthCurve/PrimitiveExecutable14/LocalValuePin1/Measure1> ;
     sbol:displayId "LocalValuePin1" ;
-    sbol:name "duration" .
+    sbol:name "shakingFrequency" .
 
 <https://sd2e.org/PAML/GrowthCurve/PrimitiveExecutable14/LocalValuePin1/Measure1> a sbol:Identified,
+        om:Measure ;
+    sbol:displayId "Measure1" ;
+    om:hasNumericalValue 3.5e+02 ;
+    om:hasUnit <https://sd2e.org/PAML/rpm> .
+
+<https://sd2e.org/PAML/GrowthCurve/PrimitiveExecutable14/LocalValuePin2> a ns1:LocalValuePin,
+        sbol:Identified ;
+    ns1:activityType om:Measure ;
+    ns1:instanceOfPinSpecification <https://bioprotocols.org/paml/primitives/plate_handling/Incubate/PrimitivePinSpecification3> ;
+    ns1:localValue <https://sd2e.org/PAML/GrowthCurve/PrimitiveExecutable14/LocalValuePin2/Measure1> ;
+    sbol:displayId "LocalValuePin2" ;
+    sbol:name "temperature" .
+
+<https://sd2e.org/PAML/GrowthCurve/PrimitiveExecutable14/LocalValuePin2/Measure1> a sbol:Identified,
+        om:Measure ;
+    sbol:displayId "Measure1" ;
+    om:hasNumericalValue 3e+01 ;
+    om:hasUnit om:degreeCelsius .
+
+<https://sd2e.org/PAML/GrowthCurve/PrimitiveExecutable14/LocalValuePin3> a ns1:LocalValuePin,
+        sbol:Identified ;
+    ns1:activityType om:Measure ;
+    ns1:instanceOfPinSpecification <https://bioprotocols.org/paml/primitives/plate_handling/Incubate/PrimitivePinSpecification2> ;
+    ns1:localValue <https://sd2e.org/PAML/GrowthCurve/PrimitiveExecutable14/LocalValuePin3/Measure1> ;
+    sbol:displayId "LocalValuePin3" ;
+    sbol:name "duration" .
+
+<https://sd2e.org/PAML/GrowthCurve/PrimitiveExecutable14/LocalValuePin3/Measure1> a sbol:Identified,
         om:Measure ;
     sbol:displayId "Measure1" ;
     om:hasNumericalValue 1e+00 ;
     om:hasUnit om:hour .
 
-<https://sd2e.org/PAML/GrowthCurve/PrimitiveExecutable14/LocalValuePin2> a ns1:LocalValuePin,
+<https://sd2e.org/PAML/GrowthCurve/PrimitiveExecutable15/LocalValuePin1> a ns1:LocalValuePin,
         sbol:Identified ;
     ns1:activityType om:Measure ;
     ns1:instanceOfPinSpecification <https://bioprotocols.org/paml/primitives/plate_handling/Incubate/PrimitivePinSpecification4> ;
-    ns1:localValue <https://sd2e.org/PAML/GrowthCurve/PrimitiveExecutable14/LocalValuePin2/Measure1> ;
-    sbol:displayId "LocalValuePin2" ;
+    ns1:localValue <https://sd2e.org/PAML/GrowthCurve/PrimitiveExecutable15/LocalValuePin1/Measure1> ;
+    sbol:displayId "LocalValuePin1" ;
     sbol:name "shakingFrequency" .
 
-<https://sd2e.org/PAML/GrowthCurve/PrimitiveExecutable14/LocalValuePin2/Measure1> a sbol:Identified,
+<https://sd2e.org/PAML/GrowthCurve/PrimitiveExecutable15/LocalValuePin1/Measure1> a sbol:Identified,
         om:Measure ;
     sbol:displayId "Measure1" ;
     om:hasNumericalValue 3.5e+02 ;
     om:hasUnit <https://sd2e.org/PAML/rpm> .
 
-<https://sd2e.org/PAML/GrowthCurve/PrimitiveExecutable14/LocalValuePin3> a ns1:LocalValuePin,
+<https://sd2e.org/PAML/GrowthCurve/PrimitiveExecutable15/LocalValuePin2> a ns1:LocalValuePin,
         sbol:Identified ;
     ns1:activityType om:Measure ;
     ns1:instanceOfPinSpecification <https://bioprotocols.org/paml/primitives/plate_handling/Incubate/PrimitivePinSpecification3> ;
-    ns1:localValue <https://sd2e.org/PAML/GrowthCurve/PrimitiveExecutable14/LocalValuePin3/Measure1> ;
-    sbol:displayId "LocalValuePin3" ;
+    ns1:localValue <https://sd2e.org/PAML/GrowthCurve/PrimitiveExecutable15/LocalValuePin2/Measure1> ;
+    sbol:displayId "LocalValuePin2" ;
     sbol:name "temperature" .
 
-<https://sd2e.org/PAML/GrowthCurve/PrimitiveExecutable14/LocalValuePin3/Measure1> a sbol:Identified,
+<https://sd2e.org/PAML/GrowthCurve/PrimitiveExecutable15/LocalValuePin2/Measure1> a sbol:Identified,
         om:Measure ;
     sbol:displayId "Measure1" ;
     om:hasNumericalValue 3e+01 ;
     om:hasUnit om:degreeCelsius .
 
-<https://sd2e.org/PAML/GrowthCurve/PrimitiveExecutable15/LocalValuePin1> a ns1:LocalValuePin,
+<https://sd2e.org/PAML/GrowthCurve/PrimitiveExecutable15/LocalValuePin3> a ns1:LocalValuePin,
         sbol:Identified ;
     ns1:activityType om:Measure ;
     ns1:instanceOfPinSpecification <https://bioprotocols.org/paml/primitives/plate_handling/Incubate/PrimitivePinSpecification2> ;
-    ns1:localValue <https://sd2e.org/PAML/GrowthCurve/PrimitiveExecutable15/LocalValuePin1/Measure1> ;
-    sbol:displayId "LocalValuePin1" ;
+    ns1:localValue <https://sd2e.org/PAML/GrowthCurve/PrimitiveExecutable15/LocalValuePin3/Measure1> ;
+    sbol:displayId "LocalValuePin3" ;
     sbol:name "duration" .
 
-<https://sd2e.org/PAML/GrowthCurve/PrimitiveExecutable15/LocalValuePin1/Measure1> a sbol:Identified,
+<https://sd2e.org/PAML/GrowthCurve/PrimitiveExecutable15/LocalValuePin3/Measure1> a sbol:Identified,
         om:Measure ;
     sbol:displayId "Measure1" ;
     om:hasNumericalValue 2e+00 ;
     om:hasUnit om:hour .
 
-<https://sd2e.org/PAML/GrowthCurve/PrimitiveExecutable15/LocalValuePin2> a ns1:LocalValuePin,
-        sbol:Identified ;
-    ns1:activityType om:Measure ;
-    ns1:instanceOfPinSpecification <https://bioprotocols.org/paml/primitives/plate_handling/Incubate/PrimitivePinSpecification4> ;
-    ns1:localValue <https://sd2e.org/PAML/GrowthCurve/PrimitiveExecutable15/LocalValuePin2/Measure1> ;
-    sbol:displayId "LocalValuePin2" ;
-    sbol:name "shakingFrequency" .
-
-<https://sd2e.org/PAML/GrowthCurve/PrimitiveExecutable15/LocalValuePin2/Measure1> a sbol:Identified,
-        om:Measure ;
-    sbol:displayId "Measure1" ;
-    om:hasNumericalValue 3.5e+02 ;
-    om:hasUnit <https://sd2e.org/PAML/rpm> .
-
-<https://sd2e.org/PAML/GrowthCurve/PrimitiveExecutable15/LocalValuePin3> a ns1:LocalValuePin,
-        sbol:Identified ;
-    ns1:activityType om:Measure ;
-    ns1:instanceOfPinSpecification <https://bioprotocols.org/paml/primitives/plate_handling/Incubate/PrimitivePinSpecification3> ;
-    ns1:localValue <https://sd2e.org/PAML/GrowthCurve/PrimitiveExecutable15/LocalValuePin3/Measure1> ;
-    sbol:displayId "LocalValuePin3" ;
-    sbol:name "temperature" .
-
-<https://sd2e.org/PAML/GrowthCurve/PrimitiveExecutable15/LocalValuePin3/Measure1> a sbol:Identified,
-        om:Measure ;
-    sbol:displayId "Measure1" ;
-    om:hasNumericalValue 3e+01 ;
-    om:hasUnit om:degreeCelsius .
-
 <https://sd2e.org/PAML/GrowthCurve/PrimitiveExecutable16/LocalValuePin1> a ns1:LocalValuePin,
         sbol:Identified ;
     ns1:activityType om:Measure ;
-    ns1:instanceOfPinSpecification <https://bioprotocols.org/paml/primitives/plate_handling/Incubate/PrimitivePinSpecification2> ;
+    ns1:instanceOfPinSpecification <https://bioprotocols.org/paml/primitives/plate_handling/Incubate/PrimitivePinSpecification4> ;
     ns1:localValue <https://sd2e.org/PAML/GrowthCurve/PrimitiveExecutable16/LocalValuePin1/Measure1> ;
     sbol:displayId "LocalValuePin1" ;
-    sbol:name "duration" .
+    sbol:name "shakingFrequency" .
 
 <https://sd2e.org/PAML/GrowthCurve/PrimitiveExecutable16/LocalValuePin1/Measure1> a sbol:Identified,
         om:Measure ;
     sbol:displayId "Measure1" ;
-    om:hasNumericalValue 3e+00 ;
-    om:hasUnit om:hour .
+    om:hasNumericalValue 3.5e+02 ;
+    om:hasUnit <https://sd2e.org/PAML/rpm> .
 
 <https://sd2e.org/PAML/GrowthCurve/PrimitiveExecutable16/LocalValuePin2> a ns1:LocalValuePin,
         sbol:Identified ;
     ns1:activityType om:Measure ;
-    ns1:instanceOfPinSpecification <https://bioprotocols.org/paml/primitives/plate_handling/Incubate/PrimitivePinSpecification4> ;
+    ns1:instanceOfPinSpecification <https://bioprotocols.org/paml/primitives/plate_handling/Incubate/PrimitivePinSpecification3> ;
     ns1:localValue <https://sd2e.org/PAML/GrowthCurve/PrimitiveExecutable16/LocalValuePin2/Measure1> ;
     sbol:displayId "LocalValuePin2" ;
-    sbol:name "shakingFrequency" .
+    sbol:name "temperature" .
 
 <https://sd2e.org/PAML/GrowthCurve/PrimitiveExecutable16/LocalValuePin2/Measure1> a sbol:Identified,
         om:Measure ;
     sbol:displayId "Measure1" ;
-    om:hasNumericalValue 3.5e+02 ;
-    om:hasUnit <https://sd2e.org/PAML/rpm> .
+    om:hasNumericalValue 3e+01 ;
+    om:hasUnit om:degreeCelsius .
 
 <https://sd2e.org/PAML/GrowthCurve/PrimitiveExecutable16/LocalValuePin3> a ns1:LocalValuePin,
         sbol:Identified ;
     ns1:activityType om:Measure ;
-    ns1:instanceOfPinSpecification <https://bioprotocols.org/paml/primitives/plate_handling/Incubate/PrimitivePinSpecification3> ;
+    ns1:instanceOfPinSpecification <https://bioprotocols.org/paml/primitives/plate_handling/Incubate/PrimitivePinSpecification2> ;
     ns1:localValue <https://sd2e.org/PAML/GrowthCurve/PrimitiveExecutable16/LocalValuePin3/Measure1> ;
     sbol:displayId "LocalValuePin3" ;
-    sbol:name "temperature" .
+    sbol:name "duration" .
 
 <https://sd2e.org/PAML/GrowthCurve/PrimitiveExecutable16/LocalValuePin3/Measure1> a sbol:Identified,
         om:Measure ;
     sbol:displayId "Measure1" ;
-    om:hasNumericalValue 3e+01 ;
-    om:hasUnit om:degreeCelsius .
+    om:hasNumericalValue 3e+00 ;
+    om:hasUnit om:hour .
 
 <https://sd2e.org/PAML/GrowthCurve/PrimitiveExecutable17/LocalValuePin1> a ns1:LocalValuePin,
         sbol:Identified ;
     ns1:activityType om:Measure ;
-    ns1:instanceOfPinSpecification <https://bioprotocols.org/paml/primitives/plate_handling/Incubate/PrimitivePinSpecification2> ;
+    ns1:instanceOfPinSpecification <https://bioprotocols.org/paml/primitives/plate_handling/Incubate/PrimitivePinSpecification4> ;
     ns1:localValue <https://sd2e.org/PAML/GrowthCurve/PrimitiveExecutable17/LocalValuePin1/Measure1> ;
     sbol:displayId "LocalValuePin1" ;
-    sbol:name "duration" .
+    sbol:name "shakingFrequency" .
 
 <https://sd2e.org/PAML/GrowthCurve/PrimitiveExecutable17/LocalValuePin1/Measure1> a sbol:Identified,
         om:Measure ;
     sbol:displayId "Measure1" ;
-    om:hasNumericalValue 3e+00 ;
-    om:hasUnit om:hour .
+    om:hasNumericalValue 3.5e+02 ;
+    om:hasUnit <https://sd2e.org/PAML/rpm> .
 
 <https://sd2e.org/PAML/GrowthCurve/PrimitiveExecutable17/LocalValuePin2> a ns1:LocalValuePin,
         sbol:Identified ;
     ns1:activityType om:Measure ;
-    ns1:instanceOfPinSpecification <https://bioprotocols.org/paml/primitives/plate_handling/Incubate/PrimitivePinSpecification4> ;
+    ns1:instanceOfPinSpecification <https://bioprotocols.org/paml/primitives/plate_handling/Incubate/PrimitivePinSpecification3> ;
     ns1:localValue <https://sd2e.org/PAML/GrowthCurve/PrimitiveExecutable17/LocalValuePin2/Measure1> ;
     sbol:displayId "LocalValuePin2" ;
-    sbol:name "shakingFrequency" .
+    sbol:name "temperature" .
 
 <https://sd2e.org/PAML/GrowthCurve/PrimitiveExecutable17/LocalValuePin2/Measure1> a sbol:Identified,
         om:Measure ;
     sbol:displayId "Measure1" ;
-    om:hasNumericalValue 3.5e+02 ;
-    om:hasUnit <https://sd2e.org/PAML/rpm> .
+    om:hasNumericalValue 3e+01 ;
+    om:hasUnit om:degreeCelsius .
 
 <https://sd2e.org/PAML/GrowthCurve/PrimitiveExecutable17/LocalValuePin3> a ns1:LocalValuePin,
         sbol:Identified ;
     ns1:activityType om:Measure ;
-    ns1:instanceOfPinSpecification <https://bioprotocols.org/paml/primitives/plate_handling/Incubate/PrimitivePinSpecification3> ;
+    ns1:instanceOfPinSpecification <https://bioprotocols.org/paml/primitives/plate_handling/Incubate/PrimitivePinSpecification2> ;
     ns1:localValue <https://sd2e.org/PAML/GrowthCurve/PrimitiveExecutable17/LocalValuePin3/Measure1> ;
     sbol:displayId "LocalValuePin3" ;
-    sbol:name "temperature" .
+    sbol:name "duration" .
 
 <https://sd2e.org/PAML/GrowthCurve/PrimitiveExecutable17/LocalValuePin3/Measure1> a sbol:Identified,
         om:Measure ;
     sbol:displayId "Measure1" ;
-    om:hasNumericalValue 3e+01 ;
-    om:hasUnit om:degreeCelsius .
+    om:hasNumericalValue 3e+00 ;
+    om:hasUnit om:hour .
 
 <https://sd2e.org/PAML/GrowthCurve/PrimitiveExecutable18/LocalValuePin1> a ns1:LocalValuePin,
         sbol:Identified ;
     ns1:activityType om:Measure ;
-    ns1:instanceOfPinSpecification <https://bioprotocols.org/paml/primitives/plate_handling/Incubate/PrimitivePinSpecification2> ;
+    ns1:instanceOfPinSpecification <https://bioprotocols.org/paml/primitives/plate_handling/Incubate/PrimitivePinSpecification4> ;
     ns1:localValue <https://sd2e.org/PAML/GrowthCurve/PrimitiveExecutable18/LocalValuePin1/Measure1> ;
     sbol:displayId "LocalValuePin1" ;
-    sbol:name "duration" .
+    sbol:name "shakingFrequency" .
 
 <https://sd2e.org/PAML/GrowthCurve/PrimitiveExecutable18/LocalValuePin1/Measure1> a sbol:Identified,
         om:Measure ;
     sbol:displayId "Measure1" ;
-    om:hasNumericalValue 3e+00 ;
-    om:hasUnit om:hour .
+    om:hasNumericalValue 3.5e+02 ;
+    om:hasUnit <https://sd2e.org/PAML/rpm> .
 
 <https://sd2e.org/PAML/GrowthCurve/PrimitiveExecutable18/LocalValuePin2> a ns1:LocalValuePin,
         sbol:Identified ;
     ns1:activityType om:Measure ;
-    ns1:instanceOfPinSpecification <https://bioprotocols.org/paml/primitives/plate_handling/Incubate/PrimitivePinSpecification4> ;
+    ns1:instanceOfPinSpecification <https://bioprotocols.org/paml/primitives/plate_handling/Incubate/PrimitivePinSpecification3> ;
     ns1:localValue <https://sd2e.org/PAML/GrowthCurve/PrimitiveExecutable18/LocalValuePin2/Measure1> ;
     sbol:displayId "LocalValuePin2" ;
-    sbol:name "shakingFrequency" .
-
-<https://sd2e.org/PAML/GrowthCurve/PrimitiveExecutable18/LocalValuePin2/Measure1> a sbol:Identified,
-        om:Measure ;
-    sbol:displayId "Measure1" ;
-    om:hasNumericalValue 3.5e+02 ;
-    om:hasUnit <https://sd2e.org/PAML/rpm> .
-
-<https://sd2e.org/PAML/GrowthCurve/PrimitiveExecutable18/LocalValuePin3> a ns1:LocalValuePin,
-        sbol:Identified ;
-    ns1:activityType om:Measure ;
-    ns1:instanceOfPinSpecification <https://bioprotocols.org/paml/primitives/plate_handling/Incubate/PrimitivePinSpecification3> ;
-    ns1:localValue <https://sd2e.org/PAML/GrowthCurve/PrimitiveExecutable18/LocalValuePin3/Measure1> ;
-    sbol:displayId "LocalValuePin3" ;
     sbol:name "temperature" .
 
-<https://sd2e.org/PAML/GrowthCurve/PrimitiveExecutable18/LocalValuePin3/Measure1> a sbol:Identified,
+<https://sd2e.org/PAML/GrowthCurve/PrimitiveExecutable18/LocalValuePin2/Measure1> a sbol:Identified,
         om:Measure ;
     sbol:displayId "Measure1" ;
     om:hasNumericalValue 3e+01 ;
     om:hasUnit om:degreeCelsius .
 
-<https://sd2e.org/PAML/GrowthCurve/PrimitiveExecutable19/LocalValuePin1> a ns1:LocalValuePin,
+<https://sd2e.org/PAML/GrowthCurve/PrimitiveExecutable18/LocalValuePin3> a ns1:LocalValuePin,
         sbol:Identified ;
     ns1:activityType om:Measure ;
     ns1:instanceOfPinSpecification <https://bioprotocols.org/paml/primitives/plate_handling/Incubate/PrimitivePinSpecification2> ;
-    ns1:localValue <https://sd2e.org/PAML/GrowthCurve/PrimitiveExecutable19/LocalValuePin1/Measure1> ;
-    sbol:displayId "LocalValuePin1" ;
+    ns1:localValue <https://sd2e.org/PAML/GrowthCurve/PrimitiveExecutable18/LocalValuePin3/Measure1> ;
+    sbol:displayId "LocalValuePin3" ;
     sbol:name "duration" .
 
-<https://sd2e.org/PAML/GrowthCurve/PrimitiveExecutable19/LocalValuePin1/Measure1> a sbol:Identified,
+<https://sd2e.org/PAML/GrowthCurve/PrimitiveExecutable18/LocalValuePin3/Measure1> a sbol:Identified,
         om:Measure ;
     sbol:displayId "Measure1" ;
     om:hasNumericalValue 3e+00 ;
     om:hasUnit om:hour .
 
-<https://sd2e.org/PAML/GrowthCurve/PrimitiveExecutable19/LocalValuePin2> a ns1:LocalValuePin,
+<https://sd2e.org/PAML/GrowthCurve/PrimitiveExecutable19/LocalValuePin1> a ns1:LocalValuePin,
         sbol:Identified ;
     ns1:activityType om:Measure ;
     ns1:instanceOfPinSpecification <https://bioprotocols.org/paml/primitives/plate_handling/Incubate/PrimitivePinSpecification4> ;
-    ns1:localValue <https://sd2e.org/PAML/GrowthCurve/PrimitiveExecutable19/LocalValuePin2/Measure1> ;
-    sbol:displayId "LocalValuePin2" ;
+    ns1:localValue <https://sd2e.org/PAML/GrowthCurve/PrimitiveExecutable19/LocalValuePin1/Measure1> ;
+    sbol:displayId "LocalValuePin1" ;
     sbol:name "shakingFrequency" .
 
-<https://sd2e.org/PAML/GrowthCurve/PrimitiveExecutable19/LocalValuePin2/Measure1> a sbol:Identified,
+<https://sd2e.org/PAML/GrowthCurve/PrimitiveExecutable19/LocalValuePin1/Measure1> a sbol:Identified,
         om:Measure ;
     sbol:displayId "Measure1" ;
     om:hasNumericalValue 3.5e+02 ;
     om:hasUnit <https://sd2e.org/PAML/rpm> .
 
-<https://sd2e.org/PAML/GrowthCurve/PrimitiveExecutable19/LocalValuePin3> a ns1:LocalValuePin,
+<https://sd2e.org/PAML/GrowthCurve/PrimitiveExecutable19/LocalValuePin2> a ns1:LocalValuePin,
         sbol:Identified ;
     ns1:activityType om:Measure ;
     ns1:instanceOfPinSpecification <https://bioprotocols.org/paml/primitives/plate_handling/Incubate/PrimitivePinSpecification3> ;
-    ns1:localValue <https://sd2e.org/PAML/GrowthCurve/PrimitiveExecutable19/LocalValuePin3/Measure1> ;
-    sbol:displayId "LocalValuePin3" ;
+    ns1:localValue <https://sd2e.org/PAML/GrowthCurve/PrimitiveExecutable19/LocalValuePin2/Measure1> ;
+    sbol:displayId "LocalValuePin2" ;
     sbol:name "temperature" .
 
-<https://sd2e.org/PAML/GrowthCurve/PrimitiveExecutable19/LocalValuePin3/Measure1> a sbol:Identified,
+<https://sd2e.org/PAML/GrowthCurve/PrimitiveExecutable19/LocalValuePin2/Measure1> a sbol:Identified,
         om:Measure ;
     sbol:displayId "Measure1" ;
     om:hasNumericalValue 3e+01 ;
     om:hasUnit om:degreeCelsius .
+
+<https://sd2e.org/PAML/GrowthCurve/PrimitiveExecutable19/LocalValuePin3> a ns1:LocalValuePin,
+        sbol:Identified ;
+    ns1:activityType om:Measure ;
+    ns1:instanceOfPinSpecification <https://bioprotocols.org/paml/primitives/plate_handling/Incubate/PrimitivePinSpecification2> ;
+    ns1:localValue <https://sd2e.org/PAML/GrowthCurve/PrimitiveExecutable19/LocalValuePin3/Measure1> ;
+    sbol:displayId "LocalValuePin3" ;
+    sbol:name "duration" .
+
+<https://sd2e.org/PAML/GrowthCurve/PrimitiveExecutable19/LocalValuePin3/Measure1> a sbol:Identified,
+        om:Measure ;
+    sbol:displayId "Measure1" ;
+    om:hasNumericalValue 3e+00 ;
+    om:hasUnit om:hour .
 
 <https://sd2e.org/PAML/GrowthCurve/PrimitiveExecutable2/LocalValuePin1> a ns1:LocalValuePin,
         sbol:Identified ;
@@ -944,135 +944,135 @@ Grow up cells and read every interval
         sbol:Identified ;
     ns1:activityType ns1:Location ;
     ns1:instanceOfPinSpecification <https://bioprotocols.org/paml/primitives/liquid_handling/Provision/PrimitivePinSpecification2> ;
-    ns1:referenceValue <https://sd2e.org/PAML/GrowthCurve/Container4> ;
+    ns1:referenceValue <https://sd2e.org/PAML/GrowthCurve/Container3> ;
     sbol:displayId "ReferenceValuePin2" ;
     sbol:name "destination" .
 
 <https://sd2e.org/PAML/GrowthCurve/PrimitiveExecutable20/LocalValuePin1> a ns1:LocalValuePin,
         sbol:Identified ;
     ns1:activityType om:Measure ;
-    ns1:instanceOfPinSpecification <https://bioprotocols.org/paml/primitives/plate_handling/Incubate/PrimitivePinSpecification2> ;
+    ns1:instanceOfPinSpecification <https://bioprotocols.org/paml/primitives/plate_handling/Incubate/PrimitivePinSpecification4> ;
     ns1:localValue <https://sd2e.org/PAML/GrowthCurve/PrimitiveExecutable20/LocalValuePin1/Measure1> ;
     sbol:displayId "LocalValuePin1" ;
-    sbol:name "duration" .
+    sbol:name "shakingFrequency" .
 
 <https://sd2e.org/PAML/GrowthCurve/PrimitiveExecutable20/LocalValuePin1/Measure1> a sbol:Identified,
         om:Measure ;
     sbol:displayId "Measure1" ;
-    om:hasNumericalValue 3e+00 ;
-    om:hasUnit om:hour .
+    om:hasNumericalValue 3.5e+02 ;
+    om:hasUnit <https://sd2e.org/PAML/rpm> .
 
 <https://sd2e.org/PAML/GrowthCurve/PrimitiveExecutable20/LocalValuePin2> a ns1:LocalValuePin,
         sbol:Identified ;
     ns1:activityType om:Measure ;
-    ns1:instanceOfPinSpecification <https://bioprotocols.org/paml/primitives/plate_handling/Incubate/PrimitivePinSpecification4> ;
+    ns1:instanceOfPinSpecification <https://bioprotocols.org/paml/primitives/plate_handling/Incubate/PrimitivePinSpecification3> ;
     ns1:localValue <https://sd2e.org/PAML/GrowthCurve/PrimitiveExecutable20/LocalValuePin2/Measure1> ;
     sbol:displayId "LocalValuePin2" ;
-    sbol:name "shakingFrequency" .
+    sbol:name "temperature" .
 
 <https://sd2e.org/PAML/GrowthCurve/PrimitiveExecutable20/LocalValuePin2/Measure1> a sbol:Identified,
         om:Measure ;
     sbol:displayId "Measure1" ;
-    om:hasNumericalValue 3.5e+02 ;
-    om:hasUnit <https://sd2e.org/PAML/rpm> .
+    om:hasNumericalValue 3e+01 ;
+    om:hasUnit om:degreeCelsius .
 
 <https://sd2e.org/PAML/GrowthCurve/PrimitiveExecutable20/LocalValuePin3> a ns1:LocalValuePin,
         sbol:Identified ;
     ns1:activityType om:Measure ;
-    ns1:instanceOfPinSpecification <https://bioprotocols.org/paml/primitives/plate_handling/Incubate/PrimitivePinSpecification3> ;
+    ns1:instanceOfPinSpecification <https://bioprotocols.org/paml/primitives/plate_handling/Incubate/PrimitivePinSpecification2> ;
     ns1:localValue <https://sd2e.org/PAML/GrowthCurve/PrimitiveExecutable20/LocalValuePin3/Measure1> ;
     sbol:displayId "LocalValuePin3" ;
-    sbol:name "temperature" .
+    sbol:name "duration" .
 
 <https://sd2e.org/PAML/GrowthCurve/PrimitiveExecutable20/LocalValuePin3/Measure1> a sbol:Identified,
         om:Measure ;
     sbol:displayId "Measure1" ;
-    om:hasNumericalValue 3e+01 ;
-    om:hasUnit om:degreeCelsius .
+    om:hasNumericalValue 3e+00 ;
+    om:hasUnit om:hour .
 
 <https://sd2e.org/PAML/GrowthCurve/PrimitiveExecutable21/LocalValuePin1> a ns1:LocalValuePin,
         sbol:Identified ;
     ns1:activityType om:Measure ;
-    ns1:instanceOfPinSpecification <https://bioprotocols.org/paml/primitives/plate_handling/Incubate/PrimitivePinSpecification2> ;
+    ns1:instanceOfPinSpecification <https://bioprotocols.org/paml/primitives/plate_handling/Incubate/PrimitivePinSpecification4> ;
     ns1:localValue <https://sd2e.org/PAML/GrowthCurve/PrimitiveExecutable21/LocalValuePin1/Measure1> ;
     sbol:displayId "LocalValuePin1" ;
-    sbol:name "duration" .
+    sbol:name "shakingFrequency" .
 
 <https://sd2e.org/PAML/GrowthCurve/PrimitiveExecutable21/LocalValuePin1/Measure1> a sbol:Identified,
         om:Measure ;
     sbol:displayId "Measure1" ;
-    om:hasNumericalValue 3e+00 ;
-    om:hasUnit om:hour .
+    om:hasNumericalValue 3.5e+02 ;
+    om:hasUnit <https://sd2e.org/PAML/rpm> .
 
 <https://sd2e.org/PAML/GrowthCurve/PrimitiveExecutable21/LocalValuePin2> a ns1:LocalValuePin,
         sbol:Identified ;
     ns1:activityType om:Measure ;
-    ns1:instanceOfPinSpecification <https://bioprotocols.org/paml/primitives/plate_handling/Incubate/PrimitivePinSpecification4> ;
+    ns1:instanceOfPinSpecification <https://bioprotocols.org/paml/primitives/plate_handling/Incubate/PrimitivePinSpecification3> ;
     ns1:localValue <https://sd2e.org/PAML/GrowthCurve/PrimitiveExecutable21/LocalValuePin2/Measure1> ;
     sbol:displayId "LocalValuePin2" ;
-    sbol:name "shakingFrequency" .
-
-<https://sd2e.org/PAML/GrowthCurve/PrimitiveExecutable21/LocalValuePin2/Measure1> a sbol:Identified,
-        om:Measure ;
-    sbol:displayId "Measure1" ;
-    om:hasNumericalValue 3.5e+02 ;
-    om:hasUnit <https://sd2e.org/PAML/rpm> .
-
-<https://sd2e.org/PAML/GrowthCurve/PrimitiveExecutable21/LocalValuePin3> a ns1:LocalValuePin,
-        sbol:Identified ;
-    ns1:activityType om:Measure ;
-    ns1:instanceOfPinSpecification <https://bioprotocols.org/paml/primitives/plate_handling/Incubate/PrimitivePinSpecification3> ;
-    ns1:localValue <https://sd2e.org/PAML/GrowthCurve/PrimitiveExecutable21/LocalValuePin3/Measure1> ;
-    sbol:displayId "LocalValuePin3" ;
     sbol:name "temperature" .
 
-<https://sd2e.org/PAML/GrowthCurve/PrimitiveExecutable21/LocalValuePin3/Measure1> a sbol:Identified,
+<https://sd2e.org/PAML/GrowthCurve/PrimitiveExecutable21/LocalValuePin2/Measure1> a sbol:Identified,
         om:Measure ;
     sbol:displayId "Measure1" ;
     om:hasNumericalValue 3e+01 ;
     om:hasUnit om:degreeCelsius .
 
-<https://sd2e.org/PAML/GrowthCurve/PrimitiveExecutable22/LocalValuePin1> a ns1:LocalValuePin,
+<https://sd2e.org/PAML/GrowthCurve/PrimitiveExecutable21/LocalValuePin3> a ns1:LocalValuePin,
         sbol:Identified ;
     ns1:activityType om:Measure ;
     ns1:instanceOfPinSpecification <https://bioprotocols.org/paml/primitives/plate_handling/Incubate/PrimitivePinSpecification2> ;
-    ns1:localValue <https://sd2e.org/PAML/GrowthCurve/PrimitiveExecutable22/LocalValuePin1/Measure1> ;
-    sbol:displayId "LocalValuePin1" ;
+    ns1:localValue <https://sd2e.org/PAML/GrowthCurve/PrimitiveExecutable21/LocalValuePin3/Measure1> ;
+    sbol:displayId "LocalValuePin3" ;
     sbol:name "duration" .
 
-<https://sd2e.org/PAML/GrowthCurve/PrimitiveExecutable22/LocalValuePin1/Measure1> a sbol:Identified,
+<https://sd2e.org/PAML/GrowthCurve/PrimitiveExecutable21/LocalValuePin3/Measure1> a sbol:Identified,
         om:Measure ;
     sbol:displayId "Measure1" ;
     om:hasNumericalValue 3e+00 ;
     om:hasUnit om:hour .
 
-<https://sd2e.org/PAML/GrowthCurve/PrimitiveExecutable22/LocalValuePin2> a ns1:LocalValuePin,
+<https://sd2e.org/PAML/GrowthCurve/PrimitiveExecutable22/LocalValuePin1> a ns1:LocalValuePin,
         sbol:Identified ;
     ns1:activityType om:Measure ;
     ns1:instanceOfPinSpecification <https://bioprotocols.org/paml/primitives/plate_handling/Incubate/PrimitivePinSpecification4> ;
-    ns1:localValue <https://sd2e.org/PAML/GrowthCurve/PrimitiveExecutable22/LocalValuePin2/Measure1> ;
-    sbol:displayId "LocalValuePin2" ;
+    ns1:localValue <https://sd2e.org/PAML/GrowthCurve/PrimitiveExecutable22/LocalValuePin1/Measure1> ;
+    sbol:displayId "LocalValuePin1" ;
     sbol:name "shakingFrequency" .
 
-<https://sd2e.org/PAML/GrowthCurve/PrimitiveExecutable22/LocalValuePin2/Measure1> a sbol:Identified,
+<https://sd2e.org/PAML/GrowthCurve/PrimitiveExecutable22/LocalValuePin1/Measure1> a sbol:Identified,
         om:Measure ;
     sbol:displayId "Measure1" ;
     om:hasNumericalValue 3.5e+02 ;
     om:hasUnit <https://sd2e.org/PAML/rpm> .
 
-<https://sd2e.org/PAML/GrowthCurve/PrimitiveExecutable22/LocalValuePin3> a ns1:LocalValuePin,
+<https://sd2e.org/PAML/GrowthCurve/PrimitiveExecutable22/LocalValuePin2> a ns1:LocalValuePin,
         sbol:Identified ;
     ns1:activityType om:Measure ;
     ns1:instanceOfPinSpecification <https://bioprotocols.org/paml/primitives/plate_handling/Incubate/PrimitivePinSpecification3> ;
-    ns1:localValue <https://sd2e.org/PAML/GrowthCurve/PrimitiveExecutable22/LocalValuePin3/Measure1> ;
-    sbol:displayId "LocalValuePin3" ;
+    ns1:localValue <https://sd2e.org/PAML/GrowthCurve/PrimitiveExecutable22/LocalValuePin2/Measure1> ;
+    sbol:displayId "LocalValuePin2" ;
     sbol:name "temperature" .
 
-<https://sd2e.org/PAML/GrowthCurve/PrimitiveExecutable22/LocalValuePin3/Measure1> a sbol:Identified,
+<https://sd2e.org/PAML/GrowthCurve/PrimitiveExecutable22/LocalValuePin2/Measure1> a sbol:Identified,
         om:Measure ;
     sbol:displayId "Measure1" ;
     om:hasNumericalValue 3e+01 ;
     om:hasUnit om:degreeCelsius .
+
+<https://sd2e.org/PAML/GrowthCurve/PrimitiveExecutable22/LocalValuePin3> a ns1:LocalValuePin,
+        sbol:Identified ;
+    ns1:activityType om:Measure ;
+    ns1:instanceOfPinSpecification <https://bioprotocols.org/paml/primitives/plate_handling/Incubate/PrimitivePinSpecification2> ;
+    ns1:localValue <https://sd2e.org/PAML/GrowthCurve/PrimitiveExecutable22/LocalValuePin3/Measure1> ;
+    sbol:displayId "LocalValuePin3" ;
+    sbol:name "duration" .
+
+<https://sd2e.org/PAML/GrowthCurve/PrimitiveExecutable22/LocalValuePin3/Measure1> a sbol:Identified,
+        om:Measure ;
+    sbol:displayId "Measure1" ;
+    om:hasNumericalValue 3e+00 ;
+    om:hasUnit om:hour .
 
 <https://sd2e.org/PAML/GrowthCurve/PrimitiveExecutable3/LocalValuePin1> a ns1:LocalValuePin,
         sbol:Identified ;
@@ -1107,7 +1107,7 @@ Grow up cells and read every interval
         sbol:Identified ;
     ns1:activityType ns1:Location ;
     ns1:instanceOfPinSpecification <https://bioprotocols.org/paml/primitives/liquid_handling/Provision/PrimitivePinSpecification2> ;
-    ns1:referenceValue <https://sd2e.org/PAML/GrowthCurve/Container3> ;
+    ns1:referenceValue <https://sd2e.org/PAML/GrowthCurve/Container4> ;
     sbol:displayId "ReferenceValuePin2" ;
     sbol:name "destination" .
 
@@ -1135,11 +1135,11 @@ Grow up cells and read every interval
     om:hasNumericalValue 5e+02 ;
     om:hasUnit om:microlitre .
 
-<https://sd2e.org/PAML/GrowthCurve/PrimitiveExecutable4/Pin2> a ns1:Pin,
+<https://sd2e.org/PAML/GrowthCurve/PrimitiveExecutable4/Pin3> a ns1:Pin,
         sbol:Identified ;
     ns1:activityType om:Measure ;
     ns1:instanceOfPinSpecification <https://bioprotocols.org/paml/primitives/liquid_handling/Dispense/PrimitivePinSpecification4> ;
-    sbol:displayId "Pin2" ;
+    sbol:displayId "Pin3" ;
     sbol:name "dispenseVelocity" .
 
 <https://sd2e.org/PAML/GrowthCurve/PrimitiveExecutable4/ReferenceValuePin1> a ns1:ReferenceValuePin,
@@ -1202,44 +1202,44 @@ Grow up cells and read every interval
 <https://sd2e.org/PAML/GrowthCurve/PrimitiveExecutable9/LocalValuePin1> a ns1:LocalValuePin,
         sbol:Identified ;
     ns1:activityType om:Measure ;
-    ns1:instanceOfPinSpecification <https://bioprotocols.org/paml/primitives/plate_handling/Incubate/PrimitivePinSpecification2> ;
+    ns1:instanceOfPinSpecification <https://bioprotocols.org/paml/primitives/plate_handling/Incubate/PrimitivePinSpecification4> ;
     ns1:localValue <https://sd2e.org/PAML/GrowthCurve/PrimitiveExecutable9/LocalValuePin1/Measure1> ;
     sbol:displayId "LocalValuePin1" ;
-    sbol:name "duration" .
-
-<https://sd2e.org/PAML/GrowthCurve/PrimitiveExecutable9/LocalValuePin1/Measure1> a sbol:Identified,
-        om:Measure ;
-    sbol:displayId "Measure1" ;
-    om:hasNumericalValue 1.6e+01 ;
-    om:hasUnit om:hour .
-
-<https://sd2e.org/PAML/GrowthCurve/PrimitiveExecutable9/LocalValuePin2> a ns1:LocalValuePin,
-        sbol:Identified ;
-    ns1:activityType om:Measure ;
-    ns1:instanceOfPinSpecification <https://bioprotocols.org/paml/primitives/plate_handling/Incubate/PrimitivePinSpecification4> ;
-    ns1:localValue <https://sd2e.org/PAML/GrowthCurve/PrimitiveExecutable9/LocalValuePin2/Measure1> ;
-    sbol:displayId "LocalValuePin2" ;
     sbol:name "shakingFrequency" .
 
-<https://sd2e.org/PAML/GrowthCurve/PrimitiveExecutable9/LocalValuePin2/Measure1> a sbol:Identified,
+<https://sd2e.org/PAML/GrowthCurve/PrimitiveExecutable9/LocalValuePin1/Measure1> a sbol:Identified,
         om:Measure ;
     sbol:displayId "Measure1" ;
     om:hasNumericalValue 3.5e+02 ;
     om:hasUnit <https://sd2e.org/PAML/rpm> .
 
-<https://sd2e.org/PAML/GrowthCurve/PrimitiveExecutable9/LocalValuePin3> a ns1:LocalValuePin,
+<https://sd2e.org/PAML/GrowthCurve/PrimitiveExecutable9/LocalValuePin2> a ns1:LocalValuePin,
         sbol:Identified ;
     ns1:activityType om:Measure ;
     ns1:instanceOfPinSpecification <https://bioprotocols.org/paml/primitives/plate_handling/Incubate/PrimitivePinSpecification3> ;
-    ns1:localValue <https://sd2e.org/PAML/GrowthCurve/PrimitiveExecutable9/LocalValuePin3/Measure1> ;
-    sbol:displayId "LocalValuePin3" ;
+    ns1:localValue <https://sd2e.org/PAML/GrowthCurve/PrimitiveExecutable9/LocalValuePin2/Measure1> ;
+    sbol:displayId "LocalValuePin2" ;
     sbol:name "temperature" .
 
-<https://sd2e.org/PAML/GrowthCurve/PrimitiveExecutable9/LocalValuePin3/Measure1> a sbol:Identified,
+<https://sd2e.org/PAML/GrowthCurve/PrimitiveExecutable9/LocalValuePin2/Measure1> a sbol:Identified,
         om:Measure ;
     sbol:displayId "Measure1" ;
     om:hasNumericalValue 3e+01 ;
     om:hasUnit om:degreeCelsius .
+
+<https://sd2e.org/PAML/GrowthCurve/PrimitiveExecutable9/LocalValuePin3> a ns1:LocalValuePin,
+        sbol:Identified ;
+    ns1:activityType om:Measure ;
+    ns1:instanceOfPinSpecification <https://bioprotocols.org/paml/primitives/plate_handling/Incubate/PrimitivePinSpecification2> ;
+    ns1:localValue <https://sd2e.org/PAML/GrowthCurve/PrimitiveExecutable9/LocalValuePin3/Measure1> ;
+    sbol:displayId "LocalValuePin3" ;
+    sbol:name "duration" .
+
+<https://sd2e.org/PAML/GrowthCurve/PrimitiveExecutable9/LocalValuePin3/Measure1> a sbol:Identified,
+        om:Measure ;
+    sbol:displayId "Measure1" ;
+    om:hasNumericalValue 1.6e+01 ;
+    om:hasUnit om:hour .
 
 <https://sd2e.org/PAML/GrowthCurve/ProtocolPinSpecification1> a ns1:ProtocolPinSpecification,
         sbol:Identified ;
@@ -1542,7 +1542,7 @@ Subprotocol to split a portion of each sample in an unsealed plate into another 
 
 <https://sd2e.org/PAML/OvernightODMeasure/Flow10> a ns1:Flow,
         sbol:Identified ;
-    ns1:sink <https://sd2e.org/PAML/OvernightODMeasure/PrimitiveExecutable4/Pin2> ;
+    ns1:sink <https://sd2e.org/PAML/OvernightODMeasure/PrimitiveExecutable4/Pin4> ;
     ns1:source <https://sd2e.org/PAML/OvernightODMeasure/Fork1> ;
     sbol:displayId "Flow10" .
 
@@ -1560,7 +1560,7 @@ Subprotocol to split a portion of each sample in an unsealed plate into another 
 
 <https://sd2e.org/PAML/OvernightODMeasure/Flow13> a ns1:Flow,
         sbol:Identified ;
-    ns1:sink <https://sd2e.org/PAML/OvernightODMeasure/PrimitiveExecutable5/Pin2> ;
+    ns1:sink <https://sd2e.org/PAML/OvernightODMeasure/PrimitiveExecutable5/Pin4> ;
     ns1:source <https://sd2e.org/PAML/OvernightODMeasure/Fork1> ;
     sbol:displayId "Flow13" .
 
@@ -1626,7 +1626,7 @@ Subprotocol to split a portion of each sample in an unsealed plate into another 
 
 <https://sd2e.org/PAML/OvernightODMeasure/Flow7> a ns1:Flow,
         sbol:Identified ;
-    ns1:sink <https://sd2e.org/PAML/OvernightODMeasure/PrimitiveExecutable3/Pin2> ;
+    ns1:sink <https://sd2e.org/PAML/OvernightODMeasure/PrimitiveExecutable3/Pin4> ;
     ns1:source <https://sd2e.org/PAML/OvernightODMeasure/Fork1> ;
     sbol:displayId "Flow7" .
 
@@ -1723,59 +1723,66 @@ Subprotocol to split a portion of each sample in an unsealed plate into another 
 
 <https://sd2e.org/PAML/OvernightODMeasure/PrimitiveExecutable3/LocalValuePin1> a ns1:LocalValuePin,
         sbol:Identified ;
-    ns1:activityType xsd:double ;
-    ns1:instanceOfPinSpecification <https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureFluorescence/PrimitivePinSpecification7> ;
-    ns1:localValue <https://sd2e.org/PAML/OvernightODMeasure/PrimitiveExecutable3/LocalValuePin1/Measure1> ;
-    sbol:displayId "LocalValuePin1" ;
-    sbol:name "gain" .
-
-<https://sd2e.org/PAML/OvernightODMeasure/PrimitiveExecutable3/LocalValuePin1/Measure1> a sbol:Identified,
-        om:Measure ;
-    sbol:displayId "Measure1" ;
-    om:hasNumericalValue 1e-01 ;
-    om:hasUnit om:Number .
-
-<https://sd2e.org/PAML/OvernightODMeasure/PrimitiveExecutable3/LocalValuePin2> a ns1:LocalValuePin,
-        sbol:Identified ;
     ns1:activityType om:Measure ;
     ns1:instanceOfPinSpecification <https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureFluorescence/PrimitivePinSpecification3> ;
-    ns1:localValue <https://sd2e.org/PAML/OvernightODMeasure/PrimitiveExecutable3/LocalValuePin2/Measure1> ;
-    sbol:displayId "LocalValuePin2" ;
+    ns1:localValue <https://sd2e.org/PAML/OvernightODMeasure/PrimitiveExecutable3/LocalValuePin1/Measure1> ;
+    sbol:displayId "LocalValuePin1" ;
     sbol:name "emissionBandpassWavelength" .
 
-<https://sd2e.org/PAML/OvernightODMeasure/PrimitiveExecutable3/LocalValuePin2/Measure1> a sbol:Identified,
+<https://sd2e.org/PAML/OvernightODMeasure/PrimitiveExecutable3/LocalValuePin1/Measure1> a sbol:Identified,
         om:Measure ;
     sbol:displayId "Measure1" ;
     om:hasNumericalValue 5.3e+02 ;
     om:hasUnit om:nanometre .
 
+<https://sd2e.org/PAML/OvernightODMeasure/PrimitiveExecutable3/LocalValuePin2> a ns1:LocalValuePin,
+        sbol:Identified ;
+    ns1:activityType xsd:integer ;
+    ns1:instanceOfPinSpecification <https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureFluorescence/PrimitivePinSpecification6> ;
+    ns1:localValue <https://sd2e.org/PAML/OvernightODMeasure/PrimitiveExecutable3/LocalValuePin2/Measure1> ;
+    sbol:displayId "LocalValuePin2" ;
+    sbol:name "numFlashes" .
+
+<https://sd2e.org/PAML/OvernightODMeasure/PrimitiveExecutable3/LocalValuePin2/Measure1> a sbol:Identified,
+        om:Measure ;
+    sbol:displayId "Measure1" ;
+    om:hasNumericalValue 2.5e+01 ;
+    om:hasUnit om:Number .
+
 <https://sd2e.org/PAML/OvernightODMeasure/PrimitiveExecutable3/LocalValuePin3> a ns1:LocalValuePin,
+        sbol:Identified ;
+    ns1:activityType xsd:double ;
+    ns1:instanceOfPinSpecification <https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureFluorescence/PrimitivePinSpecification7> ;
+    ns1:localValue <https://sd2e.org/PAML/OvernightODMeasure/PrimitiveExecutable3/LocalValuePin3/Measure1> ;
+    sbol:displayId "LocalValuePin3" ;
+    sbol:name "gain" .
+
+<https://sd2e.org/PAML/OvernightODMeasure/PrimitiveExecutable3/LocalValuePin3/Measure1> a sbol:Identified,
+        om:Measure ;
+    sbol:displayId "Measure1" ;
+    om:hasNumericalValue 1e-01 ;
+    om:hasUnit om:Number .
+
+<https://sd2e.org/PAML/OvernightODMeasure/PrimitiveExecutable3/LocalValuePin4> a ns1:LocalValuePin,
         sbol:Identified ;
     ns1:activityType om:Measure ;
     ns1:instanceOfPinSpecification <https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureFluorescence/PrimitivePinSpecification2> ;
-    ns1:localValue <https://sd2e.org/PAML/OvernightODMeasure/PrimitiveExecutable3/LocalValuePin3/Measure1> ;
-    sbol:displayId "LocalValuePin3" ;
+    ns1:localValue <https://sd2e.org/PAML/OvernightODMeasure/PrimitiveExecutable3/LocalValuePin4/Measure1> ;
+    sbol:displayId "LocalValuePin4" ;
     sbol:name "excitationWavelength" .
 
-<https://sd2e.org/PAML/OvernightODMeasure/PrimitiveExecutable3/LocalValuePin3/Measure1> a sbol:Identified,
+<https://sd2e.org/PAML/OvernightODMeasure/PrimitiveExecutable3/LocalValuePin4/Measure1> a sbol:Identified,
         om:Measure ;
     sbol:displayId "Measure1" ;
     om:hasNumericalValue 4.88e+02 ;
     om:hasUnit om:nanometre .
 
-<https://sd2e.org/PAML/OvernightODMeasure/PrimitiveExecutable3/LocalValuePin4> a ns1:LocalValuePin,
+<https://sd2e.org/PAML/OvernightODMeasure/PrimitiveExecutable3/Pin2> a ns1:Pin,
         sbol:Identified ;
-    ns1:activityType xsd:integer ;
-    ns1:instanceOfPinSpecification <https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureFluorescence/PrimitivePinSpecification6> ;
-    ns1:localValue <https://sd2e.org/PAML/OvernightODMeasure/PrimitiveExecutable3/LocalValuePin4/Measure1> ;
-    sbol:displayId "LocalValuePin4" ;
-    sbol:name "numFlashes" .
-
-<https://sd2e.org/PAML/OvernightODMeasure/PrimitiveExecutable3/LocalValuePin4/Measure1> a sbol:Identified,
-        om:Measure ;
-    sbol:displayId "Measure1" ;
-    om:hasNumericalValue 2.5e+01 ;
-    om:hasUnit om:Number .
+    ns1:activityType om:Measure ;
+    ns1:instanceOfPinSpecification <https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureFluorescence/PrimitivePinSpecification4> ;
+    sbol:displayId "Pin2" ;
+    sbol:name "emissionBandpassWidth" .
 
 <https://sd2e.org/PAML/OvernightODMeasure/PrimitiveExecutable3/Pin3> a ns1:Pin,
         sbol:Identified ;
@@ -1783,13 +1790,6 @@ Subprotocol to split a portion of each sample in an unsealed plate into another 
     ns1:instanceOfPinSpecification <https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureFluorescence/PrimitivePinSpecification5> ;
     sbol:displayId "Pin3" ;
     sbol:name "emissionLowpassCutoff" .
-
-<https://sd2e.org/PAML/OvernightODMeasure/PrimitiveExecutable3/Pin4> a ns1:Pin,
-        sbol:Identified ;
-    ns1:activityType om:Measure ;
-    ns1:instanceOfPinSpecification <https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureFluorescence/PrimitivePinSpecification4> ;
-    sbol:displayId "Pin4" ;
-    sbol:name "emissionBandpassWidth" .
 
 <https://sd2e.org/PAML/OvernightODMeasure/PrimitiveExecutable4> a ns1:PrimitiveExecutable,
         sbol:Identified ;
@@ -1806,59 +1806,66 @@ Subprotocol to split a portion of each sample in an unsealed plate into another 
 
 <https://sd2e.org/PAML/OvernightODMeasure/PrimitiveExecutable4/LocalValuePin1> a ns1:LocalValuePin,
         sbol:Identified ;
-    ns1:activityType xsd:double ;
-    ns1:instanceOfPinSpecification <https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureFluorescence/PrimitivePinSpecification7> ;
-    ns1:localValue <https://sd2e.org/PAML/OvernightODMeasure/PrimitiveExecutable4/LocalValuePin1/Measure1> ;
-    sbol:displayId "LocalValuePin1" ;
-    sbol:name "gain" .
-
-<https://sd2e.org/PAML/OvernightODMeasure/PrimitiveExecutable4/LocalValuePin1/Measure1> a sbol:Identified,
-        om:Measure ;
-    sbol:displayId "Measure1" ;
-    om:hasNumericalValue 2e-01 ;
-    om:hasUnit om:Number .
-
-<https://sd2e.org/PAML/OvernightODMeasure/PrimitiveExecutable4/LocalValuePin2> a ns1:LocalValuePin,
-        sbol:Identified ;
     ns1:activityType om:Measure ;
     ns1:instanceOfPinSpecification <https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureFluorescence/PrimitivePinSpecification3> ;
-    ns1:localValue <https://sd2e.org/PAML/OvernightODMeasure/PrimitiveExecutable4/LocalValuePin2/Measure1> ;
-    sbol:displayId "LocalValuePin2" ;
+    ns1:localValue <https://sd2e.org/PAML/OvernightODMeasure/PrimitiveExecutable4/LocalValuePin1/Measure1> ;
+    sbol:displayId "LocalValuePin1" ;
     sbol:name "emissionBandpassWavelength" .
 
-<https://sd2e.org/PAML/OvernightODMeasure/PrimitiveExecutable4/LocalValuePin2/Measure1> a sbol:Identified,
+<https://sd2e.org/PAML/OvernightODMeasure/PrimitiveExecutable4/LocalValuePin1/Measure1> a sbol:Identified,
         om:Measure ;
     sbol:displayId "Measure1" ;
     om:hasNumericalValue 5.3e+02 ;
     om:hasUnit om:nanometre .
 
+<https://sd2e.org/PAML/OvernightODMeasure/PrimitiveExecutable4/LocalValuePin2> a ns1:LocalValuePin,
+        sbol:Identified ;
+    ns1:activityType xsd:integer ;
+    ns1:instanceOfPinSpecification <https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureFluorescence/PrimitivePinSpecification6> ;
+    ns1:localValue <https://sd2e.org/PAML/OvernightODMeasure/PrimitiveExecutable4/LocalValuePin2/Measure1> ;
+    sbol:displayId "LocalValuePin2" ;
+    sbol:name "numFlashes" .
+
+<https://sd2e.org/PAML/OvernightODMeasure/PrimitiveExecutable4/LocalValuePin2/Measure1> a sbol:Identified,
+        om:Measure ;
+    sbol:displayId "Measure1" ;
+    om:hasNumericalValue 2.5e+01 ;
+    om:hasUnit om:Number .
+
 <https://sd2e.org/PAML/OvernightODMeasure/PrimitiveExecutable4/LocalValuePin3> a ns1:LocalValuePin,
+        sbol:Identified ;
+    ns1:activityType xsd:double ;
+    ns1:instanceOfPinSpecification <https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureFluorescence/PrimitivePinSpecification7> ;
+    ns1:localValue <https://sd2e.org/PAML/OvernightODMeasure/PrimitiveExecutable4/LocalValuePin3/Measure1> ;
+    sbol:displayId "LocalValuePin3" ;
+    sbol:name "gain" .
+
+<https://sd2e.org/PAML/OvernightODMeasure/PrimitiveExecutable4/LocalValuePin3/Measure1> a sbol:Identified,
+        om:Measure ;
+    sbol:displayId "Measure1" ;
+    om:hasNumericalValue 2e-01 ;
+    om:hasUnit om:Number .
+
+<https://sd2e.org/PAML/OvernightODMeasure/PrimitiveExecutable4/LocalValuePin4> a ns1:LocalValuePin,
         sbol:Identified ;
     ns1:activityType om:Measure ;
     ns1:instanceOfPinSpecification <https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureFluorescence/PrimitivePinSpecification2> ;
-    ns1:localValue <https://sd2e.org/PAML/OvernightODMeasure/PrimitiveExecutable4/LocalValuePin3/Measure1> ;
-    sbol:displayId "LocalValuePin3" ;
+    ns1:localValue <https://sd2e.org/PAML/OvernightODMeasure/PrimitiveExecutable4/LocalValuePin4/Measure1> ;
+    sbol:displayId "LocalValuePin4" ;
     sbol:name "excitationWavelength" .
 
-<https://sd2e.org/PAML/OvernightODMeasure/PrimitiveExecutable4/LocalValuePin3/Measure1> a sbol:Identified,
+<https://sd2e.org/PAML/OvernightODMeasure/PrimitiveExecutable4/LocalValuePin4/Measure1> a sbol:Identified,
         om:Measure ;
     sbol:displayId "Measure1" ;
     om:hasNumericalValue 4.88e+02 ;
     om:hasUnit om:nanometre .
 
-<https://sd2e.org/PAML/OvernightODMeasure/PrimitiveExecutable4/LocalValuePin4> a ns1:LocalValuePin,
+<https://sd2e.org/PAML/OvernightODMeasure/PrimitiveExecutable4/Pin2> a ns1:Pin,
         sbol:Identified ;
-    ns1:activityType xsd:integer ;
-    ns1:instanceOfPinSpecification <https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureFluorescence/PrimitivePinSpecification6> ;
-    ns1:localValue <https://sd2e.org/PAML/OvernightODMeasure/PrimitiveExecutable4/LocalValuePin4/Measure1> ;
-    sbol:displayId "LocalValuePin4" ;
-    sbol:name "numFlashes" .
-
-<https://sd2e.org/PAML/OvernightODMeasure/PrimitiveExecutable4/LocalValuePin4/Measure1> a sbol:Identified,
-        om:Measure ;
-    sbol:displayId "Measure1" ;
-    om:hasNumericalValue 2.5e+01 ;
-    om:hasUnit om:Number .
+    ns1:activityType om:Measure ;
+    ns1:instanceOfPinSpecification <https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureFluorescence/PrimitivePinSpecification4> ;
+    sbol:displayId "Pin2" ;
+    sbol:name "emissionBandpassWidth" .
 
 <https://sd2e.org/PAML/OvernightODMeasure/PrimitiveExecutable4/Pin3> a ns1:Pin,
         sbol:Identified ;
@@ -1866,13 +1873,6 @@ Subprotocol to split a portion of each sample in an unsealed plate into another 
     ns1:instanceOfPinSpecification <https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureFluorescence/PrimitivePinSpecification5> ;
     sbol:displayId "Pin3" ;
     sbol:name "emissionLowpassCutoff" .
-
-<https://sd2e.org/PAML/OvernightODMeasure/PrimitiveExecutable4/Pin4> a ns1:Pin,
-        sbol:Identified ;
-    ns1:activityType om:Measure ;
-    ns1:instanceOfPinSpecification <https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureFluorescence/PrimitivePinSpecification4> ;
-    sbol:displayId "Pin4" ;
-    sbol:name "emissionBandpassWidth" .
 
 <https://sd2e.org/PAML/OvernightODMeasure/PrimitiveExecutable5> a ns1:PrimitiveExecutable,
         sbol:Identified ;
@@ -1889,59 +1889,66 @@ Subprotocol to split a portion of each sample in an unsealed plate into another 
 
 <https://sd2e.org/PAML/OvernightODMeasure/PrimitiveExecutable5/LocalValuePin1> a ns1:LocalValuePin,
         sbol:Identified ;
-    ns1:activityType xsd:double ;
-    ns1:instanceOfPinSpecification <https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureFluorescence/PrimitivePinSpecification7> ;
-    ns1:localValue <https://sd2e.org/PAML/OvernightODMeasure/PrimitiveExecutable5/LocalValuePin1/Measure1> ;
-    sbol:displayId "LocalValuePin1" ;
-    sbol:name "gain" .
-
-<https://sd2e.org/PAML/OvernightODMeasure/PrimitiveExecutable5/LocalValuePin1/Measure1> a sbol:Identified,
-        om:Measure ;
-    sbol:displayId "Measure1" ;
-    om:hasNumericalValue 1.6e-01 ;
-    om:hasUnit om:Number .
-
-<https://sd2e.org/PAML/OvernightODMeasure/PrimitiveExecutable5/LocalValuePin2> a ns1:LocalValuePin,
-        sbol:Identified ;
     ns1:activityType om:Measure ;
     ns1:instanceOfPinSpecification <https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureFluorescence/PrimitivePinSpecification3> ;
-    ns1:localValue <https://sd2e.org/PAML/OvernightODMeasure/PrimitiveExecutable5/LocalValuePin2/Measure1> ;
-    sbol:displayId "LocalValuePin2" ;
+    ns1:localValue <https://sd2e.org/PAML/OvernightODMeasure/PrimitiveExecutable5/LocalValuePin1/Measure1> ;
+    sbol:displayId "LocalValuePin1" ;
     sbol:name "emissionBandpassWavelength" .
 
-<https://sd2e.org/PAML/OvernightODMeasure/PrimitiveExecutable5/LocalValuePin2/Measure1> a sbol:Identified,
+<https://sd2e.org/PAML/OvernightODMeasure/PrimitiveExecutable5/LocalValuePin1/Measure1> a sbol:Identified,
         om:Measure ;
     sbol:displayId "Measure1" ;
     om:hasNumericalValue 5.3e+02 ;
     om:hasUnit om:nanometre .
 
+<https://sd2e.org/PAML/OvernightODMeasure/PrimitiveExecutable5/LocalValuePin2> a ns1:LocalValuePin,
+        sbol:Identified ;
+    ns1:activityType xsd:integer ;
+    ns1:instanceOfPinSpecification <https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureFluorescence/PrimitivePinSpecification6> ;
+    ns1:localValue <https://sd2e.org/PAML/OvernightODMeasure/PrimitiveExecutable5/LocalValuePin2/Measure1> ;
+    sbol:displayId "LocalValuePin2" ;
+    sbol:name "numFlashes" .
+
+<https://sd2e.org/PAML/OvernightODMeasure/PrimitiveExecutable5/LocalValuePin2/Measure1> a sbol:Identified,
+        om:Measure ;
+    sbol:displayId "Measure1" ;
+    om:hasNumericalValue 2.5e+01 ;
+    om:hasUnit om:Number .
+
 <https://sd2e.org/PAML/OvernightODMeasure/PrimitiveExecutable5/LocalValuePin3> a ns1:LocalValuePin,
+        sbol:Identified ;
+    ns1:activityType xsd:double ;
+    ns1:instanceOfPinSpecification <https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureFluorescence/PrimitivePinSpecification7> ;
+    ns1:localValue <https://sd2e.org/PAML/OvernightODMeasure/PrimitiveExecutable5/LocalValuePin3/Measure1> ;
+    sbol:displayId "LocalValuePin3" ;
+    sbol:name "gain" .
+
+<https://sd2e.org/PAML/OvernightODMeasure/PrimitiveExecutable5/LocalValuePin3/Measure1> a sbol:Identified,
+        om:Measure ;
+    sbol:displayId "Measure1" ;
+    om:hasNumericalValue 1.6e-01 ;
+    om:hasUnit om:Number .
+
+<https://sd2e.org/PAML/OvernightODMeasure/PrimitiveExecutable5/LocalValuePin4> a ns1:LocalValuePin,
         sbol:Identified ;
     ns1:activityType om:Measure ;
     ns1:instanceOfPinSpecification <https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureFluorescence/PrimitivePinSpecification2> ;
-    ns1:localValue <https://sd2e.org/PAML/OvernightODMeasure/PrimitiveExecutable5/LocalValuePin3/Measure1> ;
-    sbol:displayId "LocalValuePin3" ;
+    ns1:localValue <https://sd2e.org/PAML/OvernightODMeasure/PrimitiveExecutable5/LocalValuePin4/Measure1> ;
+    sbol:displayId "LocalValuePin4" ;
     sbol:name "excitationWavelength" .
 
-<https://sd2e.org/PAML/OvernightODMeasure/PrimitiveExecutable5/LocalValuePin3/Measure1> a sbol:Identified,
+<https://sd2e.org/PAML/OvernightODMeasure/PrimitiveExecutable5/LocalValuePin4/Measure1> a sbol:Identified,
         om:Measure ;
     sbol:displayId "Measure1" ;
     om:hasNumericalValue 4.88e+02 ;
     om:hasUnit om:nanometre .
 
-<https://sd2e.org/PAML/OvernightODMeasure/PrimitiveExecutable5/LocalValuePin4> a ns1:LocalValuePin,
+<https://sd2e.org/PAML/OvernightODMeasure/PrimitiveExecutable5/Pin2> a ns1:Pin,
         sbol:Identified ;
-    ns1:activityType xsd:integer ;
-    ns1:instanceOfPinSpecification <https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureFluorescence/PrimitivePinSpecification6> ;
-    ns1:localValue <https://sd2e.org/PAML/OvernightODMeasure/PrimitiveExecutable5/LocalValuePin4/Measure1> ;
-    sbol:displayId "LocalValuePin4" ;
-    sbol:name "numFlashes" .
-
-<https://sd2e.org/PAML/OvernightODMeasure/PrimitiveExecutable5/LocalValuePin4/Measure1> a sbol:Identified,
-        om:Measure ;
-    sbol:displayId "Measure1" ;
-    om:hasNumericalValue 2.5e+01 ;
-    om:hasUnit om:Number .
+    ns1:activityType om:Measure ;
+    ns1:instanceOfPinSpecification <https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureFluorescence/PrimitivePinSpecification4> ;
+    sbol:displayId "Pin2" ;
+    sbol:name "emissionBandpassWidth" .
 
 <https://sd2e.org/PAML/OvernightODMeasure/PrimitiveExecutable5/Pin3> a ns1:Pin,
         sbol:Identified ;
@@ -1949,13 +1956,6 @@ Subprotocol to split a portion of each sample in an unsealed plate into another 
     ns1:instanceOfPinSpecification <https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureFluorescence/PrimitivePinSpecification5> ;
     sbol:displayId "Pin3" ;
     sbol:name "emissionLowpassCutoff" .
-
-<https://sd2e.org/PAML/OvernightODMeasure/PrimitiveExecutable5/Pin4> a ns1:Pin,
-        sbol:Identified ;
-    ns1:activityType om:Measure ;
-    ns1:instanceOfPinSpecification <https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureFluorescence/PrimitivePinSpecification4> ;
-    sbol:displayId "Pin4" ;
-    sbol:name "emissionBandpassWidth" .
 
 <https://sd2e.org/PAML/OvernightODMeasure/PrimitiveExecutable6/Pin1> a ns1:Pin,
         sbol:Identified ;
@@ -1974,7 +1974,7 @@ Subprotocol to split a portion of each sample in an unsealed plate into another 
 
 <https://sd2e.org/PAML/SplitAndMeasure/Flow1> a ns1:Flow,
         sbol:Identified ;
-    ns1:sink <https://sd2e.org/PAML/SplitAndMeasure/PrimitiveExecutable1/Pin3> ;
+    ns1:sink <https://sd2e.org/PAML/SplitAndMeasure/PrimitiveExecutable1/Pin2> ;
     ns1:source <https://sd2e.org/PAML/SplitAndMeasure/Value2> ;
     sbol:displayId "Flow1" .
 
@@ -1992,7 +1992,7 @@ Subprotocol to split a portion of each sample in an unsealed plate into another 
 
 <https://sd2e.org/PAML/SplitAndMeasure/Flow12> a ns1:Flow,
         sbol:Identified ;
-    ns1:sink <https://sd2e.org/PAML/SplitAndMeasure/PrimitiveExecutable5/Pin2> ;
+    ns1:sink <https://sd2e.org/PAML/SplitAndMeasure/PrimitiveExecutable5/Pin4> ;
     ns1:source <https://sd2e.org/PAML/SplitAndMeasure/Fork1> ;
     sbol:displayId "Flow12" .
 
@@ -2010,7 +2010,7 @@ Subprotocol to split a portion of each sample in an unsealed plate into another 
 
 <https://sd2e.org/PAML/SplitAndMeasure/Flow15> a ns1:Flow,
         sbol:Identified ;
-    ns1:sink <https://sd2e.org/PAML/SplitAndMeasure/PrimitiveExecutable6/Pin2> ;
+    ns1:sink <https://sd2e.org/PAML/SplitAndMeasure/PrimitiveExecutable6/Pin4> ;
     ns1:source <https://sd2e.org/PAML/SplitAndMeasure/Fork1> ;
     sbol:displayId "Flow15" .
 
@@ -2028,7 +2028,7 @@ Subprotocol to split a portion of each sample in an unsealed plate into another 
 
 <https://sd2e.org/PAML/SplitAndMeasure/Flow18> a ns1:Flow,
         sbol:Identified ;
-    ns1:sink <https://sd2e.org/PAML/SplitAndMeasure/PrimitiveExecutable7/Pin2> ;
+    ns1:sink <https://sd2e.org/PAML/SplitAndMeasure/PrimitiveExecutable7/Pin4> ;
     ns1:source <https://sd2e.org/PAML/SplitAndMeasure/Fork1> ;
     sbol:displayId "Flow18" .
 
@@ -2136,11 +2136,11 @@ Subprotocol to split a portion of each sample in an unsealed plate into another 
     om:hasNumericalValue 9e+01 ;
     om:hasUnit om:microlitre .
 
-<https://sd2e.org/PAML/SplitAndMeasure/PrimitiveExecutable1/Pin2> a ns1:Pin,
+<https://sd2e.org/PAML/SplitAndMeasure/PrimitiveExecutable1/Pin3> a ns1:Pin,
         sbol:Identified ;
     ns1:activityType om:Measure ;
     ns1:instanceOfPinSpecification <https://bioprotocols.org/paml/primitives/liquid_handling/Dispense/PrimitivePinSpecification4> ;
-    sbol:displayId "Pin2" ;
+    sbol:displayId "Pin3" ;
     sbol:name "dispenseVelocity" .
 
 <https://sd2e.org/PAML/SplitAndMeasure/PrimitiveExecutable1/ReferenceValuePin1> a ns1:ReferenceValuePin,
@@ -2238,59 +2238,66 @@ Subprotocol to split a portion of each sample in an unsealed plate into another 
 
 <https://sd2e.org/PAML/SplitAndMeasure/PrimitiveExecutable5/LocalValuePin1> a ns1:LocalValuePin,
         sbol:Identified ;
-    ns1:activityType xsd:double ;
-    ns1:instanceOfPinSpecification <https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureFluorescence/PrimitivePinSpecification7> ;
-    ns1:localValue <https://sd2e.org/PAML/SplitAndMeasure/PrimitiveExecutable5/LocalValuePin1/Measure1> ;
-    sbol:displayId "LocalValuePin1" ;
-    sbol:name "gain" .
-
-<https://sd2e.org/PAML/SplitAndMeasure/PrimitiveExecutable5/LocalValuePin1/Measure1> a sbol:Identified,
-        om:Measure ;
-    sbol:displayId "Measure1" ;
-    om:hasNumericalValue 1e-01 ;
-    om:hasUnit om:Number .
-
-<https://sd2e.org/PAML/SplitAndMeasure/PrimitiveExecutable5/LocalValuePin2> a ns1:LocalValuePin,
-        sbol:Identified ;
     ns1:activityType om:Measure ;
     ns1:instanceOfPinSpecification <https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureFluorescence/PrimitivePinSpecification3> ;
-    ns1:localValue <https://sd2e.org/PAML/SplitAndMeasure/PrimitiveExecutable5/LocalValuePin2/Measure1> ;
-    sbol:displayId "LocalValuePin2" ;
+    ns1:localValue <https://sd2e.org/PAML/SplitAndMeasure/PrimitiveExecutable5/LocalValuePin1/Measure1> ;
+    sbol:displayId "LocalValuePin1" ;
     sbol:name "emissionBandpassWavelength" .
 
-<https://sd2e.org/PAML/SplitAndMeasure/PrimitiveExecutable5/LocalValuePin2/Measure1> a sbol:Identified,
+<https://sd2e.org/PAML/SplitAndMeasure/PrimitiveExecutable5/LocalValuePin1/Measure1> a sbol:Identified,
         om:Measure ;
     sbol:displayId "Measure1" ;
     om:hasNumericalValue 5.3e+02 ;
     om:hasUnit om:nanometre .
 
+<https://sd2e.org/PAML/SplitAndMeasure/PrimitiveExecutable5/LocalValuePin2> a ns1:LocalValuePin,
+        sbol:Identified ;
+    ns1:activityType xsd:integer ;
+    ns1:instanceOfPinSpecification <https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureFluorescence/PrimitivePinSpecification6> ;
+    ns1:localValue <https://sd2e.org/PAML/SplitAndMeasure/PrimitiveExecutable5/LocalValuePin2/Measure1> ;
+    sbol:displayId "LocalValuePin2" ;
+    sbol:name "numFlashes" .
+
+<https://sd2e.org/PAML/SplitAndMeasure/PrimitiveExecutable5/LocalValuePin2/Measure1> a sbol:Identified,
+        om:Measure ;
+    sbol:displayId "Measure1" ;
+    om:hasNumericalValue 2.5e+01 ;
+    om:hasUnit om:Number .
+
 <https://sd2e.org/PAML/SplitAndMeasure/PrimitiveExecutable5/LocalValuePin3> a ns1:LocalValuePin,
+        sbol:Identified ;
+    ns1:activityType xsd:double ;
+    ns1:instanceOfPinSpecification <https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureFluorescence/PrimitivePinSpecification7> ;
+    ns1:localValue <https://sd2e.org/PAML/SplitAndMeasure/PrimitiveExecutable5/LocalValuePin3/Measure1> ;
+    sbol:displayId "LocalValuePin3" ;
+    sbol:name "gain" .
+
+<https://sd2e.org/PAML/SplitAndMeasure/PrimitiveExecutable5/LocalValuePin3/Measure1> a sbol:Identified,
+        om:Measure ;
+    sbol:displayId "Measure1" ;
+    om:hasNumericalValue 1e-01 ;
+    om:hasUnit om:Number .
+
+<https://sd2e.org/PAML/SplitAndMeasure/PrimitiveExecutable5/LocalValuePin4> a ns1:LocalValuePin,
         sbol:Identified ;
     ns1:activityType om:Measure ;
     ns1:instanceOfPinSpecification <https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureFluorescence/PrimitivePinSpecification2> ;
-    ns1:localValue <https://sd2e.org/PAML/SplitAndMeasure/PrimitiveExecutable5/LocalValuePin3/Measure1> ;
-    sbol:displayId "LocalValuePin3" ;
+    ns1:localValue <https://sd2e.org/PAML/SplitAndMeasure/PrimitiveExecutable5/LocalValuePin4/Measure1> ;
+    sbol:displayId "LocalValuePin4" ;
     sbol:name "excitationWavelength" .
 
-<https://sd2e.org/PAML/SplitAndMeasure/PrimitiveExecutable5/LocalValuePin3/Measure1> a sbol:Identified,
+<https://sd2e.org/PAML/SplitAndMeasure/PrimitiveExecutable5/LocalValuePin4/Measure1> a sbol:Identified,
         om:Measure ;
     sbol:displayId "Measure1" ;
     om:hasNumericalValue 4.88e+02 ;
     om:hasUnit om:nanometre .
 
-<https://sd2e.org/PAML/SplitAndMeasure/PrimitiveExecutable5/LocalValuePin4> a ns1:LocalValuePin,
+<https://sd2e.org/PAML/SplitAndMeasure/PrimitiveExecutable5/Pin2> a ns1:Pin,
         sbol:Identified ;
-    ns1:activityType xsd:integer ;
-    ns1:instanceOfPinSpecification <https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureFluorescence/PrimitivePinSpecification6> ;
-    ns1:localValue <https://sd2e.org/PAML/SplitAndMeasure/PrimitiveExecutable5/LocalValuePin4/Measure1> ;
-    sbol:displayId "LocalValuePin4" ;
-    sbol:name "numFlashes" .
-
-<https://sd2e.org/PAML/SplitAndMeasure/PrimitiveExecutable5/LocalValuePin4/Measure1> a sbol:Identified,
-        om:Measure ;
-    sbol:displayId "Measure1" ;
-    om:hasNumericalValue 2.5e+01 ;
-    om:hasUnit om:Number .
+    ns1:activityType om:Measure ;
+    ns1:instanceOfPinSpecification <https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureFluorescence/PrimitivePinSpecification4> ;
+    sbol:displayId "Pin2" ;
+    sbol:name "emissionBandpassWidth" .
 
 <https://sd2e.org/PAML/SplitAndMeasure/PrimitiveExecutable5/Pin3> a ns1:Pin,
         sbol:Identified ;
@@ -2298,13 +2305,6 @@ Subprotocol to split a portion of each sample in an unsealed plate into another 
     ns1:instanceOfPinSpecification <https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureFluorescence/PrimitivePinSpecification5> ;
     sbol:displayId "Pin3" ;
     sbol:name "emissionLowpassCutoff" .
-
-<https://sd2e.org/PAML/SplitAndMeasure/PrimitiveExecutable5/Pin4> a ns1:Pin,
-        sbol:Identified ;
-    ns1:activityType om:Measure ;
-    ns1:instanceOfPinSpecification <https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureFluorescence/PrimitivePinSpecification4> ;
-    sbol:displayId "Pin4" ;
-    sbol:name "emissionBandpassWidth" .
 
 <https://sd2e.org/PAML/SplitAndMeasure/PrimitiveExecutable6> a ns1:PrimitiveExecutable,
         sbol:Identified ;
@@ -2321,59 +2321,66 @@ Subprotocol to split a portion of each sample in an unsealed plate into another 
 
 <https://sd2e.org/PAML/SplitAndMeasure/PrimitiveExecutable6/LocalValuePin1> a ns1:LocalValuePin,
         sbol:Identified ;
-    ns1:activityType xsd:double ;
-    ns1:instanceOfPinSpecification <https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureFluorescence/PrimitivePinSpecification7> ;
-    ns1:localValue <https://sd2e.org/PAML/SplitAndMeasure/PrimitiveExecutable6/LocalValuePin1/Measure1> ;
-    sbol:displayId "LocalValuePin1" ;
-    sbol:name "gain" .
-
-<https://sd2e.org/PAML/SplitAndMeasure/PrimitiveExecutable6/LocalValuePin1/Measure1> a sbol:Identified,
-        om:Measure ;
-    sbol:displayId "Measure1" ;
-    om:hasNumericalValue 2e-01 ;
-    om:hasUnit om:Number .
-
-<https://sd2e.org/PAML/SplitAndMeasure/PrimitiveExecutable6/LocalValuePin2> a ns1:LocalValuePin,
-        sbol:Identified ;
     ns1:activityType om:Measure ;
     ns1:instanceOfPinSpecification <https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureFluorescence/PrimitivePinSpecification3> ;
-    ns1:localValue <https://sd2e.org/PAML/SplitAndMeasure/PrimitiveExecutable6/LocalValuePin2/Measure1> ;
-    sbol:displayId "LocalValuePin2" ;
+    ns1:localValue <https://sd2e.org/PAML/SplitAndMeasure/PrimitiveExecutable6/LocalValuePin1/Measure1> ;
+    sbol:displayId "LocalValuePin1" ;
     sbol:name "emissionBandpassWavelength" .
 
-<https://sd2e.org/PAML/SplitAndMeasure/PrimitiveExecutable6/LocalValuePin2/Measure1> a sbol:Identified,
+<https://sd2e.org/PAML/SplitAndMeasure/PrimitiveExecutable6/LocalValuePin1/Measure1> a sbol:Identified,
         om:Measure ;
     sbol:displayId "Measure1" ;
     om:hasNumericalValue 5.3e+02 ;
     om:hasUnit om:nanometre .
 
+<https://sd2e.org/PAML/SplitAndMeasure/PrimitiveExecutable6/LocalValuePin2> a ns1:LocalValuePin,
+        sbol:Identified ;
+    ns1:activityType xsd:integer ;
+    ns1:instanceOfPinSpecification <https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureFluorescence/PrimitivePinSpecification6> ;
+    ns1:localValue <https://sd2e.org/PAML/SplitAndMeasure/PrimitiveExecutable6/LocalValuePin2/Measure1> ;
+    sbol:displayId "LocalValuePin2" ;
+    sbol:name "numFlashes" .
+
+<https://sd2e.org/PAML/SplitAndMeasure/PrimitiveExecutable6/LocalValuePin2/Measure1> a sbol:Identified,
+        om:Measure ;
+    sbol:displayId "Measure1" ;
+    om:hasNumericalValue 2.5e+01 ;
+    om:hasUnit om:Number .
+
 <https://sd2e.org/PAML/SplitAndMeasure/PrimitiveExecutable6/LocalValuePin3> a ns1:LocalValuePin,
+        sbol:Identified ;
+    ns1:activityType xsd:double ;
+    ns1:instanceOfPinSpecification <https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureFluorescence/PrimitivePinSpecification7> ;
+    ns1:localValue <https://sd2e.org/PAML/SplitAndMeasure/PrimitiveExecutable6/LocalValuePin3/Measure1> ;
+    sbol:displayId "LocalValuePin3" ;
+    sbol:name "gain" .
+
+<https://sd2e.org/PAML/SplitAndMeasure/PrimitiveExecutable6/LocalValuePin3/Measure1> a sbol:Identified,
+        om:Measure ;
+    sbol:displayId "Measure1" ;
+    om:hasNumericalValue 2e-01 ;
+    om:hasUnit om:Number .
+
+<https://sd2e.org/PAML/SplitAndMeasure/PrimitiveExecutable6/LocalValuePin4> a ns1:LocalValuePin,
         sbol:Identified ;
     ns1:activityType om:Measure ;
     ns1:instanceOfPinSpecification <https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureFluorescence/PrimitivePinSpecification2> ;
-    ns1:localValue <https://sd2e.org/PAML/SplitAndMeasure/PrimitiveExecutable6/LocalValuePin3/Measure1> ;
-    sbol:displayId "LocalValuePin3" ;
+    ns1:localValue <https://sd2e.org/PAML/SplitAndMeasure/PrimitiveExecutable6/LocalValuePin4/Measure1> ;
+    sbol:displayId "LocalValuePin4" ;
     sbol:name "excitationWavelength" .
 
-<https://sd2e.org/PAML/SplitAndMeasure/PrimitiveExecutable6/LocalValuePin3/Measure1> a sbol:Identified,
+<https://sd2e.org/PAML/SplitAndMeasure/PrimitiveExecutable6/LocalValuePin4/Measure1> a sbol:Identified,
         om:Measure ;
     sbol:displayId "Measure1" ;
     om:hasNumericalValue 4.88e+02 ;
     om:hasUnit om:nanometre .
 
-<https://sd2e.org/PAML/SplitAndMeasure/PrimitiveExecutable6/LocalValuePin4> a ns1:LocalValuePin,
+<https://sd2e.org/PAML/SplitAndMeasure/PrimitiveExecutable6/Pin2> a ns1:Pin,
         sbol:Identified ;
-    ns1:activityType xsd:integer ;
-    ns1:instanceOfPinSpecification <https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureFluorescence/PrimitivePinSpecification6> ;
-    ns1:localValue <https://sd2e.org/PAML/SplitAndMeasure/PrimitiveExecutable6/LocalValuePin4/Measure1> ;
-    sbol:displayId "LocalValuePin4" ;
-    sbol:name "numFlashes" .
-
-<https://sd2e.org/PAML/SplitAndMeasure/PrimitiveExecutable6/LocalValuePin4/Measure1> a sbol:Identified,
-        om:Measure ;
-    sbol:displayId "Measure1" ;
-    om:hasNumericalValue 2.5e+01 ;
-    om:hasUnit om:Number .
+    ns1:activityType om:Measure ;
+    ns1:instanceOfPinSpecification <https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureFluorescence/PrimitivePinSpecification4> ;
+    sbol:displayId "Pin2" ;
+    sbol:name "emissionBandpassWidth" .
 
 <https://sd2e.org/PAML/SplitAndMeasure/PrimitiveExecutable6/Pin3> a ns1:Pin,
         sbol:Identified ;
@@ -2381,13 +2388,6 @@ Subprotocol to split a portion of each sample in an unsealed plate into another 
     ns1:instanceOfPinSpecification <https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureFluorescence/PrimitivePinSpecification5> ;
     sbol:displayId "Pin3" ;
     sbol:name "emissionLowpassCutoff" .
-
-<https://sd2e.org/PAML/SplitAndMeasure/PrimitiveExecutable6/Pin4> a ns1:Pin,
-        sbol:Identified ;
-    ns1:activityType om:Measure ;
-    ns1:instanceOfPinSpecification <https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureFluorescence/PrimitivePinSpecification4> ;
-    sbol:displayId "Pin4" ;
-    sbol:name "emissionBandpassWidth" .
 
 <https://sd2e.org/PAML/SplitAndMeasure/PrimitiveExecutable7> a ns1:PrimitiveExecutable,
         sbol:Identified ;
@@ -2404,59 +2404,66 @@ Subprotocol to split a portion of each sample in an unsealed plate into another 
 
 <https://sd2e.org/PAML/SplitAndMeasure/PrimitiveExecutable7/LocalValuePin1> a ns1:LocalValuePin,
         sbol:Identified ;
-    ns1:activityType xsd:double ;
-    ns1:instanceOfPinSpecification <https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureFluorescence/PrimitivePinSpecification7> ;
-    ns1:localValue <https://sd2e.org/PAML/SplitAndMeasure/PrimitiveExecutable7/LocalValuePin1/Measure1> ;
-    sbol:displayId "LocalValuePin1" ;
-    sbol:name "gain" .
-
-<https://sd2e.org/PAML/SplitAndMeasure/PrimitiveExecutable7/LocalValuePin1/Measure1> a sbol:Identified,
-        om:Measure ;
-    sbol:displayId "Measure1" ;
-    om:hasNumericalValue 1.6e-01 ;
-    om:hasUnit om:Number .
-
-<https://sd2e.org/PAML/SplitAndMeasure/PrimitiveExecutable7/LocalValuePin2> a ns1:LocalValuePin,
-        sbol:Identified ;
     ns1:activityType om:Measure ;
     ns1:instanceOfPinSpecification <https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureFluorescence/PrimitivePinSpecification3> ;
-    ns1:localValue <https://sd2e.org/PAML/SplitAndMeasure/PrimitiveExecutable7/LocalValuePin2/Measure1> ;
-    sbol:displayId "LocalValuePin2" ;
+    ns1:localValue <https://sd2e.org/PAML/SplitAndMeasure/PrimitiveExecutable7/LocalValuePin1/Measure1> ;
+    sbol:displayId "LocalValuePin1" ;
     sbol:name "emissionBandpassWavelength" .
 
-<https://sd2e.org/PAML/SplitAndMeasure/PrimitiveExecutable7/LocalValuePin2/Measure1> a sbol:Identified,
+<https://sd2e.org/PAML/SplitAndMeasure/PrimitiveExecutable7/LocalValuePin1/Measure1> a sbol:Identified,
         om:Measure ;
     sbol:displayId "Measure1" ;
     om:hasNumericalValue 5.3e+02 ;
     om:hasUnit om:nanometre .
 
+<https://sd2e.org/PAML/SplitAndMeasure/PrimitiveExecutable7/LocalValuePin2> a ns1:LocalValuePin,
+        sbol:Identified ;
+    ns1:activityType xsd:integer ;
+    ns1:instanceOfPinSpecification <https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureFluorescence/PrimitivePinSpecification6> ;
+    ns1:localValue <https://sd2e.org/PAML/SplitAndMeasure/PrimitiveExecutable7/LocalValuePin2/Measure1> ;
+    sbol:displayId "LocalValuePin2" ;
+    sbol:name "numFlashes" .
+
+<https://sd2e.org/PAML/SplitAndMeasure/PrimitiveExecutable7/LocalValuePin2/Measure1> a sbol:Identified,
+        om:Measure ;
+    sbol:displayId "Measure1" ;
+    om:hasNumericalValue 2.5e+01 ;
+    om:hasUnit om:Number .
+
 <https://sd2e.org/PAML/SplitAndMeasure/PrimitiveExecutable7/LocalValuePin3> a ns1:LocalValuePin,
+        sbol:Identified ;
+    ns1:activityType xsd:double ;
+    ns1:instanceOfPinSpecification <https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureFluorescence/PrimitivePinSpecification7> ;
+    ns1:localValue <https://sd2e.org/PAML/SplitAndMeasure/PrimitiveExecutable7/LocalValuePin3/Measure1> ;
+    sbol:displayId "LocalValuePin3" ;
+    sbol:name "gain" .
+
+<https://sd2e.org/PAML/SplitAndMeasure/PrimitiveExecutable7/LocalValuePin3/Measure1> a sbol:Identified,
+        om:Measure ;
+    sbol:displayId "Measure1" ;
+    om:hasNumericalValue 1.6e-01 ;
+    om:hasUnit om:Number .
+
+<https://sd2e.org/PAML/SplitAndMeasure/PrimitiveExecutable7/LocalValuePin4> a ns1:LocalValuePin,
         sbol:Identified ;
     ns1:activityType om:Measure ;
     ns1:instanceOfPinSpecification <https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureFluorescence/PrimitivePinSpecification2> ;
-    ns1:localValue <https://sd2e.org/PAML/SplitAndMeasure/PrimitiveExecutable7/LocalValuePin3/Measure1> ;
-    sbol:displayId "LocalValuePin3" ;
+    ns1:localValue <https://sd2e.org/PAML/SplitAndMeasure/PrimitiveExecutable7/LocalValuePin4/Measure1> ;
+    sbol:displayId "LocalValuePin4" ;
     sbol:name "excitationWavelength" .
 
-<https://sd2e.org/PAML/SplitAndMeasure/PrimitiveExecutable7/LocalValuePin3/Measure1> a sbol:Identified,
+<https://sd2e.org/PAML/SplitAndMeasure/PrimitiveExecutable7/LocalValuePin4/Measure1> a sbol:Identified,
         om:Measure ;
     sbol:displayId "Measure1" ;
     om:hasNumericalValue 4.88e+02 ;
     om:hasUnit om:nanometre .
 
-<https://sd2e.org/PAML/SplitAndMeasure/PrimitiveExecutable7/LocalValuePin4> a ns1:LocalValuePin,
+<https://sd2e.org/PAML/SplitAndMeasure/PrimitiveExecutable7/Pin2> a ns1:Pin,
         sbol:Identified ;
-    ns1:activityType xsd:integer ;
-    ns1:instanceOfPinSpecification <https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureFluorescence/PrimitivePinSpecification6> ;
-    ns1:localValue <https://sd2e.org/PAML/SplitAndMeasure/PrimitiveExecutable7/LocalValuePin4/Measure1> ;
-    sbol:displayId "LocalValuePin4" ;
-    sbol:name "numFlashes" .
-
-<https://sd2e.org/PAML/SplitAndMeasure/PrimitiveExecutable7/LocalValuePin4/Measure1> a sbol:Identified,
-        om:Measure ;
-    sbol:displayId "Measure1" ;
-    om:hasNumericalValue 2.5e+01 ;
-    om:hasUnit om:Number .
+    ns1:activityType om:Measure ;
+    ns1:instanceOfPinSpecification <https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureFluorescence/PrimitivePinSpecification4> ;
+    sbol:displayId "Pin2" ;
+    sbol:name "emissionBandpassWidth" .
 
 <https://sd2e.org/PAML/SplitAndMeasure/PrimitiveExecutable7/Pin3> a ns1:Pin,
         sbol:Identified ;
@@ -2464,13 +2471,6 @@ Subprotocol to split a portion of each sample in an unsealed plate into another 
     ns1:instanceOfPinSpecification <https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureFluorescence/PrimitivePinSpecification5> ;
     sbol:displayId "Pin3" ;
     sbol:name "emissionLowpassCutoff" .
-
-<https://sd2e.org/PAML/SplitAndMeasure/PrimitiveExecutable7/Pin4> a ns1:Pin,
-        sbol:Identified ;
-    ns1:activityType om:Measure ;
-    ns1:instanceOfPinSpecification <https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureFluorescence/PrimitivePinSpecification4> ;
-    sbol:displayId "Pin4" ;
-    sbol:name "emissionBandpassWidth" .
 
 <https://sd2e.org/PAML/SplitAndMeasure/PrimitiveExecutable8/Pin1> a ns1:Pin,
         sbol:Identified ;
@@ -2549,28 +2549,28 @@ Subprotocol to split a portion of each sample in an unsealed plate into another 
 
 <https://sd2e.org/PAML/GrowthCurve/Container2> a ns1:Container,
         sbol:Identified ;
-    ns1:containerMaxCoordinate "H12" ;
-    ns1:containerType <https://identifiers.org/ncit:C43377> ;
+    ns1:containerType <https://identifiers.org/ncit:C43169> ;
     sbol:displayId "Container2" ;
-    sbol:name "Growth Curve Plate" .
+    sbol:name "PBS Source" .
 
 <https://sd2e.org/PAML/GrowthCurve/Container3> a ns1:Container,
         sbol:Identified ;
     ns1:containerType <https://identifiers.org/ncit:C43169> ;
     sbol:displayId "Container3" ;
-    sbol:name "SC Media + 40nM Doxycycline Source" .
+    sbol:name "Overnight SC Media Source" .
 
 <https://sd2e.org/PAML/GrowthCurve/Container4> a ns1:Container,
         sbol:Identified ;
     ns1:containerType <https://identifiers.org/ncit:C43169> ;
     sbol:displayId "Container4" ;
-    sbol:name "Overnight SC Media Source" .
+    sbol:name "SC Media + 40nM Doxycycline Source" .
 
 <https://sd2e.org/PAML/GrowthCurve/Container5> a ns1:Container,
         sbol:Identified ;
-    ns1:containerType <https://identifiers.org/ncit:C43169> ;
+    ns1:containerMaxCoordinate "H12" ;
+    ns1:containerType <https://identifiers.org/ncit:C43377> ;
     sbol:displayId "Container5" ;
-    sbol:name "PBS Source" .
+    sbol:name "Growth Curve Plate" .
 
 <https://sd2e.org/PAML/GrowthCurve/PrimitiveExecutable1> a ns1:PrimitiveExecutable,
         sbol:Identified ;
@@ -2595,11 +2595,11 @@ Subprotocol to split a portion of each sample in an unsealed plate into another 
     sbol:displayId "Pin1" ;
     sbol:name "samples" .
 
-<https://sd2e.org/PAML/GrowthCurve/PrimitiveExecutable11/Pin3> a ns1:Pin,
+<https://sd2e.org/PAML/GrowthCurve/PrimitiveExecutable11/Pin2> a ns1:Pin,
         sbol:Identified ;
     ns1:activityType ns1:LocatedSamples ;
     ns1:instanceOfPinSpecification <https://bioprotocols.org/paml/primitives/liquid_handling/Dispense/PrimitivePinSpecification1> ;
-    sbol:displayId "Pin3" ;
+    sbol:displayId "Pin2" ;
     sbol:name "source" .
 
 <https://sd2e.org/PAML/GrowthCurve/PrimitiveExecutable12/Pin2> a ns1:Pin,
@@ -2740,11 +2740,11 @@ Subprotocol to split a portion of each sample in an unsealed plate into another 
     sbol:displayId "Pin1" ;
     sbol:name "samples" .
 
-<https://sd2e.org/PAML/GrowthCurve/PrimitiveExecutable4/Pin3> a ns1:Pin,
+<https://sd2e.org/PAML/GrowthCurve/PrimitiveExecutable4/Pin2> a ns1:Pin,
         sbol:Identified ;
     ns1:activityType ns1:LocatedSamples ;
     ns1:instanceOfPinSpecification <https://bioprotocols.org/paml/primitives/liquid_handling/Dispense/PrimitivePinSpecification1> ;
-    sbol:displayId "Pin3" ;
+    sbol:displayId "Pin2" ;
     sbol:name "source" .
 
 <https://sd2e.org/PAML/GrowthCurve/PrimitiveExecutable5> a ns1:PrimitiveExecutable,
@@ -2979,11 +2979,11 @@ Subprotocol to split a portion of each sample in an unsealed plate into another 
     sbol:displayId "Pin1" ;
     sbol:name "measurements" .
 
-<https://sd2e.org/PAML/OvernightODMeasure/PrimitiveExecutable3/Pin2> a ns1:Pin,
+<https://sd2e.org/PAML/OvernightODMeasure/PrimitiveExecutable3/Pin4> a ns1:Pin,
         sbol:Identified ;
     ns1:activityType ns1:LocatedSamples ;
     ns1:instanceOfPinSpecification <https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureFluorescence/PrimitivePinSpecification1> ;
-    sbol:displayId "Pin2" ;
+    sbol:displayId "Pin4" ;
     sbol:name "samples" .
 
 <https://sd2e.org/PAML/OvernightODMeasure/PrimitiveExecutable4/Pin1> a ns1:Pin,
@@ -2992,11 +2992,11 @@ Subprotocol to split a portion of each sample in an unsealed plate into another 
     sbol:displayId "Pin1" ;
     sbol:name "measurements" .
 
-<https://sd2e.org/PAML/OvernightODMeasure/PrimitiveExecutable4/Pin2> a ns1:Pin,
+<https://sd2e.org/PAML/OvernightODMeasure/PrimitiveExecutable4/Pin4> a ns1:Pin,
         sbol:Identified ;
     ns1:activityType ns1:LocatedSamples ;
     ns1:instanceOfPinSpecification <https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureFluorescence/PrimitivePinSpecification1> ;
-    sbol:displayId "Pin2" ;
+    sbol:displayId "Pin4" ;
     sbol:name "samples" .
 
 <https://sd2e.org/PAML/OvernightODMeasure/PrimitiveExecutable5/Pin1> a ns1:Pin,
@@ -3005,11 +3005,11 @@ Subprotocol to split a portion of each sample in an unsealed plate into another 
     sbol:displayId "Pin1" ;
     sbol:name "measurements" .
 
-<https://sd2e.org/PAML/OvernightODMeasure/PrimitiveExecutable5/Pin2> a ns1:Pin,
+<https://sd2e.org/PAML/OvernightODMeasure/PrimitiveExecutable5/Pin4> a ns1:Pin,
         sbol:Identified ;
     ns1:activityType ns1:LocatedSamples ;
     ns1:instanceOfPinSpecification <https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureFluorescence/PrimitivePinSpecification1> ;
-    sbol:displayId "Pin2" ;
+    sbol:displayId "Pin4" ;
     sbol:name "samples" .
 
 <https://sd2e.org/PAML/OvernightODMeasure/ProtocolPinSpecification1> a ns1:ProtocolPinSpecification,
@@ -3073,11 +3073,11 @@ Subprotocol to split a portion of each sample in an unsealed plate into another 
     sbol:displayId "Pin1" ;
     sbol:name "samples" .
 
-<https://sd2e.org/PAML/SplitAndMeasure/PrimitiveExecutable1/Pin3> a ns1:Pin,
+<https://sd2e.org/PAML/SplitAndMeasure/PrimitiveExecutable1/Pin2> a ns1:Pin,
         sbol:Identified ;
     ns1:activityType ns1:LocatedSamples ;
     ns1:instanceOfPinSpecification <https://bioprotocols.org/paml/primitives/liquid_handling/Dispense/PrimitivePinSpecification1> ;
-    sbol:displayId "Pin3" ;
+    sbol:displayId "Pin2" ;
     sbol:name "source" .
 
 <https://sd2e.org/PAML/SplitAndMeasure/PrimitiveExecutable2/Pin1> a ns1:Pin,
@@ -3137,11 +3137,11 @@ Subprotocol to split a portion of each sample in an unsealed plate into another 
     sbol:displayId "Pin1" ;
     sbol:name "measurements" .
 
-<https://sd2e.org/PAML/SplitAndMeasure/PrimitiveExecutable5/Pin2> a ns1:Pin,
+<https://sd2e.org/PAML/SplitAndMeasure/PrimitiveExecutable5/Pin4> a ns1:Pin,
         sbol:Identified ;
     ns1:activityType ns1:LocatedSamples ;
     ns1:instanceOfPinSpecification <https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureFluorescence/PrimitivePinSpecification1> ;
-    sbol:displayId "Pin2" ;
+    sbol:displayId "Pin4" ;
     sbol:name "samples" .
 
 <https://sd2e.org/PAML/SplitAndMeasure/PrimitiveExecutable6/Pin1> a ns1:Pin,
@@ -3150,11 +3150,11 @@ Subprotocol to split a portion of each sample in an unsealed plate into another 
     sbol:displayId "Pin1" ;
     sbol:name "measurements" .
 
-<https://sd2e.org/PAML/SplitAndMeasure/PrimitiveExecutable6/Pin2> a ns1:Pin,
+<https://sd2e.org/PAML/SplitAndMeasure/PrimitiveExecutable6/Pin4> a ns1:Pin,
         sbol:Identified ;
     ns1:activityType ns1:LocatedSamples ;
     ns1:instanceOfPinSpecification <https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureFluorescence/PrimitivePinSpecification1> ;
-    sbol:displayId "Pin2" ;
+    sbol:displayId "Pin4" ;
     sbol:name "samples" .
 
 <https://sd2e.org/PAML/SplitAndMeasure/PrimitiveExecutable7/Pin1> a ns1:Pin,
@@ -3163,11 +3163,11 @@ Subprotocol to split a portion of each sample in an unsealed plate into another 
     sbol:displayId "Pin1" ;
     sbol:name "measurements" .
 
-<https://sd2e.org/PAML/SplitAndMeasure/PrimitiveExecutable7/Pin2> a ns1:Pin,
+<https://sd2e.org/PAML/SplitAndMeasure/PrimitiveExecutable7/Pin4> a ns1:Pin,
         sbol:Identified ;
     ns1:activityType ns1:LocatedSamples ;
     ns1:instanceOfPinSpecification <https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureFluorescence/PrimitivePinSpecification1> ;
-    sbol:displayId "Pin2" ;
+    sbol:displayId "Pin4" ;
     sbol:name "samples" .
 
 <https://sd2e.org/PAML/SplitAndMeasure/PrimitiveExecutable9/Pin1> a ns1:Pin,
@@ -3482,6 +3482,7 @@ Subprotocol to split a portion of each sample in an unsealed plate into another 
 
 <https://sd2e.org/PAML/OvernightODMeasure/Value1> a ns1:Value,
         sbol:Identified ;
+    ns1:activityType ns1:LocatedSamples ;
     sbol:displayId "Value1" ;
     sbol:name "samples" .
 
@@ -3522,6 +3523,7 @@ Subprotocol to split a portion of each sample in an unsealed plate into another 
 
 <https://sd2e.org/PAML/SplitAndMeasure/Value2> a ns1:Value,
         sbol:Identified ;
+    ns1:activityType ns1:LocatedSamples ;
     sbol:displayId "Value2" ;
     sbol:name "pbs" .
 
@@ -3684,11 +3686,13 @@ Subprotocol to split a portion of each sample in an unsealed plate into another 
 
 <https://sd2e.org/PAML/GrowthCurve/Value1> a ns1:Value,
         sbol:Identified ;
+    ns1:activityType ns1:LocatedSamples ;
     sbol:displayId "Value1" ;
     sbol:name "strain_plate" .
 
 <https://sd2e.org/PAML/SplitAndMeasure/Value1> a ns1:Value,
         sbol:Identified ;
+    ns1:activityType ns1:LocatedSamples ;
     sbol:displayId "Value1" ;
     sbol:name "samples" .
 

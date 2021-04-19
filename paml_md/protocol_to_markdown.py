@@ -60,6 +60,7 @@ def reduce_range_set(ranges):
 class MarkdownConverter():
     def __init__(self, document: sbol3.Document):
         self.document = document
+        self.protocol_typing = paml.type_inference.ProtocolTyping()
 
     def markdown_header(self, protocol):
         header = '# ' + (protocol.display_id if (protocol.name is None) else protocol.name) + '\n'
@@ -76,7 +77,7 @@ class MarkdownConverter():
             protocol = self.document.find(protocol)
 
         print('Inferring flow values')
-        self.protocol_typing = paml.type_inference.ProtocolTyping(protocol)
+        self.protocol_typing.infer_typing(protocol)
 
         print('Serializing activities')
         serialized_noncontrol_activities = serialize_activities(protocol)

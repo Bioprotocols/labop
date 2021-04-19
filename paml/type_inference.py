@@ -6,25 +6,29 @@ from paml.lib.library_type_inference import primitive_type_inference_functions
 
 
 class ProtocolTyping:
-    def __init__(self, protocol: paml.Protocol):
+    def __init__(self):
         self.flow_values = {}  # dictionary of paml.Flow : type value, includes subprotocols too
         self.typed_protocols = set()  # protocol and subprotocols already evaluated or in process of evaluation
-        # actually trigger the inference
-        self.infer_typing(protocol)
+        self.cache = {} # kludge for accelerating inflow satisfaction computation
 
     def infer_typing(self, protocol : paml.Protocol):
         self.typed_protocols.add(protocol)
         pending_activities = set(protocol.activities)
+        print('Building activity cache non-blocked')
+        self.cache.update({a:a.input_flows() for a in pending_activities}) # speed kludge
         while pending_activities:
+            print('Collecting non-blocked activities out of pending '+str(len(pending_activities)))
             non_blocked = {a for a in pending_activities if self.inflows_satisfied(a)}
             if not non_blocked:
-                raise ValueError("Could not infer all flow types: circular dependency?")
+                raise ValueError("Could not infer all flow types in "+protocol.identity+": circular dependency?")
             for activity in non_blocked:
+                print('Inferring typing for '+activity.identity)
                 activity.infer_typing(self)
             pending_activities -= non_blocked
 
     def inflows_satisfied(self, activity):
-        unsatisfied = {flow for flow in activity.input_flows() if flow not in self.flow_values.keys()}
+        #unsatisfied = {flow for flow in activity.input_flows() if flow not in self.flow_values.keys()}
+        unsatisfied = {flow for flow in self.cache[activity] if flow not in self.flow_values.keys()}
         return len(unsatisfied) == 0
 
 
@@ -66,17 +70,17 @@ paml.Final.infer_typing = final_infer_typing
 
 
 def fork_decision_infer_typing(self, typing: ProtocolTyping):
-    assert len(direct_inflows) == 1  # should be precisely one input
-    in_type = flow_values[next(self.direct_input_flows)]
+    assert len(self.direct_input_flows()) == 1  # should be precisely one input
+    in_type = typing.flow_values[self.direct_input_flows().pop()]
     typing.flow_values.update({f: in_type for f in self.direct_output_flows()})
 paml.Fork.infer_typing = fork_decision_infer_typing
 paml.Decision.infer_typing = fork_decision_infer_typing
 
 
 def join_infer_typing(self, typing: ProtocolTyping):
-    assert len(self.direct_output_flows()) == 1  # should be precisely one output
-    typing.flow_values[self.direct_output_flows().pop()] = \
-        join_values({typing.flow_values[f] for f in self.direct_input_flows()})
+    #assert len(self.direct_output_flows()) == 1  # should be precisely one output
+    value = join_values({typing.flow_values[f] for f in self.direct_input_flows()})
+    typing.flow_values.update({f: value for f in self.direct_output_flows()})
 paml.Join.infer_typing = join_infer_typing
 
 # TODO: add type inference for Merge
@@ -92,21 +96,30 @@ paml.PrimitiveExecutable.infer_typing = primitiveexecutable_infer_typing
 def subprotocol_infer_typing(self: paml.SubProtocol, typing: ProtocolTyping):
     typing.flow_values.update({f: None for f in self.direct_output_flows()})
     subprotocol = self.instance_of.lookup()
-    if subprotocol not in typing.typed_protocols():
+    if subprotocol not in typing.typed_protocols:
         # add types for inputs
-        input_pin_flows = self.input_flows() - self.direct_input_flows()
-        typing.flow_values.update({subprotocol.input_value(f.sink).direct_input_flows(): typing.flow_values[f] for f in input_pin_flows})
+        #input_pin_flows = self.input_flows() - self.direct_input_flows()
+        #typing.flow_values.update({subprotocol.input_value(f.sink).direct_input_flows(): typing.flow_values[f] for f in input_pin_flows})
         # run the actual inference
         typing.infer_typing(subprotocol)
     # pull values from outputs' inferred values
-    output_pin_flows = self.output_flows() - self.direct_output_flows()
-    typing.flow_values.update({f:typing.flow_values[subprotocol.output_value(f.sink).direct_output_flows()] for f in output_pin_flows})
+    #output_pin_flows = self.output_flows() - self.direct_output_flows()
+    #typing.flow_values.update({f:typing.flow_values[subprotocol.output_value(f.sink).direct_output_flows()] for f in output_pin_flows})
 paml.SubProtocol.infer_typing = subprotocol_infer_typing
 
 
+def type_to_value(type_name: str):
+    if type_name == 'http://bioprotocols.org/paml#LocatedSamples':
+        return paml.LocatedSamples()
+    elif type_name == 'http://bioprotocols.org/paml#LocatedData':
+        return paml.LocatedData()
+    else:
+        ValueError("Don't know how to make dummy object for type "+type_name)
+
 def value_infer_typing(self, typing: ProtocolTyping):
     #assert len(self.direct_output_flows()) == 1  # should be precisely one output
-    typing.flow_values.update({f: None for f in self.direct_output_flows()})
+    output_instance = (type_to_value(self.type) if self.type else None)
+    typing.flow_values.update({f: output_instance for f in self.direct_output_flows()})
 paml.Value.infer_typing = value_infer_typing
 
 
@@ -131,6 +144,8 @@ def join_locations(value_set):
 def join_values(value_set):
     if all(isinstance(x,paml.LocatedSamples) for x in value_set):
         return join_locations(value_set)
+    elif all(x is None for x in value_set):
+        return None
     # if we fall through to the end, then we didn't know how to infer
     raise ValueError("Don't know how to join values types for "+str(value_set))
 

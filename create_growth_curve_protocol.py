@@ -39,8 +39,8 @@ od_plate = paml.Container(name='OD Plate', type=tyto.NCIT.Microplate, max_coordi
 split_and_measure.locations = {od_plate}
 
 # Inputs: collection of samples, pbs_source
-samples = split_and_measure.add_input(name='samples')
-pbs_source = split_and_measure.add_input(name='pbs')
+samples = split_and_measure.add_input(name='samples', type='http://bioprotocols.org/paml#LocatedSamples')
+pbs_source = split_and_measure.add_input(name='pbs', type='http://bioprotocols.org/paml#LocatedSamples')
 
 # subprotocol steps
 s_p = split_and_measure.execute_primitive('Dispense', source=pbs_source, destination=od_plate,
@@ -100,7 +100,7 @@ od_plate = paml.Container(name='OD Plate', type=tyto.NCIT.Microplate, max_coordi
 overnight_od_measure.locations = {od_plate}
 
 # Input: collection of samples
-samples = overnight_od_measure.add_input(name='samples')
+samples = overnight_od_measure.add_input(name='samples', type='http://bioprotocols.org/paml#LocatedSamples')
 
 # subprotocol steps
 s_t = overnight_od_measure.execute_primitive('Transfer', source=samples, destination=od_plate,
@@ -171,7 +171,9 @@ growth_plate = paml.Container(name='Growth Curve Plate', type=tyto.NCIT.Micropla
 protocol.locations = {pbs_source, sc_source, om_source, overnight_plate, growth_plate}
 
 # One input: a microplate full of strains
-strain_plate = protocol.add_input(name='strain_plate')
+# TODO: change this to allow alternative places
+strain_plate = protocol.add_input(name='strain_plate', type='http://bioprotocols.org/paml#LocatedSamples')
+#input_plate = paml.Container(name='497943_4_UWBF_to_stratoes', type=tyto.NCIT.Microplate, max_coordinate='H12')
 
 print('Constructing protocol steps')
 
@@ -250,7 +252,7 @@ print('Protocol construction complete')
 # Invocation of protocol on a plate:;
 
 # plate for invoking the protocol
-input_plate = paml.Container(name='497943_4_UWBF_to_stratoes', type=tyto.NCIT.Microplate, max_coordinate='H12')
+#input_plate = paml.Container(name='497943_4_UWBF_to_stratoes', type=tyto.NCIT.Microplate, max_coordinate='H12')
 
 
 print('Validating document')

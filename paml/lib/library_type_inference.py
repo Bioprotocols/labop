@@ -48,7 +48,7 @@ def liquid_handling_transfer_infer_typing(executable, typing: ProtocolTyping):
     if isinstance(source, paml.ReplicateSamples):
         relocated = paml.ReplicateSamples(specification=source.specification)
         relocated.in_location.append(destination)
-    elif isinstance(source, paml.HeterogeneousSamples):
+    elif isinstance(source, paml.LocatedSamples):
         relocated = paml.HeterogeneousSamples()  # leave it generic for now
     else:
         raise ValueError("Don't know how to infer type for Transfer with source of type "+str(type(source)))
