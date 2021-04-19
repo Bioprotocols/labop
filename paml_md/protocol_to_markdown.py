@@ -58,9 +58,8 @@ def reduce_range_set(ranges):
 
 # TODO: make this build PROV-O as it goes?
 class MarkdownConverter():
-    def __init__(self, document: sbol3.Document, protocol_typing: paml.type_inference.ProtocolTyping):
-        self.protocol_typing = protocol_typing
-        self.document = document    # TODO: this shouldn't be needed, but there are reference problems
+    def __init__(self, document: sbol3.Document):
+        self.document = document
 
     def markdown_header(self, protocol):
         header = '# ' + (protocol.display_id if (protocol.name is None) else protocol.name) + '\n'
@@ -68,6 +67,28 @@ class MarkdownConverter():
         header += '## Description:\n' + (
             'No description given' if protocol.description is None else protocol.description) + '\n'
         return header
+
+    # Entry-point for document conversion
+    # TODO: allow us to control the name of the output
+    def convert(self, protocol):
+        # protocol argument can be either string, URI, or paml.Protocol
+        if not isinstance(protocol, paml.Protocol):
+            protocol = self.document.find(protocol)
+
+        print('Inferring flow values')
+        self.protocol_typing = paml.type_inference.ProtocolTyping(protocol)
+
+        print('Serializing activities')
+        serialized_noncontrol_activities = serialize_activities(protocol)
+
+        print('Writing markdown file')
+        write_markdown_file(protocol, serialized_noncontrol_activities, self)
+
+        print('Writing Excel file')
+        write_excel_file(protocol, serialized_noncontrol_activities, self)
+
+        print('Export complete')
+
 
 
 ##############################################
@@ -164,6 +185,11 @@ def primitiveexecutable_to_markdown(self: paml.PrimitiveExecutable, mdc: Markdow
 paml.PrimitiveExecutable.to_markdown = primitiveexecutable_to_markdown
 
 
+def subprotocol_to_markdown(self: paml.SubProtocol, mdc: MarkdownConverter):
+    return "_Subprotocol expansion goes here_\n"
+paml.SubProtocol.to_markdown = subprotocol_to_markdown
+
+
 def value_to_markdown(self: paml.Value, mdc: MarkdownConverter):
     value = mdc.protocol_typing.flow_values[self.input_flows().pop()]
     return 'Report values from '+value.to_markdown(mdc)+'\n'
@@ -191,28 +217,13 @@ def unpin_activity(protocol, activity):
 
 
 ##############################
-# For serializing activities
+# Serialize order of steps
+
 def direct_precedents(protocol, activity):
     assert activity in protocol.activities
     flows = (x for x in protocol.flows if (x.sink.lookup() == activity) or (isinstance(activity,paml.Executable) and x.sink.lookup() in activity.input))
     precedents = {unpin_activity(protocol,x.source.lookup()) for x in flows}
     return precedents
-
-##############################
-# Get the protocol
-def get_protocol(doc:sbol3.Document):
-    # extract set of protocols from document
-    protocols = {x for x in doc.objects if isinstance(x, paml.Protocol)}
-    if len(protocols) == 0:
-        raise ValueError("Cannot find any protocols in document")
-    elif len(protocols) > 1:
-        raise ValueError("Found multiple protocols; don't know which to write")
-
-    # pull the first and only
-    return protocols.pop()
-
-##############################
-# Serialize order of steps
 
 def serialize_activities(protocol:paml.Protocol):
     serialized_activities = []
@@ -234,7 +245,7 @@ def serialize_activities(protocol:paml.Protocol):
 ##############################
 # Write to a markdown file
 
-def write_markdown_file(doc, protocol, serialized_noncontrol_activities, mdc: MarkdownConverter):
+def write_markdown_file(protocol, serialized_noncontrol_activities, mdc: MarkdownConverter):
     with open(protocol.display_id + '.md', 'w') as file:
         file.write(mdc.markdown_header(protocol))
 
@@ -325,7 +336,7 @@ def excel_write_flow_value(document, value, ws, row_offset):
     return str(value)
 
 
-def write_excel_file(doc, protocol, serialized_noncontrol_activities, mdc: MarkdownConverter):
+def write_excel_file(protocol, serialized_noncontrol_activities, mdc: MarkdownConverter):
     template_path = posixpath.join(os.path.dirname(os.path.realpath(__file__)),'template.xlsx')
     wb = openpyxl.load_workbook(filename=template_path)
     ws = wb.active  # get the default worksheet
@@ -349,34 +360,10 @@ def write_excel_file(doc, protocol, serialized_noncontrol_activities, mdc: Markd
         ws[coord] = 'Report from Step ' + str(step + 1)
         ws[coord].font = copy(header_style)
         value_locations = mdc.protocol_typing.flow_values[serialized_noncontrol_activities[step].input_flows().pop()]
-        block_height = excel_write_flow_value(doc, value_locations, ws, row_offset + 1)
+        block_height = excel_write_flow_value(mdc.document, value_locations, ws, row_offset + 1)
         row_offset += block_height + 2
 
     wb.save(protocol.display_id + '.xlsx')
-
-##############################
-# Entry-point for document conversion
-
-# TODO: allow us to control the name of the output
-def convert_document(doc:sbol3.Document):
-    print('Finding protocol')
-    protocol = get_protocol(doc)
-    print('Found protocol: '+protocol.display_id)
-
-    print('Inferring flow values')
-    protocol_typing = paml.type_inference.ProtocolTyping(protocol)
-
-    mdc = MarkdownConverter(doc,protocol_typing)
-    print('Serializing activities')
-    serialized_noncontrol_activities = serialize_activities(protocol)
-
-    print('Writing markdown file')
-    write_markdown_file(doc, protocol, serialized_noncontrol_activities, mdc)
-
-    print('Writing Excel file')
-    write_excel_file(doc, protocol, serialized_noncontrol_activities, mdc)
-
-    print('Export complete')
 
 
 

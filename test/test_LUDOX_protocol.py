@@ -92,7 +92,7 @@ is only weakly scattering and so will give a low absorbance value.
     def test_protocol_to_markdown(self):
         doc = sbol3.Document()
         doc.read('test/testfiles/igem_ludox_draft.nt', 'nt')
-        paml_md.convert_document(doc)
+        paml_md.MarkdownConverter(doc).convert('iGEM_LUDOX_OD_calibration_2018')
 
         # Checking if files are identical needs to wait for increased stability
         # assert filecmp.cmp('iGEM_LUDOX_OD_calibration_2018.md','test/testfiles/iGEM_LUDOX_OD_calibration_2018.md')
