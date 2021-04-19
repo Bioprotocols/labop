@@ -7,83 +7,107 @@ import posixpath
 import paml.type_inference
 from copy import copy
 
-def markdown_measure(measure):
-    return str(measure.value) + ' ' + str(tyto.OM.get_term_by_uri(measure.unit))
+##############################################
+# Direct conversion of individual PAML objects to markdown
 
-def markdown_component(component):
-    return '[' + (component.display_id if (component.name is None) else component.name) + ']('+component.types[0]+')'
+# TODO: make this build PROV-O as it goes?
+class MarkdownConverter():
+    def __init__(self, document: sbol3.Document, protocol_typing: paml.type_inference.ProtocolTyping):
+        self.protocol_typing = protocol_typing
+        self.document = document
 
-def markdown_container(container):
-    return '[' + (container.display_id if (container.name is None) else container.name) + ']('+container.type+')'
+    def markdown_header(self, protocol):
+        header = '# ' + (protocol.display_id if (protocol.name is None) else protocol.name) + '\n'
+        header += '\n'
+        header += '## Description:\n' + (
+            'No description given' if protocol.description is None else protocol.description) + '\n'
+        return header
 
-def markdown_containercoodinates(coordinates):
-    return markdown_container(coordinates.in_container.lookup()) + ' ' + coordinates.coordinates
 
-def markdown_location(location):
-    if isinstance(location, paml.ContainerCoordinates):
-        return markdown_containercoodinates(location)
-    elif isinstance(location, paml.Container):
-        return markdown_container(location)
-    else:
-        return str(location)
+##############################################
+# Direct conversion of individual PAML objects to markdown
 
-def markdown_mergedlocations(location_list):
-    this = markdown_location(location_list.pop())
+
+def measure_to_markdown(self: sbol3.Measure, mdc: MarkdownConverter):
+    return str(self.value) + ' ' + str(tyto.OM.get_term_by_uri(self.unit))
+sbol3.Measure.to_markdown = measure_to_markdown
+
+
+def component_to_markdown(self: sbol3.Component, mdc: MarkdownConverter):
+    return '[' + (self.display_id if (self.name is None) else self.name) + ']('+self.types[0]+')'
+sbol3.Component.to_markdown = component_to_markdown
+
+
+def container_to_markdown(self: paml.Container, mdc: MarkdownConverter):
+    return '[' + (self.display_id if (self.name is None) else self.name) + ']('+self.type+')'
+paml.Container.to_markdown = container_to_markdown
+
+
+def containercoodinates_to_markdown(self: paml.ContainerCoordinates, mdc: MarkdownConverter):
+    return self.in_container.lookup().to_markdown(mdc) + ' ' + self.coordinates
+paml.ContainerCoordinates.to_markdown = containercoodinates_to_markdown
+
+##############################################
+# old code being reprocessed
+
+def markdown_mergedlocations(location_list, mdc: MarkdownConverter):
+    this = location_list.pop().to_markdown(mdc)
     if len(location_list) == 0:
         return this
     if len(location_list) == 1:
-        return this + ' and ' + markdown_mergedlocations(location_list)
+        return this + ' and ' + markdown_mergedlocations(location_list, mdc)
     else:
-        return this + ', ' + markdown_mergedlocations(location_list)
+        return this + ', ' + markdown_mergedlocations(location_list, mdc)
 
-def markdown_flow_value(document, value):
+def markdown_flow_value(value, mdc: MarkdownConverter):
     if isinstance(value, paml.LocatedData):
         value = value.from_samples  # unwrap value
 
     if isinstance(value, paml.ReplicateSamples):
-        return markdown_mergedlocations({x.lookup() for x in value.in_location})
+        return markdown_mergedlocations({x.lookup() for x in value.in_location}, mdc)
     elif isinstance(value, paml.HeterogeneousSamples):
-        return markdown_mergedlocations({document.find(loc) for rep in value.replicate_samples for loc in rep.in_location})
+        return markdown_mergedlocations({mdc.document.find(loc) for rep in value.replicate_samples for loc in rep.in_location}, mdc)
     # if we fall through to here:
     return str(value)
 
 
-############
-# BUG: this should not need the document; this is due to pySBOL3 bug #176
-def input_pin_value(document, protocol, executable, pin_name):
-    pin_set = [x for x in executable.input if document.find(x.instance_of).name == pin_name]
-    if len(pin_set) != 1:
-        return "[couldn't find input "+pin_name+"]"
-    pin = pin_set[0]
-    if isinstance(pin, paml.LocalValuePin):
-        if isinstance(pin.value, sbol3.Measure):
-            return markdown_measure(pin.value)
-    elif isinstance(pin, paml.ReferenceValuePin):
-        value = pin.value.lookup()
-        if isinstance(value, sbol3.Component):
-            return markdown_component(value)
-        elif isinstance(value, paml.Location):
-            return markdown_location(value)
-    elif protocol_typing.flow_values[next(x for x in protocol.flows if x.sink.lookup() in executable.input)]:
-        value = protocol_typing.flow_values[next(x for x in protocol.flows if x.sink.lookup() in executable.input)]
-        return markdown_flow_value(document, value)
-    # if we fall through to here:
-    return str(pin)
+def simplevaluepin_to_markdown(self: paml.SimpleValuePin, mdc: MarkdownConverter):
+    return str(self.value)
+paml.SimpleValuePin.to_markdown = simplevaluepin_to_markdown
+
+
+def localvaluepin_to_markdown(self: paml.LocalValuePin, mdc: MarkdownConverter):
+    return self.value.to_markdown(mdc)
+paml.LocalValuePin.to_markdown = localvaluepin_to_markdown
+
+
+def referencevaluepin_to_markdown(self: paml.ReferenceValuePin, mdc: MarkdownConverter):
+    return self.value.lookup().to_markdown(mdc)
+paml.ReferenceValuePin.to_markdown = referencevaluepin_to_markdown
+
+
+def pin_to_markdown(self: paml.Pin, mdc: MarkdownConverter):
+    protocol = self.get_toplevel()
+    executable = self.get_parent()
+    value = mdc.protocol_typing.flow_values[next(x for x in protocol.flows if x.sink.lookup() in executable.input)]
+    return markdown_flow_value(value, mdc)
+paml.Pin.to_markdown = pin_to_markdown
+
 
 ############
 # BUG: this should not need the document; this is due to pySBOL3 bug #176
-def markdown_provision(document, protocol, executable):
-    volume = input_pin_value(document, protocol, executable, 'amount')
-    resource = input_pin_value(document, protocol, executable, 'resource')
-    location = input_pin_value(document, protocol, executable, 'destination')
+def markdown_provision(executable, mdc: MarkdownConverter):
+    volume = executable.input_pin('amount').to_markdown(mdc)
+    resource = executable.input_pin('resource').to_markdown(mdc)
+    location = executable.input_pin('destination').to_markdown(mdc)
     instruction = 'Pipette '+volume+' of '+resource+' into '+location+'\n'
     return instruction
 
 ############
 # BUG: this should not need the document; this is due to pySBOL3 bug #176
-def markdown_absorbance(document, protocol, executable):
-    samples = input_pin_value(document, protocol, executable, 'samples')
-    wavelength = input_pin_value(document, protocol, executable, 'wavelength')
+def markdown_absorbance(executable, mdc: MarkdownConverter):
+    samples = executable.input_pin('samples').to_markdown(mdc)
+    wavelength = executable.input_pin('wavelength').to_markdown(mdc)
     instruction = 'Measure absorbance of '+samples+' at '+wavelength+'\n'
     return instruction
 
@@ -94,39 +118,28 @@ primitive_library = {
     'https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureAbsorbance' : markdown_absorbance
 }
 
-def get_value_flow_input(protocol, activity):
-    flows = (x for x in protocol.flows if (x.sink.lookup() == activity)) # need to generalize to multiple
-    return protocol_typing.flow_values[next(flows)]
+def primitiveexecutable_to_markdown(self: paml.PrimitiveExecutable, mdc: MarkdownConverter):
+    stepwriter = primitive_library[mdc.document.find(self.instance_of).identity]
+    assert stepwriter
+    return stepwriter(self, mdc)
+paml.PrimitiveExecutable.to_markdown = primitiveexecutable_to_markdown
 
-def markdown_value(document, protocol, activity):
-    return 'Report values from '+markdown_flow_value(document, get_value_flow_input(protocol, activity))+'\n'
 
-def markdown_header(protocol):
-    header = '# ' + (protocol.display_id if (protocol.name is None) else protocol.name) + '\n'
-    header += '\n'
-    header += '## Description:\n' + ('No description given' if protocol.description is None else protocol.description) + '\n'
-    return header
+def value_to_markdown(self: paml.Value, mdc: MarkdownConverter):
+    return 'Report values from '+markdown_flow_value(mdc.protocol_typing.flow_values[self.input_flows().pop()], mdc)+'\n'
+paml.Value.to_markdown = value_to_markdown
+
 
 #############
-# BUG: this should not need the document; this is due to pySBOL3 bug #176
-def markdown_activity(document, protocol, activity):
-    if isinstance(activity, paml.PrimitiveExecutable):
-        stepwriter = primitive_library[document.find(activity.instance_of).identity]
-        assert stepwriter
-        return stepwriter(document, protocol, activity)
-    elif isinstance(activity, paml.Value):
-        return markdown_value(document, protocol, activity)
-    else:
-        raise ValueError("Don't know how to serialize activity "+activity)
 
-def markdown_material(component):
-    bullet = '* ' + markdown_component(component)
+def markdown_material(component, mdc: MarkdownConverter):
+    bullet = '* ' + component.to_markdown(mdc)
     if component.description is not None: bullet += ': ' + component.description
     bullet += '\n'
     return bullet
 
-def markdown_container_toplevel(container):
-    bullet = '* ' + markdown_container(container)
+def markdown_container_toplevel(container, mdc: MarkdownConverter):
+    bullet = '* ' + container.to_markdown(mdc)
     if container.description is not None: bullet += ': ' + container.description
     return bullet
 
@@ -183,20 +196,19 @@ def serialize_activities(protocol:paml.Protocol):
 ##############################
 # Write to a markdown file
 
-def write_markdown_file(doc, protocol, serialized_noncontrol_activities):
+def write_markdown_file(doc, protocol, serialized_noncontrol_activities, mdc: MarkdownConverter):
     with open(protocol.display_id + '.md', 'w') as file:
-        file.write(markdown_header(protocol))
+        file.write(mdc.markdown_header(protocol))
 
         file.write('\n\n## Materials\n')
         for material in protocol.material:
-            file.write(markdown_material(material.lookup()))
+            file.write(markdown_material(material.lookup(), mdc))
         for container in (x for x in protocol.locations if isinstance(x, paml.Container)):
-            file.write(markdown_container_toplevel(container))
+            file.write(markdown_container_toplevel(container, mdc))
 
         file.write('\n\n## Steps\n')
         for step in range(len(serialized_noncontrol_activities)):
-            file.write('### Step ' + str(step + 1) + '\n' + markdown_activity(doc, protocol, serialized_noncontrol_activities[
-                step]) + '\n')
+            file.write('### Step ' + str(step + 1) + '\n' + serialized_noncontrol_activities[step].to_markdown(mdc) + '\n')
 
         # make sure the file is fully written
         file.flush()
@@ -274,7 +286,7 @@ def excel_write_flow_value(document, value, ws, row_offset):
     return str(value)
 
 
-def write_excel_file(doc, protocol, serialized_noncontrol_activities):
+def write_excel_file(doc, protocol, serialized_noncontrol_activities, mdc: MarkdownConverter):
     template_path = posixpath.join(os.path.dirname(os.path.realpath(__file__)),'template.xlsx')
     wb = openpyxl.load_workbook(filename=template_path)
     ws = wb.active  # get the default worksheet
@@ -297,7 +309,7 @@ def write_excel_file(doc, protocol, serialized_noncontrol_activities):
         coord = 'A' + str(row_offset)
         ws[coord] = 'Report from Step ' + str(step + 1)
         ws[coord].font = copy(header_style)
-        value_locations = get_value_flow_input(protocol, serialized_noncontrol_activities[step])
+        value_locations = mdc.protocol_typing.flow_values[serialized_noncontrol_activities[step].input_flows().pop()]
         block_height = excel_write_flow_value(doc, value_locations, ws, row_offset + 1)
         row_offset += block_height + 2
 
@@ -306,7 +318,6 @@ def write_excel_file(doc, protocol, serialized_noncontrol_activities):
 ##############################
 # Entry-point for document conversion
 
-protocol_typing = None
 # TODO: allow us to control the name of the output
 def convert_document(doc:sbol3.Document):
     print('Finding protocol')
@@ -314,17 +325,17 @@ def convert_document(doc:sbol3.Document):
     print('Found protocol: '+protocol.display_id)
 
     print('Inferring flow values')
-    global protocol_typing # TODO: remove this nasty kludge
     protocol_typing = paml.type_inference.ProtocolTyping(protocol)
 
+    mdc = MarkdownConverter(doc,protocol_typing)
     print('Serializing activities')
     serialized_noncontrol_activities = serialize_activities(protocol)
 
     print('Writing markdown file')
-    write_markdown_file(doc, protocol, serialized_noncontrol_activities)
+    write_markdown_file(doc, protocol, serialized_noncontrol_activities, mdc)
 
     print('Writing Excel file')
-    write_excel_file(doc, protocol, serialized_noncontrol_activities)
+    write_excel_file(doc, protocol, serialized_noncontrol_activities, mdc)
 
     print('Export complete')
 
