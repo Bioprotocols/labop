@@ -34,9 +34,9 @@ primitive_type_inference_functions[LIQUID_HANDLING_PREFIX+'Provision'] = liquid_
 
 def liquid_handling_dispense_infer_typing(executable, typing: ProtocolTyping):
     source = executable.input_pin('source').input_type(typing)  # Assumed singular replicate
-    assert isinstance(source, paml.ReplicateSamples), ValueError('Dispense must not come form a heterogeneous source')
-    location = executable.input_pin('destination').input_type(typing)
-    samples = paml.ReplicateSamples(specification=source.specification)
+    assert isinstance(source, paml.ReplicateSamples), ValueError('Dispense must come from a homogeneous source, but found '+str(source))
+    location = executable.input_pin('destination').input_type(typing).lookup()
+    samples = paml.ReplicateSamples(specification=source.specification) # TODO: Fix the kludge here
     samples.in_location.append(location)
     executable.output_pin('samples').assert_output_type(typing, samples)
 primitive_type_inference_functions[LIQUID_HANDLING_PREFIX+'Dispense'] = liquid_handling_dispense_infer_typing
@@ -49,7 +49,10 @@ def liquid_handling_transfer_infer_typing(executable, typing: ProtocolTyping):
         relocated = paml.ReplicateSamples(specification=source.specification)
         relocated.in_location.append(destination)
     elif isinstance(source, paml.LocatedSamples):
-        relocated = paml.HeterogeneousSamples()  # leave it generic for now
+        relocated = paml.HeterogeneousSamples()
+        kludge = paml.ReplicateSamples() # TODO: put something real here instead
+        kludge.in_location.append(destination)
+        relocated.replicate_samples.append(kludge)
     else:
         raise ValueError("Don't know how to infer type for Transfer with source of type "+str(type(source)))
     executable.output_pin('samples').assert_output_type(typing, relocated)
@@ -64,7 +67,11 @@ def liquid_handling_transferinto_infer_typing(executable, typing: ProtocolTyping
         mixture = paml.ReplicateSamples(specification=contents)
         mixture.in_location.append(destination)
     elif isinstance(source, paml.LocatedSamples) and isinstance(destination, paml.LocatedSamples):
-        mixture = paml.HeterogeneousSamples()  # leave it generic for now
+        mixture = paml.HeterogeneousSamples()
+        kludge = paml.ReplicateSamples() # TODO: put something real here instead
+        kludge_loc = (destination.in_location if isinstance(destination, paml.ReplicateSamples) else destination.replicate_samples[0].in_location)
+        kludge.in_location.append(kludge_loc[0])
+        mixture.replicate_samples.append(kludge)
     else:
         raise ValueError("Don't know how to infer type for TransferInto "+executable.identity+" with source and destination types "+str(type(source))+', '+str(type(destination)))
     executable.output_pin('samples').assert_output_type(typing, mixture)

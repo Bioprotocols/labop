@@ -209,13 +209,14 @@ s_i = protocol.execute_primitive('Incubate', location=overnight_samples,
                                  temperature=sbol3.Measure(30, tyto.OM.get_uri_by_term('degree Celsius')),
                                  duration=sbol3.Measure(16, tyto.OM.hour),
                                  shakingFrequency=sbol3.Measure(350, rpm.identity))
+protocol.add_flow(s_t, s_s) # sealing after transfer
 protocol.add_flow(s_s, s_i) # incubation after sealing
 
 # Check the OD after running overnight; note that this is NOT the same measurement process as for the during-growth measurements
 s_u = protocol.execute_primitive('Unseal', location=overnight_samples) # added because using the subprotocol leaves a sealed plate
 protocol.add_flow(s_i, s_u) # growth plate after measurement
 s_m = protocol.execute_subprotocol(overnight_od_measure, samples=overnight_samples)
-protocol.add_flow(s_m, protocol.final()) # measurement after incubation
+protocol.add_flow(s_u, s_m) # measurement after incubation and unsealing
 
 # Set up the growth plate
 s_d = protocol.execute_primitive('Dispense', source=p_scm.output_pin('samples'), destination=growth_plate,
@@ -225,8 +226,9 @@ s_t = protocol.execute_primitive(doc.find('TransferInto'), source=overnight_samp
                                  mixCycles = sbol3.Measure(10, tyto.OM.number))
 s_s = protocol.execute_primitive('Seal', location=overnight_samples,
                                  type='http://autoprotocol.org/lids/breathable') # need to turn this into a proper ontology
-protocol.add_flow(s_u, s_t) # transfer can't happen until strain plate is unsealed ...
+protocol.add_flow(s_u, s_t) # transfer can't happen until overnight plate is unsealed ...
 protocol.add_flow(s_t, s_s) # ... and must complete before we re-seal it
+protocol.add_flow(s_m, s_s) # ... as must its measurement
 
 # run the step-by-step culture
 growth_samples = s_t.output_pin('samples')

@@ -3,6 +3,8 @@ import paml
 import paml_md
 
 
+# TODO: allow optionals to actually be optional
+
 # Pre-declare the MarkdownConverter class to avoid circularity with paml_md.protocol_to_markdown
 class MarkdownConverter:
     pass
@@ -46,7 +48,7 @@ def liquid_handling_transferinto_to_markdown(executable, mdc: MarkdownConverter)
     source = executable.input_pin('source').to_markdown(mdc)
     destination = executable.input_pin('destination').to_markdown(mdc)
     mix_cycles = executable.input_pin('mixCycles').to_markdown(mdc) # TODO: this should be optional, not required
-    return 'Pipette '+volume+' from '+source+' into '+destination+', mixing by pipetting up and down '+mix_cycles+' at destination\n'
+    return 'Pipette '+volume+' from '+source+' into '+destination+', mixing by pipetting up and down '+mix_cycles+' times at destination\n'
 primitive_to_markdown_functions[LIQUID_HANDLING_PREFIX + 'TransferInto'] = liquid_handling_transferinto_to_markdown
 
 
@@ -65,9 +67,10 @@ PLATE_HANDLING_PREFIX = 'https://bioprotocols.org/paml/primitives/plate_handling
 
 def plate_handling_cover_to_markdown(executable, mdc: MarkdownConverter):
     location = executable.input_pin('location').to_markdown(mdc)
-    type_uri = executable.input_pin('type').to_markdown(mdc)
-    type = type_uri.split('/')[-1] # TODO: fix kludge: need a real ontology
-    return 'Cover '+location+' with '+type+' cover\n'
+    #type_uri = executable.input_pin('type').to_markdown(mdc)
+    #type = type_uri.split('/')[-1] # TODO: fix kludge: need a real ontology
+    #return 'Cover '+location+' with '+type+' cover\n'
+    return 'Cover '+location+'\n'
 primitive_to_markdown_functions[PLATE_HANDLING_PREFIX+'Cover'] = plate_handling_cover_to_markdown
 
 
@@ -116,15 +119,16 @@ def spectrophotometry_absorbance_to_markdown(executable, mdc: MarkdownConverter)
 primitive_to_markdown_functions[SPECTROPHOTOMETRY+'MeasureAbsorbance'] = spectrophotometry_absorbance_to_markdown
 
 
-def spectrophotometry_absorbance_to_markdown(executable, mdc: MarkdownConverter):
+def spectrophotometry_fluorescence_to_markdown(executable, mdc: MarkdownConverter):
     samples = executable.input_pin('samples').to_markdown(mdc)
     excitation = executable.input_pin('excitationWavelength').to_markdown(mdc)
-    # TODO: fix kludge: don't assume optionals
+    # TODO: fix kludge: don't assume whether optionals are present
     bp_wavelength = executable.input_pin('emissionBandpassWavelength').to_markdown(mdc)
-    bp_width = executable.input_pin('emissionBandpassWidth').to_markdown(mdc)
-    emission = bp_wavelength+' / '+bp_width
+    #bp_width = executable.input_pin('emissionBandpassWidth').to_markdown(mdc)
+    emission = bp_wavelength  #+' / '+bp_width
     gain = executable.input_pin('gain').to_markdown(mdc)
     return 'Measure fluorescence of '+samples+' at excitation '+excitation+' and emission '+emission+' with gain = '+gain+'\n'
+primitive_to_markdown_functions[SPECTROPHOTOMETRY+'MeasureFluorescence'] = spectrophotometry_fluorescence_to_markdown
 
 
 # TODO: add remaining primitives

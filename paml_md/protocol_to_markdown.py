@@ -106,9 +106,21 @@ def list_to_markdown(l: list, mdc: MarkdownConverter):
     else:
         return this + ', ' + list_to_markdown(l, mdc)
 
+def strlist_to_markdown(l: list, mdc: MarkdownConverter):
+    if len(l) == 0:
+        return '' ## TODO: kludge: this shouldn't be happening
+    this = l.pop()
+    if len(l) == 0:
+        return this
+    if len(l) == 1:
+        return this + ' and ' + strlist_to_markdown(l, mdc)
+    else:
+        return this + ', ' + strlist_to_markdown(l, mdc)
 
 def measure_to_markdown(self: sbol3.Measure, mdc: MarkdownConverter):
     unit = (mdc.document.find(self.unit).name if mdc.document.find(self.unit) else tyto.OM.get_term_by_uri(self.unit))
+    if unit=="number":  # special case: don't need to say unit for pure numbers
+        unit = ''
     return str(self.value) + ' ' + str(unit)
 sbol3.Measure.to_markdown = measure_to_markdown
 
@@ -196,9 +208,15 @@ def primitiveexecutable_to_markdown(self: paml.PrimitiveExecutable, mdc: Markdow
     return stepwriter(self, mdc)
 paml.PrimitiveExecutable.to_markdown = primitiveexecutable_to_markdown
 
+def subcall_variable_to_markdown(pin,mdc):
+    activity = pin.instance_of.lookup().activity.lookup()
+    return pin.to_markdown(mdc) + " for " + (activity.description if activity.description else activity.name)
 
 def subprotocol_to_markdown(self: paml.SubProtocol, mdc: MarkdownConverter):
-    return "_Subprotocol expansion goes here_\n"
+    protocol = self.instance_of.lookup()
+    pname = (protocol.display_id if (protocol.name is None) else protocol.name)
+    input_string = strlist_to_markdown([subcall_variable_to_markdown(pin,mdc) for pin in self.input], mdc)
+    return 'Run protocol "'+pname+'" with inputs: '+input_string
 paml.SubProtocol.to_markdown = subprotocol_to_markdown
 
 
@@ -264,7 +282,7 @@ def serialize_activities(protocol:paml.Protocol):
     assert isinstance(serialized_activities[-1], paml.Final)
 
     # filter out control flow statements
-    serialized_noncontrol_activities = [x for x in serialized_activities if (not isinstance(x, paml.Control)) and (not is_input_value(x))]
+    serialized_noncontrol_activities = [x for x in serialized_activities if (not isinstance(x, paml.Control)) and (not isinstance(x, paml.Value))]
     return serialized_noncontrol_activities
 
 ##############################
@@ -401,29 +419,3 @@ def write_excel_file(protocol, serialized_noncontrol_activities, mdc: MarkdownCo
 
     wb.save(protocol.display_id + '.xlsx')
 
-
-
-#################################################
-# Scraps from elsewhere that will be useful
-
-# # Actually, all of this is more of a forward-looking simulation to be determined later in the .md process itself
-# # The type inference can be simpler
-# # TODO: generalize to allow multiple containers, non-identical locations
-# # TODO: track amounts as well
-#
-# # TODO: this is a kludge that needs to be generalized to handle transfers between non-identical locations
-# def translate_sublocation(source: paml.ContainerCoordinates, destination: paml.Container):
-#     return paml.ContainerCoordinates(in_location = destination, coordinates = source.coordinates)
-#
-# def heterogeneous_relocated_samples(self, destination: paml.Location):
-#     assert (len(self.containers == 1))
-#     relocated = paml.HeterogeneousSamples()
-#     relocated.replicate_samples = {r.relocated_samples(translate_sublocation(r.in_location,destination)) for r in self.replicate_samples}
-# paml.HeterogeneousSamples.relocated_samples = heterogeneous_relocated_samples
-#
-# def replicate_relocated_samples(self, destination: paml.Location):
-#     assert(len(self.containers==1))
-#     relocated = paml.ReplicateSamples(specification=self.specification)
-#     relocated.in_location.append(destination)
-#     return relocated
-# paml.ReplicateSamples.relocated_samples = replicate_relocated_samples
