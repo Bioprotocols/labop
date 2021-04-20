@@ -96,6 +96,8 @@ class MarkdownConverter():
 # Direct conversion of individual objects to their markdown representations
 
 def list_to_markdown(l: list, mdc: MarkdownConverter):
+    if len(l) == 0:
+        return '' ## TODO: kludge: this shouldn't be happening
     this = l.pop().to_markdown(mdc)
     if len(l) == 0:
         return this
@@ -106,7 +108,8 @@ def list_to_markdown(l: list, mdc: MarkdownConverter):
 
 
 def measure_to_markdown(self: sbol3.Measure, mdc: MarkdownConverter):
-    return str(self.value) + ' ' + str(tyto.OM.get_term_by_uri(self.unit))
+    unit = (mdc.document.find(self.unit).name if mdc.document.find(self.unit) else tyto.OM.get_term_by_uri(self.unit))
+    return str(self.value) + ' ' + str(unit)
 sbol3.Measure.to_markdown = measure_to_markdown
 
 
@@ -131,8 +134,8 @@ def markdown_mergedlocations(location_list, mdc: MarkdownConverter):
     containers = [c for c in location_list if isinstance(c, paml.Container)]
     coords = {coord for coord in location_list if isinstance(coord, paml.ContainerCoordinates)}
     reduced = []
-    for c in {coord.in_container.lookup() for coord in location_list}:
-        ranges = reduce_range_set({l.coordinates for l in location_list if l.in_container.lookup()==c})
+    for c in {coord.in_container.lookup() for coord in coords}:
+        ranges = reduce_range_set({l.coordinates for l in coords if l.in_container.lookup()==c})
         for r in ranges:  # BUG: should be a list comprehension, but in_container argument can't be set in constructor
             cc = paml.ContainerCoordinates(coordinates=r)
             cc.in_container = c
@@ -144,9 +147,13 @@ def locateddata_to_markdown(self: paml.LocatedData, mdc: MarkdownConverter):
     return self.from_samples.to_markdown(mdc)
 paml.LocatedData.to_markdown = locateddata_to_markdown
 
+def locatedsamples_to_markdown(self: paml.ReplicateSamples, _: MarkdownConverter):
+    return self.name  # TODO: can we do better than this kludge?
+paml.LocatedSamples.to_markdown = locatedsamples_to_markdown
+
 
 def replicatesamples_to_markdown(self: paml.ReplicateSamples, mdc: MarkdownConverter):
-    return markdown_mergedlocations({x.lookup() for x in self.in_location}, mdc)
+    return markdown_mergedlocations({mdc.document.find(x) for x in self.in_location}, mdc)
 paml.ReplicateSamples.to_markdown = replicatesamples_to_markdown
 
 
@@ -155,9 +162,13 @@ def heterogeneoussamples_to_markdown(self: paml.HeterogeneousSamples, mdc: Markd
 paml.HeterogeneousSamples.to_markdown = heterogeneoussamples_to_markdown
 
 
-def simplevaluepin_to_markdown(self: paml.SimpleValuePin, mdc: MarkdownConverter):
+def integerconstantpin_to_markdown(self: paml.IntegerConstantPin, mdc: MarkdownConverter):
     return str(self.value)
-paml.SimpleValuePin.to_markdown = simplevaluepin_to_markdown
+paml.IntegerConstantPin.to_markdown = integerconstantpin_to_markdown
+
+def stringconstantpin_to_markdown(self: paml.StringConstantPin, mdc: MarkdownConverter):
+    return str(self.value)
+paml.StringConstantPin.to_markdown = stringconstantpin_to_markdown
 
 
 def localvaluepin_to_markdown(self: paml.LocalValuePin, mdc: MarkdownConverter):
@@ -171,9 +182,9 @@ paml.ReferenceValuePin.to_markdown = referencevaluepin_to_markdown
 
 # A non-constant pin needs to pull its value from the flow
 def pin_to_markdown(self: paml.Pin, mdc: MarkdownConverter):
-    protocol = self.get_toplevel()
-    executable = self.get_parent()
-    value = mdc.protocol_typing.flow_values[next(x for x in protocol.flows if x.sink.lookup() in executable.input)]
+    inflows = self.input_flows()
+    assert len(inflows)==1, ValueError('Pin has more than one input flow: '+self.identity)
+    value = mdc.protocol_typing.flow_values[inflows.pop()]
     return value.to_markdown(mdc)
 paml.Pin.to_markdown = pin_to_markdown
 
@@ -192,13 +203,24 @@ paml.SubProtocol.to_markdown = subprotocol_to_markdown
 
 
 def value_to_markdown(self: paml.Value, mdc: MarkdownConverter):
-    value = mdc.protocol_typing.flow_values[self.input_flows().pop()]
-    return 'Report values from '+value.to_markdown(mdc)+'\n'
+    if is_input_value(self):  # This is an input value, used as a variable
+        value = mdc.protocol_typing.flow_values[self.output_flows().pop()]
+        return 'Protocol input: ' + value.to_markdown(mdc)
+    else:  # This is an output value, used for reporting
+        value = mdc.protocol_typing.flow_values[self.input_flows().pop()]
+        return 'Report values from ' + value.to_markdown(mdc) + '\n'
 paml.Value.to_markdown = value_to_markdown
 
 
 #############################
 # Other sorts of markdown functions
+
+def markdown_input(input, mdc: MarkdownConverter):
+    bullet = '* ' + input.to_markdown(mdc)
+    if input.description is not None: bullet += ': ' + input.description
+    bullet += '\n'
+    return bullet
+
 
 def markdown_material(component, mdc: MarkdownConverter):
     bullet = '* ' + component.to_markdown(mdc)
@@ -208,29 +230,31 @@ def markdown_material(component, mdc: MarkdownConverter):
 
 
 def markdown_container_toplevel(container, mdc: MarkdownConverter):
-    bullet = '* ' + container.to_markdown(mdc)
+    # TODO: generalize ontology option for type
+    bullet = '* ' + container.to_markdown(mdc) + ' (['+tyto.NCIT.get_term_by_uri(container.type)+']('+container.type+'))'
     if container.description is not None: bullet += ': ' + container.description
+    bullet += '\n'
     return bullet
 
-
-def unpin_activity(protocol, activity):
-    return activity.get_parent() if isinstance(activity, paml.Pin) else activity
 
 
 ##############################
 # Serialize order of steps
 
-def direct_precedents(protocol, activity):
-    assert activity in protocol.activities
-    flows = (x for x in protocol.flows if (x.sink.lookup() == activity) or (isinstance(activity,paml.Executable) and x.sink.lookup() in activity.input))
-    precedents = {unpin_activity(protocol,x.source.lookup()) for x in flows}
-    return precedents
+def unpin_activity(protocol, activity):
+    return activity.get_parent() if isinstance(activity, paml.Pin) else activity
+
+def is_input_value(x):
+    return isinstance(x,paml.Value) and \
+           not({f for f in x.input_flows() if not isinstance(f.source.lookup(), paml.Initial)})
 
 def serialize_activities(protocol:paml.Protocol):
     serialized_activities = []
     pending_activities = set(protocol.activities)
+    print('Building activity cache of precedence order')
+    direct_precedents_cache = {a: {unpin_activity(protocol,f.source.lookup()) for f in a.input_flows()} for a in pending_activities}  # speed kludge
     while pending_activities:
-        non_blocked = {x for x in pending_activities if not (direct_precedents(protocol, x) & set(pending_activities))}
+        non_blocked = {x for x in pending_activities if not (direct_precedents_cache[x] & set(pending_activities))}
         if not non_blocked:
             raise ValueError("Could not serialize all activities: circular dependency?")
         serialized_activities += non_blocked
@@ -240,28 +264,39 @@ def serialize_activities(protocol:paml.Protocol):
     assert isinstance(serialized_activities[-1], paml.Final)
 
     # filter out control flow statements
-    serialized_noncontrol_activities = [x for x in serialized_activities if not isinstance(x, paml.Control)]
+    serialized_noncontrol_activities = [x for x in serialized_activities if (not isinstance(x, paml.Control)) and (not is_input_value(x))]
     return serialized_noncontrol_activities
 
 ##############################
 # Write to a markdown file
 
-def write_markdown_file(protocol, serialized_noncontrol_activities, mdc: MarkdownConverter):
+def write_markdown_file(protocol: paml.Protocol, serialized_noncontrol_activities, mdc: MarkdownConverter):
     with open(protocol.display_id + '.md', 'w') as file:
         file.write(mdc.markdown_header(protocol))
+
+        file.write('\n\n## Protocol Inputs:\n')
+        for i in protocol.input:
+            file.write(markdown_input(i.activity.lookup(), mdc))
 
         file.write('\n\n## Materials\n')
         for material in protocol.material:
             file.write(markdown_material(material.lookup(), mdc))
+
+        file.write('\n\n## Containers\n')
         for container in (x for x in protocol.locations if isinstance(x, paml.Container)):
             file.write(markdown_container_toplevel(container, mdc))
 
         file.write('\n\n## Steps\n')
         for step in range(len(serialized_noncontrol_activities)):
-            file.write('### Step ' + str(step + 1) + '\n' + serialized_noncontrol_activities[step].to_markdown(mdc) + '\n')
+            print('Writing step '+str(step)+": "+serialized_noncontrol_activities[step].identity)
+            #file.write('### Step ' + str(step + 1) + '\n' + serialized_noncontrol_activities[step].to_markdown(mdc) + '\n')
+            file.write(str(step + 1) + '. ' + serialized_noncontrol_activities[step].to_markdown(mdc) + '\n')
 
         # make sure the file is fully written
         file.flush()
+        file.close()
+
+    print('Finished writing markdown')
 
 
 ##############################

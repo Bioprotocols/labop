@@ -17,8 +17,8 @@ paml.import_library('plate_handling')
 paml.import_library('spectrophotometry')
 
 # this should really get pulled into a common library somewhere
-rpm = sbol3.UnitDivision('rpm',symbol='rpm',label='revolutions per minute',numerator=tyto.OM.revolution,denominator=tyto.OM.minute)
-
+rpm = sbol3.UnitDivision('rpm',name='rpm', symbol='rpm',label='revolutions per minute',numerator=tyto.OM.revolution,denominator=tyto.OM.minute)
+doc.add(rpm)
 
 
 #############################################
@@ -39,8 +39,8 @@ od_plate = paml.Container(name='OD Plate', type=tyto.NCIT.Microplate, max_coordi
 split_and_measure.locations = {od_plate}
 
 # Inputs: collection of samples, pbs_source
-samples = split_and_measure.add_input(name='samples', type='http://bioprotocols.org/paml#LocatedSamples')
-pbs_source = split_and_measure.add_input(name='pbs', type='http://bioprotocols.org/paml#LocatedSamples')
+samples = split_and_measure.add_input(name='samples', description='Samples to measure', type='http://bioprotocols.org/paml#LocatedSamples')
+pbs_source = split_and_measure.add_input(name='pbs', description='Source for PBS', type='http://bioprotocols.org/paml#LocatedSamples')
 
 # subprotocol steps
 s_p = split_and_measure.execute_primitive('Dispense', source=pbs_source, destination=od_plate,
@@ -100,7 +100,7 @@ od_plate = paml.Container(name='OD Plate', type=tyto.NCIT.Microplate, max_coordi
 overnight_od_measure.locations = {od_plate}
 
 # Input: collection of samples
-samples = overnight_od_measure.add_input(name='samples', type='http://bioprotocols.org/paml#LocatedSamples')
+samples = overnight_od_measure.add_input(name='samples', description='Samples to measure', type='http://bioprotocols.org/paml#LocatedSamples')
 
 # subprotocol steps
 s_t = overnight_od_measure.execute_primitive('Transfer', source=samples, destination=od_plate,
@@ -144,7 +144,8 @@ print('Making protocol')
 
 protocol = paml.Protocol('GrowthCurve', name = "SD2 Yeast growth curve protocol")
 protocol.description = '''
-Grow up cells and read every interval
+Protocol from SD2 Yeast States working group for studying growth curves:
+Grow up cells and read with plate reader at n-hour intervals
 '''
 doc.add(protocol)
 
@@ -172,7 +173,7 @@ protocol.locations = {pbs_source, sc_source, om_source, overnight_plate, growth_
 
 # One input: a microplate full of strains
 # TODO: change this to allow alternative places
-strain_plate = protocol.add_input(name='strain_plate', type='http://bioprotocols.org/paml#LocatedSamples')
+strain_plate = protocol.add_input(name='strain_plate', description='Plate of strains to grow', type='http://bioprotocols.org/paml#LocatedSamples')
 #input_plate = paml.Container(name='497943_4_UWBF_to_stratoes', type=tyto.NCIT.Microplate, max_coordinate='H12')
 
 print('Constructing protocol steps')
@@ -230,7 +231,8 @@ protocol.add_flow(s_t, s_s) # ... and must complete before we re-seal it
 # run the step-by-step culture
 growth_samples = s_t.output_pin('samples')
 last_round = None
-sample_hours = [1, 3, 6, 9, 12, 15, 18, 21, 24]
+# sample_hours = [1, 3, 6, 9, 12, 15, 18, 21, 24]   # Original: modified to be friendly to human execution
+sample_hours = [1, 3, 6, 9, 18, 21, 24]
 for i in range(0,len(sample_hours)):
     incubation_hours = sample_hours[i] - (sample_hours[i-1] if i>0 else 0)
     s_i = protocol.execute_primitive('Incubate', location=growth_samples,

@@ -98,28 +98,33 @@ def subprotocol_infer_typing(self: paml.SubProtocol, typing: ProtocolTyping):
     subprotocol = self.instance_of.lookup()
     if subprotocol not in typing.typed_protocols:
         # add types for inputs
-        #input_pin_flows = self.input_flows() - self.direct_input_flows()
-        #typing.flow_values.update({subprotocol.input_value(f.sink).direct_input_flows(): typing.flow_values[f] for f in input_pin_flows})
+        input_pin_flows = self.input_flows() - self.direct_input_flows()
+        for f in input_pin_flows:
+            typing.flow_values.update({subflow: typing.flow_values[f] for subflow in subprotocol.get_input(f.sink.lookup().name).activity.lookup().direct_output_flows()})
         # run the actual inference
         typing.infer_typing(subprotocol)
     # pull values from outputs' inferred values
-    #output_pin_flows = self.output_flows() - self.direct_output_flows()
-    #typing.flow_values.update({f:typing.flow_values[subprotocol.output_value(f.sink).direct_output_flows()] for f in output_pin_flows})
+    output_pin_flows = self.output_flows() - self.direct_output_flows()
+    for f in output_pin_flows:
+        typing.flow_values.update({subflow: typing.flow_values[f] for subflow in subprotocol.get_output(f.source.lookup().name).activity.lookup().direct_input_flows()})
 paml.SubProtocol.infer_typing = subprotocol_infer_typing
 
 
-def type_to_value(type_name: str):
+def type_to_value(type_name: str, **kwargs):
     if type_name == 'http://bioprotocols.org/paml#LocatedSamples':
-        return paml.LocatedSamples()
+        return paml.LocatedSamples(**kwargs)
     elif type_name == 'http://bioprotocols.org/paml#LocatedData':
-        return paml.LocatedData()
+        return paml.LocatedData(**kwargs)
     else:
         ValueError("Don't know how to make dummy object for type "+type_name)
 
-def value_infer_typing(self, typing: ProtocolTyping):
-    #assert len(self.direct_output_flows()) == 1  # should be precisely one output
-    output_instance = (type_to_value(self.type) if self.type else None)
-    typing.flow_values.update({f: output_instance for f in self.direct_output_flows()})
+
+def value_infer_typing(self: paml.Value, typing: ProtocolTyping):
+    # assert len(self.direct_output_flows()) == 1  # should be precisely one output --- or maybe not. TODO: decide
+    output_instance = (type_to_value(self.type, name=self.name) if self.type else None)
+    # Don't overwrite values that are already written
+    unset_values = {f for f in self.direct_output_flows() if f not in typing.flow_values.keys()}
+    typing.flow_values.update({f: output_instance for f in unset_values})
 paml.Value.infer_typing = value_infer_typing
 
 

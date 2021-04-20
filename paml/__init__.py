@@ -97,8 +97,10 @@ def executable_make_pins(self, specification, **input_pin_map):
                 pin = ReferenceValuePin()
             elif isinstance(val, sbol3.Identified):
                 pin = LocalValuePin()
-            else:
-                pin = SimpleValuePin()
+            elif isinstance(val, int):
+                pin = IntegerConstantPin()
+            elif isinstance(val, str):
+                pin = StringConstantPin()
             pin.value = val
         else:
             pin = Pin()
@@ -207,6 +209,7 @@ def protocol_add_input(self, name, **kwargs):
     self.activities.append(input)
     input_spec = ProtocolPinSpecification(name=name, activity = input)
     self.input.append(input_spec)
+    self.add_flow(self.initial(), input) # order to be after initinal
     return input
 # Monkey patch:
 Protocol.add_input = protocol_add_input
@@ -217,11 +220,22 @@ def protocol_add_output(self, name, value_source:Activity=None):
     self.activities.append(output)
     output_spec = ProtocolPinSpecification(name=name, activity = output)
     self.output.append(output_spec)
+    self.add_flow(output, self.final()) # order to be before final
     if value_source:
         self.add_flow(value_source, output)
     return output
 # Monkey patch:
 Protocol.add_output = protocol_add_output
+
+
+def protocol_get_input(self, name):
+    return next(x for x in self.input if x.name==name)
+Protocol.get_input = protocol_get_input
+
+
+def protocol_get_output(self, name):
+    return next(x for x in self.output if x.name==name)
+Protocol.get_output = protocol_get_output
 
 
 # Create and add an execution of a primitive to a protocol

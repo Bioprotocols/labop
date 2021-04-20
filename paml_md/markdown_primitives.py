@@ -25,9 +25,9 @@ primitive_to_markdown_functions[LIQUID_HANDLING_PREFIX+'Provision'] = liquid_han
 
 def liquid_handling_dispense_to_markdown(executable, mdc: MarkdownConverter):
     volume = executable.input_pin('amount').to_markdown(mdc)
-    source = executable.input_pin('source')
+    source = mdc.protocol_typing.flow_values[executable.input_pin('source').input_flows().pop()]
     resource = mdc.document.find(source.specification).to_markdown(mdc) # Kludge due to document addition failures
-    source_location = mdc.document.find(source.in_location).to_markdown(mdc)
+    source_location = mdc.document.find(source.in_location[0]).to_markdown(mdc) # TODO: generalize to support multi-locations
     destination = executable.input_pin('destination').to_markdown(mdc)
     return 'Pipette '+volume+' of '+resource+' from '+source_location+' into '+destination+'\n'
 primitive_to_markdown_functions[LIQUID_HANDLING_PREFIX+'Dispense'] = liquid_handling_dispense_to_markdown
@@ -61,7 +61,7 @@ primitive_to_markdown_functions[LIQUID_HANDLING_PREFIX+'PipetteMix'] = liquid_ha
 #############################################
 # Plate handling primitives
 
-PLATE_HANDLING_PREFIX = 'https://bioprotocols.org/paml/primitives/liquid_handling/'
+PLATE_HANDLING_PREFIX = 'https://bioprotocols.org/paml/primitives/plate_handling/'
 
 def plate_handling_cover_to_markdown(executable, mdc: MarkdownConverter):
     location = executable.input_pin('location').to_markdown(mdc)
@@ -99,7 +99,7 @@ def plate_handling_incubate_to_markdown(executable, mdc: MarkdownConverter):
     duration = executable.input_pin('duration').to_markdown(mdc)
     temperature = executable.input_pin('temperature').to_markdown(mdc)
     shakingFrequency = executable.input_pin('shakingFrequency').to_markdown(mdc) # TODO: this should be optional
-    return 'Incubate '+location+' for '+duration+' at temperature '+temperature+', shaking at'+shakingFrequency+'\n'
+    return 'Incubate '+location+' for '+duration+' at temperature '+temperature+', shaking at '+shakingFrequency+'\n'
 primitive_to_markdown_functions[PLATE_HANDLING_PREFIX+'Incubate'] = plate_handling_incubate_to_markdown
 
 
