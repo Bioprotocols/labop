@@ -7,6 +7,7 @@
 | `provision` | `Provision` |
 | `liquid_handle`, `mode=dispense` | `Dispense` |
 | `liquid_handle` up one place, down another | `Transfer` |
+| `liquid_handle` with a non-empty destination | `TransferInto` |
 | `liquid_handle` up & down in one source | `PipetteMix` |
 
 Note: this assumes the internal Strateos operation `DISPENSE` is equivalent to `liquid_handle`, `mode=dispense`
@@ -18,13 +19,16 @@ This library handles plate readers and other spectrophotometers
 | :--- | :--- |
 | `spectrophotometry`, `mode=absorbance` | `MeasureAbsorbance` |
 | `spectrophotometry`, `mode=fluorescence` | `MeasureFluorescence` |
+| `spectrophotometry`, new mode |`MeasureFluorescenceSpectrum` |
 
 ## plate_handling
 | autoprotocol | PAML |
 | :--- | :--- |
 | `cover` | `Cover` |
 | `incubate` | `Incubate` |
-| `seal` | `Seal` |
+| `seal`,flexible mode | `Seal` |
+| `seal`,`mode=thermal` | `AdhesiveSeal` |
+| `seal`,`mode=adhesive` | `ThermalSeal` |
 | `uncover` | `Uncover` |
 | `unseal` | `Unseal` |
 

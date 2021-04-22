@@ -118,6 +118,7 @@ def strlist_to_markdown(l: list, mdc: MarkdownConverter):
         return this + ', ' + strlist_to_markdown(l, mdc)
 
 def measure_to_markdown(self: sbol3.Measure, mdc: MarkdownConverter):
+    # TODO: convert large numbers to friendlier units
     unit = (mdc.document.find(self.unit).name if mdc.document.find(self.unit) else tyto.OM.get_term_by_uri(self.unit))
     if unit=="number":  # special case: don't need to say unit for pure numbers
         unit = ''
