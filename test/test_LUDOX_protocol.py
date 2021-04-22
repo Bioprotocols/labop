@@ -2,7 +2,7 @@ import sbol3
 import paml
 import tyto
 import unittest
-import filecmp
+# import filecmp  # awaiting improved file stability
 import paml_md
 
 
@@ -40,7 +40,7 @@ is only weakly scattering and so will give a low absorbance value.
         doc.add(protocol)
 
         # create the materials to be provisioned
-        plate = paml.Container(name='Microplate', type=tyto.NCIT.get_uri_by_term('Microplate'))
+        plate = paml.Container(name='Microplate', type=tyto.NCIT.get_uri_by_term('Microplate'), max_coordinate='H12')
         protocol.locations.append(plate)
 
         ddh2o = sbol3.Component('ddH2O', 'https://identifiers.org/pubchem.substance:24901740')
@@ -54,13 +54,13 @@ is only weakly scattering and so will give a low absorbance value.
         protocol.material += {ddh2o, ludox}
 
         # actual steps of the protocol
-        location = paml.ContainerCoordinates(in_container = plate, coordinates = 'A1:D1')
+        location = paml.ContainerCoordinates(in_container=plate, coordinates='A1:D1')
         protocol.locations.append(location)
         provision_ludox = protocol.execute_primitive('Provision', resource=ludox, destination=location,
                                                      amount=sbol3.Measure(100, tyto.OM.microliter))
         protocol.add_flow(protocol.initial(), provision_ludox)
 
-        location = paml.ContainerCoordinates(in_container = plate, coordinates = 'A2:D2')
+        location = paml.ContainerCoordinates(in_container=plate, coordinates='A2:D2')
         protocol.locations.append(location)
         provision_ddh2o = protocol.execute_primitive('Provision', resource=ddh2o, destination=location,
                                                      amount=sbol3.Measure(100, tyto.OM.microliter))
@@ -83,19 +83,19 @@ is only weakly scattering and so will give a low absorbance value.
         v = doc.validate()
         assert not v.errors and not v.warnings, "".join(str(e) for e in doc.validate().errors)
 
-        doc.write('igem_ludox_draft.json', 'json-ld')
+        doc.write('igem_ludox_draft.nt', 'sorted nt')
         doc.write('igem_ludox_draft.ttl', 'turtle')
 
         # Checking if files are identical needs to wait for increased stability
-        #assert filecmp.cmp('igem_ludox_draft.ttl','test/testfiles/igem_ludox_draft.ttl')
+        # assert filecmp.cmp('igem_ludox_draft.ttl','test/testfiles/igem_ludox_draft.ttl')
 
     def test_protocol_to_markdown(self):
         doc = sbol3.Document()
-        doc.read('test/testfiles/igem_ludox_draft.json', 'json-ld')
-        paml_md.convert_document(doc)
+        doc.read('test/testfiles/igem_ludox_draft.nt', 'nt')
+        paml_md.MarkdownConverter(doc).convert('iGEM_LUDOX_OD_calibration_2018')
 
         # Checking if files are identical needs to wait for increased stability
-        #assert filecmp.cmp('iGEM_LUDOX_OD_calibration_2018.md','test/testfiles/iGEM_LUDOX_OD_calibration_2018.md')
+        # assert filecmp.cmp('iGEM_LUDOX_OD_calibration_2018.md','test/testfiles/iGEM_LUDOX_OD_calibration_2018.md')
 
 
 if __name__ == '__main__':

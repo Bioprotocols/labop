@@ -1,5 +1,5 @@
 from sbol_factory import SBOLFactory, Document, ValidationReport, UMLFactory
-import sbol3 as sbol
+import sbol3
 import os
 import posixpath
 
@@ -10,6 +10,51 @@ __factory__ = SBOLFactory(locals(),
                           'http://bioprotocols.org/paml#')
 __umlfactory__ = UMLFactory(__factory__)
 
+#########################################
+# Kludge for getting parents and toplevels
+# TODO: remove after resolution of https://github.com/SynBioDex/pySBOL3/issues/234
+def identified_get_parent(self):
+    if self.identity:
+        return self.document.find(self.identity.rsplit('/',1)[0])
+    else:
+        return None
+sbol3.Identified.get_parent = identified_get_parent
+
+def identified_get_toplevel(self):
+    if isinstance(self, sbol3.TopLevel):
+        return self
+    else:
+        parent = self.get_parent()
+        if parent:
+            return identified_get_toplevel(parent)
+        else:
+            return None
+sbol3.Identified.get_toplevel = identified_get_toplevel
+
+
+###########################################
+# Define extension methods for Activity
+def activity_input_flows(self):
+    return {x for x in self.get_toplevel().flows if
+            (x.sink.lookup() == self) or
+            (isinstance(self, Executable) and x.sink.lookup() in self.input)}
+Activity.input_flows = activity_input_flows
+
+def activity_output_flows(self):
+    return {x for x in self.get_toplevel().flows if
+            (x.source.lookup() == self) or
+            (isinstance(self, Executable) and x.source.lookup() in self.output)}
+Activity.output_flows = activity_output_flows
+
+def activity_direct_input_flows(self):
+    return {x for x in self.get_toplevel().flows if (x.sink.lookup() == self)}
+Activity.direct_input_flows = activity_direct_input_flows
+
+def activity_direct_output_flows(self):
+    return {x for x in self.get_toplevel().flows if (x.source.lookup() == self)}
+Activity.direct_output_flows = activity_direct_output_flows
+
+###########################################
 # Define extension methods for Primitive
 def primitive_add_input(self, name, type, optional=False):
     pin = PrimitivePinSpecification(name = name, type = type)
@@ -25,6 +70,10 @@ def primitive_add_output(self, name, type):
     return pin
 # Monkey patch
 Primitive.add_output = primitive_add_output
+
+
+###########################################
+# Define extension methods for Executable
 
 # Executable factory functions (can't override initialization)
 def executable_make_pins(self, specification, **input_pin_map):
@@ -44,12 +93,14 @@ def executable_make_pins(self, specification, **input_pin_map):
 
         # Construct Pin of appropriate subtype
         if val:
-            if isinstance(val, sbol.TopLevel) or isinstance(val, Location):
+            if isinstance(val, sbol3.TopLevel) or isinstance(val, Location):
                 pin = ReferenceValuePin()
-            elif isinstance(val, sbol.Identified):
+            elif isinstance(val, sbol3.Identified):
                 pin = LocalValuePin()
-            else:
-                pin = SimpleValuePin()
+            elif isinstance(val, int):
+                pin = IntegerConstantPin()
+            elif isinstance(val, str):
+                pin = StringConstantPin()
             pin.value = val
         else:
             pin = Pin()
@@ -95,14 +146,29 @@ def make_PrimitiveExecutable(primitive: Primitive, **input_pin_map):
     self.make_pins(primitive, **input_pin_map)
     return self
 
+
 def make_SubProtocol(protocol: Protocol, **input_pin_map):
     self = SubProtocol(instance_of = protocol)
     self.make_pins(protocol, **input_pin_map)
     return self
 
 
-########################
-# Another helper; this one should probably be added as an extension
+# Get the Value activity associated with the specified input of a subprotocol
+def subprotocol_input_value(self: SubProtocol, pin: Pin):
+    assert pin in self.input, ValueError("SubProtocol '"+self.identity+"' does not have an input Pin '"+pin+"'")
+    return pin.instance_of.lookup().activity
+SubProtocol.input_value = subprotocol_input_value
+
+# Get the Value activity associated with the specified output of a subprotocol
+def subprotocol_output_value(self: SubProtocol, pin: Pin):
+    assert pin in self.output, ValueError("SubProtocol '" + self.identity + "' does not have an output Pin '" + pin + "'")
+    return pin.instance_of.lookup().activity
+SubProtocol.output_value = subprotocol_output_value
+
+
+###########################################
+# Define extension methods for Protocol
+
 
 def protocol_contains_activity(self, activity):
     return (activity in self.activities) or \
@@ -110,6 +176,7 @@ def protocol_contains_activity(self, activity):
                  isinstance(x, Executable) and (activity in x.input or activity in x.output)), False)
 # Monkey patch:
 Protocol.contains_activity = protocol_contains_activity
+
 
 def Protocol_initial(self):
     initial = [a for a in self.activities if isinstance(a, Initial)]
@@ -123,6 +190,7 @@ def Protocol_initial(self):
 # Monkey patch:
 Protocol.initial = Protocol_initial
 
+
 def Protocol_final(self):
     final = [a for a in self.activities if isinstance(a, Final)]
     if not final:
@@ -135,25 +203,40 @@ def Protocol_final(self):
 # Monkey patch:
 Protocol.final = Protocol_final
 
+
 def protocol_add_input(self, name, **kwargs):
     input = Value(name=name, **kwargs)
     self.activities.append(input)
     input_spec = ProtocolPinSpecification(name=name, activity = input)
     self.input.append(input_spec)
+    self.add_flow(self.initial(), input) # order to be after initinal
     return input
 # Monkey patch:
 Protocol.add_input = protocol_add_input
+
 
 def protocol_add_output(self, name, value_source:Activity=None):
     output = Value()
     self.activities.append(output)
     output_spec = ProtocolPinSpecification(name=name, activity = output)
     self.output.append(output_spec)
+    self.add_flow(output, self.final()) # order to be before final
     if value_source:
         self.add_flow(value_source, output)
     return output
 # Monkey patch:
 Protocol.add_output = protocol_add_output
+
+
+def protocol_get_input(self, name):
+    return next(x for x in self.input if x.name==name)
+Protocol.get_input = protocol_get_input
+
+
+def protocol_get_output(self, name):
+    return next(x for x in self.output if x.name==name)
+Protocol.get_output = protocol_get_output
+
 
 # Create and add an execution of a primitive to a protocol
 def protocol_execute_primitive(self, primitive: Primitive, **input_pin_map):
@@ -171,6 +254,7 @@ def protocol_execute_primitive(self, primitive: Primitive, **input_pin_map):
 # Monkey patch:
 Protocol.execute_primitive = protocol_execute_primitive
 
+
 # Create and add an execution of a subprotocol to a protocol
 def protocol_execute_subprotocol(self, protocol: Protocol, **input_pin_map):
     # strip any activities in the pin map, which will be held for connecting via flows instead
@@ -185,6 +269,7 @@ def protocol_execute_subprotocol(self, protocol: Protocol, **input_pin_map):
 # Monkey patch:
 Protocol.execute_subprotocol = protocol_execute_subprotocol
 
+
 # Create and add a flow between the designated child source and sink activities
 def protocol_add_flow(self, source, sink):
     assert self.contains_activity(source), ValueError(
@@ -197,7 +282,6 @@ def protocol_add_flow(self, source, sink):
 # Monkey patch:
 Protocol.add_flow = protocol_add_flow
 
-
 #########################################
 # Library handling
 loaded_libraries = {}
@@ -209,11 +293,11 @@ def import_library(library:str, file_format:str = 'ttl', nickname:str=None ):
         library = posixpath.join(os.path.dirname(os.path.realpath(__file__)),
                                  ('lib/'+library+'.ttl'))
     # read in the library and put the document in the library collection
-    lib = sbol.Document()
+    lib = sbol3.Document()
     lib.read(library, file_format)
     loaded_libraries[nickname] = lib
 
-def get_primitive(doc:sbol.Document, name:str):
+def get_primitive(doc:sbol3.Document, name:str):
     found = doc.find(name)
     if not found:
         found = {n:l.find(name) for (n,l) in loaded_libraries.items() if l.find(name)}
@@ -221,3 +305,4 @@ def get_primitive(doc:sbol.Document, name:str):
         assert len(found)>0, ValueError("Couldn't find primitive '"+name+"' in any library")
         found = next(iter(found.values())).copy(doc)
     return found
+

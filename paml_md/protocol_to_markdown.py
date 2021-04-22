@@ -1,280 +1,278 @@
 import sbol3
 import paml
+import paml.type_inference
 import tyto
 import openpyxl
+import numpy
 import os
 import posixpath
 from copy import copy
+from paml_md.markdown_primitives import primitive_to_markdown_functions
 
-def markdown_measure(measure):
-    return str(measure.value) + ' ' + str(tyto.OM.get_term_by_uri(measure.unit))
+###########################################
+# Functions for reasoning about ranges
 
-def markdown_component(component):
-    return '[' + (component.display_id if (component.name is None) else component.name) + ']('+component.types[0]+')'
+# Transform an Excel-style range (col:row, inclusive, alpha-numeric) to numpy-style (row:col, start/stop, numeric)
+def excel_to_numpy_range(excel_range):
+    bounds = openpyxl.utils.cell.range_boundaries(excel_range)
+    return [bounds[1]-1,bounds[0]-1,bounds[3],bounds[2]]
 
-def markdown_container(container):
-    return '[' + (container.display_id if (container.name is None) else container.name) + ']('+container.type+')'
-
-def markdown_containercoodinates(coordinates):
-    return markdown_container(coordinates.in_container.lookup()) + ' ' + coordinates.coordinates
-
-def markdown_location(location):
-    if isinstance(location, paml.ContainerCoordinates):
-        return markdown_containercoodinates(location)
-    elif isinstance(location, paml.Container):
-        return markdown_container(location)
+def numpy_to_excel_range(top,left,bottom,right):
+    if top+1==bottom and left+1==right: # degenerate case of a single cell
+        return openpyxl.utils.cell.get_column_letter(left+1)+str(top+1)
     else:
-        return str(location)
+        return openpyxl.utils.cell.get_column_letter(left+1)+str(top+1) + ":" + \
+               openpyxl.utils.cell.get_column_letter(right) + str(bottom)
 
-def markdown_mergedlocations(location_list):
-    this = markdown_location(location_list.pop())
-    if len(location_list) == 0:
+def extract_range_from_top_left(region: numpy.ndarray):
+    # find the largest rectangular region starting at the first top-left zero
+    top = numpy.where(region)[0][0]
+    left = numpy.where(region)[1][0]
+    right = numpy.where(region[top,:])[0][-1]+1
+    for bottom in range(top,region.shape[0]):
+        if not region[bottom,left:right].all():
+            bottom -= 1
+            break
+    bottom += 1 # adjust to stop coordinate
+    region[top:bottom, left:right] = False
+    return numpy_to_excel_range(top, left, bottom, right)
+
+def reduce_range_set(ranges):
+    assert len(ranges)>0, "Range set to reduce must have at least one element"
+    bounds = [max(openpyxl.utils.cell.range_boundaries(r)[i] for r in ranges) for i in range(2,4)]
+    region = numpy.zeros([bounds[1],bounds[0]],dtype=bool) # make an array of zeros
+    # mark each range in turn, ensuring that they don't overlap
+    for r in ranges:
+        nr = excel_to_numpy_range(r)
+        assert not (region[nr[0]:nr[2], nr[1]:nr[3]]).any(), ValueError("Found overlapping range in "+str(ranges))
+        region[nr[0]:nr[2], nr[1]:nr[3]] = True
+    # pull chunks out until all zeros
+    reduced = set()
+    while region.any():
+        reduced.add(extract_range_from_top_left(region))
+    return reduced
+
+
+##############################################
+# Converter state object, to be carried along with "to_markdown" functions
+
+# TODO: make this build PROV-O as it goes?
+class MarkdownConverter():
+    def __init__(self, document: sbol3.Document):
+        self.document = document
+        self.protocol_typing = paml.type_inference.ProtocolTyping()
+
+    def markdown_header(self, protocol):
+        header = '# ' + (protocol.display_id if (protocol.name is None) else protocol.name) + '\n'
+        header += '\n'
+        header += '## Description:\n' + (
+            'No description given' if protocol.description is None else protocol.description) + '\n'
+        return header
+
+    # Entry-point for document conversion
+    # TODO: allow us to control the name of the output
+    def convert(self, protocol):
+        # protocol argument can be either string, URI, or paml.Protocol
+        if not isinstance(protocol, paml.Protocol):
+            protocol = self.document.find(protocol)
+
+        print('Inferring flow values')
+        self.protocol_typing.infer_typing(protocol)
+
+        print('Serializing activities')
+        serialized_noncontrol_activities = serialize_activities(protocol)
+
+        print('Writing markdown file')
+        write_markdown_file(protocol, serialized_noncontrol_activities, self)
+
+        print('Writing Excel file')
+        write_excel_file(protocol, serialized_noncontrol_activities, self)
+
+        print('Export complete')
+
+
+
+##############################################
+# Direct conversion of individual objects to their markdown representations
+
+def list_to_markdown(l: list, mdc: MarkdownConverter):
+    if len(l) == 0:
+        return '' ## TODO: kludge: this shouldn't be happening
+    this = l.pop().to_markdown(mdc)
+    if len(l) == 0:
         return this
-    if len(location_list) == 1:
-        return this + ' and ' + markdown_mergedlocations(location_list)
+    if len(l) == 1:
+        return this + ' and ' + list_to_markdown(l, mdc)
     else:
-        return this + ', ' + markdown_mergedlocations(location_list)
+        return this + ', ' + list_to_markdown(l, mdc)
 
-def markdown_flow_value(document, value):
-    if isinstance(value, paml.ReplicateSamples):
-        return markdown_mergedlocations({x.lookup() for x in value.in_location})
-    elif isinstance(value, paml.HeterogeneousSamples):
-        return markdown_mergedlocations({document.find(loc) for rep in value.replicate_samples for loc in rep.in_location})
-    # if we fall through to here:
-    return str(value)
-
-
-############
-# BUG: this should not need the document; this is due to pySBOL3 bug #176
-def input_pin_value(document, protocol, executable, pin_name):
-    pin_set = [x for x in executable.input if document.find(x.instance_of).name == pin_name]
-    if len(pin_set) != 1:
-        return "[couldn't find input "+pin_name+"]"
-    pin = pin_set[0]
-    if isinstance(pin, paml.LocalValuePin):
-        if isinstance(pin.value, sbol3.Measure):
-            return markdown_measure(pin.value)
-    elif isinstance(pin, paml.ReferenceValuePin):
-        value = pin.value.lookup()
-        if isinstance(value, sbol3.Component):
-            return markdown_component(value)
-        elif isinstance(value, paml.Location):
-            return markdown_location(value)
-    elif flow_values[next(x for x in protocol.flows if x.sink.lookup() in executable.input)]:
-        value = flow_values[next(x for x in protocol.flows if x.sink.lookup() in executable.input)]
-        return markdown_flow_value(document, value)
-    # if we fall through to here:
-    return str(pin)
-
-############
-# BUG: this should not need the document; this is due to pySBOL3 bug #176
-def markdown_provision(document, protocol, executable):
-    volume = input_pin_value(document, protocol, executable, 'amount')
-    resource = input_pin_value(document, protocol, executable, 'resource')
-    location = input_pin_value(document, protocol, executable, 'destination')
-    instruction = 'Pipette '+volume+' of '+resource+' into '+location+'\n'
-    return instruction
-
-############
-# BUG: this should not need the document; this is due to pySBOL3 bug #176
-def markdown_absorbance(document, protocol, executable):
-    samples = input_pin_value(document, protocol, executable, 'samples')
-    wavelength = input_pin_value(document, protocol, executable, 'wavelength')
-    instruction = 'Measure absorbance of '+samples+' at '+wavelength+'\n'
-    return instruction
-
-#################
-# All this stuff should be transformed into visitor patterns
-primitive_library = {
-    'https://bioprotocols.org/paml/primitives/liquid_handling/Provision' : markdown_provision,
-    'https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureAbsorbance' : markdown_absorbance
-}
-
-def get_value_flow_input(protocol, activity):
-    flows = (x for x in protocol.flows if (x.sink.lookup() == activity)) # need to generalize to multiple
-    ########
-    # TODO: remove this evil kludge where we're dipping into a global variable
-    return flow_values[next(flows)]
-
-def markdown_value(document, protocol, activity):
-    return 'Report values from '+markdown_flow_value(document, get_value_flow_input(protocol, activity))+'\n'
-
-def markdown_header(protocol):
-    header = '# ' + (protocol.display_id if (protocol.name is None) else protocol.name) + '\n'
-    header += '\n'
-    header += '## Description:\n' + ('No description given' if protocol.description is None else protocol.description) + '\n'
-    return header
-
-#############
-# BUG: this should not need the document; this is due to pySBOL3 bug #176
-def markdown_activity(document, protocol, activity):
-    if isinstance(activity, paml.PrimitiveExecutable):
-        stepwriter = primitive_library[document.find(activity.instance_of).identity]
-        assert stepwriter
-        return stepwriter(document, protocol, activity)
-    elif isinstance(activity, paml.Value):
-        return markdown_value(document, protocol, activity)
+def strlist_to_markdown(l: list, mdc: MarkdownConverter):
+    if len(l) == 0:
+        return '' ## TODO: kludge: this shouldn't be happening
+    this = l.pop()
+    if len(l) == 0:
+        return this
+    if len(l) == 1:
+        return this + ' and ' + strlist_to_markdown(l, mdc)
     else:
-        raise ValueError("Don't know how to serialize activity "+activity)
+        return this + ', ' + strlist_to_markdown(l, mdc)
 
-def markdown_material(component):
-    bullet = '* ' + markdown_component(component)
+def measure_to_markdown(self: sbol3.Measure, mdc: MarkdownConverter):
+    unit = (mdc.document.find(self.unit).name if mdc.document.find(self.unit) else tyto.OM.get_term_by_uri(self.unit))
+    if unit=="number":  # special case: don't need to say unit for pure numbers
+        unit = ''
+    return str(self.value) + ' ' + str(unit)
+sbol3.Measure.to_markdown = measure_to_markdown
+
+
+def component_to_markdown(self: sbol3.Component, mdc: MarkdownConverter):
+    return '[' + (self.display_id if (self.name is None) else self.name) + ']('+self.types[0]+')'
+sbol3.Component.to_markdown = component_to_markdown
+
+
+def container_to_markdown(self: paml.Container, mdc: MarkdownConverter):
+    return '[' + (self.display_id if (self.name is None) else self.name) + ']('+self.type+')'
+paml.Container.to_markdown = container_to_markdown
+
+
+def containercoodinates_to_markdown(self: paml.ContainerCoordinates, mdc: MarkdownConverter):
+    return mdc.document.find(self.in_container).to_markdown(mdc) + ' ' + self.coordinates # TODO: figure out how to set document to enable changing doc.find to lookup
+paml.ContainerCoordinates.to_markdown = containercoodinates_to_markdown
+
+
+
+# Helper function for reducing coordinates shown for LocatedSamples
+def markdown_mergedlocations(location_list, mdc: MarkdownConverter):
+    containers = [c for c in location_list if isinstance(c, paml.Container)]
+    coords = {coord for coord in location_list if isinstance(coord, paml.ContainerCoordinates)}
+    reduced = []
+    for c in {coord.in_container.lookup() for coord in coords}:
+        ranges = reduce_range_set({l.coordinates for l in coords if l.in_container.lookup()==c})
+        for r in ranges:  # BUG: should be a list comprehension, but in_container argument can't be set in constructor
+            cc = paml.ContainerCoordinates(coordinates=r)
+            cc.in_container = c
+            reduced.append(cc)
+    return list_to_markdown(containers+reduced, mdc)
+
+
+def locateddata_to_markdown(self: paml.LocatedData, mdc: MarkdownConverter):
+    return self.from_samples.to_markdown(mdc)
+paml.LocatedData.to_markdown = locateddata_to_markdown
+
+def locatedsamples_to_markdown(self: paml.ReplicateSamples, _: MarkdownConverter):
+    return self.name  # TODO: can we do better than this kludge?
+paml.LocatedSamples.to_markdown = locatedsamples_to_markdown
+
+
+def replicatesamples_to_markdown(self: paml.ReplicateSamples, mdc: MarkdownConverter):
+    return markdown_mergedlocations({mdc.document.find(x) for x in self.in_location}, mdc)
+paml.ReplicateSamples.to_markdown = replicatesamples_to_markdown
+
+
+def heterogeneoussamples_to_markdown(self: paml.HeterogeneousSamples, mdc: MarkdownConverter):
+    return markdown_mergedlocations({mdc.document.find(loc) for rep in self.replicate_samples for loc in rep.in_location}, mdc)
+paml.HeterogeneousSamples.to_markdown = heterogeneoussamples_to_markdown
+
+
+def integerconstantpin_to_markdown(self: paml.IntegerConstantPin, mdc: MarkdownConverter):
+    return str(self.value)
+paml.IntegerConstantPin.to_markdown = integerconstantpin_to_markdown
+
+def stringconstantpin_to_markdown(self: paml.StringConstantPin, mdc: MarkdownConverter):
+    return str(self.value)
+paml.StringConstantPin.to_markdown = stringconstantpin_to_markdown
+
+
+def localvaluepin_to_markdown(self: paml.LocalValuePin, mdc: MarkdownConverter):
+    return self.value.to_markdown(mdc)
+paml.LocalValuePin.to_markdown = localvaluepin_to_markdown
+
+
+def referencevaluepin_to_markdown(self: paml.ReferenceValuePin, mdc: MarkdownConverter):
+    return self.value.lookup().to_markdown(mdc)
+paml.ReferenceValuePin.to_markdown = referencevaluepin_to_markdown
+
+# A non-constant pin needs to pull its value from the flow
+def pin_to_markdown(self: paml.Pin, mdc: MarkdownConverter):
+    inflows = self.input_flows()
+    assert len(inflows)==1, ValueError('Pin has more than one input flow: '+self.identity)
+    value = mdc.protocol_typing.flow_values[inflows.pop()]
+    return value.to_markdown(mdc)
+paml.Pin.to_markdown = pin_to_markdown
+
+###############################
+# Base activities to markdown
+
+def primitiveexecutable_to_markdown(self: paml.PrimitiveExecutable, mdc: MarkdownConverter):
+    stepwriter = primitive_to_markdown_functions[mdc.document.find(self.instance_of).identity]
+    return stepwriter(self, mdc)
+paml.PrimitiveExecutable.to_markdown = primitiveexecutable_to_markdown
+
+def subcall_variable_to_markdown(pin,mdc):
+    activity = pin.instance_of.lookup().activity.lookup()
+    return pin.to_markdown(mdc) + " for " + (activity.description if activity.description else activity.name)
+
+def subprotocol_to_markdown(self: paml.SubProtocol, mdc: MarkdownConverter):
+    protocol = self.instance_of.lookup()
+    pname = (protocol.display_id if (protocol.name is None) else protocol.name)
+    input_string = strlist_to_markdown([subcall_variable_to_markdown(pin,mdc) for pin in self.input], mdc)
+    return 'Run protocol "'+pname+'" with inputs: '+input_string
+paml.SubProtocol.to_markdown = subprotocol_to_markdown
+
+
+def value_to_markdown(self: paml.Value, mdc: MarkdownConverter):
+    if is_input_value(self):  # This is an input value, used as a variable
+        value = mdc.protocol_typing.flow_values[self.output_flows().pop()]
+        return 'Protocol input: ' + value.to_markdown(mdc)
+    else:  # This is an output value, used for reporting
+        value = mdc.protocol_typing.flow_values[self.input_flows().pop()]
+        return 'Report values from ' + value.to_markdown(mdc) + '\n'
+paml.Value.to_markdown = value_to_markdown
+
+
+#############################
+# Other sorts of markdown functions
+
+def markdown_input(input, mdc: MarkdownConverter):
+    bullet = '* ' + input.to_markdown(mdc)
+    if input.description is not None: bullet += ': ' + input.description
+    bullet += '\n'
+    return bullet
+
+
+def markdown_material(component, mdc: MarkdownConverter):
+    bullet = '* ' + component.to_markdown(mdc)
     if component.description is not None: bullet += ': ' + component.description
     bullet += '\n'
     return bullet
 
-def markdown_container_toplevel(container):
-    bullet = '* ' + markdown_container(container)
+
+def markdown_container_toplevel(container, mdc: MarkdownConverter):
+    # TODO: generalize ontology option for type
+    bullet = '* ' + container.to_markdown(mdc) + ' (['+tyto.NCIT.get_term_by_uri(container.type)+']('+container.type+'))'
     if container.description is not None: bullet += ': ' + container.description
+    bullet += '\n'
     return bullet
 
-def unpin_activity(protocol, activity):
-    if isinstance(activity,paml.Pin):
-        owner = next(x for x in protocol.activities if isinstance(x,paml.Executable) and
-                     (activity in x.output or activity in protocol.input))
-        return owner
-    else:
-        return activity
-
-##############################
-# Visitors for computing flow types
-def get_input_pin(executable, pin_name):
-    return next(x for x in executable.input if x.instance_of.lookup().name == pin_name)
-def get_output_pin(executable, pin_name):
-    return next(x for x in executable.output if x.instance_of.lookup().name == pin_name)
-
-def type_from_pin_or_flow(protocol, executable, pin_name, flow_values):
-    pin = get_input_pin(executable, pin_name)
-    if isinstance(pin, paml.LocalValuePin) or isinstance(pin, paml.ReferenceValuePin):
-        return pin.value
-    else:
-        return flow_values[next(x for x in protocol.flows if (x.sink.lookup() == pin))]
-
-def inference_provision(protocol, executable, flow_values):
-    resource = type_from_pin_or_flow(protocol, executable, 'resource', flow_values)
-    location = type_from_pin_or_flow(protocol, executable, 'destination', flow_values)
-    samples = paml.ReplicateSamples()
-    samples.in_location.append(location)
-    samples.specification = resource
-    samples_flow = next(x for x in protocol.flows if x.source.lookup()==get_output_pin(executable, 'samples'))
-    return {samples_flow : samples}
-
-def inference_absorbance(protocol, executable, flow_values):
-    samples = type_from_pin_or_flow(protocol, executable, 'samples', flow_values)
-    # TODO: make this a LocatedData rather than just copying the samples
-    # samples = paml.LocatedData()
-    samples_flow = next(x for x in protocol.flows if x.source.lookup()==get_output_pin(executable, 'measurements'))
-    return {samples_flow : samples}
-
-primitive_inference = {
-    'https://bioprotocols.org/paml/primitives/liquid_handling/Provision' : inference_provision,
-    'https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureAbsorbance' : inference_absorbance
-}
-
-def primitive_types(protocol, activity, flow_values):
-    inference_function = primitive_inference[activity.instance_of.lookup().identity]
-    assert inference_function
-    return inference_function(protocol, activity, flow_values)
-
-def inflows_satisfied(protocol,flow_values,activity):
-    inflows = {x for x in protocol.flows if (x.sink.lookup() == activity) or (isinstance(activity,paml.Executable) and x.sink.lookup() in activity.input)}
-    unsatisfied = inflows - flow_values.keys()
-    return len(unsatisfied) == 0
-
-# kludge for now
-def join_locations(value_set):
-    if not value_set:
-        return paml.HeterogeneousSamples()
-    next = value_set.pop()
-    rest = join_locations(value_set)
-    if isinstance(next, paml.ReplicateSamples):
-        rest.replicate_samples.append(next)
-    elif isinstance(next, paml.HeterogeneousSamples):
-        for x in next.replicate_samples: rest.replicate_samples.append(x)
-    else:
-        raise ValueError("Don't know how to join locations for "+str(value_set))
-    return rest
-
-def join_values(value_set):
-    if all(isinstance(x,paml.LocatedSamples) for x in value_set):
-        return join_locations(value_set)
-    # if we fall through to the end, then we didn't know how to infer
-    raise ValueError("Don't know how to join values types for "+str(value_set))
-
-# returns a dictionary of outflow to type
-def outflow_types(protocol,activity,flow_values):
-    direct_outflows = {x for x in protocol.flows if (x.source.lookup() == activity)}
-    direct_inflows = {x for x in protocol.flows if (x.sink.lookup() == activity)}
-    if isinstance(activity, paml.Control):
-        if isinstance(activity, paml.Initial):
-            return {x: None for x in direct_outflows}
-        elif isinstance(activity, paml.Final):
-            assert len(direct_outflows)==0 # should be no outputs
-            return {}
-        elif isinstance(activity, paml.Fork) or isinstance(activity, paml.Decision):
-            assert len(direct_inflows)==1 # should be precisely one input
-            in_type = flow_values[next(direct_inflows)]
-            return {x: in_type for x in direct_outflows}
-        elif isinstance(activity, paml.Join):
-            assert len(direct_outflows)==1 # should be precisely one output
-            return {direct_outflows.pop() : join_values({flow_values[x] for x in direct_inflows})}
-    elif isinstance(activity, paml.PrimitiveExecutable):
-        direct_types = {x:None for x in direct_outflows}
-        pin_types = primitive_types(protocol, activity, flow_values)
-        return direct_types | pin_types
-    elif isinstance(activity, paml.Value):
-        assert len(direct_outflows) == 1  # should be precisely one output
-        return {x: None for x in direct_outflows}
-    # if we fall through to the end, then we didn't know how to infer
-    raise ValueError("Don't know how to infer outflow types for "+str(activity))
-
-
-
-##############################
-# For serializing activities
-def direct_precedents(protocol, activity):
-    assert activity in protocol.activities
-    flows = (x for x in protocol.flows if (x.sink.lookup() == activity) or (isinstance(activity,paml.Executable) and x.sink.lookup() in activity.input))
-    precedents = {unpin_activity(protocol,x.source.lookup()) for x in flows}
-    return precedents
-
-##############################
-# Get the protocol
-def get_protocol(doc:sbol3.Document):
-    # extract set of protocols from document
-    protocols = {x for x in doc.objects if isinstance(x, paml.Protocol)}
-    if len(protocols) == 0:
-        raise ValueError("Cannot find any protocols in document")
-    elif len(protocols) > 1:
-        raise ValueError("Found multiple protocols; don't know which to write")
-
-    # pull the first and only
-    return protocols.pop()
-
-##############################
-# Infer values carried on flows
-
-flow_values = {} # dictionary of flow : type mappings
-def infer_flow_values(protocol:paml.Protocol):
-    pending_activities = set(protocol.activities)
-    while pending_activities:
-        non_blocked = {x for x in pending_activities if inflows_satisfied(protocol, flow_values, x)}
-        if not non_blocked:
-            raise ValueError("Could not infer all flow types: circular dependency?")
-            break
-        for activity in non_blocked:
-            flow_values.update(outflow_types(protocol, activity, flow_values))
-        pending_activities -= non_blocked
 
 
 ##############################
 # Serialize order of steps
 
+def unpin_activity(protocol, activity):
+    return activity.get_parent() if isinstance(activity, paml.Pin) else activity
+
+def is_input_value(x):
+    return isinstance(x,paml.Value) and \
+           not({f for f in x.input_flows() if not isinstance(f.source.lookup(), paml.Initial)})
+
 def serialize_activities(protocol:paml.Protocol):
     serialized_activities = []
     pending_activities = set(protocol.activities)
+    print('Building activity cache of precedence order')
+    direct_precedents_cache = {a: {unpin_activity(protocol,f.source.lookup()) for f in a.input_flows()} for a in pending_activities}  # speed kludge
     while pending_activities:
-        non_blocked = {x for x in pending_activities if not (direct_precedents(protocol, x) & set(pending_activities))}
+        non_blocked = {x for x in pending_activities if not (direct_precedents_cache[x] & set(pending_activities))}
         if not non_blocked:
             raise ValueError("Could not serialize all activities: circular dependency?")
         serialized_activities += non_blocked
@@ -284,29 +282,39 @@ def serialize_activities(protocol:paml.Protocol):
     assert isinstance(serialized_activities[-1], paml.Final)
 
     # filter out control flow statements
-    serialized_noncontrol_activities = [x for x in serialized_activities if not isinstance(x, paml.Control)]
+    serialized_noncontrol_activities = [x for x in serialized_activities if (not isinstance(x, paml.Control)) and (not isinstance(x, paml.Value))]
     return serialized_noncontrol_activities
 
 ##############################
 # Write to a markdown file
 
-def write_markdown_file(doc, protocol, serialized_noncontrol_activities):
+def write_markdown_file(protocol: paml.Protocol, serialized_noncontrol_activities, mdc: MarkdownConverter):
     with open(protocol.display_id + '.md', 'w') as file:
-        file.write(markdown_header(protocol))
+        file.write(mdc.markdown_header(protocol))
+
+        file.write('\n\n## Protocol Inputs:\n')
+        for i in protocol.input:
+            file.write(markdown_input(i.activity.lookup(), mdc))
 
         file.write('\n\n## Materials\n')
         for material in protocol.material:
-            file.write(markdown_material(material.lookup()))
+            file.write(markdown_material(material.lookup(), mdc))
+
+        file.write('\n\n## Containers\n')
         for container in (x for x in protocol.locations if isinstance(x, paml.Container)):
-            file.write(markdown_container_toplevel(container))
+            file.write(markdown_container_toplevel(container, mdc))
 
         file.write('\n\n## Steps\n')
         for step in range(len(serialized_noncontrol_activities)):
-            file.write('### Step ' + str(step + 1) + '\n' + markdown_activity(doc, protocol, serialized_noncontrol_activities[
-                step]) + '\n')
+            print('Writing step '+str(step)+": "+serialized_noncontrol_activities[step].identity)
+            #file.write('### Step ' + str(step + 1) + '\n' + serialized_noncontrol_activities[step].to_markdown(mdc) + '\n')
+            file.write(str(step + 1) + '. ' + serialized_noncontrol_activities[step].to_markdown(mdc) + '\n')
 
         # make sure the file is fully written
         file.flush()
+        file.close()
+
+    print('Finished writing markdown')
 
 
 ##############################
@@ -370,7 +378,10 @@ def excel_write_mergedlocations(ws, row_offset, location_spec_list):
         block_height = max(block_height,block[0])
     return block_height
 
+# TODO: consolidate the Excel reporting squares, like we've already done for the protocol above
 def excel_write_flow_value(document, value, ws, row_offset):
+    if isinstance(value, paml.LocatedData):
+        value = value.from_samples  # unwrap value
     if isinstance(value, paml.ReplicateSamples):
         return excel_write_mergedlocations(ws, row_offset, {x.lookup():value.specification for x in value.in_location})
     elif isinstance(value, paml.HeterogeneousSamples):
@@ -379,7 +390,7 @@ def excel_write_flow_value(document, value, ws, row_offset):
     return str(value)
 
 
-def write_excel_file(doc, protocol, serialized_noncontrol_activities):
+def write_excel_file(protocol, serialized_noncontrol_activities, mdc: MarkdownConverter):
     template_path = posixpath.join(os.path.dirname(os.path.realpath(__file__)),'template.xlsx')
     wb = openpyxl.load_workbook(filename=template_path)
     ws = wb.active  # get the default worksheet
@@ -402,31 +413,9 @@ def write_excel_file(doc, protocol, serialized_noncontrol_activities):
         coord = 'A' + str(row_offset)
         ws[coord] = 'Report from Step ' + str(step + 1)
         ws[coord].font = copy(header_style)
-        value_locations = get_value_flow_input(protocol, serialized_noncontrol_activities[step])
-        block_height = excel_write_flow_value(doc, value_locations, ws, row_offset + 1)
+        value_locations = mdc.protocol_typing.flow_values[serialized_noncontrol_activities[step].input_flows().pop()]
+        block_height = excel_write_flow_value(mdc.document, value_locations, ws, row_offset + 1)
         row_offset += block_height + 2
 
     wb.save(protocol.display_id + '.xlsx')
 
-##############################
-# Entry-point for document conversion
-
-# TODO: allow us to control the name of the output
-def convert_document(doc:sbol3.Document):
-    print('Finding protocol')
-    protocol = get_protocol(doc)
-    print('Found protocol: '+protocol.display_id)
-
-    print('Inferring flow values')
-    infer_flow_values(protocol)
-
-    print('Serializing activities')
-    serialized_noncontrol_activities = serialize_activities(protocol)
-
-    print('Writing markdown file')
-    write_markdown_file(doc, protocol, serialized_noncontrol_activities)
-
-    print('Writing Excel file')
-    write_excel_file(doc, protocol, serialized_noncontrol_activities)
-
-    print('Export complete')

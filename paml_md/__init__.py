@@ -1,1 +1,1 @@
-from .protocol_to_markdown import convert_document
+from .protocol_to_markdown import MarkdownConverter

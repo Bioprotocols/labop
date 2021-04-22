@@ -31,7 +31,7 @@ p.add_output('samples', 'http://bioprotocols.org/paml#LocatedSamples')
 doc.add(p)
 
 p = paml.Primitive('Transfer')
-p.description = 'Move a measured volume taken from an array of source samples to an identically shaped array in a destination locations'
+p.description = 'Move a measured volume taken from a collection of source samples to a location whose shape can contain them in a destination locations'
 p.add_input('source', 'http://bioprotocols.org/paml#LocatedSamples')
 p.add_input('destination', 'http://bioprotocols.org/paml#Location')
 p.add_input('amount', sbol3.OM_MEASURE) # Must be volume
@@ -40,7 +40,7 @@ p.add_output('samples', 'http://bioprotocols.org/paml#LocatedSamples')
 doc.add(p)
 
 p = paml.Primitive('TransferInto')
-p.description = 'Mix a measured volume taken from an array of source samples intto an identically shaped array of destination samples'
+p.description = 'Mix a measured volume taken from an collection of source samples into a collection of destination samples whose shame can contain them'
 p.add_input('source', 'http://bioprotocols.org/paml#LocatedSamples')
 p.add_input('destination', 'http://bioprotocols.org/paml#LocatedSamples')
 p.add_input('amount', sbol3.OM_MEASURE) # Must be volume

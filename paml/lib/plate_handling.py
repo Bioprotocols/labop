@@ -18,6 +18,12 @@ p.add_input('location', 'http://bioprotocols.org/paml#LocatedSamples')
 p.add_input('type', 'http://www.w3.org/2001/XMLSchema#anyURI')
 doc.add(p)
 
+p = paml.Primitive('Seal')
+p.description = 'Seal a collection of samples fixing the seal using a user-selected method, in order to guarantee isolation from the external environment'
+p.add_input('location', 'http://bioprotocols.org/paml#LocatedSamples')
+p.add_input('type', 'http://www.w3.org/2001/XMLSchema#anyURI') # e.g., breathable vs. non-breathable
+doc.add(p)
+
 p = paml.Primitive('AdhesiveSeal')
 p.description = 'Seal a collection of samples using adhesive to fix the seal, in order to guarantee isolation from the external environment'
 p.add_input('location', 'http://bioprotocols.org/paml#LocatedSamples')

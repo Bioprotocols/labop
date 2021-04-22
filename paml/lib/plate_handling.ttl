@@ -26,6 +26,13 @@
     sbol:description "Incubate a set of samples under specified conditions for a fixed period of time" ;
     sbol:displayId "Incubate" .
 
+<https://bioprotocols.org/paml/primitives/plate_handling/Seal> a ns1:Primitive,
+        sbol:TopLevel ;
+    ns1:input <https://bioprotocols.org/paml/primitives/plate_handling/Seal/PrimitivePinSpecification1>,
+        <https://bioprotocols.org/paml/primitives/plate_handling/Seal/PrimitivePinSpecification2> ;
+    sbol:description "Seal a collection of samples fixing the seal using a user-selected method, in order to guarantee isolation from the external environment" ;
+    sbol:displayId "Seal" .
+
 <https://bioprotocols.org/paml/primitives/plate_handling/ThermalSeal> a ns1:Primitive,
         sbol:TopLevel ;
     ns1:input <https://bioprotocols.org/paml/primitives/plate_handling/ThermalSeal/PrimitivePinSpecification1>,
@@ -94,6 +101,18 @@
     ns1:activityType om:Measure ;
     sbol:displayId "PrimitivePinSpecification4" ;
     sbol:name "shakingFrequency" .
+
+<https://bioprotocols.org/paml/primitives/plate_handling/Seal/PrimitivePinSpecification1> a ns1:PrimitivePinSpecification,
+        sbol:Identified ;
+    ns1:activityType ns1:LocatedSamples ;
+    sbol:displayId "PrimitivePinSpecification1" ;
+    sbol:name "location" .
+
+<https://bioprotocols.org/paml/primitives/plate_handling/Seal/PrimitivePinSpecification2> a ns1:PrimitivePinSpecification,
+        sbol:Identified ;
+    ns1:activityType xsd:anyURI ;
+    sbol:displayId "PrimitivePinSpecification2" ;
+    sbol:name "type" .
 
 <https://bioprotocols.org/paml/primitives/plate_handling/ThermalSeal/PrimitivePinSpecification1> a ns1:PrimitivePinSpecification,
         sbol:Identified ;
