@@ -150,7 +150,7 @@ Grow up cells and read with plate reader at n-hour intervals
 doc.add(protocol)
 
 # Create the materials to be provisioned
-PBS = sbol3.Component('PBS', 'https://identifiers.org/pubchem.substance:24978514')
+PBS = sbol3.Component('PBS', 'https://identifiers.org/pubchem.compound:24978514')
 PBS.name = 'Phosphate-Buffered Saline'  # I'd like to get this name from PubChem with tyto
 doc.add(PBS)
 # need to retrieve and convert this one
