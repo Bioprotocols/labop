@@ -151,3 +151,64 @@ paml:fromSamples rdf:type owl:ObjectProperty ;
               rdfs:domain paml:SampleData ;
               rdfs:range paml:SampleCollection ;
               rdfs:label "from_samples" .
+
+#################################################################
+#    Time properties
+#################################################################
+
+# <timeproperty> ::= prov:startedAtTime | prov:endedAtTime
+# <timevariable> ::= <URI for Protocol, Activity, ...> valueOf <timeproperty>
+# <duration> ::= Difference(<timevariable>, <timevariable>) | OM:Measure
+# <expression> ::= <duration>| <float> | <float> * <expression> |  <expression> - <expression> | <expression> + <expression>
+# <bincomp> ::= <= | < | >= | > | =
+# <binlog> ::= AND | OR | XOR
+# <constraint> ::= <expression> <bincomp> <expression> | <constraint> <binlog> <constraint> | NOT <constraint>
+
+
+paml:timevariable rdf:type owl:ObjectProperty ;
+                  rdfs:comment "Time variables must refer to om.Time types" ;
+                  rdfs:range om:Time .
+
+paml:differenceSource rdfs:subPropertyOf paml:timevariable ;
+                        rdfs:comment "Difference has a source" ;
+                        rdfs:label "source" ;
+                        rdfs:domain paml:Difference .
+
+paml:differenceDestination rdfs:subPropertyOf paml:timevariable ;
+                        rdfs:comment "Difference has a destination";
+                        rdfs:label "destination" ;
+                        rdfs:domain paml:Difference .
+
+paml:startedAtTime rdfs:subPropertyOf paml:timevariable ;
+                        rdfs:comment "Activities have a start time" ;
+                        rdfs:domain paml:Activity .
+
+paml:endedAtTime rdfs:subPropertyOf paml:timevariable ;
+                        rdfs:comment "Activities have an end time" ;
+                        rdfs:domain paml:Activity .
+
+paml:Difference rdf:type owl:Class ;
+                rdfs:comment "Difference is the dest - src values" ;
+                rdfs:subClassOf sbol:TopLevel ,
+                [ rdf:type owl:Restriction ;
+                  owl:onProperty paml:differenceSource ;
+                  owl:onClass om:Time
+                ] ,
+                [ rdf:type owl:Restriction ;
+                  owl:onProperty paml:differenceDestination ;
+                  owl:onClass om:Time
+                ] .
+
+paml:duration rdf:type owl:ObjectProperty ;
+              rdfs:comment "An Activity duration is either a Duration or Difference" ;
+              rdfs:range om:Duration,
+                         paml:Difference;
+              rdfs:domain paml:Activity ;
+              rdfs:label "duration" .
+
+paml:Activity rdfs:Property paml:startedAtTime ;
+              rdfs:Property paml:endedAtTime ;
+              rdfs:Property paml:duration .
+
+paml:tp1 rdf:type om:Time ;
+         rdfs:label "tp1" .
