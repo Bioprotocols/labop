@@ -169,10 +169,11 @@ paml:timevariable rdf:type owl:ObjectProperty ;
                   rdfs:comment "Time variables must refer to om.Time types" ;
                   rdfs:range om:Time .
 
-paml:differenceSource rdfs:subPropertyOf paml:timevariable ;
+paml:differenceSource rdf:type owl:ObjectProperty ;
                         rdfs:comment "Difference has a source" ;
                         rdfs:label "source" ;
-                        rdfs:domain paml:Difference .
+                        rdfs:domain paml:Difference ;
+                        rdfs:range om:Time .
 
 paml:differenceDestination rdfs:subPropertyOf paml:timevariable ;
                         rdfs:comment "Difference has a destination";
@@ -192,7 +193,9 @@ paml:Difference rdf:type owl:Class ;
                 rdfs:subClassOf sbol:TopLevel ,
                 [ rdf:type owl:Restriction ;
                   owl:onProperty paml:differenceSource ;
-                  owl:onClass om:Time
+                  owl:onClass om:Time ;
+                  owl:minCardinality "1"^^xsd:nonNegativeInteger ;
+                  owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
                 ] ,
                 [ rdf:type owl:Restriction ;
                   owl:onProperty paml:differenceDestination ;
@@ -212,3 +215,4 @@ paml:Activity rdfs:Property paml:startedAtTime ;
 
 paml:tp1 rdf:type om:Time ;
          rdfs:label "tp1" .
+
