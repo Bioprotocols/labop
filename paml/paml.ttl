@@ -173,7 +173,7 @@ paml:timeVariableValue rdf:type owl:ObjectProperty ;
 
 paml:TimeVariable rdf:type owl:Class ;
           rdfs:comment "The value of a timevariable" ;
-          rdfs:subClassOf sbol:TopLevel ,
+          rdfs:subClassOf sbol:Identified ,
           [ rdf:type owl:Restriction ;
                   owl:onProperty paml:timeVariableValue ;
                   owl:onClass sbol:Measure ;
@@ -198,7 +198,8 @@ paml:differenceDestination rdf:type owl:ObjectProperty ;
 paml:startedAtTime rdf:type owl:ObjectProperty ;
                         rdfs:subPropertyOf opil:compositionalProperty ;
                         rdfs:comment "Activities have a start time" ;
-                        rdfs:domain paml:Activity,
+                        rdfs:domain paml:Activity ,
+                                    paml:Executable ,
                                     paml:Protocol ;
                         rdfs:label "start" ;
                         rdfs:range paml:TimeVariable .
@@ -206,7 +207,8 @@ paml:startedAtTime rdf:type owl:ObjectProperty ;
 paml:endedAtTime rdf:type owl:ObjectProperty ;
                         rdfs:subPropertyOf opil:compositionalProperty ;
                         rdfs:comment "Activities have an end time" ;
-                        rdfs:domain paml:Activity,
+                        rdfs:domain paml:Activity ,
+                                    paml:Executable ,
                                     paml:Protocol;
                         rdfs:label "end" ;
                         rdfs:range paml:TimeVariable .
@@ -233,6 +235,7 @@ paml:duration rdf:type owl:ObjectProperty ;
               rdfs:comment "An Activity duration is a TimeVariable" ;
               rdfs:range paml:TimeVariable ;
               rdfs:domain paml:Activity ,
+                          paml:Executable ,
                           paml:Protocol ;
               rdfs:label "duration" .
 
@@ -256,7 +259,7 @@ paml:Control rdfs:subClassOf
                   owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
                 ]  .
 
-paml:Primitive rdfs:subClassOf
+paml:Executable rdfs:subClassOf
                 [ rdf:type owl:Restriction ;
                   owl:onProperty paml:startedAtTime ;
                   owl:onClass paml:TimeVariable ;
@@ -295,3 +298,4 @@ paml:Protocol rdfs:subClassOf
                   owl:minCardinality "1"^^xsd:nonNegativeInteger ;
                   owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
                 ]  .
+
