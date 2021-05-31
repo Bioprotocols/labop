@@ -243,19 +243,19 @@ paml:Control rdfs:subClassOf
                 [ rdf:type owl:Restriction ;
                   owl:onProperty paml:startedAtTime ;
                   owl:onClass paml:TimeVariable ;
-                  owl:minCardinality "1"^^xsd:nonNegativeInteger ;
+                  owl:minCardinality "0"^^xsd:nonNegativeInteger ;
                   owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
                 ] ,
                 [ rdf:type owl:Restriction ;
                   owl:onProperty paml:endedAtTime ;
                   owl:onClass paml:TimeVariable ;
-                  owl:minCardinality "1"^^xsd:nonNegativeInteger ;
+                  owl:minCardinality "0"^^xsd:nonNegativeInteger ;
                   owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
                 ] ,
                 [ rdf:type owl:Restriction ;
                   owl:onProperty paml:duration ;
                   owl:onClass paml:TimeVariable ;
-                  owl:minCardinality "1"^^xsd:nonNegativeInteger ;
+                  owl:minCardinality "0"^^xsd:nonNegativeInteger ;
                   owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
                 ]  .
 
@@ -263,19 +263,19 @@ paml:Executable rdfs:subClassOf
                 [ rdf:type owl:Restriction ;
                   owl:onProperty paml:startedAtTime ;
                   owl:onClass paml:TimeVariable ;
-                  owl:minCardinality "1"^^xsd:nonNegativeInteger ;
+                  owl:minCardinality "0"^^xsd:nonNegativeInteger ;
                   owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
                 ] ,
                 [ rdf:type owl:Restriction ;
                   owl:onProperty paml:endedAtTime ;
                   owl:onClass paml:TimeVariable ;
-                  owl:minCardinality "1"^^xsd:nonNegativeInteger ;
+                  owl:minCardinality "0"^^xsd:nonNegativeInteger ;
                   owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
                 ] ,
                 [ rdf:type owl:Restriction ;
                   owl:onProperty paml:duration ;
                   owl:onClass paml:TimeVariable ;
-                  owl:minCardinality "1"^^xsd:nonNegativeInteger ;
+                  owl:minCardinality "0"^^xsd:nonNegativeInteger ;
                   owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
                 ]  .
 
@@ -283,19 +283,19 @@ paml:Protocol rdfs:subClassOf
                 [ rdf:type owl:Restriction ;
                   owl:onProperty paml:startedAtTime ;
                   owl:onClass paml:TimeVariable ;
-                  owl:minCardinality "1"^^xsd:nonNegativeInteger ;
+                  owl:minCardinality "0"^^xsd:nonNegativeInteger ;
                   owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
                 ] ,
                 [ rdf:type owl:Restriction ;
                   owl:onProperty paml:endedAtTime ;
                   owl:onClass paml:TimeVariable ;
-                  owl:minCardinality "1"^^xsd:nonNegativeInteger ;
+                  owl:minCardinality "0"^^xsd:nonNegativeInteger ;
                   owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
                 ] ,
                 [ rdf:type owl:Restriction ;
                   owl:onProperty paml:duration ;
                   owl:onClass paml:TimeVariable ;
-                  owl:minCardinality "1"^^xsd:nonNegativeInteger ;
+                  owl:minCardinality "0"^^xsd:nonNegativeInteger ;
                   owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
                 ]  .
 
