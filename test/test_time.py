@@ -2,6 +2,7 @@ import sbol3
 import paml
 import unittest
 import tyto
+from paml_check.paml_check import check_doc
 
 class TestTime(unittest.TestCase):
     def test_difference(self):
@@ -169,11 +170,8 @@ is only weakly scattering and so will give a low absorbance value.
         v = doc.validate()
         assert not v.errors and not v.warnings, "".join(str(e) for e in doc.validate().errors)
 
-        doc.write('igem_ludox_time_draft.nt', 'sorted nt')
-        doc.write('igem_ludox_time_draft.ttl', 'turtle')
-
-        # Checking if files are identical needs to wait for increased stability
-        # assert filecmp.cmp('igem_ludox_draft.ttl','test/testfiles/igem_ludox_draft.ttl')
+        doc_result = check_doc(doc)
+        assert doc_result
 
 if __name__ == '__main__':
     unittest.main()
