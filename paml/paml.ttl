@@ -415,79 +415,48 @@ paml:Location rdf:type owl:Class ;
               rdfs:comment "Locations are containers, wells, etc." ;
             rdfs:subClassOf sbol:Identified .
 
-paml:Container rdf:type owl:Class ;
-              rdfs:comment "A container such as a flask, bottle, 96-well plate, or 384-well plate" ;
-        rdfs:subClassOf paml:Location ,
-                            [ rdf:type owl:Restriction ;
-                              owl:onProperty paml:containerType ;
-                              owl:allValuesFrom xsd:anyURI ;
-                              owl:minCardinality "1"^^xsd:nonNegativeInteger ;
-                              owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
-                              rdfs:comment "SHOULD be an NCIT equipment class (branch http://purl.obolibrary.org/obo/NCIT_C19238)"
-                              ] ,
-                            [ rdf:type owl:Restriction ;
-                              owl:onProperty paml:containerMaxCoordinate ;
-                              owl:allValuesFrom xsd:string ;
-                                owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
-                              rdfs:comment "Maximum allowed coordinates (if applicable), which SHOULD use Excel form, e.g., A1, B3:C6"
-                              ] .
-
-paml:containerType rdf:type owl:DatatypeProperty ;
-              rdfs:domain paml:Container ;
-              rdfs:range xsd:anyURI ;
-              rdfs:label "type" ;
-              rdfs:comment "Type specification of a Value or Physical material" .
-
-paml:containerMaxCoordinate rdf:type owl:DatatypeProperty ;
-              rdfs:domain paml:Container ;
-              rdfs:range xsd:string ;
-              rdfs:label "max_coordinate" .
+paml:SampleCollection rdf:type owl:Class ;
+        rdfs:comment "A sample collection is a group of samples" ;
+        rdfs:subClassOf sbol:Identified .
 
 
+paml:SampleArray rdf:type owl:Class ;
+        rdfs:comment "A sample array is an n-dimensional rectangular group of samples, either with specified contents or empty, all stored in the same type of container" ;
+        rdfs:subClassOf paml:SampleCollection ,
+            [ rdf:type owl:Restriction ;
+              owl:onProperty paml:containerType ;
+              owl:allValuesFrom xsd:anyURI ; # replace with container ontology, when available
+              owl:minCardinality "1"^^xsd:nonNegativeInteger ;
+              owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
+              rdfs:comment "Type of container used for storing the samples. The size and dimension may not match that of the array: it is up to execution to lay out the array in one or more containers"
+            ] ,
+            [ rdf:type owl:Restriction ;
+              owl:onProperty paml:contents ;
+              owl:allValuesFrom xsd:anyURI ; # need to replace this with an serializable array model
+              owl:minCardinality "1"^^xsd:nonNegativeInteger ;
+              owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
+              rdfs:comment "N-dimensional array of URI for specification or nulls"
+            ] .
 
-paml:ContainerCoordinates rdf:type owl:Class ;
-              rdfs:comment "A standard well-array plate, such as a 96-well plate or 384-well plate" ;
-        rdfs:subClassOf paml:Location ,
-                            [ rdf:type owl:Restriction ;
-                              owl:onProperty paml:coordinates ;
-                              owl:allValuesFrom xsd:string ;
-                                owl:minCardinality "1"^^xsd:nonNegativeInteger ;
-                                owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
-                              rdfs:comment "Coordinates SHOULD use Excel form, e.g., A1, B3:C6"
-                              ] ,
-                            [ rdf:type owl:Restriction ;
-                                owl:onProperty paml:inContainer ;
-                                owl:onClass paml:Container ;
-                                owl:minCardinality "1"^^xsd:nonNegativeInteger ;
-                                owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
-                              ] .
+paml:SampleMask rdf:type owl:Class ;
+        rdfs:comment "A sample mask is a subset of a SampleCollection, as defined by an array of boolean indiating whether each contents value is included or not" ;
+        rdfs:subClassOf paml:SampleCollection ,
+            [ rdf:type owl:Restriction ;
+              owl:onProperty paml:sourceArray ;
+              owl:allValuesFrom paml:SampleCollection ;
+              owl:minCardinality "1"^^xsd:nonNegativeInteger ;
+              owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
+              rdfs:comment "Collection being subsetted via mask"
+            ] ,
+            [ rdf:type owl:Restriction ;
+              owl:onProperty paml:mask ;
+              owl:allValuesFrom xsd:anyURI ; # need to replace this with an serializable array model
+              owl:minCardinality "1"^^xsd:nonNegativeInteger ;
+              owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
+              rdfs:comment "N-dimensional array of booleans indicating whether contents are included in mask or not"
+            ] .
 
-paml:LocatedSamples rdf:type owl:Class ;
-              rdfs:comment "Collection of samples at particular locations" ;
-            rdfs:subClassOf sbol:Identified .
 
-paml:ReplicateSamples rdf:type owl:Class ;
-              rdfs:comment "Collection of identical samples at particular locations" ;
-            rdfs:subClassOf paml:LocatedSamples ,
-                            [ rdf:type owl:Restriction ;
-                              owl:onProperty paml:specification ;
-                              owl:onClass sbol:Component ;
-                              owl:minCardinality "1"^^xsd:nonNegativeInteger ;
-                              owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
-                              ] ,
-                            [ rdf:type owl:Restriction ;
-                                owl:onProperty paml:inLocation ;
-                                owl:onClass paml:Location ;
-                              owl:minCardinality "1"^^xsd:nonNegativeInteger ;
-                              ] .
-
-paml:HeterogeneousSamples rdf:type owl:Class ;
-              rdfs:comment "Collection of samples that may be of more than one type" ;
-            rdfs:subClassOf paml:LocatedSamples ,
-                            [ rdf:type owl:Restriction ;
-                              owl:onProperty paml:hasReplicateSamples ;
-                              owl:onClass paml:ReplicateSamples ;
-                              ] .
 
 paml:LocatedData rdf:type owl:Class ;
               rdfs:comment "Collection of samples with data at locations" ;
