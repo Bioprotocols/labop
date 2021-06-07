@@ -474,32 +474,6 @@ paml:LocatedData rdf:type owl:Class ;
                               owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
                               ] .
 
-paml:coordinates rdf:type owl:DatatypeProperty ;
-              rdfs:domain paml:ContainerCoordinates ;
-              rdfs:range xsd:string ;
-              rdfs:label "coordinates" .
-
-paml:inContainer rdf:type owl:ObjectProperty ;
-              rdfs:domain paml:ContainerCoordinates ;
-              rdfs:range paml:Container ;
-              rdfs:label "in_container" .
-
-paml:specification rdf:type owl:ObjectProperty ;
-              rdfs:domain paml:ReplicateSamples ;
-              rdfs:range sbol:Component ;
-              rdfs:label "specification" .
-
-paml:inLocation rdf:type owl:ObjectProperty ;
-              rdfs:domain paml:ReplicateSamples ;
-              rdfs:range paml:Location ;
-              rdfs:label "in_location" .
-
-paml:hasReplicateSamples rdf:type owl:ObjectProperty ;
-              rdfs:subPropertyOf opil:compositionalProperty ;
-              rdfs:domain paml:HeterogeneousSamples ;
-              rdfs:range paml:ReplicateSamples ;
-              rdfs:label "replicate_samples" .
-
 paml:hasExperimentalData rdf:type owl:ObjectProperty ;
               rdfs:domain paml:LocatedData ;
               rdfs:range sbol:ExperimentalData ;
