@@ -411,9 +411,12 @@ paml:pinActivity rdf:type owl:ObjectProperty ;
               rdfs:comment "Designation of an activity as an input or output of a Protocol" .
 
 
-paml:Location rdf:type owl:Class ;
-              rdfs:comment "Locations are containers, wells, etc." ;
-            rdfs:subClassOf sbol:Identified .
+
+
+paml:Execution rdf:type owl:Class ;
+        rdfs:comment "An execution is a record of the values produced by the operation of a protocol, real or simulated" ;
+        rdfs:subClassOf sbol:TopLevel .
+
 
 paml:SampleCollection rdf:type owl:Class ;
         rdfs:comment "A sample collection is a group of samples" ;
@@ -432,17 +435,27 @@ paml:SampleArray rdf:type owl:Class ;
             ] ,
             [ rdf:type owl:Restriction ;
               owl:onProperty paml:contents ;
-              owl:allValuesFrom xsd:anyURI ; # need to replace this with an serializable array model
+              owl:allValuesFrom xsd:string ; # need to replace this with an serializable array model
               owl:minCardinality "1"^^xsd:nonNegativeInteger ;
               owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
               rdfs:comment "N-dimensional array of URI for specification or nulls"
             ] .
 
+paml:containerType rdf:type owl:DatatypeProperty ;
+              rdfs:domain paml:SampleArray ;
+              rdfs:range xsd:anyURI ;
+              rdfs:label "container_type" .
+
+paml:contents rdf:type owl:DatatypeProperty ;
+              rdfs:domain paml:SampleArray ;
+              rdfs:range xsd:string ;
+              rdfs:label "contents" .
+
 paml:SampleMask rdf:type owl:Class ;
         rdfs:comment "A sample mask is a subset of a SampleCollection, as defined by an array of boolean indiating whether each contents value is included or not" ;
         rdfs:subClassOf paml:SampleCollection ,
             [ rdf:type owl:Restriction ;
-              owl:onProperty paml:sourceArray ;
+              owl:onProperty paml:source ;
               owl:allValuesFrom paml:SampleCollection ;
               owl:minCardinality "1"^^xsd:nonNegativeInteger ;
               owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
@@ -450,37 +463,48 @@ paml:SampleMask rdf:type owl:Class ;
             ] ,
             [ rdf:type owl:Restriction ;
               owl:onProperty paml:mask ;
-              owl:allValuesFrom xsd:anyURI ; # need to replace this with an serializable array model
+              owl:allValuesFrom xsd:string ; # need to replace this with an serializable array model
               owl:minCardinality "1"^^xsd:nonNegativeInteger ;
               owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
               rdfs:comment "N-dimensional array of booleans indicating whether contents are included in mask or not"
             ] .
 
+paml:source rdf:type owl:ObjectProperty ;
+              rdfs:domain paml:SampleMask ;
+              rdfs:range paml:SampleCollection ;
+              rdfs:label "source" .
+
+paml:mask rdf:type owl:DatatypeProperty ;
+              rdfs:domain paml:mask ;
+              rdfs:range xsd:string ;
+              rdfs:label "mask" .
 
 
-paml:LocatedData rdf:type owl:Class ;
+
+
+paml:SampleData rdf:type owl:Class ;
               rdfs:comment "Collection of samples with data at locations" ;
             rdfs:subClassOf sbol:Identified ,
                             [ rdf:type owl:Restriction ;
-                              owl:onProperty paml:hasExperimentalData ;
-                              owl:onClass sbol:ExperimentalData ;
+                              owl:onProperty paml:sampleDataValues ;
+                              owl:allValuesFrom xsd:string ; # need to replace this with an serializable array model
                               owl:minCardinality "1"^^xsd:nonNegativeInteger ;
                               owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
                               ] ,
                             [ rdf:type owl:Restriction ;
                               owl:onProperty paml:fromSamples ;
-                              owl:onClass sbol:LocatedSamples ;
+                              owl:onClass paml:SampleCollection ;
                               owl:minCardinality "1"^^xsd:nonNegativeInteger ;
                               owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
                               ] .
 
-paml:hasExperimentalData rdf:type owl:ObjectProperty ;
-              rdfs:domain paml:LocatedData ;
-              rdfs:range sbol:ExperimentalData ;
-              rdfs:label "experimental_data" .
+paml:sampleDataValues rdf:type owl:ObjectProperty ;
+              rdfs:domain paml:SampleData ;
+              rdfs:range xsd:string ;
+              rdfs:label "values" .
 
 paml:fromSamples rdf:type owl:ObjectProperty ;
               rdfs:subPropertyOf opil:compositionalProperty ;
-              rdfs:domain paml:LocatedData ;
-              rdfs:range sbol:LocatedSamples ;
+              rdfs:domain paml:SampleData ;
+              rdfs:range paml:SampleCollection ;
               rdfs:label "from_samples" .
