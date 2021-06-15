@@ -138,6 +138,49 @@ uml:Action rdf:type owl:Class ;
     [ rdf:type owl:Restriction ; owl:onClass uml:Action ; owl:onProperty uml:output ] .
     # omitted: /context, localPrecondition, localPostcondition
 
+# Nearly all UML actions are omitted. Only those required are added here
+
+uml:InvocationAction rdf:type owl:Class ;
+             rdfs:subClassOf uml:Action .
+    # aliased: argument --> input
+    # omitted: onPort
+    # omitted subclass: SendObjectAction, SendSignalAction, BroadcastSignalAction
+
+uml:CallAction rdf:type owl:Class ;
+             rdfs:subClassOf uml:InvocationAction .
+    # aliased: result --> output
+    # omitted: isSynchronous
+    # omitted subclass: CallOperationAction, StartObjectBehaviorAction
+
+uml:CallBehaviorAction rdf:type owl:Class ;
+             rdfs:subClassOf uml:CallAction .
+    [ rdf:type owl:Restriction ; owl:onClass uml:Action ; owl:onProperty uml:behavior ] .
+
+uml:Pin rdf:type owl:Class ;
+             rdfs:subClassOf uml:ObjectNode ,
+    # omitted: isControl
+    # Properties inherited from MultiplicityElement:
+    [ rdf:type owl:Restriction ; owl:onClass uml:Parameter ; owl:onProperty uml:isOrdered ;
+      owl:minCardinality "1"^^xsd:nonNegativeInteger ; owl:maxCardinality "1"^^xsd:nonNegativeInteger ] ,
+    [ rdf:type owl:Restriction ; owl:onClass uml:Parameter ; owl:onProperty uml:isUnique ;
+      owl:minCardinality "1"^^xsd:nonNegativeInteger ; owl:maxCardinality "1"^^xsd:nonNegativeInteger ] ,
+    [ rdf:type owl:Restriction ; owl:onClass uml:Parameter ; owl:onProperty uml:lowerValue ;
+      owl:maxCardinality "1"^^xsd:nonNegativeInteger ] ,
+    [ rdf:type owl:Restriction ; owl:onClass uml:Parameter ; owl:onProperty uml:upperValue ;
+      owl:maxCardinality "1"^^xsd:nonNegativeInteger ] .
+
+uml:InputPin rdf:type owl:Class ;
+             rdfs:subClassOf uml:Pin .
+    # omitted subclass: ActionInputPin
+
+uml:ValuePin rdf:type owl:Class ;
+             rdfs:subClassOf uml:ValuePin ,
+    [ rdf:type owl:Restriction ; owl:onClass uml:ValuePin ; owl:onProperty uml:value ;
+      owl:minCardinality "1"^^xsd:nonNegativeInteger ; owl:maxCardinality "1"^^xsd:nonNegativeInteger ] .
+
+uml:OutputPin rdf:type owl:Class ;
+             rdfs:subClassOf uml:Pin .
+
 
 uml:ActivityEdge rdf:type owl:Class ;
              rdfs:subClassOf sbol:Identified ,
