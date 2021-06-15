@@ -2,7 +2,7 @@ import sbol3
 import paml
 import unittest
 import tyto
-from paml_check.paml_check import check_doc, get_minimum_duration
+# from paml_check.paml_check import check_doc, get_minimum_duration
 
 
 class TestTime(unittest.TestCase):
