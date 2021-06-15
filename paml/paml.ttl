@@ -10,6 +10,7 @@
 @prefix sbol: <http://sbols.org/v3#> .
 @prefix uml: <http://bioprotocols.org/uml#> .
 @prefix MathM: <http://www.w3.org/1998/Math/MathML> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
 @base <http://bioprotocols.org/paml#> .
 
 <http://bioprotocols.org/paml> rdf:type owl:Ontology ;
@@ -171,15 +172,42 @@ paml:timeVariableValue rdf:type owl:ObjectProperty ;
                 rdfs:domain paml:TimeVariable ;
                 rdfs:range sbol:Measure .
 
+paml:timeProperty rdf:type owl:ObjectProperty ;
+                rdfs:subPropertyOf opil:compositionalProperty ;
+                rdfs:comment "Time variable type in relation to an activity" ;
+                rdfs:label "time_property" ;
+                rdfs:domain paml:TimeVariable ;
+                rdfs:range prov:startedAtTime ;
+                rdfs:range prov:endedAtTime .
+
+paml:timeOf rdf:type owl:ObjectProperty ;
+                rdfs:subPropertyOf opil:compositionalProperty ;
+                rdfs:comment "Time variable type in relation to an activity" ;
+                rdfs:label "time_of" ;
+                rdfs:domain paml:TimeVariable ;
+                rdfs:domain paml:Duration ;
+                rdfs:range paml:Control ;
+                rdfs:range paml:Executable .
+
 paml:TimeVariable rdf:type owl:Class ;
           rdfs:comment "The value of a timevariable" ;
-          rdfs:subClassOf sbol:Identified ,
+          rdfs:subClassOf sbol:TopLevel ,
+          [ rdf:type owl:Restriction ;
+                  owl:onProperty paml:timeProperty ;
+                  owl:minCardinality "0"^^xsd:nonNegativeInteger ;
+                  owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
+          ] ,
+          [ rdf:type owl:Restriction ;
+                  owl:onProperty paml:timeOf ;
+                  owl:minCardinality "0"^^xsd:nonNegativeInteger ;
+                  owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
+          ] ,
           [ rdf:type owl:Restriction ;
                   owl:onProperty paml:timeVariableValue ;
                   owl:onClass sbol:Measure ;
                   owl:minCardinality "0"^^xsd:nonNegativeInteger ;
                   owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
-          ] .
+          ].
 
 paml:differenceSource rdf:type owl:ObjectProperty ;
                         rdfs:subPropertyOf opil:compositionalProperty ;
@@ -194,25 +222,6 @@ paml:differenceDestination rdf:type owl:ObjectProperty ;
                         rdfs:label "destination" ;
                         rdfs:domain paml:Difference ;
                         rdfs:range paml:TimeVariable .
-
-paml:startedAtTime rdf:type owl:ObjectProperty ;
-                        rdfs:subPropertyOf opil:compositionalProperty ;
-                        rdfs:comment "Activities have a start time" ;
-                        rdfs:domain paml:Activity ,
-                                    paml:Executable ,
-                                    paml:Protocol ;
-                        rdfs:label "start" ;
-                        rdfs:range paml:TimeVariable .
-
-paml:endedAtTime rdf:type owl:ObjectProperty ;
-                        rdfs:subPropertyOf opil:compositionalProperty ;
-                        rdfs:comment "Activities have an end time" ;
-                        rdfs:domain paml:Activity ,
-                                    paml:Executable ,
-                                    paml:Protocol;
-                        rdfs:label "end" ;
-                        rdfs:range paml:TimeVariable .
-
 
 paml:Difference rdf:type owl:Class ;
                 rdfs:comment "Difference is the dest - src values" ;
@@ -230,72 +239,30 @@ paml:Difference rdf:type owl:Class ;
                   owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
                 ] .
 
-paml:duration rdf:type owl:ObjectProperty ;
-              rdfs:subPropertyOf opil:compositionalProperty ;
-              rdfs:comment "An Activity duration is a TimeVariable" ;
-              rdfs:range paml:TimeVariable ;
-              rdfs:domain paml:Activity ,
-                          paml:Executable ,
-                          paml:Protocol ;
-              rdfs:label "duration" .
+paml:Duration rdf:type owl:Class ;
+                rdfs:comment "An Activity duration is a TimeVariable" ;
+                rdfs:subClassOf sbol:TopLevel ,
+                [ rdf:type owl:Restriction ;
+                  owl:onProperty paml:timeOf ;
+                  owl:minCardinality "1"^^xsd:nonNegativeInteger ;
+                  owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
+                ] ,
+                [ rdf:type owl:Restriction ;
+                      owl:onProperty paml:timeVariableValue ;
+                      owl:onClass sbol:Measure ;
+                      owl:minCardinality "0"^^xsd:nonNegativeInteger ;
+                      owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
+                ] .
 
-paml:Control rdfs:subClassOf
-                [ rdf:type owl:Restriction ;
-                  owl:onProperty paml:startedAtTime ;
-                  owl:onClass paml:TimeVariable ;
-                  owl:minCardinality "0"^^xsd:nonNegativeInteger ;
-                  owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
-                ] ,
-                [ rdf:type owl:Restriction ;
-                  owl:onProperty paml:endedAtTime ;
-                  owl:onClass paml:TimeVariable ;
-                  owl:minCardinality "0"^^xsd:nonNegativeInteger ;
-                  owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
-                ] ,
-                [ rdf:type owl:Restriction ;
-                  owl:onProperty paml:duration ;
-                  owl:onClass paml:TimeVariable ;
-                  owl:minCardinality "0"^^xsd:nonNegativeInteger ;
-                  owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
-                ]  .
-
-paml:Executable rdfs:subClassOf
-                [ rdf:type owl:Restriction ;
-                  owl:onProperty paml:startedAtTime ;
-                  owl:onClass paml:TimeVariable ;
-                  owl:minCardinality "0"^^xsd:nonNegativeInteger ;
-                  owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
-                ] ,
-                [ rdf:type owl:Restriction ;
-                  owl:onProperty paml:endedAtTime ;
-                  owl:onClass paml:TimeVariable ;
-                  owl:minCardinality "0"^^xsd:nonNegativeInteger ;
-                  owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
-                ] ,
-                [ rdf:type owl:Restriction ;
-                  owl:onProperty paml:duration ;
-                  owl:onClass paml:TimeVariable ;
-                  owl:minCardinality "0"^^xsd:nonNegativeInteger ;
-                  owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
-                ]  .
 
 paml:Protocol rdfs:subClassOf
-                [ rdf:type owl:Restriction ;
-                  owl:onProperty paml:startedAtTime ;
-                  owl:onClass paml:TimeVariable ;
-                  owl:minCardinality "0"^^xsd:nonNegativeInteger ;
-                  owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
-                ] ,
-                [ rdf:type owl:Restriction ;
-                  owl:onProperty paml:endedAtTime ;
-                  owl:onClass paml:TimeVariable ;
-                  owl:minCardinality "0"^^xsd:nonNegativeInteger ;
-                  owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
-                ] ,
-                [ rdf:type owl:Restriction ;
-                  owl:onProperty paml:duration ;
-                  owl:onClass paml:TimeVariable ;
-                  owl:minCardinality "0"^^xsd:nonNegativeInteger ;
-                  owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
-                ]  .
+                 [ rdf:type owl:Restriction ;
+                   owl:onProperty paml:timeConstraints ;
+                   owl:onClass sbol:Component
+                 ] .
 
+paml:timeConstraints rdf:type owl:ObjectProperty ;
+              rdfs:domain paml:Protocol ;
+              rdfs:range sbol:Component ;
+              rdfs:label "time_constraints" ;
+              rdfs:comment "Specification of time constraints on a protocol" .
