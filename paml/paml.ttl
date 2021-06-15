@@ -172,13 +172,11 @@ paml:timeVariableValue rdf:type owl:ObjectProperty ;
                 rdfs:domain paml:TimeVariable ;
                 rdfs:range sbol:Measure .
 
-paml:timeProperty rdf:type owl:ObjectProperty ;
-                rdfs:subPropertyOf opil:compositionalProperty ;
+paml:timeProperty rdf:type owl:DatatypeProperty ;
                 rdfs:comment "Time variable type in relation to an activity" ;
                 rdfs:label "time_property" ;
                 rdfs:domain paml:TimeVariable ;
-                rdfs:range prov:startedAtTime ;
-                rdfs:range prov:endedAtTime .
+                rdfs:range xsd:anyURI .
 
 paml:timeOf rdf:type owl:ObjectProperty ;
                 rdfs:subPropertyOf opil:compositionalProperty ;

@@ -101,7 +101,7 @@ class TestTime(unittest.TestCase):
                                time_of=protocol.final()
                                )
 
-        protocol += {
+        protocol.time_constraints += {
             t1,
             t2
           }
@@ -223,7 +223,7 @@ is only weakly scattering and so will give a low absorbance value.
         # assert check_doc(doc) # Is the protocol consistent?
 
         # assert get_minimum_duration(doc)  # What is the minimum duration for each protocol in doc
-        # doc.write('igem_ludox_time_draft.ttl', 'turtle')
+        doc.write('igem_ludox_time_draft.ttl', 'turtle')
 
         assert doc
 
