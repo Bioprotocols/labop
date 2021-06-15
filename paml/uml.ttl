@@ -1,0 +1,159 @@
+@prefix : <http://bioprotocols.org/paml#> .
+@prefix om: <http://www.ontology-of-units-of-measure.org/resource/om-2/> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xml: <http://www.w3.org/XML/1998/namespace> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix sbol: <http://sbols.org/v3#> .
+@prefix uml: <http://bioprotocols.org/uml#> .
+@prefix MathM: <http://www.w3.org/1998/Math/MathML> .
+@base <http://bioprotocols.org/uml#> .
+
+<http://bioprotocols.org/uml> rdf:type owl:Ontology ;
+                              owl:imports sbol: ,
+                                          om: ;
+                              rdfs:comment "Unified Modeling Languge (UML) subset, translated to an SBOL factory ontology." ;
+                              owl:versionInfo "1.0-alpha1" .
+
+#################################################################
+#    Annotation properties
+#################################################################
+
+###  http://www.w3.org/2002/07/owl#maxCardinality
+owl:maxCardinality rdf:type owl:AnnotationProperty .
+owl:minCardinality rdf:type owl:AnnotationProperty .
+
+
+#################################################################
+#    Datatypes
+#################################################################
+
+###  http://www.w3.org/2001/XMLSchema#anySimpleType
+xsd:anySimpleType rdf:type rdfs:Datatype .
+
+
+#################################################################
+#    Behaviors
+#################################################################
+
+uml:Parameter rdf:type owl:Class ;
+              rdfs:subClassOf sbol:Identified ,
+    [ rdf:type owl:Restriction ; owl:onClass uml:Parameter ; owl:onProperty uml:direction ;
+      owl:minCardinality "1"^^xsd:nonNegativeInteger ; owl:maxCardinality "1"^^xsd:nonNegativeInteger ] ,
+    [ rdf:type owl:Restriction ; owl:onClass uml:Parameter ; owl:onProperty uml:defaultValue  ;
+      owl:maxCardinality "1"^^xsd:nonNegativeInteger ] ,
+    # omitted: /default, effect, isException, isStream
+    # Properties inherited from MultiplicityElement and TypedElement:
+    [ rdf:type owl:Restriction ; owl:onClass uml:Parameter ; owl:onProperty uml:type ;
+      owl:maxCardinality "1"^^xsd:nonNegativeInteger ] ,
+    [ rdf:type owl:Restriction ; owl:onClass uml:Parameter ; owl:onProperty uml:isOrdered ;
+      owl:minCardinality "1"^^xsd:nonNegativeInteger ; owl:maxCardinality "1"^^xsd:nonNegativeInteger ] ,
+    [ rdf:type owl:Restriction ; owl:onClass uml:Parameter ; owl:onProperty uml:isUnique ;
+      owl:minCardinality "1"^^xsd:nonNegativeInteger ; owl:maxCardinality "1"^^xsd:nonNegativeInteger ] ,
+    [ rdf:type owl:Restriction ; owl:onClass uml:Parameter ; owl:onProperty uml:lowerValue ;
+      owl:maxCardinality "1"^^xsd:nonNegativeInteger ] ,
+    [ rdf:type owl:Restriction ; owl:onClass uml:Parameter ; owl:onProperty uml:upperValue ;
+      owl:maxCardinality "1"^^xsd:nonNegativeInteger ] .
+    # omitted: /lower, /upper
+
+uml:Behavior rdf:type owl:Class ;
+             rdfs:subClassOf sbol:TopLevel ,
+    [ rdf:type owl:Restriction ; owl:onClass uml:Behavior ; owl:onProperty uml:isReentrant ;
+      owl:minCardinality "1"^^xsd:nonNegativeInteger ; owl:maxCardinality "1"^^xsd:nonNegativeInteger ] ,
+    [ rdf:type owl:Restriction ; owl:onClass uml:Behavior ; owl:onProperty uml:precondition ] ,
+    [ rdf:type owl:Restriction ; owl:onClass uml:Behavior ; owl:onProperty uml:postcondition ] ,
+    [ rdf:type owl:Restriction ; owl:onClass uml:Behavior ; owl:onProperty uml:ownedParameter ] .
+    # omitted: context, specification, redefinedBehavior, ownedParameterSet
+
+uml:OpaqueBehavior rdf:type owl:Class ;
+             rdfs:subClassOf uml:Behavior ,
+    [ rdf:type owl:Restriction ; owl:onClass uml:OpaqueBehavior ; owl:onProperty uml:body ] ,
+    [ rdf:type owl:Restriction ; owl:onClass uml:OpaqueBehavior ; owl:onProperty uml:language ] .
+
+uml:FunctionBehavior rdf:type owl:Class ;
+             rdfs:subClassOf uml:OpaqueBehavior .
+
+uml:Activity rdf:type owl:Class ;
+             rdfs:subClassOf uml:Behavior ,
+    [ rdf:type owl:Restriction ; owl:onClass uml:Activity ; owl:onProperty uml:node ] ,
+    [ rdf:type owl:Restriction ; owl:onClass uml:Activity ; owl:onProperty uml:edge ] .
+    # omitted: isReadOnly, isSingleExecution, variable
+
+uml:ActivityNode rdf:type owl:Class ;
+             rdfs:subClassOf sbol:Identified .
+    # omitted: redefinedNode
+
+uml:ControlNode rdf:type owl:Class ;
+             rdfs:subClassOf uml:ActivityNode .
+
+uml:InitialNode rdf:type owl:Class ;
+             rdfs:subClassOf uml:ControlNode .
+
+uml:FinalNode rdf:type owl:Class ;
+             rdfs:subClassOf uml:ControlNode .
+    # omitted subclass: ActivityFinalNode
+
+uml:FlowFinalNode rdf:type owl:Class ;
+             rdfs:subClassOf uml:FinalNode .
+
+uml:ForkNode rdf:type owl:Class ;
+             rdfs:subClassOf uml:ControlNode .
+
+uml:JoinNode rdf:type owl:Class ;
+             rdfs:subClassOf uml:ControlNode .
+    # omitted: isCombineDuplicate, joinSpec
+
+uml:MergeNode rdf:type owl:Class ;
+             rdfs:subClassOf uml:ControlNode .
+
+uml:DecisionNode rdf:type owl:Class ;
+             rdfs:subClassOf uml:ControlNode ,
+    [ rdf:type owl:Restriction ; owl:onClass uml:DecisionNode ; owl:onProperty uml:decisionInput ;
+      owl:maxCardinality "1"^^xsd:nonNegativeInteger ] ,
+    [ rdf:type owl:Restriction ; owl:onClass uml:DecisionNode ; owl:onProperty uml:decisionInputFlow ;
+      owl:maxCardinality "1"^^xsd:nonNegativeInteger ] .
+
+
+uml:ObjectNode rdf:type owl:Class ;
+             rdfs:subClassOf uml:ActivityNode .
+    # omitted subtype: CentralBufferNode, DataStoreNode
+    # omitted: isControlType, ordering, selection, upperBound, inState
+    # Property inherited from TypedElement:
+    [ rdf:type owl:Restriction ; owl:onClass uml:ObjectNode ; owl:onProperty uml:type ;
+      owl:maxCardinality "1"^^xsd:nonNegativeInteger ] .
+
+uml:ActivityParameterNode rdf:type owl:Class ;
+             rdfs:subClassOf uml:ObjectNode .
+    [ rdf:type owl:Restriction ; owl:onClass uml:ActivityParameterNode ; owl:onProperty uml:parameter ;
+      owl:minCardinality "1"^^xsd:nonNegativeInteger ; owl:maxCardinality "1"^^xsd:nonNegativeInteger ] .
+
+uml:ExecutableNode rdf:type owl:Class ;
+             rdfs:subClassOf uml:ActivityNode .
+    # omitted: handler
+
+uml:Action rdf:type owl:Class ;
+             rdfs:subClassOf uml:ExecutableNode ,
+    [ rdf:type owl:Restriction ; owl:onClass uml:Action ; owl:onProperty uml:input ] ,
+    [ rdf:type owl:Restriction ; owl:onClass uml:Action ; owl:onProperty uml:output ] .
+    # omitted: /context, localPrecondition, localPostcondition
+
+
+uml:ActivityEdge rdf:type owl:Class ;
+             rdfs:subClassOf sbol:Identified ,
+    [ rdf:type owl:Restriction ; owl:onClass uml:ActivityEdge ; owl:onProperty uml:source ;
+      owl:minCardinality "1"^^xsd:nonNegativeInteger ; owl:maxCardinality "1"^^xsd:nonNegativeInteger ] ,
+    [ rdf:type owl:Restriction ; owl:onClass uml:ActivityEdge ; owl:onProperty uml:target ;
+      owl:minCardinality "1"^^xsd:nonNegativeInteger ; owl:maxCardinality "1"^^xsd:nonNegativeInteger ] .
+    # omitted: redefinedEdge, guard, weight
+    # Note that guard will need to be added to allow DecisionNode
+
+uml:ControlFlow rdf:type owl:Class ;
+             rdfs:subClassOf uml:ActivityEdge .
+
+uml:ObjectFlow rdf:type owl:Class ;
+             rdfs:subClassOf uml:ActivityEdge .
+    # omitted: isMulticast, isMultireceive, transformation, selection
+
+
+
