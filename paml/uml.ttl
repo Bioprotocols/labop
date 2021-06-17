@@ -1,18 +1,16 @@
 @prefix : <http://bioprotocols.org/paml#> .
 @prefix om: <http://www.ontology-of-units-of-measure.org/resource/om-2/> .
+@prefix opil: <http://bioprotocols.org/opil/v1#> . # this needs to go - sbol_factory issue #10
 @prefix owl: <http://www.w3.org/2002/07/owl#> .
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
-@prefix xml: <http://www.w3.org/XML/1998/namespace> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix sbol: <http://sbols.org/v3#> .
 @prefix uml: <http://bioprotocols.org/uml#> .
-@prefix MathM: <http://www.w3.org/1998/Math/MathML> .
 @base <http://bioprotocols.org/uml#> .
 
 <http://bioprotocols.org/uml> rdf:type owl:Ontology ;
-                              owl:imports sbol: ,
-                                          om: ;
+                              owl:imports sbol:, opil:, om: ;
                               rdfs:comment "Unified Modeling Languge (UML) subset, translated to an SBOL factory ontology." ;
                               owl:versionInfo "1.0-alpha1" .
 
@@ -24,6 +22,8 @@
 owl:maxCardinality rdf:type owl:AnnotationProperty .
 owl:minCardinality rdf:type owl:AnnotationProperty .
 
+opil:compositionalProperty rdf:type owl:AnnotationProperty . # should be SBOL - sbol_factory issue #10
+
 
 #################################################################
 #    Datatypes
@@ -31,11 +31,44 @@ owl:minCardinality rdf:type owl:AnnotationProperty .
 
 ###  http://www.w3.org/2001/XMLSchema#anySimpleType
 xsd:anySimpleType rdf:type rdfs:Datatype .
+#sbol:Identified rdf:type owl:Class .
+#sbol:TopLevel rdf:type owl:Class .
 
 
 #################################################################
 #    Behaviors
 #################################################################
+
+# Properties for TypedElement
+uml:type rdf:type owl:DatatypeProperty ;
+         rdfs:domain sbol:Identified ; # should probably actually be a union
+         rdfs:range xsd:anyURI ;
+         rdfs:label "type" .
+
+# Properties for MultiplicityElement
+uml:isOrdered rdf:type owl:DatatypeProperty ;
+         rdfs:domain sbol:Identified ; # should probably actually be a union
+         rdfs:range xsd:boolean ;
+         rdfs:label "isOrdered" .
+
+uml:isUnique rdf:type owl:DatatypeProperty ;
+         rdfs:domain sbol:Identified ; # should probably actually be a union
+         rdfs:range xsd:boolean ;
+         rdfs:label "isUnique" .
+
+uml:lowerValue rdf:type owl:ObjectProperty ;
+         rdfs:subPropertyOf opil:compositionalProperty ;
+         rdfs:domain sbol:Identified ; # should probably actually be a union
+         rdfs:range uml:ValueSpecification ;
+         rdfs:label "lowerValue" .
+
+uml:upperValue rdf:type owl:ObjectProperty ;
+         rdfs:subPropertyOf opil:compositionalProperty ;
+         rdfs:domain sbol:Identified ; # should probably actually be a union
+         rdfs:range uml:ValueSpecification ;
+         rdfs:label "upperValue" .
+
+
 
 uml:Parameter rdf:type owl:Class ;
               rdfs:subClassOf sbol:Identified ,
@@ -57,6 +90,19 @@ uml:Parameter rdf:type owl:Class ;
       owl:maxCardinality "1"^^xsd:nonNegativeInteger ] .
     # omitted: /lower, /upper
 
+uml:direction rdf:type owl:DatatypeProperty ;
+         rdfs:domain uml:Parameter ;
+         rdfs:range xsd:anyURI ; # should really be an enumeration
+         rdfs:label "direction" .
+
+uml:defaultValue rdf:type owl:ObjectProperty ;
+         rdfs:subPropertyOf opil:compositionalProperty ;
+         rdfs:domain uml:Parameter ;
+         rdfs:range uml:ValueSpecification ;
+         rdfs:label "defaultValue" .
+
+
+
 uml:Behavior rdf:type owl:Class ;
              rdfs:subClassOf sbol:TopLevel ,
     [ rdf:type owl:Restriction ; owl:onClass uml:Behavior ; owl:onProperty uml:isReentrant ;
@@ -65,20 +111,52 @@ uml:Behavior rdf:type owl:Class ;
     [ rdf:type owl:Restriction ; owl:onClass uml:Behavior ; owl:onProperty uml:postcondition ] ,
     [ rdf:type owl:Restriction ; owl:onClass uml:Behavior ; owl:onProperty uml:ownedParameter ] .
     # omitted: context, specification, redefinedBehavior, ownedParameterSet
+    # omitted subclasses: OpaqueBehavior, FunctionBehavior
 
-uml:OpaqueBehavior rdf:type owl:Class ;
-             rdfs:subClassOf uml:Behavior ,
-    [ rdf:type owl:Restriction ; owl:onClass uml:OpaqueBehavior ; owl:onProperty uml:body ] ,
-    [ rdf:type owl:Restriction ; owl:onClass uml:OpaqueBehavior ; owl:onProperty uml:language ] .
+uml:isReentrant rdf:type owl:DatatypeProperty ;
+         rdfs:domain uml:Behavior ;
+         rdfs:range xsd:boolean ;
+         rdfs:label "isReentrant" .
 
-uml:FunctionBehavior rdf:type owl:Class ;
-             rdfs:subClassOf uml:OpaqueBehavior .
+uml:precondition rdf:type owl:ObjectProperty ;
+         rdfs:subPropertyOf opil:compositionalProperty ;
+         rdfs:domain uml:Behavior ;
+         rdfs:range uml:Constraint ;
+         rdfs:label "preconditions" .
+
+uml:postcondition rdf:type owl:ObjectProperty ;
+         rdfs:subPropertyOf opil:compositionalProperty ;
+         rdfs:domain uml:Behavior ;
+         rdfs:range uml:Constraint ;
+         rdfs:label "postconditions" .
+
+uml:ownedParameter rdf:type owl:ObjectProperty ;
+         rdfs:subPropertyOf opil:compositionalProperty ;
+         rdfs:domain uml:Behavior ;
+         rdfs:range uml:Parameter ;
+         rdfs:label "parameters" .
+
+
 
 uml:Activity rdf:type owl:Class ;
              rdfs:subClassOf uml:Behavior ,
     [ rdf:type owl:Restriction ; owl:onClass uml:Activity ; owl:onProperty uml:node ] ,
     [ rdf:type owl:Restriction ; owl:onClass uml:Activity ; owl:onProperty uml:edge ] .
     # omitted: isReadOnly, isSingleExecution, variable
+
+uml:node rdf:type owl:ObjectProperty ;
+         rdfs:subPropertyOf opil:compositionalProperty ;
+         rdfs:domain uml:Activity ;
+         rdfs:range uml:ActivityNode ;
+         rdfs:label "nodes" .
+
+uml:edge rdf:type owl:ObjectProperty ;
+         rdfs:subPropertyOf opil:compositionalProperty ;
+         rdfs:domain uml:Activity ;
+         rdfs:range uml:ActivityEdge ;
+         rdfs:label "edges" .
+
+
 
 uml:ActivityNode rdf:type owl:Class ;
              rdfs:subClassOf sbol:Identified .
@@ -114,6 +192,17 @@ uml:DecisionNode rdf:type owl:Class ;
     [ rdf:type owl:Restriction ; owl:onClass uml:DecisionNode ; owl:onProperty uml:decisionInputFlow ;
       owl:maxCardinality "1"^^xsd:nonNegativeInteger ] .
 
+uml:decisionInput rdf:type owl:ObjectProperty ;
+         rdfs:domain uml:DecisionNode ;
+         rdfs:range uml:Behavior ;
+         rdfs:label "decisionInput" .
+
+uml:decisionInputFlow rdf:type owl:ObjectProperty ;
+         rdfs:domain uml:DecisionNode ;
+         rdfs:range uml:ObjectFlow ;
+         rdfs:label "decisionInputFlow" .
+
+
 
 uml:ObjectNode rdf:type owl:Class ;
              rdfs:subClassOf uml:ActivityNode .
@@ -128,6 +217,13 @@ uml:ActivityParameterNode rdf:type owl:Class ;
     [ rdf:type owl:Restriction ; owl:onClass uml:ActivityParameterNode ; owl:onProperty uml:parameter ;
       owl:minCardinality "1"^^xsd:nonNegativeInteger ; owl:maxCardinality "1"^^xsd:nonNegativeInteger ] .
 
+uml:parameter rdf:type owl:ObjectProperty ;
+         rdfs:domain uml:ActivityParameterNode ;
+         rdfs:range uml:Parameter ;
+         rdfs:label "parameter" .
+
+
+
 uml:ExecutableNode rdf:type owl:Class ;
              rdfs:subClassOf uml:ActivityNode .
     # omitted: handler
@@ -137,6 +233,18 @@ uml:Action rdf:type owl:Class ;
     [ rdf:type owl:Restriction ; owl:onClass uml:Action ; owl:onProperty uml:input ] ,
     [ rdf:type owl:Restriction ; owl:onClass uml:Action ; owl:onProperty uml:output ] .
     # omitted: /context, localPrecondition, localPostcondition
+
+uml:input rdf:type owl:ObjectProperty ;
+         rdfs:subPropertyOf opil:compositionalProperty ;
+         rdfs:domain uml:Action ;
+         rdfs:range uml:InputPin ;
+         rdfs:label "inputs" .
+
+uml:output rdf:type owl:ObjectProperty ;
+         rdfs:subPropertyOf opil:compositionalProperty ;
+         rdfs:domain uml:Action ;
+         rdfs:range uml:OutputPin ;
+         rdfs:label "outputs" .
 
 # Nearly all UML actions are omitted. Only those required are added here
 
@@ -155,6 +263,12 @@ uml:CallAction rdf:type owl:Class ;
 uml:CallBehaviorAction rdf:type owl:Class ;
              rdfs:subClassOf uml:CallAction .
     [ rdf:type owl:Restriction ; owl:onClass uml:Action ; owl:onProperty uml:behavior ] .
+
+uml:behavior rdf:type owl:ObjectProperty ;
+         rdfs:domain uml:CallBehaviorAction ;
+         rdfs:range uml:Behavior ;
+         rdfs:label "behavior" .
+
 
 uml:Pin rdf:type owl:Class ;
              rdfs:subClassOf uml:ObjectNode ,
@@ -178,6 +292,13 @@ uml:ValuePin rdf:type owl:Class ;
     [ rdf:type owl:Restriction ; owl:onClass uml:ValuePin ; owl:onProperty uml:value ;
       owl:minCardinality "1"^^xsd:nonNegativeInteger ; owl:maxCardinality "1"^^xsd:nonNegativeInteger ] .
 
+uml:value rdf:type owl:ObjectProperty ;
+         rdfs:subPropertyOf opil:compositionalProperty ;
+         rdfs:domain uml:ValuePin ;
+         rdfs:range uml:ValueSpecification ;
+         rdfs:label "value" .
+
+
 uml:OutputPin rdf:type owl:Class ;
              rdfs:subClassOf uml:Pin .
 
@@ -190,6 +311,18 @@ uml:ActivityEdge rdf:type owl:Class ;
       owl:minCardinality "1"^^xsd:nonNegativeInteger ; owl:maxCardinality "1"^^xsd:nonNegativeInteger ] .
     # omitted: redefinedEdge, guard, weight
     # Note that guard will need to be added to allow DecisionNode
+
+uml:source rdf:type owl:ObjectProperty ;
+         rdfs:domain uml:ActivityEdge ;
+         rdfs:range uml:ActivityNode ;
+         rdfs:label "source" .
+
+uml:target rdf:type owl:ObjectProperty ;
+         rdfs:domain uml:ActivityEdge ;
+         rdfs:range uml:ActivityNode ;
+         rdfs:label "target" .
+
+
 
 uml:ControlFlow rdf:type owl:Class ;
              rdfs:subClassOf uml:ActivityEdge .
