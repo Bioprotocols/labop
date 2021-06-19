@@ -69,6 +69,80 @@ uml:upperValue rdf:type owl:ObjectProperty ;
          rdfs:label "upperValue" .
 
 
+uml:ValueSpecification rdf:type owl:Class ;
+              rdfs:subClassOf sbol:Identified .
+    # Properties inherited from TypedElement:
+    [ rdf:type owl:Restriction ; owl:onClass uml:Parameter ; owl:onProperty uml:type ;
+      owl:maxCardinality "1"^^xsd:nonNegativeInteger ] .
+    # Omitted subclass Expression, OpaqueExpression, TimeExpression, Duration, Interval
+
+uml:LiteralSpecification rdf:type owl:Class ;
+              rdfs:subClassOf uml:ValueSpecification .
+    # Omitted subclass: LiterUnlimitedNatural
+
+uml:LiteralNull rdf:type owl:Class ;
+              rdfs:subClassOf uml:LiteralSpecification .
+
+uml:LiteralString rdf:type owl:Class ;
+              rdfs:subClassOf uml:LiteralSpecification ,
+    [ rdf:type owl:Restriction ; owl:onClass uml:Constraint ; owl:onProperty uml:stringValue ;
+      owl:minCardinality "1"^^xsd:nonNegativeInteger ; owl:maxCardinality "1"^^xsd:nonNegativeInteger ] .
+
+uml:stringValue rdf:type owl:DatatypeProperty ;
+         rdfs:domain uml:LiteralString ;
+         rdfs:range xsd:string ;
+         rdfs:label "value" .
+
+uml:LiteralInteger rdf:type owl:Class ;
+              rdfs:subClassOf uml:LiteralSpecification .
+    [ rdf:type owl:Restriction ; owl:onClass uml:Constraint ; owl:onProperty uml:integerValue ;
+      owl:minCardinality "1"^^xsd:nonNegativeInteger ; owl:maxCardinality "1"^^xsd:nonNegativeInteger ] .
+
+uml:integerValue rdf:type owl:DatatypeProperty ;
+         rdfs:domain uml:LiteralInteger ;
+         rdfs:range xsd:integer ;
+         rdfs:label "value" .
+
+uml:LiteralBoolean rdf:type owl:Class ;
+              rdfs:subClassOf uml:LiteralSpecification .
+    [ rdf:type owl:Restriction ; owl:onClass uml:Constraint ; owl:onProperty uml:booleanValue ;
+      owl:minCardinality "1"^^xsd:nonNegativeInteger ; owl:maxCardinality "1"^^xsd:nonNegativeInteger ] .
+
+uml:booleanValue rdf:type owl:DatatypeProperty ;
+         rdfs:domain uml:LiteralBoolean ;
+         rdfs:range xsd:boolean ;
+         rdfs:label "value" .
+
+uml:LiteralReal rdf:type owl:Class ;
+              rdfs:subClassOf uml:LiteralSpecification .
+    [ rdf:type owl:Restriction ; owl:onClass uml:Constraint ; owl:onProperty uml:realValue ;
+      owl:minCardinality "1"^^xsd:nonNegativeInteger ; owl:maxCardinality "1"^^xsd:nonNegativeInteger ] .
+
+uml:realValue rdf:type owl:DatatypeProperty ;
+         rdfs:domain uml:LiteralReal ;
+         rdfs:range xsd:float ;
+         rdfs:label "value" .
+
+
+
+uml:Constraint rdf:type owl:Class ;
+              rdfs:subClassOf sbol:Identified ,
+    [ rdf:type owl:Restriction ; owl:onClass uml:Constraint ; owl:onProperty uml:constrainedElement ] ,
+    [ rdf:type owl:Restriction ; owl:onClass uml:Constraint ; owl:onProperty uml:specification ;
+      owl:minCardinality "1"^^xsd:nonNegativeInteger ; owl:maxCardinality "1"^^xsd:nonNegativeInteger ] .
+
+uml:constrainedElement rdf:type owl:ObjectProperty ;
+         rdfs:domain uml:Constraint ;
+         rdfs:range sbol:Identified ; # equivalent to uml:Element in this contxt
+         rdfs:label "constrainedElements" .
+
+uml:specification rdf:type owl:ObjectProperty ;
+         rdfs:subPropertyOf opil:compositionalProperty ;
+         rdfs:domain uml:Constraint ;
+         rdfs:range uml:ValueSpecification ;
+         rdfs:label "specification" .
+
+
 
 uml:Parameter rdf:type owl:Class ;
               rdfs:subClassOf sbol:Identified ,
