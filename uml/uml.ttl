@@ -362,7 +362,7 @@ uml:InputPin rdf:type owl:Class ;
     # omitted subclass: ActionInputPin
 
 uml:ValuePin rdf:type owl:Class ;
-             rdfs:subClassOf uml:ValuePin ,
+             rdfs:subClassOf uml:InputPin ,
     [ rdf:type owl:Restriction ; owl:onClass uml:ValuePin ; owl:onProperty uml:value ;
       owl:minCardinality "1"^^xsd:nonNegativeInteger ; owl:maxCardinality "1"^^xsd:nonNegativeInteger ] .
 
