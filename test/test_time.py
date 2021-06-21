@@ -209,10 +209,17 @@ is only weakly scattering and so will give a low absorbance value.
             time_of=execute_measurement,
             value=sbol3.Measure(600, tyto.OM.second)
         )
-        protocol.time_constraints += { protocol_start_time,
-                                       provision_ludox_duration,
-                                       provision_ddh2o_duration,
-                                       execute_measurement_duration }
+        #ludox_before_ddh2o_constraint = paml.Constraint()
+        time_constraints = [
+            protocol_start_time,
+            provision_ludox_duration,
+            provision_ddh2o_duration,
+            execute_measurement_duration#,
+            #ludox_before_ddh2o_constraint
+        ]
+        for tc in time_constraints:
+            doc.add(tc)
+        protocol.time_constraints += set(time_constraints)
 
         ########################################
         # Validate and write the document
@@ -226,6 +233,44 @@ is only weakly scattering and so will give a low absorbance value.
         doc.write('igem_ludox_time_draft.ttl', 'turtle')
 
         assert doc
+
+
+    def test_expressions(self):
+        #############################################
+        # set up the document
+        print('Setting up document')
+        doc = sbol3.Document()
+        sbol3.set_namespace('https://bbn.com/scratch/')
+
+
+        #############################################
+        # Create the Expressions
+        print('Creating Protocol')
+        t1 = paml.TimeVariable("t1")
+        e1 = paml.VariableExpression("e1", term=t1)
+
+        d1 = paml.Duration("d1")
+        e2 = paml.VariableExpression("e2", term=d1)
+
+        m1 = sbol3.Measure(60, tyto.OM.second)
+        e3 = paml.ConstantExpression("e3", term=m1)
+
+        e4 = paml.ProductExpression("e4", term1=e3, term2=e2)
+
+
+        doc.add(e1)
+        doc.add(e2)
+        doc.add(e3)
+        doc.add(e4)
+
+        ########################################
+        # Validate and write the document
+        print('Validating and writing time')
+        v = doc.validate()
+        assert not v.errors and not v.warnings, "".join(str(e) for e in doc.validate().errors)
+
+        # doc.write('timed_protocol.nt', 'sorted nt')
+        # doc.write('timed_protocol.ttl', 'turtle')
 
 if __name__ == '__main__':
     unittest.main()
