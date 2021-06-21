@@ -1,152 +1,399 @@
-@prefix ns1: <http://bioprotocols.org/paml#> .
+@prefix ns1: <http://bioprotocols.org/uml#> .
 @prefix om: <http://www.ontology-of-units-of-measure.org/resource/om-2/> .
 @prefix sbol: <http://sbols.org/v3#> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
-<https://bioprotocols.org/paml/primitives/plate_handling/AdhesiveSeal> a ns1:Primitive,
+<https://bioprotocols.org/paml/primitives/plate_handling/AdhesiveSeal> a ns1:Behavior,
         sbol:TopLevel ;
-    ns1:input <https://bioprotocols.org/paml/primitives/plate_handling/AdhesiveSeal/PrimitivePinSpecification1>,
-        <https://bioprotocols.org/paml/primitives/plate_handling/AdhesiveSeal/PrimitivePinSpecification2> ;
+    ns1:ownedParameter <https://bioprotocols.org/paml/primitives/plate_handling/AdhesiveSeal/Parameter1>,
+        <https://bioprotocols.org/paml/primitives/plate_handling/AdhesiveSeal/Parameter2> ;
     sbol:description "Seal a collection of samples using adhesive to fix the seal, in order to guarantee isolation from the external environment" ;
-    sbol:displayId "AdhesiveSeal" .
+    sbol:displayId "AdhesiveSeal" ;
+    sbol:hasNamespace <https://bioprotocols.org/paml/primitives/plate_handling> .
 
-<https://bioprotocols.org/paml/primitives/plate_handling/Cover> a ns1:Primitive,
+<https://bioprotocols.org/paml/primitives/plate_handling/Cover> a ns1:Behavior,
         sbol:TopLevel ;
-    ns1:input <https://bioprotocols.org/paml/primitives/plate_handling/Cover/PrimitivePinSpecification1>,
-        <https://bioprotocols.org/paml/primitives/plate_handling/Cover/PrimitivePinSpecification2> ;
+    ns1:ownedParameter <https://bioprotocols.org/paml/primitives/plate_handling/Cover/Parameter1>,
+        <https://bioprotocols.org/paml/primitives/plate_handling/Cover/Parameter2> ;
     sbol:description "Cover a set of samples to keep materials from entering or exiting" ;
-    sbol:displayId "Cover" .
+    sbol:displayId "Cover" ;
+    sbol:hasNamespace <https://bioprotocols.org/paml/primitives/plate_handling> .
 
-<https://bioprotocols.org/paml/primitives/plate_handling/Incubate> a ns1:Primitive,
+<https://bioprotocols.org/paml/primitives/plate_handling/Incubate> a ns1:Behavior,
         sbol:TopLevel ;
-    ns1:input <https://bioprotocols.org/paml/primitives/plate_handling/Incubate/PrimitivePinSpecification1>,
-        <https://bioprotocols.org/paml/primitives/plate_handling/Incubate/PrimitivePinSpecification2>,
-        <https://bioprotocols.org/paml/primitives/plate_handling/Incubate/PrimitivePinSpecification3>,
-        <https://bioprotocols.org/paml/primitives/plate_handling/Incubate/PrimitivePinSpecification4> ;
+    ns1:ownedParameter <https://bioprotocols.org/paml/primitives/plate_handling/Incubate/Parameter1>,
+        <https://bioprotocols.org/paml/primitives/plate_handling/Incubate/Parameter2>,
+        <https://bioprotocols.org/paml/primitives/plate_handling/Incubate/Parameter3>,
+        <https://bioprotocols.org/paml/primitives/plate_handling/Incubate/Parameter4> ;
     sbol:description "Incubate a set of samples under specified conditions for a fixed period of time" ;
-    sbol:displayId "Incubate" .
+    sbol:displayId "Incubate" ;
+    sbol:hasNamespace <https://bioprotocols.org/paml/primitives/plate_handling> .
 
-<https://bioprotocols.org/paml/primitives/plate_handling/Seal> a ns1:Primitive,
+<https://bioprotocols.org/paml/primitives/plate_handling/Seal> a ns1:Behavior,
         sbol:TopLevel ;
-    ns1:input <https://bioprotocols.org/paml/primitives/plate_handling/Seal/PrimitivePinSpecification1>,
-        <https://bioprotocols.org/paml/primitives/plate_handling/Seal/PrimitivePinSpecification2> ;
+    ns1:ownedParameter <https://bioprotocols.org/paml/primitives/plate_handling/Seal/Parameter1>,
+        <https://bioprotocols.org/paml/primitives/plate_handling/Seal/Parameter2> ;
     sbol:description "Seal a collection of samples fixing the seal using a user-selected method, in order to guarantee isolation from the external environment" ;
-    sbol:displayId "Seal" .
+    sbol:displayId "Seal" ;
+    sbol:hasNamespace <https://bioprotocols.org/paml/primitives/plate_handling> .
 
-<https://bioprotocols.org/paml/primitives/plate_handling/ThermalSeal> a ns1:Primitive,
+<https://bioprotocols.org/paml/primitives/plate_handling/ThermalSeal> a ns1:Behavior,
         sbol:TopLevel ;
-    ns1:input <https://bioprotocols.org/paml/primitives/plate_handling/ThermalSeal/PrimitivePinSpecification1>,
-        <https://bioprotocols.org/paml/primitives/plate_handling/ThermalSeal/PrimitivePinSpecification2>,
-        <https://bioprotocols.org/paml/primitives/plate_handling/ThermalSeal/PrimitivePinSpecification3>,
-        <https://bioprotocols.org/paml/primitives/plate_handling/ThermalSeal/PrimitivePinSpecification4> ;
+    ns1:ownedParameter <https://bioprotocols.org/paml/primitives/plate_handling/ThermalSeal/Parameter1>,
+        <https://bioprotocols.org/paml/primitives/plate_handling/ThermalSeal/Parameter2>,
+        <https://bioprotocols.org/paml/primitives/plate_handling/ThermalSeal/Parameter3>,
+        <https://bioprotocols.org/paml/primitives/plate_handling/ThermalSeal/Parameter4> ;
     sbol:description "Seal a collection of samples using heat to fix the seal, in order to guarantee isolation from the external environment" ;
-    sbol:displayId "ThermalSeal" .
+    sbol:displayId "ThermalSeal" ;
+    sbol:hasNamespace <https://bioprotocols.org/paml/primitives/plate_handling> .
 
-<https://bioprotocols.org/paml/primitives/plate_handling/Uncover> a ns1:Primitive,
+<https://bioprotocols.org/paml/primitives/plate_handling/Uncover> a ns1:Behavior,
         sbol:TopLevel ;
-    ns1:input <https://bioprotocols.org/paml/primitives/plate_handling/Uncover/PrimitivePinSpecification1> ;
+    ns1:ownedParameter <https://bioprotocols.org/paml/primitives/plate_handling/Uncover/Parameter1> ;
     sbol:description "Uncover a collection of samples to allow materials to enter or exit" ;
-    sbol:displayId "Uncover" .
+    sbol:displayId "Uncover" ;
+    sbol:hasNamespace <https://bioprotocols.org/paml/primitives/plate_handling> .
 
-<https://bioprotocols.org/paml/primitives/plate_handling/Unseal> a ns1:Primitive,
+<https://bioprotocols.org/paml/primitives/plate_handling/Unseal> a ns1:Behavior,
         sbol:TopLevel ;
-    ns1:input <https://bioprotocols.org/paml/primitives/plate_handling/Unseal/PrimitivePinSpecification1> ;
+    ns1:ownedParameter <https://bioprotocols.org/paml/primitives/plate_handling/Unseal/Parameter1> ;
     sbol:description "Unseal a sealed collection of samples to break their isolation from the external environment" ;
-    sbol:displayId "Unseal" .
+    sbol:displayId "Unseal" ;
+    sbol:hasNamespace <https://bioprotocols.org/paml/primitives/plate_handling> .
 
-<https://bioprotocols.org/paml/primitives/plate_handling/AdhesiveSeal/PrimitivePinSpecification1> a ns1:PrimitivePinSpecification,
+<https://bioprotocols.org/paml/primitives/plate_handling/AdhesiveSeal/Parameter1> a ns1:Parameter,
         sbol:Identified ;
-    ns1:activityType ns1:LocatedSamples ;
-    sbol:displayId "PrimitivePinSpecification1" ;
+    ns1:direction <in> ;
+    ns1:isOrdered true ;
+    ns1:isUnique true ;
+    ns1:lowerValue <https://bioprotocols.org/paml/primitives/plate_handling/AdhesiveSeal/Parameter1/LiteralInteger2> ;
+    ns1:type <http://bioprotocols.org/paml#LocatedSamples> ;
+    ns1:upperValue <https://bioprotocols.org/paml/primitives/plate_handling/AdhesiveSeal/Parameter1/LiteralInteger1> ;
+    sbol:displayId "Parameter1" ;
     sbol:name "location" .
 
-<https://bioprotocols.org/paml/primitives/plate_handling/AdhesiveSeal/PrimitivePinSpecification2> a ns1:PrimitivePinSpecification,
+<https://bioprotocols.org/paml/primitives/plate_handling/AdhesiveSeal/Parameter1/LiteralInteger1> a ns1:LiteralInteger,
         sbol:Identified ;
-    ns1:activityType xsd:anyURI ;
-    sbol:displayId "PrimitivePinSpecification2" ;
+    ns1:integerValue 1 ;
+    sbol:displayId "LiteralInteger1" .
+
+<https://bioprotocols.org/paml/primitives/plate_handling/AdhesiveSeal/Parameter1/LiteralInteger2> a ns1:LiteralInteger,
+        sbol:Identified ;
+    ns1:integerValue 1 ;
+    sbol:displayId "LiteralInteger2" .
+
+<https://bioprotocols.org/paml/primitives/plate_handling/AdhesiveSeal/Parameter2> a ns1:Parameter,
+        sbol:Identified ;
+    ns1:direction <in> ;
+    ns1:isOrdered true ;
+    ns1:isUnique true ;
+    ns1:lowerValue <https://bioprotocols.org/paml/primitives/plate_handling/AdhesiveSeal/Parameter2/LiteralInteger2> ;
+    ns1:type xsd:anyURI ;
+    ns1:upperValue <https://bioprotocols.org/paml/primitives/plate_handling/AdhesiveSeal/Parameter2/LiteralInteger1> ;
+    sbol:displayId "Parameter2" ;
     sbol:name "type" .
 
-<https://bioprotocols.org/paml/primitives/plate_handling/Cover/PrimitivePinSpecification1> a ns1:PrimitivePinSpecification,
+<https://bioprotocols.org/paml/primitives/plate_handling/AdhesiveSeal/Parameter2/LiteralInteger1> a ns1:LiteralInteger,
         sbol:Identified ;
-    ns1:activityType ns1:LocatedSamples ;
-    sbol:displayId "PrimitivePinSpecification1" ;
+    ns1:integerValue 1 ;
+    sbol:displayId "LiteralInteger1" .
+
+<https://bioprotocols.org/paml/primitives/plate_handling/AdhesiveSeal/Parameter2/LiteralInteger2> a ns1:LiteralInteger,
+        sbol:Identified ;
+    ns1:integerValue 1 ;
+    sbol:displayId "LiteralInteger2" .
+
+<https://bioprotocols.org/paml/primitives/plate_handling/Cover/Parameter1> a ns1:Parameter,
+        sbol:Identified ;
+    ns1:direction <in> ;
+    ns1:isOrdered true ;
+    ns1:isUnique true ;
+    ns1:lowerValue <https://bioprotocols.org/paml/primitives/plate_handling/Cover/Parameter1/LiteralInteger2> ;
+    ns1:type <http://bioprotocols.org/paml#LocatedSamples> ;
+    ns1:upperValue <https://bioprotocols.org/paml/primitives/plate_handling/Cover/Parameter1/LiteralInteger1> ;
+    sbol:displayId "Parameter1" ;
     sbol:name "location" .
 
-<https://bioprotocols.org/paml/primitives/plate_handling/Cover/PrimitivePinSpecification2> a ns1:PrimitivePinSpecification,
+<https://bioprotocols.org/paml/primitives/plate_handling/Cover/Parameter1/LiteralInteger1> a ns1:LiteralInteger,
         sbol:Identified ;
-    ns1:activityType xsd:anyURI ;
-    sbol:displayId "PrimitivePinSpecification2" ;
+    ns1:integerValue 1 ;
+    sbol:displayId "LiteralInteger1" .
+
+<https://bioprotocols.org/paml/primitives/plate_handling/Cover/Parameter1/LiteralInteger2> a ns1:LiteralInteger,
+        sbol:Identified ;
+    ns1:integerValue 1 ;
+    sbol:displayId "LiteralInteger2" .
+
+<https://bioprotocols.org/paml/primitives/plate_handling/Cover/Parameter2> a ns1:Parameter,
+        sbol:Identified ;
+    ns1:direction <in> ;
+    ns1:isOrdered true ;
+    ns1:isUnique true ;
+    ns1:lowerValue <https://bioprotocols.org/paml/primitives/plate_handling/Cover/Parameter2/LiteralInteger2> ;
+    ns1:type xsd:anyURI ;
+    ns1:upperValue <https://bioprotocols.org/paml/primitives/plate_handling/Cover/Parameter2/LiteralInteger1> ;
+    sbol:displayId "Parameter2" ;
     sbol:name "type" .
 
-<https://bioprotocols.org/paml/primitives/plate_handling/Incubate/PrimitivePinSpecification1> a ns1:PrimitivePinSpecification,
+<https://bioprotocols.org/paml/primitives/plate_handling/Cover/Parameter2/LiteralInteger1> a ns1:LiteralInteger,
         sbol:Identified ;
-    ns1:activityType ns1:LocatedSamples ;
-    sbol:displayId "PrimitivePinSpecification1" ;
+    ns1:integerValue 1 ;
+    sbol:displayId "LiteralInteger1" .
+
+<https://bioprotocols.org/paml/primitives/plate_handling/Cover/Parameter2/LiteralInteger2> a ns1:LiteralInteger,
+        sbol:Identified ;
+    ns1:integerValue 1 ;
+    sbol:displayId "LiteralInteger2" .
+
+<https://bioprotocols.org/paml/primitives/plate_handling/Incubate/Parameter1> a ns1:Parameter,
+        sbol:Identified ;
+    ns1:direction <in> ;
+    ns1:isOrdered true ;
+    ns1:isUnique true ;
+    ns1:lowerValue <https://bioprotocols.org/paml/primitives/plate_handling/Incubate/Parameter1/LiteralInteger2> ;
+    ns1:type <http://bioprotocols.org/paml#LocatedSamples> ;
+    ns1:upperValue <https://bioprotocols.org/paml/primitives/plate_handling/Incubate/Parameter1/LiteralInteger1> ;
+    sbol:displayId "Parameter1" ;
     sbol:name "location" .
 
-<https://bioprotocols.org/paml/primitives/plate_handling/Incubate/PrimitivePinSpecification2> a ns1:PrimitivePinSpecification,
+<https://bioprotocols.org/paml/primitives/plate_handling/Incubate/Parameter1/LiteralInteger1> a ns1:LiteralInteger,
         sbol:Identified ;
-    ns1:activityType om:Measure ;
-    sbol:displayId "PrimitivePinSpecification2" ;
+    ns1:integerValue 1 ;
+    sbol:displayId "LiteralInteger1" .
+
+<https://bioprotocols.org/paml/primitives/plate_handling/Incubate/Parameter1/LiteralInteger2> a ns1:LiteralInteger,
+        sbol:Identified ;
+    ns1:integerValue 1 ;
+    sbol:displayId "LiteralInteger2" .
+
+<https://bioprotocols.org/paml/primitives/plate_handling/Incubate/Parameter2> a ns1:Parameter,
+        sbol:Identified ;
+    ns1:direction <in> ;
+    ns1:isOrdered true ;
+    ns1:isUnique true ;
+    ns1:lowerValue <https://bioprotocols.org/paml/primitives/plate_handling/Incubate/Parameter2/LiteralInteger2> ;
+    ns1:type om:Measure ;
+    ns1:upperValue <https://bioprotocols.org/paml/primitives/plate_handling/Incubate/Parameter2/LiteralInteger1> ;
+    sbol:displayId "Parameter2" ;
     sbol:name "duration" .
 
-<https://bioprotocols.org/paml/primitives/plate_handling/Incubate/PrimitivePinSpecification3> a ns1:PrimitivePinSpecification,
+<https://bioprotocols.org/paml/primitives/plate_handling/Incubate/Parameter2/LiteralInteger1> a ns1:LiteralInteger,
         sbol:Identified ;
-    ns1:activityType om:Measure ;
-    sbol:displayId "PrimitivePinSpecification3" ;
+    ns1:integerValue 1 ;
+    sbol:displayId "LiteralInteger1" .
+
+<https://bioprotocols.org/paml/primitives/plate_handling/Incubate/Parameter2/LiteralInteger2> a ns1:LiteralInteger,
+        sbol:Identified ;
+    ns1:integerValue 1 ;
+    sbol:displayId "LiteralInteger2" .
+
+<https://bioprotocols.org/paml/primitives/plate_handling/Incubate/Parameter3> a ns1:Parameter,
+        sbol:Identified ;
+    ns1:direction <in> ;
+    ns1:isOrdered true ;
+    ns1:isUnique true ;
+    ns1:lowerValue <https://bioprotocols.org/paml/primitives/plate_handling/Incubate/Parameter3/LiteralInteger2> ;
+    ns1:type om:Measure ;
+    ns1:upperValue <https://bioprotocols.org/paml/primitives/plate_handling/Incubate/Parameter3/LiteralInteger1> ;
+    sbol:displayId "Parameter3" ;
     sbol:name "temperature" .
 
-<https://bioprotocols.org/paml/primitives/plate_handling/Incubate/PrimitivePinSpecification4> a ns1:PrimitivePinSpecification,
+<https://bioprotocols.org/paml/primitives/plate_handling/Incubate/Parameter3/LiteralInteger1> a ns1:LiteralInteger,
         sbol:Identified ;
-    ns1:activityType om:Measure ;
-    sbol:displayId "PrimitivePinSpecification4" ;
+    ns1:integerValue 1 ;
+    sbol:displayId "LiteralInteger1" .
+
+<https://bioprotocols.org/paml/primitives/plate_handling/Incubate/Parameter3/LiteralInteger2> a ns1:LiteralInteger,
+        sbol:Identified ;
+    ns1:integerValue 1 ;
+    sbol:displayId "LiteralInteger2" .
+
+<https://bioprotocols.org/paml/primitives/plate_handling/Incubate/Parameter4> a ns1:Parameter,
+        sbol:Identified ;
+    ns1:direction <in> ;
+    ns1:isOrdered true ;
+    ns1:isUnique true ;
+    ns1:lowerValue <https://bioprotocols.org/paml/primitives/plate_handling/Incubate/Parameter4/LiteralInteger2> ;
+    ns1:type om:Measure ;
+    ns1:upperValue <https://bioprotocols.org/paml/primitives/plate_handling/Incubate/Parameter4/LiteralInteger1> ;
+    sbol:displayId "Parameter4" ;
     sbol:name "shakingFrequency" .
 
-<https://bioprotocols.org/paml/primitives/plate_handling/Seal/PrimitivePinSpecification1> a ns1:PrimitivePinSpecification,
+<https://bioprotocols.org/paml/primitives/plate_handling/Incubate/Parameter4/LiteralInteger1> a ns1:LiteralInteger,
         sbol:Identified ;
-    ns1:activityType ns1:LocatedSamples ;
-    sbol:displayId "PrimitivePinSpecification1" ;
+    ns1:integerValue 1 ;
+    sbol:displayId "LiteralInteger1" .
+
+<https://bioprotocols.org/paml/primitives/plate_handling/Incubate/Parameter4/LiteralInteger2> a ns1:LiteralInteger,
+        sbol:Identified ;
+    ns1:integerValue 0 ;
+    sbol:displayId "LiteralInteger2" .
+
+<https://bioprotocols.org/paml/primitives/plate_handling/Seal/Parameter1> a ns1:Parameter,
+        sbol:Identified ;
+    ns1:direction <in> ;
+    ns1:isOrdered true ;
+    ns1:isUnique true ;
+    ns1:lowerValue <https://bioprotocols.org/paml/primitives/plate_handling/Seal/Parameter1/LiteralInteger2> ;
+    ns1:type <http://bioprotocols.org/paml#LocatedSamples> ;
+    ns1:upperValue <https://bioprotocols.org/paml/primitives/plate_handling/Seal/Parameter1/LiteralInteger1> ;
+    sbol:displayId "Parameter1" ;
     sbol:name "location" .
 
-<https://bioprotocols.org/paml/primitives/plate_handling/Seal/PrimitivePinSpecification2> a ns1:PrimitivePinSpecification,
+<https://bioprotocols.org/paml/primitives/plate_handling/Seal/Parameter1/LiteralInteger1> a ns1:LiteralInteger,
         sbol:Identified ;
-    ns1:activityType xsd:anyURI ;
-    sbol:displayId "PrimitivePinSpecification2" ;
+    ns1:integerValue 1 ;
+    sbol:displayId "LiteralInteger1" .
+
+<https://bioprotocols.org/paml/primitives/plate_handling/Seal/Parameter1/LiteralInteger2> a ns1:LiteralInteger,
+        sbol:Identified ;
+    ns1:integerValue 1 ;
+    sbol:displayId "LiteralInteger2" .
+
+<https://bioprotocols.org/paml/primitives/plate_handling/Seal/Parameter2> a ns1:Parameter,
+        sbol:Identified ;
+    ns1:direction <in> ;
+    ns1:isOrdered true ;
+    ns1:isUnique true ;
+    ns1:lowerValue <https://bioprotocols.org/paml/primitives/plate_handling/Seal/Parameter2/LiteralInteger2> ;
+    ns1:type xsd:anyURI ;
+    ns1:upperValue <https://bioprotocols.org/paml/primitives/plate_handling/Seal/Parameter2/LiteralInteger1> ;
+    sbol:displayId "Parameter2" ;
     sbol:name "type" .
 
-<https://bioprotocols.org/paml/primitives/plate_handling/ThermalSeal/PrimitivePinSpecification1> a ns1:PrimitivePinSpecification,
+<https://bioprotocols.org/paml/primitives/plate_handling/Seal/Parameter2/LiteralInteger1> a ns1:LiteralInteger,
         sbol:Identified ;
-    ns1:activityType ns1:LocatedSamples ;
-    sbol:displayId "PrimitivePinSpecification1" ;
+    ns1:integerValue 1 ;
+    sbol:displayId "LiteralInteger1" .
+
+<https://bioprotocols.org/paml/primitives/plate_handling/Seal/Parameter2/LiteralInteger2> a ns1:LiteralInteger,
+        sbol:Identified ;
+    ns1:integerValue 1 ;
+    sbol:displayId "LiteralInteger2" .
+
+<https://bioprotocols.org/paml/primitives/plate_handling/ThermalSeal/Parameter1> a ns1:Parameter,
+        sbol:Identified ;
+    ns1:direction <in> ;
+    ns1:isOrdered true ;
+    ns1:isUnique true ;
+    ns1:lowerValue <https://bioprotocols.org/paml/primitives/plate_handling/ThermalSeal/Parameter1/LiteralInteger2> ;
+    ns1:type <http://bioprotocols.org/paml#LocatedSamples> ;
+    ns1:upperValue <https://bioprotocols.org/paml/primitives/plate_handling/ThermalSeal/Parameter1/LiteralInteger1> ;
+    sbol:displayId "Parameter1" ;
     sbol:name "location" .
 
-<https://bioprotocols.org/paml/primitives/plate_handling/ThermalSeal/PrimitivePinSpecification2> a ns1:PrimitivePinSpecification,
+<https://bioprotocols.org/paml/primitives/plate_handling/ThermalSeal/Parameter1/LiteralInteger1> a ns1:LiteralInteger,
         sbol:Identified ;
-    ns1:activityType xsd:anyURI ;
-    sbol:displayId "PrimitivePinSpecification2" ;
+    ns1:integerValue 1 ;
+    sbol:displayId "LiteralInteger1" .
+
+<https://bioprotocols.org/paml/primitives/plate_handling/ThermalSeal/Parameter1/LiteralInteger2> a ns1:LiteralInteger,
+        sbol:Identified ;
+    ns1:integerValue 1 ;
+    sbol:displayId "LiteralInteger2" .
+
+<https://bioprotocols.org/paml/primitives/plate_handling/ThermalSeal/Parameter2> a ns1:Parameter,
+        sbol:Identified ;
+    ns1:direction <in> ;
+    ns1:isOrdered true ;
+    ns1:isUnique true ;
+    ns1:lowerValue <https://bioprotocols.org/paml/primitives/plate_handling/ThermalSeal/Parameter2/LiteralInteger2> ;
+    ns1:type xsd:anyURI ;
+    ns1:upperValue <https://bioprotocols.org/paml/primitives/plate_handling/ThermalSeal/Parameter2/LiteralInteger1> ;
+    sbol:displayId "Parameter2" ;
     sbol:name "type" .
 
-<https://bioprotocols.org/paml/primitives/plate_handling/ThermalSeal/PrimitivePinSpecification3> a ns1:PrimitivePinSpecification,
+<https://bioprotocols.org/paml/primitives/plate_handling/ThermalSeal/Parameter2/LiteralInteger1> a ns1:LiteralInteger,
         sbol:Identified ;
-    ns1:activityType om:Measure ;
-    sbol:displayId "PrimitivePinSpecification3" ;
+    ns1:integerValue 1 ;
+    sbol:displayId "LiteralInteger1" .
+
+<https://bioprotocols.org/paml/primitives/plate_handling/ThermalSeal/Parameter2/LiteralInteger2> a ns1:LiteralInteger,
+        sbol:Identified ;
+    ns1:integerValue 1 ;
+    sbol:displayId "LiteralInteger2" .
+
+<https://bioprotocols.org/paml/primitives/plate_handling/ThermalSeal/Parameter3> a ns1:Parameter,
+        sbol:Identified ;
+    ns1:direction <in> ;
+    ns1:isOrdered true ;
+    ns1:isUnique true ;
+    ns1:lowerValue <https://bioprotocols.org/paml/primitives/plate_handling/ThermalSeal/Parameter3/LiteralInteger2> ;
+    ns1:type om:Measure ;
+    ns1:upperValue <https://bioprotocols.org/paml/primitives/plate_handling/ThermalSeal/Parameter3/LiteralInteger1> ;
+    sbol:displayId "Parameter3" ;
     sbol:name "temperature" .
 
-<https://bioprotocols.org/paml/primitives/plate_handling/ThermalSeal/PrimitivePinSpecification4> a ns1:PrimitivePinSpecification,
+<https://bioprotocols.org/paml/primitives/plate_handling/ThermalSeal/Parameter3/LiteralInteger1> a ns1:LiteralInteger,
         sbol:Identified ;
-    ns1:activityType om:Measure ;
-    sbol:displayId "PrimitivePinSpecification4" ;
+    ns1:integerValue 1 ;
+    sbol:displayId "LiteralInteger1" .
+
+<https://bioprotocols.org/paml/primitives/plate_handling/ThermalSeal/Parameter3/LiteralInteger2> a ns1:LiteralInteger,
+        sbol:Identified ;
+    ns1:integerValue 1 ;
+    sbol:displayId "LiteralInteger2" .
+
+<https://bioprotocols.org/paml/primitives/plate_handling/ThermalSeal/Parameter4> a ns1:Parameter,
+        sbol:Identified ;
+    ns1:direction <in> ;
+    ns1:isOrdered true ;
+    ns1:isUnique true ;
+    ns1:lowerValue <https://bioprotocols.org/paml/primitives/plate_handling/ThermalSeal/Parameter4/LiteralInteger2> ;
+    ns1:type om:Measure ;
+    ns1:upperValue <https://bioprotocols.org/paml/primitives/plate_handling/ThermalSeal/Parameter4/LiteralInteger1> ;
+    sbol:displayId "Parameter4" ;
     sbol:name "duration" .
 
-<https://bioprotocols.org/paml/primitives/plate_handling/Uncover/PrimitivePinSpecification1> a ns1:PrimitivePinSpecification,
+<https://bioprotocols.org/paml/primitives/plate_handling/ThermalSeal/Parameter4/LiteralInteger1> a ns1:LiteralInteger,
         sbol:Identified ;
-    ns1:activityType ns1:LocatedSamples ;
-    sbol:displayId "PrimitivePinSpecification1" ;
+    ns1:integerValue 1 ;
+    sbol:displayId "LiteralInteger1" .
+
+<https://bioprotocols.org/paml/primitives/plate_handling/ThermalSeal/Parameter4/LiteralInteger2> a ns1:LiteralInteger,
+        sbol:Identified ;
+    ns1:integerValue 1 ;
+    sbol:displayId "LiteralInteger2" .
+
+<https://bioprotocols.org/paml/primitives/plate_handling/Uncover/Parameter1> a ns1:Parameter,
+        sbol:Identified ;
+    ns1:direction <in> ;
+    ns1:isOrdered true ;
+    ns1:isUnique true ;
+    ns1:lowerValue <https://bioprotocols.org/paml/primitives/plate_handling/Uncover/Parameter1/LiteralInteger2> ;
+    ns1:type <http://bioprotocols.org/paml#LocatedSamples> ;
+    ns1:upperValue <https://bioprotocols.org/paml/primitives/plate_handling/Uncover/Parameter1/LiteralInteger1> ;
+    sbol:displayId "Parameter1" ;
     sbol:name "location" .
 
-<https://bioprotocols.org/paml/primitives/plate_handling/Unseal/PrimitivePinSpecification1> a ns1:PrimitivePinSpecification,
+<https://bioprotocols.org/paml/primitives/plate_handling/Uncover/Parameter1/LiteralInteger1> a ns1:LiteralInteger,
         sbol:Identified ;
-    ns1:activityType ns1:LocatedSamples ;
-    sbol:displayId "PrimitivePinSpecification1" ;
+    ns1:integerValue 1 ;
+    sbol:displayId "LiteralInteger1" .
+
+<https://bioprotocols.org/paml/primitives/plate_handling/Uncover/Parameter1/LiteralInteger2> a ns1:LiteralInteger,
+        sbol:Identified ;
+    ns1:integerValue 1 ;
+    sbol:displayId "LiteralInteger2" .
+
+<https://bioprotocols.org/paml/primitives/plate_handling/Unseal/Parameter1> a ns1:Parameter,
+        sbol:Identified ;
+    ns1:direction <in> ;
+    ns1:isOrdered true ;
+    ns1:isUnique true ;
+    ns1:lowerValue <https://bioprotocols.org/paml/primitives/plate_handling/Unseal/Parameter1/LiteralInteger2> ;
+    ns1:type <http://bioprotocols.org/paml#LocatedSamples> ;
+    ns1:upperValue <https://bioprotocols.org/paml/primitives/plate_handling/Unseal/Parameter1/LiteralInteger1> ;
+    sbol:displayId "Parameter1" ;
     sbol:name "location" .
+
+<https://bioprotocols.org/paml/primitives/plate_handling/Unseal/Parameter1/LiteralInteger1> a ns1:LiteralInteger,
+        sbol:Identified ;
+    ns1:integerValue 1 ;
+    sbol:displayId "LiteralInteger1" .
+
+<https://bioprotocols.org/paml/primitives/plate_handling/Unseal/Parameter1/LiteralInteger2> a ns1:LiteralInteger,
+        sbol:Identified ;
+    ns1:integerValue 1 ;
+    sbol:displayId "LiteralInteger2" .
 
