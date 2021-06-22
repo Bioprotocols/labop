@@ -54,7 +54,7 @@ class TestTime(unittest.TestCase):
                                 time_of=a)
         assert t2a.time_property
 
-        p = paml.PrimitiveExecutable()
+        p = paml.PrimitiveExecutable(instance_of=paml.Primitive("a"))
         t1p = paml.TimeVariable("t1p",
                                 value=sbol3.Measure(0, tyto.OM.hour),
                                 time_property=sbol3.provenance.PROV_STARTED_AT_TIME,
@@ -89,22 +89,21 @@ class TestTime(unittest.TestCase):
         # Create the Protocol
         print('Creating Protocol')
         protocol = paml.Protocol('test_protocol')
-        t1 = paml.TimeVariable("t1",
-                               value=sbol3.Measure(0, tyto.OM.hour),
-                               time_property=sbol3.provenance.PROV_STARTED_AT_TIME,
-                               time_of=protocol.initial()
+        t1 = paml.EqualsComparison("et1",
+                                   term1=paml.TimeVariable("t1",
+                                                           time_property=sbol3.provenance.PROV_STARTED_AT_TIME,
+                                                           time_of=protocol.initial()),
+                                   term2=sbol3.Measure(0, tyto.OM.hour)
                                )
 
-        t2 = paml.TimeVariable("t2",
-                               value=sbol3.Measure(10, tyto.OM.hour),
-                               time_property=sbol3.provenance.PROV_ENDED_AT_TIME,
-                               time_of=protocol.final()
+        t2 = paml.EqualsComparison("et2",
+                                   term1=paml.TimeVariable("t2",
+                                                           time_property=sbol3.provenance.PROV_ENDED_AT_TIME,
+                                                           time_of=protocol.final()),
+                                   term2=sbol3.Measure(10, tyto.OM.hour)
                                )
 
-        protocol.time_constraints += {
-            t1,
-            t2
-          }
+        protocol.time_constraints = paml.AndConstraint("ac", clause=[t1, t2])
         doc.add(protocol)
 
 
@@ -188,38 +187,59 @@ is only weakly scattering and so will give a low absorbance value.
         protocol.add_flow(result, protocol.final())
 
         # Set protocol timepoints
-        protocol_start_time = paml.TimeVariable(
-            "start_time",
-            time_of=protocol.initial(),
-            time_property=sbol3.provenance.PROV_STARTED_AT_TIME,
-            value=sbol3.Measure(0.0, tyto.OM.hour)
-        )
-        provision_ludox_duration = paml.Duration(
-            "provision_ludox_duration",
-            time_of=provision_ludox,
-            value=sbol3.Measure(60, tyto.OM.second)
-        )
-        provision_ddh2o_duration = paml.Duration(
-            "provision_ddh2o_duration",
-            time_of=provision_ddh2o,
-            value=sbol3.Measure(60, tyto.OM.second)
-        )
-        execute_measurement_duration = paml.Duration(
-            "execute_measurement_duration",
-            time_of=execute_measurement,
-            value=sbol3.Measure(600, tyto.OM.second)
-        )
-        #ludox_before_ddh2o_constraint = paml.Constraint()
-        time_constraints = [
-            protocol_start_time,
-            provision_ludox_duration,
-            provision_ddh2o_duration,
-            execute_measurement_duration#,
-            #ludox_before_ddh2o_constraint
+        start = paml.TimeVariable("start_time",
+                                    time_of=protocol.initial(),
+                                    time_property=sbol3.provenance.PROV_STARTED_AT_TIME)
+        ce1 = paml.ConstantExpression("ce1", term=sbol3.Measure(0.0, tyto.OM.hour))
+        protocol_start_time = paml.EqualsComparison(
+            "protocol_start_time_equals",
+            term1=start,
+            term2=ce1)
+
+        provision_ludox_duration = \
+            paml.Duration("provision_ludox_duration",
+                          time_of=provision_ludox,
+                          value=sbol3.Measure(60, tyto.OM.second))
+
+        provision_ddh2o_duration = \
+            paml.Duration("provision_ddh2o_duration",
+                          time_of=provision_ddh2o,
+                          value=sbol3.Measure(60, tyto.OM.second))
+
+        execute_measurement_duration = \
+            paml.Duration("execute_measurement_duration",
+                          time_of=execute_measurement,
+                          value=sbol3.Measure(600, tyto.OM.second))
+
+        ludox_end = paml.TimeVariable("ludox_end",
+                                    time_of=provision_ludox,
+                                    time_property=sbol3.provenance.PROV_ENDED_AT_TIME)
+        ddh2o_start = paml.TimeVariable("ddh2o_start",
+                                    time_of=provision_ddh2o,
+                                    time_property=sbol3.provenance.PROV_STARTED_AT_TIME)
+
+        ludox_before_ddh2o_constraint = paml.LessThanEqualComparison(
+            "ludox_before_ddh2o",
+            term1=ludox_end,
+            term2=ddh2o_start)
+
+        timepoints = [
+            ludox_end,
+            ddh2o_start,
+            start,
+            ce1
         ]
-        for tc in time_constraints:
-            doc.add(tc)
-        protocol.time_constraints += set(time_constraints)
+        clauses = [ protocol_start_time,
+                    provision_ludox_duration,
+                    provision_ddh2o_duration,
+                    execute_measurement_duration,
+                    ludox_before_ddh2o_constraint ]
+        time_constraints = paml.AndConstraint("tcs", clause=clauses)
+
+        doc.add(time_constraints)
+        for t in timepoints:
+            doc.add(t)
+        protocol.time_constraints = time_constraints
 
         ########################################
         # Validate and write the document
@@ -249,7 +269,8 @@ is only weakly scattering and so will give a low absorbance value.
         t1 = paml.TimeVariable("t1")
         e1 = paml.VariableExpression("e1", term=t1)
 
-        d1 = paml.Duration("d1")
+        a1 = paml.Join()
+        d1 = paml.Duration("d1", time_of=a1)
         e2 = paml.VariableExpression("e2", term=d1)
 
         m1 = sbol3.Measure(60, tyto.OM.second)
@@ -257,11 +278,19 @@ is only weakly scattering and so will give a low absorbance value.
 
         e4 = paml.ProductExpression("e4", term1=e3, term2=e2)
 
+        expressions = [e1, e2, e3, e4]
 
-        doc.add(e1)
-        doc.add(e2)
-        doc.add(e3)
-        doc.add(e4)
+        for e in expressions:
+            doc.add(e)
+
+        lt1 = paml.LessThanComparison("lt1", term1=e4, term2=e2)
+
+        c1 = paml.NotConstraint("c1", clause=lt1)
+
+        constraints = [lt1, c1]
+
+        for c in constraints:
+            doc.add(c)
 
         ########################################
         # Validate and write the document

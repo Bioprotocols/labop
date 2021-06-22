@@ -235,7 +235,7 @@ paml:Difference rdf:type owl:Class ;
 
 paml:Duration rdf:type owl:Class ;
                 rdfs:comment "An Activity duration is a TimeVariable" ;
-                rdfs:subClassOf sbol:TopLevel ,
+                rdfs:subClassOf paml:Constraint ,
                 [ rdf:type owl:Restriction ;
                   owl:onProperty paml:timeOf ;
                   owl:minCardinality "1"^^xsd:nonNegativeInteger ;
@@ -252,34 +252,36 @@ paml:Duration rdf:type owl:Class ;
 paml:Protocol rdfs:subClassOf
                  [ rdf:type owl:Restriction ;
                    owl:onProperty paml:timeConstraints ;
-                   owl:onClass paml:TimeVariable,
-                               paml:Duration ;
+                   owl:onClass paml:Constraint ;
+                   owl:minCardinality "0"^^xsd:nonNegativeInteger ;
+                   owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
                  ] .
 
 paml:timeConstraints rdf:type owl:ObjectProperty ;
               rdfs:domain paml:Protocol ;
-              rdfs:range paml:TimeVariable,
-                         paml:Duration ;
+              rdfs:range paml:Constraint ;
               rdfs:label "time_constraints" ;
               rdfs:comment "Specification of time constraints on a protocol" .
 
 # <expression> ::= <duration>| <float> | <float> * <expression> |  <expression> - <expression> | <expression> + <expression>
 
 paml:unaryExpressionTerm rdf:type owl:ObjectProperty ;
+              rdfs:subPropertyOf opil:compositionalProperty ;
               rdfs:domain paml:UnaryExpression ;
               rdfs:range paml:TimeVariable,
-                         paml:Duration,
                          sbol:Measure ;
               rdfs:label "term" ;
               rdfs:comment "Expression Term" .
 
 paml:binaryExpressionTerm1 rdf:type owl:ObjectProperty ;
+              rdfs:subPropertyOf opil:compositionalProperty ;
               rdfs:domain paml:BinaryExpression ;
               rdfs:range paml:Expression ;
               rdfs:label "term1" ;
               rdfs:comment "Expression Term1" .
 
 paml:binaryExpressionTerm2 rdf:type owl:ObjectProperty ;
+              rdfs:subPropertyOf opil:compositionalProperty ;
               rdfs:domain paml:BinaryExpression ;
               rdfs:range paml:Expression ;
               rdfs:label "term2" ;
@@ -316,8 +318,7 @@ paml:VariableExpression rdf:type owl:Class ;
                 rdfs:subClassOf paml:UnaryExpression ,
                 [ rdf:type owl:Restriction ;
                   owl:onProperty paml:unaryExpressionTerm ;
-                  owl:onClass paml:TimeVariable,
-                              paml:Duration;
+                  owl:onClass paml:TimeVariable;
                   owl:minCardinality "1"^^xsd:nonNegativeInteger ;
                   owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
                 ]  .
@@ -352,7 +353,7 @@ paml:binaryComparisonTerm1 rdf:type owl:ObjectProperty ;
               rdfs:label "term1" ;
               rdfs:comment "Comparison Term1" .
 
-paml:binaryExpressionTerm2 rdf:type owl:ObjectProperty ;
+paml:binaryComparisonTerm2 rdf:type owl:ObjectProperty ;
               rdfs:domain paml:BinaryComparison ;
               rdfs:range paml:Expression ;
               rdfs:label "term2" ;
@@ -360,7 +361,7 @@ paml:binaryExpressionTerm2 rdf:type owl:ObjectProperty ;
 
 paml:BinaryComparison rdf:type owl:Class ;
                 rdfs:comment "Binary Comparison Abstract Class" ;
-                rdfs:subClassOf sbol:TopLevel ,
+                rdfs:subClassOf paml:Constraint ,
                 [ rdf:type owl:Restriction ;
                   owl:onProperty paml:binaryComparisonTerm1 ;
                   owl:onClass paml:Expression ;
@@ -372,7 +373,7 @@ paml:BinaryComparison rdf:type owl:Class ;
                   owl:onClass paml:Expression ;
                   owl:minCardinality "1"^^xsd:nonNegativeInteger ;
                   owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
-                ]
+                ] .
 
 paml:LessThanComparison rdf:type owl:Class ;
                 rdfs:comment "Less Than Comparison Class" ;
@@ -390,8 +391,8 @@ paml:GreaterThanEqualComparison rdf:type owl:Class ;
                 rdfs:comment "Greater Than Equal Comparison Class" ;
                 rdfs:subClassOf paml:BinaryComparison .
 
-paml:EqualComparison rdf:type owl:Class ;
-                rdfs:comment "Equal Comparison Class" ;
+paml:EqualsComparison rdf:type owl:Class ;
+                rdfs:comment "Equals Comparison Class" ;
                 rdfs:subClassOf paml:BinaryComparison .
 
 
@@ -401,3 +402,44 @@ paml:EqualComparison rdf:type owl:Class ;
 paml:Constraint rdf:type owl:Class ;
                 rdfs:comment "Abstract Constraint Class" ;
                 rdfs:subClassOf sbol:TopLevel .
+
+paml:clause rdf:type owl:ObjectProperty ;
+                rdfs:subPropertyOf opil:compositionalProperty ;
+                rdfs:comment "Logical Constratiant clause" ;
+                rdfs:label "clause" ;
+                rdfs:domain paml:Constraint ;
+                rdfs:range paml:Constraint .
+
+paml:NotConstraint rdf:type owl:Class ;
+                rdfs:comment "Negation Constraint Class" ;
+                rdfs:subClassOf paml:Constraint ,
+                [ rdf:type owl:Restriction ;
+                  owl:onProperty paml:clause ;
+                  owl:onClass paml:Constraint ;
+                  owl:minCardinality "1"^^xsd:nonNegativeInteger ;
+                  owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
+                ] .
+
+paml:AndConstraint rdf:type owl:Class ;
+                rdfs:comment "And Constraint Class" ;
+                rdfs:subClassOf paml:Constraint ,
+                [ rdf:type owl:Restriction ;
+                  owl:onProperty paml:clause ;
+                  owl:onClass paml:Constraint ;
+                ] .
+
+paml:OrConstraint rdf:type owl:Class ;
+                rdfs:comment "And Constraint Class" ;
+                rdfs:subClassOf paml:Constraint ,
+                [ rdf:type owl:Restriction ;
+                  owl:onProperty paml:clause ;
+                  owl:onClass paml:Constraint ;
+                ] .
+
+paml:XorConstraint rdf:type owl:Class ;
+                rdfs:comment "XOR Constraint Class" ;
+                rdfs:subClassOf paml:Constraint ,
+                [ rdf:type owl:Restriction ;
+                  owl:onProperty paml:clause ;
+                  owl:onClass paml:Constraint ;
+                ] .
