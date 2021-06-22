@@ -178,16 +178,16 @@ Primitive.add_output = primitive_add_output
 # SubProtocol.output_value = subprotocol_output_value
 #
 #
-# ###########################################
-# # Define extension methods for Protocol
-#
-#
-# def protocol_contains_activity(self, activity):
-#     return (activity in self.activities) or \
-#            next((x for x in self.activities if
-#                  isinstance(x, Executable) and (activity in x.input or activity in x.output)), False)
-# # Monkey patch:
-# Protocol.contains_activity = protocol_contains_activity
+###########################################
+# Define extension methods for Protocol
+
+
+def protocol_contains_node(self, node):
+    return (node in self.nodes)# or \  ## disabled ability to find inputs, since this was just for control flows, not object flows
+           #next((x for x in self.nodes if
+           #      isinstance(x, uml.Action) and (activity in x.inputs or activity in x.outputs)), False)
+# Monkey patch:
+Protocol.contains_node = protocol_contains_node
 #
 #
 # def Protocol_initial(self):
@@ -280,41 +280,41 @@ Primitive.add_output = primitive_add_output
 #     return sub
 # # Monkey patch:
 # Protocol.execute_subprotocol = protocol_execute_subprotocol
-#
-#
-# # Create and add a flow between the designated child source and sink activities
-# def protocol_add_flow(self, source, sink):
-#     assert self.contains_activity(source), ValueError(
-#         'Source activity ' + source.identity + ' is not a member of protocol ' + self.identity)
-#     assert self.contains_activity(sink), ValueError(
-#         'Sink activity ' + sink.identity + ' is not a member of protocol ' + self.identity)
-#     flow = Flow(source = source, sink = sink)
-#     self.flows.append(flow)
-#     return flow
-# # Monkey patch:
-# Protocol.add_flow = protocol_add_flow
-#
-# #########################################
-# # Library handling
-# loaded_libraries = {}
-#
-# def import_library(library:str, file_format:str = 'ttl', nickname:str=None ):
-#     if not nickname:
-#         nickname = library
-#     if not os.path.isfile(library):
-#         library = posixpath.join(os.path.dirname(os.path.realpath(__file__)),
-#                                  ('lib/'+library+'.ttl'))
-#     # read in the library and put the document in the library collection
-#     lib = sbol3.Document()
-#     lib.read(library, file_format)
-#     loaded_libraries[nickname] = lib
-#
-# def get_primitive(doc:sbol3.Document, name:str):
-#     found = doc.find(name)
-#     if not found:
-#         found = {n:l.find(name) for (n,l) in loaded_libraries.items() if l.find(name)}
-#         assert len(found)<2, ValueError("Ambiguous primitive: found '"+name+"' in multiple libraries: "+str(found.keys()))
-#         assert len(found)>0, ValueError("Couldn't find primitive '"+name+"' in any library")
-#         found = next(iter(found.values())).copy(doc)
-#     return found
-#
+
+
+# Create and add a flow between the designated child source and sink activities
+def protocol_order(self, source, target):
+    assert self.contains_node(source), ValueError(
+        'Source node ' + source.identity + ' is not a member of protocol ' + self.identity)
+    assert self.contains_node(target), ValueError(
+        'Target node ' + target.identity + ' is not a member of protocol ' + self.identity)
+    flow = uml.ControlFlow(source = source, target = target)
+    self.edges.append(flow)
+    return flow
+# Monkey patch:
+Protocol.order = protocol_order
+
+#########################################
+# Library handling
+loaded_libraries = {}
+
+def import_library(library:str, file_format:str = 'ttl', nickname:str=None ):
+    if not nickname:
+        nickname = library
+    if not os.path.isfile(library):
+        library = posixpath.join(os.path.dirname(os.path.realpath(__file__)),
+                                 ('lib/'+library+'.ttl'))
+    # read in the library and put the document in the library collection
+    lib = sbol3.Document()
+    lib.read(library, file_format)
+    loaded_libraries[nickname] = lib
+
+def get_primitive(doc:sbol3.Document, name:str):
+    found = doc.find(name)
+    if not found:
+        found = {n:l.find(name) for (n,l) in loaded_libraries.items() if l.find(name)}
+        assert len(found)<2, ValueError("Ambiguous primitive: found '"+name+"' in multiple libraries: "+str(found.keys()))
+        assert len(found)>0, ValueError("Couldn't find primitive '"+name+"' in any library")
+        found = next(iter(found.values())).copy(doc)
+    return found
+

@@ -35,10 +35,9 @@ xsd:anySimpleType rdf:type rdfs:Datatype .
 
 
 #################################################################
-#    Protocol definitions
+#    Protocol definitions, based on UML
 #################################################################
 
-# Protocol
 paml:Protocol rdf:type owl:Class ;
               rdfs:comment "A protocol is an activity in the laboratory" ;
         rdfs:subClassOf uml:Activity .
@@ -49,10 +48,18 @@ paml:Primitive rdf:type owl:Class ;
         rdfs:subClassOf uml:Behavior .
 
 
+#################################################################
+#    Execution record, bootstrapping from PROV-O
+#################################################################
+
 paml:Execution rdf:type owl:Class ;
         rdfs:comment "An execution is a record of the values produced by the operation of a protocol, real or simulated" ;
         rdfs:subClassOf sbol:TopLevel .
 
+
+#################################################################
+#    Sample collection data model
+#################################################################
 
 paml:SampleCollection rdf:type owl:Class ;
         rdfs:comment "A sample collection is a group of samples" ;
