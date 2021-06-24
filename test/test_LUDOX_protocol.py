@@ -2,8 +2,10 @@ import sbol3
 import paml
 import tyto
 import unittest
+
+
 # import filecmp  # awaiting improved file stability
-#import paml_md
+# import paml_md
 
 
 class TestProtocolEndToEnd(unittest.TestCase):
@@ -51,24 +53,26 @@ is only weakly scattering and so will give a low absorbance value.
         ludox.name = 'LUDOX(R) CL-X colloidal silica, 45 wt. % suspension in H2O'
         doc.add(ludox)
 
-        # actual steps of the protocol
-        c = protocol.execute_primitive('EmptyContainer', specification=tyto.NCIT.get_uri_by_term('Microplate')) # replace with container ontology
-        protocol.order(protocol.initial(), c)
-        c_ddh2o = protocol.execute_primitive('PlateCoordinates', coordinates='A1:D1')
-        provision_ludox = protocol.execute_primitive('Provision', resource=ludox, destination=c_ddh2o.output_pin('samples'),
-                                                     amount=sbol3.Measure(100, tyto.OM.microliter))
+        ## actual steps of the protocol
+        # get a plate
+        plate = protocol.primitive_step('EmptyContainer', specification=tyto.NCIT.get_uri_by_term(
+            'Microplate'))  # replace with container ontology
 
-        c_ludox = protocol.execute_primitive('PlateCoordinates', coordinates='A2:D2')
-        provision_ddh2o = protocol.execute_primitive('Provision', resource=ddh2o, destination=c_ludox.output_pin('samples'),
-                                                     amount=sbol3.Measure(100, tyto.OM.microliter))
-        protocol.order(provision_ddh2o, provision_ludox)
+        # put ludox and water in selected wells
+        c_ddh2o = protocol.primitive_step('PlateCoordinates', source=plate, coordinates='A1:D1')
+        protocol.primitive_step('Provision', resource=ludox, destination=c_ddh2o.output_pin('samples'),
+                                amount=sbol3.Measure(100, tyto.OM.microliter))
 
-        c_measure = protocol.execute_primitive('PlateCoordinates', coordinates='A1:D2')
-        execute_measurement = protocol.execute_primitive('MeasureAbsorbance', samples=c_measure,
-                                                         wavelength=sbol3.Measure(600, tyto.OM.nanometer))
-        protocol.order(provision_ludox, execute_measurement)
+        c_ludox = protocol.primitive_step('PlateCoordinates', source=plate, coordinates='A2:D2')
+        protocol.primitive_step('Provision', resource=ddh2o, destination=c_ludox.output_pin('samples'),
+                                amount=sbol3.Measure(100, tyto.OM.microliter))
 
-        result = protocol.add_output('absorbance', execute_measurement.output_pin('measurements'))
+        # measure the absorbance
+        c_measure = protocol.primitive_step('PlateCoordinates', source=plate, coordinates='A1:D2')
+        measure = protocol.primitive_step('MeasureAbsorbance', samples=c_measure,
+                                          wavelength=sbol3.Measure(600, tyto.OM.nanometer))
+
+        protocol.add_output('absorbance', measure.output_pin('measurements'))
 
         ########################################
         # Validate and write the document
@@ -87,8 +91,8 @@ is only weakly scattering and so will give a low absorbance value.
     #     doc.read('test/testfiles/igem_ludox_draft.nt', 'nt')
     #     paml_md.MarkdownConverter(doc).convert('iGEM_LUDOX_OD_calibration_2018')
 
-        # Checking if files are identical needs to wait for increased stability
-        # assert filecmp.cmp('iGEM_LUDOX_OD_calibration_2018.md','test/testfiles/iGEM_LUDOX_OD_calibration_2018.md')
+    # Checking if files are identical needs to wait for increased stability
+    # assert filecmp.cmp('iGEM_LUDOX_OD_calibration_2018.md','test/testfiles/iGEM_LUDOX_OD_calibration_2018.md')
 
 
 if __name__ == '__main__':

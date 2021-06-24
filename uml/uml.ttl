@@ -78,7 +78,7 @@ uml:ValueSpecification rdf:type owl:Class ;
 
 uml:LiteralSpecification rdf:type owl:Class ;
               rdfs:subClassOf uml:ValueSpecification .
-    # Omitted subclass: LiterUnlimitedNatural
+    # Omitted subclass: LiteralUnlimitedNatural
 
 uml:LiteralNull rdf:type owl:Class ;
               rdfs:subClassOf uml:LiteralSpecification .
@@ -91,7 +91,7 @@ uml:LiteralString rdf:type owl:Class ;
 uml:stringValue rdf:type owl:DatatypeProperty ;
          rdfs:domain uml:LiteralString ;
          rdfs:range xsd:string ;
-         rdfs:label "Xvalue" .
+         rdfs:label "value" .
 
 uml:LiteralInteger rdf:type owl:Class ;
               rdfs:subClassOf uml:LiteralSpecification ,
@@ -121,6 +121,28 @@ uml:LiteralReal rdf:type owl:Class ;
 uml:realValue rdf:type owl:DatatypeProperty ;
          rdfs:domain uml:LiteralReal ;
          rdfs:range xsd:float ;
+         rdfs:label "value" .
+
+# Special sbol-specific class for embedding SBOL object literals as a child or a reference
+uml:LiteralIdentified rdf:type owl:Class ;
+              rdfs:subClassOf uml:LiteralSpecification ,
+    [ rdf:type owl:Restriction ; owl:onClass sbol:Identified ; owl:onProperty uml:identifiedValue ;
+      owl:minCardinality "1"^^xsd:nonNegativeInteger ; owl:maxCardinality "1"^^xsd:nonNegativeInteger ] .
+
+uml:identifiedValue rdf:type owl:ObjectProperty ;
+         rdfs:subPropertyOf opil:compositionalProperty ;
+         rdfs:domain uml:LiteralIdentified ;
+         rdfs:range sbol:Identified ;
+         rdfs:label "value" .
+
+uml:LiteralReference rdf:type owl:Class ;
+              rdfs:subClassOf uml:LiteralSpecification ,
+    [ rdf:type owl:Restriction ; owl:onClass sbol:Identified ; owl:onProperty uml:referenceValue ;
+      owl:minCardinality "1"^^xsd:nonNegativeInteger ; owl:maxCardinality "1"^^xsd:nonNegativeInteger ] .
+
+uml:referenceValue rdf:type owl:ObjectProperty ;
+         rdfs:domain uml:LiteralReference ;
+         rdfs:range sbol:Identified ;
          rdfs:label "value" .
 
 
