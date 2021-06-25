@@ -106,7 +106,7 @@ def import_library(library: str, extension: str = 'ttl', nickname: str = None):
         library = posixpath.join(os.path.dirname(os.path.realpath(__file__)), f'lib/{library}.{extension}')
     # read in the library and put the document in the library collection
     lib = sbol3.Document()
-    lib.read(library, file_format)
+    lib.read(library, extension)
     loaded_libraries[nickname] = lib
 
 

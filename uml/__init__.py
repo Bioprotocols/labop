@@ -41,7 +41,7 @@ def literal(value):
 ###########################################
 # Define extension methods for Behavior
 
-def behavior_add_parameter(self, name: str, param_type: str, direction: str, optional: boolean = False):
+def behavior_add_parameter(self, name: str, param_type: str, direction: str, optional: bool = False):
     """Add a Parameter for this Behavior; usually not called directly
 
     Note: Current assumption is that cardinality is either [0..1] or 1
@@ -52,12 +52,12 @@ def behavior_add_parameter(self, name: str, param_type: str, direction: str, opt
     :return: Parameter that has been added
     """
     param = Parameter(name=name, type=param_type, direction=direction, isOrdered=True, isUnique=True)
+    self.parameters.append(param)
     param.upperValue = literal(1)  # all parameters are assumed to have cardinality [0..1] or 1 for now
     if optional:
         param.lowerValue = literal(0)
     else:
         param.lowerValue = literal(1)
-    self.parameters.append(param)
     return param
 Behavior.add_parameter = behavior_add_parameter  # Add to class via monkey patch
 
