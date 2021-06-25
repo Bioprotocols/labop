@@ -17,8 +17,9 @@ setup(name='paml',
             'numpy',
             'openpyxl'
       ],
-      packages=['paml', 'paml_md', 'paml.lib'],
+      packages=['paml', 'paml_md', 'paml.lib', 'uml'],
       package_data={'paml': ['paml.ttl', 'lib/*.ttl'],
-                    'paml_md': ['template.xlsx']},
+                    'paml_md': ['template.xlsx'],
+                    'uml': ['paml.ttl']},
       include_package_data=True,
 )
