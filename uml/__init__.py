@@ -9,6 +9,15 @@ __factory__ = SBOLFactory(locals(),
                           'http://bioprotocols.org/uml#')
 __umlfactory__ = UMLFactory(__factory__)
 
+
+# Workaround for pySBOL3 issue #231: should be applied to every iteration on a collection of SBOL objects
+# TODO: delete after resolution of pySBOL3 issue #231
+def id_sort(i: iter):
+    sortable = list(i)
+    sortable.sort(key=lambda x: x.identity if isinstance(x, sbol3.Identified) else x)
+    return sortable
+
+
 ###########################################
 # Define extension methods for ValueSpecification
 
@@ -58,11 +67,11 @@ def behavior_add_parameter(self, name: str, param_type: str, direction: str, opt
     """
     param = Parameter(name=name, type=param_type, direction=direction, is_ordered=True, is_unique=True)
     self.parameters.append(param)
-    param.upperValue = literal(1)  # all parameters are assumed to have cardinality [0..1] or 1 for now
+    param.upper_value = literal(1)  # all parameters are assumed to have cardinality [0..1] or 1 for now
     if optional:
-        param.lowerValue = literal(0)
+        param.lower_value = literal(0)
     else:
-        param.lowerValue = literal(1)
+        param.lower_value = literal(1)
     return param
 Behavior.add_parameter = behavior_add_parameter  # Add to class via monkey patch
 
@@ -146,9 +155,10 @@ def call_behavior_action_output_pin(self, pin_name: str):
 CallBehaviorAction.output_pin = call_behavior_action_output_pin  # Add to class via monkey patch
 
 
-def make_call_behavior_action(behavior: Behavior, **input_pin_literals):
-    """Create a call to a Behavior (but doesn't add it anywhere)
+def add_call_behavior_action(parent: Activity, behavior: Behavior, **input_pin_literals):
+    """Create a call to a Behavior and add it to an Activity
 
+    :param parent: Activity to which the behavior is being added
     :param behavior: Behavior to be called
     :param input_pin_literals: map of literal values to be assigned to specific pins
     :return: newly constructed
@@ -160,9 +170,10 @@ def make_call_behavior_action(behavior: Behavior, **input_pin_literals):
 
     # create action
     action = CallBehaviorAction(behavior=behavior)
+    parent.nodes.append(action)
 
     # Instantiate input pins
-    for i in behavior.get_inputs():
+    for i in id_sort(behavior.get_inputs()):
         if i.name in input_pin_literals:
             value = input_pin_literals[i.name]
             # TODO: type check relationship between value and parameter type specification
@@ -172,7 +183,7 @@ def make_call_behavior_action(behavior: Behavior, **input_pin_literals):
             action.inputs.append(InputPin(name=i.name, is_ordered=i.is_ordered, is_unique=i.is_unique))
 
     # Instantiate output pins
-    for o in behavior.get_outputs():
+    for o in id_sort(behavior.get_outputs()):
         action.outputs.append(OutputPin(name=o.name, is_ordered=o.is_ordered, is_unique=o.is_unique))
 
     return action
@@ -229,12 +240,11 @@ def activity_call_behavior(self, behavior: Behavior, **input_pin_map):
     # Any ActivityNode in the pin map will be withheld for connecting via object flows instead
     activity_inputs = {k: v for k, v in input_pin_map.items() if isinstance(v, ActivityNode)}
     non_activity_inputs = {k: v for k, v in input_pin_map.items() if k not in activity_inputs}
-    pe = make_call_behavior_action(behavior, **non_activity_inputs)
-    self.nodes.append(pe)
+    cba = add_call_behavior_action(self, behavior, **non_activity_inputs)
     # add flows for activities being connected implicitly
-    for name, source in activity_inputs.items():
-        self.use_value(source, pe.input_pin(name))
-    return pe
+    for name, source in id_sort(activity_inputs.items()):
+        self.use_value(source, cba.input_pin(name))
+    return cba
 Activity.call_behavior = activity_call_behavior  # Add to class via monkey patch
 
 

@@ -18,7 +18,7 @@ class TestLibraryBuilding(unittest.TestCase):
         print('Making primitives for test library')
 
         p = paml.Primitive('Provision')
-        p.description = 'Place a measured amount (mass or volume) of a specified component into a location, where it may then be used in executing the protocol.'
+        p.description = 'Place a measured amount (mass or volume) of a specified component into a location.'
         p.add_input('resource', sbol3.SBOL_COMPONENT)
         p.add_input('destination', 'http://bioprotocols.org/paml#Location')
         p.add_input('amount', sbol3.OM_MEASURE)  # Can be mass or volume
@@ -27,7 +27,7 @@ class TestLibraryBuilding(unittest.TestCase):
         doc.add(p)
 
         p = paml.Primitive('Transfer')
-        p.description = 'Move a measured volume taken from a collection of source samples to a location whose shape can contain them in a destination locations'
+        p.description = 'Move a measured volume taken from a collection of source samples to a location'
         p.add_input('source', 'http://bioprotocols.org/paml#LocatedSamples')
         p.add_input('destination', 'http://bioprotocols.org/paml#Location')
         p.add_input('amount', sbol3.OM_MEASURE)  # Must be volume
@@ -43,11 +43,11 @@ class TestLibraryBuilding(unittest.TestCase):
         v = doc.validate()
         assert not v.errors and not v.warnings, "".join(str(e) for e in doc.validate().errors)
 
-        temp_name = os.path.join(tempfile.gettempdir(), 'minilibrary.nt')
+        temp_name = os.path.join(tempfile.gettempdir(), 'mini_library.nt')
         doc.write(temp_name, sbol3.SORTED_NTRIPLES)
         print(f'Wrote file as {temp_name}')
 
-        comparison_file = os.path.join(os.path.dirname(os.path.realpath(__file__)),'testfiles','mini_library.nt');
+        comparison_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'testfiles', 'mini_library.nt')
         print(f'Comparing against {comparison_file}')
         assert filecmp.cmp(temp_name, comparison_file), "Files are not identical"
         print('File identical with test file')

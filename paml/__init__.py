@@ -1,8 +1,8 @@
 from sbol_factory import SBOLFactory, UMLFactory
-import sbol3
-import uml
 import os
 import posixpath
+import sbol3
+import uml # Note: looks unused, but is used in SBOLFactory
 
 # Import ontology
 __factory__ = SBOLFactory(locals(),

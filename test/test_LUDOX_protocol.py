@@ -1,10 +1,12 @@
+import os
+import tempfile
+import unittest
+import filecmp
 import sbol3
 import paml
 import tyto
-import unittest
 
 
-# import filecmp  # awaiting improved file stability
 # import paml_md
 
 
@@ -55,7 +57,7 @@ is only weakly scattering and so will give a low absorbance value.
         ludox.name = 'LUDOX(R) CL-X colloidal silica, 45 wt. % suspension in H2O'
         doc.add(ludox)
 
-        ## actual steps of the protocol
+        # actual steps of the protocol
         # get a plate
         plate = protocol.primitive_step('EmptyContainer', specification=tyto.NCIT.get_uri_by_term('Microplate'))  # replace with container ontology
 
@@ -81,15 +83,18 @@ is only weakly scattering and so will give a low absorbance value.
         v = doc.validate()
         assert not v.errors and not v.warnings, "".join(str(e) for e in doc.validate().errors)
 
-        doc.write('igem_ludox_draft.nt', 'sorted nt')
-        doc.write('igem_ludox_draft.ttl', 'turtle')
+        temp_name = os.path.join(tempfile.gettempdir(), 'igem_ludox_test.nt')
+        doc.write(temp_name, sbol3.SORTED_NTRIPLES)
+        print(f'Wrote file as {temp_name}')
 
-        # Checking if files are identical needs to wait for increased stability
-        # assert filecmp.cmp('igem_ludox_draft.ttl','test/testfiles/igem_ludox_draft.ttl')
+        comparison_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'testfiles', 'igem_ludox_test.nt')
+        print(f'Comparing against {comparison_file}')
+        assert filecmp.cmp(temp_name, comparison_file), "Files are not identical"
+        print('File identical with test file')
 
     # def test_protocol_to_markdown(self):
     #     doc = sbol3.Document()
-    #     doc.read('test/testfiles/igem_ludox_draft.nt', 'nt')
+    #     doc.read('test/testfiles/igem_ludox_test.nt', 'nt')
     #     paml_md.MarkdownConverter(doc).convert('iGEM_LUDOX_OD_calibration_2018')
 
     # Checking if files are identical needs to wait for increased stability
