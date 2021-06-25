@@ -20,6 +20,6 @@ setup(name='paml',
       packages=['paml', 'paml_md', 'paml.lib', 'uml'],
       package_data={'paml': ['paml.ttl', 'lib/*.ttl'],
                     'paml_md': ['template.xlsx'],
-                    'uml': ['paml.ttl']},
+                    'uml': ['uml.ttl']},
       include_package_data=True,
 )
