@@ -56,7 +56,7 @@
 
 <https://bioprotocols.org/paml/primitives/sample_arrays/Columns/Parameter1> a ns1:Parameter,
         sbol:Identified ;
-    ns1:direction <in> ;
+    ns1:direction ns1:in ;
     ns1:isOrdered true ;
     ns1:isUnique true ;
     ns1:lowerValue <https://bioprotocols.org/paml/primitives/sample_arrays/Columns/Parameter1/LiteralInteger2> ;
@@ -77,7 +77,7 @@
 
 <https://bioprotocols.org/paml/primitives/sample_arrays/Columns/Parameter2> a ns1:Parameter,
         sbol:Identified ;
-    ns1:direction <in> ;
+    ns1:direction ns1:in ;
     ns1:isOrdered true ;
     ns1:isUnique true ;
     ns1:lowerValue <https://bioprotocols.org/paml/primitives/sample_arrays/Columns/Parameter2/LiteralInteger2> ;
@@ -98,7 +98,7 @@
 
 <https://bioprotocols.org/paml/primitives/sample_arrays/Columns/Parameter3> a ns1:Parameter,
         sbol:Identified ;
-    ns1:direction <out> ;
+    ns1:direction ns1:out ;
     ns1:isOrdered true ;
     ns1:isUnique true ;
     ns1:lowerValue <https://bioprotocols.org/paml/primitives/sample_arrays/Columns/Parameter3/LiteralInteger2> ;
@@ -119,7 +119,7 @@
 
 <https://bioprotocols.org/paml/primitives/sample_arrays/DuplicateCollection/Parameter1> a ns1:Parameter,
         sbol:Identified ;
-    ns1:direction <in> ;
+    ns1:direction ns1:in ;
     ns1:isOrdered true ;
     ns1:isUnique true ;
     ns1:lowerValue <https://bioprotocols.org/paml/primitives/sample_arrays/DuplicateCollection/Parameter1/LiteralInteger2> ;
@@ -140,7 +140,7 @@
 
 <https://bioprotocols.org/paml/primitives/sample_arrays/DuplicateCollection/Parameter2> a ns1:Parameter,
         sbol:Identified ;
-    ns1:direction <out> ;
+    ns1:direction ns1:out ;
     ns1:isOrdered true ;
     ns1:isUnique true ;
     ns1:lowerValue <https://bioprotocols.org/paml/primitives/sample_arrays/DuplicateCollection/Parameter2/LiteralInteger2> ;
@@ -161,7 +161,7 @@
 
 <https://bioprotocols.org/paml/primitives/sample_arrays/EmptyContainer/Parameter1> a ns1:Parameter,
         sbol:Identified ;
-    ns1:direction <in> ;
+    ns1:direction ns1:in ;
     ns1:isOrdered true ;
     ns1:isUnique true ;
     ns1:lowerValue <https://bioprotocols.org/paml/primitives/sample_arrays/EmptyContainer/Parameter1/LiteralInteger2> ;
@@ -182,7 +182,7 @@
 
 <https://bioprotocols.org/paml/primitives/sample_arrays/EmptyContainer/Parameter2> a ns1:Parameter,
         sbol:Identified ;
-    ns1:direction <out> ;
+    ns1:direction ns1:out ;
     ns1:isOrdered true ;
     ns1:isUnique true ;
     ns1:lowerValue <https://bioprotocols.org/paml/primitives/sample_arrays/EmptyContainer/Parameter2/LiteralInteger2> ;
@@ -203,7 +203,7 @@
 
 <https://bioprotocols.org/paml/primitives/sample_arrays/PlateCoordinates/Parameter1> a ns1:Parameter,
         sbol:Identified ;
-    ns1:direction <in> ;
+    ns1:direction ns1:in ;
     ns1:isOrdered true ;
     ns1:isUnique true ;
     ns1:lowerValue <https://bioprotocols.org/paml/primitives/sample_arrays/PlateCoordinates/Parameter1/LiteralInteger2> ;
@@ -224,7 +224,7 @@
 
 <https://bioprotocols.org/paml/primitives/sample_arrays/PlateCoordinates/Parameter2> a ns1:Parameter,
         sbol:Identified ;
-    ns1:direction <in> ;
+    ns1:direction ns1:in ;
     ns1:isOrdered true ;
     ns1:isUnique true ;
     ns1:lowerValue <https://bioprotocols.org/paml/primitives/sample_arrays/PlateCoordinates/Parameter2/LiteralInteger2> ;
@@ -245,7 +245,7 @@
 
 <https://bioprotocols.org/paml/primitives/sample_arrays/PlateCoordinates/Parameter3> a ns1:Parameter,
         sbol:Identified ;
-    ns1:direction <out> ;
+    ns1:direction ns1:out ;
     ns1:isOrdered true ;
     ns1:isUnique true ;
     ns1:lowerValue <https://bioprotocols.org/paml/primitives/sample_arrays/PlateCoordinates/Parameter3/LiteralInteger2> ;
@@ -266,7 +266,7 @@
 
 <https://bioprotocols.org/paml/primitives/sample_arrays/ReplicateCollection/Parameter1> a ns1:Parameter,
         sbol:Identified ;
-    ns1:direction <in> ;
+    ns1:direction ns1:in ;
     ns1:isOrdered true ;
     ns1:isUnique true ;
     ns1:lowerValue <https://bioprotocols.org/paml/primitives/sample_arrays/ReplicateCollection/Parameter1/LiteralInteger2> ;
@@ -287,7 +287,7 @@
 
 <https://bioprotocols.org/paml/primitives/sample_arrays/ReplicateCollection/Parameter2> a ns1:Parameter,
         sbol:Identified ;
-    ns1:direction <in> ;
+    ns1:direction ns1:in ;
     ns1:isOrdered true ;
     ns1:isUnique true ;
     ns1:lowerValue <https://bioprotocols.org/paml/primitives/sample_arrays/ReplicateCollection/Parameter2/LiteralInteger2> ;
@@ -308,7 +308,7 @@
 
 <https://bioprotocols.org/paml/primitives/sample_arrays/ReplicateCollection/Parameter3> a ns1:Parameter,
         sbol:Identified ;
-    ns1:direction <out> ;
+    ns1:direction ns1:out ;
     ns1:isOrdered true ;
     ns1:isUnique true ;
     ns1:lowerValue <https://bioprotocols.org/paml/primitives/sample_arrays/ReplicateCollection/Parameter3/LiteralInteger2> ;
@@ -329,7 +329,7 @@
 
 <https://bioprotocols.org/paml/primitives/sample_arrays/Rows/Parameter1> a ns1:Parameter,
         sbol:Identified ;
-    ns1:direction <in> ;
+    ns1:direction ns1:in ;
     ns1:isOrdered true ;
     ns1:isUnique true ;
     ns1:lowerValue <https://bioprotocols.org/paml/primitives/sample_arrays/Rows/Parameter1/LiteralInteger2> ;
@@ -350,7 +350,7 @@
 
 <https://bioprotocols.org/paml/primitives/sample_arrays/Rows/Parameter2> a ns1:Parameter,
         sbol:Identified ;
-    ns1:direction <in> ;
+    ns1:direction ns1:in ;
     ns1:isOrdered true ;
     ns1:isUnique true ;
     ns1:lowerValue <https://bioprotocols.org/paml/primitives/sample_arrays/Rows/Parameter2/LiteralInteger2> ;
@@ -371,7 +371,7 @@
 
 <https://bioprotocols.org/paml/primitives/sample_arrays/Rows/Parameter3> a ns1:Parameter,
         sbol:Identified ;
-    ns1:direction <out> ;
+    ns1:direction ns1:out ;
     ns1:isOrdered true ;
     ns1:isUnique true ;
     ns1:lowerValue <https://bioprotocols.org/paml/primitives/sample_arrays/Rows/Parameter3/LiteralInteger2> ;

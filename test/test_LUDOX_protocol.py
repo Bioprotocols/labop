@@ -57,8 +57,7 @@ is only weakly scattering and so will give a low absorbance value.
 
         ## actual steps of the protocol
         # get a plate
-        plate = protocol.primitive_step('EmptyContainer', specification=tyto.NCIT.get_uri_by_term(
-            'Microplate'))  # replace with container ontology
+        plate = protocol.primitive_step('EmptyContainer', specification=tyto.NCIT.get_uri_by_term('Microplate'))  # replace with container ontology
 
         # put ludox and water in selected wells
         c_ddh2o = protocol.primitive_step('PlateCoordinates', source=plate, coordinates='A1:D1')

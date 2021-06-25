@@ -60,7 +60,7 @@
 
 <https://bioprotocols.org/paml/primitives/liquid_handling/Dispense/Parameter1> a ns1:Parameter,
         sbol:Identified ;
-    ns1:direction <in> ;
+    ns1:direction ns1:in ;
     ns1:isOrdered true ;
     ns1:isUnique true ;
     ns1:lowerValue <https://bioprotocols.org/paml/primitives/liquid_handling/Dispense/Parameter1/LiteralInteger2> ;
@@ -81,7 +81,7 @@
 
 <https://bioprotocols.org/paml/primitives/liquid_handling/Dispense/Parameter2> a ns1:Parameter,
         sbol:Identified ;
-    ns1:direction <in> ;
+    ns1:direction ns1:in ;
     ns1:isOrdered true ;
     ns1:isUnique true ;
     ns1:lowerValue <https://bioprotocols.org/paml/primitives/liquid_handling/Dispense/Parameter2/LiteralInteger2> ;
@@ -102,7 +102,7 @@
 
 <https://bioprotocols.org/paml/primitives/liquid_handling/Dispense/Parameter3> a ns1:Parameter,
         sbol:Identified ;
-    ns1:direction <in> ;
+    ns1:direction ns1:in ;
     ns1:isOrdered true ;
     ns1:isUnique true ;
     ns1:lowerValue <https://bioprotocols.org/paml/primitives/liquid_handling/Dispense/Parameter3/LiteralInteger2> ;
@@ -123,7 +123,7 @@
 
 <https://bioprotocols.org/paml/primitives/liquid_handling/Dispense/Parameter4> a ns1:Parameter,
         sbol:Identified ;
-    ns1:direction <in> ;
+    ns1:direction ns1:in ;
     ns1:isOrdered true ;
     ns1:isUnique true ;
     ns1:lowerValue <https://bioprotocols.org/paml/primitives/liquid_handling/Dispense/Parameter4/LiteralInteger2> ;
@@ -144,7 +144,7 @@
 
 <https://bioprotocols.org/paml/primitives/liquid_handling/Dispense/Parameter5> a ns1:Parameter,
         sbol:Identified ;
-    ns1:direction <out> ;
+    ns1:direction ns1:out ;
     ns1:isOrdered true ;
     ns1:isUnique true ;
     ns1:lowerValue <https://bioprotocols.org/paml/primitives/liquid_handling/Dispense/Parameter5/LiteralInteger2> ;
@@ -165,7 +165,7 @@
 
 <https://bioprotocols.org/paml/primitives/liquid_handling/PipetteMix/Parameter1> a ns1:Parameter,
         sbol:Identified ;
-    ns1:direction <in> ;
+    ns1:direction ns1:in ;
     ns1:isOrdered true ;
     ns1:isUnique true ;
     ns1:lowerValue <https://bioprotocols.org/paml/primitives/liquid_handling/PipetteMix/Parameter1/LiteralInteger2> ;
@@ -186,7 +186,7 @@
 
 <https://bioprotocols.org/paml/primitives/liquid_handling/PipetteMix/Parameter2> a ns1:Parameter,
         sbol:Identified ;
-    ns1:direction <in> ;
+    ns1:direction ns1:in ;
     ns1:isOrdered true ;
     ns1:isUnique true ;
     ns1:lowerValue <https://bioprotocols.org/paml/primitives/liquid_handling/PipetteMix/Parameter2/LiteralInteger2> ;
@@ -207,7 +207,7 @@
 
 <https://bioprotocols.org/paml/primitives/liquid_handling/PipetteMix/Parameter3> a ns1:Parameter,
         sbol:Identified ;
-    ns1:direction <in> ;
+    ns1:direction ns1:in ;
     ns1:isOrdered true ;
     ns1:isUnique true ;
     ns1:lowerValue <https://bioprotocols.org/paml/primitives/liquid_handling/PipetteMix/Parameter3/LiteralInteger2> ;
@@ -228,7 +228,7 @@
 
 <https://bioprotocols.org/paml/primitives/liquid_handling/PipetteMix/Parameter4> a ns1:Parameter,
         sbol:Identified ;
-    ns1:direction <in> ;
+    ns1:direction ns1:in ;
     ns1:isOrdered true ;
     ns1:isUnique true ;
     ns1:lowerValue <https://bioprotocols.org/paml/primitives/liquid_handling/PipetteMix/Parameter4/LiteralInteger2> ;
@@ -249,7 +249,7 @@
 
 <https://bioprotocols.org/paml/primitives/liquid_handling/Provision/Parameter1> a ns1:Parameter,
         sbol:Identified ;
-    ns1:direction <in> ;
+    ns1:direction ns1:in ;
     ns1:isOrdered true ;
     ns1:isUnique true ;
     ns1:lowerValue <https://bioprotocols.org/paml/primitives/liquid_handling/Provision/Parameter1/LiteralInteger2> ;
@@ -270,7 +270,7 @@
 
 <https://bioprotocols.org/paml/primitives/liquid_handling/Provision/Parameter2> a ns1:Parameter,
         sbol:Identified ;
-    ns1:direction <in> ;
+    ns1:direction ns1:in ;
     ns1:isOrdered true ;
     ns1:isUnique true ;
     ns1:lowerValue <https://bioprotocols.org/paml/primitives/liquid_handling/Provision/Parameter2/LiteralInteger2> ;
@@ -291,7 +291,7 @@
 
 <https://bioprotocols.org/paml/primitives/liquid_handling/Provision/Parameter3> a ns1:Parameter,
         sbol:Identified ;
-    ns1:direction <in> ;
+    ns1:direction ns1:in ;
     ns1:isOrdered true ;
     ns1:isUnique true ;
     ns1:lowerValue <https://bioprotocols.org/paml/primitives/liquid_handling/Provision/Parameter3/LiteralInteger2> ;
@@ -312,7 +312,7 @@
 
 <https://bioprotocols.org/paml/primitives/liquid_handling/Provision/Parameter4> a ns1:Parameter,
         sbol:Identified ;
-    ns1:direction <in> ;
+    ns1:direction ns1:in ;
     ns1:isOrdered true ;
     ns1:isUnique true ;
     ns1:lowerValue <https://bioprotocols.org/paml/primitives/liquid_handling/Provision/Parameter4/LiteralInteger2> ;
@@ -333,7 +333,7 @@
 
 <https://bioprotocols.org/paml/primitives/liquid_handling/Provision/Parameter5> a ns1:Parameter,
         sbol:Identified ;
-    ns1:direction <out> ;
+    ns1:direction ns1:out ;
     ns1:isOrdered true ;
     ns1:isUnique true ;
     ns1:lowerValue <https://bioprotocols.org/paml/primitives/liquid_handling/Provision/Parameter5/LiteralInteger2> ;
@@ -354,7 +354,7 @@
 
 <https://bioprotocols.org/paml/primitives/liquid_handling/Transfer/Parameter1> a ns1:Parameter,
         sbol:Identified ;
-    ns1:direction <in> ;
+    ns1:direction ns1:in ;
     ns1:isOrdered true ;
     ns1:isUnique true ;
     ns1:lowerValue <https://bioprotocols.org/paml/primitives/liquid_handling/Transfer/Parameter1/LiteralInteger2> ;
@@ -375,7 +375,7 @@
 
 <https://bioprotocols.org/paml/primitives/liquid_handling/Transfer/Parameter2> a ns1:Parameter,
         sbol:Identified ;
-    ns1:direction <in> ;
+    ns1:direction ns1:in ;
     ns1:isOrdered true ;
     ns1:isUnique true ;
     ns1:lowerValue <https://bioprotocols.org/paml/primitives/liquid_handling/Transfer/Parameter2/LiteralInteger2> ;
@@ -396,7 +396,7 @@
 
 <https://bioprotocols.org/paml/primitives/liquid_handling/Transfer/Parameter3> a ns1:Parameter,
         sbol:Identified ;
-    ns1:direction <in> ;
+    ns1:direction ns1:in ;
     ns1:isOrdered true ;
     ns1:isUnique true ;
     ns1:lowerValue <https://bioprotocols.org/paml/primitives/liquid_handling/Transfer/Parameter3/LiteralInteger2> ;
@@ -417,7 +417,7 @@
 
 <https://bioprotocols.org/paml/primitives/liquid_handling/Transfer/Parameter4> a ns1:Parameter,
         sbol:Identified ;
-    ns1:direction <in> ;
+    ns1:direction ns1:in ;
     ns1:isOrdered true ;
     ns1:isUnique true ;
     ns1:lowerValue <https://bioprotocols.org/paml/primitives/liquid_handling/Transfer/Parameter4/LiteralInteger2> ;
@@ -438,7 +438,7 @@
 
 <https://bioprotocols.org/paml/primitives/liquid_handling/Transfer/Parameter5> a ns1:Parameter,
         sbol:Identified ;
-    ns1:direction <out> ;
+    ns1:direction ns1:out ;
     ns1:isOrdered true ;
     ns1:isUnique true ;
     ns1:lowerValue <https://bioprotocols.org/paml/primitives/liquid_handling/Transfer/Parameter5/LiteralInteger2> ;
@@ -459,7 +459,7 @@
 
 <https://bioprotocols.org/paml/primitives/liquid_handling/TransferInto/Parameter1> a ns1:Parameter,
         sbol:Identified ;
-    ns1:direction <in> ;
+    ns1:direction ns1:in ;
     ns1:isOrdered true ;
     ns1:isUnique true ;
     ns1:lowerValue <https://bioprotocols.org/paml/primitives/liquid_handling/TransferInto/Parameter1/LiteralInteger2> ;
@@ -480,7 +480,7 @@
 
 <https://bioprotocols.org/paml/primitives/liquid_handling/TransferInto/Parameter2> a ns1:Parameter,
         sbol:Identified ;
-    ns1:direction <in> ;
+    ns1:direction ns1:in ;
     ns1:isOrdered true ;
     ns1:isUnique true ;
     ns1:lowerValue <https://bioprotocols.org/paml/primitives/liquid_handling/TransferInto/Parameter2/LiteralInteger2> ;
@@ -501,7 +501,7 @@
 
 <https://bioprotocols.org/paml/primitives/liquid_handling/TransferInto/Parameter3> a ns1:Parameter,
         sbol:Identified ;
-    ns1:direction <in> ;
+    ns1:direction ns1:in ;
     ns1:isOrdered true ;
     ns1:isUnique true ;
     ns1:lowerValue <https://bioprotocols.org/paml/primitives/liquid_handling/TransferInto/Parameter3/LiteralInteger2> ;
@@ -522,7 +522,7 @@
 
 <https://bioprotocols.org/paml/primitives/liquid_handling/TransferInto/Parameter4> a ns1:Parameter,
         sbol:Identified ;
-    ns1:direction <in> ;
+    ns1:direction ns1:in ;
     ns1:isOrdered true ;
     ns1:isUnique true ;
     ns1:lowerValue <https://bioprotocols.org/paml/primitives/liquid_handling/TransferInto/Parameter4/LiteralInteger2> ;
@@ -543,7 +543,7 @@
 
 <https://bioprotocols.org/paml/primitives/liquid_handling/TransferInto/Parameter5> a ns1:Parameter,
         sbol:Identified ;
-    ns1:direction <in> ;
+    ns1:direction ns1:in ;
     ns1:isOrdered true ;
     ns1:isUnique true ;
     ns1:lowerValue <https://bioprotocols.org/paml/primitives/liquid_handling/TransferInto/Parameter5/LiteralInteger2> ;
@@ -564,7 +564,7 @@
 
 <https://bioprotocols.org/paml/primitives/liquid_handling/TransferInto/Parameter6> a ns1:Parameter,
         sbol:Identified ;
-    ns1:direction <out> ;
+    ns1:direction ns1:out ;
     ns1:isOrdered true ;
     ns1:isUnique true ;
     ns1:lowerValue <https://bioprotocols.org/paml/primitives/liquid_handling/TransferInto/Parameter6/LiteralInteger2> ;

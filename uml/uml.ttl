@@ -49,24 +49,24 @@ uml:type rdf:type owl:DatatypeProperty ;
 uml:isOrdered rdf:type owl:DatatypeProperty ;
          rdfs:domain sbol:Identified ; # should probably actually be a union
          rdfs:range xsd:boolean ;
-         rdfs:label "isOrdered" .
+         rdfs:label "is_ordered" .
 
 uml:isUnique rdf:type owl:DatatypeProperty ;
          rdfs:domain sbol:Identified ; # should probably actually be a union
          rdfs:range xsd:boolean ;
-         rdfs:label "isUnique" .
+         rdfs:label "is_unique" .
 
 uml:lowerValue rdf:type owl:ObjectProperty ;
          rdfs:subPropertyOf opil:compositionalProperty ;
          rdfs:domain sbol:Identified ; # should probably actually be a union
          rdfs:range uml:ValueSpecification ;
-         rdfs:label "lowerValue" .
+         rdfs:label "lower_value" .
 
 uml:upperValue rdf:type owl:ObjectProperty ;
          rdfs:subPropertyOf opil:compositionalProperty ;
          rdfs:domain sbol:Identified ; # should probably actually be a union
          rdfs:range uml:ValueSpecification ;
-         rdfs:label "upperValue" .
+         rdfs:label "upper_value" .
 
 
 uml:ValueSpecification rdf:type owl:Class ;
@@ -156,7 +156,7 @@ uml:Constraint rdf:type owl:Class ;
 uml:constrainedElement rdf:type owl:ObjectProperty ;
          rdfs:domain uml:Constraint ;
          rdfs:range sbol:Identified ; # equivalent to uml:Element in this contxt
-         rdfs:label "constrainedElements" .
+         rdfs:label "constrained_elements" .
 
 uml:specification rdf:type owl:ObjectProperty ;
          rdfs:subPropertyOf opil:compositionalProperty ;
@@ -195,7 +195,7 @@ uml:defaultValue rdf:type owl:ObjectProperty ;
          rdfs:subPropertyOf opil:compositionalProperty ;
          rdfs:domain uml:Parameter ;
          rdfs:range uml:ValueSpecification ;
-         rdfs:label "defaultValue" .
+         rdfs:label "default_value" .
 
 
 
@@ -291,12 +291,12 @@ uml:DecisionNode rdf:type owl:Class ;
 uml:decisionInput rdf:type owl:ObjectProperty ;
          rdfs:domain uml:DecisionNode ;
          rdfs:range uml:Behavior ;
-         rdfs:label "decisionInput" .
+         rdfs:label "decision_input" .
 
 uml:decisionInputFlow rdf:type owl:ObjectProperty ;
          rdfs:domain uml:DecisionNode ;
          rdfs:range uml:ObjectFlow ;
-         rdfs:label "decisionInputFlow" .
+         rdfs:label "decision_input_flow" .
 
 
 

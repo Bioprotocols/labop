@@ -63,7 +63,7 @@
 
 <https://bioprotocols.org/paml/primitives/plate_handling/AdhesiveSeal/Parameter1> a ns1:Parameter,
         sbol:Identified ;
-    ns1:direction <in> ;
+    ns1:direction ns1:in ;
     ns1:isOrdered true ;
     ns1:isUnique true ;
     ns1:lowerValue <https://bioprotocols.org/paml/primitives/plate_handling/AdhesiveSeal/Parameter1/LiteralInteger2> ;
@@ -84,7 +84,7 @@
 
 <https://bioprotocols.org/paml/primitives/plate_handling/AdhesiveSeal/Parameter2> a ns1:Parameter,
         sbol:Identified ;
-    ns1:direction <in> ;
+    ns1:direction ns1:in ;
     ns1:isOrdered true ;
     ns1:isUnique true ;
     ns1:lowerValue <https://bioprotocols.org/paml/primitives/plate_handling/AdhesiveSeal/Parameter2/LiteralInteger2> ;
@@ -105,7 +105,7 @@
 
 <https://bioprotocols.org/paml/primitives/plate_handling/Cover/Parameter1> a ns1:Parameter,
         sbol:Identified ;
-    ns1:direction <in> ;
+    ns1:direction ns1:in ;
     ns1:isOrdered true ;
     ns1:isUnique true ;
     ns1:lowerValue <https://bioprotocols.org/paml/primitives/plate_handling/Cover/Parameter1/LiteralInteger2> ;
@@ -126,7 +126,7 @@
 
 <https://bioprotocols.org/paml/primitives/plate_handling/Cover/Parameter2> a ns1:Parameter,
         sbol:Identified ;
-    ns1:direction <in> ;
+    ns1:direction ns1:in ;
     ns1:isOrdered true ;
     ns1:isUnique true ;
     ns1:lowerValue <https://bioprotocols.org/paml/primitives/plate_handling/Cover/Parameter2/LiteralInteger2> ;
@@ -147,7 +147,7 @@
 
 <https://bioprotocols.org/paml/primitives/plate_handling/Incubate/Parameter1> a ns1:Parameter,
         sbol:Identified ;
-    ns1:direction <in> ;
+    ns1:direction ns1:in ;
     ns1:isOrdered true ;
     ns1:isUnique true ;
     ns1:lowerValue <https://bioprotocols.org/paml/primitives/plate_handling/Incubate/Parameter1/LiteralInteger2> ;
@@ -168,7 +168,7 @@
 
 <https://bioprotocols.org/paml/primitives/plate_handling/Incubate/Parameter2> a ns1:Parameter,
         sbol:Identified ;
-    ns1:direction <in> ;
+    ns1:direction ns1:in ;
     ns1:isOrdered true ;
     ns1:isUnique true ;
     ns1:lowerValue <https://bioprotocols.org/paml/primitives/plate_handling/Incubate/Parameter2/LiteralInteger2> ;
@@ -189,7 +189,7 @@
 
 <https://bioprotocols.org/paml/primitives/plate_handling/Incubate/Parameter3> a ns1:Parameter,
         sbol:Identified ;
-    ns1:direction <in> ;
+    ns1:direction ns1:in ;
     ns1:isOrdered true ;
     ns1:isUnique true ;
     ns1:lowerValue <https://bioprotocols.org/paml/primitives/plate_handling/Incubate/Parameter3/LiteralInteger2> ;
@@ -210,7 +210,7 @@
 
 <https://bioprotocols.org/paml/primitives/plate_handling/Incubate/Parameter4> a ns1:Parameter,
         sbol:Identified ;
-    ns1:direction <in> ;
+    ns1:direction ns1:in ;
     ns1:isOrdered true ;
     ns1:isUnique true ;
     ns1:lowerValue <https://bioprotocols.org/paml/primitives/plate_handling/Incubate/Parameter4/LiteralInteger2> ;
@@ -231,7 +231,7 @@
 
 <https://bioprotocols.org/paml/primitives/plate_handling/Seal/Parameter1> a ns1:Parameter,
         sbol:Identified ;
-    ns1:direction <in> ;
+    ns1:direction ns1:in ;
     ns1:isOrdered true ;
     ns1:isUnique true ;
     ns1:lowerValue <https://bioprotocols.org/paml/primitives/plate_handling/Seal/Parameter1/LiteralInteger2> ;
@@ -252,7 +252,7 @@
 
 <https://bioprotocols.org/paml/primitives/plate_handling/Seal/Parameter2> a ns1:Parameter,
         sbol:Identified ;
-    ns1:direction <in> ;
+    ns1:direction ns1:in ;
     ns1:isOrdered true ;
     ns1:isUnique true ;
     ns1:lowerValue <https://bioprotocols.org/paml/primitives/plate_handling/Seal/Parameter2/LiteralInteger2> ;
@@ -273,7 +273,7 @@
 
 <https://bioprotocols.org/paml/primitives/plate_handling/ThermalSeal/Parameter1> a ns1:Parameter,
         sbol:Identified ;
-    ns1:direction <in> ;
+    ns1:direction ns1:in ;
     ns1:isOrdered true ;
     ns1:isUnique true ;
     ns1:lowerValue <https://bioprotocols.org/paml/primitives/plate_handling/ThermalSeal/Parameter1/LiteralInteger2> ;
@@ -294,7 +294,7 @@
 
 <https://bioprotocols.org/paml/primitives/plate_handling/ThermalSeal/Parameter2> a ns1:Parameter,
         sbol:Identified ;
-    ns1:direction <in> ;
+    ns1:direction ns1:in ;
     ns1:isOrdered true ;
     ns1:isUnique true ;
     ns1:lowerValue <https://bioprotocols.org/paml/primitives/plate_handling/ThermalSeal/Parameter2/LiteralInteger2> ;
@@ -315,7 +315,7 @@
 
 <https://bioprotocols.org/paml/primitives/plate_handling/ThermalSeal/Parameter3> a ns1:Parameter,
         sbol:Identified ;
-    ns1:direction <in> ;
+    ns1:direction ns1:in ;
     ns1:isOrdered true ;
     ns1:isUnique true ;
     ns1:lowerValue <https://bioprotocols.org/paml/primitives/plate_handling/ThermalSeal/Parameter3/LiteralInteger2> ;
@@ -336,7 +336,7 @@
 
 <https://bioprotocols.org/paml/primitives/plate_handling/ThermalSeal/Parameter4> a ns1:Parameter,
         sbol:Identified ;
-    ns1:direction <in> ;
+    ns1:direction ns1:in ;
     ns1:isOrdered true ;
     ns1:isUnique true ;
     ns1:lowerValue <https://bioprotocols.org/paml/primitives/plate_handling/ThermalSeal/Parameter4/LiteralInteger2> ;
@@ -357,7 +357,7 @@
 
 <https://bioprotocols.org/paml/primitives/plate_handling/Uncover/Parameter1> a ns1:Parameter,
         sbol:Identified ;
-    ns1:direction <in> ;
+    ns1:direction ns1:in ;
     ns1:isOrdered true ;
     ns1:isUnique true ;
     ns1:lowerValue <https://bioprotocols.org/paml/primitives/plate_handling/Uncover/Parameter1/LiteralInteger2> ;
@@ -378,7 +378,7 @@
 
 <https://bioprotocols.org/paml/primitives/plate_handling/Unseal/Parameter1> a ns1:Parameter,
         sbol:Identified ;
-    ns1:direction <in> ;
+    ns1:direction ns1:in ;
     ns1:isOrdered true ;
     ns1:isUnique true ;
     ns1:lowerValue <https://bioprotocols.org/paml/primitives/plate_handling/Unseal/Parameter1/LiteralInteger2> ;

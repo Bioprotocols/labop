@@ -1,6 +1,7 @@
-from sbol_factory import SBOLFactory, UMLFactory
 import os
 import posixpath
+from sbol_factory import SBOLFactory, UMLFactory
+import sbol3
 
 # Import ontology
 __factory__ = SBOLFactory(locals(),
@@ -10,6 +11,10 @@ __umlfactory__ = UMLFactory(__factory__)
 
 ###########################################
 # Define extension methods for ValueSpecification
+
+# TODO: move constants into ontology after resolution of https://github.com/SynBioDex/sbol_factory/issues/14
+PARAMETER_IN = 'http://bioprotocols.org/uml#in'
+PARAMETER_OUT = 'http://bioprotocols.org/uml#out'
 
 
 def literal(value):
@@ -51,7 +56,7 @@ def behavior_add_parameter(self, name: str, param_type: str, direction: str, opt
     :param optional: True if the Parameter is optional; default is False
     :return: Parameter that has been added
     """
-    param = Parameter(name=name, type=param_type, direction=direction, isOrdered=True, isUnique=True)
+    param = Parameter(name=name, type=param_type, direction=direction, is_ordered=True, is_unique=True)
     self.parameters.append(param)
     param.upperValue = literal(1)  # all parameters are assumed to have cardinality [0..1] or 1 for now
     if optional:
@@ -62,6 +67,7 @@ def behavior_add_parameter(self, name: str, param_type: str, direction: str, opt
 Behavior.add_parameter = behavior_add_parameter  # Add to class via monkey patch
 
 
+# TODO: behavior types should be URIs, not strings
 def behavior_add_input(self, name: str, param_type: str, optional=False):
     """Add an input Parameter for this Behavior
 
@@ -72,7 +78,7 @@ def behavior_add_input(self, name: str, param_type: str, optional=False):
     :param optional: True if the Parameter is optional; default is False
     :return: Parameter that has been added
     """
-    return self.add_parameter(name, param_type, 'in', optional)
+    return self.add_parameter(name, param_type, PARAMETER_IN, optional)
 Behavior.add_input = behavior_add_input  # Add to class via monkey patch
 
 
@@ -83,8 +89,28 @@ def behavior_add_output(self, name, param_type):
     :param param_type: URI specifying the type of object that is expected for this parameter
     :return: Parameter that has been added
     """
-    return self.add_parameter(name, param_type, 'out')
+    return self.add_parameter(name, param_type, PARAMETER_OUT)
 Behavior.add_output = behavior_add_output  # Add to class via monkey patch
+
+
+def behavior_get_inputs(self):
+    """Return all Parameters of type input for this Behavior
+
+    Note: assumes that type is all either in or out
+    :return: Iterator over Parameters
+    """
+    return (p for p in self.parameters if p.direction == PARAMETER_IN)
+Behavior.get_inputs = behavior_get_inputs  # Add to class via monkey patch
+
+
+def behavior_get_outputs(self):
+    """Return all Parameters of type output for this Behavior
+
+    Note: assumes that type is all either in or out
+    :return: Iterator over Parameters
+    """
+    return (p for p in self.parameters if p.direction == PARAMETER_OUT)
+Behavior.get_outputs = behavior_get_outputs  # Add to class via monkey patch
 
 
 ###########################################
@@ -128,7 +154,7 @@ def make_call_behavior_action(behavior: Behavior, **input_pin_literals):
     :return: newly constructed
     """
     # first, make sure that all of the keyword arguments are in the inputs of the behavior
-    unmatched_keys = [key for key in input_pin_literals.keys() if key not in (i.name for i in behavior.inputs)]
+    unmatched_keys = [key for key in input_pin_literals.keys() if key not in (i.name for i in behavior.get_inputs())]
     if unmatched_keys:
         raise ValueError(f'Specification for "{behavior.display_id}" does not have inputs: {unmatched_keys}')
 
@@ -136,17 +162,18 @@ def make_call_behavior_action(behavior: Behavior, **input_pin_literals):
     action = CallBehaviorAction(behavior=behavior)
 
     # Instantiate input pins
-    for parameter in behavior.inputs:
-        if parameter.name in input_pin_literals:
-            value = input_pin_literals[parameter.name]
+    for i in behavior.get_inputs():
+        if i.name in input_pin_literals:
+            value = input_pin_literals[i.name]
             # TODO: type check relationship between value and parameter type specification
-            action.inputs.append(ValuePin(name=parameter.name, type=parameter.type, value=literal(value)))
+            action.inputs.append(ValuePin(name=i.name, is_ordered=i.is_ordered, is_unique=i.is_unique,
+                                          value=literal(value)))
         else:  # if not a constant, then just a generic InputPin
-            action.inputs.append(InputPin(name=parameter.name, type=parameter.type))
+            action.inputs.append(InputPin(name=i.name, is_ordered=i.is_ordered, is_unique=i.is_unique))
 
     # Instantiate output pins
-    for parameter in behavior.outputs:
-        action.outputs.append(OutputPin(name=parameter.name, type=parameter.type))
+    for o in behavior.get_outputs():
+        action.outputs.append(OutputPin(name=o.name, is_ordered=o.is_ordered, is_unique=o.is_unique))
 
     return action
 
@@ -161,9 +188,9 @@ def activity_initial(self):
     :return: InitialNode for Activity
     """
 
-    initial = [a for a in self.activities if isinstance(a, InitialNode)]
+    initial = [a for a in self.nodes if isinstance(a, InitialNode)]
     if not initial:
-        self.activities.append(InitialNode())
+        self.nodes.append(InitialNode())
         return self.initial()
     elif len(initial) == 1:
         return initial[0]
@@ -179,9 +206,9 @@ def activity_final(self):
     Note that while UML allows multiple final nodes, use of this routine assumes a single is sufficient.
     :return: FinalNode for Activity
     """
-    final = [a for a in self.activities if isinstance(a, FinalNode)]
+    final = [a for a in self.nodes if isinstance(a, FinalNode)]
     if not final:
-        self.activities.append(FlowFinalNode())
+        self.nodes.append(FlowFinalNode())
         return self.final()
     elif len(final) == 1:
         return final[0]
@@ -222,7 +249,7 @@ def activity_order(self, source: ActivityNode, target: ActivityNode):
         raise ValueError(f'Source node {source.identity} is not a member of activity {self.identity}')
     if target not in self.nodes:
         raise ValueError(f'Target node {target.identity} is not a member of activity {self.identity}')
-    flow = uml.ControlFlow(source=source, target=target)
+    flow = ControlFlow(source=source, target=target)
     self.edges.append(flow)
     return flow
 Activity.order = activity_order  # Add to class via monkey patch
@@ -236,11 +263,11 @@ def activity_use_value(self, source: ActivityNode, target: ActivityNode):
     :param target: ActivityNode that receives the value
     :return: ObjectFlow created between source and target
     """
-    if source not in self.nodes:
+    if source.get_toplevel() is not self:  # check via toplevel, because pins are not directly in the node list
         raise ValueError(f'Source node {source.identity} is not a member of activity {self.identity}')
-    if target not in self.nodes:
+    if target.get_toplevel() is not self:
         raise ValueError(f'Target node {target.identity} is not a member of activity {self.identity}')
-    flow = uml.ObjectFlow(source=source, target=target)
+    flow = ObjectFlow(source=source, target=target)
     self.edges.append(flow)
     return flow
 Activity.use_value = activity_use_value  # Add to class via monkey patch
