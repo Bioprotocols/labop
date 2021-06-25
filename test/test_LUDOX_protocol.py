@@ -25,6 +25,8 @@ class TestProtocolEndToEnd(unittest.TestCase):
         print('... Imported plate handling')
         paml.import_library('spectrophotometry')
         print('... Imported spectrophotometry')
+        paml.import_library('sample_arrays')
+        print('... Imported sample arrays')
 
         #############################################
         # Create the protocol

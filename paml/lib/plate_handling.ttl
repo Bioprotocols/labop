@@ -3,7 +3,7 @@
 @prefix sbol: <http://sbols.org/v3#> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
-<https://bioprotocols.org/paml/primitives/plate_handling/AdhesiveSeal> a ns1:Behavior,
+<https://bioprotocols.org/paml/primitives/plate_handling/AdhesiveSeal> a <http://bioprotocols.org/paml#Primitive>,
         sbol:TopLevel ;
     ns1:ownedParameter <https://bioprotocols.org/paml/primitives/plate_handling/AdhesiveSeal/Parameter1>,
         <https://bioprotocols.org/paml/primitives/plate_handling/AdhesiveSeal/Parameter2> ;
@@ -11,7 +11,7 @@
     sbol:displayId "AdhesiveSeal" ;
     sbol:hasNamespace <https://bioprotocols.org/paml/primitives/plate_handling> .
 
-<https://bioprotocols.org/paml/primitives/plate_handling/Cover> a ns1:Behavior,
+<https://bioprotocols.org/paml/primitives/plate_handling/Cover> a <http://bioprotocols.org/paml#Primitive>,
         sbol:TopLevel ;
     ns1:ownedParameter <https://bioprotocols.org/paml/primitives/plate_handling/Cover/Parameter1>,
         <https://bioprotocols.org/paml/primitives/plate_handling/Cover/Parameter2> ;
@@ -19,7 +19,7 @@
     sbol:displayId "Cover" ;
     sbol:hasNamespace <https://bioprotocols.org/paml/primitives/plate_handling> .
 
-<https://bioprotocols.org/paml/primitives/plate_handling/Incubate> a ns1:Behavior,
+<https://bioprotocols.org/paml/primitives/plate_handling/Incubate> a <http://bioprotocols.org/paml#Primitive>,
         sbol:TopLevel ;
     ns1:ownedParameter <https://bioprotocols.org/paml/primitives/plate_handling/Incubate/Parameter1>,
         <https://bioprotocols.org/paml/primitives/plate_handling/Incubate/Parameter2>,
@@ -29,7 +29,7 @@
     sbol:displayId "Incubate" ;
     sbol:hasNamespace <https://bioprotocols.org/paml/primitives/plate_handling> .
 
-<https://bioprotocols.org/paml/primitives/plate_handling/Seal> a ns1:Behavior,
+<https://bioprotocols.org/paml/primitives/plate_handling/Seal> a <http://bioprotocols.org/paml#Primitive>,
         sbol:TopLevel ;
     ns1:ownedParameter <https://bioprotocols.org/paml/primitives/plate_handling/Seal/Parameter1>,
         <https://bioprotocols.org/paml/primitives/plate_handling/Seal/Parameter2> ;
@@ -37,7 +37,7 @@
     sbol:displayId "Seal" ;
     sbol:hasNamespace <https://bioprotocols.org/paml/primitives/plate_handling> .
 
-<https://bioprotocols.org/paml/primitives/plate_handling/ThermalSeal> a ns1:Behavior,
+<https://bioprotocols.org/paml/primitives/plate_handling/ThermalSeal> a <http://bioprotocols.org/paml#Primitive>,
         sbol:TopLevel ;
     ns1:ownedParameter <https://bioprotocols.org/paml/primitives/plate_handling/ThermalSeal/Parameter1>,
         <https://bioprotocols.org/paml/primitives/plate_handling/ThermalSeal/Parameter2>,
@@ -47,14 +47,14 @@
     sbol:displayId "ThermalSeal" ;
     sbol:hasNamespace <https://bioprotocols.org/paml/primitives/plate_handling> .
 
-<https://bioprotocols.org/paml/primitives/plate_handling/Uncover> a ns1:Behavior,
+<https://bioprotocols.org/paml/primitives/plate_handling/Uncover> a <http://bioprotocols.org/paml#Primitive>,
         sbol:TopLevel ;
     ns1:ownedParameter <https://bioprotocols.org/paml/primitives/plate_handling/Uncover/Parameter1> ;
     sbol:description "Uncover a collection of samples to allow materials to enter or exit" ;
     sbol:displayId "Uncover" ;
     sbol:hasNamespace <https://bioprotocols.org/paml/primitives/plate_handling> .
 
-<https://bioprotocols.org/paml/primitives/plate_handling/Unseal> a ns1:Behavior,
+<https://bioprotocols.org/paml/primitives/plate_handling/Unseal> a <http://bioprotocols.org/paml#Primitive>,
         sbol:TopLevel ;
     ns1:ownedParameter <https://bioprotocols.org/paml/primitives/plate_handling/Unseal/Parameter1> ;
     sbol:description "Unseal a sealed collection of samples to break their isolation from the external environment" ;
