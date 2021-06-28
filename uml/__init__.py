@@ -1,5 +1,6 @@
 import os
 import posixpath
+from collections import Counter
 from sbol_factory import SBOLFactory, UMLFactory
 import sbol3
 
@@ -76,7 +77,6 @@ def behavior_add_parameter(self, name: str, param_type: str, direction: str, opt
 Behavior.add_parameter = behavior_add_parameter  # Add to class via monkey patch
 
 
-# TODO: behavior types should be URIs, not strings
 def behavior_add_input(self, name: str, param_type: str, optional=False):
     """Add an input Parameter for this Behavior
 
@@ -282,6 +282,26 @@ def activity_use_value(self, source: ActivityNode, target: ActivityNode):
     return flow
 Activity.use_value = activity_use_value  # Add to class via monkey patch
 
+
+def activity_validate(self, report: sbol3.ValidationReport = None) -> sbol3.ValidationReport:
+    '''Checks to see if the activity has any undesirable non-deterministic edges
+    Parameters
+    ----------
+    self
+    report
+
+    Returns
+    -------
+
+    '''
+    report = super(Activity, self).validate(report)
+    # Check for objects with multiple outgoing ObjectFlow edges that are not of type ForkNode or DecisionNode
+    source_counts = Counter([e.source.lookup() for e in self.edges if isinstance(e,ObjectFlow)])
+    multi_targets = {n: c for n, c in source_counts.items() if c>1 and not (isinstance(n,ForkNode) or isinstance(n,DecisionNode))}
+    for n, c in multi_targets.items():
+        report.addWarning(n.identity, None, f'ActivityNode has {c} outgoing edges: multi-edges can cause nondeterministic flow')
+    return report
+Activity.validate = activity_validate
 
 ###########################################
 # Extension methods waiting to be converted

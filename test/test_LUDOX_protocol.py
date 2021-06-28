@@ -62,16 +62,16 @@ is only weakly scattering and so will give a low absorbance value.
         plate = protocol.primitive_step('EmptyContainer', specification=tyto.NCIT.get_uri_by_term('Microplate'))  # replace with container ontology
 
         # put ludox and water in selected wells
-        c_ddh2o = protocol.primitive_step('PlateCoordinates', source=plate, coordinates='A1:D1')
+        c_ddh2o = protocol.primitive_step('PlateCoordinates', source=plate.output_pin('samples'), coordinates='A1:D1')
         protocol.primitive_step('Provision', resource=ludox, destination=c_ddh2o.output_pin('samples'),
                                 amount=sbol3.Measure(100, tyto.OM.microliter))
 
-        c_ludox = protocol.primitive_step('PlateCoordinates', source=plate, coordinates='A2:D2')
+        c_ludox = protocol.primitive_step('PlateCoordinates', source=plate.output_pin('samples'), coordinates='A2:D2')
         protocol.primitive_step('Provision', resource=ddh2o, destination=c_ludox.output_pin('samples'),
                                 amount=sbol3.Measure(100, tyto.OM.microliter))
 
         # measure the absorbance
-        c_measure = protocol.primitive_step('PlateCoordinates', source=plate, coordinates='A1:D2')
+        c_measure = protocol.primitive_step('PlateCoordinates', source=plate.output_pin('samples'), coordinates='A1:D2')
         measure = protocol.primitive_step('MeasureAbsorbance', samples=c_measure,
                                           wavelength=sbol3.Measure(600, tyto.OM.nanometer))
 
@@ -81,7 +81,7 @@ is only weakly scattering and so will give a low absorbance value.
         # Validate and write the document
         print('Validating and writing protocol')
         v = doc.validate()
-        assert not v.errors and not v.warnings, "".join(str(e) for e in doc.validate().errors)
+        assert len(v) == 0, "".join(f'\n {e}' for e in v)
 
         temp_name = os.path.join(tempfile.gettempdir(), 'igem_ludox_test.nt')
         doc.write(temp_name, sbol3.SORTED_NTRIPLES)

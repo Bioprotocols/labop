@@ -41,7 +41,7 @@ class TestLibraryBuilding(unittest.TestCase):
         # Validate and write the document
         print('Validating and writing protocol')
         v = doc.validate()
-        assert not v.errors and not v.warnings, "".join(str(e) for e in doc.validate().errors)
+        assert len(v) == 0, "".join(f'\n {e}' for e in v)
 
         temp_name = os.path.join(tempfile.gettempdir(), 'mini_library.nt')
         doc.write(temp_name, sbol3.SORTED_NTRIPLES)

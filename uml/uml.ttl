@@ -357,8 +357,9 @@ uml:CallAction rdf:type owl:Class ;
     # omitted subclass: CallOperationAction, StartObjectBehaviorAction
 
 uml:CallBehaviorAction rdf:type owl:Class ;
-             rdfs:subClassOf uml:CallAction .
-    [ rdf:type owl:Restriction ; owl:onClass uml:Behavior ; owl:onProperty uml:behavior ] .
+             rdfs:subClassOf uml:CallAction ,
+    [ rdf:type owl:Restriction ; owl:onClass uml:Behavior ; owl:onProperty uml:behavior ;
+      owl:minCardinality "1"^^xsd:nonNegativeInteger ; owl:maxCardinality "1"^^xsd:nonNegativeInteger ] .
 
 uml:behavior rdf:type owl:ObjectProperty ;
          rdfs:domain uml:CallBehaviorAction ;
