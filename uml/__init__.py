@@ -229,6 +229,43 @@ def activity_final(self):
 Activity.final = activity_final  # Add to class via monkey patch
 
 
+def activity_deconflict_objectflow_sources(self, source: ActivityNode) -> ActivityNode:
+    '''Avoid nondeterminism in ObjectFlows by injecting ForkNode objects where necessary
+
+    Parameters
+    ----------
+    self: Activity
+    source: node to take a value from, directly or indirectly
+
+    Returns
+    -------
+    A source to attach to; either the original or an intervening ForkNode
+    '''
+    # Use original if it's one of the node types that supports multiple dispatch
+    if isinstance(source, ForkNode) or isinstance(source, DecisionNode):
+        return source
+    # Otherwise, find out what targets currently attach:
+    current_outflows = [e for e in self.edges if e.source.lookup() is source]
+    # Use original if nothing is attached to it
+    if len(current_outflows) == 0:
+        #print(f'No prior use of {source.identity}, connecting directly')
+        return source
+    # If the flow goes to a single ForkNode, connect to that ForkNode
+    elif len(current_outflows) == 1 and isinstance(current_outflows[0].target.lookup(),ForkNode):
+        #print(f'Found an existing fork from {source.identity}, reusing')
+        return current_outflows[0].target.lookup()
+    # Otherwise, inject a ForkNode and connect all current flows to that instead
+    else:
+        #print(f'Found no existing fork from {source.identity}, injecting one')
+        fork = ForkNode()
+        self.nodes.append(fork)
+        self.edges.append(ObjectFlow(source=source, target=fork))
+        for f in current_outflows:
+            f.source = fork # change over the existing flows
+        return fork
+Activity.deconflict_objectflow_sources = activity_deconflict_objectflow_sources
+
+
 def activity_call_behavior(self, behavior: Behavior, **input_pin_map):
     """Call a Behavior as an Action in an Activity
 
@@ -264,7 +301,6 @@ def activity_order(self, source: ActivityNode, target: ActivityNode):
     return flow
 Activity.order = activity_order  # Add to class via monkey patch
 
-
 def activity_use_value(self, source: ActivityNode, target: ActivityNode):
     """Add an ObjectFlow transferring a value between the designated source and target nodes in an Activity
 
@@ -277,6 +313,7 @@ def activity_use_value(self, source: ActivityNode, target: ActivityNode):
         raise ValueError(f'Source node {source.identity} is not a member of activity {self.identity}')
     if target.get_toplevel() is not self:
         raise ValueError(f'Target node {target.identity} is not a member of activity {self.identity}')
+    source = self.deconflict_objectflow_sources(source)
     flow = ObjectFlow(source=source, target=target)
     self.edges.append(flow)
     return flow

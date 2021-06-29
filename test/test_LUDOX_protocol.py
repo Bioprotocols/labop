@@ -72,7 +72,7 @@ is only weakly scattering and so will give a low absorbance value.
 
         # measure the absorbance
         c_measure = protocol.primitive_step('PlateCoordinates', source=plate.output_pin('samples'), coordinates='A1:D2')
-        measure = protocol.primitive_step('MeasureAbsorbance', samples=c_measure,
+        measure = protocol.primitive_step('MeasureAbsorbance', samples=c_measure.output_pin('samples'),
                                           wavelength=sbol3.Measure(600, tyto.OM.nanometer))
 
         protocol.add_output('absorbance', measure.output_pin('measurements'))
