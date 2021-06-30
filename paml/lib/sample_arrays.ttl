@@ -1,0 +1,392 @@
+@prefix ns1: <http://bioprotocols.org/uml#> .
+@prefix sbol: <http://sbols.org/v3#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+<https://bioprotocols.org/paml/primitives/sample_arrays/Columns> a <http://bioprotocols.org/paml#Primitive>,
+        sbol:TopLevel ;
+    ns1:ownedParameter <https://bioprotocols.org/paml/primitives/sample_arrays/Columns/Parameter1>,
+        <https://bioprotocols.org/paml/primitives/sample_arrays/Columns/Parameter2>,
+        <https://bioprotocols.org/paml/primitives/sample_arrays/Columns/Parameter3> ;
+    sbol:description "Select only the samples with specified columns from a sample collection" ;
+    sbol:displayId "Columns" ;
+    sbol:hasNamespace <https://bioprotocols.org/paml/primitives/sample_arrays> .
+
+<https://bioprotocols.org/paml/primitives/sample_arrays/DuplicateCollection> a <http://bioprotocols.org/paml#Primitive>,
+        sbol:TopLevel ;
+    ns1:ownedParameter <https://bioprotocols.org/paml/primitives/sample_arrays/DuplicateCollection/Parameter1>,
+        <https://bioprotocols.org/paml/primitives/sample_arrays/DuplicateCollection/Parameter2> ;
+    sbol:description "Create a new sample collection with identical parameters to the input collection" ;
+    sbol:displayId "DuplicateCollection" ;
+    sbol:hasNamespace <https://bioprotocols.org/paml/primitives/sample_arrays> .
+
+<https://bioprotocols.org/paml/primitives/sample_arrays/EmptyContainer> a <http://bioprotocols.org/paml#Primitive>,
+        sbol:TopLevel ;
+    ns1:ownedParameter <https://bioprotocols.org/paml/primitives/sample_arrays/EmptyContainer/Parameter1>,
+        <https://bioprotocols.org/paml/primitives/sample_arrays/EmptyContainer/Parameter2> ;
+    sbol:description "Allocate a sample array with size and type based on an empty container" ;
+    sbol:displayId "EmptyContainer" ;
+    sbol:hasNamespace <https://bioprotocols.org/paml/primitives/sample_arrays> .
+
+<https://bioprotocols.org/paml/primitives/sample_arrays/PlateCoordinates> a <http://bioprotocols.org/paml#Primitive>,
+        sbol:TopLevel ;
+    ns1:ownedParameter <https://bioprotocols.org/paml/primitives/sample_arrays/PlateCoordinates/Parameter1>,
+        <https://bioprotocols.org/paml/primitives/sample_arrays/PlateCoordinates/Parameter2>,
+        <https://bioprotocols.org/paml/primitives/sample_arrays/PlateCoordinates/Parameter3> ;
+    sbol:description "Select only the samples with specified row/column combination from a sample collection" ;
+    sbol:displayId "PlateCoordinates" ;
+    sbol:hasNamespace <https://bioprotocols.org/paml/primitives/sample_arrays> .
+
+<https://bioprotocols.org/paml/primitives/sample_arrays/ReplicateCollection> a <http://bioprotocols.org/paml#Primitive>,
+        sbol:TopLevel ;
+    ns1:ownedParameter <https://bioprotocols.org/paml/primitives/sample_arrays/ReplicateCollection/Parameter1>,
+        <https://bioprotocols.org/paml/primitives/sample_arrays/ReplicateCollection/Parameter2>,
+        <https://bioprotocols.org/paml/primitives/sample_arrays/ReplicateCollection/Parameter3> ;
+    sbol:description "Create a new sample collection containing a set of replicate slots for every sample in the input" ;
+    sbol:displayId "ReplicateCollection" ;
+    sbol:hasNamespace <https://bioprotocols.org/paml/primitives/sample_arrays> .
+
+<https://bioprotocols.org/paml/primitives/sample_arrays/Rows> a <http://bioprotocols.org/paml#Primitive>,
+        sbol:TopLevel ;
+    ns1:ownedParameter <https://bioprotocols.org/paml/primitives/sample_arrays/Rows/Parameter1>,
+        <https://bioprotocols.org/paml/primitives/sample_arrays/Rows/Parameter2>,
+        <https://bioprotocols.org/paml/primitives/sample_arrays/Rows/Parameter3> ;
+    sbol:description "Select only the samples with specified rows from a sample collection" ;
+    sbol:displayId "Rows" ;
+    sbol:hasNamespace <https://bioprotocols.org/paml/primitives/sample_arrays> .
+
+<https://bioprotocols.org/paml/primitives/sample_arrays/Columns/Parameter1> a ns1:Parameter,
+        sbol:Identified ;
+    ns1:direction ns1:in ;
+    ns1:isOrdered true ;
+    ns1:isUnique true ;
+    ns1:lowerValue <https://bioprotocols.org/paml/primitives/sample_arrays/Columns/Parameter1/LiteralInteger2> ;
+    ns1:type <http://bioprotocols.org/paml#SampleCollection> ;
+    ns1:upperValue <https://bioprotocols.org/paml/primitives/sample_arrays/Columns/Parameter1/LiteralInteger1> ;
+    sbol:displayId "Parameter1" ;
+    sbol:name "source" .
+
+<https://bioprotocols.org/paml/primitives/sample_arrays/Columns/Parameter1/LiteralInteger1> a ns1:LiteralInteger,
+        sbol:Identified ;
+    ns1:integerValue 1 ;
+    sbol:displayId "LiteralInteger1" .
+
+<https://bioprotocols.org/paml/primitives/sample_arrays/Columns/Parameter1/LiteralInteger2> a ns1:LiteralInteger,
+        sbol:Identified ;
+    ns1:integerValue 1 ;
+    sbol:displayId "LiteralInteger2" .
+
+<https://bioprotocols.org/paml/primitives/sample_arrays/Columns/Parameter2> a ns1:Parameter,
+        sbol:Identified ;
+    ns1:direction ns1:in ;
+    ns1:isOrdered true ;
+    ns1:isUnique true ;
+    ns1:lowerValue <https://bioprotocols.org/paml/primitives/sample_arrays/Columns/Parameter2/LiteralInteger2> ;
+    ns1:type ns1:ValueSpecification ;
+    ns1:upperValue <https://bioprotocols.org/paml/primitives/sample_arrays/Columns/Parameter2/LiteralInteger1> ;
+    sbol:displayId "Parameter2" ;
+    sbol:name "col" .
+
+<https://bioprotocols.org/paml/primitives/sample_arrays/Columns/Parameter2/LiteralInteger1> a ns1:LiteralInteger,
+        sbol:Identified ;
+    ns1:integerValue 1 ;
+    sbol:displayId "LiteralInteger1" .
+
+<https://bioprotocols.org/paml/primitives/sample_arrays/Columns/Parameter2/LiteralInteger2> a ns1:LiteralInteger,
+        sbol:Identified ;
+    ns1:integerValue 1 ;
+    sbol:displayId "LiteralInteger2" .
+
+<https://bioprotocols.org/paml/primitives/sample_arrays/Columns/Parameter3> a ns1:Parameter,
+        sbol:Identified ;
+    ns1:direction ns1:out ;
+    ns1:isOrdered true ;
+    ns1:isUnique true ;
+    ns1:lowerValue <https://bioprotocols.org/paml/primitives/sample_arrays/Columns/Parameter3/LiteralInteger2> ;
+    ns1:type <http://bioprotocols.org/paml#SampleCollection> ;
+    ns1:upperValue <https://bioprotocols.org/paml/primitives/sample_arrays/Columns/Parameter3/LiteralInteger1> ;
+    sbol:displayId "Parameter3" ;
+    sbol:name "samples" .
+
+<https://bioprotocols.org/paml/primitives/sample_arrays/Columns/Parameter3/LiteralInteger1> a ns1:LiteralInteger,
+        sbol:Identified ;
+    ns1:integerValue 1 ;
+    sbol:displayId "LiteralInteger1" .
+
+<https://bioprotocols.org/paml/primitives/sample_arrays/Columns/Parameter3/LiteralInteger2> a ns1:LiteralInteger,
+        sbol:Identified ;
+    ns1:integerValue 1 ;
+    sbol:displayId "LiteralInteger2" .
+
+<https://bioprotocols.org/paml/primitives/sample_arrays/DuplicateCollection/Parameter1> a ns1:Parameter,
+        sbol:Identified ;
+    ns1:direction ns1:in ;
+    ns1:isOrdered true ;
+    ns1:isUnique true ;
+    ns1:lowerValue <https://bioprotocols.org/paml/primitives/sample_arrays/DuplicateCollection/Parameter1/LiteralInteger2> ;
+    ns1:type <http://bioprotocols.org/paml#SampleCollection> ;
+    ns1:upperValue <https://bioprotocols.org/paml/primitives/sample_arrays/DuplicateCollection/Parameter1/LiteralInteger1> ;
+    sbol:displayId "Parameter1" ;
+    sbol:name "source" .
+
+<https://bioprotocols.org/paml/primitives/sample_arrays/DuplicateCollection/Parameter1/LiteralInteger1> a ns1:LiteralInteger,
+        sbol:Identified ;
+    ns1:integerValue 1 ;
+    sbol:displayId "LiteralInteger1" .
+
+<https://bioprotocols.org/paml/primitives/sample_arrays/DuplicateCollection/Parameter1/LiteralInteger2> a ns1:LiteralInteger,
+        sbol:Identified ;
+    ns1:integerValue 1 ;
+    sbol:displayId "LiteralInteger2" .
+
+<https://bioprotocols.org/paml/primitives/sample_arrays/DuplicateCollection/Parameter2> a ns1:Parameter,
+        sbol:Identified ;
+    ns1:direction ns1:out ;
+    ns1:isOrdered true ;
+    ns1:isUnique true ;
+    ns1:lowerValue <https://bioprotocols.org/paml/primitives/sample_arrays/DuplicateCollection/Parameter2/LiteralInteger2> ;
+    ns1:type <http://bioprotocols.org/paml#SampleCollection> ;
+    ns1:upperValue <https://bioprotocols.org/paml/primitives/sample_arrays/DuplicateCollection/Parameter2/LiteralInteger1> ;
+    sbol:displayId "Parameter2" ;
+    sbol:name "samples" .
+
+<https://bioprotocols.org/paml/primitives/sample_arrays/DuplicateCollection/Parameter2/LiteralInteger1> a ns1:LiteralInteger,
+        sbol:Identified ;
+    ns1:integerValue 1 ;
+    sbol:displayId "LiteralInteger1" .
+
+<https://bioprotocols.org/paml/primitives/sample_arrays/DuplicateCollection/Parameter2/LiteralInteger2> a ns1:LiteralInteger,
+        sbol:Identified ;
+    ns1:integerValue 1 ;
+    sbol:displayId "LiteralInteger2" .
+
+<https://bioprotocols.org/paml/primitives/sample_arrays/EmptyContainer/Parameter1> a ns1:Parameter,
+        sbol:Identified ;
+    ns1:direction ns1:in ;
+    ns1:isOrdered true ;
+    ns1:isUnique true ;
+    ns1:lowerValue <https://bioprotocols.org/paml/primitives/sample_arrays/EmptyContainer/Parameter1/LiteralInteger2> ;
+    ns1:type sbol:Identified ;
+    ns1:upperValue <https://bioprotocols.org/paml/primitives/sample_arrays/EmptyContainer/Parameter1/LiteralInteger1> ;
+    sbol:displayId "Parameter1" ;
+    sbol:name "specification" .
+
+<https://bioprotocols.org/paml/primitives/sample_arrays/EmptyContainer/Parameter1/LiteralInteger1> a ns1:LiteralInteger,
+        sbol:Identified ;
+    ns1:integerValue 1 ;
+    sbol:displayId "LiteralInteger1" .
+
+<https://bioprotocols.org/paml/primitives/sample_arrays/EmptyContainer/Parameter1/LiteralInteger2> a ns1:LiteralInteger,
+        sbol:Identified ;
+    ns1:integerValue 1 ;
+    sbol:displayId "LiteralInteger2" .
+
+<https://bioprotocols.org/paml/primitives/sample_arrays/EmptyContainer/Parameter2> a ns1:Parameter,
+        sbol:Identified ;
+    ns1:direction ns1:out ;
+    ns1:isOrdered true ;
+    ns1:isUnique true ;
+    ns1:lowerValue <https://bioprotocols.org/paml/primitives/sample_arrays/EmptyContainer/Parameter2/LiteralInteger2> ;
+    ns1:type <http://bioprotocols.org/paml#SampleArray> ;
+    ns1:upperValue <https://bioprotocols.org/paml/primitives/sample_arrays/EmptyContainer/Parameter2/LiteralInteger1> ;
+    sbol:displayId "Parameter2" ;
+    sbol:name "samples" .
+
+<https://bioprotocols.org/paml/primitives/sample_arrays/EmptyContainer/Parameter2/LiteralInteger1> a ns1:LiteralInteger,
+        sbol:Identified ;
+    ns1:integerValue 1 ;
+    sbol:displayId "LiteralInteger1" .
+
+<https://bioprotocols.org/paml/primitives/sample_arrays/EmptyContainer/Parameter2/LiteralInteger2> a ns1:LiteralInteger,
+        sbol:Identified ;
+    ns1:integerValue 1 ;
+    sbol:displayId "LiteralInteger2" .
+
+<https://bioprotocols.org/paml/primitives/sample_arrays/PlateCoordinates/Parameter1> a ns1:Parameter,
+        sbol:Identified ;
+    ns1:direction ns1:in ;
+    ns1:isOrdered true ;
+    ns1:isUnique true ;
+    ns1:lowerValue <https://bioprotocols.org/paml/primitives/sample_arrays/PlateCoordinates/Parameter1/LiteralInteger2> ;
+    ns1:type <http://bioprotocols.org/paml#SampleCollection> ;
+    ns1:upperValue <https://bioprotocols.org/paml/primitives/sample_arrays/PlateCoordinates/Parameter1/LiteralInteger1> ;
+    sbol:displayId "Parameter1" ;
+    sbol:name "source" .
+
+<https://bioprotocols.org/paml/primitives/sample_arrays/PlateCoordinates/Parameter1/LiteralInteger1> a ns1:LiteralInteger,
+        sbol:Identified ;
+    ns1:integerValue 1 ;
+    sbol:displayId "LiteralInteger1" .
+
+<https://bioprotocols.org/paml/primitives/sample_arrays/PlateCoordinates/Parameter1/LiteralInteger2> a ns1:LiteralInteger,
+        sbol:Identified ;
+    ns1:integerValue 1 ;
+    sbol:displayId "LiteralInteger2" .
+
+<https://bioprotocols.org/paml/primitives/sample_arrays/PlateCoordinates/Parameter2> a ns1:Parameter,
+        sbol:Identified ;
+    ns1:direction ns1:in ;
+    ns1:isOrdered true ;
+    ns1:isUnique true ;
+    ns1:lowerValue <https://bioprotocols.org/paml/primitives/sample_arrays/PlateCoordinates/Parameter2/LiteralInteger2> ;
+    ns1:type ns1:ValueSpecification ;
+    ns1:upperValue <https://bioprotocols.org/paml/primitives/sample_arrays/PlateCoordinates/Parameter2/LiteralInteger1> ;
+    sbol:displayId "Parameter2" ;
+    sbol:name "coordinates" .
+
+<https://bioprotocols.org/paml/primitives/sample_arrays/PlateCoordinates/Parameter2/LiteralInteger1> a ns1:LiteralInteger,
+        sbol:Identified ;
+    ns1:integerValue 1 ;
+    sbol:displayId "LiteralInteger1" .
+
+<https://bioprotocols.org/paml/primitives/sample_arrays/PlateCoordinates/Parameter2/LiteralInteger2> a ns1:LiteralInteger,
+        sbol:Identified ;
+    ns1:integerValue 1 ;
+    sbol:displayId "LiteralInteger2" .
+
+<https://bioprotocols.org/paml/primitives/sample_arrays/PlateCoordinates/Parameter3> a ns1:Parameter,
+        sbol:Identified ;
+    ns1:direction ns1:out ;
+    ns1:isOrdered true ;
+    ns1:isUnique true ;
+    ns1:lowerValue <https://bioprotocols.org/paml/primitives/sample_arrays/PlateCoordinates/Parameter3/LiteralInteger2> ;
+    ns1:type <http://bioprotocols.org/paml#SampleCollection> ;
+    ns1:upperValue <https://bioprotocols.org/paml/primitives/sample_arrays/PlateCoordinates/Parameter3/LiteralInteger1> ;
+    sbol:displayId "Parameter3" ;
+    sbol:name "samples" .
+
+<https://bioprotocols.org/paml/primitives/sample_arrays/PlateCoordinates/Parameter3/LiteralInteger1> a ns1:LiteralInteger,
+        sbol:Identified ;
+    ns1:integerValue 1 ;
+    sbol:displayId "LiteralInteger1" .
+
+<https://bioprotocols.org/paml/primitives/sample_arrays/PlateCoordinates/Parameter3/LiteralInteger2> a ns1:LiteralInteger,
+        sbol:Identified ;
+    ns1:integerValue 1 ;
+    sbol:displayId "LiteralInteger2" .
+
+<https://bioprotocols.org/paml/primitives/sample_arrays/ReplicateCollection/Parameter1> a ns1:Parameter,
+        sbol:Identified ;
+    ns1:direction ns1:in ;
+    ns1:isOrdered true ;
+    ns1:isUnique true ;
+    ns1:lowerValue <https://bioprotocols.org/paml/primitives/sample_arrays/ReplicateCollection/Parameter1/LiteralInteger2> ;
+    ns1:type <http://bioprotocols.org/paml#SampleCollection> ;
+    ns1:upperValue <https://bioprotocols.org/paml/primitives/sample_arrays/ReplicateCollection/Parameter1/LiteralInteger1> ;
+    sbol:displayId "Parameter1" ;
+    sbol:name "source" .
+
+<https://bioprotocols.org/paml/primitives/sample_arrays/ReplicateCollection/Parameter1/LiteralInteger1> a ns1:LiteralInteger,
+        sbol:Identified ;
+    ns1:integerValue 1 ;
+    sbol:displayId "LiteralInteger1" .
+
+<https://bioprotocols.org/paml/primitives/sample_arrays/ReplicateCollection/Parameter1/LiteralInteger2> a ns1:LiteralInteger,
+        sbol:Identified ;
+    ns1:integerValue 1 ;
+    sbol:displayId "LiteralInteger2" .
+
+<https://bioprotocols.org/paml/primitives/sample_arrays/ReplicateCollection/Parameter2> a ns1:Parameter,
+        sbol:Identified ;
+    ns1:direction ns1:in ;
+    ns1:isOrdered true ;
+    ns1:isUnique true ;
+    ns1:lowerValue <https://bioprotocols.org/paml/primitives/sample_arrays/ReplicateCollection/Parameter2/LiteralInteger2> ;
+    ns1:type ns1:ValueSpecification ;
+    ns1:upperValue <https://bioprotocols.org/paml/primitives/sample_arrays/ReplicateCollection/Parameter2/LiteralInteger1> ;
+    sbol:displayId "Parameter2" ;
+    sbol:name "replicates" .
+
+<https://bioprotocols.org/paml/primitives/sample_arrays/ReplicateCollection/Parameter2/LiteralInteger1> a ns1:LiteralInteger,
+        sbol:Identified ;
+    ns1:integerValue 1 ;
+    sbol:displayId "LiteralInteger1" .
+
+<https://bioprotocols.org/paml/primitives/sample_arrays/ReplicateCollection/Parameter2/LiteralInteger2> a ns1:LiteralInteger,
+        sbol:Identified ;
+    ns1:integerValue 1 ;
+    sbol:displayId "LiteralInteger2" .
+
+<https://bioprotocols.org/paml/primitives/sample_arrays/ReplicateCollection/Parameter3> a ns1:Parameter,
+        sbol:Identified ;
+    ns1:direction ns1:out ;
+    ns1:isOrdered true ;
+    ns1:isUnique true ;
+    ns1:lowerValue <https://bioprotocols.org/paml/primitives/sample_arrays/ReplicateCollection/Parameter3/LiteralInteger2> ;
+    ns1:type <http://bioprotocols.org/paml#SampleCollection> ;
+    ns1:upperValue <https://bioprotocols.org/paml/primitives/sample_arrays/ReplicateCollection/Parameter3/LiteralInteger1> ;
+    sbol:displayId "Parameter3" ;
+    sbol:name "samples" .
+
+<https://bioprotocols.org/paml/primitives/sample_arrays/ReplicateCollection/Parameter3/LiteralInteger1> a ns1:LiteralInteger,
+        sbol:Identified ;
+    ns1:integerValue 1 ;
+    sbol:displayId "LiteralInteger1" .
+
+<https://bioprotocols.org/paml/primitives/sample_arrays/ReplicateCollection/Parameter3/LiteralInteger2> a ns1:LiteralInteger,
+        sbol:Identified ;
+    ns1:integerValue 1 ;
+    sbol:displayId "LiteralInteger2" .
+
+<https://bioprotocols.org/paml/primitives/sample_arrays/Rows/Parameter1> a ns1:Parameter,
+        sbol:Identified ;
+    ns1:direction ns1:in ;
+    ns1:isOrdered true ;
+    ns1:isUnique true ;
+    ns1:lowerValue <https://bioprotocols.org/paml/primitives/sample_arrays/Rows/Parameter1/LiteralInteger2> ;
+    ns1:type <http://bioprotocols.org/paml#SampleCollection> ;
+    ns1:upperValue <https://bioprotocols.org/paml/primitives/sample_arrays/Rows/Parameter1/LiteralInteger1> ;
+    sbol:displayId "Parameter1" ;
+    sbol:name "source" .
+
+<https://bioprotocols.org/paml/primitives/sample_arrays/Rows/Parameter1/LiteralInteger1> a ns1:LiteralInteger,
+        sbol:Identified ;
+    ns1:integerValue 1 ;
+    sbol:displayId "LiteralInteger1" .
+
+<https://bioprotocols.org/paml/primitives/sample_arrays/Rows/Parameter1/LiteralInteger2> a ns1:LiteralInteger,
+        sbol:Identified ;
+    ns1:integerValue 1 ;
+    sbol:displayId "LiteralInteger2" .
+
+<https://bioprotocols.org/paml/primitives/sample_arrays/Rows/Parameter2> a ns1:Parameter,
+        sbol:Identified ;
+    ns1:direction ns1:in ;
+    ns1:isOrdered true ;
+    ns1:isUnique true ;
+    ns1:lowerValue <https://bioprotocols.org/paml/primitives/sample_arrays/Rows/Parameter2/LiteralInteger2> ;
+    ns1:type ns1:ValueSpecification ;
+    ns1:upperValue <https://bioprotocols.org/paml/primitives/sample_arrays/Rows/Parameter2/LiteralInteger1> ;
+    sbol:displayId "Parameter2" ;
+    sbol:name "row" .
+
+<https://bioprotocols.org/paml/primitives/sample_arrays/Rows/Parameter2/LiteralInteger1> a ns1:LiteralInteger,
+        sbol:Identified ;
+    ns1:integerValue 1 ;
+    sbol:displayId "LiteralInteger1" .
+
+<https://bioprotocols.org/paml/primitives/sample_arrays/Rows/Parameter2/LiteralInteger2> a ns1:LiteralInteger,
+        sbol:Identified ;
+    ns1:integerValue 1 ;
+    sbol:displayId "LiteralInteger2" .
+
+<https://bioprotocols.org/paml/primitives/sample_arrays/Rows/Parameter3> a ns1:Parameter,
+        sbol:Identified ;
+    ns1:direction ns1:out ;
+    ns1:isOrdered true ;
+    ns1:isUnique true ;
+    ns1:lowerValue <https://bioprotocols.org/paml/primitives/sample_arrays/Rows/Parameter3/LiteralInteger2> ;
+    ns1:type <http://bioprotocols.org/paml#SampleCollection> ;
+    ns1:upperValue <https://bioprotocols.org/paml/primitives/sample_arrays/Rows/Parameter3/LiteralInteger1> ;
+    sbol:displayId "Parameter3" ;
+    sbol:name "samples" .
+
+<https://bioprotocols.org/paml/primitives/sample_arrays/Rows/Parameter3/LiteralInteger1> a ns1:LiteralInteger,
+        sbol:Identified ;
+    ns1:integerValue 1 ;
+    sbol:displayId "LiteralInteger1" .
+
+<https://bioprotocols.org/paml/primitives/sample_arrays/Rows/Parameter3/LiteralInteger2> a ns1:LiteralInteger,
+        sbol:Identified ;
+    ns1:integerValue 1 ;
+    sbol:displayId "LiteralInteger2" .
+
