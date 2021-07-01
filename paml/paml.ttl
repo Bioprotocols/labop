@@ -136,7 +136,7 @@ paml:SampleData rdf:type owl:Class ;
                               ] ,
                             [ rdf:type owl:Restriction ;
                               owl:onProperty paml:fromSamples ;
-                              owl:onClass paml:SampleCollection ;
+                              owl:allValuesFrom paml:SampleCollection ;
                               owl:minCardinality "1"^^xsd:nonNegativeInteger ;
                               owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
                               ] .

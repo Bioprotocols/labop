@@ -138,7 +138,7 @@ uml:realValue rdf:type owl:DatatypeProperty ;
 uml:LiteralIdentified rdf:type owl:Class ;
               rdfs:comment "SBOL-specific class for embedding SBOL object literals as a child object" ;
               rdfs:subClassOf uml:LiteralSpecification ,
-    [ rdf:type owl:Restriction ; owl:onClass sbol:Identified ; owl:onProperty uml:identifiedValue ;
+    [ rdf:type owl:Restriction ; owl:allValuesFrom sbol:Identified ; owl:onProperty uml:identifiedValue ;
       owl:minCardinality "1"^^xsd:nonNegativeInteger ; owl:maxCardinality "1"^^xsd:nonNegativeInteger ] .
 
 uml:identifiedValue rdf:type owl:ObjectProperty ;
@@ -150,7 +150,7 @@ uml:identifiedValue rdf:type owl:ObjectProperty ;
 uml:LiteralReference rdf:type owl:Class ;
               rdfs:comment "SBOL-specific class for embedding SBOL object literals as a reference" ;
               rdfs:subClassOf uml:LiteralSpecification ,
-    [ rdf:type owl:Restriction ; owl:onClass sbol:Identified ; owl:onProperty uml:referenceValue ;
+    [ rdf:type owl:Restriction ; owl:allValuesFrom sbol:Identified ; owl:onProperty uml:referenceValue ;
       owl:minCardinality "1"^^xsd:nonNegativeInteger ; owl:maxCardinality "1"^^xsd:nonNegativeInteger ] .
 
 uml:referenceValue rdf:type owl:ObjectProperty ;
@@ -163,8 +163,8 @@ uml:referenceValue rdf:type owl:ObjectProperty ;
 uml:Constraint rdf:type owl:Class ;
               rdfs:comment "UML 2.5.1 specification section 7.6" ;
               rdfs:subClassOf sbol:Identified ,
-    [ rdf:type owl:Restriction ; owl:onClass sbol:Identified ; owl:onProperty uml:constrainedElement ] ,
-    [ rdf:type owl:Restriction ; owl:onClass uml:ValueSpecification ; owl:onProperty uml:specification ;
+    [ rdf:type owl:Restriction ; owl:allValuesFrom sbol:Identified ; owl:onProperty uml:constrainedElement ] ,
+    [ rdf:type owl:Restriction ; owl:allValuesFrom uml:ValueSpecification ; owl:onProperty uml:specification ;
       owl:minCardinality "1"^^xsd:nonNegativeInteger ; owl:maxCardinality "1"^^xsd:nonNegativeInteger ] .
 
 uml:constrainedElement rdf:type owl:ObjectProperty ;
@@ -185,7 +185,7 @@ uml:Parameter rdf:type owl:Class ;
               rdfs:subClassOf sbol:Identified ,
     [ rdf:type owl:Restriction ; owl:allValuesFrom xsd:anyURI ; owl:onProperty uml:direction ;
       owl:minCardinality "1"^^xsd:nonNegativeInteger ; owl:maxCardinality "1"^^xsd:nonNegativeInteger ] ,
-    [ rdf:type owl:Restriction ; owl:onClass uml:ValueSpecification ; owl:onProperty uml:defaultValue  ;
+    [ rdf:type owl:Restriction ; owl:allValuesFrom uml:ValueSpecification ; owl:onProperty uml:defaultValue  ;
       owl:maxCardinality "1"^^xsd:nonNegativeInteger ] ,
     # omitted: /default, effect, isException, isStream
     # Properties inherited from MultiplicityElement and TypedElement:
@@ -195,9 +195,9 @@ uml:Parameter rdf:type owl:Class ;
       owl:minCardinality "1"^^xsd:nonNegativeInteger ; owl:maxCardinality "1"^^xsd:nonNegativeInteger ] ,
     [ rdf:type owl:Restriction ; owl:allValuesFrom xsd:boolean ; owl:onProperty uml:isUnique ;
       owl:minCardinality "1"^^xsd:nonNegativeInteger ; owl:maxCardinality "1"^^xsd:nonNegativeInteger ] ,
-    [ rdf:type owl:Restriction ; owl:onClass uml:ValueSpecification ; owl:onProperty uml:lowerValue ;
+    [ rdf:type owl:Restriction ; owl:allValuesFrom uml:ValueSpecification ; owl:onProperty uml:lowerValue ;
       owl:maxCardinality "1"^^xsd:nonNegativeInteger ] ,
-    [ rdf:type owl:Restriction ; owl:onClass uml:ValueSpecification ; owl:onProperty uml:upperValue ;
+    [ rdf:type owl:Restriction ; owl:allValuesFrom uml:ValueSpecification ; owl:onProperty uml:upperValue ;
       owl:maxCardinality "1"^^xsd:nonNegativeInteger ] .
     # omitted: /lower, /upper
 
@@ -219,9 +219,9 @@ uml:Behavior rdf:type owl:Class ;
              rdfs:subClassOf sbol:TopLevel ,
     #[ rdf:type owl:Restriction ; owl:allValuesFrom xsd:boolean ; owl:onProperty uml:isReentrant ;
     #  owl:minCardinality "1"^^xsd:nonNegativeInteger ; owl:maxCardinality "1"^^xsd:nonNegativeInteger ] ,
-    [ rdf:type owl:Restriction ; owl:onClass uml:Constraint ; owl:onProperty uml:precondition ] ,
-    [ rdf:type owl:Restriction ; owl:onClass uml:Constraint ; owl:onProperty uml:postcondition ] ,
-    [ rdf:type owl:Restriction ; owl:onClass uml:Parameter ; owl:onProperty uml:ownedParameter ] .
+    [ rdf:type owl:Restriction ; owl:allValuesFrom uml:Constraint ; owl:onProperty uml:precondition ] ,
+    [ rdf:type owl:Restriction ; owl:allValuesFrom uml:Constraint ; owl:onProperty uml:postcondition ] ,
+    [ rdf:type owl:Restriction ; owl:allValuesFrom uml:Parameter ; owl:onProperty uml:ownedParameter ] .
     # omitted: context, specification, redefinedBehavior, ownedParameterSet
     # omitted subclasses: OpaqueBehavior, FunctionBehavior
 
@@ -253,8 +253,8 @@ uml:ownedParameter rdf:type owl:ObjectProperty ;
 uml:Activity rdf:type owl:Class ;
              rdfs:comment "UML 2.5.1 specification section 15" ;
              rdfs:subClassOf uml:Behavior ,
-    [ rdf:type owl:Restriction ; owl:onClass uml:ActivityNode ; owl:onProperty uml:node ] ,
-    [ rdf:type owl:Restriction ; owl:onClass uml:ActivityEdge ; owl:onProperty uml:edge ] .
+    [ rdf:type owl:Restriction ; owl:allValuesFrom uml:ActivityNode ; owl:onProperty uml:node ] ,
+    [ rdf:type owl:Restriction ; owl:allValuesFrom uml:ActivityEdge ; owl:onProperty uml:edge ] .
     # omitted: isReadOnly, isSingleExecution, variable
 
 uml:node rdf:type owl:ObjectProperty ;
@@ -309,9 +309,9 @@ uml:MergeNode rdf:type owl:Class ;
 uml:DecisionNode rdf:type owl:Class ;
              rdfs:comment "UML 2.5.1 specification section 15.3" ;
              rdfs:subClassOf uml:ControlNode ,
-    [ rdf:type owl:Restriction ; owl:onClass uml:Behavior ; owl:onProperty uml:decisionInput ;
+    [ rdf:type owl:Restriction ; owl:allValuesFrom uml:Behavior ; owl:onProperty uml:decisionInput ;
       owl:maxCardinality "1"^^xsd:nonNegativeInteger ] ,
-    [ rdf:type owl:Restriction ; owl:onClass uml:ObjectFlow ; owl:onProperty uml:decisionInputFlow ;
+    [ rdf:type owl:Restriction ; owl:allValuesFrom uml:ObjectFlow ; owl:onProperty uml:decisionInputFlow ;
       owl:maxCardinality "1"^^xsd:nonNegativeInteger ] .
 
 uml:decisionInput rdf:type owl:ObjectProperty ;
@@ -338,7 +338,7 @@ uml:ObjectNode rdf:type owl:Class ;
 uml:ActivityParameterNode rdf:type owl:Class ;
              rdfs:comment "UML 2.5.1 specification section 15.4" ;
              rdfs:subClassOf uml:ObjectNode .
-    [ rdf:type owl:Restriction ; owl:onClass uml:Parameter ; owl:onProperty uml:parameter ;
+    [ rdf:type owl:Restriction ; owl:allValuesFrom uml:Parameter ; owl:onProperty uml:parameter ;
       owl:minCardinality "1"^^xsd:nonNegativeInteger ; owl:maxCardinality "1"^^xsd:nonNegativeInteger ] .
 
 uml:parameter rdf:type owl:ObjectProperty ;
@@ -356,8 +356,8 @@ uml:ExecutableNode rdf:type owl:Class ;
 uml:Action rdf:type owl:Class ;
              rdfs:comment "UML 2.5.1 specification section 16" ;
              rdfs:subClassOf uml:ExecutableNode ,
-    [ rdf:type owl:Restriction ; owl:onClass uml:InputPin ; owl:onProperty uml:input ] ,
-    [ rdf:type owl:Restriction ; owl:onClass uml:OutputPin ; owl:onProperty uml:output ] .
+    [ rdf:type owl:Restriction ; owl:allValuesFrom uml:InputPin ; owl:onProperty uml:input ] ,
+    [ rdf:type owl:Restriction ; owl:allValuesFrom uml:OutputPin ; owl:onProperty uml:output ] .
     # omitted: /context, localPrecondition, localPostcondition
 
 uml:input rdf:type owl:ObjectProperty ;
@@ -391,7 +391,7 @@ uml:CallAction rdf:type owl:Class ;
 uml:CallBehaviorAction rdf:type owl:Class ;
              rdfs:comment "UML 2.5.1 specification section 16.3" ;
              rdfs:subClassOf uml:CallAction ,
-    [ rdf:type owl:Restriction ; owl:onClass uml:Behavior ; owl:onProperty uml:behavior ;
+    [ rdf:type owl:Restriction ; owl:allValuesFrom uml:Behavior ; owl:onProperty uml:behavior ;
       owl:minCardinality "1"^^xsd:nonNegativeInteger ; owl:maxCardinality "1"^^xsd:nonNegativeInteger ] .
 
 uml:behavior rdf:type owl:ObjectProperty ;
@@ -409,9 +409,9 @@ uml:Pin rdf:type owl:Class ;
       owl:minCardinality "1"^^xsd:nonNegativeInteger ; owl:maxCardinality "1"^^xsd:nonNegativeInteger ] ,
     [ rdf:type owl:Restriction ; owl:allValuesFrom xsd:boolean ; owl:onProperty uml:isUnique ;
       owl:minCardinality "1"^^xsd:nonNegativeInteger ; owl:maxCardinality "1"^^xsd:nonNegativeInteger ] ,
-    [ rdf:type owl:Restriction ; owl:onClass uml:ValueSpecification ; owl:onProperty uml:lowerValue ;
+    [ rdf:type owl:Restriction ; owl:allValuesFrom uml:ValueSpecification ; owl:onProperty uml:lowerValue ;
       owl:maxCardinality "1"^^xsd:nonNegativeInteger ] ,
-    [ rdf:type owl:Restriction ; owl:onClass uml:ValueSpecification ; owl:onProperty uml:upperValue ;
+    [ rdf:type owl:Restriction ; owl:allValuesFrom uml:ValueSpecification ; owl:onProperty uml:upperValue ;
       owl:maxCardinality "1"^^xsd:nonNegativeInteger ] .
 
 uml:InputPin rdf:type owl:Class ;
@@ -422,7 +422,7 @@ uml:InputPin rdf:type owl:Class ;
 uml:ValuePin rdf:type owl:Class ;
              rdfs:comment "UML 2.5.1 specification section 16.2" ;
              rdfs:subClassOf uml:InputPin ,
-    [ rdf:type owl:Restriction ; owl:onClass uml:ValueSpecification ; owl:onProperty uml:value ;
+    [ rdf:type owl:Restriction ; owl:allValuesFrom uml:ValueSpecification ; owl:onProperty uml:value ;
       owl:minCardinality "1"^^xsd:nonNegativeInteger ; owl:maxCardinality "1"^^xsd:nonNegativeInteger ] .
 
 uml:value rdf:type owl:ObjectProperty ;
@@ -440,9 +440,9 @@ uml:OutputPin rdf:type owl:Class ;
 uml:ActivityEdge rdf:type owl:Class ;
              rdfs:comment "UML 2.5.1 specification section 15.2" ;
              rdfs:subClassOf sbol:Identified ,
-    [ rdf:type owl:Restriction ; owl:onClass uml:ActivityNode ; owl:onProperty uml:source ;
+    [ rdf:type owl:Restriction ; owl:allValuesFrom uml:ActivityNode ; owl:onProperty uml:source ;
       owl:minCardinality "1"^^xsd:nonNegativeInteger ; owl:maxCardinality "1"^^xsd:nonNegativeInteger ] ,
-    [ rdf:type owl:Restriction ; owl:onClass uml:ActivityNode ; owl:onProperty uml:target ;
+    [ rdf:type owl:Restriction ; owl:allValuesFrom uml:ActivityNode ; owl:onProperty uml:target ;
       owl:minCardinality "1"^^xsd:nonNegativeInteger ; owl:maxCardinality "1"^^xsd:nonNegativeInteger ] .
     # omitted: redefinedEdge, guard, weight
     # Note that guard will need to be added to allow DecisionNode
