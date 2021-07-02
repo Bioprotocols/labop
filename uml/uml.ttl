@@ -1,6 +1,5 @@
 @prefix : <http://bioprotocols.org/paml#> .
 @prefix om: <http://www.ontology-of-units-of-measure.org/resource/om-2/> .
-@prefix opil: <http://bioprotocols.org/opil/v1#> . # this needs to go - sbol_factory issue #10
 @prefix owl: <http://www.w3.org/2002/07/owl#> .
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
@@ -10,7 +9,7 @@
 @base <http://bioprotocols.org/uml#> .
 
 <http://bioprotocols.org/uml> rdf:type owl:Ontology ;
-                              owl:imports sbol:, opil:, om: ;
+                              owl:imports sbol:, om: ;
                               rdfs:comment "Unified Modeling Languge (UML) subset, translated to an SBOL factory ontology." ;
                               owl:versionInfo "1.0-alpha1" .
 
@@ -22,7 +21,12 @@
 owl:maxCardinality rdf:type owl:AnnotationProperty .
 owl:minCardinality rdf:type owl:AnnotationProperty .
 
-opil:compositionalProperty rdf:type owl:AnnotationProperty . # should be SBOL - sbol_factory issue #10
+
+uml:isCompositionalProperty rdf:type owl:AnnotationProperty ;
+    rdfs:comment "In UML some properties must be marked as being compositional
+the value of this property should always be a boolean, and if absent,
+should be treated as false. Because this is an annotation property,
+it will *not* be inherited, and must be set at sub-properties." .
 
 
 #################################################################
@@ -61,14 +65,16 @@ uml:isUnique rdf:type owl:DatatypeProperty ;
 
 uml:lowerValue rdf:type owl:ObjectProperty ;
          rdfs:comment "For MultiplicityElement abstract class; UML 2.5.1 specification section 7.5" ;
-         rdfs:subPropertyOf opil:compositionalProperty ;
+         # rdfs:subPropertyOf opil:compositionalProperty ;
+        uml:isCompositionalProperty "true"^^xsd:boolean ;
          rdfs:domain sbol:Identified ; # should probably actually be a union
          rdfs:range uml:ValueSpecification ;
          rdfs:label "lower_value" .
 
 uml:upperValue rdf:type owl:ObjectProperty ;
          rdfs:comment "For MultiplicityElement abstract class; UML 2.5.1 specification section 7.5" ;
-         rdfs:subPropertyOf opil:compositionalProperty ;
+         # rdfs:subPropertyOf opil:compositionalProperty ;
+        uml:isCompositionalProperty "true"^^xsd:boolean ;
          rdfs:domain sbol:Identified ; # should probably actually be a union
          rdfs:range uml:ValueSpecification ;
          rdfs:label "upper_value" .
@@ -142,7 +148,8 @@ uml:LiteralIdentified rdf:type owl:Class ;
       owl:minCardinality "1"^^xsd:nonNegativeInteger ; owl:maxCardinality "1"^^xsd:nonNegativeInteger ] .
 
 uml:identifiedValue rdf:type owl:ObjectProperty ;
-         rdfs:subPropertyOf opil:compositionalProperty ;
+         # rdfs:subPropertyOf opil:compositionalProperty ;
+        uml:isCompositionalProperty "true"^^xsd:boolean ;
          rdfs:domain uml:LiteralIdentified ;
          rdfs:range sbol:Identified ;
          rdfs:label "value" .
@@ -173,7 +180,8 @@ uml:constrainedElement rdf:type owl:ObjectProperty ;
          rdfs:label "constrained_elements" .
 
 uml:specification rdf:type owl:ObjectProperty ;
-         rdfs:subPropertyOf opil:compositionalProperty ;
+         # rdfs:subPropertyOf opil:compositionalProperty ;
+        uml:isCompositionalProperty "true"^^xsd:boolean ;
          rdfs:domain uml:Constraint ;
          rdfs:range uml:ValueSpecification ;
          rdfs:label "specification" .
@@ -207,7 +215,8 @@ uml:direction rdf:type owl:DatatypeProperty ;
          rdfs:label "direction" .
 
 uml:defaultValue rdf:type owl:ObjectProperty ;
-         rdfs:subPropertyOf opil:compositionalProperty ;
+         # rdfs:subPropertyOf opil:compositionalProperty ;
+        uml:isCompositionalProperty "true"^^xsd:boolean ;
          rdfs:domain uml:Parameter ;
          rdfs:range uml:ValueSpecification ;
          rdfs:label "default_value" .
@@ -231,19 +240,22 @@ uml:Behavior rdf:type owl:Class ;
 #         rdfs:label "isReentrant" .
 
 uml:precondition rdf:type owl:ObjectProperty ;
-         rdfs:subPropertyOf opil:compositionalProperty ;
+         # rdfs:subPropertyOf opil:compositionalProperty ;
+        uml:isCompositionalProperty "true"^^xsd:boolean ;
          rdfs:domain uml:Behavior ;
          rdfs:range uml:Constraint ;
          rdfs:label "preconditions" .
 
 uml:postcondition rdf:type owl:ObjectProperty ;
-         rdfs:subPropertyOf opil:compositionalProperty ;
+         # rdfs:subPropertyOf opil:compositionalProperty ;
+        uml:isCompositionalProperty "true"^^xsd:boolean ;
          rdfs:domain uml:Behavior ;
          rdfs:range uml:Constraint ;
          rdfs:label "postconditions" .
 
 uml:ownedParameter rdf:type owl:ObjectProperty ;
-         rdfs:subPropertyOf opil:compositionalProperty ;
+         # rdfs:subPropertyOf opil:compositionalProperty ;
+        uml:isCompositionalProperty "true"^^xsd:boolean ;
          rdfs:domain uml:Behavior ;
          rdfs:range uml:Parameter ;
          rdfs:label "parameters" .
@@ -258,13 +270,15 @@ uml:Activity rdf:type owl:Class ;
     # omitted: isReadOnly, isSingleExecution, variable
 
 uml:node rdf:type owl:ObjectProperty ;
-         rdfs:subPropertyOf opil:compositionalProperty ;
+         # rdfs:subPropertyOf opil:compositionalProperty ;
+        uml:isCompositionalProperty "true"^^xsd:boolean ;
          rdfs:domain uml:Activity ;
          rdfs:range uml:ActivityNode ;
          rdfs:label "nodes" .
 
 uml:edge rdf:type owl:ObjectProperty ;
-         rdfs:subPropertyOf opil:compositionalProperty ;
+         # rdfs:subPropertyOf opil:compositionalProperty ;
+        uml:isCompositionalProperty "true"^^xsd:boolean ;
          rdfs:domain uml:Activity ;
          rdfs:range uml:ActivityEdge ;
          rdfs:label "edges" .
@@ -361,13 +375,15 @@ uml:Action rdf:type owl:Class ;
     # omitted: /context, localPrecondition, localPostcondition
 
 uml:input rdf:type owl:ObjectProperty ;
-         rdfs:subPropertyOf opil:compositionalProperty ;
+         # rdfs:subPropertyOf opil:compositionalProperty ;
+        uml:isCompositionalProperty "true"^^xsd:boolean ;
          rdfs:domain uml:Action ;
          rdfs:range uml:InputPin ;
          rdfs:label "inputs" .
 
 uml:output rdf:type owl:ObjectProperty ;
-         rdfs:subPropertyOf opil:compositionalProperty ;
+         # rdfs:subPropertyOf opil:compositionalProperty ;
+        uml:isCompositionalProperty "true"^^xsd:boolean ;
          rdfs:domain uml:Action ;
          rdfs:range uml:OutputPin ;
          rdfs:label "outputs" .
@@ -426,7 +442,8 @@ uml:ValuePin rdf:type owl:Class ;
       owl:minCardinality "1"^^xsd:nonNegativeInteger ; owl:maxCardinality "1"^^xsd:nonNegativeInteger ] .
 
 uml:value rdf:type owl:ObjectProperty ;
-         rdfs:subPropertyOf opil:compositionalProperty ;
+         # rdfs:subPropertyOf opil:compositionalProperty ;
+        uml:isCompositionalProperty "true"^^xsd:boolean ;
          rdfs:domain uml:ValuePin ;
          rdfs:range uml:ValueSpecification ;
          rdfs:label "value" .
