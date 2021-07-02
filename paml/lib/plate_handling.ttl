@@ -67,7 +67,7 @@
     ns1:isOrdered true ;
     ns1:isUnique true ;
     ns1:lowerValue <https://bioprotocols.org/paml/primitives/plate_handling/AdhesiveSeal/Parameter1/LiteralInteger2> ;
-    ns1:type <http://bioprotocols.org/paml#LocatedSamples> ;
+    ns1:type <http://bioprotocols.org/paml#SampleArray> ;
     ns1:upperValue <https://bioprotocols.org/paml/primitives/plate_handling/AdhesiveSeal/Parameter1/LiteralInteger1> ;
     sbol:displayId "Parameter1" ;
     sbol:name "location" .
@@ -109,7 +109,7 @@
     ns1:isOrdered true ;
     ns1:isUnique true ;
     ns1:lowerValue <https://bioprotocols.org/paml/primitives/plate_handling/Cover/Parameter1/LiteralInteger2> ;
-    ns1:type <http://bioprotocols.org/paml#LocatedSamples> ;
+    ns1:type <http://bioprotocols.org/paml#SampleArray> ;
     ns1:upperValue <https://bioprotocols.org/paml/primitives/plate_handling/Cover/Parameter1/LiteralInteger1> ;
     sbol:displayId "Parameter1" ;
     sbol:name "location" .
@@ -151,7 +151,7 @@
     ns1:isOrdered true ;
     ns1:isUnique true ;
     ns1:lowerValue <https://bioprotocols.org/paml/primitives/plate_handling/Incubate/Parameter1/LiteralInteger2> ;
-    ns1:type <http://bioprotocols.org/paml#LocatedSamples> ;
+    ns1:type <http://bioprotocols.org/paml#SampleArray> ;
     ns1:upperValue <https://bioprotocols.org/paml/primitives/plate_handling/Incubate/Parameter1/LiteralInteger1> ;
     sbol:displayId "Parameter1" ;
     sbol:name "location" .
@@ -235,7 +235,7 @@
     ns1:isOrdered true ;
     ns1:isUnique true ;
     ns1:lowerValue <https://bioprotocols.org/paml/primitives/plate_handling/Seal/Parameter1/LiteralInteger2> ;
-    ns1:type <http://bioprotocols.org/paml#LocatedSamples> ;
+    ns1:type <http://bioprotocols.org/paml#SampleArray> ;
     ns1:upperValue <https://bioprotocols.org/paml/primitives/plate_handling/Seal/Parameter1/LiteralInteger1> ;
     sbol:displayId "Parameter1" ;
     sbol:name "location" .
@@ -277,7 +277,7 @@
     ns1:isOrdered true ;
     ns1:isUnique true ;
     ns1:lowerValue <https://bioprotocols.org/paml/primitives/plate_handling/ThermalSeal/Parameter1/LiteralInteger2> ;
-    ns1:type <http://bioprotocols.org/paml#LocatedSamples> ;
+    ns1:type <http://bioprotocols.org/paml#SampleArray> ;
     ns1:upperValue <https://bioprotocols.org/paml/primitives/plate_handling/ThermalSeal/Parameter1/LiteralInteger1> ;
     sbol:displayId "Parameter1" ;
     sbol:name "location" .
@@ -361,7 +361,7 @@
     ns1:isOrdered true ;
     ns1:isUnique true ;
     ns1:lowerValue <https://bioprotocols.org/paml/primitives/plate_handling/Uncover/Parameter1/LiteralInteger2> ;
-    ns1:type <http://bioprotocols.org/paml#LocatedSamples> ;
+    ns1:type <http://bioprotocols.org/paml#SampleArray> ;
     ns1:upperValue <https://bioprotocols.org/paml/primitives/plate_handling/Uncover/Parameter1/LiteralInteger1> ;
     sbol:displayId "Parameter1" ;
     sbol:name "location" .
@@ -382,7 +382,7 @@
     ns1:isOrdered true ;
     ns1:isUnique true ;
     ns1:lowerValue <https://bioprotocols.org/paml/primitives/plate_handling/Unseal/Parameter1/LiteralInteger2> ;
-    ns1:type <http://bioprotocols.org/paml#LocatedSamples> ;
+    ns1:type <http://bioprotocols.org/paml#SampleArray> ;
     ns1:upperValue <https://bioprotocols.org/paml/primitives/plate_handling/Unseal/Parameter1/LiteralInteger1> ;
     sbol:displayId "Parameter1" ;
     sbol:name "location" .
