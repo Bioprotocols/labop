@@ -143,7 +143,7 @@ paml:SampleData rdf:type owl:Class ;
 
 paml:sampleDataValues rdf:type owl:ObjectProperty ;
               rdfs:domain paml:SampleData ;
-              rdfs:range xsd:string ;
+              rdfs:range xsd:string ; # TODO: consider https://github.com/SynBioDex/sbol_factory/issues/7
               rdfs:label "values" .
 
 paml:fromSamples rdf:type owl:ObjectProperty ;
