@@ -18,9 +18,10 @@ setup(name='paml',
             'openpyxl',
             'paml-check'
       ],
-      packages=['paml', 'paml_md', 'paml.lib', 'uml'],
+      packages=['paml', 'paml_md', 'paml.lib', 'paml_time', 'uml'],
       package_data={'paml': ['paml.ttl', 'lib/*.ttl'],
                     'paml_md': ['template.xlsx'],
-                    'uml': ['uml.ttl']},
+                    'uml': ['uml.ttl'],
+                    'paml_time': ['paml_time.ttl']},
       include_package_data=True,
 )
