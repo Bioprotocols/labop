@@ -81,6 +81,6 @@ def precedes(element1 : uml.Behavior, interval, element2 : uml.Behavior, units=t
 
 ## Logical constraints
 
-def andConstraint(elements):
+def And(elements):
     name = "and" #TODO use a more descriptive name
-    return And(name, constrained_elements=elements)
+    return AndConstraint(name, constrained_elements=elements)

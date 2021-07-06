@@ -30,7 +30,7 @@ class TestTime(unittest.TestCase):
         # Constrain duration of a to [1, 5]
         duration_a = pamlt.duration(a, [1, 5], units=tyto.OM.hour)
 
-        constraint = pamlt.andConstraint([start_a, end_a, duration_a])
+        constraint = pamlt.And([start_a, end_a, duration_a])
 
         doc.add(a)
         doc.add(constraint)
@@ -91,7 +91,7 @@ class TestTime(unittest.TestCase):
         # Protocol lasts 10 - 15 hours
         duration = pamlt.duration(protocol, [10, 15], units=tyto.OM.hour)
 
-        time_constraints = pamlt.andConstraint([start, duration])
+        time_constraints = pamlt.And([start, duration])
         doc.add(protocol)
         doc.add(time_constraints)
 
@@ -180,7 +180,7 @@ class TestTime(unittest.TestCase):
         execute_measurement_duration = pamlt.duration(measure, 60, units=tyto.OM.minute)
         ludox_before_ddh2o_constraint = pamlt.precedes(provision_ludox, [10, 15], provision_ddh2o, units=tyto.OM.hour)
 
-        time_constraints = pamlt.andConstraint([
+        time_constraints = pamlt.And([
             protocol_start_time,
             provision_ludox_duration,
             provision_ddh2o_duration,

@@ -50,17 +50,17 @@ pamlt:measureValue rdf:type owl:ObjectProperty ;
          rdfs:range sbol:Measure ;
          rdfs:label "expr" .
 
-pamlt:And rdf:type owl:Class ;
+pamlt:AndConstraint rdf:type owl:Class ;
           rdfs:subClassOf uml:Constraint ,
           [ rdf:type owl:Restriction ; owl:onClass uml:ValueSpecification ; owl:onProperty uml:specification ;
             owl:minCardinality "0"^^xsd:nonNegativeInteger ; owl:maxCardinality "0"^^xsd:nonNegativeInteger ] .
 
-pamlt:Or rdf:type owl:Class ;
+pamlt:OrConstraint rdf:type owl:Class ;
           rdfs:subClassOf uml:Constraint ,
           [ rdf:type owl:Restriction ; owl:onClass uml:ValueSpecification ; owl:onProperty uml:specification ;
             owl:minCardinality "0"^^xsd:nonNegativeInteger ; owl:maxCardinality "0"^^xsd:nonNegativeInteger ] .
 
-pamlt:Xor rdf:type owl:Class ;
+pamlt:XorConstraint rdf:type owl:Class ;
           rdfs:subClassOf uml:Constraint ,
           [ rdf:type owl:Restriction ; owl:onClass uml:ValueSpecification ; owl:onProperty uml:specification ;
             owl:minCardinality "0"^^xsd:nonNegativeInteger ; owl:maxCardinality "0"^^xsd:nonNegativeInteger ] .
