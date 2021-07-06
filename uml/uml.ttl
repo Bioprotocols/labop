@@ -22,8 +22,11 @@
 owl:maxCardinality rdf:type owl:AnnotationProperty .
 owl:minCardinality rdf:type owl:AnnotationProperty .
 
-opil:compositionalProperty rdf:type owl:AnnotationProperty . # should be SBOL - sbol_factory issue #10
+#################################################################
+#    Object properties
+#################################################################
 
+opil:compositionalProperty rdf:type owl:ObjectProperty . # should be SBOL - sbol_factory issue #10
 
 #################################################################
 #    Datatypes
@@ -225,8 +228,6 @@ uml:defaultValue rdf:type owl:ObjectProperty ;
 uml:Behavior rdf:type owl:Class ;
              rdfs:comment "UML 2.5.1 specification section 13.2" ;
              rdfs:subClassOf sbol:TopLevel ,
-    #[ rdf:type owl:Restriction ; owl:allValuesFrom xsd:boolean ; owl:onProperty uml:isReentrant ;
-    #  owl:minCardinality "1"^^xsd:nonNegativeInteger ; owl:maxCardinality "1"^^xsd:nonNegativeInteger ] ,
     [ rdf:type owl:Restriction ; owl:allValuesFrom uml:Constraint ; owl:onProperty uml:precondition ] ,
     [ rdf:type owl:Restriction ; owl:allValuesFrom uml:Constraint ; owl:onProperty uml:postcondition ] ,
     [ rdf:type owl:Restriction ; owl:allValuesFrom uml:Parameter ; owl:onProperty uml:ownedParameter ] .
@@ -358,6 +359,7 @@ uml:parameter rdf:type owl:ObjectProperty ;
          rdfs:label "parameter" .
 
 
+
 uml:ExecutableNode rdf:type owl:Class ;
              rdfs:comment "UML 2.5.1 specification section 15.5" ;
              rdfs:subClassOf uml:ActivityNode .
@@ -410,7 +412,7 @@ uml:behavior rdf:type owl:ObjectProperty ;
          rdfs:range uml:Behavior ;
          rdfs:label "behavior" .
 
-# starting here
+
 uml:Pin rdf:type owl:Class ;
              rdfs:comment "UML 2.5.1 specification section 16.2" ;
              rdfs:subClassOf uml:ObjectNode ,
