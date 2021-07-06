@@ -22,38 +22,15 @@ class TestTime(unittest.TestCase):
 
         a = paml.Primitive("a")
         # Constrain start time of a to [0, 10]
-        start_a = uml.TimeConstraint(
-            constrained_elements=[a],
-            specification=uml.TimeInterval(
-                min=uml.TimeExpression(expr=pamlt.TimeMeasure(expr=sbol3.Measure(0, tyto.OM.hour))),
-                max=uml.TimeExpression(expr=pamlt.TimeMeasure(expr=sbol3.Measure(10, tyto.OM.hour)))
-            ),
-            firstEvent=True,
-            identity="start_a"
-        )
+        start_a = pamlt.startTime(a, [0, 10], units=tyto.OM.hour)
 
         # Constrain end time of a to [10, 15]
-        end_a = uml.TimeConstraint(
-            constrained_elements=[a],
-            specification=uml.TimeInterval(
-                min=uml.TimeExpression(expr=pamlt.TimeMeasure(expr=sbol3.Measure(10, tyto.OM.hour))),
-                max=uml.TimeExpression(expr=pamlt.TimeMeasure(expr=sbol3.Measure(15, tyto.OM.hour)))
-            ),
-            firstEvent=False,
-            identity="end_a"
-        )
+        end_a = pamlt.endTime(a, [10, 15], units=tyto.OM.hour)
 
         # Constrain duration of a to [1, 5]
-        duration_a = uml.DurationConstraint(
-            constrained_elements=[a],
-            specification=uml.DurationInterval(
-                min=uml.Duration(expr=pamlt.TimeMeasure(expr=sbol3.Measure(10, tyto.OM.hour))),
-                max=uml.Duration(expr=pamlt.TimeMeasure(expr=sbol3.Measure(15, tyto.OM.hour)))
-            ),
-            identity="duration_a"
-        )
+        duration_a = pamlt.duration(a, [1, 5], units=tyto.OM.hour)
 
-        constraint = pamlt.And("and_costraint", constrained_elements=[start_a, end_a, duration_a])
+        constraint = pamlt.andConstraint([start_a, end_a, duration_a])
 
         doc.add(a)
         doc.add(constraint)
@@ -82,16 +59,7 @@ class TestTime(unittest.TestCase):
         b = paml.Primitive("b")
 
         # Constrain start of b to follow end of a by [10, 15]
-        follows_constraint = uml.DurationConstraint(
-            constrained_elements=[a, b],
-            specification=uml.DurationInterval(
-                min=uml.Duration(expr=pamlt.TimeMeasure(expr=sbol3.Measure(10, tyto.OM.hour))),
-                max=uml.Duration(expr=pamlt.TimeMeasure(expr=sbol3.Measure(15, tyto.OM.hour)))
-            ),
-            firstEvent=[False, True],
-            identity="follows_constraint"
-        )
-
+        follows_constraint = pamlt.precedes(a, [10, 15], b, units=tyto.OM.hour)
 
         doc.add(a)
         doc.add(follows_constraint)
@@ -118,27 +86,12 @@ class TestTime(unittest.TestCase):
         protocol = paml.Protocol('test_protocol')
 
         # Protocol starts at time zero
-        start = uml.TimeConstraint(
-            constrained_elements=[protocol],
-            specification=uml.TimeInterval(
-                min=uml.TimeExpression(expr=pamlt.TimeMeasure(expr=sbol3.Measure(0, tyto.OM.hour))),
-                max=uml.TimeExpression(expr=pamlt.TimeMeasure(expr=sbol3.Measure(0, tyto.OM.hour)))
-            ),
-            firstEvent=True,
-            identity="start"
-        )
+        start = pamlt.startTime(protocol, 0, units=tyto.OM.hour)
 
         # Protocol lasts 10 - 15 hours
-        duration = uml.DurationConstraint(
-            constrained_elements=[protocol],
-            specification=uml.DurationInterval(
-                min=uml.Duration(expr=pamlt.TimeMeasure(expr=sbol3.Measure(10, tyto.OM.hour))),
-                max=uml.Duration(expr=pamlt.TimeMeasure(expr=sbol3.Measure(15, tyto.OM.hour)))
-            ),
-            identity="duration_a"
-        )
+        duration = pamlt.duration(protocol, [10, 15], units=tyto.OM.hour)
 
-        time_constraints = pamlt.And("ac", constrained_elements=[start, duration])
+        time_constraints = pamlt.andConstraint([start, duration])
         doc.add(protocol)
         doc.add(time_constraints)
 
@@ -221,63 +174,19 @@ class TestTime(unittest.TestCase):
         # Set protocol timepoints
 
         # protocol starts at time 0
-        protocol_start_time = uml.TimeConstraint(
-            constrained_elements=[protocol],
-            specification=uml.TimeInterval(
-                min=uml.TimeExpression(expr=pamlt.TimeMeasure(expr=sbol3.Measure(0, tyto.OM.hour))),
-                max=uml.TimeExpression(expr=pamlt.TimeMeasure(expr=sbol3.Measure(0, tyto.OM.hour)))
-            ),
-            firstEvent=True,
-            identity="start"
-        )
+        protocol_start_time = pamlt.startTime(protocol, 0, units=tyto.OM.hour)
+        provision_ludox_duration = pamlt.duration(provision_ludox, 60, units=tyto.OM.second)
+        provision_ddh2o_duration = pamlt.duration(provision_ddh2o, 60, units=tyto.OM.second)
+        execute_measurement_duration = pamlt.duration(measure, 60, units=tyto.OM.minute)
+        ludox_before_ddh2o_constraint = pamlt.precedes(provision_ludox, [10, 15], provision_ddh2o, units=tyto.OM.hour)
 
-
-        provision_ludox_duration = uml.DurationConstraint(
-            constrained_elements=[provision_ludox],
-            specification=uml.DurationInterval(
-                min=uml.Duration(expr=pamlt.TimeMeasure(expr=sbol3.Measure(60, tyto.OM.second))),
-                max=uml.Duration(expr=pamlt.TimeMeasure(expr=sbol3.Measure(60, tyto.OM.second)))
-            ),
-            identity="duration_providion_ludox"
-        )
-
-        provision_ddh2o_duration = uml.DurationConstraint(
-            constrained_elements=[provision_ddh2o],
-            specification=uml.DurationInterval(
-                min=uml.Duration(expr=pamlt.TimeMeasure(expr=sbol3.Measure(60, tyto.OM.second))),
-                max=uml.Duration(expr=pamlt.TimeMeasure(expr=sbol3.Measure(60, tyto.OM.second)))
-            ),
-            identity="duration_provision_ddh2o"
-        )
-
-        execute_measurement_duration = uml.DurationConstraint(
-            constrained_elements=[measure],
-            specification=uml.DurationInterval(
-                min=uml.Duration(expr=pamlt.TimeMeasure(expr=sbol3.Measure(60, tyto.OM.minute))),
-                max=uml.Duration(expr=pamlt.TimeMeasure(expr=sbol3.Measure(60, tyto.OM.minute)))
-            ),
-            identity="duration_execute_measurement"
-        )
-
-
-        ludox_before_ddh2o_constraint = uml.DurationConstraint(
-            constrained_elements=[provision_ludox, provision_ddh2o],
-            specification=uml.DurationInterval(
-                min=uml.Duration(expr=pamlt.TimeMeasure(expr=sbol3.Measure(10, tyto.OM.hour))),
-                max=uml.Duration(expr=pamlt.TimeMeasure(expr=sbol3.Measure(15, tyto.OM.hour)))
-            ),
-            firstEvent=[False, True],
-            identity="follows_constraint"
-        )
-
-
-        clauses = [ protocol_start_time,
-                    provision_ludox_duration,
-                    provision_ddh2o_duration,
-                    execute_measurement_duration,
-                    ludox_before_ddh2o_constraint
-                    ]
-        time_constraints = pamlt.And("tcs", constrained_elements=clauses)
+        time_constraints = pamlt.andConstraint([
+            protocol_start_time,
+            provision_ludox_duration,
+            provision_ddh2o_duration,
+            execute_measurement_duration,
+            ludox_before_ddh2o_constraint
+            ])
 
         doc.add(time_constraints)
         #for t in timepoints:
