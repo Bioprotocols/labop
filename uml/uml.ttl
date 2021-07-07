@@ -257,6 +257,24 @@ uml:ownedParameter rdf:type owl:ObjectProperty ;
          rdfs:range uml:Parameter ;
          rdfs:label "parameters" .
 
+uml:OrderedPropertyValue rdf:type owl:Class ;
+         rdfs:subClassOf sbol:Identified ;
+    [ rdf:type owl:Restriction ; owl:allValuesFrom xsd:nonNegativeInteger ; owl:onProperty uml:indexValue ;
+      owl:minCardinality "1"^^xsd:nonNegativeInteger ; owl:maxCardinality "1"^^xsd:nonNegativeInteger] ,
+    [ rdf:type owl:Restriction ; owl:allValuesFrom xsd:anyURI ; owl:onProperty uml:propertyValue ;
+      owl:minCardinality "1"^^xsd:nonNegativeInteger ; owl:maxCardinality "1"^^xsd:nonNegativeInteger] .
+
+uml:indexValue rdf:type owl:ObjectProperty ;
+         rdfs:subPropertyOf opil:compositionalProperty ;
+         rdfs:domain uml:OrderedPropertyValue ;
+         rdfs:range xsd:nonNegativeInteger ;
+         rdfs:label "index" .
+
+uml:propertyValue rdf:type owl:ObjectProperty ;
+         rdfs:subPropertyOf opil:compositionalProperty ;
+         rdfs:domain uml:OrderedPropertyValue ;
+         rdfs:range xsd:anyURI ;
+         rdfs:label "property_value" .
 
 
 uml:Activity rdf:type owl:Class ;
