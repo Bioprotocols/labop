@@ -30,15 +30,21 @@ PARAMETER_IN = 'http://bioprotocols.org/uml#in'
 PARAMETER_OUT = 'http://bioprotocols.org/uml#out'
 
 
-def literal(value):
+def literal(value, reference: bool = False) -> LiteralSpecification:
     """Construct a UML LiteralSpecification based on the value of the literal passed
 
-    Note: if you need a reference rather than composition of a child object, that should be done by constructing
-    LiteralReference directly
-    :param value: the value to embed as a literal
-    :return: LiteralSpecification of the appropriate type for the value
+    Parameters
+    ----------
+    value: the value to embed as a literal
+    reference: if true, use a reference for a non-TopLevel SBOL rather than embedding as a child object
+
+    Returns
+    -------
+    LiteralSpecification of the appropriate type for the value
     """
-    if value is None:
+    if isinstance(value, LiteralSpecification):
+        return literal(value.value, reference) # if it's a literal, unwrap and rebuild
+    elif value is None:
         return LiteralNull()
     elif isinstance(value, str):
         return LiteralString(value=value)
@@ -48,7 +54,7 @@ def literal(value):
         return LiteralBoolean(value=value)
     elif isinstance(value, float):
         return LiteralReal(value=value)
-    elif isinstance(value, sbol3.TopLevel):
+    elif isinstance(value, sbol3.TopLevel) or (reference and isinstance(value, sbol3.Identified)):
         return LiteralReference(value=value)
     elif isinstance(value, sbol3.Identified):
         return LiteralIdentified(value=value)
@@ -65,7 +71,7 @@ def behavior_add_parameter(self, name: str, param_type: str, direction: str, opt
     Note: Current assumption is that cardinality is either [0..1] or 1
     :param name: name of the parameter, which will also be used for pins
     :param param_type: URI specifying the type of object that is expected for this parameter
-    :param direction: should be 'in' or 'out'
+    :param direction: should be in or out
     :param optional: True if the Parameter is optional; default is False
     :return: Parameter that has been added
     """
@@ -110,21 +116,72 @@ def behavior_get_inputs(self):
     """Return all Parameters of type input for this Behavior
 
     Note: assumes that type is all either in or out
-    :return: Iterator over Parameters
+    Returns
+    -------
+    Iterator over Parameters
     """
     return (p for p in self.parameters if p.direction == PARAMETER_IN)
 Behavior.get_inputs = behavior_get_inputs  # Add to class via monkey patch
+
+
+def behavior_get_required_inputs(self):
+    """Return all required Parameters of type input for this Behavior
+
+    Note: assumes that type is all either in or out
+    Returns
+    -------
+    Iterator over Parameters
+    """
+    return (p for p in self.get_inputs() if p.lower_value.value > 0)
+Behavior.get_required_inputs = behavior_get_required_inputs  # Add to class via monkey patch
 
 
 def behavior_get_outputs(self):
     """Return all Parameters of type output for this Behavior
 
     Note: assumes that type is all either in or out
-    :return: Iterator over Parameters
+    Returns
+    -------
+    Iterator over Parameters
     """
     return (p for p in self.parameters if p.direction == PARAMETER_OUT)
 Behavior.get_outputs = behavior_get_outputs  # Add to class via monkey patch
 
+
+def behavior_get_required_outputs(self):
+    """Return all required Parameters of type output for this Behavior
+
+    Note: assumes that type is all either in or out
+    Returns
+    -------
+    Iterator over Parameters
+    """
+    return (p for p in self.get_outputs() if p.lower_value.value > 0)
+Behavior.get_required_outputs = behavior_get_required_outputs  # Add to class via monkey patch
+
+
+###########################################
+# Define extension methods for ActivityNode
+
+def activitynode_unpin(self: ActivityNode) -> ActivityNode:
+    """Find the root node for an ActivityNode: either itself if a Pin, otherwise the owning Action
+
+    Parameters
+    ----------
+    self: ActivityNode
+
+    Returns
+    -------
+    self if not a Pin, otherwise the owning Action
+    """
+    if isinstance(self,Pin):
+        action = self.get_parent()
+        if not isinstance(action,Action):
+            raise ValueError(f'Parent of {self.identity} should be Action, but found {type(action)} instead')
+        return action
+    else:
+        return self
+ActivityNode.unpin = activitynode_unpin  # Add to class via monkey patch
 
 ###########################################
 # Define extension methods for CallBehaviorAction
@@ -233,6 +290,22 @@ def activity_final(self):
 Activity.final = activity_final  # Add to class via monkey patch
 
 
+def activity_initiating_nodes(self) -> list[ActivityNode]:
+    """Find all InitialNode and ActivityParameterNode activities.
+    These should be the only activities with no in-flow, which can thus initiate execution.
+
+    Parameters
+    ----------
+    self: Activity
+
+    Returns
+    -------
+    List of ActivityNodes able to initiate execution
+    """
+    return [n for n in self.nodes if isinstance(n,InitialNode) or isinstance(n,ActivityParameterNode)]
+Activity.initiating_nodes = activity_initiating_nodes  # Add to class via monkey patch
+
+
 def activity_deconflict_objectflow_sources(self, source: ActivityNode) -> ActivityNode:
     '''Avoid nondeterminism in ObjectFlows by injecting ForkNode objects where necessary
 
@@ -336,13 +409,31 @@ def activity_validate(self, report: sbol3.ValidationReport = None) -> sbol3.Vali
 
     '''
     report = super(Activity, self).validate(report)
+
     # Check for objects with multiple outgoing ObjectFlow edges that are not of type ForkNode or DecisionNode
     source_counts = Counter([e.source.lookup() for e in self.edges if isinstance(e,ObjectFlow)])
     multi_targets = {n: c for n, c in source_counts.items() if c>1 and not (isinstance(n,ForkNode) or isinstance(n,DecisionNode))}
     for n, c in multi_targets.items():
         report.addWarning(n.identity, None, f'ActivityNode has {c} outgoing edges: multi-edges can cause nondeterministic flow')
+
+    # Check that incoming flow counts obey constraints:
+    target_counts = Counter([e.target.lookup().unpin() for e in self.edges])
+    # No InitialNode or ActivityParameterNode should have an incoming flow
+    initial_with_inflow = {n: c for n, c in target_counts.items() if isinstance(n,InitialNode)}
+    for n, c in initial_with_inflow.items():
+        report.addError(n.identity, None, f'InitialNode must have no incoming edges, but has {c}')
+    parameter_with_inflow = {n: c for n, c in target_counts.items() if isinstance(n,ActivityParameterNode)}
+    for n, c in parameter_with_inflow.items():
+        report.addError(n.identity, None, f'ActivityParameterNode must have no incoming edges, but has {c}')
+    # No other type of node should have no incoming flows
+    missing_inflow = set(self.nodes) - {n for n, c in target_counts.items()} - set(self.initiating_nodes())
+    for n in missing_inflow:
+        report.addWarning(n.identity, None, f'Node has no incoming edges, so cannot be executed')
+
     return report
 Activity.validate = activity_validate
+
+# TODO: add a check for loops that can obtain too many or too few values
 
 ###########################################
 # Extension methods waiting to be converted
