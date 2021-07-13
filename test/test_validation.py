@@ -54,15 +54,11 @@ class TestValidationErrorChecking(unittest.TestCase):
         # Validate the document, which should produce two errors
         print('Validating and writing protocol')
         v = doc.validate()
-        assert len(v.errors) == 2, f'Expected two errors, but found {len(v)}'
+        assert len(v.errors) == 1, f'Expected one error, but found {len(v)}'
         assert len(v.warnings) == 1, f'Expected one warning, but found {len(v)}'
         assert str(v.errors[0]) == \
                'https://bbn.com/scratch/broken/InitialNode1: InitialNode must have no incoming edges, but has 1', \
                 f'Unexpected error content: {str(v.errors[0])}'
-        assert str(v.errors[1]) == \
-               'https://bbn.com/scratch/broken/ActivityParameterNode1: ' \
-               'ActivityParameterNode must have no incoming edges, but has 1', \
-                f'Unexpected error content: {str(v.errors[1])}'
         assert str(v.warnings[0]) == \
                'https://bbn.com/scratch/broken/FlowFinalNode1: Node has no incoming edges, so cannot be executed', \
                 f'Unexpected warning content: {str(v.warnings[0])}'

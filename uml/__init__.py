@@ -418,14 +418,11 @@ def activity_validate(self, report: sbol3.ValidationReport = None) -> sbol3.Vali
 
     # Check that incoming flow counts obey constraints:
     target_counts = Counter([e.target.lookup().unpin() for e in self.edges])
-    # No InitialNode or ActivityParameterNode should have an incoming flow
+    # No InitialNode should have an incoming flow (though an ActivityParameterNode may)
     initial_with_inflow = {n: c for n, c in target_counts.items() if isinstance(n,InitialNode)}
     for n, c in initial_with_inflow.items():
         report.addError(n.identity, None, f'InitialNode must have no incoming edges, but has {c}')
-    parameter_with_inflow = {n: c for n, c in target_counts.items() if isinstance(n,ActivityParameterNode)}
-    for n, c in parameter_with_inflow.items():
-        report.addError(n.identity, None, f'ActivityParameterNode must have no incoming edges, but has {c}')
-    # No other type of node should have no incoming flows
+    # No node besides initiating nodes (InitialNode or ActivityParameterNode) should have no incoming flows
     missing_inflow = set(self.nodes) - {n for n, c in target_counts.items()} - set(self.initiating_nodes())
     for n in missing_inflow:
         report.addWarning(n.identity, None, f'Node has no incoming edges, so cannot be executed')
