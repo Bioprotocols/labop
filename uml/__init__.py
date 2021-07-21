@@ -67,7 +67,7 @@ def behavior_add_parameter(self, name: str, param_type: str, direction: str, opt
     :return: Parameter that has been added
     """
     idx = len(self.parameters)
-    param = OrderedPropertyValue(index=idx, property_value=Parameter(name=name, type=param_type, direction=direction, is_ordered=True, is_unique=True)
+    param = OrderedPropertyValue(index=idx, property_value=Parameter(name=name, type=param_type, direction=direction, is_ordered=True, is_unique=True))
     self.parameters.append(param)
     param.upper_value = literal(1)  # all parameters are assumed to have cardinality [0..1] or 1 for now
     if optional:
