@@ -5,7 +5,7 @@ setup(name='paml',
       version='1.0a1',
       install_requires=[
             'sbol3',
-            'rdflib>=5.0.0',
+            'rdflib<6.0.0',
             'rdflib-jsonld>=0.5.0',
             'sparqlwrapper>=1.8.5',
             'pyshacl>=0.13.3',
