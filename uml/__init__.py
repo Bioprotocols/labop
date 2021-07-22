@@ -70,13 +70,14 @@ def behavior_add_parameter(self, name: str, param_type: str, direction: str, opt
     :return: Parameter that has been added
     """
     param = Parameter(name=name, type=param_type, direction=direction, is_ordered=True, is_unique=True)
-    self.parameters.append(param)
+    ordered_param = OrderedPropertyValue(index=len(self.parameters), property_value=param)
+    self.parameters.append(ordered_param)
     param.upper_value = literal(1)  # all parameters are assumed to have cardinality [0..1] or 1 for now
     if optional:
         param.lower_value = literal(0)
     else:
         param.lower_value = literal(1)
-    return param
+    return ordered_param
 Behavior.add_parameter = behavior_add_parameter  # Add to class via monkey patch
 
 

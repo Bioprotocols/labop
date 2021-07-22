@@ -170,14 +170,15 @@ uml:referenceValue rdf:type owl:ObjectProperty ;
 uml:Constraint rdf:type owl:Class ;
               rdfs:comment "UML 2.5.1 specification section 7.6" ;
               rdfs:subClassOf sbol:Identified ,
-        [ rdf:type owl:Restriction ; owl:allValuesFrom sbol:Identified ; owl:onProperty uml:constrainedElement ] ,
+        [ rdf:type owl:Restriction ; owl:allValuesFrom uml:OrderedPropertyValue ; owl:onProperty uml:constrainedElement ] ,
         [ rdf:type owl:Restriction ;  owl:onProperty uml:specification ; owl:allValuesFrom uml:ValueSpecification ] ,
         [ rdf:type owl:Restriction ;  owl:onProperty uml:specification ; owl:minCardinality "1"^^xsd:nonNegativeInteger ] ,
         [ rdf:type owl:Restriction ;  owl:onProperty uml:specification ; owl:maxCardinality "1"^^xsd:nonNegativeInteger ] .
 
 uml:constrainedElement rdf:type owl:ObjectProperty ;
+         rdfs:subPropertyOf opil:compositionalProperty ;
          rdfs:domain uml:Constraint ;
-         rdfs:range sbol:Identified ; # equivalent to uml:Element in this context
+         rdfs:range uml:OrderedPropertyValue ; # equivalent to uml:Element in this context
          rdfs:label "constrained_elements" .
 
 uml:specification rdf:type owl:ObjectProperty ;
@@ -230,7 +231,7 @@ uml:Behavior rdf:type owl:Class ;
              rdfs:subClassOf sbol:TopLevel ,
     [ rdf:type owl:Restriction ; owl:allValuesFrom uml:Constraint ; owl:onProperty uml:precondition ] ,
     [ rdf:type owl:Restriction ; owl:allValuesFrom uml:Constraint ; owl:onProperty uml:postcondition ] ,
-    [ rdf:type owl:Restriction ; owl:allValuesFrom uml:Parameter ; owl:onProperty uml:ownedParameter ] .
+    [ rdf:type owl:Restriction ; owl:allValuesFrom uml:OrderedPropertyValue ; owl:onProperty uml:ownedParameter ] .
     # omitted: context, specification, redefinedBehavior, ownedParameterSet
     # omitted subclasses: OpaqueBehavior, FunctionBehavior
 
@@ -254,9 +255,27 @@ uml:postcondition rdf:type owl:ObjectProperty ;
 uml:ownedParameter rdf:type owl:ObjectProperty ;
          rdfs:subPropertyOf opil:compositionalProperty ;
          rdfs:domain uml:Behavior ;
-         rdfs:range uml:Parameter ;
+         rdfs:range uml:OrderedPropertyValue ;
          rdfs:label "parameters" .
 
+uml:OrderedPropertyValue rdf:type owl:Class ;
+         rdfs:subClassOf sbol:Identified ,
+    [ rdf:type owl:Restriction ; owl:allValuesFrom xsd:integer ; owl:onProperty uml:indexValue ;
+      owl:minCardinality "1"^^xsd:nonNegativeInteger ; owl:maxCardinality "1"^^xsd:nonNegativeInteger ] ,
+    [ rdf:type owl:Restriction ; owl:allValuesFrom sbol:Identified ; owl:onProperty uml:propertyValue ;
+      owl:minCardinality "1"^^xsd:nonNegativeInteger ; owl:maxCardinality "1"^^xsd:nonNegativeInteger ] .
+
+uml:indexValue rdf:type owl:DatatypeProperty ;
+         rdfs:subPropertyOf opil:compositionalProperty ;
+         rdfs:domain uml:OrderedPropertyValue ;
+         rdfs:range xsd:integer ;
+         rdfs:label "index" .
+
+uml:propertyValue rdf:type owl:ObjectProperty ;
+         rdfs:subPropertyOf opil:compositionalProperty ;
+         rdfs:domain uml:OrderedPropertyValue ;
+         rdfs:range sbol:Identified ;
+         rdfs:label "property_value" .
 
 
 uml:Activity rdf:type owl:Class ;
