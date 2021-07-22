@@ -274,7 +274,7 @@ uml:indexValue rdf:type owl:DatatypeProperty ;
 uml:propertyValue rdf:type owl:ObjectProperty ;
          rdfs:subPropertyOf opil:compositionalProperty ;
          rdfs:domain uml:OrderedPropertyValue ;
-         rdfs:range xsd:anyURI ;
+         rdfs:range sbol:Identified ;
          rdfs:label "property_value" .
 
 
