@@ -262,7 +262,7 @@ uml:OrderedPropertyValue rdf:type owl:Class ;
          rdfs:subClassOf sbol:Identified ,
     [ rdf:type owl:Restriction ; owl:allValuesFrom xsd:integer ; owl:onProperty uml:indexValue ;
       owl:minCardinality "1"^^xsd:nonNegativeInteger ; owl:maxCardinality "1"^^xsd:nonNegativeInteger ] ,
-    [ rdf:type owl:Restriction ; owl:allValuesFrom xsd:anyURI ; owl:onProperty uml:propertyValue ;
+    [ rdf:type owl:Restriction ; owl:allValuesFrom sbol:Identified ; owl:onProperty uml:propertyValue ;
       owl:minCardinality "1"^^xsd:nonNegativeInteger ; owl:maxCardinality "1"^^xsd:nonNegativeInteger ] .
 
 uml:indexValue rdf:type owl:DatatypeProperty ;
