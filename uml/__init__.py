@@ -4,11 +4,14 @@ from collections import Counter
 from sbol_factory import SBOLFactory, UMLFactory
 import sbol3
 
-# Import ontology
-__factory__ = SBOLFactory(locals(),
-                          posixpath.join(os.path.dirname(os.path.realpath(__file__)), 'uml.ttl'),
-                          'http://bioprotocols.org/uml#')
-__umlfactory__ = UMLFactory(__factory__)
+# Load ontology and create uml submodule
+SBOLFactory('uml_submodule',
+            posixpath.join(os.path.dirname(os.path.realpath(__file__)),
+            'uml.ttl'),
+            'http://bioprotocols.org/uml#')
+
+# Import submodule symbols into top-level uml module
+from uml_submodule import *
 
 
 # Workaround for pySBOL3 issue #231: should be applied to every iteration on a collection of SBOL objects
