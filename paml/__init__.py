@@ -4,12 +4,14 @@ import posixpath
 import sbol3
 import uml # Note: looks unused, but is used in SBOLFactory
 
-# Import ontology
-__factory__ = SBOLFactory(locals(),
-                          posixpath.join(os.path.dirname(os.path.realpath(__file__)),
-                                         'paml.ttl'),
-                          'http://bioprotocols.org/paml#')
-__umlfactory__ = UMLFactory(__factory__)
+# Load the ontology and create a Python module called paml_submodule
+SBOLFactory('paml_submodule',
+            posixpath.join(os.path.dirname(os.path.realpath(__file__)),
+            'paml.ttl'),
+            'http://bioprotocols.org/paml#')
+
+# Import symbols into the top-level paml module
+from paml_submodule import *
 
 
 #########################################
