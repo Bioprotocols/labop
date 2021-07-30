@@ -306,8 +306,7 @@ uml:maxDurationValue rdf:type owl:ObjectProperty ;
 
 uml:Constraint rdf:type owl:Class ;
               rdfs:comment "UML 2.5.1 specification section 7.6" ;
-              rdfs:subClassOf sbol:TopLevel ,
-              # Omitted context property
+              rdfs:subClassOf sbol:Identified ,
         [ rdf:type owl:Restriction ; owl:allValuesFrom uml:OrderedPropertyValue ; owl:onProperty uml:constrainedElement ] ,
         [ rdf:type owl:Restriction ;  owl:onProperty uml:specification ; owl:allValuesFrom uml:ValueSpecification ] ,
         [ rdf:type owl:Restriction ;  owl:onProperty uml:specification ; owl:minCardinality "1"^^xsd:nonNegativeInteger ] ,

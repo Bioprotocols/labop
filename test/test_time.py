@@ -33,7 +33,7 @@ class TestTime(unittest.TestCase):
         constraint = pamlt.And([start_a, end_a, duration_a])
 
         doc.add(a)
-        doc.add(constraint)
+        # doc.add(constraint)
         ########################################
         # Validate and write the document
         print('Validating and writing time')
@@ -62,7 +62,7 @@ class TestTime(unittest.TestCase):
         follows_constraint = pamlt.precedes(a, [10, 15], b, units=tyto.OM.hour)
 
         doc.add(a)
-        doc.add(follows_constraint)
+        # doc.add(follows_constraint)
         ########################################
         # Validate and write the document
         print('Validating and writing time')
@@ -93,7 +93,7 @@ class TestTime(unittest.TestCase):
 
         time_constraints = pamlt.And([start, duration])
         doc.add(protocol)
-        doc.add(time_constraints)
+        # doc.add(time_constraints)
 
 
         ########################################
@@ -188,7 +188,7 @@ class TestTime(unittest.TestCase):
             ludox_before_ddh2o_constraint
             ])
 
-        doc.add(time_constraints)
+        #doc.add(time_constraints)
         #for t in timepoints:
         #    doc.add(t)
         protocol.time_constraints = [time_constraints]
@@ -233,8 +233,8 @@ class TestTime(unittest.TestCase):
         #doc.add(lt1)
 
         # c1: Not(lt1)
-        c1 = pamlt.Not("c1", constrained_elements=lt1)
-        doc.add(c1)
+        c1 = pamlt.Not(constrained_elements=lt1)
+        #  doc.add(c1)
 
         ########################################
         # Validate and write the document

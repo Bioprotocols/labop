@@ -73,7 +73,8 @@ pamlt:Not rdf:type owl:Class ;
             owl:minCardinality "0"^^xsd:nonNegativeInteger ; owl:maxCardinality "0"^^xsd:nonNegativeInteger ] .
 
 pamlt:timeConstraints rdf:type owl:ObjectProperty ;
+              rdfs:subPropertyOf opil:compositionalProperty ;
               rdfs:domain paml:Protocol ;
-              rdfs:range pamlt:Constraint ;
+              rdfs:range uml:Constraint ;
               rdfs:label "time_constraints" ;
               rdfs:comment "Specification of time constraints on a protocol" .

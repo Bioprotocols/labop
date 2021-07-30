@@ -7,10 +7,13 @@ import paml_time as pamlt
 import tyto
 
 # Import ontology
-__factory__ = SBOLFactory(locals(),
-                          posixpath.join(os.path.dirname(os.path.realpath(__file__)), 'paml_time.ttl'),
-                          'http://bioprotocols.org/paml-time#')
-__umlfactory__ = UMLFactory(__factory__)
+SBOLFactory("paml_time_submodule",
+            posixpath.join(os.path.dirname(os.path.realpath(__file__)), 'paml_time.ttl'),
+            'http://bioprotocols.org/paml-time#')
+
+# Import submodule symbols into top-level  module
+from paml_time_submodule import *
+
 
 # Helper functions
 class MalformedInterval(Exception):
@@ -44,8 +47,7 @@ def constrainTimePoint(element : uml.Behavior, interval, units=tyto.OM.second, f
     return timePointExpression(element, _getUMLInterval(interval, uml.TimeInterval, units=units), first=first)
 
 def timePointExpression(element : uml.Behavior, interval : uml.TimeInterval, first=True):
-    name = f"{element.identity}_start" if first else  f"{element.identity}_end"
-    return uml.TimeConstraint(name, constrained_elements=[element], specification=interval, firstEvent=first)
+    return uml.TimeConstraint(constrained_elements=[element], specification=interval, firstEvent=first)
 
 ## Duration Constraints
 
@@ -56,8 +58,7 @@ def constrainDuation(element : uml.Behavior, interval, units=tyto.OM.second):
     return durationExpression(element, _getUMLInterval(interval, uml.DurationInterval, units=units))
 
 def durationExpression(element : uml.Behavior, interval : uml.DurationInterval):
-    name = f"{element.identity}_duration"
-    return uml.DurationConstraint(name, constrained_elements=[element], specification=interval)
+    return uml.DurationConstraint(constrained_elements=[element], specification=interval)
 
 ## Allen relations
 
@@ -82,5 +83,4 @@ def precedes(element1 : uml.Behavior, interval, element2 : uml.Behavior, units=t
 ## Logical constraints
 
 def And(elements):
-    name = "and" #TODO use a more descriptive name
-    return AndConstraint(name, constrained_elements=elements)
+    return AndConstraint(constrained_elements=elements)
