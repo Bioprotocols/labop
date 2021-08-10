@@ -180,18 +180,16 @@ class TestTime(unittest.TestCase):
         execute_measurement_duration = pamlt.duration(measure, 60, units=tyto.OM.minute)
         ludox_before_ddh2o_constraint = pamlt.precedes(provision_ludox, [10, 15], provision_ddh2o, units=tyto.OM.hour)
 
-        time_constraints = pamlt.And([
-            protocol_start_time,
-            provision_ludox_duration,
-            provision_ddh2o_duration,
-            execute_measurement_duration,
-            ludox_before_ddh2o_constraint
-            ])
+        time_constraints = pamlt.TimeConstraints("ludox_protocol_constraints",
+            constraints=[pamlt.And([
+                protocol_start_time,
+                provision_ludox_duration,
+                provision_ddh2o_duration,
+                execute_measurement_duration,
+                ludox_before_ddh2o_constraint
+                ])])
 
-        #doc.add(time_constraints)
-        #for t in timepoints:
-        #    doc.add(t)
-        protocol.time_constraints = [time_constraints]
+        doc.add(time_constraints)
 
         ########################################
         # Validate and write the document

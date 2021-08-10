@@ -47,7 +47,9 @@ def constrainTimePoint(element : uml.Behavior, interval, units=tyto.OM.second, f
     return timePointExpression(element, _getUMLInterval(interval, uml.TimeInterval, units=units), first=first)
 
 def timePointExpression(element : uml.Behavior, interval : uml.TimeInterval, first=True):
-    return uml.TimeConstraint(constrained_elements=[element], specification=interval, firstEvent=first)
+    name = f"{element.identity}_start" if first else  f"{element.identity}_end"
+    return uml.TimeConstraint(identity=name, type_uri='http://bioprotocols.org/uml#TimeConstraint',
+                              constrained_elements=[element], specification=interval, firstEvent=first)
 
 ## Duration Constraints
 
@@ -58,7 +60,8 @@ def constrainDuation(element : uml.Behavior, interval, units=tyto.OM.second):
     return durationExpression(element, _getUMLInterval(interval, uml.DurationInterval, units=units))
 
 def durationExpression(element : uml.Behavior, interval : uml.DurationInterval):
-    return uml.DurationConstraint(constrained_elements=[element], specification=interval)
+    name = f"{element.identity}_duration"
+    return uml.DurationConstraint(identity=name, type_uri='http://bioprotocols.org/uml#DurationConstraint', constrained_elements=[element], specification=interval)
 
 ## Allen relations
 
@@ -83,4 +86,5 @@ def precedes(element1 : uml.Behavior, interval, element2 : uml.Behavior, units=t
 ## Logical constraints
 
 def And(elements):
-    return AndConstraint(constrained_elements=elements)
+    name = "and" #TODO use a more descriptive name
+    return AndConstraint(identity=name, type_uri='http://bioprotocols.org/paml-time#AndConstraint', constrained_elements=elements)
