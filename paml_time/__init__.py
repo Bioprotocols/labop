@@ -49,7 +49,8 @@ def constrainTimePoint(element : uml.Behavior, interval, units=tyto.OM.second, f
 def timePointExpression(element : uml.Behavior, interval : uml.TimeInterval, first=True):
     name = f"{element.identity}_start" if first else  f"{element.identity}_end"
     return uml.TimeConstraint(identity=name, type_uri='http://bioprotocols.org/uml#TimeConstraint',
-                              constrained_elements=[element], specification=interval, firstEvent=first)
+                              constrained_elements=[_orderedPropertyValue(0, element)],
+                              specification=interval, firstEvent=first)
 
 ## Duration Constraints
 
@@ -61,7 +62,9 @@ def constrainDuation(element : uml.Behavior, interval, units=tyto.OM.second):
 
 def durationExpression(element : uml.Behavior, interval : uml.DurationInterval):
     name = f"{element.identity}_duration"
-    return uml.DurationConstraint(identity=name, type_uri='http://bioprotocols.org/uml#DurationConstraint', constrained_elements=[element], specification=interval)
+    return uml.DurationConstraint(identity=name, type_uri='http://bioprotocols.org/uml#DurationConstraint',
+                                  constrained_elements=[_orderedPropertyValue(0, element)],
+                                  specification=interval)
 
 ## Allen relations
 
@@ -71,8 +74,10 @@ def binaryDuration(element1 : uml.Behavior, first1 : bool,
     name1 = f"{element1.identity}_start" if first1 else  f"{element1.identity}_end"
     name2 = f"{element2.identity}_start" if first2 else  f"{element2.identity}_end"
 
+    ordered_elements = [_orderedPropertyValue(0, element1), _orderedPropertyValue(1, element2)]
+
     return uml.DurationConstraint(
-            constrained_elements=[element1, element2],
+            constrained_elements=ordered_elements,
             specification=interval,
             firstEvent=[first1, first2],
             identity=f"{name1}_{name2}"
@@ -83,8 +88,15 @@ def precedes(element1 : uml.Behavior, interval, element2 : uml.Behavior, units=t
                           _getUMLInterval(interval, uml.DurationInterval, units=units),
                           element2, True)
 
+def _orderedPropertyValue(i : int, value):
+    return uml.OrderedPropertyValue(identity=f"value_{i}", type_uri="http://bioprotocols.org/uml#OrderedPropertyValue",
+                                    index=i, property_value=value)
+
 ## Logical constraints
 
 def And(elements):
     name = "and" #TODO use a more descriptive name
-    return AndConstraint(identity=name, type_uri='http://bioprotocols.org/paml-time#AndConstraint', constrained_elements=elements)
+    ordered_elements = [_orderedPropertyValue(i, e) for i, e in enumerate(elements)]
+    return AndConstraint(identity=name,
+                         type_uri='http://bioprotocols.org/paml-time#AndConstraint',
+                         constrained_elements=ordered_elements)
