@@ -74,10 +74,17 @@ pamlt:Not rdf:type owl:Class ;
 
 pamlt:TimeConstraints rdf:type owl:Class ;
           rdfs:subClassOf sbol:TopLevel ,
-          [ rdf:type owl:Restriction ; owl:allValuesFrom sbol:Measure ; owl:onProperty pamlt:constraints ] .
+          [ rdf:type owl:Restriction ; owl:allValuesFrom uml:Constraint ; owl:onProperty pamlt:constraints ] ,
+          [ rdf:type owl:Restriction ; owl:allValuesFrom paml:Protocol ; owl:onProperty pamlt:protocols ] .
 
 pamlt:constraints rdf:type owl:ObjectProperty ;
          rdfs:subPropertyOf opil:compositionalProperty ;
          rdfs:domain pamlt:TimeConstraints;
          rdfs:range uml:Constraint ;
          rdfs:label "constraints" .
+
+pamlt:protocols rdf:type owl:ObjectProperty ;
+         rdfs:subPropertyOf opil:compositionalProperty ;
+         rdfs:domain pamlt:TimeConstraints;
+         rdfs:range paml:Protocol ;
+         rdfs:label "protocols" .

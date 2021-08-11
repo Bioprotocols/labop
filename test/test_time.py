@@ -97,7 +97,8 @@ class TestTime(unittest.TestCase):
 
         time_constraints = pamlt.TimeConstraints(identity="my_constraints",
                                                  type_uri="http://bioprotocols.org/paml-time#TimeConstraints",
-                                                 constraints=pamlt.And([start, duration]))
+                                                 constraints=pamlt.And([start, duration]),
+                                                 protocols=[protocol])
         doc.add(protocol)
         doc.add(time_constraints)
 
@@ -193,7 +194,9 @@ class TestTime(unittest.TestCase):
                 provision_ddh2o_duration,
                 execute_measurement_duration,
                 ludox_before_ddh2o_constraint
-                ])])
+                ])],
+            protocols = [protocol]
+        )
 
         doc.add(time_constraints)
 
