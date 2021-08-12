@@ -84,7 +84,6 @@ pamlt:constraints rdf:type owl:ObjectProperty ;
          rdfs:label "constraints" .
 
 pamlt:protocols rdf:type owl:ObjectProperty ;
-         rdfs:subPropertyOf opil:compositionalProperty ;
          rdfs:domain pamlt:TimeConstraints;
          rdfs:range paml:Protocol ;
          rdfs:label "protocols" .

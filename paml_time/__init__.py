@@ -39,7 +39,7 @@ def _getUMLInterval(interval, intervalType, units=tyto.OM.second):
 
     uml_interval = intervalType(
         min=uml.TimeExpression(expr=pamlt.TimeMeasure(expr=sbol3.Measure(min, units))),
-        max=uml.TimeExpression(expr=pamlt.TimeMeasure(expr=sbol3.Measure(min, units)))
+        max=uml.TimeExpression(expr=pamlt.TimeMeasure(expr=sbol3.Measure(max, units)))
     )
     return uml_interval
 
@@ -89,8 +89,7 @@ def precedes(element1 : uml.Behavior, interval, element2 : uml.Behavior, units=t
                           element2, True)
 
 def _orderedPropertyValue(i : int, value):
-    return uml.OrderedPropertyValue(identity=f"value_{i}", type_uri="http://bioprotocols.org/uml#OrderedPropertyValue",
-                                    index=i, property_value=value)
+    return uml.OrderedPropertyValue(index=i, property_value=value)
 
 ## Logical constraints
 
