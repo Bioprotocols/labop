@@ -337,7 +337,7 @@ uml:intervalSpecification rdf:type owl:ObjectProperty ;
 
 uml:TimeConstraint rdf:type owl:Class ;
               rdfs:subClassOf uml:IntervalConstraint ,
-    [ rdf:type owl:Restriction ; owl:onClass uml:Interval ; owl:onProperty uml:timeSpecification ;
+    [ rdf:type owl:Restriction ; owl:onClass uml:TimeInterval ; owl:onProperty uml:timeSpecification ;
       owl:minCardinality "1"^^xsd:nonNegativeInteger ; owl:maxCardinality "1"^^xsd:nonNegativeInteger ] ,
     [ rdf:type owl:Restriction ; owl:allValuesFrom xsd:boolean ; owl:onProperty uml:firstEventValue ;
       owl:minCardinality "0"^^xsd:nonNegativeInteger ; owl:maxCardinality "1"^^xsd:nonNegativeInteger ] .
@@ -350,7 +350,7 @@ uml:timeSpecification rdf:type owl:ObjectProperty ;
 
 uml:DurationConstraint rdf:type owl:Class ;
               rdfs:subClassOf uml:IntervalConstraint ,
-    [ rdf:type owl:Restriction ; owl:onClass uml:Interval ; owl:onProperty uml:durationSpecification ;
+    [ rdf:type owl:Restriction ; owl:onClass uml:DurationInterval ; owl:onProperty uml:durationSpecification ;
       owl:minCardinality "1"^^xsd:nonNegativeInteger ; owl:maxCardinality "1"^^xsd:nonNegativeInteger ] ,
     [ rdf:type owl:Restriction ; owl:allValuesFrom xsd:boolean ; owl:onProperty uml:firstEventValue ;
       owl:minCardinality "0"^^xsd:nonNegativeInteger ; owl:maxCardinality "2"^^xsd:nonNegativeInteger ] .

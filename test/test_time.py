@@ -31,9 +31,7 @@ class TestTime(unittest.TestCase):
         duration_a = pamlt.duration(a, [1, 5], units=tyto.OM.hour)
 
         constraint = pamlt.And([start_a, end_a, duration_a])
-        time_constraints = pamlt.TimeConstraints(identity="my_constraints",
-                                                 type_uri="http://bioprotocols.org/paml-time#TimeConstraints",
-                                                 constraints=[constraint])
+        time_constraints = pamlt.TimeConstraints("small_protocol_constraints", constraints=[constraint])
 
 
         doc.add(a)
@@ -95,8 +93,7 @@ class TestTime(unittest.TestCase):
         # Protocol lasts 10 - 15 hours
         duration = pamlt.duration(protocol, [10, 15], units=tyto.OM.hour)
 
-        time_constraints = pamlt.TimeConstraints(identity="my_constraints",
-                                                 type_uri="http://bioprotocols.org/paml-time#TimeConstraints",
+        time_constraints = pamlt.TimeConstraints("small_protocol_constraints",
                                                  constraints=pamlt.And([start, duration]),
                                                  protocols=[protocol])
         doc.add(protocol)
