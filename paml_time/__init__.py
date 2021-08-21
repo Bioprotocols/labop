@@ -49,7 +49,8 @@ def constrainTimePoint(element : uml.Behavior, interval, units=tyto.OM.second, f
 def timePointExpression(element : uml.Behavior, interval : uml.TimeInterval, first=True):
     name = f"{element.identity}_start" if first else  f"{element.identity}_end"
     return uml.TimeConstraint(constrained_elements=[_referencedOrderedPropertyValue(0, element)],
-                              specification=interval, firstEvent=first)
+                              specification=interval,
+                              firstEvent=_orderedPropertyValue(0, uml.LiteralBoolean(value=first)))
 
 ## Duration Constraints
 
@@ -78,7 +79,8 @@ def binaryDuration(element1 : uml.Behavior, first1 : bool,
     return uml.DurationConstraint(
             constrained_elements=ordered_elements,
             specification=interval,
-            firstEvent=[first1, first2]
+            firstEvent=[_orderedPropertyValue(0, uml.LiteralBoolean(value=first1)),
+                        _orderedPropertyValue(1, uml.LiteralBoolean(value=first2))]
         )
 
 def precedes(element1 : uml.Behavior, interval, element2 : uml.Behavior, units=tyto.OM.second):
