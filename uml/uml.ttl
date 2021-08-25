@@ -170,19 +170,18 @@ uml:Expression rdf:type owl:Class ;
     [ rdf:type owl:Restriction ; owl:allValuesFrom xsd:string ; owl:onProperty uml:symbolValue ;
       owl:minCardinality "0"^^xsd:nonNegativeInteger ; owl:maxCardinality "1"^^xsd:nonNegativeInteger ],
     [ rdf:type owl:Restriction ; owl:allValuesFrom xsd:boolean ; owl:onProperty uml:isOrdered ;
-    # FIXME operands must be ordered
       owl:minCardinality "1"^^xsd:nonNegativeInteger ; owl:maxCardinality "1"^^xsd:nonNegativeInteger ] ,
-    [ rdf:type owl:Restriction ; owl:allValuesFrom uml:ValueSpecification ; owl:onProperty uml:operandValue ] .
+    [ rdf:type owl:Restriction ; owl:allValuesFrom uml:OrderedPropertyValue ; owl:onProperty uml:operandValue ] .
 
 uml:symbolValue rdf:type owl:DatatypeProperty ;
          rdfs:domain uml:Expression ;
-         rdfs:range xsd:string ;
+         rdfs:range xsd:anyURI ;
          rdfs:label "symbol" .
 
 uml:operandValue rdf:type owl:ObjectProperty ;
          rdfs:subPropertyOf opil:compositionalProperty ;
          rdfs:domain uml:Expression ;
-         rdfs:range uml:ValueSpecification ;
+         rdfs:range uml:OrderedPropertyValue ;
          rdfs:label "operand" .
 
 uml:TimeExpression rdf:type owl:Class ;
@@ -249,23 +248,7 @@ uml:durationObservationValue rdf:type owl:ObjectProperty ;
          rdfs:label "event" .
 
 uml:Interval rdf:type owl:Class ;
-              rdfs:subClassOf uml:ValueSpecification ,
-    [ rdf:type owl:Restriction ; owl:allValuesFrom uml:ValueSpecification ; owl:onProperty uml:minValue ;
-      owl:minCardinality "1"^^xsd:nonNegativeInteger ; owl:maxCardinality "1"^^xsd:nonNegativeInteger ],
-    [ rdf:type owl:Restriction ; owl:allValuesFrom uml:ValueSpecification ; owl:onProperty uml:maxValue ;
-      owl:minCardinality "1"^^xsd:nonNegativeInteger ; owl:maxCardinality "1"^^xsd:nonNegativeInteger ] .
-
-uml:minValue rdf:type owl:ObjectProperty ;
-         rdfs:subPropertyOf opil:compositionalProperty ;
-         rdfs:domain uml:Interval ;
-         rdfs:range uml:ValueSpecification ;
-         rdfs:label "min" .
-
-uml:maxValue rdf:type owl:ObjectProperty ;
-         rdfs:subPropertyOf opil:compositionalProperty ;
-         rdfs:domain uml:Interval ;
-         rdfs:range uml:ValueSpecification ;
-         rdfs:label "max" .
+              rdfs:subClassOf uml:ValueSpecification .
 
 uml:TimeInterval rdf:type owl:Class ;
               rdfs:subClassOf uml:Interval ,
@@ -308,10 +291,7 @@ uml:maxDurationValue rdf:type owl:ObjectProperty ;
 uml:Constraint rdf:type owl:Class ;
               rdfs:comment "UML 2.5.1 specification section 7.6" ;
               rdfs:subClassOf sbol:Identified ,
-        [ rdf:type owl:Restriction ; owl:allValuesFrom uml:OrderedPropertyValue ; owl:onProperty uml:constrainedElement ] ,
-        [ rdf:type owl:Restriction ;  owl:onProperty uml:specification ; owl:allValuesFrom uml:ValueSpecification ] ,
-        [ rdf:type owl:Restriction ;  owl:onProperty uml:specification ; owl:minCardinality "1"^^xsd:nonNegativeInteger ] ,
-        [ rdf:type owl:Restriction ;  owl:onProperty uml:specification ; owl:maxCardinality "1"^^xsd:nonNegativeInteger ] .
+        [ rdf:type owl:Restriction ; owl:allValuesFrom uml:OrderedPropertyValue ; owl:onProperty uml:constrainedElement ] .
 
 uml:constrainedElement rdf:type owl:ObjectProperty ;
          rdfs:subPropertyOf opil:compositionalProperty ;
@@ -319,22 +299,8 @@ uml:constrainedElement rdf:type owl:ObjectProperty ;
          rdfs:range uml:OrderedPropertyValue ; # equivalent to uml:Element in this context
          rdfs:label "constrained_elements" .
 
-uml:specification rdf:type owl:ObjectProperty ;
-         rdfs:subPropertyOf opil:compositionalProperty ;
-         rdfs:domain uml:Constraint ;
-         rdfs:range uml:ValueSpecification ;
-         rdfs:label "specification" .
-
 uml:IntervalConstraint rdf:type owl:Class ;
-              rdfs:subClassOf uml:Constraint ,
-    [ rdf:type owl:Restriction ; owl:onClass uml:Interval ; owl:onProperty uml:intervalSpecification ;
-      owl:minCardinality "1"^^xsd:nonNegativeInteger ; owl:maxCardinality "1"^^xsd:nonNegativeInteger ] .
-
-uml:intervalSpecification rdf:type owl:ObjectProperty ;
-         rdfs:subPropertyOf opil:compositionalProperty ;
-         rdfs:domain uml:IntervalConstraint ;
-         rdfs:range uml:Interval ;
-         rdfs:label "specification" .
+              rdfs:subClassOf uml:Constraint .
 
 uml:TimeConstraint rdf:type owl:Class ;
               rdfs:subClassOf uml:IntervalConstraint ,
