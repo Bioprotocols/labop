@@ -10,6 +10,7 @@
 @prefix sbol: <http://sbols.org/v3#> .
 @prefix uml: <http://bioprotocols.org/uml#> .
 @prefix MathM: <http://www.w3.org/1998/Math/MathML> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
 @base <http://bioprotocols.org/paml#> .
 
 <http://bioprotocols.org/paml> rdf:type owl:Ontology ;

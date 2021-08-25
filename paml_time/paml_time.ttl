@@ -1,0 +1,109 @@
+@prefix : <http://bioprotocols.org/paml-time#> .
+@prefix opil: <http://bioprotocols.org/opil/v1#> .
+@prefix om: <http://www.ontology-of-units-of-measure.org/resource/om-2/> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xml: <http://www.w3.org/XML/1998/namespace> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix paml: <http://bioprotocols.org/paml#> .
+@prefix pamlt: <http://bioprotocols.org/paml-time#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix sbol: <http://sbols.org/v3#> .
+@prefix uml: <http://bioprotocols.org/uml#> .
+@prefix MathM: <http://www.w3.org/1998/Math/MathML> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@base <http://bioprotocols.org/paml-time#> .
+
+<http://bioprotocols.org/paml-time> rdf:type owl:Ontology ;
+                              owl:imports paml:, uml:, sbol: , om: ;
+                              rdfs:comment "Time Extension for the Protocol Activity Modeling Languge (PAML) ontology." ;
+                              owl:versionInfo "0.1" .
+
+#################################################################
+#    Annotation properties
+#################################################################
+
+###  http://www.w3.org/2002/07/owl#maxCardinality
+owl:maxCardinality rdf:type owl:AnnotationProperty .
+owl:minCardinality rdf:type owl:AnnotationProperty .
+
+
+#################################################################
+#    Datatypes
+#################################################################
+
+###  http://www.w3.org/2001/XMLSchema#anySimpleType
+xsd:anySimpleType rdf:type rdfs:Datatype .
+
+#################################################################
+#    Time properties
+#################################################################
+
+pamlt:TimeMeasure rdf:type owl:Class ;
+          rdfs:subClassOf uml:ValueSpecification ,
+          [ rdf:type owl:Restriction ; owl:allValuesFrom sbol:Measure ; owl:onProperty pamlt:measureValue ;
+            owl:minCardinality "1"^^xsd:nonNegativeInteger ; owl:maxCardinality "1"^^xsd:nonNegativeInteger ] .
+
+pamlt:measureValue rdf:type owl:ObjectProperty ;
+         rdfs:subPropertyOf opil:compositionalProperty ;
+         rdfs:domain pamlt:TimeMeasure;
+         rdfs:range sbol:Measure ;
+         rdfs:label "expr" .
+
+pamlt:BooleanConstraint rdf:type owl:Class ;
+              rdfs:comment "Abstract class for boolean operators" ;
+              rdfs:subClassOf uml:Constraint ,
+        [ rdf:type owl:Restriction ; owl:allValuesFrom pamlt:OwnedOrderedPropertyValue ; owl:onProperty pamlt:constrainedElement ] ,
+        [ rdf:type owl:Restriction ;  owl:onProperty uml:specification ; owl:allValuesFrom uml:ValueSpecification ] ,
+        [ rdf:type owl:Restriction ;  owl:onProperty uml:specification ; owl:minCardinality "0"^^xsd:nonNegativeInteger ] ,
+        [ rdf:type owl:Restriction ;  owl:onProperty uml:specification ; owl:maxCardinality "0"^^xsd:nonNegativeInteger ] .
+
+
+pamlt:constrainedElement rdf:type owl:ObjectProperty ;
+         rdfs:subPropertyOf opil:compositionalProperty ;
+         rdfs:domain pamlt:BooleanConstraint ;
+         rdfs:range pamlt:OwnedOrderedPropertyValue ; # equivalent to uml:Element in this context
+         rdfs:label "constrained_elements" .
+
+pamlt:ReferencedOrderedPropertyValue rdf:type owl:Class ;
+         rdfs:subClassOf uml:OrderedPropertyValue ,
+    [ rdf:type owl:Restriction ; owl:allValuesFrom xsd:integer ; owl:onProperty uml:indexValue ;
+      owl:minCardinality "1"^^xsd:nonNegativeInteger ; owl:maxCardinality "1"^^xsd:nonNegativeInteger ] ,
+    [ rdf:type owl:Restriction ; owl:allValuesFrom sbol:Identified ; owl:onProperty pamlt:referencedPropertyValue ;
+      owl:minCardinality "1"^^xsd:nonNegativeInteger ; owl:maxCardinality "1"^^xsd:nonNegativeInteger ] .
+
+pamlt:referencedPropertyValue rdf:type owl:ObjectProperty ;
+         #rdfs:subPropertyOf opil:compositionalProperty ;
+         rdfs:domain pamlt:ReferencedOrderedPropertyValue ;
+         rdfs:range sbol:Identified ;
+         rdfs:label "property_value" .
+
+pamlt:AndConstraint rdf:type owl:Class ;
+          rdfs:subClassOf pamlt:BooleanConstraint .
+
+pamlt:OrConstraint rdf:type owl:Class ;
+          rdfs:subClassOf pamlt:BooleanConstraint .
+
+pamlt:XorConstraint rdf:type owl:Class ;
+          rdfs:subClassOf pamlt:BooleanConstraint .
+
+pamlt:Not rdf:type owl:Class ;
+          rdfs:subClassOf pamlt:BooleanConstraint ,
+          [ rdf:type owl:Restriction ; owl:onClass sbol:Identified ; owl:onProperty uml:constrainedElement ;
+            owl:minCardinality "1"^^xsd:nonNegativeInteger ; owl:maxCardinality "1"^^xsd:nonNegativeInteger ] .
+
+pamlt:TimeConstraints rdf:type owl:Class ;
+          rdfs:subClassOf sbol:TopLevel ,
+          [ rdf:type owl:Restriction ; owl:allValuesFrom uml:Constraint ; owl:onProperty pamlt:constraints ] ,
+          [ rdf:type owl:Restriction ; owl:allValuesFrom paml:Protocol ; owl:onProperty pamlt:protocols ] .
+
+pamlt:constraints rdf:type owl:ObjectProperty ;
+         rdfs:subPropertyOf opil:compositionalProperty ;
+         rdfs:domain pamlt:TimeConstraints;
+         rdfs:range uml:Constraint ;
+         rdfs:label "constraints" .
+
+pamlt:protocols rdf:type owl:ObjectProperty ;
+         rdfs:domain pamlt:TimeConstraints;
+         rdfs:range paml:Protocol ;
+         rdfs:label "protocols" .

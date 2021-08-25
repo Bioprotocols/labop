@@ -18,6 +18,9 @@ class TestUML(unittest.TestCase):
         assert property1 in constraint.constrained_elements and property2 in constraint.constrained_elements
 
     def test_ordered_behavior_parameters(self):
+        doc = sbol3.Document()
+        sbol3.set_namespace('https://bbn.com/scratch/')
+
         parameter1 = uml.OrderedPropertyValue(index=0, property_value=uml.Parameter(direction="in",
                                                                                     default_value=uml.LiteralInteger(value=0),
                                                                                     is_unique=True,
@@ -32,3 +35,7 @@ class TestUML(unittest.TestCase):
                                                                                     upper_value=uml.LiteralInteger(value=10)))
         behavior = uml.Behavior("b", parameters=[parameter1, parameter2])
         assert parameter1 in behavior.parameters and parameter2 in behavior.parameters
+
+        doc.add(behavior)
+        v = doc.validate()
+        assert not v.errors and not v.warnings, "".join(str(e) for e in doc.validate().errors)
