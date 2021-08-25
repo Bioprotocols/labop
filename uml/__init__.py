@@ -268,7 +268,6 @@ def activity_initial(self):
         return initial[0]
     else:
         raise ValueError(f'Activity "{self.display_id}" assumed to have one initial node, but found {len(initial)}')
-# Monkey patch:
 Activity.initial = activity_initial  # Add to class via monkey patch
 
 
@@ -286,7 +285,6 @@ def activity_final(self):
         return final[0]
     else:
         raise ValueError(f'Activity "{self.display_id}" assumed to have one initial node, but found {len(initial)}')
-# Monkey patch:
 Activity.final = activity_final  # Add to class via monkey patch
 
 
@@ -304,6 +302,36 @@ def activity_initiating_nodes(self) -> list[ActivityNode]:
     """
     return [n for n in self.nodes if isinstance(n,InitialNode) or isinstance(n,ActivityParameterNode)]
 Activity.initiating_nodes = activity_initiating_nodes  # Add to class via monkey patch
+
+
+def activity_incoming_edges(self, node: ActivityNode) -> set[ActivityEdge]:
+    """Find the edges that have the designated node as a target
+
+    Parameters
+    ----------
+    node: target for edges
+
+    Returns
+    -------
+    Set of ActivityEdges with node as a target
+    """
+    return {e for e in self.edges if e.target == node.identity}  # TODO: change to pointer lookup after pySBOL #237
+Activity.incoming_edges = activity_incoming_edges  # Add to class via monkey patch
+
+
+def activity_outgoing_edges(self, node: ActivityNode) -> set[ActivityEdge]:
+    """Find the edges that have the designated node as a source
+
+    Parameters
+    ----------
+    node: target for edges
+
+    Returns
+    -------
+    Set of ActivityEdges with node as a source
+    """
+    return {e for e in self.edges if e.source == node.identity}  # TODO: change to pointer lookup after pySBOL #237
+Activity.outgoing_edges = activity_outgoing_edges  # Add to class via monkey patch
 
 
 def activity_deconflict_objectflow_sources(self, source: ActivityNode) -> ActivityNode:
@@ -431,47 +459,3 @@ def activity_validate(self, report: sbol3.ValidationReport = None) -> sbol3.Vali
 Activity.validate = activity_validate
 
 # TODO: add a check for loops that can obtain too many or too few values
-
-###########################################
-# Extension methods waiting to be converted
-
-# # Get the Value activity associated with the specified input of a subprotocol
-# def subprotocol_input_value(self: SubProtocol, pin: Pin):
-#     assert pin in self.input, ValueError("SubProtocol '"+self.identity+"' does not have an input Pin '"+pin+"'")
-#     return pin.instance_of.lookup().activity
-# SubProtocol.input_value = subprotocol_input_value
-#
-# # Get the Value activity associated with the specified output of a subprotocol
-# def subprotocol_output_value(self: SubProtocol, pin: Pin):
-#     assert pin in self.output, ValueError("SubProtocol '" + self.identity + "' does not have an output Pin '" + pin + "'")
-#     return pin.instance_of.lookup().activity
-# SubProtocol.output_value = subprotocol_output_value
-
-# def activity_input_flows(self):
-#     return {x for x in self.get_toplevel().flows if
-#             (x.sink.lookup() == self) or
-#             (isinstance(self, Executable) and x.sink.lookup() in self.input)}
-# Activity.input_flows = activity_input_flows
-#
-# def activity_output_flows(self):
-#     return {x for x in self.get_toplevel().flows if
-#             (x.source.lookup() == self) or
-#             (isinstance(self, Executable) and x.source.lookup() in self.output)}
-# Activity.output_flows = activity_output_flows
-#
-# def activity_direct_input_flows(self):
-#     return {x for x in self.get_toplevel().flows if (x.sink.lookup() == self)}
-# Activity.direct_input_flows = activity_direct_input_flows
-#
-# def activity_direct_output_flows(self):
-#     return {x for x in self.get_toplevel().flows if (x.source.lookup() == self)}
-# Activity.direct_output_flows = activity_direct_output_flows
-#
-# def protocol_get_input(self, name):
-#     return next(x for x in self.input if x.name==name)
-# Protocol.get_input = protocol_get_input
-#
-#
-# def protocol_get_output(self, name):
-#     return next(x for x in self.output if x.name==name)
-# Protocol.get_output = protocol_get_output

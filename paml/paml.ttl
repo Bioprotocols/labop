@@ -56,37 +56,10 @@ paml:Primitive rdf:type owl:Class ;
 
 paml:BehaviorExecution rdf:type owl:Class ;
         rdfs:comment "Record of the operation of a UML Behavior, real or simulated" ;
-        #rdfs:subClassOf prov:Activity , # note: prov:Activity here refers to the adapted version in SBOL
-        # TODO: when sbol_factory issue #22 and #23 fixed, change subclass back to prov:Activity, remove prov properties
-        rdfs:subClassOf sbol:TopLevel , # note: prov:Activity here refers to the adapted version in SBOL
-        # Note: omitted usages, since it's not being used
-        [ rdf:type owl:Restriction ; owl:allValuesFrom prov:Association ; owl:onProperty prov:qualifiedAssociation ] ,
-        [ rdf:type owl:Restriction ; owl:allValuesFrom xsd:string ; owl:onProperty prov:startedAtTime ;
-          owl:maxCardinality "1"^^xsd:nonNegativeInteger ] ,
-        [ rdf:type owl:Restriction ; owl:allValuesFrom xsd:string ; owl:onProperty prov:endedAtTime ;
-          owl:maxCardinality "1"^^xsd:nonNegativeInteger ] ,
-        # TODO: End of kludge block to remove
+        rdfs:subClassOf prov:Activity , # note: prov:Activity here refers to the adapted version in SBOL
     [ rdf:type owl:Restriction ; owl:allValuesFrom paml:ParameterValue ; owl:onProperty paml:parameterValuePair ] ,
     [ rdf:type owl:Restriction ; owl:allValuesFrom xsd:boolean ; owl:onProperty paml:completedNormally ] ,
     [ rdf:type owl:Restriction ; owl:allValuesFrom paml:Material ; owl:onProperty paml:consumedMaterial ] .
-
-# TODO: when sbol_factory issue #22 and #23 fixed, remove prov property declarations
-prov:qualifiedAssociation rdf:type owl:ObjectProperty ;
-              rdfs:subPropertyOf opil:compositionalProperty ;
-              rdfs:domain paml:BehaviorExecution ;
-              rdfs:range prov:Association ;
-              rdfs:label "associations" .
-
-prov:startedAtTime rdf:type owl:DatatypeProperty ;
-              rdfs:domain paml:BehaviorExecution ;
-              rdfs:range xsd:string ;
-              rdfs:label "start_time" .
-
-prov:endedAtTime rdf:type owl:DatatypeProperty ;
-              rdfs:domain paml:BehaviorExecution ;
-              rdfs:range xsd:string ;
-              rdfs:label "end_time" .
-# TODO: End of kludge block to remove
 
 paml:parameterValuePair rdf:type owl:ObjectProperty ;
               rdfs:subPropertyOf opil:compositionalProperty ;
@@ -205,7 +178,7 @@ paml:node rdf:type owl:ObjectProperty ;
 paml:incomingFlow rdf:type owl:ObjectProperty ;
               rdfs:domain paml:ActivityNodeExecution ;
               rdfs:range paml:ActivityEdgeFlow ;
-              rdfs:label "incoming_flow" .
+              rdfs:label "incoming_flows" .
 
 
 paml:CallBehaviorExecution rdf:type owl:Class ;
