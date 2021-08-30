@@ -4,6 +4,7 @@ import datetime
 import itertools
 
 import paml
+import uml
 import sbol3
 
 
@@ -12,6 +13,15 @@ class ExecutionEngine(ABC):
     This class can handle common UML activities and the propagation of tokens, but does not execute primitives.
     It needs to be extended with specific implementations that have that capability.
     """
+
+    def __init__(self):
+        self.node_counters = {}
+
+    def next_id(self, node : uml.InvocationAction):
+        self.node_counters[node.identity] = self.node_counters.get(node.identity, 0)
+        next = self.node_counters[node.identity]
+        self.node_counters[node.identity] += 1
+        return next
 
     def execute(self, protocol: paml.Protocol, agent: sbol3.Agent, parameter_values: dict = {}, id: str = uuid.uuid4()) -> paml.ProtocolExecution:
         """Execute the given protocol against the provided parameters
@@ -32,10 +42,10 @@ class ExecutionEngine(ABC):
         doc = protocol.document
 
         # First, set up the record for the protocol and parameter values
-        ex = paml.ProtocolExecution(id)
+        ex = paml.ProtocolExecution(id, protocol=protocol)
         doc.add(ex)
         ex.start_time = str(datetime.datetime.now()) # TODO: remove str wrapper after sbol_factory #22 fixed
-        ex.associations.append(sbol3.Association(agent=agent, plan=protocol))
+        ex.association.append(sbol3.Association(agent=agent, plan=protocol))
         ex.parameter_values = \
             [paml.ParameterValue(parameter=p, value=literal(p,reference=True)) for p, v in parameter_values.items()]
 
@@ -44,8 +54,8 @@ class ExecutionEngine(ABC):
         ready = protocol.initiating_nodes()
         while ready:
             for node in ready:
-                tokens = execute_activity_node(ex, node, tokens)
-            ready = executable_activity_nodes(protocol, tokens)
+                tokens = self.execute_activity_node(ex, node, tokens)
+            ready = self.executable_activity_nodes(protocol, tokens)
 
         # TODO: finish implementing
         # TODO: ensure that only one token is allowed per edge
@@ -76,12 +86,14 @@ class ExecutionEngine(ABC):
         """
         candidate_clusters = {}
         for t in tokens:
-            candidate_clusters[t.edge.target] = candidate_clusters.get(t.edge.target,[])+[t]
-        return [n for n,nt in candidate_clusters if {t.edge for t in nt}==p.incoming_edges(n)]
+            target = protocol.document.find(protocol.document.find(t.edge).target)
+            candidate_clusters[target] = candidate_clusters.get(target,[])+[t]
+        return [n for n,nt in candidate_clusters.items()
+                  if {protocol.document.find(t.edge) for t in nt}==protocol.incoming_edges(n)]
 
-    def execute_activity_node(self, ex: paml.ProtocolExecution, node: uml.ActivityNode,
+    def execute_activity_node(self, ex : paml.ProtocolExecution, node: uml.ActivityNode,
                               tokens: list[paml.ActivityEdgeFlow]) -> list[paml.ActivityEdgeFlow]:
-        """Execute an node in an activity, consuming the incoming flows and recording execution and outgoing flows
+        """Execute a node in an activity, consuming the incoming flows and recording execution and outgoing flows
 
         Parameters
         ----------
@@ -94,26 +106,30 @@ class ExecutionEngine(ABC):
         updated list of pending edge flows
         """
         # Extract the relevant set of incoming flow values
-        inputs = [t for t in tokens if t.edge.target == node.identity] # TODO change to pointer lookup after pySBOL #237
+        inputs = [t for t in tokens
+                    if ex.document.find(t.edge).target == node.identity] # TODO change to pointer lookup after pySBOL #237
         # Create a record for the node execution
-        record = paml.ActivityNodeExecution(node=node, incoming_flows=inputs)
-        ex.executions.append(record)
+        record = None
+        new_tokens = []
+
         # Dispatch execution based on node type, collecting any object flows produced
         # The dispatch methods are the ones that can (or must be) overridden for a particular execution environment
         if isinstance(node, uml.InitialNode):
             if len(inputs) != 0:
                 raise ValueError(f'Initial node must have zero inputs, but {node.identity} had {len(inputs)}')
-            execute_initialnode(node)
+            record = paml.ActivityNodeExecution(node=node, incoming_flows=inputs)
+            new_tokens = self.next_tokens(record, ex)
             # put a control token on all outgoing edges
 
         elif isinstance(node, uml.FlowFinalNode):
-            execute_finalnode(node, inputs)
+            record = paml.ActivityNodeExecution(node=node, incoming_flows=inputs)
+            new_tokens = self.next_tokens(record, ex)
 
         elif isinstance(node, uml.ForkNode):
             if len(inputs) != 1:
                 raise ValueError(f'Fork node must have precisely one input, but {node.identity} had {len(inputs)}')
-            record, tokens = execute_forknode(node,inputs[0])
-            pass
+            record = paml.ActivityNodeExecution(node=node, incoming_flows=inputs)
+            new_tokens = self.next_tokens(record, ex)
 
         # elif isinstance(node, uml.JoinNode):
         #     pass
@@ -125,16 +141,38 @@ class ExecutionEngine(ABC):
             pass
         elif isinstance(node, uml.CallBehaviorAction):
             record = paml.CallBehaviorExecution(node=node, incoming_flows=inputs)
-            if
-                record.call = execute()
+            call = paml.BehaviorExecution(f"execute_{node.identity}_{self.next_id(node)}",
+                                            parameter_values=[paml.ParameterValue(parameter=param,
+                                                                                  value=pin.value
+                                                                                  if hasattr(pin, "value") else None)
+                                                              for pin in node.inputs
+                                                              for param in ex.document.find(node.behavior).parameters
+                                                              if pin.name == param.name],
+                                            completed_normally=True,
+                                            consumed_material=[]) # FIXME handle materials
+            record.call = call
+            ex.document.add(call)
+            new_tokens = self.next_tokens(record, ex)
+        elif isinstance(node, uml.Pin):
             pass
         else:
             raise ValueError(f'Do not know how to execute node {node.identity} of type {node.type_uri}')
+
+        if record: # Pins will not generate records
+            ex.executions.append(record)
 
         # Send outgoing control flows
         # Check that outgoing flows don't conflict with
         # return updated token list
         return [t for t in tokens if t not in inputs] + new_tokens
+
+    def next_tokens(self, activity_node: paml.ActivityNodeExecution, ex: paml.ProtocolExecution):
+        protocol = ex.document.find(ex.protocol)
+        tokens = [paml.ActivityEdgeFlow(edge=edge, token_source=activity_node)
+                  for edge in protocol.edges
+                  if activity_node.node in edge.source]
+        return tokens
+
 
     def execute_primitive(self, behavior: paml.Primitive, agent: sbol3.Agent, parameter_values: dict = {}, id: str = uuid.uuid4()) -> paml.BehaviorExecution:
         pass
@@ -169,8 +207,11 @@ def protocol_execution_aggregate_child_materials(self):
     ----------
     self: ProtocolExecution object
     """
-    child_materials = [e.call.consumed_material for e in ex.executions if isinstance(e, CallBehaviorExecution)]
+    child_materials = [e.call.consumed_material for e in self.executions
+                       if isinstance(e, paml.CallBehaviorExecution) and
+                          hasattr(e.call, "consumed_material")]
     specifications = {m.specification for m in child_materials}
     self.consumed_material = (paml.Material(s,sum_measures([m.amount for m in child_materials if m.specification==s]))
                               for s in specifications)
-ProtocolExecution.aggregate_child_materials = protocol_execution_aggregate_child_materials
+paml.ProtocolExecution.aggregate_child_materials = protocol_execution_aggregate_child_materials
+

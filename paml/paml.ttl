@@ -58,7 +58,8 @@ paml:BehaviorExecution rdf:type owl:Class ;
         rdfs:comment "Record of the operation of a UML Behavior, real or simulated" ;
         rdfs:subClassOf prov:Activity , # note: prov:Activity here refers to the adapted version in SBOL
     [ rdf:type owl:Restriction ; owl:allValuesFrom paml:ParameterValue ; owl:onProperty paml:parameterValuePair ] ,
-    [ rdf:type owl:Restriction ; owl:allValuesFrom xsd:boolean ; owl:onProperty paml:completedNormally ] ,
+    [ rdf:type owl:Restriction ; owl:allValuesFrom xsd:boolean ; owl:onProperty paml:completedNormally ;
+      owl:minCardinality "1"^^xsd:nonNegativeInteger ; owl:maxCardinality "1"^^xsd:nonNegativeInteger] ,
     [ rdf:type owl:Restriction ; owl:allValuesFrom paml:Material ; owl:onProperty paml:consumedMaterial ] .
 
 paml:parameterValuePair rdf:type owl:ObjectProperty ;
@@ -120,8 +121,15 @@ paml:amount rdf:type owl:ObjectProperty ;
 paml:ProtocolExecution rdf:type owl:Class ;
         rdfs:comment "Record of the operation of a Protocol, real or simulated" ;
         rdfs:subClassOf paml:BehaviorExecution ,
+    [ rdf:type owl:Restriction ; owl:allValuesFrom paml:Protocol ; owl:onProperty paml:protocol ;
+      owl:minCardinality "1"^^xsd:nonNegativeInteger ; owl:maxCardinality "1"^^xsd:nonNegativeInteger ] ,
     [ rdf:type owl:Restriction ; owl:allValuesFrom paml:ActivityNodeExecution ; owl:onProperty paml:execution ] ,
     [ rdf:type owl:Restriction ; owl:allValuesFrom paml:ActivityEdgeFlow ; owl:onProperty paml:flow ] .
+
+paml:protocol rdf:type owl:ObjectProperty ;
+              rdfs:domain paml:ProtocolExecution ;
+              rdfs:range paml:Protocol ;
+              rdfs:label "protocol" .
 
 paml:execution rdf:type owl:ObjectProperty ;
               rdfs:subPropertyOf opil:compositionalProperty ;

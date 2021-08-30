@@ -120,7 +120,7 @@ def behavior_get_inputs(self):
     -------
     Iterator over Parameters
     """
-    return (p for p in self.parameters if p.direction == PARAMETER_IN)
+    return (p for p in self.parameters if p.property_value.direction == PARAMETER_IN)
 Behavior.get_inputs = behavior_get_inputs  # Add to class via monkey patch
 
 
@@ -132,7 +132,7 @@ def behavior_get_required_inputs(self):
     -------
     Iterator over Parameters
     """
-    return (p for p in self.get_inputs() if p.lower_value.value > 0)
+    return (p for p in self.get_inputs() if p.property_value.lower_value.value > 0)
 Behavior.get_required_inputs = behavior_get_required_inputs  # Add to class via monkey patch
 
 
@@ -144,7 +144,7 @@ def behavior_get_outputs(self):
     -------
     Iterator over Parameters
     """
-    return (p for p in self.parameters if p.direction == PARAMETER_OUT)
+    return (p for p in self.parameters if p.property_value.direction == PARAMETER_OUT)
 Behavior.get_outputs = behavior_get_outputs  # Add to class via monkey patch
 
 
@@ -156,7 +156,7 @@ def behavior_get_required_outputs(self):
     -------
     Iterator over Parameters
     """
-    return (p for p in self.get_outputs() if p.lower_value.value > 0)
+    return (p for p in self.get_outputs() if p.property_value.lower_value.value > 0)
 Behavior.get_required_outputs = behavior_get_required_outputs  # Add to class via monkey patch
 
 

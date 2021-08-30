@@ -5,7 +5,7 @@ import filecmp
 import sbol3
 import paml
 import tyto
-
+from paml.execution_engine import ExecutionEngine
 
 # import paml_md
 
@@ -18,8 +18,13 @@ class TestProtocolExecution(unittest.TestCase):
         doc = sbol3.Document()
         sbol3.set_namespace('https://bbn.com/scratch/')
 
-        protocol_file = os.path.join(os.getcwd(), "test", "testfiles", "igem_ludox_test.nt")
+        protocol_file = os.path.join(os.getcwd(), "testfiles", "igem_ludox_test.nt")
         doc.read(protocol_file, 'nt')
+
+        protocol = doc.find("https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018")
+        agent = sbol3.Agent("test_agent")
+        ee = ExecutionEngine()
+        execution = ee.execute(protocol, agent, id="test_execution")
 
         ########################################
         # Validate and write the document
