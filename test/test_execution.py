@@ -26,6 +26,10 @@ class TestProtocolExecution(unittest.TestCase):
         ee = ExecutionEngine()
         execution = ee.execute(protocol, agent, id="test_execution")
 
+        dot = execution.to_dot()
+        dot.render(f'{protocol.name}.gv')
+        dot.view()
+
         ########################################
         # Validate and write the document
         print('Validating and writing protocol')
@@ -36,7 +40,8 @@ class TestProtocolExecution(unittest.TestCase):
         doc.write(temp_name, sbol3.SORTED_NTRIPLES)
         print(f'Wrote file as {temp_name}')
 
-        comparison_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'testfiles', 'igem_ludox_test.nt')
+        comparison_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'testfiles', 'igem_ludox_test_exec.nt')
+        #doc.write(comparison_file, sbol3.SORTED_NTRIPLES)
         print(f'Comparing against {comparison_file}')
         assert filecmp.cmp(temp_name, comparison_file), "Files are not identical"
         print('File identical with test file')

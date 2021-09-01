@@ -225,7 +225,7 @@ def add_call_behavior_action(parent: Activity, behavior: Behavior, **input_pin_l
     :return: newly constructed
     """
     # first, make sure that all of the keyword arguments are in the inputs of the behavior
-    unmatched_keys = [key for key in input_pin_literals.keys() if key not in (i.name for i in behavior.get_inputs())]
+    unmatched_keys = [key for key in input_pin_literals.keys() if key not in (i.property_value.name for i in behavior.get_inputs())]
     if unmatched_keys:
         raise ValueError(f'Specification for "{behavior.display_id}" does not have inputs: {unmatched_keys}')
 
@@ -235,17 +235,19 @@ def add_call_behavior_action(parent: Activity, behavior: Behavior, **input_pin_l
 
     # Instantiate input pins
     for i in id_sort(behavior.get_inputs()):
-        if i.name in input_pin_literals:
-            value = input_pin_literals[i.name]
+        if i.property_value.name in input_pin_literals:
+            value = input_pin_literals[i.property_value.name]
             # TODO: type check relationship between value and parameter type specification
-            action.inputs.append(ValuePin(name=i.name, is_ordered=i.is_ordered, is_unique=i.is_unique,
-                                          value=literal(value)))
+            action.inputs.append(ValuePin(name=i.property_value.name, is_ordered=i.property_value.is_ordered,
+                                          is_unique=i.property_value.is_unique, value=literal(value)))
         else:  # if not a constant, then just a generic InputPin
-            action.inputs.append(InputPin(name=i.name, is_ordered=i.is_ordered, is_unique=i.is_unique))
+            action.inputs.append(InputPin(name=i.property_value.name, is_ordered=i.property_value.is_ordered,
+                                          is_unique=i.property_value.is_unique))
 
     # Instantiate output pins
     for o in id_sort(behavior.get_outputs()):
-        action.outputs.append(OutputPin(name=o.name, is_ordered=o.is_ordered, is_unique=o.is_unique))
+        action.outputs.append(OutputPin(name=o.property_value.name, is_ordered=o.property_value.is_ordered,
+                                        is_unique=o.property_value.is_unique))
 
     return action
 

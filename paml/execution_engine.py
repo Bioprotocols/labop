@@ -3,6 +3,8 @@ import uuid
 import datetime
 import itertools
 
+import graphviz
+
 import paml
 import uml
 import sbol3
@@ -16,12 +18,18 @@ class ExecutionEngine(ABC):
 
     def __init__(self):
         self.node_counters = {}
+        self.variable_counter = 0
 
     def next_id(self, node : uml.InvocationAction):
         self.node_counters[node.identity] = self.node_counters.get(node.identity, 0)
         next = self.node_counters[node.identity]
         self.node_counters[node.identity] += 1
         return next
+
+    def next_variable(self):
+        variable = f"var_{self.variable_counter}"
+        self.variable_counter += 1
+        return variable
 
     def execute(self, protocol: paml.Protocol, agent: sbol3.Agent, parameter_values: dict = {}, id: str = uuid.uuid4()) -> paml.ProtocolExecution:
         """Execute the given protocol against the provided parameters
@@ -86,10 +94,36 @@ class ExecutionEngine(ABC):
         """
         candidate_clusters = {}
         for t in tokens:
-            target = protocol.document.find(protocol.document.find(t.edge).target)
+            target = t.get_target()
             candidate_clusters[target] = candidate_clusters.get(target,[])+[t]
-        return [n for n,nt in candidate_clusters.items()
-                  if {protocol.document.find(t.edge) for t in nt}==protocol.incoming_edges(n)]
+        return [n for n,nt in candidate_clusters.items() if self.enabled_activity_node(protocol, n, nt)]
+
+    def enabled_activity_node(self,  protocol: paml.Protocol, node: uml.ActivityNode, tokens: list[paml.ActivityEdgeFlow]):
+        """Check whether all incoming edges have values defined by a token in tokens and that all value pin values are
+           defined.
+
+         Parameters
+         ----------
+         protocol: paml.Protocol being executed
+         node: node to be executed
+         tokens: current list of pending edge flows
+
+         Returns
+         -------
+         bool if node is enabled
+         """
+        tokens_present = {node.document.find(t.edge) for t in tokens if t.edge}==protocol.incoming_edges(node)
+        if hasattr(node, "inputs"):
+            object_pins_satisfied = {protocol.document.find(protocol.document.find(t.token_source).node)
+                                     for t in tokens if not t.edge} == \
+                                    {i for i in node.inputs if not isinstance(i, uml.ValuePin)}
+            value_pins_assigned = all({i.value for i in node.inputs if isinstance(i, uml.ValuePin)})
+            return tokens_present and object_pins_satisfied and value_pins_assigned
+        else:
+            return tokens_present
+
+
+
 
     def execute_activity_node(self, ex : paml.ProtocolExecution, node: uml.ActivityNode,
                               tokens: list[paml.ActivityEdgeFlow]) -> list[paml.ActivityEdgeFlow]:
@@ -106,8 +140,14 @@ class ExecutionEngine(ABC):
         updated list of pending edge flows
         """
         # Extract the relevant set of incoming flow values
-        inputs = [t for t in tokens
-                    if ex.document.find(t.edge).target == node.identity] # TODO change to pointer lookup after pySBOL #237
+        # TODO change to pointer lookup after pySBOL #237
+        # inputs are tokens that are either connected to node via an edge, or
+        # are input pins connected to the node (implicitly) (i.e., the node owns the pin)
+        # and the node identity is a prefix of the pin identity.
+        inputs = [t for t in tokens if node == t.get_target()]
+#                    if (hasattr(t, "edge") and t.edge and ex.document.find(t.edge).target == node.identity) or \
+#                       node.identity in ex.document.find(t.token_source).node ]
+
         # Create a record for the node execution
         record = None
         new_tokens = []
@@ -118,17 +158,20 @@ class ExecutionEngine(ABC):
             if len(inputs) != 0:
                 raise ValueError(f'Initial node must have zero inputs, but {node.identity} had {len(inputs)}')
             record = paml.ActivityNodeExecution(node=node, incoming_flows=inputs)
+            ex.executions.append(record)
             new_tokens = self.next_tokens(record, ex)
             # put a control token on all outgoing edges
 
         elif isinstance(node, uml.FlowFinalNode):
             record = paml.ActivityNodeExecution(node=node, incoming_flows=inputs)
+            ex.executions.append(record)
             new_tokens = self.next_tokens(record, ex)
 
         elif isinstance(node, uml.ForkNode):
             if len(inputs) != 1:
                 raise ValueError(f'Fork node must have precisely one input, but {node.identity} had {len(inputs)}')
             record = paml.ActivityNodeExecution(node=node, incoming_flows=inputs)
+            ex.executions.append(record)
             new_tokens = self.next_tokens(record, ex)
 
         # elif isinstance(node, uml.JoinNode):
@@ -152,14 +195,15 @@ class ExecutionEngine(ABC):
                                             consumed_material=[]) # FIXME handle materials
             record.call = call
             ex.document.add(call)
+            ex.executions.append(record)
             new_tokens = self.next_tokens(record, ex)
         elif isinstance(node, uml.Pin):
-            pass
+            record = paml.ActivityNodeExecution(node=node, incoming_flows=inputs)
+            ex.executions.append(record)
+            new_tokens = self.next_pin_tokens(record, ex)
+
         else:
             raise ValueError(f'Do not know how to execute node {node.identity} of type {node.type_uri}')
-
-        if record: # Pins will not generate records
-            ex.executions.append(record)
 
         # Send outgoing control flows
         # Check that outgoing flows don't conflict with
@@ -168,9 +212,32 @@ class ExecutionEngine(ABC):
 
     def next_tokens(self, activity_node: paml.ActivityNodeExecution, ex: paml.ProtocolExecution):
         protocol = ex.document.find(ex.protocol)
-        tokens = [paml.ActivityEdgeFlow(edge=edge, token_source=activity_node)
+        tokens = [paml.ActivityEdgeFlow(edge=edge, token_source=activity_node,
+                                        value=self.get_value(activity_node, edge))
                   for edge in protocol.edges
                   if activity_node.node in edge.source]
+
+        # Save tokens in the protocol execution
+        ex.flows += tokens
+        return tokens
+
+    def get_value(self, node : uml.ActivityNode, edge: uml.ActivityEdge):
+        value = ""
+        if isinstance(edge, uml.ControlFlow):
+            value = "uml.ControlFlow"
+        elif isinstance(edge, uml.ObjectFlow):
+            value = self.next_variable()
+
+        return uml.LiteralString(value=value)
+
+    def next_pin_tokens(self, activity_node: paml.ActivityNodeExecution, ex: paml.ProtocolExecution):
+        protocol = ex.document.find(ex.protocol)
+        assert len(activity_node.incoming_flows) == 1 # One input per pin
+        pin_value = ex.document.find(activity_node.incoming_flows[0]).value
+        tokens = [ paml.ActivityEdgeFlow(edge=None, token_source=activity_node, value=uml.LiteralString(value=f"{pin_value}")) ]
+
+        # Save tokens in the protocol execution
+        ex.flows += tokens
         return tokens
 
 
@@ -215,3 +282,53 @@ def protocol_execution_aggregate_child_materials(self):
                               for s in specifications)
 paml.ProtocolExecution.aggregate_child_materials = protocol_execution_aggregate_child_materials
 
+
+def protocol_execution_to_dot(self):
+    dot = graphviz.Digraph(comment=self.protocol,
+                           strict=True,
+                           graph_attr={"rankdir": "TB",
+                                       "concentrate": "true"},
+                           node_attr={"ordering": "out"})
+    uri = self.identity.replace(":", "_")
+
+    def _name_to_label(name):
+        return name.replace(f"_{uri}/", "_").replace(f"{uri}", "execution")
+
+    dot = graphviz.Digraph(name=f"cluster_{self.identity}",
+                           graph_attr={
+                               "label": self.identity
+                           })
+
+    # Protocol graph
+    dot.subgraph(self.document.find(self.protocol).to_dot())
+
+    # Execution graph
+    sub = graphviz.Digraph(name=f"cluster_{self.identity}",
+                               graph_attr={
+                                   "label": self.identity
+                               })
+    for execution in self.executions:
+        ex_id = execution.identity.replace(":", "_")
+        ex_node_id = execution.node.replace(":", "_")
+        sub.node(ex_id, label=_name_to_label(ex_id))
+        dot.edge(ex_id, ex_node_id)
+        for incoming_flow in execution.incoming_flows:
+            incoming_flow_id = incoming_flow.replace(":", "_")
+            sub.edge(incoming_flow_id, ex_id, "incoming_flow")
+
+    for flow in self.flows:
+        if flow.token_source:
+            src_id = flow.identity.replace(":", "_")
+            dest_id = flow.token_source.replace(":", "_")
+            sub.node(src_id, label=_name_to_label(src_id))
+            sub.node(dest_id, label=_name_to_label(dest_id))
+            sub.edge(dest_id, src_id, label="token_source")
+        if flow.edge:
+            edge_id = flow.edge.replace(":", "_")
+            label = str(flow.edge.value) if hasattr(flow.edge, "value") else "Undefined"
+            dot.edge(src_id, edge_id, label=label)
+
+    dot.subgraph(sub)
+
+    return dot
+paml.ProtocolExecution.to_dot = protocol_execution_to_dot
