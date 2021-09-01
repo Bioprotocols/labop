@@ -3,11 +3,7 @@
 
 name: Java CI with Gradle
 
-on:
-  push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
+on: [push, pull_request]
 
 jobs:
   build:
@@ -21,8 +17,15 @@ jobs:
       with:
         java-version: '11'
         distribution: 'adopt'
-        cache: gradle
-    - name: Grant execute permission for gradlew
-      run: chmod +x gradlew
+    - name: Validate Gradle wrapper
+      uses: gradle/wrapper-validation-action@e6e38bacfdf1a337459f332974bb2327a31aaf4b
     - name: Build with Gradle
-      run: ./gradlew build
+      run: |
+        cd test/owl_test_app
+        ls
+        ./gradlew build
+    - name: Run tests
+      run: |
+
+        cd test/owl_test_app
+        ./gradlew test
