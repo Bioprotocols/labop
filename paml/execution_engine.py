@@ -233,8 +233,8 @@ class ExecutionEngine(ABC):
     def next_pin_tokens(self, activity_node: paml.ActivityNodeExecution, ex: paml.ProtocolExecution):
         protocol = ex.document.find(ex.protocol)
         assert len(activity_node.incoming_flows) == 1 # One input per pin
-        pin_value = ex.document.find(activity_node.incoming_flows[0]).value
-        tokens = [ paml.ActivityEdgeFlow(edge=None, token_source=activity_node, value=uml.LiteralString(value=f"{pin_value}")) ]
+        pin_value = ex.document.find(activity_node.incoming_flows[0]).value.value
+        tokens = [ paml.ActivityEdgeFlow(edge=None, token_source=activity_node, value=uml.LiteralString(value=pin_value)) ]
 
         # Save tokens in the protocol execution
         ex.flows += tokens
