@@ -23,8 +23,16 @@ class TestProtocolExecution(unittest.TestCase):
 
         protocol = doc.find("https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018")
         agent = sbol3.Agent("test_agent")
+
+        # print('Importing libraries')
+        # paml.import_library('liquid_handling')
+        # print('... Imported liquid handling')
+
         ee = ExecutionEngine()
-        execution = ee.execute(protocol, agent, id="test_execution")
+        parameter_values = {
+            #paml.liquid_handling : uml.RealLiteral(value=0.1)
+        }
+        execution = ee.execute(protocol, agent, id="test_execution", parameter_values=parameter_values)
 
         dot = execution.to_dot()
         dot.render(f'{protocol.name}.gv')

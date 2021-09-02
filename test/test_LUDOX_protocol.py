@@ -57,6 +57,8 @@ is only weakly scattering and so will give a low absorbance value.
         ludox.name = 'LUDOX(R) CL-X colloidal silica, 45 wt. % suspension in H2O'
         doc.add(ludox)
 
+        wavelength_param = protocol.add_input('wavelength', sbol3.OM_MEASURE, True, default_value=sbol3.Measure(600, tyto.OM.nanometer))
+
         # actual steps of the protocol
         # get a plate
         plate = protocol.primitive_step('EmptyContainer', specification=tyto.NCIT.get_uri_by_term('Microplate'))  # replace with container ontology
@@ -75,6 +77,7 @@ is only weakly scattering and so will give a low absorbance value.
         measure = protocol.primitive_step('MeasureAbsorbance', samples=c_measure.output_pin('samples'),
                                           wavelength=sbol3.Measure(600, tyto.OM.nanometer))
 
+        protocol.use_value(wavelength_param, next([i for i in measure.get_inputs()))
         protocol.add_output('absorbance', measure.output_pin('measurements'))
 
         ########################################

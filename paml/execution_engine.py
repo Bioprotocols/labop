@@ -116,7 +116,9 @@ class ExecutionEngine(ABC):
         if hasattr(node, "inputs"):
             object_pins_satisfied = {protocol.document.find(protocol.document.find(t.token_source).node)
                                      for t in tokens if not t.edge} == \
-                                    {i for i in node.inputs if not isinstance(i, uml.ValuePin)}
+                                    {i for i in node.inputs if not isinstance(i, uml.ValuePin) and \
+                                     i.lower_value and i.lower_value.value > 0 }
+            # TODO add a pattern to get the parameter for a call behavior input.
             value_pins_assigned = all({i.value for i in node.inputs if isinstance(i, uml.ValuePin)})
             return tokens_present and object_pins_satisfied and value_pins_assigned
         else:

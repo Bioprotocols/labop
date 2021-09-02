@@ -123,6 +123,16 @@ def behavior_get_inputs(self):
     return (p for p in self.parameters if p.property_value.direction == PARAMETER_IN)
 Behavior.get_inputs = behavior_get_inputs  # Add to class via monkey patch
 
+def behavior_get_input(self):
+    """Return a specific input Parameter for this Behavior
+
+    Note: assumes that type is all either in or out
+    Returns
+    -------
+    Iterator over Parameters
+    """
+    return (p for p in self.parameters if p.property_value.direction == PARAMETER_IN)
+Behavior.get_inputs = behavior_get_inputs  # Add to class via monkey patch
 
 def behavior_get_required_inputs(self):
     """Return all required Parameters of type input for this Behavior
