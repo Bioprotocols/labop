@@ -36,7 +36,7 @@ class TestProtocolExecution(unittest.TestCase):
 
         dot = execution.to_dot()
         dot.render(f'{protocol.name}.gv')
-        dot.view()
+        #dot.view()  # uncomment to see it on your own screen
 
         ########################################
         # Validate and write the document
