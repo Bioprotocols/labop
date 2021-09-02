@@ -57,6 +57,10 @@ is only weakly scattering and so will give a low absorbance value.
         ludox.name = 'LUDOX(R) CL-X colloidal silica, 45 wt. % suspension in H2O'
         doc.add(ludox)
 
+        # add an optional parameter for specifying the wavelength
+        wavelength_param = protocol.add_input('wavelength', sbol3.OM_MEASURE, True,
+                                              default_value=sbol3.Measure(600, tyto.OM.nanometer))
+
         # actual steps of the protocol
         # get a plate
         plate = protocol.primitive_step('EmptyContainer', specification=tyto.NCIT.get_uri_by_term('Microplate'))  # replace with container ontology
@@ -72,9 +76,9 @@ is only weakly scattering and so will give a low absorbance value.
 
         # measure the absorbance
         c_measure = protocol.primitive_step('PlateCoordinates', source=plate.output_pin('samples'), coordinates='A1:D2')
-        measure = protocol.primitive_step('MeasureAbsorbance', samples=c_measure.output_pin('samples'),
-                                          wavelength=sbol3.Measure(600, tyto.OM.nanometer))
+        measure = protocol.primitive_step('MeasureAbsorbance', samples=c_measure.output_pin('samples'))
 
+        protocol.use_value(wavelength_param, measure.input_pin('wavelength'))
         protocol.add_output('absorbance', measure.output_pin('measurements'))
 
         ########################################
@@ -88,6 +92,7 @@ is only weakly scattering and so will give a low absorbance value.
         print(f'Wrote file as {temp_name}')
 
         comparison_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'testfiles', 'igem_ludox_test.nt')
+        doc.write(comparison_file, sbol3.SORTED_NTRIPLES)
         print(f'Comparing against {comparison_file}')
         assert filecmp.cmp(temp_name, comparison_file), "Files are not identical"
         print('File identical with test file')

@@ -6,6 +6,7 @@
 @prefix xml: <http://www.w3.org/XML/1998/namespace> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 @prefix paml: <http://bioprotocols.org/paml#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix sbol: <http://sbols.org/v3#> .
 @prefix uml: <http://bioprotocols.org/uml#> .
@@ -14,7 +15,7 @@
 @base <http://bioprotocols.org/paml#> .
 
 <http://bioprotocols.org/paml> rdf:type owl:Ontology ;
-                              owl:imports uml:, sbol: , om: ;
+                              owl:imports uml:, sbol: , om:, prov:;
                               rdfs:comment "Protocol Activity Modeling Languge (PAML) ontology." ;
                               owl:versionInfo "0.3" .
 
@@ -53,9 +54,152 @@ paml:Primitive rdf:type owl:Class ;
 #    Execution record, bootstrapping from PROV-O
 #################################################################
 
-paml:Execution rdf:type owl:Class ;
-        rdfs:comment "An execution is a record of the values produced by the operation of a protocol, real or simulated" ;
-        rdfs:subClassOf sbol:TopLevel .
+paml:BehaviorExecution rdf:type owl:Class ;
+        rdfs:comment "Record of the operation of a UML Behavior, real or simulated" ;
+        rdfs:subClassOf prov:Activity , # note: prov:Activity here refers to the adapted version in SBOL
+    [ rdf:type owl:Restriction ; owl:allValuesFrom paml:ParameterValue ; owl:onProperty paml:parameterValuePair ] ,
+    [ rdf:type owl:Restriction ; owl:allValuesFrom xsd:boolean ; owl:onProperty paml:completedNormally ;
+      owl:minCardinality "1"^^xsd:nonNegativeInteger ; owl:maxCardinality "1"^^xsd:nonNegativeInteger] ,
+    [ rdf:type owl:Restriction ; owl:allValuesFrom paml:Material ; owl:onProperty paml:consumedMaterial ] .
+
+paml:parameterValuePair rdf:type owl:ObjectProperty ;
+              rdfs:subPropertyOf opil:compositionalProperty ;
+              rdfs:domain paml:BehaviorExecution ;
+              rdfs:range paml:ParameterValue ;
+              rdfs:label "parameter_values" .
+
+paml:completedNormally rdf:type owl:DatatypeProperty ;
+              rdfs:domain paml:BehaviorExecution ;
+              rdfs:range xsd:boolean ;
+              rdfs:label "completed_normally" .
+
+paml:consumedMaterial rdf:type owl:ObjectProperty ;
+              rdfs:subPropertyOf opil:compositionalProperty ;
+              rdfs:domain paml:BehaviorExecution ;
+              rdfs:range paml:Material ;
+              rdfs:label "consumed_material" .
+
+paml:ParameterValue rdf:type owl:Class ;
+        rdfs:comment "A value assigned to a parameter; similar to a prov:Usage, but embedding a literal value" ;
+        rdfs:subClassOf sbol:Identified,
+    [ rdf:type owl:Restriction ; owl:allValuesFrom uml:Parameter ; owl:onProperty paml:parameter ;
+      owl:minCardinality "1"^^xsd:nonNegativeInteger ; owl:maxCardinality "1"^^xsd:nonNegativeInteger ] ,
+    [ rdf:type owl:Restriction ; owl:allValuesFrom uml:LiteralSpecification ; owl:onProperty paml:parameterValue ;
+      owl:minCardinality "1"^^xsd:nonNegativeInteger ; owl:maxCardinality "1"^^xsd:nonNegativeInteger ] .
+
+paml:parameter rdf:type owl:ObjectProperty ;
+              rdfs:domain paml:ParameterValue ;
+              rdfs:range uml:Parameter ;
+              rdfs:label "parameter" .
+
+paml:parameterValue rdf:type owl:ObjectProperty ;
+              rdfs:subPropertyOf opil:compositionalProperty ;
+              rdfs:domain paml:ParameterValue ;
+              rdfs:range uml:LiteralSpecification ;
+              rdfs:label "value" .
+
+
+paml:Material rdf:type owl:Class ;
+        rdfs:comment "A consumable unit of material allocated for a BehaviorExecution (e.g., a microplate or reagent)" ;
+        rdfs:subClassOf sbol:Identified,
+    [ rdf:type owl:Restriction ; owl:allValuesFrom sbol:TopLevel ; owl:onProperty paml:specification ;
+      owl:minCardinality "1"^^xsd:nonNegativeInteger ; owl:maxCardinality "1"^^xsd:nonNegativeInteger ] ,
+    [ rdf:type owl:Restriction ; owl:allValuesFrom om:Measure ; owl:onProperty paml:amount ;
+      owl:minCardinality "1"^^xsd:nonNegativeInteger ; owl:maxCardinality "1"^^xsd:nonNegativeInteger ] .
+
+paml:specification rdf:type owl:ObjectProperty ;
+              rdfs:domain paml:Material ;
+              rdfs:range sbol:TopLevel ;
+              rdfs:label "specification" .
+
+paml:amount rdf:type owl:ObjectProperty ;
+              rdfs:subPropertyOf opil:compositionalProperty ;
+              rdfs:domain paml:Material ;
+              rdfs:range om:Measure ;
+              rdfs:label "amount" .
+
+paml:ProtocolExecution rdf:type owl:Class ;
+        rdfs:comment "Record of the operation of a Protocol, real or simulated" ;
+        rdfs:subClassOf paml:BehaviorExecution ,
+    [ rdf:type owl:Restriction ; owl:allValuesFrom paml:Protocol ; owl:onProperty paml:protocol ;
+      owl:minCardinality "1"^^xsd:nonNegativeInteger ; owl:maxCardinality "1"^^xsd:nonNegativeInteger ] ,
+    [ rdf:type owl:Restriction ; owl:allValuesFrom paml:ActivityNodeExecution ; owl:onProperty paml:execution ] ,
+    [ rdf:type owl:Restriction ; owl:allValuesFrom paml:ActivityEdgeFlow ; owl:onProperty paml:flow ] .
+
+paml:protocol rdf:type owl:ObjectProperty ;
+              rdfs:domain paml:ProtocolExecution ;
+              rdfs:range paml:Protocol ;
+              rdfs:label "protocol" .
+
+paml:execution rdf:type owl:ObjectProperty ;
+              rdfs:subPropertyOf opil:compositionalProperty ;
+              rdfs:domain paml:ProtocolExecution ;
+              rdfs:range paml:ActivityNodeExecution ;
+              rdfs:label "executions" .
+
+paml:flow rdf:type owl:ObjectProperty ;
+              rdfs:subPropertyOf opil:compositionalProperty ;
+              rdfs:domain paml:ProtocolExecution ;
+              rdfs:range paml:ActivityEdgeFlow ;
+              rdfs:label "flows" .
+
+
+paml:ActivityEdgeFlow rdf:type owl:Class ;
+        rdfs:comment "Record of a token flowing through an ActivityEdge" ;
+        rdfs:subClassOf sbol:Identified ,
+    [ rdf:type owl:Restriction ; owl:allValuesFrom uml:ActivityEdge ; owl:onProperty paml:edge ;
+      owl:minCardinality "0"^^xsd:nonNegativeInteger ; owl:maxCardinality "1"^^xsd:nonNegativeInteger ; ] ,
+    [ rdf:type owl:Restriction ; owl:allValuesFrom sbol:Identified ; owl:onProperty paml:edgeValue ;
+      owl:minCardinality "1"^^xsd:nonNegativeInteger ; owl:maxCardinality "1"^^xsd:nonNegativeInteger ; ] ,
+    [ rdf:type owl:Restriction ; owl:allValuesFrom paml:ActivityNodeExecution ; owl:onProperty paml:tokenSource ;
+      owl:minCardinality "1"^^xsd:nonNegativeInteger ; owl:maxCardinality "1"^^xsd:nonNegativeInteger ; ] .
+
+paml:edge rdf:type owl:ObjectProperty ;
+              rdfs:domain paml:ActivityEdgeFlow ;
+              rdfs:range uml:ActivityEdge ;
+              rdfs:label "edge" .
+
+paml:edgeValue rdf:type owl:ObjectProperty ;
+              rdfs:subPropertyOf opil:compositionalProperty ;
+              rdfs:domain paml:ActivityEdgeFlow ;
+              rdfs:range uml:LiteralSpecification ;
+              rdfs:label "value" .
+
+paml:tokenSource rdf:type owl:ObjectProperty ;
+              rdfs:domain paml:ActivityEdgeFlow ;
+              rdfs:range paml:ActivityNodeExecution ;
+              rdfs:label "token_source" .
+
+
+paml:ActivityNodeExecution rdf:type owl:Class ;
+        rdfs:comment "Record of an execution of an ActivityNode" ;
+        rdfs:subClassOf sbol:Identified ,
+    [ rdf:type owl:Restriction ; owl:allValuesFrom uml:ActivityNode ; owl:onProperty paml:node ;
+      owl:minCardinality "1"^^xsd:nonNegativeInteger ; owl:maxCardinality "1"^^xsd:nonNegativeInteger ; ] ,
+    [ rdf:type owl:Restriction ; owl:allValuesFrom paml:ActivityEdgeFlow ; owl:onProperty paml:incomingFlow ] .
+
+paml:node rdf:type owl:ObjectProperty ;
+              rdfs:domain paml:ActivityNodeExecution ;
+              rdfs:range uml:ActivityNode ;
+              rdfs:label "node" .
+
+paml:incomingFlow rdf:type owl:ObjectProperty ;
+              rdfs:domain paml:ActivityNodeExecution ;
+              rdfs:range paml:ActivityEdgeFlow ;
+              rdfs:label "incoming_flows" .
+
+
+paml:CallBehaviorExecution rdf:type owl:Class ;
+        rdfs:comment "Record of an execution of an CallBehaviorAction" ;
+        rdfs:subClassOf paml:ActivityNodeExecution ,
+    [ rdf:type owl:Restriction ; owl:allValuesFrom paml:BehaviorExecution ; owl:onProperty paml:call ;
+      owl:minCardinality "1"^^xsd:nonNegativeInteger ; owl:maxCardinality "1"^^xsd:nonNegativeInteger ; ] .
+
+paml:call rdf:type owl:ObjectProperty ;
+              rdfs:domain paml:CallBehaviorExecution ;
+              rdfs:range paml:BehaviorExecution ;
+              rdfs:label "call" .
+
 
 
 #################################################################
@@ -73,15 +217,13 @@ paml:SampleArray rdf:type owl:Class ;
             [ rdf:type owl:Restriction ;
               owl:onProperty paml:containerType ;
               owl:allValuesFrom xsd:anyURI ; # replace with container ontology, when available
-              owl:minCardinality "1"^^xsd:nonNegativeInteger ;
-              owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
+              owl:minCardinality "1"^^xsd:nonNegativeInteger ; owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
               rdfs:comment "Type of container used for storing the samples. The size and dimension may not match that of the array: it is up to execution to lay out the array in one or more containers"
             ] ,
             [ rdf:type owl:Restriction ;
               owl:onProperty paml:contents ;
               owl:allValuesFrom xsd:string ; # need to replace this with an serializable array model
-              owl:minCardinality "1"^^xsd:nonNegativeInteger ;
-              owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
+              owl:minCardinality "1"^^xsd:nonNegativeInteger ; owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
               rdfs:comment "N-dimensional array of URI for specification or nulls"
             ] .
 
@@ -101,15 +243,13 @@ paml:SampleMask rdf:type owl:Class ;
             [ rdf:type owl:Restriction ;
               owl:onProperty paml:source ;
               owl:allValuesFrom paml:SampleCollection ;
-              owl:minCardinality "1"^^xsd:nonNegativeInteger ;
-              owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
+              owl:minCardinality "1"^^xsd:nonNegativeInteger ; owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
               rdfs:comment "Collection being subsetted via mask"
             ] ,
             [ rdf:type owl:Restriction ;
               owl:onProperty paml:mask ;
               owl:allValuesFrom xsd:string ; # need to replace this with an serializable array model
-              owl:minCardinality "1"^^xsd:nonNegativeInteger ;
-              owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
+              owl:minCardinality "1"^^xsd:nonNegativeInteger ; owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
               rdfs:comment "N-dimensional array of booleans indicating whether contents are included in mask or not"
             ] .
 
