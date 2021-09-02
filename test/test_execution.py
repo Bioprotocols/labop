@@ -18,7 +18,7 @@ class TestProtocolExecution(unittest.TestCase):
         doc = sbol3.Document()
         sbol3.set_namespace('https://bbn.com/scratch/')
 
-        protocol_file = os.path.join(os.getcwd(), "testfiles", "igem_ludox_test.nt")
+        protocol_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), "testfiles", "igem_ludox_test.nt")
         doc.read(protocol_file, 'nt')
 
         protocol = doc.find("https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018")
