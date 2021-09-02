@@ -1,6 +1,7 @@
 import os
 import posixpath
 from collections import Counter
+from collections.abc import Iterable
 from sbol_factory import SBOLFactory, UMLFactory
 import sbol3
 
@@ -65,7 +66,8 @@ def literal(value, reference: bool = False) -> LiteralSpecification:
 ###########################################
 # Define extension methods for Behavior
 
-def behavior_add_parameter(self, name: str, param_type: str, direction: str, optional: bool = False):
+def behavior_add_parameter(self, name: str, param_type: str, direction: str, optional: bool = False,
+                           default_value: ValueSpecification = None) -> OrderedPropertyValue:
     """Add a Parameter for this Behavior; usually not called directly
 
     Note: Current assumption is that cardinality is either [0..1] or 1
@@ -83,11 +85,14 @@ def behavior_add_parameter(self, name: str, param_type: str, direction: str, opt
         param.lower_value = literal(0)
     else:
         param.lower_value = literal(1)
+    if default_value:
+        param.default_value = default_value
     return ordered_param
 Behavior.add_parameter = behavior_add_parameter  # Add to class via monkey patch
 
 
-def behavior_add_input(self, name: str, param_type: str, optional=False):
+def behavior_add_input(self, name: str, param_type: str, optional: bool = False,
+                       default_value: ValueSpecification = None) -> OrderedPropertyValue:
     """Add an input Parameter for this Behavior
 
     Note: Current assumption is that cardinality is either [0..1] or 1
@@ -95,13 +100,14 @@ def behavior_add_input(self, name: str, param_type: str, optional=False):
     :param name: name of the parameter, which will also be used for pins
     :param param_type: URI specifying the type of object that is expected for this parameter
     :param optional: True if the Parameter is optional; default is False
+    :param default_value: default value for this parameter
     :return: Parameter that has been added
     """
-    return self.add_parameter(name, param_type, PARAMETER_IN, optional)
+    return self.add_parameter(name, param_type, PARAMETER_IN, optional, default_value)
 Behavior.add_input = behavior_add_input  # Add to class via monkey patch
 
 
-def behavior_add_output(self, name, param_type):
+def behavior_add_output(self, name, param_type) -> OrderedPropertyValue:
     """Add an output Parameter for this Behavior
 
     :param name: name of the parameter, which will also be used for pins
@@ -112,7 +118,7 @@ def behavior_add_output(self, name, param_type):
 Behavior.add_output = behavior_add_output  # Add to class via monkey patch
 
 
-def behavior_get_inputs(self):
+def behavior_get_inputs(self) -> Iterable[Parameter]:
     """Return all Parameters of type input for this Behavior
 
     Note: assumes that type is all either in or out
@@ -123,16 +129,24 @@ def behavior_get_inputs(self):
     return (p for p in self.parameters if p.property_value.direction == PARAMETER_IN)
 Behavior.get_inputs = behavior_get_inputs  # Add to class via monkey patch
 
-def behavior_get_input(self):
+
+def behavior_get_input(self, name) -> Parameter:
     """Return a specific input Parameter for this Behavior
 
     Note: assumes that type is all either in or out
     Returns
     -------
-    Iterator over Parameters
+    Parameter, or Value error
     """
-    return (p for p in self.parameters if p.property_value.direction == PARAMETER_IN)
-Behavior.get_inputs = behavior_get_inputs  # Add to class via monkey patch
+    found = [p for p in self.get_inputs() if p.name == name]
+    if len(found) == 0:
+        raise ValueError(f'Behavior {self.identity} has no input parameter named {name}')
+    elif len(found) > 1:
+        raise ValueError(f'Behavior {self.identity} has multiple input parameters named {name}')
+    else:
+        return found[0]
+Behavior.get_input = behavior_get_input  # Add to class via monkey patch
+
 
 def behavior_get_required_inputs(self):
     """Return all required Parameters of type input for this Behavior
@@ -156,6 +170,24 @@ def behavior_get_outputs(self):
     """
     return (p for p in self.parameters if p.property_value.direction == PARAMETER_OUT)
 Behavior.get_outputs = behavior_get_outputs  # Add to class via monkey patch
+
+
+def behavior_get_output(self, name) -> Parameter:
+    """Return a specific input Parameter for this Behavior
+
+    Note: assumes that type is all either in or out
+    Returns
+    -------
+    Parameter, or Value error
+    """
+    found = [p for p in self.get_outputs() if p.name == name]
+    if len(found) == 0:
+        raise ValueError(f'Behavior {self.identity} has no output parameter named {name}')
+    elif len(found) > 1:
+        raise ValueError(f'Behavior {self.identity} has multiple output parameters named {name}')
+    else:
+        return found[0]
+Behavior.get_output = behavior_get_output  # Add to class via monkey patch
 
 
 def behavior_get_required_outputs(self):
