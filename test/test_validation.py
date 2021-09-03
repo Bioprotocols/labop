@@ -6,6 +6,7 @@ import uml
 
 class TestValidationErrorChecking(unittest.TestCase):
     def test_activity_multiflow(self):
+        """Test whether validator can detect nondeterminism due to activity multiple outflows"""
         # set up the document
         print('Setting up document')
         doc = sbol3.Document()
@@ -34,7 +35,33 @@ class TestValidationErrorChecking(unittest.TestCase):
                'ActivityNode has 3 outgoing edges: multi-edges can cause nondeterministic flow', \
                 f'Unexpected warning content: {str(v.warnings[0])}'
 
-
+    def test_activity_bad_inflows(self):
+        """Test whether validator can detect error due to excess or missing inflows"""
+        # set up the document
+        print('Setting up document')
+        doc = sbol3.Document()
+        sbol3.set_namespace('https://bbn.com/scratch/')
+        # Create the protocol
+        print('Creating protocol')
+        protocol = paml.Protocol('broken')
+        doc.add(protocol)
+        # call order backwards, to make an edge from the final to the initial
+        protocol.order(protocol.final(), protocol.initial())
+        # access a parameter node and order it backwards too
+        p = uml.ActivityParameterNode()
+        protocol.nodes.append(p)
+        protocol.order(protocol.final(), p)
+        # Validate the document, which should produce two errors
+        print('Validating and writing protocol')
+        v = doc.validate()
+        assert len(v) == 3, f'Expected 3 validation issues, but found {len(v)}'
+        expected = [
+            'https://bbn.com/scratch/broken/ActivityParameterNode1: Too few values for property parameter. Expected 1, found 0',
+            'https://bbn.com/scratch/broken/InitialNode1: InitialNode must have no incoming edges, but has 1',
+            'https://bbn.com/scratch/broken/FlowFinalNode1: Node has no incoming edges, so cannot be executed'
+            ]
+        observed = [str(e) for e in v]
+        assert observed == expected, f'Unexpected error content: {observed}'
 
 if __name__ == '__main__':
     unittest.main()

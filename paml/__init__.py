@@ -1,3 +1,4 @@
+import graphviz
 from sbol_factory import SBOLFactory, UMLFactory
 import os
 import posixpath
@@ -71,6 +72,81 @@ def protocol_primitive_step(self, primitive: Primitive, **input_pin_map):
     return pe
 Protocol.primitive_step = protocol_primitive_step  # Add to class via monkey patch
 
+###############################################################################
+#
+# Protocol class: execution related functions
+#
+###############################################################################
+
+def protocol_initiating_nodes(self):
+    """
+    Create a set of tokens that correspond to the initial nodes of the protocol.
+    :return: set of activity nodes
+    """
+    initials = [node for node in self.nodes if isinstance(node, uml.InitialNode)]
+    return initials
+Protocol.initiating_nodes = protocol_initiating_nodes  # Add to class via monkey patch
+
+def protocol_to_dot(self):
+    uri = self.identity.replace(":", "_")
+
+    def _name_to_label(name):
+        return name.replace(f"_{uri}/", "_").replace(f"{uri}", "protocol")
+
+    try:
+        dot = graphviz.Digraph(name=f"cluster_{self.identity}",
+                               graph_attr={
+                                   "label": self.identity
+                               })
+        for edge in self.edges:
+            src_id = edge.source.replace(":", "_")
+            dest_id = edge.target.replace(":", "_")
+            edge_id = edge.identity.replace(":", "_")
+
+            source = self.document.find(edge.source)
+            if isinstance(source, uml.Pin):
+                try:
+                    src_activity = source.identity.rsplit('/', 1)[0] # Assumes pin is owned by activity
+                    dot.edge(src_activity.replace(":", "_"), src_id, label=f"{source.name}")
+                except Exception as e:
+                    print(f"Cannot find source activity for {source.identity}")
+            target = self.document.find(edge.target)
+            if isinstance(target, uml.Pin):
+                try:
+                    dest_activity = target.identity.rsplit('/', 1)[0] # Assumes pin is owned by activity
+                    dot.edge(dest_id, dest_activity.replace(":", "_"), label=f"{target.name}")
+                except Exception as e:
+                    print(f"Cannot find source activity for {source.identity}")
+
+            dot.node(src_id, label=_name_to_label(src_id))
+            dot.node(dest_id, label=_name_to_label(dest_id))
+            dot.node(edge_id, label=_name_to_label(edge_id))
+            dot.edge(src_id, edge_id)
+            dot.edge(edge_id, dest_id)
+        for node in self.nodes:
+            node_id = node.identity.replace(":", "_")
+            dot.node(node_id, label=_name_to_label(node_id))
+    except Exception as e:
+        print(f"Cannot translate to graphviz: {e}")
+    return dot
+Protocol.to_dot = protocol_to_dot
+
+def activity_edge_flow_get_target(self):
+    '''Find the target node of an edge flow
+        Parameters
+        ----------
+        self
+
+        Returns ActivityNode
+        -------
+
+        '''
+    if self.edge:
+        target = self.document.find(self.document.find(self.edge).target)
+    else: # Tokens for pins do not have an edge connecting pin to activity
+        target = self.document.find(self.document.find(self.token_source).node).get_parent()
+    return target
+ActivityEdgeFlow.get_target = activity_edge_flow_get_target
 
 # # Create and add an execution of a subprotocol to a protocol
 # def protocol_execute_subprotocol(self, protocol: Protocol, **input_pin_map):
