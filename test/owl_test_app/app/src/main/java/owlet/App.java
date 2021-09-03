@@ -55,119 +55,6 @@ import uk.ac.manchester.cs.owl.owlapi.OWLObjectPropertyImpl;
  */
 public class App
 {
-
-        public static boolean test()
-        {
-            return true;
-        }
-	
-	public static void main(String[] args)
-	{
-                System.out.println(System.getProperty("user.dir"));
-                System.out.println("**************");
-		// init
-		OWLOntologyManager manager = OWLManager.createOWLOntologyManager();
-		File university = new File("resources/university.owl");
-		OWLOntology localUni;
-		
-		try
-		{
-			// load the (local) OWL ontology
-			localUni = manager.loadOntologyFromOntologyDocument(university);
-			System.out.println("Loaded ontology: " + localUni.getOntologyID());
-			IRI location = manager.getOntologyDocumentIRI(localUni);
-			System.out.println("\tfrom: " + location);
-			
-			long time = System.currentTimeMillis();
-			
-			// get and configure a reasoner (HermiT)
-			OWLReasonerFactory reasonerFactory = new ReasonerFactory();
-			ConsoleProgressMonitor progressMonitor = new ConsoleProgressMonitor();
-			OWLReasonerConfiguration config = new SimpleConfiguration(progressMonitor);
-			
-			// create the reasoner instance, classify and compute inferences
-			OWLReasoner reasoner = reasonerFactory.createReasoner(localUni, config);
-			// perform all the inferences now, to avoid subsequent ad-hoc
-			// reasoner calls
-			reasoner.precomputeInferences(InferenceType.values());
-			
-			// init prefix manager
-			DefaultPrefixManager pm = new DefaultPrefixManager(null, null,
-					"http://elite.polito.it/ontologies/university.owl#");
-			// pm.setPrefix("another:", "http://elite.polito.it/ontologies/anotheront.owl#");
-			
-			// get all the universities
-			OWLDataFactory fac = manager.getOWLDataFactory();
-			OWLClass universities = fac.getOWLClass(IRI.create(pm.getDefaultPrefix(), "University"));
-			NodeSet<OWLNamedIndividual> individualsNodeSet = reasoner.getInstances(universities, false);
-			Set<OWLNamedIndividual> individuals = individualsNodeSet.getFlattened();
-			
-			for (OWLNamedIndividual uni : individuals)
-			{
-				// print the individual name
-				System.out.println("Individual Name: " + pm.getShortForm(uni));
-				
-				// get university name
-				OWLDataProperty universityName = new OWLDataPropertyImpl(
-						IRI.create(pm.getDefaultPrefix() + "universityName"));
-				System.out.println(EntitySearcher.getDataPropertyValues(uni, universityName, localUni));
-				
-				// get offered degrees (i.e., "offersDegree" obj property)
-				OWLObjectPropertyImpl op = new OWLObjectPropertyImpl(
-						IRI.create(pm.getDefaultPrefix() + "offersDegree"));
-				Set<OWLIndividual> offersDegree = new HashSet<>(
-						EntitySearcher.getObjectPropertyValues(uni, op, localUni));
-				for (OWLIndividual degree : offersDegree)
-				{
-					System.out.println("\n\toffersDegree: " + pm.getShortForm((OWLEntity) degree));
-					
-					// get degree name
-					OWLDataProperty degreeName = new OWLDataPropertyImpl(
-							IRI.create(pm.getDefaultPrefix() + "degreeName"));
-					System.out.println("\t" + EntitySearcher.getDataPropertyValues(degree, degreeName, localUni));
-					
-					// get offered courses ("offersCourse" obj property)
-					OWLObjectPropertyImpl c = new OWLObjectPropertyImpl(
-							IRI.create(pm.getDefaultPrefix() + "offersCourse"));
-					Set<OWLIndividual> offersCourse = new HashSet<>(
-							EntitySearcher.getObjectPropertyValues(degree, c, localUni));
-					for (OWLIndividual course : offersCourse)
-					{
-						System.out.println("\t\toffersCourse: " + pm.getShortForm((OWLEntity) course));
-						
-						// get enrolled students ("isFollowed" obj property)
-						OWLObjectPropertyImpl f = new OWLObjectPropertyImpl(
-								IRI.create(pm.getDefaultPrefix() + "isFollowed"));
-						// the following line does not work since we defined
-						// only the "follows" property, and this as the inverse
-						// Set<OWLIndividual> isFollowed = new HashSet<>(
-						//		EntitySearcher.getObjectPropertyValues(course, f, localUni));
-						Set<OWLNamedIndividual> isFollowed = reasoner
-								.getObjectPropertyValues(course.asOWLNamedIndividual(), f).getFlattened();
-						for (OWLIndividual student : isFollowed)
-						{
-							System.out.println("\t\t\tisFollowed: " + pm.getShortForm((OWLEntity) student));
-						}
-						
-					}
-				}
-				
-				System.out.println("---");
-			}
-			System.err.println("All universities (" + individuals.size() + ") extracted in "
-					+ (float) (System.currentTimeMillis() - time) / 1000 + " seconds.");
-			
-		}
-		catch (OWLOntologyCreationException e)
-		{
-			System.err.println("Impossible to load " + university.getAbsolutePath());
-			e.printStackTrace();
-		}
-		
-	}
-
-// https://www.javatips.net/api/iconvis-master/iconvis-backend/Iconvis_0.2.2/src/java/it/polito/iconvis/integration/ontology/OntologyValidator.java
-
     public boolean validateOntology(String ontologyPath, OWLOntologyLoaderConfiguration config) throws Exception {
         Logger logger = Logger.getLogger(App.class.getName());
         logger.setLevel(Level.INFO);
@@ -180,9 +67,9 @@ public class App
             FileDocumentSource source = new FileDocumentSource(file);
             OWLOntology localont = manager.loadOntologyFromOntologyDocument(source, config);
             String ontologyUri = localont.getOntologyID().getOntologyIRI().toString();
-            logger.log(Level.INFO, "[iconviz] Loaded ontology with URI: " + ontologyUri);
+            logger.log(Level.INFO, "[OntologyValidator::validateOntology] Loaded ontology with URI: " + ontologyUri);
             IRI documentIRI = manager.getOntologyDocumentIRI(localont);
-            logger.log(Level.INFO, "[iconviz] Artefact: " + documentIRI);
+            logger.log(Level.INFO, "[OntologyValidator::validateOntology] Artefact: " + documentIRI);
             result = true;
             
             // get and configure a reasoner (HermiT)
