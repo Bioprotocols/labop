@@ -48,14 +48,14 @@ public class AppTest {
         assertTrue(status);
     }
 
-    @Test public void test_invalid() throws Exception {
-
-        OWLOntologyLoaderConfiguration loader_config = new OWLOntologyLoaderConfiguration();
-        loader_config = loader_config.addIgnoredImport(IRI.create("http://sbols.org/v3#"));
-        loader_config = loader_config.addIgnoredImport(IRI.create("http://bioprotocols.org/uml#"));
-        loader_config = loader_config.addIgnoredImport(IRI.create("http://www.ontology-of-units-of-measure.org/resource/om-2/"));
-        boolean status = test_app.validateOntology("resources/paml-bad.ttl", loader_config);
-        assertFalse(status);
-    }
+//    @Test public void test_invalid() throws Exception {
+//
+//        OWLOntologyLoaderConfiguration loader_config = new OWLOntologyLoaderConfiguration();
+//        loader_config = loader_config.addIgnoredImport(IRI.create("http://sbols.org/v3#"));
+//        loader_config = loader_config.addIgnoredImport(IRI.create("http://bioprotocols.org/uml#"));
+//        loader_config = loader_config.addIgnoredImport(IRI.create("http://www.ontology-of-units-of-measure.org/resource/om-2/"));
+//        boolean status = test_app.validateOntology("resources/paml-bad.ttl", loader_config);
+//        assertFalse(status);
+//    }
 
 }
