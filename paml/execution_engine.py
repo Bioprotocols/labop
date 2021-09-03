@@ -114,13 +114,15 @@ class ExecutionEngine(ABC):
          """
         tokens_present = {node.document.find(t.edge) for t in tokens if t.edge}==protocol.incoming_edges(node)
         if hasattr(node, "inputs"):
-            object_pins_satisfied = {protocol.document.find(protocol.document.find(t.token_source).node)
-                                     for t in tokens if not t.edge} == \
-                                    {i for i in node.inputs if not isinstance(i, uml.ValuePin) and \
-                                     i.lower_value and i.lower_value.value > 0 }
-            # TODO add a pattern to get the parameter for a call behavior input.
-            value_pins_assigned = all({i.value for i in node.inputs if isinstance(i, uml.ValuePin)})
-            return tokens_present and object_pins_satisfied and value_pins_assigned
+            required_inputs = [node.input_pin(i.property_value.name)
+                               for i in protocol.document.find(node.behavior).get_required_inputs()]
+            required_value_pins = {p for p in required_inputs if isinstance(p, uml.ValuePin)}
+            required_input_pins = {p for p in required_inputs if not isinstance(p, uml.ValuePin)}
+            pins_with_tokens = {node.document.find(node.document.find(t.token_source).node)
+                                for t in tokens if not t.edge}
+            input_pins_satisfied = pins_with_tokens == required_input_pins
+            value_pins_assigned = all({i.value for i in required_value_pins})
+            return tokens_present and input_pins_satisfied and value_pins_assigned
         else:
             return tokens_present
 
