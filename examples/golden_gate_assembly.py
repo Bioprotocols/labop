@@ -8,6 +8,7 @@ import tyto
 
 
 # import paml_md
+import uml
 
 #############################################
 # set up the document
@@ -56,16 +57,16 @@ gg_mix.derived_from.append('https://www.neb.com/products/e1601-neb-golden-gate-a
 doc.add(gg_mix)
 
 # add an parameters for specifying the layout of the DNA source plate and build plate
-dna_sources = protocol.add_input('source_samples', 'http://bioprotocols.org/paml#SampleCollection').property_value
+dna_sources = protocol.input_value('source_samples', 'http://bioprotocols.org/paml#SampleCollection')
 # TODO: add_input should be returning a usable ActivityNode!
-dna_build_layout = protocol.add_input('build_layout', 'http://bioprotocols.org/paml#SampleData').property_value
+dna_build_layout = protocol.input_value('build_layout', 'http://bioprotocols.org/paml#SampleData')
 
 # actual steps of the protocol
 # get a plate space for building
 build_wells = protocol.primitive_step('DuplicateCollection', source=dna_build_layout)
 
 # put DNA into the selected wells following the build plan
-protocol.primitive_step('TransferByMap', dna_build_layout)
+protocol.primitive_step('TransferByMap', source=dna_sources, destination=build_wells, plan=dna_build_layout)
 
 # put buffer, assembly mix, and water into build wells too
 protocol.primitive_step('Provision', resource=gg_buf, destination=build_wells.output_pin('samples'),
@@ -76,10 +77,10 @@ protocol.primitive_step('Provision', resource=nf_h2o, destination=build_wells.ou
                         amount=sbol3.Measure(15, tyto.OM.microliter))
 
 # seal and spin to mix
-protocol.primitive_step('Seal', destination=build_wells.output_pin('samples')) # TODO: add type
+protocol.primitive_step('Seal', location=build_wells.output_pin('samples')) # TODO: add type
 protocol.primitive_step('Spin', acceleration=sbol3.Measure(300, "http://bioprotocols.org/temporary/unit/g"),  # TODO: replace with OM-2 unit on resolution of https://github.com/HajoRijgersberg/OM/issues/54
                         duration=sbol3.Measure(3, tyto.OM.minute))
-protocol.primitive_step('Unseal', destination=build_wells.output_pin('samples'))
+protocol.primitive_step('Unseal', location=build_wells.output_pin('samples'))
 
 # incubation steps
 protocol.primitive_step('Incubate', location=build_wells.output_pin('samples'),
@@ -90,7 +91,7 @@ protocol.primitive_step('Incubate', location=build_wells.output_pin('samples'),
                         temperature=sbol3.Measure(60, tyto.OM.get_uri_by_term('degree Celsius')))  # TODO: replace after resolution of https://github.com/SynBioDex/tyto/issues/29
 
 
-output = protocol.add_output('constructs', build_wells.output_pin('samples'))
+output = protocol.designate_output('constructs', 'http://bioprotocols.org/paml#SampleCollection', build_wells.output_pin('samples'))
 protocol.order(protocol.get_last_step(), output)  # don't return until all else is complete
 
 

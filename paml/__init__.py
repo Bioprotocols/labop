@@ -82,15 +82,6 @@ Protocol.primitive_step = protocol_primitive_step  # Add to class via monkey pat
 #
 ###############################################################################
 
-def protocol_initiating_nodes(self):
-    """
-    Create a set of tokens that correspond to the initial nodes of the protocol.
-    :return: set of activity nodes
-    """
-    initials = [node for node in self.nodes if isinstance(node, uml.InitialNode)]
-    return initials
-Protocol.initiating_nodes = protocol_initiating_nodes  # Add to class via monkey patch
-
 def protocol_to_dot(self):
     uri = self.identity.replace(":", "_")
 
