@@ -29,9 +29,9 @@ class TestProtocolExecution(unittest.TestCase):
         # print('... Imported liquid handling')
 
         ee = ExecutionEngine()
-        parameter_values = {
-            #paml.liquid_handling : uml.RealLiteral(value=0.1)
-        }
+        parameter_values = [
+            paml.ParameterValue(parameter=protocol.get_input("wavelength"), value=sbol3.Measure(100, tyto.OM.nanometer))
+        ]
         execution = ee.execute(protocol, agent, id="test_execution", parameter_values=parameter_values)
 
         dot = execution.to_dot()
@@ -49,7 +49,7 @@ class TestProtocolExecution(unittest.TestCase):
         print(f'Wrote file as {temp_name}')
 
         comparison_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'testfiles', 'igem_ludox_test_exec.nt')
-        # doc.write(comparison_file, sbol3.SORTED_NTRIPLES)
+        #doc.write(comparison_file, sbol3.SORTED_NTRIPLES)
         print(f'Comparing against {comparison_file}')
         #assert filecmp.cmp(temp_name, comparison_file), "Files are not identical"
         print('File identical with test file')
