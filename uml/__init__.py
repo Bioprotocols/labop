@@ -126,7 +126,7 @@ def behavior_get_inputs(self) -> Iterable[Parameter]:
     -------
     Iterator over Parameters
     """
-    return (p for p in self.parameters if p.property_value.direction == PARAMETER_IN)
+    return (p.property_value for p in self.parameters if p.property_value.direction == PARAMETER_IN)
 Behavior.get_inputs = behavior_get_inputs  # Add to class via monkey patch
 
 
@@ -156,7 +156,7 @@ def behavior_get_required_inputs(self):
     -------
     Iterator over Parameters
     """
-    return (p for p in self.get_inputs() if p.property_value.lower_value.value > 0)
+    return (p for p in self.get_inputs() if p.lower_value.value > 0)
 Behavior.get_required_inputs = behavior_get_required_inputs  # Add to class via monkey patch
 
 
@@ -168,7 +168,7 @@ def behavior_get_outputs(self):
     -------
     Iterator over Parameters
     """
-    return (p for p in self.parameters if p.property_value.direction == PARAMETER_OUT)
+    return (p.property_value for p in self.parameters if p.property_value.direction == PARAMETER_OUT)
 Behavior.get_outputs = behavior_get_outputs  # Add to class via monkey patch
 
 
@@ -198,7 +198,7 @@ def behavior_get_required_outputs(self):
     -------
     Iterator over Parameters
     """
-    return (p for p in self.get_outputs() if p.property_value.lower_value.value > 0)
+    return (p for p in self.get_outputs() if p.lower_value.value > 0)
 Behavior.get_required_outputs = behavior_get_required_outputs  # Add to class via monkey patch
 
 
@@ -257,6 +257,23 @@ def call_behavior_action_output_pin(self, pin_name: str):
     return pin_set.pop()
 CallBehaviorAction.output_pin = call_behavior_action_output_pin  # Add to class via monkey patch
 
+def call_behavior_action_pin_parameter(self, pin_name: str):
+    """Find the behavior parameter corresponding to the pin
+
+    :param pin_name:
+    :return: Parameter with specified name
+    """
+    try:
+        pin = self.input_pin(pin_name)
+    except:
+        try:
+            pin = self.output_pin(pin_name)
+        except:
+            raise ValueError(f'Could not find pin named {pin_name}')
+    behavior = self.behavior.lookup()
+    [parameter] = [p.property_value for p in behavior.parameters if p.property_value.name == pin_name]
+    return parameter
+CallBehaviorAction.pin_parameter = call_behavior_action_pin_parameter  # Add to class via monkey patch
 
 def add_call_behavior_action(parent: Activity, behavior: Behavior, **input_pin_literals):
     """Create a call to a Behavior and add it to an Activity
@@ -267,7 +284,7 @@ def add_call_behavior_action(parent: Activity, behavior: Behavior, **input_pin_l
     :return: newly constructed
     """
     # first, make sure that all of the keyword arguments are in the inputs of the behavior
-    unmatched_keys = [key for key in input_pin_literals.keys() if key not in (i.property_value.name for i in behavior.get_inputs())]
+    unmatched_keys = [key for key in input_pin_literals.keys() if key not in (i.name for i in behavior.get_inputs())]
     if unmatched_keys:
         raise ValueError(f'Specification for "{behavior.display_id}" does not have inputs: {unmatched_keys}')
 
@@ -277,19 +294,19 @@ def add_call_behavior_action(parent: Activity, behavior: Behavior, **input_pin_l
 
     # Instantiate input pins
     for i in id_sort(behavior.get_inputs()):
-        if i.property_value.name in input_pin_literals:
-            value = input_pin_literals[i.property_value.name]
+        if i.name in input_pin_literals:
+            value = input_pin_literals[i.name]
             # TODO: type check relationship between value and parameter type specification
-            action.inputs.append(ValuePin(name=i.property_value.name, is_ordered=i.property_value.is_ordered,
-                                          is_unique=i.property_value.is_unique, value=literal(value)))
+            action.inputs.append(ValuePin(name=i.name, is_ordered=i.is_ordered,
+                                          is_unique=i.is_unique, value=literal(value)))
         else:  # if not a constant, then just a generic InputPin
-            action.inputs.append(InputPin(name=i.property_value.name, is_ordered=i.property_value.is_ordered,
-                                          is_unique=i.property_value.is_unique))
+            action.inputs.append(InputPin(name=i.name, is_ordered=i.is_ordered,
+                                          is_unique=i.is_unique))
 
     # Instantiate output pins
     for o in id_sort(behavior.get_outputs()):
-        action.outputs.append(OutputPin(name=o.property_value.name, is_ordered=o.property_value.is_ordered,
-                                        is_unique=o.property_value.is_unique))
+        action.outputs.append(OutputPin(name=o.name, is_ordered=o.is_ordered,
+                                        is_unique=o.is_unique))
 
     return action
 
@@ -489,7 +506,8 @@ def activity_validate(self, report: sbol3.ValidationReport = None) -> sbol3.Vali
         report.addWarning(n.identity, None, f'ActivityNode has {c} outgoing edges: multi-edges can cause nondeterministic flow')
 
     # Check that incoming flow counts obey constraints:
-    target_counts = Counter([e.target.lookup().unpin() for e in self.edges])
+    target_counts = Counter([e.target.lookup().unpin() for e in self.edges
+                             if isinstance(e.target.lookup(), ActivityNode) ])
     # No InitialNode should have an incoming flow (though an ActivityParameterNode may)
     initial_with_inflow = {n: c for n, c in target_counts.items() if isinstance(n,InitialNode)}
     for n, c in initial_with_inflow.items():

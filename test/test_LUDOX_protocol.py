@@ -79,7 +79,8 @@ is only weakly scattering and so will give a low absorbance value.
         measure = protocol.primitive_step('MeasureAbsorbance', samples=c_measure.output_pin('samples'))
 
         protocol.use_value(wavelength_param, measure.input_pin('wavelength'))
-        protocol.add_output('absorbance', measure.output_pin('measurements'))
+        absorbance_param = protocol.add_output('absorbance', sbol3.OM_MEASURE)
+        protocol.use_value(measure.output_pin('measurements'), absorbance_param)
 
         ########################################
         # Validate and write the document
