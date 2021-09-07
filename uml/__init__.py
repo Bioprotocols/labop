@@ -75,6 +75,7 @@ def behavior_add_parameter(self, name: str, param_type: str, direction: str, opt
     :param param_type: URI specifying the type of object that is expected for this parameter
     :param direction: should be in or out
     :param optional: True if the Parameter is optional; default is False
+    :param default_value: must be specified if Parameter is optional
     :return: Parameter that has been added
     """
     param = Parameter(name=name, type=param_type, direction=direction, is_ordered=True, is_unique=True)
@@ -349,6 +350,41 @@ def activity_final(self):
 Activity.final = activity_final  # Add to class via monkey patch
 
 
+def activity_input_value(self, name: str, param_type: str, optional: bool = False,
+                       default_value: ValueSpecification = None) -> ActivityParameterNode:
+    """Add an input, then return the ActivityParameterNode that refers to that input
+
+    :param self: Activity
+    :param name: Name of the input
+    :param param_type: type of value expected for the input
+    :param optional: True if the Parameter is optional; default is False
+    :param default_value: if the input is optional, a default value must be set
+    :return: ActivityParameterNode associated with the input
+    """
+    parameter = self.add_input(name=name, param_type=param_type, optional=optional, default_value=default_value)
+    node = ActivityParameterNode(parameter=parameter.property_value)
+    self.nodes.append(node)
+    return node
+Activity.input_value = activity_input_value  # Add to class via monkey patch
+
+
+def activity_designate_output(self, name: str, param_type: str, source: ActivityNode) -> ActivityParameterNode:
+    """Add an output, connect it to an ActivityParameterNode, and get its value from the designated node
+
+    :param self: Activity
+    :param name: Name of the output
+    :param param_type: type of value expected for the output
+    :param source: ActivityNode whose ObjectValue output should be routed to the source
+    :return: ActivityParameterNode associated with the output
+    """
+    parameter = self.add_output(name=name, param_type=param_type)
+    node = ActivityParameterNode(parameter=parameter.property_value)
+    self.nodes.append(node)
+    self.use_value(source, node)
+    return node
+Activity.designate_output = activity_designate_output  # Add to class via monkey patch
+
+
 def activity_initiating_nodes(self) -> list[ActivityNode]:
     """Find all InitialNode and ActivityParameterNode activities.
     These should be the only activities with no in-flow, which can thus initiate execution.
@@ -361,7 +397,8 @@ def activity_initiating_nodes(self) -> list[ActivityNode]:
     -------
     List of ActivityNodes able to initiate execution
     """
-    return [n for n in self.nodes if isinstance(n,InitialNode) or isinstance(n,ActivityParameterNode)]
+    return [n for n in self.nodes if isinstance(n, InitialNode) or
+            (isinstance(n, ActivityParameterNode) and n.parameter and n.parameter.lookup().direction == PARAMETER_IN)]
 Activity.initiating_nodes = activity_initiating_nodes  # Add to class via monkey patch
 
 
@@ -467,7 +504,8 @@ def activity_order(self, source: ActivityNode, target: ActivityNode):
     return flow
 Activity.order = activity_order  # Add to class via monkey patch
 
-def activity_use_value(self, source: ActivityNode, target: ActivityNode):
+
+def activity_use_value(self, source: ActivityNode, target: ActivityNode) -> ObjectFlow:
     """Add an ObjectFlow transferring a value between the designated source and target nodes in an Activity
 
     Typically, these activities will be either Action Pins or ActivityParameterNodes serving as input or output

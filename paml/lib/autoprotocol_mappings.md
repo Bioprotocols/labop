@@ -29,6 +29,7 @@ This library handles plate readers and other spectrophotometers
 | `seal`,flexible mode | `Seal` |
 | `seal`,`mode=thermal` | `AdhesiveSeal` |
 | `seal`,`mode=adhesive` | `ThermalSeal` |
+| `spin` | `Spin` |
 | `uncover` | `Uncover` |
 | `unseal` | `Unseal` |
 
@@ -40,7 +41,6 @@ This library handles plate readers and other spectrophotometers
 - `measure_volume`
 - `spectrophotometry`, `mode=luminescence`
 - `spectrophotometry`, `mode=shake`
-- `spin`
 
 # Operators at strateos not listed in autoprotocol
 - `SUPPLY NEW CONTAINER`

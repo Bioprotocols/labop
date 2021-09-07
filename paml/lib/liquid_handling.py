@@ -44,6 +44,13 @@ p.add_input('mixCycles', sbol3.OM_MEASURE, True)
 p.add_input('dispenseVelocity', sbol3.OM_MEASURE, True)
 doc.add(p)
 
+p = paml.Primitive('TransferByMap')
+p.description = 'Move volumes from a collection of source samples to a collection of destination samples following a plan of value given for each location'
+p.add_input('source', 'http://bioprotocols.org/paml#SampleCollection')
+p.add_input('destination', 'http://bioprotocols.org/paml#SampleCollection')
+p.add_input('plan', 'http://bioprotocols.org/paml#SampleData') # Must be a set of component/volume values
+p.add_input('dispenseVelocity', sbol3.OM_MEASURE, True)
+doc.add(p)
 
 p = paml.Primitive('PipetteMix')
 p.description = 'Mix by cycling a measured volume of liquid in and out at an array of samples a fixed number of times'

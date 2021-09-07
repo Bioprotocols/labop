@@ -406,7 +406,6 @@ uml:OrderedPropertyValue rdf:type owl:Class ;
       owl:minCardinality "1"^^xsd:nonNegativeInteger ; owl:maxCardinality "1"^^xsd:nonNegativeInteger ] .
 
 uml:indexValue rdf:type owl:DatatypeProperty ;
-         rdfs:subPropertyOf opil:compositionalProperty ;
          rdfs:domain uml:OrderedPropertyValue ;
          rdfs:range xsd:integer ;
          rdfs:label "index" .
