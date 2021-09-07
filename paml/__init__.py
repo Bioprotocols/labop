@@ -41,6 +41,11 @@ sbol3.Identified.get_toplevel = identified_get_toplevel
 ###########################################
 # Define extension methods for Protocol
 
+def protocol_get_last_step(self):
+    return self.last_step if hasattr(self, 'last_step') else self.initial()
+Protocol.get_last_step = protocol_get_last_step # Add to class via monkey patch
+
+
 def protocol_execute_primitive(self, primitive, **input_pin_map):
     """Create and add an execution of a Primitive to a Protocol
 
@@ -66,8 +71,7 @@ def protocol_primitive_step(self, primitive: Primitive, **input_pin_map):
     :return: CallBehaviorAction that invokes the Primitive
     """
     pe = self.execute_primitive(primitive, **input_pin_map)
-    last_step = (self.last_step if hasattr(self, 'last_step') else self.initial())
-    self.order(last_step, pe)
+    self.order(self.get_last_step(), pe)
     self.last_step = pe  # update the last step
     return pe
 Protocol.primitive_step = protocol_primitive_step  # Add to class via monkey patch

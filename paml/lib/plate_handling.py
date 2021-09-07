@@ -57,6 +57,13 @@ p.add_input('temperature', sbol3.OM_MEASURE) # temperature
 p.add_input('shakingFrequency', sbol3.OM_MEASURE, True) # Hertz or RPM?; in either case, defaults to zero
 doc.add(p)
 
+p = paml.Primitive('Spin')
+p.description = 'Centrifuge a set of samples at a given acceleration for a given period of time'
+p.add_input('location', 'http://bioprotocols.org/paml#SampleArray')
+p.add_input('duration', sbol3.OM_MEASURE) # time
+p.add_input('acceleration', sbol3.OM_MEASURE) # acceleration
+doc.add(p)
+
 print('Library construction complete')
 print('Validating library')
 for e in doc.validate().errors: print(e);
