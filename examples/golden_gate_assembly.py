@@ -66,7 +66,7 @@ dna_build_layout = protocol.input_value('build_layout', 'http://bioprotocols.org
 build_wells = protocol.primitive_step('DuplicateCollection', source=dna_build_layout)
 
 # put DNA into the selected wells following the build plan
-protocol.primitive_step('TransferByMap', source=dna_sources, destination=build_wells, plan=dna_build_layout)
+protocol.primitive_step('TransferByMap', source=dna_sources, destination=build_wells.output_pin('samples'), plan=dna_build_layout)
 
 # put buffer, assembly mix, and water into build wells too
 protocol.primitive_step('Provision', resource=gg_buf, destination=build_wells.output_pin('samples'),
@@ -104,3 +104,8 @@ assert len(v) == 0, "".join(f'\n {e}' for e in v)
 temp_name = os.path.join(tempfile.gettempdir(), 'golden_gate_assembly.nt')
 doc.write(temp_name, sbol3.SORTED_NTRIPLES)
 print(f'Wrote file as {temp_name}')
+
+# render and view the dot
+dot = protocol.to_dot()
+dot.render(f'{protocol.name}.gv')
+dot.view()
