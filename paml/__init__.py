@@ -89,6 +89,41 @@ def protocol_to_dot(self):
     def _gv_sanitize(id: str):
         return id.replace(":", "_")
 
+    def _legend():
+        legend = graphviz.Digraph(name="cluster_Legend",
+                                  graph_attr={
+                                      "label" : "Legend",
+                                      "shape" : "rectangle",
+                                      "color" : "black",
+                                      "rank" : "same"
+                                  })
+        legend.node("InitialNode_Legend", _attributes={'label': 'InitialNode', 'fontcolor' : "white", 'shape': 'circle', 'style': 'filled', 'fillcolor': 'black' })
+        #legend.node("CallBehaviorAction_Legend", _attributes=_type_attrs(uml.CallBehaviorAction()))
+        legend.node("FinalNode_Legend", _attributes={'label': 'FinalNode', 'fontcolor' : "white", 'shape': 'doublecircle', 'style': 'filled', 'fillcolor': 'black'})
+        legend.node("ForkNode_Legend", _attributes={'label': 'ForkNode', 'fontcolor' : "white", 'shape': 'rectangle', 'height': '0.02', 'style': 'filled', 'fillcolor': 'black'})
+        legend.node("MergeNode_Legend", _attributes={'label': 'MergeNode', 'shape': 'diamond'})
+        legend.node("ActivityParameterNode_Legend", _attributes={'label': "ActivityParameterNode", 'shape': 'rectangle', 'peripheries': '2', 'color': 'black:invis:black'})
+        legend.node("CallBehaviorAction_Legend", _attributes={
+            "label" : f'<<table border="0" cellspacing="0"><tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="InputPin1" border="1">InputPin</td><td> </td><td port="ValuePin1" border="1">ValuePin: Value</td><td> </td></tr></table></td></tr><tr><td port="node" border="1">CallBehaviorAction</td></tr><tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="OutputPin1" border="1">OutputPin</td><td> </td></tr></table></td></tr></table>>',
+            "shape" : "none",
+            "style": "rounded"
+        })
+        legend.node("a", _attributes={"style": "invis"})
+        legend.node("b", _attributes={"style": "invis"})
+        legend.node("c", _attributes={"style": "invis"})
+        legend.node("d", _attributes={"style": "invis"})
+        legend.edge("a", "b", label="uml.ControlFlow", _attributes={"color" : "blue"})
+        legend.edge("c", "d", label="uml.ObjectFlow")
+        legend.edge("InitialNode_Legend", "FinalNode_Legend", _attributes={"style" : "invis"})
+        legend.edge("FinalNode_Legend", "ForkNode_Legend", _attributes={"style" : "invis"})
+        legend.edge("ForkNode_Legend", "MergeNode_Legend", _attributes={"style": "invis"})
+        legend.edge("MergeNode_Legend", "ActivityParameterNode_Legend", _attributes={"style": "invis"})
+        legend.edge("ActivityParameterNode_Legend", "CallBehaviorAction_Legend", _attributes={"style": "invis"})
+        legend.edge("CallBehaviorAction_Legend", "a", _attributes={"style": "invis"})
+        legend.edge("b", "c", _attributes={"style": "invis"})
+        return legend
+
+
     def _label(object: sbol3.Identified):
         truncated = _gv_sanitize(object.identity.replace(f'{self.identity}/', ''))
         in_struct = truncated.replace('/',':')
@@ -165,7 +200,7 @@ def protocol_to_dot(self):
                                    'label': self.name,
                                    'shape': 'box'
                                })
-
+        dot.subgraph(_legend())
         for edge in self.edges:
             src_id = _label(edge.source.lookup()) #edge.source.replace(":", "_")
             dest_id = _label(edge.target.lookup()) #edge.target.replace(":", "_")
