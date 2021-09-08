@@ -58,7 +58,7 @@ is only weakly scattering and so will give a low absorbance value.
         doc.add(ludox)
 
         # add an optional parameter for specifying the wavelength
-        wavelength_param = protocol.add_input('wavelength', sbol3.OM_MEASURE, True,
+        wavelength_param = protocol.input_value('wavelength', sbol3.OM_MEASURE, optional=True,
                                               default_value=sbol3.Measure(600, tyto.OM.nanometer))
 
         # actual steps of the protocol
@@ -76,11 +76,11 @@ is only weakly scattering and so will give a low absorbance value.
 
         # measure the absorbance
         c_measure = protocol.primitive_step('PlateCoordinates', source=plate.output_pin('samples'), coordinates='A1:D2')
-        measure = protocol.primitive_step('MeasureAbsorbance', samples=c_measure.output_pin('samples'))
+        measure = protocol.primitive_step('MeasureAbsorbance', samples=c_measure.output_pin('samples'), wavelength=wavelength_param)
 
-        protocol.use_value(wavelength_param, measure.input_pin('wavelength'))
-        absorbance_param = protocol.add_output('absorbance', sbol3.OM_MEASURE)
-        protocol.use_value(measure.output_pin('measurements'), absorbance_param)
+        output = protocol.designate_output('absorbance', sbol3.OM_MEASURE,
+                                           measure.output_pin('measurements'))
+        protocol.order(protocol.get_last_step(), output)
 
         ########################################
         # Validate and write the document
@@ -93,10 +93,15 @@ is only weakly scattering and so will give a low absorbance value.
         print(f'Wrote file as {temp_name}')
 
         comparison_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'testfiles', 'igem_ludox_test.nt')
-        doc.write(comparison_file, sbol3.SORTED_NTRIPLES)
+        # doc.write(comparison_file, sbol3.SORTED_NTRIPLES)
         print(f'Comparing against {comparison_file}')
         assert filecmp.cmp(temp_name, comparison_file), "Files are not identical"
         print('File identical with test file')
+
+        # render and view the dot
+        dot = protocol.to_dot()
+        dot.render(f'{protocol.name}.gv')
+        dot.view()
 
     # def test_protocol_to_markdown(self):
     #     doc = sbol3.Document()
