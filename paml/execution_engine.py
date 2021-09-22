@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from typing import List
 import uuid
 import datetime
 import itertools
@@ -30,7 +31,7 @@ class ExecutionEngine(ABC):
         self.variable_counter += 1
         return variable
 
-    def execute(self, protocol: paml.Protocol, agent: sbol3.Agent, parameter_values: list[paml.ParameterValue] = {}, id: str = uuid.uuid4()) -> paml.ProtocolExecution:
+    def execute(self, protocol: paml.Protocol, agent: sbol3.Agent, parameter_values: List[paml.ParameterValue] = {}, id: str = uuid.uuid4()) -> paml.ProtocolExecution:
         """Execute the given protocol against the provided parameters
 
         Parameters
@@ -76,9 +77,9 @@ class ExecutionEngine(ABC):
         ex.end_time = str(datetime.datetime.now()) # TODO: remove str wrapper after sbol_factory #22 fixed
         return ex
 
-    def executable_activity_nodes(self, protocol: paml.Protocol, tokens: list[paml.ActivityEdgeFlow],
-                                  parameter_values: list[paml.ParameterValue])\
-            -> list[uml.ActivityNode]:
+    def executable_activity_nodes(self, protocol: paml.Protocol, tokens: List[paml.ActivityEdgeFlow],
+                                  parameter_values: List[paml.ParameterValue])\
+            -> List[uml.ActivityNode]:
         """Find all of the activity nodes that are ready to be run given the current set of tokens
         Note that this will NOT identify activities with no in-flows: those are only set up as initiating nodes
 
@@ -99,7 +100,7 @@ class ExecutionEngine(ABC):
                 if self.enabled_activity_node(protocol, n, nt, parameter_values)]
 
     def enabled_activity_node(self,  protocol: paml.Protocol, node: uml.ActivityNode,
-                              tokens: list[paml.ActivityEdgeFlow], parameter_values: list[paml.ParameterValue]):
+                              tokens: List[paml.ActivityEdgeFlow], parameter_values: List[paml.ParameterValue]):
         """Check whether all incoming edges have values defined by a token in tokens and that all value pin values are
            defined.
 
@@ -134,7 +135,7 @@ class ExecutionEngine(ABC):
 
 
     def execute_activity_node(self, ex : paml.ProtocolExecution, node: uml.ActivityNode,
-                              tokens: list[paml.ActivityEdgeFlow]) -> list[paml.ActivityEdgeFlow]:
+                              tokens: List[paml.ActivityEdgeFlow]) -> List[paml.ActivityEdgeFlow]:
         """Execute a node in an activity, consuming the incoming flows and recording execution and outgoing flows
 
         Parameters
