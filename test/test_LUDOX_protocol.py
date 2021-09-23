@@ -67,11 +67,11 @@ is only weakly scattering and so will give a low absorbance value.
 
         # put ludox and water in selected wells
         c_ddh2o = protocol.primitive_step('PlateCoordinates', source=plate.output_pin('samples'), coordinates='A1:D1')
-        protocol.primitive_step('Provision', resource=ludox, destination=c_ddh2o.output_pin('samples'),
+        protocol.primitive_step('Provision', resource=ddh2o, destination=c_ddh2o.output_pin('samples'),
                                 amount=sbol3.Measure(100, tyto.OM.microliter))
 
         c_ludox = protocol.primitive_step('PlateCoordinates', source=plate.output_pin('samples'), coordinates='A2:D2')
-        protocol.primitive_step('Provision', resource=ddh2o, destination=c_ludox.output_pin('samples'),
+        protocol.primitive_step('Provision', resource=ludox, destination=c_ludox.output_pin('samples'),
                                 amount=sbol3.Measure(100, tyto.OM.microliter))
 
         # measure the absorbance

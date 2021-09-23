@@ -13,7 +13,7 @@ SBOLFactory('uml_submodule',
 
 # Import submodule symbols into top-level uml module
 from uml_submodule import *
-
+from .uml_graphviz import *
 
 # Workaround for pySBOL3 issue #231: should be applied to every iteration on a collection of SBOL objects
 # TODO: delete after resolution of pySBOL3 issue #231
@@ -559,3 +559,14 @@ def activity_validate(self, report: sbol3.ValidationReport = None) -> sbol3.Vali
 Activity.validate = activity_validate
 
 # TODO: add a check for loops that can obtain too many or too few values
+
+
+def parameter_str(self):
+    """
+    Create a human readable string for a parameter.
+    :param self:
+    :return: str
+    """
+    default_value_str = f"= {self.default_value}" if self.default_value else ""
+    return f"""{self.name}: {self.type} {default_value_str}"""
+Parameter.__str__ = parameter_str

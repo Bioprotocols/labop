@@ -275,6 +275,29 @@ ActivityEdgeFlow.get_target = activity_edge_flow_get_target
 # # Monkey patch:
 # Protocol.execute_subprotocol = protocol_execute_subprotocol
 
+def primitive_str(self):
+    """
+    Create a human readable string describing the Primitive
+    :param self:
+    :return: str
+    """
+    def mark_optional(parameter):
+        return "(Optional) " if parameter.lower_value.value < 1 else ""
+
+    input_parameter_strs = "\n\t".join([f"{parameter.property_value}{mark_optional(parameter.property_value)}"
+                                        for parameter in self.parameters
+                                        if parameter.property_value.direction == uml.PARAMETER_IN])
+    input_str = f"Input Parameters:\n\t{input_parameter_strs}" if len(input_parameter_strs) > 0 else ""
+    output_parameter_strs = "\n\t".join([f"{parameter.property_value}{mark_optional(parameter.property_value)}"
+                                        for parameter in self.parameters
+                                        if parameter.property_value.direction == uml.PARAMETER_OUT])
+    output_str = f"Output Parameters:\n\t{output_parameter_strs}" if len(output_parameter_strs) > 0 else ""
+    return f"""
+Primitive: {self.identity}
+{input_str}
+{output_str}
+            """
+Primitive.__str__ = primitive_str
 
 #########################################
 # Library handling

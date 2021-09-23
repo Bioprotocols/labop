@@ -176,12 +176,20 @@ paml:ActivityNodeExecution rdf:type owl:Class ;
         rdfs:subClassOf sbol:Identified ,
     [ rdf:type owl:Restriction ; owl:allValuesFrom uml:ActivityNode ; owl:onProperty paml:node ;
       owl:minCardinality "1"^^xsd:nonNegativeInteger ; owl:maxCardinality "1"^^xsd:nonNegativeInteger ; ] ,
+    [ rdf:type owl:Restriction ; owl:allValuesFrom uml:LiteralInteger ; owl:onProperty paml:executionIndex ;
+      owl:minCardinality "0"^^xsd:nonNegativeInteger ; owl:maxCardinality "1"^^xsd:nonNegativeInteger ; ] ,
     [ rdf:type owl:Restriction ; owl:allValuesFrom paml:ActivityEdgeFlow ; owl:onProperty paml:incomingFlow ] .
 
 paml:node rdf:type owl:ObjectProperty ;
               rdfs:domain paml:ActivityNodeExecution ;
               rdfs:range uml:ActivityNode ;
               rdfs:label "node" .
+
+paml:executionIndex rdf:type owl:ObjectProperty ;
+              rdfs:subPropertyOf opil:compositionalProperty ;
+              rdfs:domain paml:ActivityNodeExecution ;
+              rdfs:range uml:LiteralInteger ;
+              rdfs:label "index" .
 
 paml:incomingFlow rdf:type owl:ObjectProperty ;
               rdfs:domain paml:ActivityNodeExecution ;
