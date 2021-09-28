@@ -570,3 +570,13 @@ def parameter_str(self):
     default_value_str = f"= {self.default_value}" if self.default_value else ""
     return f"""{self.name}: {self.type} {default_value_str}"""
 Parameter.__str__ = parameter_str
+
+def parameter_template(self):
+    """
+    Create a template for a parameter.
+    :param self:
+    :return: str
+    """
+    default_value_str = f"= {self.default_value}" if self.default_value else ""
+    return f"""{self.name}=\'{default_value_str}\'"""
+Parameter.template = parameter_template
