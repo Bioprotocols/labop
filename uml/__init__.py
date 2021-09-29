@@ -1,7 +1,7 @@
 import os
 import posixpath
 from collections import Counter
-from collections.abc import Iterable
+from typing import List, Set, Iterable
 from sbol_factory import SBOLFactory, UMLFactory
 import sbol3
 
@@ -385,7 +385,7 @@ def activity_designate_output(self, name: str, param_type: str, source: Activity
 Activity.designate_output = activity_designate_output  # Add to class via monkey patch
 
 
-def activity_initiating_nodes(self) -> list[ActivityNode]:
+def activity_initiating_nodes(self) -> List[ActivityNode]:
     """Find all InitialNode and ActivityParameterNode activities.
     These should be the only activities with no in-flow, which can thus initiate execution.
 
@@ -402,7 +402,7 @@ def activity_initiating_nodes(self) -> list[ActivityNode]:
 Activity.initiating_nodes = activity_initiating_nodes  # Add to class via monkey patch
 
 
-def activity_incoming_edges(self, node: ActivityNode) -> set[ActivityEdge]:
+def activity_incoming_edges(self, node: ActivityNode) -> Set[ActivityEdge]:
     """Find the edges that have the designated node as a target
 
     Parameters
@@ -417,7 +417,7 @@ def activity_incoming_edges(self, node: ActivityNode) -> set[ActivityEdge]:
 Activity.incoming_edges = activity_incoming_edges  # Add to class via monkey patch
 
 
-def activity_outgoing_edges(self, node: ActivityNode) -> set[ActivityEdge]:
+def activity_outgoing_edges(self, node: ActivityNode) -> Set[ActivityEdge]:
     """Find the edges that have the designated node as a source
 
     Parameters
