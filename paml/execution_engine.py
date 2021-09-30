@@ -166,23 +166,20 @@ class ExecutionEngine(ABC):
         if isinstance(node, uml.InitialNode):
             if len(inputs) != 0:
                 raise ValueError(f'Initial node must have zero inputs, but {node.identity} had {len(inputs)}')
-            record = paml.ActivityNodeExecution(node=node, incoming_flows=inputs,
-                                                index=uml.LiteralInteger(value=self.next_id()))
+            record = paml.ActivityNodeExecution(node=node, incoming_flows=inputs)
             ex.executions.append(record)
             new_tokens = self.next_tokens(record, ex)
             # put a control token on all outgoing edges
 
         elif isinstance(node, uml.FlowFinalNode):
-            record = paml.ActivityNodeExecution(node=node, incoming_flows=inputs,
-                                                index=uml.LiteralInteger(value=self.next_id()))
+            record = paml.ActivityNodeExecution(node=node, incoming_flows=inputs)
             ex.executions.append(record)
             new_tokens = self.next_tokens(record, ex)
 
         elif isinstance(node, uml.ForkNode):
             if len(inputs) != 1:
                 raise ValueError(f'Fork node must have precisely one input, but {node.identity} had {len(inputs)}')
-            record = paml.ActivityNodeExecution(node=node, incoming_flows=inputs,
-                                                index=uml.LiteralInteger(value=self.next_id()))
+            record = paml.ActivityNodeExecution(node=node, incoming_flows=inputs)
             ex.executions.append(record)
             new_tokens = self.next_tokens(record, ex)
 
@@ -202,8 +199,7 @@ class ExecutionEngine(ABC):
                 value = uml.LiteralReference(value=value) if isinstance(value, sbol3.Identified) else uml.literal(value)
                 ex.parameter_values += [paml.ParameterValue(parameter=node.parameter.lookup(), value=value)]
         elif isinstance(node, uml.CallBehaviorAction):
-            record = paml.CallBehaviorExecution(node=node, incoming_flows=inputs,
-                                                index=uml.LiteralInteger(value=self.next_id()))
+            record = paml.CallBehaviorExecution(node=node, incoming_flows=inputs)
 
             # Get the parameter values from input tokens for input pins
             input_pin_values = {token.token_source.lookup().node.lookup().identity: uml.literal(token.value.value)
@@ -217,11 +213,11 @@ class ExecutionEngine(ABC):
             parameter_values = [paml.ParameterValue(parameter=node.pin_parameter(pin.name),
                                                     value=pin_values[pin.identity])
                                 for pin in node.inputs if pin.identity in pin_values]
-            call = paml.BehaviorExecution(f"execute_{record.index.value}",
+            call = paml.BehaviorExecution(f"execute_{self.next_id()}",
                                           parameter_values=parameter_values,
                                           completed_normally=True,
-                                          start_time=str(datetime.datetime.now()), # TODO: remove str wrapper after sbol_factory #22 fixed
-                                          end_time=str(datetime.datetime.now()), # TODO: remove str wrapper after sbol_factory #22 fixed
+                                          start_time=datetime.datetime.now().strftime("%d. %B %Y %I:%M:%S:%f%p"), # TODO: remove str wrapper after sbol_factory #22 fixed
+                                          end_time=datetime.datetime.now().strftime("%d. %B %Y %I:%M:%S:%f%p"), # TODO: remove str wrapper after sbol_factory #22 fixed
                                           consumed_material=[]) # FIXME handle materials
             record.call = call
 
@@ -383,7 +379,7 @@ def protocol_execution_to_dot(self):
         if isinstance(target, uml.CallBehaviorAction):
             target_id = f'{target_id}:node'
 
-        edge_label = f"{index}: {src_var}-[{value}]->{dest_var}"
+        edge_label = f"{src_var}-[{value}]->{dest_var}"
         attrs = {"color": "orange"}
         dot.edge(source_id, target_id, edge_label, _attributes=attrs)
 
@@ -402,17 +398,16 @@ def protocol_execution_to_dot(self):
     for execution in self.executions:
         exec_target = execution.node.lookup()
         execution_label = ""
-        index = str(execution.index.value) if hasattr(execution, "index") and execution.index else ""
 
-        # Make a self loop that includes the execution index, and start and end time.
+        # Make a self loop that includes the and start and end time.
         if isinstance(execution, paml.CallBehaviorExecution):
-            execution_label += f"{index}:\t[{execution.call.lookup().start_time},\n\t{execution.call.lookup().end_time}]"
+            execution_label += f"[{execution.call.lookup().start_time},\n  {execution.call.lookup().end_time}]"
             target_id = exec_target.dot_label(parent_identity=self.protocol)
             target_id = f'{target_id}:node'
             dot.edge(target_id, target_id,  _attributes={"tailport": "w",
                                                          "headport": "w",
                                                          "taillabel": execution_label,
-                                                         "color": "clear"})
+                                                         "color": "invis"})
 
         for incoming_flow in execution.incoming_flows:
             # Executable Nodes have incoming flow from their input pins and ControlFlows

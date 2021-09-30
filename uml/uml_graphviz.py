@@ -41,7 +41,7 @@ InputPin.dot_attrs = input_pin_dot_attrs  # Add to class via monkey patch
 
 def activity_parameter_node_dot_attrs(self):
     label = self.parameter.lookup().name
-    return {'label': label, 'shape': 'rectangle', 'peripheries': '2', 'color': 'black:invis:black'}
+    return {'label': label, 'shape': 'rectangle', 'peripheries': '2'}
 ActivityParameterNode.dot_attrs = activity_parameter_node_dot_attrs  # Add to class via monkey patch
 
 def executable_node_dot_attrs(self):
@@ -125,3 +125,23 @@ def identified_dot_label(self, parent_identity=None):
     in_struct = truncated.replace('/', ':')
     return in_struct
 sbol3.Identified.dot_label = identified_dot_label   # Add to class via monkey patch
+
+def parameter_str(self):
+    """
+    Create a human readable string for a parameter.
+    :param self:
+    :return: str
+    """
+    default_value_str = f"= {self.default_value}" if self.default_value else ""
+    return f"""{self.name}: {self.type} {default_value_str}"""
+Parameter.__str__ = parameter_str
+
+def parameter_template(self):
+    """
+    Create a template for a parameter. Used for populating UI elements.
+    :param self:
+    :return: str
+    """
+    default_value_str = f"= {self.default_value}" if self.default_value else ""
+    return f"""{self.name}=\'{default_value_str}\'"""
+Parameter.template = parameter_template

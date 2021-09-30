@@ -16,7 +16,7 @@ SBOLFactory('paml_submodule',
 
 # Import symbols into the top-level paml module
 from paml_submodule import *
-
+from paml.ui import *
 
 #########################################
 # Kludge for getting parents and TopLevels - workaround for pySBOL3 issue #234
@@ -79,16 +79,6 @@ def protocol_primitive_step(self, primitive: Primitive, **input_pin_map):
     return pe
 Protocol.primitive_step = protocol_primitive_step  # Add to class via monkey patch
 
-def protocol_template():
-    """
-    Create a template instantiation of a protocol
-    :param
-    :return: str
-    """
-    return f"protocol = paml.Protocol(\n\t\"Identity\",\n\tname=\"Name\",\n\tdescription=\"Description\")"
-Protocol.template = protocol_template
-
-
 ###############################################################################
 #
 # Protocol class: execution related functions
@@ -112,7 +102,7 @@ def protocol_to_dot(self):
         legend.node("FinalNode_Legend", _attributes={'label': 'FinalNode', 'fontcolor' : "white", 'shape': 'doublecircle', 'style': 'filled', 'fillcolor': 'black'})
         legend.node("ForkNode_Legend", _attributes={'label': 'ForkNode', 'fontcolor' : "white", 'shape': 'rectangle', 'height': '0.02', 'style': 'filled', 'fillcolor': 'black'})
         legend.node("MergeNode_Legend", _attributes={'label': 'MergeNode', 'shape': 'diamond'})
-        legend.node("ActivityParameterNode_Legend", _attributes={'label': "ActivityParameterNode", 'shape': 'rectangle', 'peripheries': '2', 'color': 'black:invis:black'})
+        legend.node("ActivityParameterNode_Legend", _attributes={'label': "ActivityParameterNode", 'shape': 'rectangle', 'peripheries': '2'})
         legend.node("CallBehaviorAction_Legend", _attributes={
             "label" : f'<<table border="0" cellspacing="0"><tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="InputPin1" border="1">InputPin</td><td> </td><td port="ValuePin1" border="1">ValuePin: Value</td><td> </td></tr></table></td></tr><tr><td port="node" border="1">CallBehaviorAction</td></tr><tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="OutputPin1" border="1">OutputPin</td><td> </td></tr></table></td></tr></table>>',
             "shape" : "none",
@@ -182,7 +172,7 @@ def protocol_to_dot(self):
                 label = object.parameter.lookup().name
             else:
                 raise ValueError(f'Do not know what GraphViz label to use for {object}')
-            return {'label': label, 'shape': 'rectangle', 'peripheries': '2', 'color': 'black:invis:black'}
+            return {'label': label, 'shape': 'rectangle', 'peripheries': '2'}
         elif isinstance(object, uml.ExecutableNode):
             if isinstance(object, uml.CallBehaviorAction): # render as an HMTL table with pins above/below call
                 port_row = '  <tr><td><table border="0" cellspacing="-2"><tr><td> </td>{}<td> </td></tr></table></td></tr>\n'
@@ -308,18 +298,6 @@ Primitive: {self.identity}
 {output_str}
             """
 Primitive.__str__ = primitive_str
-
-def primitive_template(self):
-    """
-    Create a template instantiation of a primitive for writing a protocol
-    :param self:
-    :return: str
-    """
-    args = ",\n\t".join([f"{parameter.property_value.template()}"
-                            for parameter in self.parameters
-                            if parameter.property_value.direction == uml.PARAMETER_IN])
-    return f"step = protocol.primitive_step(\n\t\'{self.display_id}\',\n\t{args}\n\t)"
-Primitive.template = primitive_template
 
 #########################################
 # Library handling

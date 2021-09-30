@@ -559,24 +559,3 @@ def activity_validate(self, report: sbol3.ValidationReport = None) -> sbol3.Vali
 Activity.validate = activity_validate
 
 # TODO: add a check for loops that can obtain too many or too few values
-
-
-def parameter_str(self):
-    """
-    Create a human readable string for a parameter.
-    :param self:
-    :return: str
-    """
-    default_value_str = f"= {self.default_value}" if self.default_value else ""
-    return f"""{self.name}: {self.type} {default_value_str}"""
-Parameter.__str__ = parameter_str
-
-def parameter_template(self):
-    """
-    Create a template for a parameter.
-    :param self:
-    :return: str
-    """
-    default_value_str = f"= {self.default_value}" if self.default_value else ""
-    return f"""{self.name}=\'{default_value_str}\'"""
-Parameter.template = parameter_template
