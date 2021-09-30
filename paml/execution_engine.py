@@ -216,8 +216,8 @@ class ExecutionEngine(ABC):
             call = paml.BehaviorExecution(f"execute_{self.next_id()}",
                                           parameter_values=parameter_values,
                                           completed_normally=True,
-                                          start_time=datetime.datetime.now().strftime("%d. %B %Y %I:%M:%S:%f%p"), # TODO: remove str wrapper after sbol_factory #22 fixed
-                                          end_time=datetime.datetime.now().strftime("%d. %B %Y %I:%M:%S:%f%p"), # TODO: remove str wrapper after sbol_factory #22 fixed
+                                          start_time=str(datetime.datetime.now()), # TODO: remove str wrapper after sbol_factory #22 fixed
+                                          end_time=str(datetime.datetime.now()), # TODO: remove str wrapper after sbol_factory #22 fixed
                                           consumed_material=[]) # FIXME handle materials
             record.call = call
 
