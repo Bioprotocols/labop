@@ -1,9 +1,13 @@
 import sbol3
 import paml
+import uml
 import paml.type_inference
 import tyto
 import openpyxl
 import numpy
+from IPython.display import Markdown
+
+
 import os
 import posixpath
 from copy import copy
@@ -56,42 +60,43 @@ def reduce_range_set(ranges):
 ##############################################
 # Converter state object, to be carried along with "to_markdown" functions
 #
-# # TODO: make this build PROV-O as it goes?
-# class MarkdownConverter():
-#     def __init__(self, document: sbol3.Document):
-#         self.document = document
-#         self.protocol_typing = paml.type_inference.ProtocolTyping()
-#
-#     def markdown_header(self, protocol):
-#         header = '# ' + (protocol.display_id if (protocol.name is None) else protocol.name) + '\n'
-#         header += '\n'
-#         header += '## Description:\n' + (
-#             'No description given' if protocol.description is None else protocol.description) + '\n'
-#         return header
-#
-#     # Entry-point for document conversion
-#     # TODO: allow us to control the name of the output
-#     def convert(self, protocol):
-#         # protocol argument can be either string, URI, or paml.Protocol
-#         if not isinstance(protocol, paml.Protocol):
-#             protocol = self.document.find(protocol)
-#
-#         print('Inferring flow values')
-#         self.protocol_typing.infer_typing(protocol)
-#
-#         print('Serializing activities')
-#         serialized_noncontrol_activities = serialize_activities(protocol)
-#
-#         print('Writing markdown file')
-#         write_markdown_file(protocol, serialized_noncontrol_activities, self)
-#
-#         print('Writing Excel file')
-#         write_excel_file(protocol, serialized_noncontrol_activities, self)
-#
-#         print('Export complete')
-#
-#
-#
+# TODO: make this build PROV-O as it goes?
+class MarkdownConverter():
+    def __init__(self, document: sbol3.Document):
+        self.document = document
+        #self.protocol_typing = paml.type_inference.ProtocolTyping()
+
+    def markdown_header(self, protocol):
+        header = '# ' + (protocol.display_id if (protocol.name is None) else protocol.name) + '\n'
+        header += '\n'
+        header += '## Description:\n' + (
+            'No description given' if protocol.description is None else protocol.description) + '\n'
+        return header
+
+    # Entry-point for document conversion
+    # TODO: allow us to control the name of the output
+    def convert(self, execution, out=None):
+        # protocol argument can be either string, URI, or paml.Protocol
+        if not isinstance(execution, paml.ProtocolExecution):
+            execution = self.document.find(execution)
+
+        # print('Inferring flow values')
+        # self.protocol_typing.infer_typing(protocol)
+
+        print('Serializing activities')
+        serialized_noncontrol_activities = serialize_activities(execution)
+
+        print('Writing markdown file')
+        markdown = write_markdown_file(execution, serialized_noncontrol_activities, self, out=out)
+
+        print('Writing Excel file')
+        # write_excel_file(protocol, serialized_noncontrol_activities, self)
+
+        print('Export complete')
+        return markdown
+
+
+
 # ##############################################
 # # Direct conversion of individual objects to their markdown representations
 #
@@ -231,16 +236,16 @@ def reduce_range_set(ranges):
 # paml.Value.to_markdown = value_to_markdown
 #
 #
-# #############################
-# # Other sorts of markdown functions
-#
-# def markdown_input(input, mdc: MarkdownConverter):
-#     bullet = '* ' + input.to_markdown(mdc)
-#     if input.description is not None: bullet += ': ' + input.description
-#     bullet += '\n'
-#     return bullet
-#
-#
+#############################
+# Other sorts of markdown functions
+
+def markdown_input(input : uml.Parameter, mdc: MarkdownConverter):
+    bullet = '* ' + str(input)
+    if input.description is not None: bullet += ': ' + input.description
+    bullet += '\n'
+    return bullet
+
+
 # def markdown_material(component, mdc: MarkdownConverter):
 #     bullet = '* ' + component.to_markdown(mdc)
 #     if component.description is not None: bullet += ': ' + component.description
@@ -267,57 +272,62 @@ def reduce_range_set(ranges):
 #     return isinstance(x,paml.Value) and \
 #            not({f for f in x.input_flows() if not isinstance(f.source.lookup(), paml.Initial)})
 #
-# def serialize_activities(protocol:paml.Protocol):
-#     serialized_activities = []
-#     pending_activities = set(protocol.activities)
-#     print('Building activity cache of precedence order')
-#     direct_precedents_cache = {a: {unpin_activity(protocol,f.source.lookup()) for f in a.input_flows()} for a in pending_activities}  # speed kludge
-#     while pending_activities:
-#         non_blocked = {x for x in pending_activities if not (direct_precedents_cache[x] & set(pending_activities))}
-#         if not non_blocked:
-#             raise ValueError("Could not serialize all activities: circular dependency?")
-#         serialized_activities += non_blocked
-#         pending_activities -= non_blocked
-#
-#     assert isinstance(serialized_activities[0], paml.Initial)
-#     assert isinstance(serialized_activities[-1], paml.Final)
-#
-#     # filter out control flow statements
-#     serialized_noncontrol_activities = [x for x in serialized_activities if (not isinstance(x, paml.Control)) and (not isinstance(x, paml.Value))]
-#     return serialized_noncontrol_activities
-#
-# ##############################
-# # Write to a markdown file
-#
-# def write_markdown_file(protocol: paml.Protocol, serialized_noncontrol_activities, mdc: MarkdownConverter):
-#     with open(protocol.display_id + '.md', 'w') as file:
-#         file.write(mdc.markdown_header(protocol))
-#
-#         file.write('\n\n## Protocol Inputs:\n')
-#         for i in protocol.input:
-#             file.write(markdown_input(i.activity.lookup(), mdc))
-#
-#         file.write('\n\n## Materials\n')
-#         for material in protocol.material:
-#             file.write(markdown_material(material.lookup(), mdc))
-#
-#         file.write('\n\n## Containers\n')
-#         for container in (x for x in protocol.locations if isinstance(x, paml.Container)):
-#             file.write(markdown_container_toplevel(container, mdc))
-#
-#         file.write('\n\n## Steps\n')
-#         for step in range(len(serialized_noncontrol_activities)):
-#             print('Writing step '+str(step)+": "+serialized_noncontrol_activities[step].identity)
-#             #file.write('### Step ' + str(step + 1) + '\n' + serialized_noncontrol_activities[step].to_markdown(mdc) + '\n')
-#             file.write(str(step + 1) + '. ' + serialized_noncontrol_activities[step].to_markdown(mdc) + '\n')
-#
-#         # make sure the file is fully written
-#         file.flush()
-#         file.close()
-#
-#     print('Finished writing markdown')
-#
-#
+def serialize_activities(execution: paml.ProtocolExecution):
+    serialized_activities = []
+
+    for execution in execution.executions:
+        if isinstance(execution, paml.CallBehaviorExecution):
+            execution_node = execution.node.lookup()
+            serialized_activities.append(execution_node)
+
+    # assert isinstance(serialized_activities[0], paml.Initial)
+    # assert isinstance(serialized_activities[-1], paml.Final)
+
+    # filter out control flow statements
+    serialized_noncontrol_activities = [x for x in serialized_activities if (not isinstance(x, uml.ControlNode)) and (not isinstance(x, uml.ObjectNode))]
+    serialized_noncontrol_activities.reverse()
+    return serialized_noncontrol_activities
+
+##############################
+# Write to a markdown file
+
+def write_markdown_file(execution: paml.ProtocolExecution, serialized_noncontrol_activities, mdc: MarkdownConverter, out=None):
+    protocol = execution.protocol.lookup()
+    markdown = mdc.markdown_header(protocol)
+
+    markdown += '\n\n## Protocol Inputs:\n'
+    for i in protocol.parameters:
+        if i.property_value.direction == uml.PARAMETER_IN:
+            markdown += markdown_input(i.property_value, mdc)
+
+    markdown += '\n\n## Materials\n'
+    # for material in protocol.material:
+    #     file.write(markdown_material(material.lookup(), mdc))
+
+    markdown += '\n\n## Containers\n'
+    # for container in (x for x in protocol.locations if isinstance(x, paml.Container)):
+    #     file.write(markdown_container_toplevel(container, mdc))
+
+    markdown += '\n\n## Steps\n'
+    for step in range(len(serialized_noncontrol_activities)):
+        print('Writing step '+str(step)+": "+serialized_noncontrol_activities[step].identity)
+        #file.write('### Step ' + str(step + 1) + '\n' + serialized_noncontrol_activities[step].to_markdown(mdc) + '\n')
+        # file.write(str(step + 1) + '. ' + serialized_noncontrol_activities[step].to_markdown(mdc) + '\n')
+        markdown += str(step + 1) + '. ' + serialized_noncontrol_activities[step].behavior + '\n'
+
+    markdown = Markdown(markdown)
+
+    # make sure the file is fully written
+    if out:
+        with open(out, 'w') as file:
+            markdown.filename = out
+            file.write(markdown.data)
+            file.flush()
+            file.close()
+
+    print('Finished writing markdown')
+    return markdown
+
 # ##############################
 # # Write to an accompanying Excel file
 #
