@@ -1,6 +1,7 @@
 import logging
 from typing import Tuple
 
+import rdflib as rdfl
 import sbol3
 import tyto
 from sbol3 import Document
@@ -8,6 +9,9 @@ from sbol3 import Document
 import paml
 
 logger: logging.Logger = logging.Logger("LUDOX_protocol")
+
+CONT_NS = rdfl.Namespace('https://sift.net/container-ontology/container-ontology#')
+OM_NS = rdfl.Namespace('http://www.ontology-of-units-of-measure.org/resource/om-2/')
 
 
 def prepare_document() -> Document:
@@ -28,6 +32,7 @@ def import_paml_libraries() -> None:
     paml.import_library('sample_arrays')
     logger.info('... Imported sample arrays')
 
+
 DOCSTRING = \
     '''
 With this protocol you will use LUDOX CL-X (a 45% colloidal silica suspension) as a single point reference to
@@ -40,6 +45,7 @@ Therefore this conversion calculation can transform OD600 measurements from a pl
 at 600 nm, the basic output of most instruments) into comparable OD600 measurements. The LUDOX solution
 is only weakly scattering and so will give a low absorbance value.
         '''
+
 
 def create_protocol() -> paml.Protocol:
     logger.info('Creating protocol')
@@ -61,10 +67,26 @@ def create_ludox() -> sbol3.Component:
     return ludox
 
 
+PLATE_SPECIFICATION = \
+    f"""{CONT_NS.ClearPlate}
+ and {CONT_NS['SLAS-4-2004']}
+ and ({OM_NS.wellVolume} some 
+    (({OM_NS.hasUnit} value {OM_NS.microlitre})
+     and ({OM_NS.hasNumericalValue} only owl:real[>= "200"^^owl:real])))
+ and ({CONT_NS.hasWellBottomShape} only {CONT_NS.NotFlatWellBottom})"""
+
+
 def create_plate(protocol: paml.Protocol):
-    return protocol.primitive_step(
-        'EmptyContainer', specification=tyto.NCIT.get_uri_by_term('Microplate')
-    )
+    # graph: rdfl.Graph = protocol._other_rdf
+    # plate_spec_uri = \
+    #     "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/container_requirement#RequiredPlate"
+    # graph.add((plate_spec_uri, CONT_NS.containerOntologyQuery, PLATE_SPECIFICATION))
+    # plate_spec = sbol3.Identified(plate_spec_uri,
+    #                               "foo", name="RequiredPlate")
+    plate = protocol.primitive_step('EmptyContainer',
+                                    specification=PLATE_SPECIFICATION)
+    plate.name = 'calibration plate'
+    return plate
 
 
 def provision_h2o(protocol: paml.Protocol, plate, ddh2o) -> None:
@@ -118,11 +140,8 @@ def ludox_protocol() -> Tuple[paml.Protocol, Document]:
     plate = create_plate(protocol)
 
     # put ludox and water in selected wells
-    # provision_h2o(protocol, plate, ddh2o)
-    # provision_ludox(protocol, plate, ludox)
-    # the following two lines are required for bug-compatibility with the test.
-    provision_h2o(protocol, plate, ludox)
-    provision_ludox(protocol, plate, ddh2o)
+    provision_h2o(protocol, plate, ddh2o)
+    provision_ludox(protocol, plate, ludox)
 
     # measure the absorbance
     measure = measure_absorbance(protocol, plate, wavelength_param)
