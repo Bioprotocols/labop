@@ -292,3 +292,40 @@ paml:fromSamples rdf:type owl:ObjectProperty ;
               rdfs:domain paml:SampleData ;
               rdfs:range paml:SampleCollection ;
               rdfs:label "from_samples" .
+
+
+#################################################################
+#    Container specification
+#################################################################
+paml:queryString a owl:DatatypeProperty ,
+                   owl:FunctionalProperty ;
+    rdfs:domain paml:ContainerSpec ;
+    rdfs:range xsd:string ;
+    rdfs:label "queryString" ;
+    rdfs:comment "A query string, in OWL Mancheseter syntax, to be used to find matching containers in the ContainerSpec." .
+
+
+paml:prefixMap a owl:DatatypeProperty ,
+                 owl:FunctionalProperty ;
+    rdfs:domain paml:ContainerSpec ;
+    rdfs:range xsd:string ;
+    rdfs:label "prefixMap" ;
+    rdfs:comment "A prefix map in JSON-LD format, to be applied to a queryString." .
+    
+
+paml:ContainerSpec a owl:Class ;
+    rdfs:subClassOf sbol:Identified ,
+    [ owl:intersectionOf ( [ rdf:type owl:Restriction ;
+                             owl:onProperty paml:queryString ;
+                             owl:maxCardinality "1"^^xsd:nonNegativeInteger ] 
+                           [ rdf:type owl:Restriction ;
+                             owl:onProperty paml:queryString ;
+                             owl:minCardinality "1"^^xsd:nonNegativeInteger ]
+                          ) ] ,
+    [ owl:intersectionOf ( [ rdf:type owl:Restriction ;
+                             owl:onProperty paml:prefixMap ;
+                             owl:maxCardinality "1"^^xsd:nonNegativeInteger ] 
+                           [ rdf:type owl:Restriction ;
+                             owl:onProperty paml:prefixMap ;
+                             owl:minCardinality "1"^^xsd:nonNegativeInteger ]
+                          ) ] .
