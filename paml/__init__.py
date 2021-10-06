@@ -1,3 +1,4 @@
+import html
 import os
 import posixpath
 
@@ -87,7 +88,7 @@ Protocol.primitive_step = protocol_primitive_step  # Add to class via monkey pat
 
 def protocol_to_dot(self):
     def _gv_sanitize(id: str):
-        return id.replace(":", "_")
+        return html.escape(id.replace(":", "_"))
 
     def _legend():
         legend = graphviz.Digraph(name="cluster_Legend",
@@ -145,7 +146,9 @@ def protocol_to_dot(self):
             elif isinstance(literal, sbol3.Identified):
                 val_str = literal.name or literal.display_id
             elif isinstance(literal, str) or isinstance(literal, int) or isinstance(literal, flow) or isinstance(literal, bool):
-                val_str = str(literal)
+                # FIXME: For longer strings, it would be better to left-justify than to center, but I have
+                # no great ideas about how to tell when that applies.
+                val_str = html.escape(str(literal)).lstrip('\n').replace('\n', '<br/>')
             else:
                 raise ValueError(f'Do not know how to render literal value {literal}')
             return f'{pin.name}: {val_str}'

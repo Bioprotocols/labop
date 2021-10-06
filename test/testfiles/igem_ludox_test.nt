@@ -23,13 +23,19 @@
 <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/CallBehaviorAction1/OutputPin1> <http://sbols.org/v3#name> "samples" .
 <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/CallBehaviorAction1/OutputPin1> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://bioprotocols.org/uml#OutputPin> .
 <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/CallBehaviorAction1/OutputPin1> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://sbols.org/v3#Identified> .
-<https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/CallBehaviorAction1/ValuePin1/LiteralString1> <http://bioprotocols.org/uml#stringValue> "https://identifiers.org/ncit:C43377" .
-<https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/CallBehaviorAction1/ValuePin1/LiteralString1> <http://sbols.org/v3#displayId> "LiteralString1" .
-<https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/CallBehaviorAction1/ValuePin1/LiteralString1> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://bioprotocols.org/uml#LiteralString> .
-<https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/CallBehaviorAction1/ValuePin1/LiteralString1> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://sbols.org/v3#Identified> .
+<https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/CallBehaviorAction1/ValuePin1/LiteralIdentified1/ContainerSpec1> <http://bioprotocols.org/paml#prefixMap> "{\"cont\": \"https://sift.net/container-ontology/container-ontology#\", \"om\": \"http://www.ontology-of-units-of-measure.org/resource/om-2/\"}" .
+<https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/CallBehaviorAction1/ValuePin1/LiteralIdentified1/ContainerSpec1> <http://bioprotocols.org/paml#queryString> "cont:ClearPlate and \n cont:SLAS-4-2004 and\n (cont:wellVolume some \n    ((om:hasUnit value om:microlitre) and\n     (om:hasNumericalValue only xsd:decimal[>= \"200\"^^xsd:decimal]))) and\n (cont:hasWellBottomShape only cont:NotFlatWellBottom)" .
+<https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/CallBehaviorAction1/ValuePin1/LiteralIdentified1/ContainerSpec1> <http://sbols.org/v3#displayId> "ContainerSpec1" .
+<https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/CallBehaviorAction1/ValuePin1/LiteralIdentified1/ContainerSpec1> <http://sbols.org/v3#name> "plateRequirement" .
+<https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/CallBehaviorAction1/ValuePin1/LiteralIdentified1/ContainerSpec1> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://bioprotocols.org/paml#ContainerSpec> .
+<https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/CallBehaviorAction1/ValuePin1/LiteralIdentified1/ContainerSpec1> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://sbols.org/v3#Identified> .
+<https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/CallBehaviorAction1/ValuePin1/LiteralIdentified1> <http://bioprotocols.org/uml#identifiedValue> <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/CallBehaviorAction1/ValuePin1/LiteralIdentified1/ContainerSpec1> .
+<https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/CallBehaviorAction1/ValuePin1/LiteralIdentified1> <http://sbols.org/v3#displayId> "LiteralIdentified1" .
+<https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/CallBehaviorAction1/ValuePin1/LiteralIdentified1> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://bioprotocols.org/uml#LiteralIdentified> .
+<https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/CallBehaviorAction1/ValuePin1/LiteralIdentified1> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://sbols.org/v3#Identified> .
 <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/CallBehaviorAction1/ValuePin1> <http://bioprotocols.org/uml#isOrdered> "true"^^<http://www.w3.org/2001/XMLSchema#boolean> .
 <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/CallBehaviorAction1/ValuePin1> <http://bioprotocols.org/uml#isUnique> "true"^^<http://www.w3.org/2001/XMLSchema#boolean> .
-<https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/CallBehaviorAction1/ValuePin1> <http://bioprotocols.org/uml#value> <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/CallBehaviorAction1/ValuePin1/LiteralString1> .
+<https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/CallBehaviorAction1/ValuePin1> <http://bioprotocols.org/uml#value> <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/CallBehaviorAction1/ValuePin1/LiteralIdentified1> .
 <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/CallBehaviorAction1/ValuePin1> <http://sbols.org/v3#displayId> "ValuePin1" .
 <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/CallBehaviorAction1/ValuePin1> <http://sbols.org/v3#name> "specification" .
 <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/CallBehaviorAction1/ValuePin1> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://bioprotocols.org/uml#ValuePin> .
@@ -38,6 +44,7 @@
 <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/CallBehaviorAction1> <http://bioprotocols.org/uml#input> <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/CallBehaviorAction1/ValuePin1> .
 <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/CallBehaviorAction1> <http://bioprotocols.org/uml#output> <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/CallBehaviorAction1/OutputPin1> .
 <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/CallBehaviorAction1> <http://sbols.org/v3#displayId> "CallBehaviorAction1" .
+<https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/CallBehaviorAction1> <http://sbols.org/v3#name> "calibration plate" .
 <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/CallBehaviorAction1> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://bioprotocols.org/uml#CallBehaviorAction> .
 <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/CallBehaviorAction1> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://sbols.org/v3#Identified> .
 <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/CallBehaviorAction2/InputPin1> <http://bioprotocols.org/uml#isOrdered> "true"^^<http://www.w3.org/2001/XMLSchema#boolean> .
