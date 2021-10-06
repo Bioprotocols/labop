@@ -315,17 +315,15 @@ paml:prefixMap a owl:DatatypeProperty ,
 
 paml:ContainerSpec a owl:Class ;
     rdfs:subClassOf sbol:Identified ,
-    [ owl:intersectionOf ( [ rdf:type owl:Restriction ;
-                             owl:onProperty paml:queryString ;
-                             owl:maxCardinality "1"^^xsd:nonNegativeInteger ] 
-                           [ rdf:type owl:Restriction ;
-                             owl:onProperty paml:queryString ;
-                             owl:minCardinality "1"^^xsd:nonNegativeInteger ]
-                          ) ] ,
-    [ owl:intersectionOf ( [ rdf:type owl:Restriction ;
-                             owl:onProperty paml:prefixMap ;
-                             owl:maxCardinality "1"^^xsd:nonNegativeInteger ] 
-                           [ rdf:type owl:Restriction ;
-                             owl:onProperty paml:prefixMap ;
-                             owl:minCardinality "1"^^xsd:nonNegativeInteger ]
-                          ) ] .
+    [ rdf:type owl:Restriction ;
+         owl:onProperty paml:queryString ;
+         owl:maxCardinality "1"^^xsd:nonNegativeInteger ] ,
+   [ rdf:type owl:Restriction ;
+         owl:onProperty paml:queryString ;
+         owl:minCardinality "1"^^xsd:nonNegativeInteger ] ,
+    [ rdf:type owl:Restriction ;
+          owl:onProperty paml:prefixMap ;
+          owl:maxCardinality "1"^^xsd:nonNegativeInteger ] ,
+    [ rdf:type owl:Restriction ;
+          owl:onProperty paml:prefixMap ;
+          owl:minCardinality "1"^^xsd:nonNegativeInteger ] .

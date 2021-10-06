@@ -201,7 +201,7 @@
     ns1:isOrdered true ;
     ns1:isUnique true ;
     ns1:lowerValue <https://bioprotocols.org/paml/primitives/sample_arrays/EmptyContainer/OrderedPropertyValue1/Parameter1/LiteralInteger2> ;
-    ns1:type xsd:string ; #sbol:Identified ;
+    ns1:type sbol:Identified ;
     ns1:upperValue <https://bioprotocols.org/paml/primitives/sample_arrays/EmptyContainer/OrderedPropertyValue1/Parameter1/LiteralInteger1> ;
     sbol:displayId "Parameter1" ;
     sbol:name "specification" .
