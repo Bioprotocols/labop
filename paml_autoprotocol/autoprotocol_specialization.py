@@ -8,11 +8,25 @@ from autoprotocol.protocol import Protocol
 from autoprotocol.unit import Unit
 from autoprotocol import container_type as ctype
 from paml_autoprotocol.behavior_specialization import BehaviorSpecialization
+from paml_autoprotocol.term_resolver import TermResolver
+
+class UnresolvedTerm(dict):
+    def __init__(self, step, attribute, term):
+        self.step = step
+        self.attribute = attribute
+        self.term = term
+
+    def __repr__(self):
+        return f"UnresolvedTerm(step={self.step}, attribute=\"{self.attribute}\", term=\"{self.term}\")"
+
+
 
 class AutoprotocolSpecialization(BehaviorSpecialization):
-    def __init__(self, out_path) -> None:
+    def __init__(self, out_path, resolver : TermResolver = None) -> None:
         super().__init__()
         self.out_path = out_path
+        self.resolver = resolver
+        self.unresolved_terms = []
 
     def _init_behavior_func_map(self) -> dict:
         return {
@@ -50,11 +64,13 @@ class AutoprotocolSpecialization(BehaviorSpecialization):
         print(f" destination: {destination}")
         print(f" amount: {value} {units}")
         print(f" resource: {resource}")
-        self.protocol.provision(
+        [step] = self.protocol.provision(
             resource,
             destination,
             amounts=Unit(value, units)
         )
+        resource_term = UnresolvedTerm(step, "resource_id", resource)
+        self.unresolved_terms.append(resource_term)
         return results
 
     def plate_coordinates(self, inputs, outputs) -> WellGroup:
@@ -70,7 +86,7 @@ class AutoprotocolSpecialization(BehaviorSpecialization):
     def measure_absorbance(self, inputs, outputs):
         results = {}
         (wl_value, wl_units) = inputs["wavelength"]
-        wl_units = tyto.OM.get_term_by_uri(wl_units)
+        wl_units = tyto.OM.get_term_by_uri(wl_units) if wl_units else ""
         samples = inputs["samples"]
 
         # HACK extract contrainer from well group since we do not have it as input

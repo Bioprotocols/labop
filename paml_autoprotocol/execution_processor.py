@@ -20,8 +20,9 @@ class ExecutionProcessor():
         parameters = {}
         for param in execution.parameter_values:
             p = param.parameter.lookup()
-            v = param.value
-            parameters[p.name] = (v.value, v.unit)
+            v = param.value.value
+            u = param.value.unit if hasattr(param.value, "unit") else ""
+            parameters[p.name] = (v, u)
 
         specialization.on_begin()
         execution_data = {}
@@ -71,7 +72,7 @@ class ExecutionProcessor():
                 for i in required_inputs:
                     found_source = False
                     for (edge, source, target, token_source) in inflows:
-                        if i.identity in execution_output[token_source.identity]:
+                        if i.identity in execution_output[token_source.identity] and not i.name in parameters:
                             i_data = execution_output[token_source.identity][i.identity]
                             # print(f"    {i.name} = {i_data} <--------- {i.identity}")
                             spec_inputs[i.name] = i_data
@@ -150,3 +151,4 @@ class ExecutionProcessor():
             # print("=" * 80)
         # print(json.dumps(execution_output, indent=2))
         specialization.on_end()
+        return specialization

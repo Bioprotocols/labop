@@ -53,6 +53,23 @@ class TranscripticConfig():
             }
 
     @staticmethod
+    def from_file(cfg_file):
+        def get_file_else_error(cfg, var):
+            res = cfg[var] if var in cfg else None
+            if res is None:
+                raise TranscripticEnvironmentException(f"Configuration variable '{var}' is unset")
+            return res
+
+        with open(cfg_file, "r") as tx_cfg_file:
+            # Lab Configuration
+            tx_cfg = json.load(tx_cfg_file)
+            email = get_file_else_error(tx_cfg, "email")
+            token = get_file_else_error(tx_cfg, "token")
+            user = get_file_else_error(tx_cfg, "email")
+            org = get_file_else_error(tx_cfg, "organization_id")
+            return TranscripticConfig(email, token, user, org, None)
+
+    @staticmethod
     def from_environment():
         def get_env_else_error(var):
             res = os.environ.get(var)
@@ -69,7 +86,7 @@ class TranscripticConfig():
 class TranscripticProtocol():
     def __init__(self, protocol):
         self.protocol = protocol
-        self.id = protocol["id"]
+        #self.id = protocol["id"]
         self.name = protocol["name"]
 
 class TranscripticAPI():
@@ -80,6 +97,9 @@ class TranscripticAPI():
 
     def __init__(self, out_dir: str, cfg: TranscripticConfig = None) -> None:
         self.out_dir = out_dir
+        if not os.path.exists(self.out_dir):
+            os.mkdir(self.out_dir)
+
         self.cfg = TranscripticConfig.from_environment() if cfg is None else cfg
 
         self._protocol_name_map = {}
@@ -112,7 +132,7 @@ class TranscripticAPI():
         Get all protocols
         """
         (url, headers) = self._build_query_protocols()
-        print(headers)
+        #print(headers)
         response = requests.get(url, headers=headers)
         return json.loads(response.content)
 
@@ -153,11 +173,10 @@ class TranscripticAPI():
         try:
             launch_request = self._create_launch_request(params,
                                                     title,
-                                                    test_mode=test_mode,
-                                                    out_dir=self.out_dir)
+                                                    test_mode=test_mode)
             try:
                 launch_protocol = conn.launch_protocol(launch_request,
-                                                       protocol_id=protocol.id)
+                                                       protocol_id=title)
             except Exception as exc:
                 raise TranscripticException(exc)
             launch_request_id = launch_protocol["id"]
