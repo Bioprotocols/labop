@@ -1,4 +1,6 @@
+import json
 import logging
+import os
 from typing import Tuple
 
 import rdflib as rdfl
@@ -68,12 +70,14 @@ def create_ludox() -> sbol3.Component:
 
 
 PLATE_SPECIFICATION = \
-    f"""{CONT_NS.ClearPlate}
- and {CONT_NS['SLAS-4-2004']}
- and ({OM_NS.wellVolume} some 
-    (({OM_NS.hasUnit} value {OM_NS.microlitre})
-     and ({OM_NS.hasNumericalValue} only owl:real[>= "200"^^owl:real])))
- and ({CONT_NS.hasWellBottomShape} only {CONT_NS.NotFlatWellBottom})"""
+    """cont:ClearPlate and 
+ cont:SLAS-4-2004 and
+ (cont:wellVolume some 
+    ((om:hasUnit value om:microlitre) and
+     (om:hasNumericalValue only xsd:decimal[>= "200"^^xsd:decimal]))) and
+ (cont:hasWellBottomShape only cont:NotFlatWellBottom)"""
+
+PREFIX_MAP = json.dumps({"cont": CONT_NS, "om": OM_NS})
 
 
 def create_plate(protocol: paml.Protocol):
@@ -83,8 +87,9 @@ def create_plate(protocol: paml.Protocol):
     # graph.add((plate_spec_uri, CONT_NS.containerOntologyQuery, PLATE_SPECIFICATION))
     # plate_spec = sbol3.Identified(plate_spec_uri,
     #                               "foo", name="RequiredPlate")
+    spec = paml.ContainerSpec(queryString=PLATE_SPECIFICATION, prefixMap=PREFIX_MAP, name='plateRequirement')
     plate = protocol.primitive_step('EmptyContainer',
-                                    specification=PLATE_SPECIFICATION)
+                                    specification=spec)
     plate.name = 'calibration plate'
     return plate
 
@@ -154,7 +159,15 @@ def ludox_protocol() -> Tuple[paml.Protocol, Document]:
 
 if __name__ == '__main__':
     new_protocol: paml.Protocol
-    new_protocol, _doc = ludox_protocol()
+    new_protocol, doc = ludox_protocol()
+    print('Validating and writing protocol')
+    v = doc.validate()
+    assert len(v) == 0, "".join(f'\n {e}' for e in v)
+
+    rdf_filename = os.path.join(os.path.dirname(__file__), 'iGEM 2018 LUDOX OD calibration protocol.nt')
+    doc.write(rdf_filename, sbol3.SORTED_NTRIPLES)
+    print(f'Wrote file as {rdf_filename}')
+
     # render and view the dot
     dot = new_protocol.to_dot()
     dot.render(f'{new_protocol.name}.gv')
