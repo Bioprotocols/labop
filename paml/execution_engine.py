@@ -190,7 +190,14 @@ class ExecutionEngine(ABC):
         # elif isinstance(node, uml.DecisionNode):
         #     pass
         elif isinstance(node, uml.ActivityParameterNode):
-            pass
+            record = paml.ActivityNodeExecution(node=node, incoming_flows=inputs)
+            ex.executions.append(record)
+            if node.parameter.lookup().direction == uml.PARAMETER_IN:
+                new_tokens = self.next_tokens(record, ex)
+            else:
+                [value] = [i.value.value for i in inputs if isinstance(i.edge.lookup(), uml.ObjectFlow)]
+                value = uml.LiteralReference(value=value) if isinstance(value, sbol3.Identified) else uml.literal(value)
+                ex.parameter_values += [paml.ParameterValue(parameter=node.parameter.lookup(), value=value)]
         elif isinstance(node, uml.CallBehaviorAction):
             record = paml.CallBehaviorExecution(node=node, incoming_flows=inputs)
 
@@ -209,6 +216,8 @@ class ExecutionEngine(ABC):
             call = paml.BehaviorExecution(f"execute_{self.next_id()}",
                                           parameter_values=parameter_values,
                                           completed_normally=True,
+                                          start_time=str(datetime.datetime.now()), # TODO: remove str wrapper after sbol_factory #22 fixed
+                                          end_time=str(datetime.datetime.now()), # TODO: remove str wrapper after sbol_factory #22 fixed
                                           consumed_material=[]) # FIXME handle materials
             record.call = call
 
@@ -235,17 +244,36 @@ class ExecutionEngine(ABC):
         return [t for t in tokens if t not in inputs] + new_tokens
 
     def next_tokens(self, activity_node: paml.ActivityNodeExecution, ex: paml.ProtocolExecution):
-        protocol = ex.document.find(ex.protocol)
+        protocol = ex.protocol.lookup()
         out_edges = [e for e in protocol.edges if activity_node.node in e.source]
-        edge_tokens = [paml.ActivityEdgeFlow(edge=edge, token_source=activity_node,
-                                        value=self.get_value(activity_node, edge=edge))
-                       for edge in out_edges]
+
+        if isinstance(activity_node.node.lookup(), uml.ForkNode):
+            [incoming_flow] = activity_node.incoming_flows
+            if isinstance(incoming_flow.lookup().edge.lookup(), uml.ObjectFlow):
+                value = uml.literal(incoming_flow.lookup().value)
+            else:
+                value = uml.LiteralString(self.next_variable()) # use same value for all edges
+            edge_tokens = [paml.ActivityEdgeFlow(edge=edge, token_source=activity_node,
+                                                 value=uml.LiteralString(value=value.value))
+                           for edge in out_edges]
+        elif isinstance(activity_node.node.lookup(), uml.ActivityParameterNode):
+            [parameter_value] = [pv.value for pv in ex.parameter_values if pv.parameter == activity_node.node.lookup().parameter]
+            parameter_value = uml.LiteralReference(value=parameter_value) \
+                    if isinstance(parameter_value, sbol3.Identified) \
+                    else uml.literal(parameter_value)
+            edge_tokens = [paml.ActivityEdgeFlow(edge=edge, token_source=activity_node,
+                                                 value=parameter_value)
+                           for edge in out_edges]
+        else:
+            edge_tokens = [paml.ActivityEdgeFlow(edge=edge, token_source=activity_node,
+                                                 value=self.get_value(activity_node, edge=edge))
+                           for edge in out_edges]
 
         # Save tokens in the protocol execution
         ex.flows += edge_tokens
 
-        if not isinstance(activity_node.node.lookup(), uml.ControlNode):
-            # Assume that unlinked output pins are possible output parameters for the protocol
+        # Assume that unlinked output pins are possible output parameters for the protocol
+        if isinstance(activity_node, paml.CallBehaviorExecution):
             output_pins = activity_node.node.lookup().outputs
             unlinked_output_pins = [p for p in output_pins if p not in {e.source.lookup() for e in out_edges}]
             possible_output_parameter_values = [paml.ParameterValue(parameter=activity_node.node.lookup().pin_parameter(p.name),
@@ -264,9 +292,9 @@ class ExecutionEngine(ABC):
         return uml.LiteralString(value=value)
 
     def next_pin_tokens(self, activity_node: paml.ActivityNodeExecution, ex: paml.ProtocolExecution):
-        protocol = ex.document.find(ex.protocol)
+        protocol = ex.protocol.lookup()
         assert len(activity_node.incoming_flows) == 1 # One input per pin
-        pin_value = ex.document.find(activity_node.incoming_flows[0]).value.value
+        pin_value = activity_node.incoming_flows[0].lookup().value.value
         tokens = [ paml.ActivityEdgeFlow(edge=None, token_source=activity_node, value=uml.LiteralString(value=pin_value)) ]
 
         # Save tokens in the protocol execution
@@ -317,15 +345,44 @@ paml.ProtocolExecution.aggregate_child_materials = protocol_execution_aggregate_
 
 
 def protocol_execution_to_dot(self):
+    """
+    Create a dot graph that illustrates edge values appearing the execution of the protocol.
+    :param self:
+    :return: graphviz.Digraph
+    """
     dot = graphviz.Digraph(comment=self.protocol,
                            strict=True,
                            graph_attr={"rankdir": "TB",
                                        "concentrate": "true"},
                            node_attr={"ordering": "out"})
-    uri = self.identity.replace(":", "_")
+    def _make_object_edge(dot, incoming_flow, target, dest_parameter=None):
+        flow_source = incoming_flow.lookup().token_source.lookup()
+        source = incoming_flow.lookup().edge.lookup().source.lookup()
+        value = incoming_flow.lookup().value
+        if isinstance(value, uml.LiteralReference):
+            value = value.value.lookup()
+        else:
+            value = value.value
 
-    def _name_to_label(name):
-        return name.replace(f"_{uri}/", "_").replace(f"{uri}", "execution")
+        if isinstance(source, uml.Pin):
+            src_parameter = source.get_parent().pin_parameter(source.name)
+            src_var = src_parameter.name
+        else:
+            src_var = ""
+
+        dest_var = dest_parameter.name if dest_parameter else ""
+
+        source_id = source.dot_label(parent_identity=self.protocol)
+        if isinstance(source, uml.CallBehaviorAction):
+            source_id = f'{source_id}:node'
+        target_id = target.dot_label(parent_identity=self.protocol)
+        if isinstance(target, uml.CallBehaviorAction):
+            target_id = f'{target_id}:node'
+
+        edge_label = f"{src_var}-[{value}]->{dest_var}"
+        attrs = {"color": "orange"}
+        dot.edge(source_id, target_id, edge_label, _attributes=attrs)
+
 
     dot = graphviz.Digraph(name=f"cluster_{self.identity}",
                            graph_attr={
@@ -333,35 +390,44 @@ def protocol_execution_to_dot(self):
                            })
 
     # Protocol graph
-    dot.subgraph(self.document.find(self.protocol).to_dot())
+    protocol_graph = self.document.find(self.protocol).to_dot()
+    dot.subgraph(protocol_graph)
+
 
     # Execution graph
-    sub = graphviz.Digraph(name=f"cluster_{self.identity}",
-                               graph_attr={
-                                   "label": self.identity
-                               })
     for execution in self.executions:
-        ex_id = execution.identity.replace(":", "_")
-        ex_node_id = execution.node.replace(":", "_")
-        sub.node(ex_id, label=_name_to_label(ex_id))
-        dot.edge(ex_id, ex_node_id)
+        exec_target = execution.node.lookup()
+        execution_label = ""
+
+        # Make a self loop that includes the and start and end time.
+        if isinstance(execution, paml.CallBehaviorExecution):
+            execution_label += f"[{execution.call.lookup().start_time},\n  {execution.call.lookup().end_time}]"
+            target_id = exec_target.dot_label(parent_identity=self.protocol)
+            target_id = f'{target_id}:node'
+            dot.edge(target_id, target_id,  _attributes={"tailport": "w",
+                                                         "headport": "w",
+                                                         "taillabel": execution_label,
+                                                         "color": "invis"})
+
         for incoming_flow in execution.incoming_flows:
-            incoming_flow_id = incoming_flow.replace(":", "_")
-            sub.edge(incoming_flow_id, ex_id, "incoming_flow")
-
-    for flow in self.flows:
-        if flow.token_source:
-            src_id = flow.identity.replace(":", "_")
-            dest_id = flow.token_source.replace(":", "_")
-            sub.node(src_id, label=_name_to_label(src_id))
-            sub.node(dest_id, label=_name_to_label(dest_id))
-            sub.edge(dest_id, src_id, label="token_source")
-        if flow.edge:
-            edge_id = flow.edge.replace(":", "_")
-            label = str(flow.edge.value) if hasattr(flow.edge, "value") else "Undefined"
-            dot.edge(src_id, edge_id, label=label)
-
-    dot.subgraph(sub)
+            # Executable Nodes have incoming flow from their input pins and ControlFlows
+            flow_source = incoming_flow.lookup().token_source.lookup()
+            exec_source = flow_source.node.lookup()
+            edge_ref = incoming_flow.lookup().edge
+            if edge_ref and isinstance(edge_ref.lookup(), uml.ObjectFlow):
+                if isinstance(exec_target, uml.ActivityParameterNode):
+                    # ActivityParameterNodes are ObjectNodes that have a parameter
+                    _make_object_edge(dot, incoming_flow, exec_target, dest_parameter=exec_target.parameter.lookup())
+                elif isinstance(exec_target, uml.ControlNode):
+                    # This in an object flow into the node itself, which happens for ControlNodes
+                    _make_object_edge(dot, incoming_flow, exec_target)
+            elif isinstance(exec_source, uml.Pin):
+                # This incoming_flow is from an input pin, and need the flow into the pin
+                into_pin_flow = flow_source.incoming_flows[0]
+                #source = src_to_pin_edge.source.lookup()
+                #target = src_to_pin_edge.target.lookup()
+                dest_parameter = exec_target.pin_parameter(exec_source.name)
+                _make_object_edge(dot, into_pin_flow, into_pin_flow.lookup().edge.lookup().target.lookup(), dest_parameter=dest_parameter)
 
     return dot
 paml.ProtocolExecution.to_dot = protocol_execution_to_dot

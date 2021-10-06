@@ -13,7 +13,7 @@ SBOLFactory('uml_submodule',
 
 # Import submodule symbols into top-level uml module
 from uml_submodule import *
-
+from .uml_graphviz import *
 
 # Workaround for pySBOL3 issue #231: should be applied to every iteration on a collection of SBOL objects
 # TODO: delete after resolution of pySBOL3 issue #231
