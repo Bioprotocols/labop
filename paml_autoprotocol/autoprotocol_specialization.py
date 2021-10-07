@@ -1,4 +1,8 @@
 import json
+from typing import List
+
+import autoprotocol
+
 import paml_autoprotocol.plate_coordinates as pc
 import tyto
 
@@ -10,7 +14,7 @@ from autoprotocol import container_type as ctype
 from paml_autoprotocol.behavior_specialization import BehaviorSpecialization
 from paml_autoprotocol.term_resolver import TermResolver
 
-class UnresolvedTerm(dict):
+class UnresolvedTerm():
     def __init__(self, step, attribute, term):
         self.step = step
         self.attribute = attribute
@@ -19,6 +23,16 @@ class UnresolvedTerm(dict):
     def __repr__(self):
         return f"UnresolvedTerm(step={self.step}, attribute=\"{self.attribute}\", term=\"{self.term}\")"
 
+class ResolvedTerm():
+    def __init__(self, unresolved_term : UnresolvedTerm, resolution):
+        self.unresolved_term = unresolved_term
+        self.resolution = resolution
+
+    def resolve(self):
+        if isinstance(self.unresolved_term.step, autoprotocol.Container):
+            self.unresolved_term.step[self.unresolved_term.attribute] = self.resolution
+        elif isinstance(self.unresolved_term.step, autoprotocol.instruction.Instruction):
+            self.unresolved_term.step.data[self.unresolved_term.attribute] = self.resolution
 
 
 class AutoprotocolSpecialization(BehaviorSpecialization):
@@ -43,18 +57,20 @@ class AutoprotocolSpecialization(BehaviorSpecialization):
         with open(self.out_path, "w") as f:
             json.dump(self.protocol.as_dict(), f, indent=2)
 
-    def define_container(self, inputs, outputs):
+    def define_container(self, node, inputs, outputs):
         results = {}
         spec = inputs["specification"]
-        print(f"define_container")
-        print(f"  specification: {spec}")
-        # TODO use spec to determine container type
-        c = self.protocol.ref("test_container", cont_type=ctype.FLAT96, discard=True)
-        results[outputs['samples']] = ('samples', c)
+        #c = self.protocol.ref("test_container", cont_type=ctype.FLAT96, discard=True)
+        samples_var = outputs["samples"].value.lookup()
+        results[outputs['samples']] = ('samples', samples_var)
+
+        spec_term = UnresolvedTerm(None, samples_var, spec)
+        self.unresolved_terms.append(spec_term)
+
         return results
 
     # def provision_container(self, wells: WellGroup, amounts = None, volumes = None, informatics = None) -> Provision:
-    def provision_container(self, inputs, outputs) -> Provision:
+    def provision_container(self, node, inputs, outputs) -> Provision:
         results = {}
         destination = inputs["destination"]
         (value, units) = inputs["amount"]
@@ -73,7 +89,7 @@ class AutoprotocolSpecialization(BehaviorSpecialization):
         self.unresolved_terms.append(resource_term)
         return results
 
-    def plate_coordinates(self, inputs, outputs) -> WellGroup:
+    def plate_coordinates(self, node, inputs, outputs) -> WellGroup:
         results = {}
         source = inputs["source"]
         coords = inputs["coordinates"]
@@ -83,7 +99,7 @@ class AutoprotocolSpecialization(BehaviorSpecialization):
         results[outputs['samples']] = ('samples', pc.coordinate_rect_to_well_group(source, coords))
         return results
 
-    def measure_absorbance(self, inputs, outputs):
+    def measure_absorbance(self, node, inputs, outputs):
         results = {}
         (wl_value, wl_units) = inputs["wavelength"]
         wl_units = tyto.OM.get_term_by_uri(wl_units) if wl_units else ""
@@ -116,3 +132,6 @@ class AutoprotocolSpecialization(BehaviorSpecialization):
         )
         return results
 
+    def resolve(self, resolved_terms : List[ResolvedTerm]):
+        for term in resolved_terms:
+            term.resolve()

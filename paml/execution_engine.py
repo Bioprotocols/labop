@@ -224,6 +224,19 @@ class ExecutionEngine(ABC):
             ex.document.add(call)
             ex.executions.append(record)
             new_tokens = self.next_tokens(record, ex)
+
+            ## Add the output values to the call parameter-values
+            for token in new_tokens:
+                edge = token.edge.lookup()
+                if isinstance(edge, uml.ObjectFlow):
+                    source = edge.source.lookup()
+                    parameter = node.pin_parameter(source.name)
+                    parameter_value = uml.LiteralReference(value=token.value) \
+                        if isinstance(token.value, sbol3.Identified) \
+                        else uml.literal(token.value)
+                    pv = paml.ParameterValue(parameter=parameter, value=parameter_value)
+                    call.parameter_values += [pv]
+
         elif isinstance(node, uml.Pin):
             record = paml.ActivityNodeExecution(node=node, incoming_flows=inputs)
             ex.executions.append(record)

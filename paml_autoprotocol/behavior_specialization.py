@@ -21,7 +21,7 @@ class BehaviorSpecialization(ABC):
     def on_end(self):
         pass
 
-    def process(self, behavior, inputs, outputs):
-        if behavior not in self._behavior_func_map:
-            raise BehaviorSpecializationException(f"Failed to find handler for behavior: {behavior}")
-        return self._behavior_func_map[behavior](inputs, outputs)
+    def process(self, node, inputs, outputs):
+        if str(node.behavior) not in self._behavior_func_map:
+            raise BehaviorSpecializationException(f"Failed to find handler for behavior: {node.behavior}")
+        return self._behavior_func_map[str(node.behavior)](node, inputs, outputs)
