@@ -41,12 +41,16 @@ xsd:anySimpleType rdf:type rdfs:Datatype .
 #################################################################
 
 paml:Protocol rdf:type owl:Class ;
-              rdfs:comment "A protocol is an activity in the laboratory" ;
+              rdfs:comment '''A Protocol describes how to carry out some form of laboratory or research process.
+              For example, a Protocol could describe DNA miniprep, Golden-Gate assembly, a cell culture experiment.
+              At present this class adds no additional information over uml:Activity, but may in the future.''' ;
         rdfs:subClassOf uml:Activity .
 
 
 paml:Primitive rdf:type owl:Class ;
-              rdfs:comment "A behavior that is a base-level library function" ;
+              rdfs:comment '''A Primitive describes a library function that acts as a basic ``building block'' for a Protocol.
+              For example, a Primitive could describe pipetting, measuring absorbance in a plate reader, or centrifuging.
+              At present this class adds no additional information over uml:Behavior, but may in the future.''' ;
         rdfs:subClassOf uml:Behavior .
 
 
@@ -55,7 +59,9 @@ paml:Primitive rdf:type owl:Class ;
 #################################################################
 
 paml:BehaviorExecution rdf:type owl:Class ;
-        rdfs:comment "Record of the operation of a UML Behavior, real or simulated" ;
+        rdfs:comment '''A BehaviorExecution is a record of how a Protocol, Primitive, or other uml:Behavior was carried out.
+        The execution of the behavior could be either real or simulated.  In this record, the prov:type field inherited
+        from prov:Activity should give the URI for the uml:Behavior whose execution is being recorded.''' ;
         rdfs:subClassOf prov:Activity , # note: prov:Activity here refers to the adapted version in SBOL
     [ rdf:type owl:Restriction ; owl:allValuesFrom paml:ParameterValue ; owl:onProperty paml:parameterValuePair ] ,
     [ rdf:type owl:Restriction ; owl:allValuesFrom xsd:boolean ; owl:onProperty paml:completedNormally ;
@@ -63,24 +69,46 @@ paml:BehaviorExecution rdf:type owl:Class ;
     [ rdf:type owl:Restriction ; owl:allValuesFrom paml:Material ; owl:onProperty paml:consumedMaterial ] .
 
 paml:parameterValuePair rdf:type owl:ObjectProperty ;
+        rdfs:comment '''The parameterValuePair property is used to record the value that was associated with each
+        uml:Parameter for the uml:Behavior when it was executed, by means of a ParameterValue object.
+        Any uml:Parameter that is not listed is assumed to have had no value assigned. Conversely, every non-optional
+        uml:Parameter for the uml:Behavior MUST have an associated parameter value.
+
+        TODO: are multiple values allowed, or do those need to be passed as list/set types?
+        ''' ;
               rdfs:subPropertyOf opil:compositionalProperty ;
               rdfs:domain paml:BehaviorExecution ;
               rdfs:range paml:ParameterValue ;
               rdfs:label "parameter_values" .
 
 paml:completedNormally rdf:type owl:DatatypeProperty ;
+        rdfs:comment '''This boolean should be set to true if the Behavior completed normally and false if there
+        was some exception condition. At present, no further information is being encoded about exceptions, but this
+        is an extension that is anticipated for the future.''' ;
               rdfs:domain paml:BehaviorExecution ;
               rdfs:range xsd:boolean ;
               rdfs:label "completed_normally" .
 
 paml:consumedMaterial rdf:type owl:ObjectProperty ;
+        rdfs:comment '''This property is used to record the noteworthy consumables used during the execution of the
+        Behavior. For example, a cell culture protocols will consume various reagents and samples of cells. Materials
+        with the same specification SHOULD be consolidated, such that the list of materials SHOULD NOT contain two
+        materials with the same specification. For example, consuming 5.0 mL of PBS and 2.0 mL of PBS should be recorded
+        as consuming 7.0 mL of PBS. Complex materials, however, MAY contain the same material more than once in their
+        substructure. For example, M9 media contains glucose, but it would not be necessary to consolidate the glucose
+        in M9 media with additional glucose that was added as a supplement, since that would change the definition of
+        the media.''' ;
               rdfs:subPropertyOf opil:compositionalProperty ;
               rdfs:domain paml:BehaviorExecution ;
               rdfs:range paml:Material ;
               rdfs:label "consumed_material" .
 
 paml:ParameterValue rdf:type owl:Class ;
-        rdfs:comment "A value assigned to a parameter; similar to a prov:Usage, but embedding a literal value" ;
+        rdfs:comment '''This class is used to represent the assignment of a value to a parameter in a BehaviorExecution
+        that records the execution of a uml:Behavior. This class is similar to prov:Usage, but instead of always
+        pointing to an object it uses an arbitrary literal (which might or might not be an object). An example would
+        be recording that a plate reader absorbance measurement was taken with its absorbance wavelength parameter set
+        to 600 nm''' ;
         rdfs:subClassOf sbol:Identified,
     [ rdf:type owl:Restriction ; owl:allValuesFrom uml:Parameter ; owl:onProperty paml:parameter ;
       owl:minCardinality "1"^^xsd:nonNegativeInteger ; owl:maxCardinality "1"^^xsd:nonNegativeInteger ] ,
@@ -88,11 +116,15 @@ paml:ParameterValue rdf:type owl:Class ;
       owl:minCardinality "1"^^xsd:nonNegativeInteger ; owl:maxCardinality "1"^^xsd:nonNegativeInteger ] .
 
 paml:parameter rdf:type owl:ObjectProperty ;
+        rdfs:comment '''This property points to the uml:Parameter associated with the value (e.g., wavelength for a
+        plate reader absorbance measurement behavior).''' ;
               rdfs:domain paml:ParameterValue ;
               rdfs:range uml:Parameter ;
               rdfs:label "parameter" .
 
 paml:parameterValue rdf:type owl:ObjectProperty ;
+        rdfs:comment '''This property points to the literal value used for the parameter during execution (e.g., a
+        uml:LiteralIdentified for an om:Measure representing a 600 nm wavelength).''' ;
               rdfs:subPropertyOf opil:compositionalProperty ;
               rdfs:domain paml:ParameterValue ;
               rdfs:range uml:LiteralSpecification ;
@@ -212,7 +244,7 @@ paml:SampleCollection rdf:type owl:Class ;
 
 
 paml:SampleArray rdf:type owl:Class ;
-        rdfs:comment "A sample array is an n-dimensional rectangular group of samples, either with specified contents or empty, all stored in the same type of container" ;
+        rdfs:comment '''A sample array is an n-dimensional rectangular group of samples, either with specified contents or empty, all stored in the same type of container''' ;
         rdfs:subClassOf paml:SampleCollection ,
             [ rdf:type owl:Restriction ;
               owl:onProperty paml:containerType ;
