@@ -17,7 +17,7 @@ from autoprotocol.protocol import \
     WellGroup, \
     Unit
 from autoprotocol import container_type as ctype
-from paml_autoprotocol.transcriptic_api import TranscripticAPI
+from paml_autoprotocol.transcriptic_api import TranscripticAPI, TranscripticConfig
 from paml.execution_engine import ExecutionEngine
 
 class TestHandcodedAutoprotocol(unittest.TestCase):
@@ -36,12 +36,19 @@ class TestHandcodedAutoprotocol(unittest.TestCase):
         protocol = doc.find("https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018")
         agent = sbol3.Agent("test_agent")
 
-        ee = ExecutionEngine()
+        autoprotocol_output = os.path.join(out_dir, "test_LUDOX_autoprotocol.json")
+        secrets_file = os.path.join(os.getcwd(), "../secrets/tx_secrets.json")
+        api = TranscripticAPI(cfg=TranscripticConfig.from_file(secrets_file))
+
+        ee = ExecutionEngine(specializations=[AutoprotocolSpecialization(autoprotocol_output, api)])
+
         parameter_values = [
-            paml.ParameterValue(parameter=protocol.get_input("wavelength"), value=sbol3.Measure(100, tyto.OM.nanometer))
+            paml.ParameterValue(parameter=protocol.get_input("wavelength"),
+                                value=uml.LiteralIdentified(value=sbol3.Measure(100, tyto.OM.nanometer)))
         ]
+
         execution = ee.execute(protocol, agent, id="test_execution", parameter_values=parameter_values)
-        ExecutionProcessor.process(execution, AutoprotocolSpecialization(os.path.join(out_dir, "test_LUDOX_autoprotocol.json")))
+        assert(os.path.exists(autoprotocol_output))
 
 if __name__ == '__main__':
     unittest.main()

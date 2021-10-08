@@ -1,6 +1,9 @@
 from abc import ABC, abstractmethod
 from logging import error
 
+import uml
+
+
 class BehaviorSpecializationException(Exception):
     pass
 
@@ -21,7 +24,28 @@ class BehaviorSpecialization(ABC):
     def on_end(self):
         pass
 
-    def process(self, node, inputs, outputs):
-        if str(node.behavior) not in self._behavior_func_map:
+    def process(self, record):
+        node = record.node.lookup()
+        if not isinstance(node, uml.CallBehaviorAction):
+            return # raise BehaviorSpecializationException(f"Cannot handle node type: {type(node)}")
+        elif str(node.behavior) not in self._behavior_func_map:
             raise BehaviorSpecializationException(f"Failed to find handler for behavior: {node.behavior}")
-        return self._behavior_func_map[str(node.behavior)](node, inputs, outputs)
+        return self._behavior_func_map[str(node.behavior)](record)
+
+class DefaultBehaviorSpecialization(BehaviorSpecialization):
+    def _init_behavior_func_map(self) -> dict:
+        return {
+            "https://bioprotocols.org/paml/primitives/sample_arrays/EmptyContainer" : self.handle,
+            "https://bioprotocols.org/paml/primitives/liquid_handling/Provision" : self.handle,
+            "https://bioprotocols.org/paml/primitives/sample_arrays/PlateCoordinates" : self.handle,
+            "https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureAbsorbance" : self.handle,
+        }
+
+    def handle(self, record):
+        pass
+
+    def on_begin(self):
+        pass
+
+    def on_end(self):
+        pass

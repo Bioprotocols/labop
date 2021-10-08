@@ -67,7 +67,8 @@ class TranscripticConfig():
             token = get_file_else_error(tx_cfg, "token")
             user = get_file_else_error(tx_cfg, "email")
             org = get_file_else_error(tx_cfg, "organization_id")
-            return TranscripticConfig(email, token, user, org, None)
+            project_id = get_file_else_error(tx_cfg, "project_id")
+            return TranscripticConfig(email, token, user, org, project_id)
 
     @staticmethod
     def from_environment():
@@ -86,7 +87,7 @@ class TranscripticConfig():
 class TranscripticProtocol():
     def __init__(self, protocol):
         self.protocol = protocol
-        #self.id = protocol["id"]
+        self.id = protocol["id"]
         self.name = protocol["name"]
 
 class TranscripticAPI():
@@ -95,7 +96,7 @@ class TranscripticAPI():
     def protocol_make_containers(self) -> TranscripticProtocol:
         return self._protocol_make_containers
 
-    def __init__(self, out_dir: str, cfg: TranscripticConfig = None) -> None:
+    def __init__(self, out_dir: str = "./", cfg: TranscripticConfig = None) -> None:
         self.out_dir = out_dir
         if not os.path.exists(self.out_dir):
             os.mkdir(self.out_dir)
@@ -137,15 +138,15 @@ class TranscripticAPI():
         return json.loads(response.content)
 
     # TODO
-    def make_containers(self, containers, title = "make_containers"):
+    def make_containers(self, containers, title = "make_containers", test_mode=True):
         params = {
             "parameters": {
                 "containers": containers
             }
         }
         # TODO verify this request then enable sending
-        # response = self.submit_to_transcriptic(self.make_containers, params, title)
-        return None
+        response = self.submit_to_transcriptic(self._protocol_make_containers, params, title)
+        return response
 
     def get_transcriptic_connection(self):
         """Connect (without validation) to Transcriptic.com"""
@@ -171,12 +172,9 @@ class TranscripticAPI():
             raise TranscripticException(exc)
 
         try:
-            launch_request = self._create_launch_request(params,
-                                                    title,
-                                                    test_mode=test_mode)
+            launch_request = self._create_launch_request(params, title, test_mode=test_mode)
             try:
-                launch_protocol = conn.launch_protocol(launch_request,
-                                                       protocol_id=title)
+                launch_protocol = conn.launch_protocol(launch_request, protocol_id=protocol.id)
             except Exception as exc:
                 raise TranscripticException(exc)
             launch_request_id = launch_protocol["id"]

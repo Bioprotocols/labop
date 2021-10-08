@@ -306,6 +306,29 @@ Primitive: {self.identity}
             """
 Primitive.__str__ = primitive_str
 
+
+def behavior_execution_parameter_value_map(self):
+    """
+    Return a dictionary mapping parameter names to value or (value, unit)
+    :param self:
+    :return:
+    """
+    parameter_value_map = {}
+
+    for pv in self.parameter_values:
+        name = pv.parameter.lookup().name
+        if isinstance(pv.value, uml.LiteralReference):
+            ref = pv.value.value.lookup()
+            value = ref.value
+            unit = ref.unit if hasattr(ref, "unit") else None
+        else:
+            value = pv.value.value
+            unit = pv.value.unit if hasattr(pv.value, "unit") else None
+
+        parameter_value_map[name] = (value, unit) if unit else value
+    return parameter_value_map
+BehaviorExecution.parameter_value_map = behavior_execution_parameter_value_map
+
 #########################################
 # Library handling
 loaded_libraries = {}

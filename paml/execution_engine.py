@@ -10,6 +10,8 @@ import paml
 import uml
 import sbol3
 
+from paml_autoprotocol.behavior_specialization import BehaviorSpecialization, DefaultBehaviorSpecialization
+
 
 class ExecutionEngine(ABC):
     """Base class for implementing and recording a PAML executions.
@@ -17,9 +19,10 @@ class ExecutionEngine(ABC):
     It needs to be extended with specific implementations that have that capability.
     """
 
-    def __init__(self):
+    def __init__(self, specializations: List[BehaviorSpecialization] = [DefaultBehaviorSpecialization()]):
         self.exec_counter = 0
         self.variable_counter = 0
+        self.specializations = specializations
 
     def next_id(self):
         next = self.exec_counter
@@ -31,7 +34,11 @@ class ExecutionEngine(ABC):
         self.variable_counter += 1
         return variable
 
-    def execute(self, protocol: paml.Protocol, agent: sbol3.Agent, parameter_values: List[paml.ParameterValue] = {}, id: str = uuid.uuid4()) -> paml.ProtocolExecution:
+    def execute(self,
+                protocol: paml.Protocol,
+                agent: sbol3.Agent,
+                parameter_values: List[paml.ParameterValue] = {},
+                id: str = uuid.uuid4()) -> paml.ProtocolExecution:
         """Execute the given protocol against the provided parameters
 
         Parameters
@@ -202,7 +209,10 @@ class ExecutionEngine(ABC):
             record = paml.CallBehaviorExecution(node=node, incoming_flows=inputs)
 
             # Get the parameter values from input tokens for input pins
-            input_pin_values = {token.token_source.lookup().node.lookup().identity: uml.literal(token.value.value)
+            input_pin_values = {token.token_source.lookup().node.lookup().identity:
+                                    (uml.LiteralReference(value=token.value.value.lookup())
+                                     if isinstance(token.value, uml.LiteralReference)
+                                     else uml.literal(token.value.value))
                                 for token in inputs if not token.edge}
             value_pin_values = {pin.identity: pin.value for pin in node.inputs if hasattr(pin, "value")}
             value_pin_values = {k: (uml.literal(v.value)
@@ -251,6 +261,10 @@ class ExecutionEngine(ABC):
         else:
             raise ValueError(f'Do not know how to execute node {node.identity} of type {node.type_uri}')
 
+        if record:
+            for specialization in self.specializations:
+                specialization.process(record)
+
         # Send outgoing control flows
         # Check that outgoing flows don't conflict with
         # return updated token list
@@ -262,20 +276,24 @@ class ExecutionEngine(ABC):
 
         if isinstance(activity_node.node.lookup(), uml.ForkNode):
             [incoming_flow] = activity_node.incoming_flows
-            if isinstance(incoming_flow.lookup().edge.lookup(), uml.ObjectFlow):
-                value = uml.literal(incoming_flow.lookup().value)
-            else:
-                value = uml.LiteralString(self.next_variable()) # use same value for all edges
+            #if isinstance(incoming_flow.lookup().edge.lookup(), uml.ObjectFlow):
+            #    value = uml.literal(incoming_flow.lookup().value)
+            #else:
+            #    value = uml.LiteralString(self.next_variable()) # use same value for all edges
+            incoming_value = incoming_flow.lookup().value
+            value = incoming_value.value.lookup() \
+                if isinstance(incoming_value, uml.LiteralReference)\
+                else incoming_flow.lookup().value
             edge_tokens = [paml.ActivityEdgeFlow(edge=edge, token_source=activity_node,
-                                                 value=uml.LiteralString(value=value.value))
+                                                 value=uml.LiteralReference(value=value))
                            for edge in out_edges]
         elif isinstance(activity_node.node.lookup(), uml.ActivityParameterNode):
             [parameter_value] = [pv.value for pv in ex.parameter_values if pv.parameter == activity_node.node.lookup().parameter]
-            parameter_value = uml.LiteralReference(value=parameter_value) \
-                    if isinstance(parameter_value, sbol3.Identified) \
-                    else uml.literal(parameter_value)
+            #parameter_value = uml.LiteralReference(value=parameter_value) \
+            #        if isinstance(parameter_value, sbol3.Identified) \
+            #        else uml.literal(parameter_value)
             edge_tokens = [paml.ActivityEdgeFlow(edge=edge, token_source=activity_node,
-                                                 value=parameter_value)
+                                                 value=uml.LiteralReference(value=parameter_value))
                            for edge in out_edges]
         else:
             edge_tokens = [paml.ActivityEdgeFlow(edge=edge, token_source=activity_node,
@@ -305,10 +323,12 @@ class ExecutionEngine(ABC):
         return uml.LiteralString(value=value)
 
     def next_pin_tokens(self, activity_node: paml.ActivityNodeExecution, ex: paml.ProtocolExecution):
-        protocol = ex.protocol.lookup()
         assert len(activity_node.incoming_flows) == 1 # One input per pin
-        pin_value = activity_node.incoming_flows[0].lookup().value.value
-        tokens = [ paml.ActivityEdgeFlow(edge=None, token_source=activity_node, value=uml.LiteralString(value=pin_value)) ]
+        incoming_flow = activity_node.incoming_flows[0].lookup()
+        refd_value = incoming_flow.value.value if isinstance(incoming_flow.value, uml.LiteralReference) else incoming_flow.value
+        pin_value = uml.LiteralReference(value=refd_value)
+
+        tokens = [ paml.ActivityEdgeFlow(edge=None, token_source=activity_node, value=pin_value) ]
 
         # Save tokens in the protocol execution
         ex.flows += tokens

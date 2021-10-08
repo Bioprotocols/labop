@@ -123,7 +123,7 @@ class ExecutionProcessor():
             spec_outputs[o.parameter.lookup().name] = o.value
 
         # print("  OUTPUT")
-        outputs = specialization.process(node, spec_inputs, spec_outputs)
+        outputs = specialization.process(node)
         for identity, (name, value) in outputs.items():
             # print(f"    {name} = {value}")
             execution_output[exec.identity][identity] = value
