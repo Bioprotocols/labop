@@ -207,7 +207,6 @@ paml:execution rdf:type owl:ObjectProperty ;
 paml:flow rdf:type owl:ObjectProperty ;
         rdfs:comment '''Each instance of this property links to an ActivityEdgeFlow that records one movement of a UML
         token along a uml:ActivityEdge during the execution of its containing Protocol''' ;
-        rdfs:comment '''''' ;
               rdfs:subPropertyOf opil:compositionalProperty ;
               rdfs:domain paml:ProtocolExecution ;
               rdfs:range paml:ActivityEdgeFlow ;
@@ -222,6 +221,10 @@ paml:ActivityEdgeFlow rdf:type owl:Class ;
         For instance, the ActivityEdgeFlow for a uml:ObjectFlow might record a measurement being sent to an output
         uml:Parameter, while the ActivityEdgeFlow for a uml:ControlFlow might record a decision to proceed down a
         particular branch from a uml:DecisionNode.
+
+        Note that a uml:ActivityEdge might appear in multiple ActivityEdgeFlow records associated with a single
+        ProtocolExecution, e.g., due to a loop in the Protocol.  It also might not appear in any, if the
+        uml:ActivityEdge is on a path not taken due to branching control flow.
 
         TODO: correct the cardinality: edgeValue is supposed to be optional, not edge
         ''' ;
@@ -254,30 +257,49 @@ paml:tokenSource rdf:type owl:ObjectProperty ;
 
 
 paml:ActivityNodeExecution rdf:type owl:Class ;
-        rdfs:comment "Record of an execution of an ActivityNode" ;
+        rdfs:comment '''An ActivityNodeExecution records one instance in which a uml:ActivityNode is executed during the
+        execution of its containing Protocol.
+
+        For instance, the ActivityNodeExecution for a uml:CallBehaviorAction to measure absorbance on a plate reader
+        would set its node property to point to the uml:CallBehaviorAction and might have incomingFlow properties
+        indicating arrival of information about the samples to measure via a uml:ObjectFlow and the arrival a
+        of permission to begin via a uml:ControlFlow.
+
+        Note that a uml:ActivityNode might appear in multiple ActivityNodeExecution records associated with a single
+        ProtocolExecution, e.g., due to a loop in the Protocol.  It also might not appear in any, if the
+        uml:ActivityNode is on a path not taken due to branching control flow.''' ;
         rdfs:subClassOf sbol:Identified ,
     [ rdf:type owl:Restriction ; owl:allValuesFrom uml:ActivityNode ; owl:onProperty paml:node ;
       owl:minCardinality "1"^^xsd:nonNegativeInteger ; owl:maxCardinality "1"^^xsd:nonNegativeInteger ; ] ,
     [ rdf:type owl:Restriction ; owl:allValuesFrom paml:ActivityEdgeFlow ; owl:onProperty paml:incomingFlow ] .
 
 paml:node rdf:type owl:ObjectProperty ;
+        rdfs:comment '''This property is used to indicate the uml:ActivityNode that has been execcuted.''' ;
               rdfs:domain paml:ActivityNodeExecution ;
               rdfs:range uml:ActivityNode ;
               rdfs:label "node" .
 
 paml:incomingFlow rdf:type owl:ObjectProperty ;
+        rdfs:comment '''This property is used to indicate an ActivityEdgeFlow that delivered a token consumed during
+        the execution of the uml:ActivityNode.''' ;
               rdfs:domain paml:ActivityNodeExecution ;
               rdfs:range paml:ActivityEdgeFlow ;
               rdfs:label "incoming_flows" .
 
 
 paml:CallBehaviorExecution rdf:type owl:Class ;
-        rdfs:comment "Record of an execution of an CallBehaviorAction" ;
+        rdfs:comment '''A CallBehaviorExecution extends ActivityNodeExecution by adding a pointer to a BehaviorExecution
+        record for the uml:Behavior that is being executed.
+
+        For a primitive action (e.g., measuring absorbance on a plate reader), this is a plain BehaviorExecution,
+        while for calling a Protocol as a sub-routine (e.g., to run a stage of an Type IIS assembly), this would be a
+        ProtocolExecution.''' ;
         rdfs:subClassOf paml:ActivityNodeExecution ,
     [ rdf:type owl:Restriction ; owl:allValuesFrom paml:BehaviorExecution ; owl:onProperty paml:call ;
       owl:minCardinality "1"^^xsd:nonNegativeInteger ; owl:maxCardinality "1"^^xsd:nonNegativeInteger ; ] .
 
 paml:call rdf:type owl:ObjectProperty ;
+        rdfs:comment '''This property indicates the BehaviorExecution record for the uml:Behavior that was called.''' ;
               rdfs:domain paml:CallBehaviorExecution ;
               rdfs:range paml:BehaviorExecution ;
               rdfs:label "call" .
