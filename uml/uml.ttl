@@ -19,8 +19,8 @@
 #################################################################
 
 ###  http://www.w3.org/2002/07/owl#maxCardinality
-owl:maxCardinality rdf:type owl:AnnotationProperty .
-owl:minCardinality rdf:type owl:AnnotationProperty .
+# owl:maxCardinality rdf:type owl:AnnotationProperty .
+# owl:minCardinality rdf:type owl:AnnotationProperty .
 
 #################################################################
 #    Object properties
