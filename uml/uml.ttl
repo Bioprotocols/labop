@@ -10,7 +10,7 @@
 @base <http://bioprotocols.org/uml#> .
 
 <http://bioprotocols.org/uml> rdf:type owl:Ontology ;
-                              owl:imports sbol:, opil:, om: ;
+                              owl:imports <http://sbols.org/v3>,<http://bioprotocols.org/opil/v1>, <http://www.ontology-of-units-of-measure.org/resource/om-2> ;
                               rdfs:comment "Unified Modeling Languge (UML) subset, translated to an SBOL factory ontology." ;
                               owl:versionInfo "1.0-alpha1" .
 
