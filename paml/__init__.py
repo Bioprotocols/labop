@@ -86,7 +86,7 @@ Protocol.primitive_step = protocol_primitive_step  # Add to class via monkey pat
 #
 ###############################################################################
 
-def protocol_to_dot(self):
+def protocol_to_dot(self, legend=False):
     def _gv_sanitize(id: str):
         return html.escape(id.replace(":", "_"))
 
@@ -205,7 +205,9 @@ def protocol_to_dot(self):
                                    'label': self.name,
                                    'shape': 'box'
                                })
-        dot.subgraph(_legend())
+        if legend:
+            dot.subgraph(_legend())
+
         for edge in self.edges:
             src_id = _label(edge.source.lookup()) #edge.source.replace(":", "_")
             dest_id = _label(edge.target.lookup()) #edge.target.replace(":", "_")
