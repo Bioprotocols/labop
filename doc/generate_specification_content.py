@@ -8,7 +8,7 @@ from pathlib import Path
 print('Warning: this script is fragile and assumes that PAML and PAML-specification are sibling directories on Mac or Unix.')
 
 print('Loading UML')
-uml_module = UMLFactory(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'uml/uml.ttl'), 'http://bioprotocols.org/uml#')
+uml_module = UMLFactory(os.path.join(os.path.dirname(os.path.realpath(__file__)), '../uml/uml.ttl'), 'http://bioprotocols.org/uml#')
 print('Generating UML specification materials')
 uml_module.generate('uml_classes')
 
@@ -21,7 +21,7 @@ for file in glob.glob('uml_classes/*'):
     os.remove(file)
 
 print('Loading PAML')
-paml_module = UMLFactory(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'paml/paml.ttl'),
+paml_module = UMLFactory(os.path.join(os.path.dirname(os.path.realpath(__file__)), '../paml/paml.ttl'),
            'http://bioprotocols.org/paml#')
 print('Generating PAML specification materials')
 paml_module.generate('paml_classes')
