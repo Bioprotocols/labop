@@ -16,6 +16,9 @@ from autoprotocol import container_type as ctype
 from paml_convert.behavior_specialization import BehaviorSpecialization
 from paml_convert.autoprotocol.transcriptic_api import TranscripticAPI
 
+from container_api.client_api import matching_containers, strateos_id
+
+
 import logging
 
 l = logging.getLogger(__file__)
@@ -53,26 +56,17 @@ class AutoprotocolSpecialization(BehaviorSpecialization):
         spec = parameter_value_map["specification"]['value']
         samples_var = parameter_value_map["samples"]['value']
 
+        if "container_id" in self.resolutions:
+            container_id = self.resolutions["container_id"]
+        else:
+            container_type = self.get_container_type_from_spec(spec)
+            container_name = f"{self.execution.protocol.name} Container {samples_var}"
+            [container_id] = self.create_new_container(container_name, container_type)
 
-        container_spec = {
-                "name": samples_var,
-                "cont_type": ctype.FLAT96.shortname, # resolve with spec here
-                "volume": "100:microliter", # FIXME where does this come from?
-                "properties": [
-                    {
-                        "key": "concentration",
-                        "value": "10:millimolar"
-                    }
-                ]
-            }
-
-
-        #[container] = self.api.make_containers([container_spec])
-        tx = self.api.get_transcriptic_connection()
         #container_id = tx.inventory("flat test")['results'][1]['id']
-        container_id = "ct1g9q3bndujat5"
+        #container_id = "ct1g9q3bndujat5"
+        tx = self.api.get_transcriptic_connection() # Make sure that connection is alive for making the container object
         tx_container = transcriptic.Container(container_id)
-        #container = self.protocol.ref(samples_var, cont_type=ctype.FLAT96, discard=True)
         container = self.protocol.ref(samples_var, id=tx_container.id, cont_type=tx_container.container_type, discard=True)
         self.var_to_entity[samples_var] = container
 
@@ -85,6 +79,36 @@ class AutoprotocolSpecialization(BehaviorSpecialization):
         #self.unresolved_terms.append(spec_term)
 
         return results
+
+    def get_container_type_from_spec(self, spec):
+        short_names = [v.shortname
+                       for v in [getattr(ctype, x) for x in dir(ctype)]
+                       if isinstance(v, ctype.ContainerType)]
+        possible_container_types = matching_containers(
+            spec,
+            addl_conditions="(cont:availableAt value <https://sift.net/container-ontology/strateos-catalog#Strateos>)")
+        possible_short_names = [strateos_id(x) for x in possible_container_types]
+
+        matching_short_names = [x for x in short_names if x in possible_short_names]
+        return matching_short_names[0] # FIXME need some error handling here
+
+    def create_new_container(self, name, container_type):
+        container_spec = {
+                "name": name,
+                "cont_type": container_type, # resolve with spec here
+                "volume": "100:microliter", # FIXME where does this come from?
+                "properties": [
+                    {
+                        "key": "concentration",
+                        "value": "10:millimolar"
+                    }
+                ]
+            }
+        [container] = self.api.make_containers([container_spec])
+        #tx = self.api.get_transcriptic_connection()
+        #container_id = tx.inventory("flat test")['results'][1]['id']
+        #container_id = "ct1g9q3bndujat5"
+        return container
 
     # def provision_container(self, wells: WellGroup, amounts = None, volumes = None, informatics = None) -> Provision:
     def provision_container(self, record: paml.ActivityNodeExecution) -> Provision:
