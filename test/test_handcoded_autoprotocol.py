@@ -7,7 +7,7 @@ from autoprotocol.protocol import \
     WellGroup, \
     Unit
 from autoprotocol import container_type as ctype
-from paml_autoprotocol.transcriptic_api import TranscripticAPI
+
 
 class TestHandcodedAutoprotocol(unittest.TestCase):
     def test_ludox(self):

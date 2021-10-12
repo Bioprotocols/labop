@@ -1,23 +1,20 @@
 import json
-from typing import List, Dict
+from typing import Dict
 
-import autoprotocol
 import sbol3
 import transcriptic
 
-import paml_autoprotocol.plate_coordinates as pc
+import paml_convert.autoprotocol.plate_coordinates as pc
 import tyto
-import uml
 import paml
 
-from autoprotocol.container import Container, WellGroup, Well
+from autoprotocol.container import WellGroup
 from autoprotocol.instruction import Provision, Spectrophotometry
 from autoprotocol.protocol import Protocol
 from autoprotocol.unit import Unit
 from autoprotocol import container_type as ctype
-from paml_autoprotocol.behavior_specialization import BehaviorSpecialization
-from paml_autoprotocol.term_resolver import TermResolver
-from paml_autoprotocol.transcriptic_api import TranscripticAPI
+from paml_convert.behavior_specialization import BehaviorSpecialization
+from paml_convert.autoprotocol.transcriptic_api import TranscripticAPI
 
 import logging
 
@@ -71,7 +68,8 @@ class AutoprotocolSpecialization(BehaviorSpecialization):
 
         #[container] = self.api.make_containers([container_spec])
         tx = self.api.get_transcriptic_connection()
-        container_id = tx.inventory("96-flat")['results'][0]['id']
+        #container_id = tx.inventory("flat test")['results'][1]['id']
+        container_id = "ct1g9prj2sz44xc"
         tx_container = transcriptic.Container(container_id)
         #container = self.protocol.ref(samples_var, cont_type=ctype.FLAT96, discard=True)
         container = self.protocol.ref(samples_var, id=tx_container.id, cont_type=tx_container.container_type, discard=True)

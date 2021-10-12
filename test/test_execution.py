@@ -7,7 +7,7 @@ import paml
 import tyto
 from paml.execution_engine import ExecutionEngine
 
-# import paml_md
+# import markdown
 
 
 class TestProtocolExecution(unittest.TestCase):
@@ -57,7 +57,7 @@ class TestProtocolExecution(unittest.TestCase):
     # def test_protocol_to_markdown(self):
     #     doc = sbol3.Document()
     #     doc.read('test/testfiles/igem_ludox_test.nt', 'nt')
-    #     paml_md.MarkdownConverter(doc).convert('iGEM_LUDOX_OD_calibration_2018')
+    #     markdown.MarkdownConverter(doc).convert('iGEM_LUDOX_OD_calibration_2018')
 
     # Checking if files are identical needs to wait for increased stability
     # assert filecmp.cmp('iGEM_LUDOX_OD_calibration_2018.md','test/testfiles/iGEM_LUDOX_OD_calibration_2018.md')

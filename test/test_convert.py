@@ -1,5 +1,3 @@
-import json
-from logging import error
 import os
 import paml
 import sbol3
@@ -7,20 +5,14 @@ import tyto
 import uml
 import unittest
 
-import paml_autoprotocol.plate_coordinates as pc
-from paml_autoprotocol.execution_processor import ExecutionProcessor
-from paml_autoprotocol.autoprotocol_specialization import AutoprotocolSpecialization
+from paml_convert.autoprotocol.autoprotocol_specialization import AutoprotocolSpecialization
 
-from autoprotocol.protocol import \
-    Spectrophotometry, \
-    Protocol, \
-    WellGroup, \
-    Unit
-from autoprotocol import container_type as ctype
-from paml_autoprotocol.transcriptic_api import TranscripticAPI, TranscripticConfig
+from paml_convert.autoprotocol.transcriptic_api import TranscripticAPI, TranscripticConfig
 from paml.execution_engine import ExecutionEngine
+from paml_convert.markdown.markdown_specialization import MarkdownSpecialization
 
-class TestHandcodedAutoprotocol(unittest.TestCase):
+
+class TestConvert(unittest.TestCase):
     def test_ludox(self):
         out_dir = "."
 
@@ -45,7 +37,10 @@ class TestHandcodedAutoprotocol(unittest.TestCase):
         }
         autoprotocol_specialization = AutoprotocolSpecialization(autoprotocol_output, api, resolutions)
 
-        ee = ExecutionEngine(specializations=[autoprotocol_specialization])
+        markdown_output = os.path.join(out_dir, "test_LUDOX_markdown.md")
+        markdown_specialization = MarkdownSpecialization(markdown_output)
+
+        ee = ExecutionEngine(specializations=[autoprotocol_specialization, markdown_specialization])
 
         parameter_values = [
             paml.ParameterValue(parameter=protocol.get_input("wavelength"),

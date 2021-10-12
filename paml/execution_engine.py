@@ -1,8 +1,7 @@
-from abc import ABC, abstractmethod
+from abc import ABC
 from typing import List
 import uuid
 import datetime
-import itertools
 
 import graphviz
 
@@ -10,7 +9,7 @@ import paml
 import uml
 import sbol3
 
-from paml_autoprotocol.behavior_specialization import BehaviorSpecialization, DefaultBehaviorSpecialization
+from paml_convert.behavior_specialization import BehaviorSpecialization, DefaultBehaviorSpecialization
 
 
 class ExecutionEngine(ABC):
@@ -65,6 +64,7 @@ class ExecutionEngine(ABC):
 
         # Initialize specializations
         for specialization in self.specializations:
+            specialization.initialize_protocol(ex)
             specialization.on_begin()
 
         # Iteratively execute all unblocked activities until no more tokens can progress

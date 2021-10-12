@@ -2,16 +2,10 @@ import sbol3
 import paml
 import uml
 import paml.type_inference
-import tyto
 import openpyxl
 import numpy
 from IPython.display import Markdown
 
-
-import os
-import posixpath
-from copy import copy
-from paml_md.markdown_primitives import primitive_to_markdown_functions
 
 ###########################################
 # Functions for reasoning about ranges

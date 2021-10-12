@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 from logging import error
 
+import paml
 import uml
 
 
@@ -11,6 +12,11 @@ class BehaviorSpecialization(ABC):
     def __init__(self) -> None:
         super().__init__()
         self._behavior_func_map = self._init_behavior_func_map()
+        self.top_protocol = None
+        self.execution = None
+
+    def initialize_protocol(self, execution: paml.ProtocolExecution):
+        self.execution = execution
 
     @abstractmethod
     def _init_behavior_func_map(self) -> dict:
