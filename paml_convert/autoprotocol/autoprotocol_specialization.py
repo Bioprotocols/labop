@@ -53,10 +53,11 @@ class AutoprotocolSpecialization(BehaviorSpecialization):
         spec = parameter_value_map["specification"]['value']
         samples_var = parameter_value_map["samples"]['value']
 
+
         container_spec = {
                 "name": samples_var,
                 "cont_type": ctype.FLAT96.shortname, # resolve with spec here
-                "volume": "1000:microliter", # FIXME where does this come from?
+                "volume": "100:microliter", # FIXME where does this come from?
                 "properties": [
                     {
                         "key": "concentration",
@@ -69,7 +70,7 @@ class AutoprotocolSpecialization(BehaviorSpecialization):
         #[container] = self.api.make_containers([container_spec])
         tx = self.api.get_transcriptic_connection()
         #container_id = tx.inventory("flat test")['results'][1]['id']
-        container_id = "ct1g9prj2sz44xc"
+        container_id = "ct1g9q3bndujat5"
         tx_container = transcriptic.Container(container_id)
         #container = self.protocol.ref(samples_var, cont_type=ctype.FLAT96, discard=True)
         container = self.protocol.ref(samples_var, id=tx_container.id, cont_type=tx_container.container_type, discard=True)
