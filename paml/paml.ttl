@@ -3,7 +3,6 @@
 @prefix om: <http://www.ontology-of-units-of-measure.org/resource/om-2/> .
 @prefix owl: <http://www.w3.org/2002/07/owl#> .
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
-@prefix xml: <http://www.w3.org/XML/1998/namespace> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 @prefix paml: <http://bioprotocols.org/paml#> .
 @prefix prov: <http://www.w3.org/ns/prov#> .
@@ -11,11 +10,12 @@
 @prefix sbol: <http://sbols.org/v3#> .
 @prefix uml: <http://bioprotocols.org/uml#> .
 @prefix MathM: <http://www.w3.org/1998/Math/MathML> .
-@prefix prov: <http://www.w3.org/ns/prov#> .
 @base <http://bioprotocols.org/paml#> .
 
 <http://bioprotocols.org/paml> rdf:type owl:Ontology ;
-                              owl:imports uml:, sbol: , om:, prov:;
+                              owl:imports <http://bioprotocols.org/uml> ,
+                                          <http://sbols.org/v3> , <http://www.ontology-of-units-of-measure.org/resource/om-2>,
+                                          <http://www.w3.org/ns/prov> ;
                               rdfs:comment "Protocol Activity Modeling Languge (PAML) ontology." ;
                               owl:versionInfo "0.3" .
 
