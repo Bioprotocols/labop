@@ -39,8 +39,13 @@ class TestHandcodedAutoprotocol(unittest.TestCase):
         autoprotocol_output = os.path.join(out_dir, "test_LUDOX_autoprotocol.json")
         secrets_file = os.path.join(os.getcwd(), "../secrets/tx_secrets.json")
         api = TranscripticAPI(cfg=TranscripticConfig.from_file(secrets_file))
+        resolutions = {
+            doc.find("https://bbn.com/scratch/LUDOX"): "rs1b6z2vgatkq7",
+            doc.find("https://bbn.com/scratch/ddH2O"): "rs1c7pg8qs22dt"
+        }
+        autoprotocol_specialization = AutoprotocolSpecialization(autoprotocol_output, api, resolutions)
 
-        ee = ExecutionEngine(specializations=[AutoprotocolSpecialization(autoprotocol_output, api)])
+        ee = ExecutionEngine(specializations=[autoprotocol_specialization])
 
         parameter_values = [
             paml.ParameterValue(parameter=protocol.get_input("wavelength"),

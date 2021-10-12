@@ -319,13 +319,14 @@ def behavior_execution_parameter_value_map(self):
         name = pv.parameter.lookup().name
         if isinstance(pv.value, uml.LiteralReference):
             ref = pv.value.value.lookup()
-            value = ref.value
-            unit = ref.unit if hasattr(ref, "unit") else None
+            value = ref.value if isinstance(ref, uml.LiteralSpecification) else ref
+            unit = ref.unit if isinstance(ref, uml.LiteralSpecification) and hasattr(ref, "unit") else None
         else:
             value = pv.value.value
             unit = pv.value.unit if hasattr(pv.value, "unit") else None
 
-        parameter_value_map[name] = (value, unit) if unit else value
+        parameter_value_map[name] = {"parameter" : pv.parameter.lookup(),
+                                     "value" : (value, unit) if unit else value}
     return parameter_value_map
 BehaviorExecution.parameter_value_map = behavior_execution_parameter_value_map
 

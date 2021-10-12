@@ -5,6 +5,9 @@ import time
 import transcriptic
 
 from datetime import datetime
+import requests
+from requests_html import HTMLSession
+
 
 class TranscripticException(Exception):
     pass
@@ -240,3 +243,19 @@ class TranscripticAPI():
         except Exception as exc:
             raise TranscripticException(exc)
 
+    def resolve_resource(self, resource):
+        types = resource.types
+        resolutions = {}
+        for type in types:
+            try:
+                session = HTMLSession()
+                response = session.get(type)
+                meta = response.html.find("meta")
+                properties = [x.attrs for x in response.html.find('meta') if "property" in x.attrs]
+                [title] = [x['content'] for x in properties if x['property'] == "og:title"]
+            except requests.exceptions.RequestException as e:
+                print(e)
+
+        conn = self.get_transcriptic_connection()
+        results = conn.resources(resource)['results']
+        return results

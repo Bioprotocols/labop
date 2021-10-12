@@ -1,7 +1,9 @@
 import json
-from typing import List
+from typing import List, Dict
 
 import autoprotocol
+import sbol3
+import transcriptic
 
 import paml_autoprotocol.plate_coordinates as pc
 import tyto
@@ -18,36 +20,14 @@ from paml_autoprotocol.term_resolver import TermResolver
 from paml_autoprotocol.transcriptic_api import TranscripticAPI
 
 
-class UnresolvedTerm():
-    def __init__(self, step, attribute, term):
-        self.step = step
-        self.attribute = attribute
-        self.term = term
-
-    def __repr__(self):
-        return f"UnresolvedTerm(step={self.step}, attribute=\"{self.attribute}\", term=\"{self.term}\")"
-
-class ResolvedTerm():
-    def __init__(self, unresolved_term : UnresolvedTerm, resolution):
-        self.unresolved_term = unresolved_term
-        self.resolution = resolution
-
-    def resolve(self):
-        if isinstance(self.unresolved_term.step, autoprotocol.Container):
-            self.unresolved_term.step[self.unresolved_term.attribute] = self.resolution
-        elif isinstance(self.unresolved_term.step, autoprotocol.instruction.Instruction):
-            self.unresolved_term.step.data[self.unresolved_term.attribute] = self.resolution
-
-
 class AutoprotocolSpecialization(BehaviorSpecialization):
-    def __init__(self, out_path, api: TranscripticAPI = None, resolver : TermResolver = None) -> None:
+    def __init__(self, out_path, api: TranscripticAPI = None, resolutions: Dict[sbol3.Identified, str] = None) -> None:
         super().__init__()
         self.out_path = out_path
-        self.resolver = resolver
-        self.unresolved_terms = []
+        self.resolutions = resolutions
         self.api = api
         self.var_to_entity = {}
-        self.protocol = Protocol()
+
 
     def _init_behavior_func_map(self) -> dict:
         return {
@@ -69,8 +49,8 @@ class AutoprotocolSpecialization(BehaviorSpecialization):
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
 
-        spec = parameter_value_map["specification"]
-        samples_var = parameter_value_map["samples"]
+        spec = parameter_value_map["specification"]['value']
+        samples_var = parameter_value_map["samples"]['value']
 
         container_spec = {
                 "name": samples_var,
@@ -86,8 +66,17 @@ class AutoprotocolSpecialization(BehaviorSpecialization):
 
 
         #[container] = self.api.make_containers([container_spec])
-        container = self.protocol.ref(samples_var, cont_type=ctype.FLAT96, discard=True)
+        tx = self.api.get_transcriptic_connection()
+        container_id = tx.inventory("96-flat test")['results'][0]['id']
+        tx_container = transcriptic.Container(container_id)
+        #container = self.protocol.ref(samples_var, cont_type=ctype.FLAT96, discard=True)
+        container = self.protocol.ref(samples_var, id=tx_container.id, cont_type=tx_container.container_type, discard=True)
         self.var_to_entity[samples_var] = container
+
+        print(f"define_container:")
+        print(f" specification: {spec}")
+        print(f" samples: {samples_var}")
+
 
         #spec_term = UnresolvedTerm(None, samples_var, spec)
         #self.unresolved_terms.append(spec_term)
@@ -100,11 +89,13 @@ class AutoprotocolSpecialization(BehaviorSpecialization):
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
 
-        destination = parameter_value_map["destination"]
+        destination = parameter_value_map["destination"]["value"]
         dest_wells = self.var_to_entity[destination]
-        (value, units) = parameter_value_map["amount"]
+        value = parameter_value_map["amount"]["value"].value
+        units = parameter_value_map["amount"]["value"].unit
         units = tyto.OM.get_term_by_uri(units)
-        resource = parameter_value_map["resource"]
+        resource = parameter_value_map["resource"]["value"]
+        resource = self.resolutions[resource]
         print(f"provision_container:")
         print(f" destination: {destination}")
         print(f" amount: {value} {units}")
@@ -123,12 +114,12 @@ class AutoprotocolSpecialization(BehaviorSpecialization):
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
 
-        source = parameter_value_map["source"]
+        source = parameter_value_map["source"]["value"]
         container = self.var_to_entity[source]
-        coords = parameter_value_map["coordinates"]
+        coords = parameter_value_map["coordinates"]["value"]
         wells = pc.coordinate_rect_to_well_group(container, coords)
 
-        self.var_to_entity[parameter_value_map['samples']] = wells
+        self.var_to_entity[parameter_value_map['samples']["value"]] = wells
         print(f"plate_coordinates:")
         print(f"  source: {source}")
         print(f"  coordinates: {coords}")
@@ -140,9 +131,9 @@ class AutoprotocolSpecialization(BehaviorSpecialization):
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
 
-        wl = parameter_value_map["wavelength"]
+        wl = parameter_value_map["wavelength"]["value"]
         wl_units = tyto.OM.get_term_by_uri(wl.unit)
-        samples = parameter_value_map["samples"]
+        samples = parameter_value_map["samples"]["value"]
         wells = self.var_to_entity[samples]
 
         # HACK extract contrainer from well group since we do not have it as input
@@ -171,7 +162,3 @@ class AutoprotocolSpecialization(BehaviorSpecialization):
             ])
         )
         return results
-
-    def resolve(self, resolved_terms : List[ResolvedTerm]):
-        for term in resolved_terms:
-            term.resolve()

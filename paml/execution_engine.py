@@ -63,6 +63,10 @@ class ExecutionEngine(ABC):
         ex.association.append(sbol3.Association(agent=agent, plan=protocol))
         ex.parameter_values = parameter_values
 
+        # Initialize specializations
+        for specialization in self.specializations:
+            specialization.on_begin()
+
         # Iteratively execute all unblocked activities until no more tokens can progress
         tokens = []  # no tokens to start
         ready = protocol.initiating_nodes()
@@ -82,6 +86,11 @@ class ExecutionEngine(ABC):
         # aggregate consumed material records from all behaviors executed within, mark end time, and return
         ex.aggregate_child_materials()
         ex.end_time = str(datetime.datetime.now()) # TODO: remove str wrapper after sbol_factory #22 fixed
+
+        # End specializations
+        for specialization in self.specializations:
+            specialization.on_end()
+
         return ex
 
     def executable_activity_nodes(self, protocol: paml.Protocol, tokens: List[paml.ActivityEdgeFlow],
@@ -214,10 +223,17 @@ class ExecutionEngine(ABC):
                                      if isinstance(token.value, uml.LiteralReference)
                                      else uml.literal(token.value.value))
                                 for token in inputs if not token.edge}
+            # Get Input value pins
             value_pin_values = {pin.identity: pin.value for pin in node.inputs if hasattr(pin, "value")}
-            value_pin_values = {k: (uml.literal(v.value)
-                                    if not isinstance(v, uml.LiteralIdentified)
-                                    else uml.LiteralReference(value=v.value))
+            # Convert References to non Literals to LiteralIdentified
+            value_pin_values = {k: (uml.LiteralIdentified(value=v.value.lookup())
+                                     if isinstance(v.value, sbol3.refobj_property.ReferencedURI)
+                                     else v)
+                                for k, v in value_pin_values.items()}
+            # Make Reference to referenced values
+            value_pin_values = {k: (uml.LiteralReference(value=v.value.lookup())
+                                    if isinstance(v, uml.LiteralReference)
+                                    else uml.literal(v.value))
                                 for k, v in value_pin_values.items()}
             pin_values = input_pin_values | value_pin_values
             parameter_values = [paml.ParameterValue(parameter=node.pin_parameter(pin.name),
@@ -276,10 +292,6 @@ class ExecutionEngine(ABC):
 
         if isinstance(activity_node.node.lookup(), uml.ForkNode):
             [incoming_flow] = activity_node.incoming_flows
-            #if isinstance(incoming_flow.lookup().edge.lookup(), uml.ObjectFlow):
-            #    value = uml.literal(incoming_flow.lookup().value)
-            #else:
-            #    value = uml.LiteralString(self.next_variable()) # use same value for all edges
             incoming_value = incoming_flow.lookup().value
             value = incoming_value.value.lookup() \
                 if isinstance(incoming_value, uml.LiteralReference)\
@@ -289,9 +301,6 @@ class ExecutionEngine(ABC):
                            for edge in out_edges]
         elif isinstance(activity_node.node.lookup(), uml.ActivityParameterNode):
             [parameter_value] = [pv.value for pv in ex.parameter_values if pv.parameter == activity_node.node.lookup().parameter]
-            #parameter_value = uml.LiteralReference(value=parameter_value) \
-            #        if isinstance(parameter_value, sbol3.Identified) \
-            #        else uml.literal(parameter_value)
             edge_tokens = [paml.ActivityEdgeFlow(edge=edge, token_source=activity_node,
                                                  value=uml.LiteralReference(value=parameter_value))
                            for edge in out_edges]
