@@ -19,6 +19,10 @@ from paml_autoprotocol.behavior_specialization import BehaviorSpecialization
 from paml_autoprotocol.term_resolver import TermResolver
 from paml_autoprotocol.transcriptic_api import TranscripticAPI
 
+import logging
+
+l = logging.getLogger(__file__)
+l.setLevel(logging.ERROR)
 
 class AutoprotocolSpecialization(BehaviorSpecialization):
     def __init__(self, out_path, api: TranscripticAPI = None, resolutions: Dict[sbol3.Identified, str] = None) -> None:
@@ -67,15 +71,15 @@ class AutoprotocolSpecialization(BehaviorSpecialization):
 
         #[container] = self.api.make_containers([container_spec])
         tx = self.api.get_transcriptic_connection()
-        container_id = tx.inventory("96-flat test")['results'][0]['id']
+        container_id = tx.inventory("96-flat")['results'][0]['id']
         tx_container = transcriptic.Container(container_id)
         #container = self.protocol.ref(samples_var, cont_type=ctype.FLAT96, discard=True)
         container = self.protocol.ref(samples_var, id=tx_container.id, cont_type=tx_container.container_type, discard=True)
         self.var_to_entity[samples_var] = container
 
-        print(f"define_container:")
-        print(f" specification: {spec}")
-        print(f" samples: {samples_var}")
+        l.debug(f"define_container:")
+        l.debug(f" specification: {spec}")
+        l.debug(f" samples: {samples_var}")
 
 
         #spec_term = UnresolvedTerm(None, samples_var, spec)
@@ -96,10 +100,10 @@ class AutoprotocolSpecialization(BehaviorSpecialization):
         units = tyto.OM.get_term_by_uri(units)
         resource = parameter_value_map["resource"]["value"]
         resource = self.resolutions[resource]
-        print(f"provision_container:")
-        print(f" destination: {destination}")
-        print(f" amount: {value} {units}")
-        print(f" resource: {resource}")
+        l.debug(f"provision_container:")
+        l.debug(f" destination: {destination}")
+        l.debug(f" amount: {value} {units}")
+        l.debug(f" resource: {resource}")
         [step] = self.protocol.provision(
             resource,
             dest_wells,
@@ -120,9 +124,9 @@ class AutoprotocolSpecialization(BehaviorSpecialization):
         wells = pc.coordinate_rect_to_well_group(container, coords)
 
         self.var_to_entity[parameter_value_map['samples']["value"]] = wells
-        print(f"plate_coordinates:")
-        print(f"  source: {source}")
-        print(f"  coordinates: {coords}")
+        l.debug(f"plate_coordinates:")
+        l.debug(f"  source: {source}")
+        l.debug(f"  coordinates: {coords}")
         #results[outputs['samples']] = ('samples', pc.coordinate_rect_to_well_group(source, coords))
         return results
 
@@ -139,10 +143,10 @@ class AutoprotocolSpecialization(BehaviorSpecialization):
         # HACK extract contrainer from well group since we do not have it as input
         container = wells[0].container
         
-        print(f"measure_absorbance:")
-        print(f"  container: {container}")
-        print(f"  samples: {samples}")
-        print(f"  wavelength: {wl.value} {wl_units}")
+        l.debug(f"measure_absorbance:")
+        l.debug(f"  container: {container}")
+        l.debug(f"  samples: {samples}")
+        l.debug(f"  wavelength: {wl.value} {wl_units}")
 
         self.protocol.spectrophotometry(
             dataref="measure_absorbance",
