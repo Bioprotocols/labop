@@ -1,4 +1,7 @@
 import os
+
+import pytest
+
 import paml
 import sbol3
 import tyto
@@ -13,6 +16,7 @@ from paml_convert.markdown.markdown_specialization import MarkdownSpecialization
 
 
 class TestConvert(unittest.TestCase):
+    @pytest.mark.skip(reason="need to put tx_secrets.json credentials on github first")
     def test_ludox(self):
         out_dir = "."
 
