@@ -7,8 +7,8 @@ import paml
 import uml
 from paml_convert.behavior_specialization import BehaviorSpecialization
 from paml_convert.markdown import MarkdownConverter
-from paml_convert.markdown.markdown_primitives import spectrophotometry_absorbance_to_markdown
-from paml_convert.markdown.protocol_to_markdown import markdown_input
+
+from container_api.client_api import matching_containers, strateos_id
 
 l = logging.getLogger(__file__)
 l.setLevel(logging.ERROR)
@@ -52,7 +52,7 @@ class MarkdownSpecialization(BehaviorSpecialization):
         for i in parameter_values:
             parameter = i.parameter.lookup()
             if parameter.direction == uml.PARAMETER_OUT:
-                markdown += self._parameter_value_markdown(i)
+                markdown += self._parameter_value_markdown(i, True)
         return markdown
 
     def _materials_markdown(self, protocol):
@@ -61,15 +61,18 @@ class MarkdownSpecialization(BehaviorSpecialization):
         materials = {x.name: x for x in components}
         markdown = '\n\n## Protocol Materials:\n'
         for name, material  in materials.items():
-            markdown += f"* [{name}]({material.identity})\n"
+            markdown += f"* [{name}]({material.types[0]})\n"
         return markdown
 
-    def _parameter_value_markdown(self, pv : paml.ParameterValue):
+    def _parameter_value_markdown(self, pv : paml.ParameterValue, is_output=False):
         parameter = pv.parameter.lookup()
         value = pv.value.lookup().value if isinstance(pv.value, uml.LiteralReference) else pv.value.value
         units = tyto.OM.get_term_by_uri(value.unit) if isinstance(value, sbol3.om_unit.Measure) else None
         value = str(f"{value.value} {units}")  if units else str(value)
-        return f"* [{parameter.name}]({parameter.identity}): {value}"
+        if is_output:
+            return f"* `{parameter.name}`"
+        else:
+            return f"* `{parameter.name}` = {value}"
 
     def _steps_markdown(self):
         markdown = '\n\n## Steps\n'
@@ -88,10 +91,11 @@ class MarkdownSpecialization(BehaviorSpecialization):
         output_parameters = []
         for i in self.execution.parameter_values:
             parameter = i.parameter.lookup()
+            value = i.value.value
             if parameter.direction == uml.PARAMETER_OUT:
-                output_parameters.append(f"[{parameter.name}]({parameter.identity})")
+                output_parameters.append(f"`{parameter.name}` from `{value}`")
         output_parameters = ", ".join(output_parameters)
-        return f"Report values from {output_parameters} "
+        return f"Report values for {output_parameters}."
 
     def define_container(self, record: paml.ActivityNodeExecution):
         results = {}
@@ -106,6 +110,11 @@ class MarkdownSpecialization(BehaviorSpecialization):
         l.debug(f"define_container:")
         l.debug(f" specification: {spec}")
         l.debug(f" samples: {samples_var}")
+
+        possible_container_types = matching_containers(spec)
+        containers_str = ",".join([f"\n\t[{c.split('#')[1]}]({c})" for c in possible_container_types])
+
+        self.markdown_steps += [f"Provision a container named `{samples_var.name}` such as: {containers_str}."]
 
         return results
 
@@ -127,7 +136,9 @@ class MarkdownSpecialization(BehaviorSpecialization):
         l.debug(f" amount: {value} {units}")
         l.debug(f" resource: {resource}")
 
-        self.markdown_steps += [f"Pipette {value} {units} of {resource} into {destination}"]
+        resource_str = f"[{resource.name}]({resource.types[0]})"
+        destination_str = f"`{destination.source.lookup().value.lookup().value.name}({destination.mask})`"
+        self.markdown_steps += [f"Pipette {value} {units} of {resource_str} into {destination_str}."]
 
 
         return results
@@ -157,6 +168,7 @@ class MarkdownSpecialization(BehaviorSpecialization):
         wl_units = tyto.OM.get_term_by_uri(wl.unit)
         samples = parameter_value_map["samples"]["value"]
         #wells = self.var_to_entity[samples]
+        measurements = parameter_value_map["measurements"]["value"]
 
         # HACK extract contrainer from well group since we do not have it as input
         container = None #wells[0].container
@@ -168,4 +180,5 @@ class MarkdownSpecialization(BehaviorSpecialization):
 
         # Add to markdown
 
-        self.markdown_steps += [f'Measure absorbance of {samples} at {wl.value} {wl_units}\n']
+        samples_str = f"`{samples.source.lookup().value.lookup().value.name}({samples.mask})`"
+        self.markdown_steps += [f'Make absorbance measurements (named `{measurements}`) of {samples_str} at {wl.value} {wl_units}.']

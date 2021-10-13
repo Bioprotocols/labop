@@ -42,6 +42,7 @@ class AutoprotocolSpecialization(BehaviorSpecialization):
         }
     
     def on_begin(self):
+        protocol_name = self.execution.protocol.lookup().name
         self.protocol = Protocol()
 
     def on_end(self):
@@ -67,7 +68,7 @@ class AutoprotocolSpecialization(BehaviorSpecialization):
         #container_id = "ct1g9q3bndujat5"
         tx = self.api.get_transcriptic_connection() # Make sure that connection is alive for making the container object
         tx_container = transcriptic.Container(container_id)
-        container = self.protocol.ref(samples_var, id=tx_container.id, cont_type=tx_container.container_type, discard=True)
+        container = self.protocol.ref(samples_var.name, id=tx_container.id, cont_type=tx_container.container_type, discard=True)
         self.var_to_entity[samples_var] = container
 
         l.debug(f"define_container:")
@@ -95,7 +96,7 @@ class AutoprotocolSpecialization(BehaviorSpecialization):
             '96-flat-clear-clear-tc' : "96-flat"
         }
         mapped_names = [name_map[x] for x in matching_short_names]
-        return mapped_names[0] # FIXME need some error handling here
+        #return matching_short_names[0] # FIXME need some error handling here
 
     def create_new_container(self, name, container_type):
         container_spec = {

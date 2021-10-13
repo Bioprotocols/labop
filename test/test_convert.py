@@ -37,7 +37,8 @@ class TestConvert(unittest.TestCase):
         api = TranscripticAPI(cfg=TranscripticConfig.from_file(secrets_file))
         resolutions = {
             doc.find("https://bbn.com/scratch/LUDOX"): "rs1b6z2vgatkq7",
-            doc.find("https://bbn.com/scratch/ddH2O"): "rs1c7pg8qs22dt"
+            doc.find("https://bbn.com/scratch/ddH2O"): "rs1c7pg8qs22dt",
+            "container_id": "ct1g9qsg4wx6gcj"
         }
         autoprotocol_specialization = AutoprotocolSpecialization(autoprotocol_output, api, resolutions)
 

@@ -322,14 +322,18 @@ class ExecutionEngine(ABC):
             ex.parameter_values.extend(possible_output_parameter_values)
         return edge_tokens
 
-    def get_value(self, node : uml.ActivityNode, edge: uml.ActivityEdge = None):
+    def get_value(self, activity_node : paml.CallBehaviorExecution, edge: uml.ActivityEdge = None):
         value = ""
         if isinstance(edge, uml.ControlFlow):
             value = "uml.ControlFlow"
         elif isinstance(edge, uml.ObjectFlow):
-            value = self.next_variable()
+            parameter = activity_node.node.lookup().pin_parameter(edge.source.lookup().name)
+            value = activity_node.compute_output(parameter)
 
-        return uml.LiteralString(value=value)
+        value = uml.literal(value)
+
+
+        return value
 
     def next_pin_tokens(self, activity_node: paml.ActivityNodeExecution, ex: paml.ProtocolExecution):
         assert len(activity_node.incoming_flows) == 1 # One input per pin
