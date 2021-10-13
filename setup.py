@@ -15,7 +15,9 @@ setup(name='paml',
             'graphviz',
             'tyto',
             'numpy',
-            'openpyxl'
+            'openpyxl',
+            'autoprotocol',
+            'transcriptic'
       ],
       packages=['paml', 'paml_convert', 'paml.lib', 'paml_time', 'uml'],
       package_data={'paml': ['paml.ttl', 'lib/*.ttl'],
