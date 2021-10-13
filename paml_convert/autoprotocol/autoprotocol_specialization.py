@@ -60,8 +60,8 @@ class AutoprotocolSpecialization(BehaviorSpecialization):
             container_id = self.resolutions["container_id"]
         else:
             container_type = self.get_container_type_from_spec(spec)
-            container_name = f"{self.execution.protocol.name} Container {samples_var}"
-            [container_id] = self.create_new_container(container_name, container_type)
+            container_name = f"{self.execution.protocol.lookup().name} Container {samples_var}"
+            container_id = self.create_new_container(container_name, container_type)
 
         #container_id = tx.inventory("flat test")['results'][1]['id']
         #container_id = "ct1g9q3bndujat5"
@@ -90,7 +90,12 @@ class AutoprotocolSpecialization(BehaviorSpecialization):
         possible_short_names = [strateos_id(x) for x in possible_container_types]
 
         matching_short_names = [x for x in short_names if x in possible_short_names]
-        return matching_short_names[0] # FIXME need some error handling here
+        name_map = {
+            '96-ubottom-clear-tc' : "96-flat",
+            '96-flat-clear-clear-tc' : "96-flat"
+        }
+        mapped_names = [name_map[x] for x in matching_short_names]
+        return mapped_names[0] # FIXME need some error handling here
 
     def create_new_container(self, name, container_type):
         container_spec = {
@@ -104,11 +109,12 @@ class AutoprotocolSpecialization(BehaviorSpecialization):
                     }
                 ]
             }
-        [container] = self.api.make_containers([container_spec])
+        container_ids = self.api.make_containers([container_spec])
+        container_id = container_ids[name]
         #tx = self.api.get_transcriptic_connection()
         #container_id = tx.inventory("flat test")['results'][1]['id']
         #container_id = "ct1g9q3bndujat5"
-        return container
+        return container_id
 
     # def provision_container(self, wells: WellGroup, amounts = None, volumes = None, informatics = None) -> Provision:
     def provision_container(self, record: paml.ActivityNodeExecution) -> Provision:

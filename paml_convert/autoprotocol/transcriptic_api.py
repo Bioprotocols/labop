@@ -9,6 +9,11 @@ import requests
 from requests_html import HTMLSession
 
 
+import logging
+
+l = logging.getLogger(__file__)
+l.setLevel(logging.ERROR)
+
 class TranscripticException(Exception):
     pass
 
@@ -136,7 +141,7 @@ class TranscripticAPI():
         Get all protocols
         """
         (url, headers) = self._build_query_protocols()
-        #print(headers)
+        #l.debug(headers)
         response = requests.get(url, headers=headers)
         return json.loads(response.content)
 
@@ -149,7 +154,10 @@ class TranscripticAPI():
         }
         # TODO verify this request then enable sending
         response = self.submit_to_transcriptic(self._protocol_make_containers, params, title)
-        return response
+
+        container_ids = {x['name'] : x['container_id'] for x in response['refs']}
+
+        return container_ids
 
     def get_transcriptic_connection(self):
         """Connect (without validation) to Transcriptic.com"""
@@ -229,11 +237,11 @@ class TranscripticAPI():
     def __submit_launch_request(self, conn, launch_request_id, protocol_id=None,
                                 project_id=None, title=None, test_mode=True):
         try:
-            print("Launching: launch_request_id = " + launch_request_id)
-            print("Launching: protocol_id = " + protocol_id)
-            print("Launching: project_id = " + project_id)
-            print("Launching: title = " + title)
-            print("Launching: test_mode = " + str(test_mode))
+            l.debug("Launching: launch_request_id = " + launch_request_id)
+            l.debug("Launching: protocol_id = " + protocol_id)
+            l.debug("Launching: project_id = " + project_id)
+            l.debug("Launching: title = " + title)
+            l.debug("Launching: test_mode = " + str(test_mode))
             lr = conn.submit_launch_request(launch_request_id,
                                             protocol_id=protocol_id,
                                             project_id=project_id,
@@ -254,7 +262,7 @@ class TranscripticAPI():
                 properties = [x.attrs for x in response.html.find('meta') if "property" in x.attrs]
                 [title] = [x['content'] for x in properties if x['property'] == "og:title"]
             except requests.exceptions.RequestException as e:
-                print(e)
+                l.debug(e)
 
         conn = self.get_transcriptic_connection()
         results = conn.resources(resource)['results']
