@@ -36,6 +36,7 @@ class MarkdownSpecialization(BehaviorSpecialization):
             protocol = self.execution.protocol.lookup()
             self.markdown_converter = MarkdownConverter(protocol.document)
             self.markdown += self.markdown_converter.markdown_header(protocol)
+            self.markdown += self._materials_markdown(protocol)
             self.markdown += self._inputs_markdown(self.execution.parameter_values)
 
     def _inputs_markdown(self, parameter_values):
@@ -54,11 +55,21 @@ class MarkdownSpecialization(BehaviorSpecialization):
                 markdown += self._parameter_value_markdown(i)
         return markdown
 
+    def _materials_markdown(self, protocol):
+        document_objects = protocol.document.objects
+        components = [x for x in protocol.document.objects if isinstance(x, sbol3.component.Component)]
+        materials = {x.name: x for x in components}
+        markdown = '\n\n## Protocol Materials:\n'
+        for name, material  in materials.items():
+            markdown += f"* [{name}]({material.identity})\n"
+        return markdown
+
     def _parameter_value_markdown(self, pv : paml.ParameterValue):
         parameter = pv.parameter.lookup()
         value = pv.value.lookup().value if isinstance(pv.value, uml.LiteralReference) else pv.value.value
-        value = str(f"{value.value} ({value.unit})") if isinstance(value, sbol3.om_unit.Measure) else str(value)
-        return "* " + parameter.name + " = " + value
+        units = tyto.OM.get_term_by_uri(value.unit) if isinstance(value, sbol3.om_unit.Measure) else None
+        value = str(f"{value.value} {units}")  if units else str(value)
+        return f"* [{parameter.name}]({parameter.identity}): {value}"
 
     def _steps_markdown(self):
         markdown = '\n\n## Steps\n'
@@ -68,9 +79,19 @@ class MarkdownSpecialization(BehaviorSpecialization):
 
     def on_end(self):
         self.markdown += self._outputs_markdown(self.execution.parameter_values)
+        self.markdown_steps += [self.reporting_step()]
         self.markdown += self._steps_markdown()
         with open(self.out_path, "w") as f:
             f.write(self.markdown)
+
+    def reporting_step(self):
+        output_parameters = []
+        for i in self.execution.parameter_values:
+            parameter = i.parameter.lookup()
+            if parameter.direction == uml.PARAMETER_OUT:
+                output_parameters.append(f"[{parameter.name}]({parameter.identity})")
+        output_parameters = ", ".join(output_parameters)
+        return f"Report values from {output_parameters} "
 
     def define_container(self, record: paml.ActivityNodeExecution):
         results = {}
@@ -105,6 +126,8 @@ class MarkdownSpecialization(BehaviorSpecialization):
         l.debug(f" destination: {destination}")
         l.debug(f" amount: {value} {units}")
         l.debug(f" resource: {resource}")
+
+        self.markdown_steps += [f"Pipette {value} {units} of {resource} into {destination}"]
 
 
         return results
@@ -145,4 +168,4 @@ class MarkdownSpecialization(BehaviorSpecialization):
 
         # Add to markdown
 
-        self.markdown_steps += spectrophotometry_absorbance_to_markdown(record.node.lookup(), self.markdown_converter)
+        self.markdown_steps += [f'Measure absorbance of {samples} at {wl.value} {wl_units}\n']
