@@ -19,7 +19,7 @@ setup(name='paml',
             'autoprotocol',
             'transcriptic'
       ],
-      packages=['paml', 'paml_convert', 'paml.lib', 'paml_time', 'uml'],
+      packages=['paml', 'paml_convert', 'paml_convert.autoprotocol', 'paml_convert.markdown', 'paml.lib', 'paml_time', 'uml'],
       package_data={'paml': ['paml.ttl', 'lib/*.ttl'],
                     'paml_convert': ['markdown/template.xlsx'],
                     'uml': ['uml.ttl'],
