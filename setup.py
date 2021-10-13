@@ -1,4 +1,7 @@
 from setuptools import setup
+import sys
+import os
+import subprocess
 
 setup(name='paml',
       description='Protocol Activity Modeling Language',
@@ -27,3 +30,10 @@ setup(name='paml',
                     'paml_time': ['paml_time.ttl']},
       include_package_data=True,
 )
+
+
+
+def pip_install(url):
+    subprocess.check_output([sys.executable, '-m', 'pip', 'install', url])
+
+pip_install("git+https://github.com/rpgoldman/container-ontology.git@client-package")
