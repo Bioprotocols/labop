@@ -96,6 +96,7 @@ class AutoprotocolSpecialization(BehaviorSpecialization):
             '96-flat-clear-clear-tc' : "96-flat"
         }
         mapped_names = [name_map[x] for x in matching_short_names]
+        return mapped_names[0]
         #return matching_short_names[0] # FIXME need some error handling here
 
     def create_new_container(self, name, container_type):
@@ -169,6 +170,7 @@ class AutoprotocolSpecialization(BehaviorSpecialization):
         wl_units = tyto.OM.get_term_by_uri(wl.unit)
         samples = parameter_value_map["samples"]["value"]
         wells = self.var_to_entity[samples]
+        measurements = parameter_value_map["measurements"]["value"]
 
         # HACK extract contrainer from well group since we do not have it as input
         container = wells[0].container
@@ -179,7 +181,7 @@ class AutoprotocolSpecialization(BehaviorSpecialization):
         l.debug(f"  wavelength: {wl.value} {wl_units}")
 
         self.protocol.spectrophotometry(
-            dataref="measure_absorbance",
+            dataref=measurements,
             obj=container,
             groups=Spectrophotometry.builders.groups([
                 Spectrophotometry.builders.group(
