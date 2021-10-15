@@ -6,7 +6,7 @@ import subprocess
 def pip_install(url):
     subprocess.check_output([sys.executable, '-m', 'pip', 'install', url])
 
-pip_install("git+https://github.com/rpgoldman/container-ontology.git@client-package")
+#pip_install("git+https://github.com/rpgoldman/container-ontology.git")
 
 
 setup(name='paml',
@@ -27,14 +27,16 @@ setup(name='paml',
             'openpyxl',
             'autoprotocol',
             'transcriptic',
-            'requests_html'
+            'requests_html',
+            "container-ontology @ https://github.com/rpgoldman/container-ontology/tarball/main"
       ],
       packages=['paml', 'paml_convert', 'paml_convert.autoprotocol', 'paml_convert.markdown', 'paml.lib', 'paml_time', 'uml'],
       package_data={'paml': ['paml.ttl', 'lib/*.ttl'],
                     'paml_convert': ['markdown/template.xlsx'],
                     'uml': ['uml.ttl'],
                     'paml_time': ['paml_time.ttl']},
-      include_package_data=True,
+
+      include_package_data=True
 )
 
 
