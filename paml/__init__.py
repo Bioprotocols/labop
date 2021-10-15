@@ -1,6 +1,7 @@
 import html
 import os
 import posixpath
+from typing import Dict
 
 import graphviz
 import tyto
@@ -157,7 +158,7 @@ def protocol_to_dot(self, legend=False):
         else:
             return pin.name
 
-    def _type_attrs(object: uml.ActivityNode) -> dict[str,str]:
+    def _type_attrs(object: uml.ActivityNode) -> Dict[str,str]:
         """Get an appropriate set of properties for rendering a GraphViz node.
         Note that while these try to stay close to UML, the limits of GraphViz make us deviate in some cases
 
