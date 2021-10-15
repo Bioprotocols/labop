@@ -1,0 +1,1200 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rdf:RDF
+   xmlns:owl="http://www.w3.org/2002/07/owl#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+>
+  <rdf:Description rdf:about="http://bioprotocols.org/uml#decisionInput">
+    <rdfs:label>decision_input</rdfs:label>
+    <rdfs:comment>A Behavior that is executed to provide an input to guard ValueSpecifications on ActivityEdges outgoing from the DecisionNode.</rdfs:comment>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+    <rdfs:range rdf:resource="http://bioprotocols.org/uml#Behavior"/>
+    <rdfs:domain rdf:resource="http://bioprotocols.org/uml#DecisionNode"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub10bL661C5">
+    <owl:minCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:minCardinality>
+    <owl:onProperty rdf:resource="http://bioprotocols.org/uml#source"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://bioprotocols.org/uml#DurationConstraint">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:subClassOf rdf:resource="http://bioprotocols.org/uml#IntervalConstraint"/>
+    <rdfs:subClassOf rdf:nodeID="ub10bL351C5"/>
+    <rdfs:comment>A DurationConstraint is a Constraint that refers to a DurationInterval.</rdfs:comment>
+    <rdfs:subClassOf rdf:nodeID="ub10bL349C5"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://bioprotocols.org/uml#propertyValue">
+    <rdfs:label>property_value</rdfs:label>
+    <rdfs:subPropertyOf rdf:resource="http://bioprotocols.org/opil/v1#compositionalProperty"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+    <rdfs:range rdf:resource="http://sbols.org/v3#Identified"/>
+    <rdfs:domain rdf:resource="http://bioprotocols.org/uml#OrderedPropertyValue"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub10bL624C9">
+    <owl:minCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:minCardinality>
+    <owl:onProperty rdf:resource="http://bioprotocols.org/uml#isUnique"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://bioprotocols.org/uml#realValue">
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#float"/>
+    <rdfs:label>value</rdfs:label>
+    <rdfs:domain rdf:resource="http://bioprotocols.org/uml#LiteralReal"/>
+    <rdfs:comment>The specified Real value.</rdfs:comment>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://bioprotocols.org/uml#postcondition">
+    <rdfs:comment>An optional set of Constraints specifying what is fulfilled after the execution of the Behavior is completed, if its precondition was fulfilled before its invocation.</rdfs:comment>
+    <rdfs:domain rdf:resource="http://bioprotocols.org/uml#Behavior"/>
+    <rdfs:subPropertyOf rdf:resource="http://bioprotocols.org/opil/v1#compositionalProperty"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+    <rdfs:label>postconditions</rdfs:label>
+    <rdfs:range rdf:resource="http://bioprotocols.org/uml#Constraint"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://bioprotocols.org/uml#input">
+    <rdfs:comment>The ordered set of InputPins representing the inputs to the Action.</rdfs:comment>
+    <rdfs:range rdf:resource="http://bioprotocols.org/uml#InputPin"/>
+    <rdfs:subPropertyOf rdf:resource="http://bioprotocols.org/opil/v1#compositionalProperty"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+    <rdfs:domain rdf:resource="http://bioprotocols.org/uml#Action"/>
+    <rdfs:label>inputs</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub10bL629C9">
+    <owl:onProperty rdf:resource="http://bioprotocols.org/uml#upperValue"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:maxCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:maxCardinality>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://bioprotocols.org/uml#FlowFinalNode">
+    <rdfs:subClassOf rdf:resource="http://bioprotocols.org/uml#FinalNode"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:comment>A FlowFinalNode is a FinalNode that terminates a flow. All tokens accepted by a FlowFinalNode are destroyed. This has no effect on other flows in the Activity. See UML 2.5.1 specification section 15.3.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub10bL662C5">
+    <owl:onProperty rdf:resource="http://bioprotocols.org/uml#source"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:maxCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:maxCardinality>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub10bL550C9">
+    <owl:maxCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:maxCardinality>
+    <owl:onProperty rdf:resource="http://bioprotocols.org/uml#parameter"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://bioprotocols.org/uml#value">
+    <rdfs:comment>The ValueSpecification that is evaluated to obtain the value that the ValuePin will provide.</rdfs:comment>
+    <rdfs:domain rdf:resource="http://bioprotocols.org/uml#ValuePin"/>
+    <rdfs:label>value</rdfs:label>
+    <rdfs:subPropertyOf rdf:resource="http://bioprotocols.org/opil/v1#compositionalProperty"/>
+    <rdfs:range rdf:resource="http://bioprotocols.org/uml#ValueSpecification"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub10bL232C5">
+    <owl:minCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:minCardinality>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:allValuesFrom rdf:resource="http://bioprotocols.org/uml#OrderedPropertyValue"/>
+    <owl:onProperty rdf:resource="http://bioprotocols.org/uml#firstEventValue"/>
+    <owl:maxCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:maxCardinality>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub10bL459C5">
+    <owl:onProperty rdf:resource="http://bioprotocols.org/uml#node"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:allValuesFrom rdf:resource="http://bioprotocols.org/uml#ActivityNode"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub10bL439C5">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:allValuesFrom rdf:resource="http://www.w3.org/2001/XMLSchema#integer"/>
+    <owl:maxCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:maxCardinality>
+    <owl:minCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:minCardinality>
+    <owl:onProperty rdf:resource="http://bioprotocols.org/uml#indexValue"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://bioprotocols.org/uml#durationObservationValue">
+    <rdfs:label>event</rdfs:label>
+    <rdfs:comment>The DurationObservation is determined as the duration between the entering or exiting of a single event during execution, or the entering/exiting of one event and the entering/exiting of a second.</rdfs:comment>
+    <rdfs:domain rdf:resource="http://bioprotocols.org/uml#DurationObservation"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+    <rdfs:range rdf:resource="http://sbols.org/v3#Identified"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://bioprotocols.org/uml#symbolValue">
+    <rdfs:domain rdf:resource="http://bioprotocols.org/uml#Expression"/>
+    <rdfs:label>symbol</rdfs:label>
+    <rdfs:comment>The symbol associated with this node in the expression tree.</rdfs:comment>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#anyURI"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://bioprotocols.org/uml#Action">
+    <rdfs:comment>An Action is the fundamental unit of executable functionality. The execution of an Action represents some transformation or processing in the modeled system. Actions provide the ExecutableNodes within Activities and may also be used within Interactions. See UML 2.5.1 specification section 16.</rdfs:comment>
+    <rdfs:subClassOf rdf:nodeID="ub10bL570C5"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:subClassOf rdf:nodeID="ub10bL569C5"/>
+    <rdfs:subClassOf rdf:resource="http://bioprotocols.org/uml#ExecutableNode"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://bioprotocols.org/uml#Parameter">
+    <rdfs:subClassOf rdf:nodeID="ub10bL376C5"/>
+    <rdfs:subClassOf rdf:nodeID="ub10bL366C9"/>
+    <rdfs:subClassOf rdf:nodeID="ub10bL374C5"/>
+    <rdfs:subClassOf rdf:nodeID="ub10bL378C5"/>
+    <rdfs:subClassOf rdf:nodeID="ub10bL383C5"/>
+    <rdfs:comment>A Parameter is a specification of an argument used to pass information into or out of an invocation of a Behavior. See UML 2.5.1 specification section 9.4.</rdfs:comment>
+    <rdfs:subClassOf rdf:nodeID="ub10bL380C5"/>
+    <rdfs:subClassOf rdf:nodeID="ub10bL377C5"/>
+    <rdfs:subClassOf rdf:nodeID="ub10bL373C5"/>
+    <rdfs:subClassOf rdf:resource="http://sbols.org/v3#Identified"/>
+    <rdfs:subClassOf rdf:nodeID="ub10bL369C9"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:subClassOf rdf:nodeID="ub10bL368C9"/>
+    <rdfs:subClassOf rdf:nodeID="ub10bL375C5"/>
+    <rdfs:subClassOf rdf:nodeID="ub10bL382C5"/>
+    <rdfs:subClassOf rdf:nodeID="ub10bL384C5"/>
+    <rdfs:subClassOf rdf:nodeID="ub10bL367C9"/>
+    <rdfs:subClassOf rdf:nodeID="ub10bL370C9"/>
+    <rdfs:subClassOf rdf:nodeID="ub10bL381C5"/>
+    <rdfs:subClassOf rdf:nodeID="ub10bL379C5"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub10bL296C5">
+    <owl:minCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:minCardinality>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:maxCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:maxCardinality>
+    <owl:allValuesFrom rdf:resource="http://bioprotocols.org/uml#ValueSpecification"/>
+    <owl:onProperty rdf:resource="http://bioprotocols.org/uml#minDurationValue"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://bioprotocols.org/uml#ActivityNode">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:comment>ActivityNode is an abstract class for points in the flow of an Activity connected by ActivityEdges. See UML 2.5.1 specification section 15.2.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="http://sbols.org/v3#Identified"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub10bL198C5">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:allValuesFrom rdf:resource="http://bioprotocols.org/uml#ValueSpecification"/>
+    <owl:minCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">0</owl:minCardinality>
+    <owl:onProperty rdf:resource="http://bioprotocols.org/uml#exprValue"/>
+    <owl:maxCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:maxCardinality>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub10bL98C5">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:allValuesFrom rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    <owl:onProperty rdf:resource="http://bioprotocols.org/uml#stringValue"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub10bL405C5">
+    <owl:onProperty rdf:resource="http://bioprotocols.org/uml#precondition"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:allValuesFrom rdf:resource="http://bioprotocols.org/uml#Constraint"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub10bL111C9">
+    <owl:allValuesFrom rdf:resource="http://www.w3.org/2001/XMLSchema#integer"/>
+    <owl:onProperty rdf:resource="http://bioprotocols.org/uml#integerValue"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://bioprotocols.org/uml#Constraint">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:subClassOf rdf:nodeID="ub10bL319C9"/>
+    <rdfs:comment>A Constraint is a condition or restriction expressed in natural language text or in a machine readable language. See UML 2.5.1 specification section 7.6.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="http://sbols.org/v3#Identified"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://bioprotocols.org/uml#ActivityParameterNode">
+    <rdfs:subClassOf rdf:nodeID="ub10bL548C9"/>
+    <rdfs:subClassOf rdf:nodeID="ub10bL549C9"/>
+    <rdfs:subClassOf rdf:resource="http://bioprotocols.org/uml#ObjectNode"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:subClassOf rdf:nodeID="ub10bL550C9"/>
+    <rdfs:comment>An ActivityParameterNode is an ObjectNode for accepting values from the input Parameters or providing values to the output Parameters of an Activity. UML 2.5.1 specification section 15.4.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub10bL276C5">
+    <owl:onProperty rdf:resource="http://bioprotocols.org/uml#maxTimeValue"/>
+    <owl:allValuesFrom rdf:resource="http://bioprotocols.org/uml#ValueSpecification"/>
+    <owl:maxCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:maxCardinality>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:minCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:minCardinality>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://bioprotocols.org/uml#upperValue">
+    <rdfs:range rdf:resource="http://bioprotocols.org/uml#ValueSpecification"/>
+    <rdfs:subPropertyOf rdf:resource="http://bioprotocols.org/opil/v1#compositionalProperty"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+    <rdfs:label>upper_value</rdfs:label>
+    <rdfs:domain rdf:resource="http://sbols.org/v3#Identified"/>
+    <rdfs:comment>For MultiplicityElement abstract class; UML 2.5.1 specification section 7.5</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub10bL406C5">
+    <owl:onProperty rdf:resource="http://bioprotocols.org/uml#postcondition"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:allValuesFrom rdf:resource="http://bioprotocols.org/uml#Constraint"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://bioprotocols.org/uml#firstEventValue">
+    <rdfs:label>firstEvent</rdfs:label>
+    <rdfs:domain rdf:resource="http://bioprotocols.org/uml#TimeObservation"/>
+    <rdfs:domain rdf:resource="http://bioprotocols.org/uml#TimeConstraint"/>
+    <rdfs:domain rdf:resource="http://bioprotocols.org/uml#DurationConstraint"/>
+    <rdfs:range rdf:resource="http://bioprotocols.org/uml#OrderedPropertyValue"/>
+    <rdfs:comment>The value of firstEvent[i] is related to event[i] (where i is 1 or 2). If firstEvent[i] is true, then the correspondingobservation event is the first time instant the execution enters event[i]. If firstEvent[i] is false, then the corresponding observation event is the time instant the execution exits event[i].</rdfs:comment>
+    <rdfs:subPropertyOf rdf:resource="http://bioprotocols.org/opil/v1#compositionalProperty"/>
+    <rdfs:domain rdf:resource="http://bioprotocols.org/uml#DurationObservation"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub10bL541C9">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:allValuesFrom rdf:resource="http://www.w3.org/2001/XMLSchema#anyURI"/>
+    <owl:onProperty rdf:resource="http://bioprotocols.org/uml#type"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub10bL441C5">
+    <owl:maxCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:maxCardinality>
+    <owl:allValuesFrom rdf:resource="http://sbols.org/v3#Identified"/>
+    <owl:onProperty rdf:resource="http://bioprotocols.org/uml#propertyValue"/>
+    <owl:minCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:minCardinality>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://bioprotocols.org/uml#LiteralInteger">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:subClassOf rdf:nodeID="ub10bL111C9"/>
+    <rdfs:subClassOf rdf:resource="http://bioprotocols.org/uml#LiteralSpecification"/>
+    <rdfs:subClassOf rdf:nodeID="ub10bL112C9"/>
+    <rdfs:comment>A LiteralInteger is a specification of an Integer value. See UML 2.5.1 specification section 8.2.</rdfs:comment>
+    <rdfs:subClassOf rdf:nodeID="ub10bL113C9"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://bioprotocols.org/uml#minTimeValue">
+    <rdfs:comment>Refers to the TimeExpression denoting the minimum value of the range.</rdfs:comment>
+    <rdfs:range rdf:resource="http://bioprotocols.org/uml#TimeExpression"/>
+    <rdfs:label>min</rdfs:label>
+    <rdfs:subPropertyOf rdf:resource="http://bioprotocols.org/opil/v1#compositionalProperty"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+    <rdfs:domain rdf:resource="http://bioprotocols.org/uml#TimeInterval"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://bioprotocols.org/uml#referenceValue">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+    <rdfs:range rdf:resource="http://sbols.org/v3#Identified"/>
+    <rdfs:label>value</rdfs:label>
+    <rdfs:domain rdf:resource="http://bioprotocols.org/uml#LiteralReference"/>
+    <rdfs:comment>The referenced SBOL object.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://bioprotocols.org/uml#operandValue">
+    <rdfs:subPropertyOf rdf:resource="http://bioprotocols.org/opil/v1#compositionalProperty"/>
+    <rdfs:range rdf:resource="http://bioprotocols.org/uml#OrderedPropertyValue"/>
+    <rdfs:comment>Specifies a sequence of operand ValueSpecifications.</rdfs:comment>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+    <rdfs:domain rdf:resource="http://bioprotocols.org/uml#Expression"/>
+    <rdfs:label>operand</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub10bL164C5">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:onProperty rdf:resource="http://bioprotocols.org/uml#referenceValue"/>
+    <owl:allValuesFrom rdf:resource="http://sbols.org/v3#Identified"/>
+    <owl:minCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:minCardinality>
+    <owl:maxCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:maxCardinality>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub10bL298C5">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:allValuesFrom rdf:resource="http://bioprotocols.org/uml#ValueSpecification"/>
+    <owl:minCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:minCardinality>
+    <owl:maxCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:maxCardinality>
+    <owl:onProperty rdf:resource="http://bioprotocols.org/uml#maxDurationValue"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://bioprotocols.org/uml#parameter">
+    <rdfs:domain rdf:resource="http://bioprotocols.org/uml#ActivityParameterNode"/>
+    <rdfs:label>parameter</rdfs:label>
+    <rdfs:range rdf:resource="http://bioprotocols.org/uml#Parameter"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+    <rdfs:comment>The Parameter for which the ActivityParameterNode will be accepting or providing values.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://bioprotocols.org/uml#isUnique">
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#boolean"/>
+    <rdfs:label>is_unique</rdfs:label>
+    <rdfs:domain rdf:resource="http://sbols.org/v3#Identified"/>
+    <rdfs:comment>For MultiplicityElement abstract class; UML 2.5.1 specification section 7.5</rdfs:comment>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://bioprotocols.org/uml#defaultValue">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+    <rdfs:domain rdf:resource="http://bioprotocols.org/uml#Parameter"/>
+    <rdfs:label>default_value</rdfs:label>
+    <rdfs:subPropertyOf rdf:resource="http://bioprotocols.org/opil/v1#compositionalProperty"/>
+    <rdfs:comment>A ValueSpecification that represents a value to be used when no argument is supplied for the Parameter.</rdfs:comment>
+    <rdfs:range rdf:resource="http://bioprotocols.org/uml#ValueSpecification"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://bioprotocols.org/uml#direction">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
+    <rdfs:label>direction</rdfs:label>
+    <rdfs:domain rdf:resource="http://bioprotocols.org/uml#Parameter"/>
+    <rdfs:comment>Indicates whether a parameter is being sent into or out of a behavioral element.</rdfs:comment>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#anyURI"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub10bL150C9">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:onProperty rdf:resource="http://bioprotocols.org/uml#identifiedValue"/>
+    <owl:allValuesFrom rdf:resource="http://sbols.org/v3#Identified"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub10bL570C5">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:onProperty rdf:resource="http://bioprotocols.org/uml#output"/>
+    <owl:allValuesFrom rdf:resource="http://bioprotocols.org/uml#OutputPin"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://bioprotocols.org/uml#behavior">
+    <rdfs:comment>The Behavior being invoked.</rdfs:comment>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+    <rdfs:range rdf:resource="http://bioprotocols.org/uml#Behavior"/>
+    <rdfs:label>behavior</rdfs:label>
+    <rdfs:domain rdf:resource="http://bioprotocols.org/uml#CallBehaviorAction"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub10bL274C5">
+    <owl:onProperty rdf:resource="http://bioprotocols.org/uml#minTimeValue"/>
+    <owl:maxCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:maxCardinality>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:minCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:minCardinality>
+    <owl:allValuesFrom rdf:resource="http://bioprotocols.org/uml#ValueSpecification"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub10bL351C5">
+    <owl:minCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">0</owl:minCardinality>
+    <owl:maxCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">2</owl:maxCardinality>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:allValuesFrom rdf:resource="http://bioprotocols.org/uml#OrderedPropertyValue"/>
+    <owl:onProperty rdf:resource="http://bioprotocols.org/uml#firstEventValue"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://bioprotocols.org/uml#OrderedPropertyValue">
+    <rdfs:subClassOf rdf:resource="http://sbols.org/v3#Identified"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:subClassOf rdf:nodeID="ub10bL439C5"/>
+    <rdfs:subClassOf rdf:nodeID="ub10bL441C5"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://bioprotocols.org/uml#ValuePin">
+    <rdfs:subClassOf rdf:nodeID="ub10bL640C5"/>
+    <rdfs:subClassOf rdf:resource="http://bioprotocols.org/uml#InputPin"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:comment>A ValuePin is an InputPin that provides a value by evaluating a ValueSpecification. See UML 2.5.1 specification section 16.2.</rdfs:comment>
+    <rdfs:subClassOf rdf:nodeID="ub10bL642C5"/>
+    <rdfs:subClassOf rdf:nodeID="ub10bL641C5"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub10bL176C5">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:onProperty rdf:resource="http://bioprotocols.org/uml#symbolValue"/>
+    <owl:minCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">0</owl:minCardinality>
+    <owl:allValuesFrom rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    <owl:maxCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:maxCardinality>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://bioprotocols.org/uml#TimeExpression">
+    <rdfs:subClassOf rdf:nodeID="ub10bL200C5"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:subClassOf rdf:resource="http://bioprotocols.org/uml#ValueSpecification"/>
+    <rdfs:subClassOf rdf:nodeID="ub10bL198C5"/>
+    <rdfs:comment>A TimeExpression is a ValueSpecification that represents a time value.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub10bL627C9">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:onProperty rdf:resource="http://bioprotocols.org/uml#lowerValue"/>
+    <owl:maxCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:maxCardinality>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://bioprotocols.org/uml#LiteralSpecification">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:subClassOf rdf:resource="http://bioprotocols.org/uml#ValueSpecification"/>
+    <rdfs:comment>A LiteralSpecification identifies a literal constant being modeled. See UML 2.5.1 specification section 8.2.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://bioprotocols.org/uml#exprValue">
+    <rdfs:domain rdf:resource="http://bioprotocols.org/uml#TimeExpression"/>
+    <rdfs:range rdf:resource="http://bioprotocols.org/uml#ValueSpecification"/>
+    <rdfs:subPropertyOf rdf:resource="http://bioprotocols.org/opil/v1#compositionalProperty"/>
+    <rdfs:comment>A ValueSpecification that evaluates to the value of the Duration.</rdfs:comment>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+    <rdfs:domain rdf:resource="http://bioprotocols.org/uml#Duration"/>
+    <rdfs:label>expr</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://bioprotocols.org/uml#ForkNode">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:subClassOf rdf:resource="http://bioprotocols.org/uml#ControlNode"/>
+    <rdfs:comment>A ForkNode is a ControlNode that splits a flow into multiple concurrent flows. A ForkNode shall have exactly one incoming ActivityEdge, though it may have multiple outgoing ActivityEdges. See UML 2.5.1 specification section 15.3.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub10bL83C20">
+    <owl:allValuesFrom rdf:resource="http://www.w3.org/2001/XMLSchema#anyURI"/>
+    <owl:onProperty rdf:resource="http://bioprotocols.org/uml#type"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub10bL205C5">
+    <owl:maxCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:maxCardinality>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:allValuesFrom rdf:resource="http://bioprotocols.org/uml#ValueSpecification"/>
+    <owl:minCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">0</owl:minCardinality>
+    <owl:onProperty rdf:resource="http://bioprotocols.org/uml#exprValue"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://bioprotocols.org/uml#minDurationValue">
+    <rdfs:domain rdf:resource="http://bioprotocols.org/uml#DurationInterval"/>
+    <rdfs:comment>Refers to the Duration denoting the minimum value of the range.</rdfs:comment>
+    <rdfs:label>min</rdfs:label>
+    <rdfs:subPropertyOf rdf:resource="http://bioprotocols.org/opil/v1#compositionalProperty"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+    <rdfs:range rdf:resource="http://bioprotocols.org/uml#Duration"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://bioprotocols.org/uml#Pin">
+    <rdfs:subClassOf rdf:nodeID="ub10bL621C9"/>
+    <rdfs:subClassOf rdf:nodeID="ub10bL622C9"/>
+    <rdfs:subClassOf rdf:nodeID="ub10bL624C9"/>
+    <rdfs:subClassOf rdf:nodeID="ub10bL625C9"/>
+    <rdfs:subClassOf rdf:nodeID="ub10bL620C14"/>
+    <rdfs:subClassOf rdf:nodeID="ub10bL626C9"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:subClassOf rdf:nodeID="ub10bL627C9"/>
+    <rdfs:subClassOf rdf:nodeID="ub10bL628C9"/>
+    <rdfs:subClassOf rdf:nodeID="ub10bL629C9"/>
+    <rdfs:subClassOf rdf:resource="http://bioprotocols.org/uml#ObjectNode"/>
+    <rdfs:comment>A Pin is an ObjectNode and MultiplicityElement that provides input values to an Action or accepts output values from an Action. See UML 2.5.1 specification section 16.2.</rdfs:comment>
+    <rdfs:subClassOf rdf:nodeID="ub10bL623C9"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://bioprotocols.org/uml#Interval">
+    <rdfs:comment>An Interval defines the range between two ValueSpecifications.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="http://bioprotocols.org/uml#ValueSpecification"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://bioprotocols.org/uml#Duration">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:subClassOf rdf:nodeID="ub10bL207C5"/>
+    <rdfs:subClassOf rdf:nodeID="ub10bL205C5"/>
+    <rdfs:comment>A Duration is a ValueSpecification that specifies the temporal distance between two time instants.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="http://bioprotocols.org/uml#ValueSpecification"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://bioprotocols.org/uml#CallBehaviorAction">
+    <rdfs:subClassOf rdf:nodeID="ub10bL607C9"/>
+    <rdfs:subClassOf rdf:nodeID="ub10bL606C9"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:comment>A CallBehaviorAction is a CallAction that invokes a Behavior directly. The argument values of the CallBehaviorAction are passed on the input Parameters of the invoked Behavior. UML 2.5.1 specification section 16.3</rdfs:comment>
+    <rdfs:subClassOf rdf:nodeID="ub10bL608C9"/>
+    <rdfs:subClassOf rdf:resource="http://bioprotocols.org/uml#CallAction"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://bioprotocols.org/uml#target">
+    <rdfs:comment>The ActivityNode to which tokens are put when they traverse the ActivityEdge.</rdfs:comment>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+    <rdfs:domain rdf:resource="http://bioprotocols.org/uml#ActivityEdge"/>
+    <rdfs:range rdf:resource="http://bioprotocols.org/uml#ActivityNode"/>
+    <rdfs:label>target</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://bioprotocols.org/uml#maxTimeValue">
+    <rdfs:subPropertyOf rdf:resource="http://bioprotocols.org/opil/v1#compositionalProperty"/>
+    <rdfs:comment>Refers to the TimeExpression denoting the maximum value of the range.</rdfs:comment>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+    <rdfs:domain rdf:resource="http://bioprotocols.org/uml#TimeInterval"/>
+    <rdfs:label>max</rdfs:label>
+    <rdfs:range rdf:resource="http://bioprotocols.org/uml#TimeExpression"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub10bL373C5">
+    <owl:onProperty rdf:resource="http://bioprotocols.org/uml#type"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:allValuesFrom rdf:resource="http://www.w3.org/2001/XMLSchema#anyURI"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub10bL100C5">
+    <owl:onProperty rdf:resource="http://bioprotocols.org/uml#stringValue"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:maxCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:maxCardinality>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://bioprotocols.org/uml#DecisionNode">
+    <rdfs:subClassOf rdf:nodeID="ub10bL518C5"/>
+    <rdfs:comment>A DecisionNode is a ControlNode that chooses between outgoing flows. A DecisionNode shall have at least one and at most two incoming ActivityEdges, and at least one outgoing ActivityEdge. See UML 2.5.1 specification section 15.3.</rdfs:comment>
+    <rdfs:subClassOf rdf:nodeID="ub10bL517C5"/>
+    <rdfs:subClassOf rdf:resource="http://bioprotocols.org/uml#ControlNode"/>
+    <rdfs:subClassOf rdf:nodeID="ub10bL520C5"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:subClassOf rdf:nodeID="ub10bL519C5"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://bioprotocols.org/uml#Activity">
+    <rdfs:subClassOf rdf:nodeID="ub10bL459C5"/>
+    <rdfs:comment>An Activity coordinates and groups steps in a protocol or workflow. See UML 2.5.1 specification section 15.</rdfs:comment>
+    <rdfs:subClassOf rdf:nodeID="ub10bL460C5"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:subClassOf rdf:resource="http://bioprotocols.org/uml#Behavior"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://bioprotocols.org/uml#InputPin">
+    <rdfs:comment>An InputPin is a Pin that holds input values to be consumed by an Action. See UML 2.5.1 specification section 16.2.</rdfs:comment>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:subClassOf rdf:resource="http://bioprotocols.org/uml#Pin"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub10bL380C5">
+    <owl:maxCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:maxCardinality>
+    <owl:onProperty rdf:resource="http://bioprotocols.org/uml#isUnique"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub10bL626C9">
+    <owl:allValuesFrom rdf:resource="http://bioprotocols.org/uml#ValueSpecification"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:onProperty rdf:resource="http://bioprotocols.org/uml#lowerValue"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub10bL377C5">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:onProperty rdf:resource="http://bioprotocols.org/uml#isOrdered"/>
+    <owl:maxCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:maxCardinality>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://bioprotocols.org/uml#precondition">
+    <rdfs:domain rdf:resource="http://bioprotocols.org/uml#Behavior"/>
+    <rdfs:label>preconditions</rdfs:label>
+    <rdfs:subPropertyOf rdf:resource="http://bioprotocols.org/opil/v1#compositionalProperty"/>
+    <rdfs:comment>An optional set of Constraints specifying what must be fulfilled before the Behavior is invoked.</rdfs:comment>
+    <rdfs:range rdf:resource="http://bioprotocols.org/uml#Constraint"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub10bL152C9">
+    <owl:onProperty rdf:resource="http://bioprotocols.org/uml#identifiedValue"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:maxCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:maxCardinality>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://bioprotocols.org/uml">
+    <owl:versionInfo>1.0-alpha1</owl:versionInfo>
+    <owl:imports rdf:resource="http://sbols.org/v3"/>
+    <owl:imports rdf:resource="http://www.ontology-of-units-of-measure.org/resource/om-2"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Ontology"/>
+    <rdfs:comment>Unified Modeling Languge (UML) subset, translated to an SBOL factory ontology.</rdfs:comment>
+    <owl:imports rdf:resource="http://bioprotocols.org/opil/v1"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://bioprotocols.org/uml#isOrdered">
+    <rdfs:comment>For MultiplicityElement abstract class; UML 2.5.1 specification section 7.5</rdfs:comment>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#boolean"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
+    <rdfs:domain rdf:resource="http://sbols.org/v3#Identified"/>
+    <rdfs:label>is_ordered</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub10bL207C5">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:onProperty rdf:resource="http://bioprotocols.org/uml#observationValue"/>
+    <owl:allValuesFrom rdf:resource="http://bioprotocols.org/uml#Observation"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://bioprotocols.org/uml#constrainedElement">
+    <rdfs:label>constrained_elements</rdfs:label>
+    <rdfs:comment>The OrderedPropertyValue referenced by this Constraint.</rdfs:comment>
+    <rdfs:domain rdf:resource="http://bioprotocols.org/uml#Constraint"/>
+    <rdfs:subPropertyOf rdf:resource="http://bioprotocols.org/opil/v1#compositionalProperty"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+    <rdfs:range rdf:resource="http://bioprotocols.org/uml#OrderedPropertyValue"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub10bL336C5">
+    <owl:onProperty rdf:resource="http://bioprotocols.org/uml#firstEventValue"/>
+    <owl:maxCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:maxCardinality>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:allValuesFrom rdf:resource="http://bioprotocols.org/uml#OrderedPropertyValue"/>
+    <owl:minCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">0</owl:minCardinality>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub10bL370C9">
+    <owl:onProperty rdf:resource="http://bioprotocols.org/uml#defaultValue"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:maxCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:maxCardinality>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub10bL622C9">
+    <owl:maxCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:maxCardinality>
+    <owl:onProperty rdf:resource="http://bioprotocols.org/uml#isOrdered"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://bioprotocols.org/uml#LiteralString">
+    <rdfs:subClassOf rdf:nodeID="ub10bL100C5"/>
+    <rdfs:subClassOf rdf:nodeID="ub10bL98C5"/>
+    <rdfs:subClassOf rdf:nodeID="ub10bL99C5"/>
+    <rdfs:subClassOf rdf:resource="http://bioprotocols.org/uml#LiteralSpecification"/>
+    <rdfs:comment>A LiteralSpecification identifies a literal constant being modeled. See UML 2.5.1 specification section 8.2.</rdfs:comment>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://bioprotocols.org/uml#CallAction">
+    <rdfs:subClassOf rdf:resource="http://bioprotocols.org/uml#InvocationAction"/>
+    <rdfs:comment>A CallAction is an abstract class for Actions that invoke a Behavior with given argument values and (if the invocation is synchronous) receive reply values. See UML 2.5.1 specification section 16.3.</rdfs:comment>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub10bL124C9">
+    <owl:onProperty rdf:resource="http://bioprotocols.org/uml#booleanValue"/>
+    <owl:allValuesFrom rdf:resource="http://www.w3.org/2001/XMLSchema#boolean"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub10bL180C5">
+    <owl:allValuesFrom rdf:resource="http://bioprotocols.org/uml#OrderedPropertyValue"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:onProperty rdf:resource="http://bioprotocols.org/uml#operandValue"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://bioprotocols.org/uml#ActivityEdge">
+    <rdfs:subClassOf rdf:resource="http://sbols.org/v3#Identified"/>
+    <rdfs:subClassOf rdf:nodeID="ub10bL661C5"/>
+    <rdfs:subClassOf rdf:nodeID="ub10bL663C5"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:subClassOf rdf:nodeID="ub10bL660C5"/>
+    <rdfs:subClassOf rdf:nodeID="ub10bL664C5"/>
+    <rdfs:subClassOf rdf:nodeID="ub10bL662C5"/>
+    <rdfs:comment>An ActivityEdge is an abstract class for directed connections between two ActivityNodes. See UML 2.5.1 specification section 15.2.</rdfs:comment>
+    <rdfs:subClassOf rdf:nodeID="ub10bL665C5"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://bioprotocols.org/uml#lowerValue">
+    <rdfs:comment>For MultiplicityElement abstract class; UML 2.5.1 specification section 7.5</rdfs:comment>
+    <rdfs:label>lower_value</rdfs:label>
+    <rdfs:subPropertyOf rdf:resource="http://bioprotocols.org/opil/v1#compositionalProperty"/>
+    <rdfs:range rdf:resource="http://bioprotocols.org/uml#ValueSpecification"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+    <rdfs:domain rdf:resource="http://sbols.org/v3#Identified"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub10bL382C5">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:onProperty rdf:resource="http://bioprotocols.org/uml#lowerValue"/>
+    <owl:maxCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:maxCardinality>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://bioprotocols.org/uml#ownedParameter">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+    <rdfs:comment> a list of Parameters to the Behavior which describes the order and type of arguments that can be given when the Behavior is invoked and of the values which will be returned when the Behavior completes its execution.</rdfs:comment>
+    <rdfs:range rdf:resource="http://bioprotocols.org/uml#OrderedPropertyValue"/>
+    <rdfs:domain rdf:resource="http://bioprotocols.org/uml#Behavior"/>
+    <rdfs:label>parameters</rdfs:label>
+    <rdfs:subPropertyOf rdf:resource="http://bioprotocols.org/opil/v1#compositionalProperty"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://bioprotocols.org/uml#decisionInputFlow">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+    <rdfs:label>decision_input_flow</rdfs:label>
+    <rdfs:range rdf:resource="http://bioprotocols.org/uml#ObjectFlow"/>
+    <rdfs:domain rdf:resource="http://bioprotocols.org/uml#DecisionNode"/>
+    <rdfs:comment>An additional ActivityEdge incoming to the DecisionNode that provides a decision input value for the guards ValueSpecifications on ActivityEdges outgoing from the DecisionNode.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://bioprotocols.org/uml#booleanValue">
+    <rdfs:domain rdf:resource="http://bioprotocols.org/uml#LiteralBoolean"/>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#boolean"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
+    <rdfs:label>value</rdfs:label>
+    <rdfs:comment>The specified Boolean value.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://bioprotocols.org/uml#edge">
+    <rdfs:subPropertyOf rdf:resource="http://bioprotocols.org/opil/v1#compositionalProperty"/>
+    <rdfs:label>edges</rdfs:label>
+    <rdfs:comment>ActivityEdges expressing flow between the nodes of the Activity.</rdfs:comment>
+    <rdfs:domain rdf:resource="http://bioprotocols.org/uml#Activity"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+    <rdfs:range rdf:resource="http://bioprotocols.org/uml#ActivityEdge"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub10bL369C9">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:onProperty rdf:resource="http://bioprotocols.org/uml#defaultValue"/>
+    <owl:allValuesFrom rdf:resource="http://bioprotocols.org/uml#ValueSpecification"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub10bL378C5">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:allValuesFrom rdf:resource="http://www.w3.org/2001/XMLSchema#boolean"/>
+    <owl:onProperty rdf:resource="http://bioprotocols.org/uml#isUnique"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub10bL240C5">
+    <owl:onProperty rdf:resource="http://bioprotocols.org/uml#firstEventValue"/>
+    <owl:minCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">0</owl:minCardinality>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:maxCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">2</owl:maxCardinality>
+    <owl:allValuesFrom rdf:resource="http://bioprotocols.org/uml#OrderedPropertyValue"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub10bL319C9">
+    <owl:onProperty rdf:resource="http://bioprotocols.org/uml#constrainedElement"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:allValuesFrom rdf:resource="http://bioprotocols.org/uml#OrderedPropertyValue"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://bioprotocols.org/uml#DurationInterval">
+    <rdfs:subClassOf rdf:nodeID="ub10bL298C5"/>
+    <rdfs:comment>A DurationInterval defines the range between two Durations.</rdfs:comment>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:subClassOf rdf:nodeID="ub10bL296C5"/>
+    <rdfs:subClassOf rdf:resource="http://bioprotocols.org/uml#Interval"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://bioprotocols.org/uml#TimeInterval">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:comment>A TimeInterval defines the range between two TimeExpressions.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="http://bioprotocols.org/uml#Interval"/>
+    <rdfs:subClassOf rdf:nodeID="ub10bL274C5"/>
+    <rdfs:subClassOf rdf:nodeID="ub10bL276C5"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub10bL606C9">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:onProperty rdf:resource="http://bioprotocols.org/uml#behavior"/>
+    <owl:allValuesFrom rdf:resource="http://bioprotocols.org/uml#Behavior"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub10bL518C5">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:onProperty rdf:resource="http://bioprotocols.org/uml#decisionInput"/>
+    <owl:maxCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:maxCardinality>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub10bL607C9">
+    <owl:minCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:minCardinality>
+    <owl:onProperty rdf:resource="http://bioprotocols.org/uml#behavior"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub10bL243C5">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:onProperty rdf:resource="http://bioprotocols.org/uml#durationObservationValue"/>
+    <owl:allValuesFrom rdf:resource="http://sbols.org/v3#Identified"/>
+    <owl:minCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:minCardinality>
+    <owl:maxCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">2</owl:maxCardinality>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://bioprotocols.org/uml#InvocationAction">
+    <rdfs:subClassOf rdf:resource="http://bioprotocols.org/uml#Action"/>
+    <rdfs:comment>UML 2.5.1 specification section 16.3</rdfs:comment>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub10bL384C5">
+    <owl:maxCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:maxCardinality>
+    <owl:onProperty rdf:resource="http://bioprotocols.org/uml#upperValue"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://bioprotocols.org/uml#LiteralReal">
+    <rdfs:subClassOf rdf:nodeID="ub10bL138C9"/>
+    <rdfs:subClassOf rdf:resource="http://bioprotocols.org/uml#LiteralSpecification"/>
+    <rdfs:comment>A LiteralReal is a specification of a Real value. See UML 2.5.1 specification section 8.2.</rdfs:comment>
+    <rdfs:subClassOf rdf:nodeID="ub10bL137C9"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:subClassOf rdf:nodeID="ub10bL139C9"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://bioprotocols.org/uml#timeObservationValue">
+    <rdfs:comment>The TimeObservation is determined by the entering or exiting of the event during execution.</rdfs:comment>
+    <rdfs:domain rdf:resource="http://bioprotocols.org/uml#TimeObservation"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+    <rdfs:range rdf:resource="http://sbols.org/v3#Identified"/>
+    <rdfs:label>event</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://bioprotocols.org/uml#output">
+    <rdfs:range rdf:resource="http://bioprotocols.org/uml#OutputPin"/>
+    <rdfs:comment>The ordered set of OutputPins representing outputs from the Action.</rdfs:comment>
+    <rdfs:subPropertyOf rdf:resource="http://bioprotocols.org/opil/v1#compositionalProperty"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+    <rdfs:label>outputs</rdfs:label>
+    <rdfs:domain rdf:resource="http://bioprotocols.org/uml#Action"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub10bL549C9">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:minCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:minCardinality>
+    <owl:onProperty rdf:resource="http://bioprotocols.org/uml#parameter"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub10bL569C5">
+    <owl:allValuesFrom rdf:resource="http://bioprotocols.org/uml#InputPin"/>
+    <owl:onProperty rdf:resource="http://bioprotocols.org/uml#input"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub10bL349C5">
+    <owl:maxCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:maxCardinality>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:minCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:minCardinality>
+    <owl:onProperty rdf:resource="http://bioprotocols.org/uml#durationSpecification"/>
+    <owl:onClass rdf:resource="http://bioprotocols.org/uml#DurationInterval"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.w3.org/2001/XMLSchema#anySimpleType">
+    <rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Datatype"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub10bL368C9">
+    <owl:maxCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:maxCardinality>
+    <owl:onProperty rdf:resource="http://bioprotocols.org/uml#direction"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub10bL375C5">
+    <owl:onProperty rdf:resource="http://bioprotocols.org/uml#isOrdered"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:allValuesFrom rdf:resource="http://www.w3.org/2001/XMLSchema#boolean"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub10bL200C5">
+    <owl:allValuesFrom rdf:resource="http://bioprotocols.org/uml#Observation"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:onProperty rdf:resource="http://bioprotocols.org/uml#observationValue"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://bioprotocols.org/uml#JoinNode">
+    <rdfs:subClassOf rdf:resource="http://bioprotocols.org/uml#ControlNode"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:comment>A JoinNode is a ControlNode that synchronizes multiple flows. A JoinNode shall have exactly one outgoing ActivityEdge but may have multiple incoming ActivityEdges. See UML 2.5.1 specification section 15.3.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub10bL139C9">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:onProperty rdf:resource="http://bioprotocols.org/uml#realValue"/>
+    <owl:maxCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:maxCardinality>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub10bL664C5">
+    <owl:onProperty rdf:resource="http://bioprotocols.org/uml#target"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:minCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:minCardinality>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub10bL178C5">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:onProperty rdf:resource="http://bioprotocols.org/uml#isOrdered"/>
+    <owl:allValuesFrom rdf:resource="http://www.w3.org/2001/XMLSchema#boolean"/>
+    <owl:maxCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:maxCardinality>
+    <owl:minCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:minCardinality>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://bioprotocols.org/uml#source">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+    <rdfs:label>source</rdfs:label>
+    <rdfs:comment>The ActivityNode from which tokens are taken when they traverse the ActivityEdge.</rdfs:comment>
+    <rdfs:domain rdf:resource="http://bioprotocols.org/uml#ActivityEdge"/>
+    <rdfs:range rdf:resource="http://bioprotocols.org/uml#ActivityNode"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://bioprotocols.org/uml#stringValue">
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    <rdfs:label>value</rdfs:label>
+    <rdfs:comment>The specified String value.</rdfs:comment>
+    <rdfs:domain rdf:resource="http://bioprotocols.org/uml#LiteralString"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub10bL520C5">
+    <owl:maxCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:maxCardinality>
+    <owl:onProperty rdf:resource="http://bioprotocols.org/uml#decisionInputFlow"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://bioprotocols.org/uml#MergeNode">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:comment>A MergeNode is a control node that brings together multiple flows without synchronization. A MergeNode shall have exactly one outgoing ActivityEdge but may have multiple incoming ActivityEdges. See UML 2.5.1 specification section 15.3.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="http://bioprotocols.org/uml#ControlNode"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub10bL620C14">
+    <owl:allValuesFrom rdf:resource="http://www.w3.org/2001/XMLSchema#boolean"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:onProperty rdf:resource="http://bioprotocols.org/uml#isOrdered"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://bioprotocols.org/uml#TimeConstraint">
+    <rdfs:comment>A TimeConstraint is a Constraint that refers to a TimeInterval.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="http://bioprotocols.org/uml#IntervalConstraint"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:subClassOf rdf:nodeID="ub10bL336C5"/>
+    <rdfs:subClassOf rdf:nodeID="ub10bL334C5"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://bioprotocols.org/uml#timeSpecification">
+    <rdfs:comment>TheTimeInterval constraining the duration.</rdfs:comment>
+    <rdfs:domain rdf:resource="http://bioprotocols.org/uml#TimeConstraint"/>
+    <rdfs:label>specification</rdfs:label>
+    <rdfs:range rdf:resource="http://bioprotocols.org/uml#TimeInterval"/>
+    <rdfs:subPropertyOf rdf:resource="http://bioprotocols.org/opil/v1#compositionalProperty"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub10bL367C9">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:minCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:minCardinality>
+    <owl:onProperty rdf:resource="http://bioprotocols.org/uml#direction"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://bioprotocols.org/uml#OutputPin">
+    <rdfs:subClassOf rdf:resource="http://bioprotocols.org/uml#Pin"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:comment>An OutputPin is a Pin that holds output values produced by an Action. See UML 2.5.1 specification section 16.2.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub10bL137C9">
+    <owl:onProperty rdf:resource="http://bioprotocols.org/uml#realValue"/>
+    <owl:allValuesFrom rdf:resource="http://www.w3.org/2001/XMLSchema#float"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub10bL99C5">
+    <owl:onProperty rdf:resource="http://bioprotocols.org/uml#stringValue"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:minCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:minCardinality>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://bioprotocols.org/uml#ValueSpecification">
+    <rdfs:subClassOf rdf:resource="http://sbols.org/v3#Identified"/>
+    <rdfs:subClassOf rdf:nodeID="ub10bL83C20"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:comment>A ValueSpecification is the specification of a (possibly empty) set of values. See UML 2.5.1 specification section 8.</rdfs:comment>
+    <rdfs:subClassOf rdf:nodeID="ub10bL84C20"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://bioprotocols.org/uml#integerValue">
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#integer"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
+    <rdfs:label>value</rdfs:label>
+    <rdfs:domain rdf:resource="http://bioprotocols.org/uml#LiteralInteger"/>
+    <rdfs:comment>The specified Integer value.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://bioprotocols.org/uml#Behavior">
+    <rdfs:subClassOf rdf:nodeID="ub10bL405C5"/>
+    <rdfs:subClassOf rdf:nodeID="ub10bL406C5"/>
+    <rdfs:subClassOf rdf:nodeID="ub10bL407C5"/>
+    <rdfs:subClassOf rdf:resource="http://sbols.org/v3#TopLevel"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:comment>Behavior is an abstract specification of how a state changes over time. This specification may be a prospective definition of a protocol or a capture of an execution trace. See UML 2.5.1 specification section 13.2.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://bioprotocols.org/uml#maxDurationValue">
+    <rdfs:comment>Refers to the Duration denoting the maximum value of the range.</rdfs:comment>
+    <rdfs:range rdf:resource="http://bioprotocols.org/uml#Duration"/>
+    <rdfs:subPropertyOf rdf:resource="http://bioprotocols.org/opil/v1#compositionalProperty"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+    <rdfs:domain rdf:resource="http://bioprotocols.org/uml#DurationInterval"/>
+    <rdfs:label>max</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://bioprotocols.org/uml#LiteralBoolean">
+    <rdfs:comment>A LiteralBoolean is a specification of a Boolean value. See UML 2.5.1 specification section 8.2.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="http://bioprotocols.org/uml#LiteralSpecification"/>
+    <rdfs:subClassOf rdf:nodeID="ub10bL125C9"/>
+    <rdfs:subClassOf rdf:nodeID="ub10bL124C9"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:subClassOf rdf:nodeID="ub10bL126C9"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub10bL519C5">
+    <owl:onProperty rdf:resource="http://bioprotocols.org/uml#decisionInputFlow"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:allValuesFrom rdf:resource="http://bioprotocols.org/uml#ObjectFlow"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub10bL625C9">
+    <owl:maxCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:maxCardinality>
+    <owl:onProperty rdf:resource="http://bioprotocols.org/uml#isUnique"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://bioprotocols.org/uml#ObjectFlow">
+    <rdfs:comment>An ObjectFlow is an ActivityEdge that is traversed by object tokens that may hold values. Object flows also support multicast/receive, token selection from object nodes, and transformation of tokens. See UML 2.5.1 specification section 15.2.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="http://bioprotocols.org/uml#ActivityEdge"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub10bL334C5">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:onClass rdf:resource="http://bioprotocols.org/uml#TimeInterval"/>
+    <owl:minCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:minCardinality>
+    <owl:maxCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:maxCardinality>
+    <owl:onProperty rdf:resource="http://bioprotocols.org/uml#timeSpecification"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub10bL628C9">
+    <owl:onProperty rdf:resource="http://bioprotocols.org/uml#upperValue"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:allValuesFrom rdf:resource="http://bioprotocols.org/uml#ValueSpecification"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://bioprotocols.org/uml#Expression">
+    <rdfs:subClassOf rdf:resource="http://bioprotocols.org/uml#ValueSpecification"/>
+    <rdfs:comment>An Expression represents a node in an expression tree, which may be non-terminal or terminal. It defines a symbol, and has a possibly empty sequence of operands that are ValueSpecifications. See UML 2.5.1 specification section 8.6.5.1.</rdfs:comment>
+    <rdfs:subClassOf rdf:nodeID="ub10bL176C5"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:subClassOf rdf:nodeID="ub10bL180C5"/>
+    <rdfs:subClassOf rdf:nodeID="ub10bL178C5"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://bioprotocols.org/uml#ObjectNode">
+    <rdfs:comment>An ObjectNode is a kind of ActivityNode used to hold value-containing object tokens during the course of the execution of an Activity. See UML 2.5.1 specification section 15.4.</rdfs:comment>
+    <rdfs:subClassOf rdf:nodeID="ub10bL541C9"/>
+    <rdfs:subClassOf rdf:nodeID="ub10bL542C9"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:subClassOf rdf:resource="http://bioprotocols.org/uml#ActivityNode"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://bioprotocols.org/uml#indexValue">
+    <rdfs:domain rdf:resource="http://bioprotocols.org/uml#OrderedPropertyValue"/>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#integer"/>
+    <rdfs:label>index</rdfs:label>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://bioprotocols.org/uml#IntervalConstraint">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:subClassOf rdf:resource="http://bioprotocols.org/uml#Constraint"/>
+    <rdfs:comment>An IntervalConstraint is a Constraint that is specified by an Interval.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub10bL621C9">
+    <owl:onProperty rdf:resource="http://bioprotocols.org/uml#isOrdered"/>
+    <owl:minCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:minCardinality>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://bioprotocols.org/uml#durationSpecification">
+    <rdfs:label>specification</rdfs:label>
+    <rdfs:range rdf:resource="http://bioprotocols.org/uml#DurationInterval"/>
+    <rdfs:domain rdf:resource="http://bioprotocols.org/uml#DurationConstraint"/>
+    <rdfs:subPropertyOf rdf:resource="http://bioprotocols.org/opil/v1#compositionalProperty"/>
+    <rdfs:comment>The DurationInterval constraining the duration.</rdfs:comment>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://bioprotocols.org/uml#ControlNode">
+    <rdfs:comment>A ControlNode is a kind of ActivityNode used to manage the flow of tokens between other nodes in an Activity. It can manage branching and merging of workflows and the implementation of logic for flow control. See UML 2.5.1 specification section 15.3.</rdfs:comment>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:subClassOf rdf:resource="http://bioprotocols.org/uml#ActivityNode"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://bioprotocols.org/uml#node">
+    <rdfs:comment>ActivityNodes coordinated by the Activity.</rdfs:comment>
+    <rdfs:subPropertyOf rdf:resource="http://bioprotocols.org/opil/v1#compositionalProperty"/>
+    <rdfs:domain rdf:resource="http://bioprotocols.org/uml#Activity"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+    <rdfs:label>nodes</rdfs:label>
+    <rdfs:range rdf:resource="http://bioprotocols.org/uml#ActivityNode"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub10bL113C9">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:maxCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:maxCardinality>
+    <owl:onProperty rdf:resource="http://bioprotocols.org/uml#integerValue"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://bioprotocols.org/uml#ControlFlow">
+    <rdfs:comment>A ControlFlow is an ActivityEdge traversed by control tokens or object tokens of control type, which are use to control the execution of ExecutableNodes. See UML 2.5.1 specification section 15.2.</rdfs:comment>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:subClassOf rdf:resource="http://bioprotocols.org/uml#ActivityEdge"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub10bL548C9">
+    <owl:allValuesFrom rdf:resource="http://bioprotocols.org/uml#Parameter"/>
+    <owl:onProperty rdf:resource="http://bioprotocols.org/uml#parameter"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub10bL112C9">
+    <owl:minCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:minCardinality>
+    <owl:onProperty rdf:resource="http://bioprotocols.org/uml#integerValue"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://bioprotocols.org/uml#ExecutableNode">
+    <rdfs:subClassOf rdf:resource="http://bioprotocols.org/uml#ActivityNode"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:comment>An ExecutableNode is an abstract class for ActivityNodes whose execution may be controlled using ControlFlows and to which ExceptionHandlers may be attached. See UML 2.5.1 specification section 15.5.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub10bL642C5">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:maxCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:maxCardinality>
+    <owl:onProperty rdf:resource="http://bioprotocols.org/uml#value"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://bioprotocols.org/uml#LiteralNull">
+    <rdfs:subClassOf rdf:resource="http://bioprotocols.org/uml#LiteralSpecification"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:comment>A LiteralNull specifies the lack of a value. See UML 2.5.1 specification section 8.2.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub10bL126C9">
+    <owl:onProperty rdf:resource="http://bioprotocols.org/uml#booleanValue"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:maxCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:maxCardinality>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub10bL151C9">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:onProperty rdf:resource="http://bioprotocols.org/uml#identifiedValue"/>
+    <owl:minCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:minCardinality>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub10bL460C5">
+    <owl:onProperty rdf:resource="http://bioprotocols.org/uml#edge"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:allValuesFrom rdf:resource="http://bioprotocols.org/uml#ActivityEdge"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub10bL640C5">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:allValuesFrom rdf:resource="http://bioprotocols.org/uml#ValueSpecification"/>
+    <owl:onProperty rdf:resource="http://bioprotocols.org/uml#value"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://bioprotocols.org/uml#DurationObservation">
+    <rdfs:subClassOf rdf:nodeID="ub10bL243C5"/>
+    <rdfs:subClassOf rdf:nodeID="ub10bL240C5"/>
+    <rdfs:comment>A DurationObservation is a reference to a duration during an execution. It points out the entities in the model to observe and whether the observations are when these entities are entered or exited.</rdfs:comment>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:subClassOf rdf:resource="http://bioprotocols.org/uml#Observation"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub10bL383C5">
+    <owl:onProperty rdf:resource="http://bioprotocols.org/uml#upperValue"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:allValuesFrom rdf:resource="http://bioprotocols.org/uml#ValueSpecification"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub10bL84C20">
+    <owl:maxCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:maxCardinality>
+    <owl:onProperty rdf:resource="http://bioprotocols.org/uml#type"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub10bL608C9">
+    <owl:maxCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:maxCardinality>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:onProperty rdf:resource="http://bioprotocols.org/uml#behavior"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://bioprotocols.org/uml#identifiedValue">
+    <rdfs:comment>The embedded SBOL object</rdfs:comment>
+    <rdfs:range rdf:resource="http://sbols.org/v3#Identified"/>
+    <rdfs:label>value</rdfs:label>
+    <rdfs:subPropertyOf rdf:resource="http://bioprotocols.org/opil/v1#compositionalProperty"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+    <rdfs:domain rdf:resource="http://bioprotocols.org/uml#LiteralIdentified"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub10bL379C5">
+    <owl:minCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:minCardinality>
+    <owl:onProperty rdf:resource="http://bioprotocols.org/uml#isUnique"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub10bL234C5">
+    <owl:onProperty rdf:resource="http://bioprotocols.org/uml#timeObservationValue"/>
+    <owl:maxCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:maxCardinality>
+    <owl:allValuesFrom rdf:resource="http://sbols.org/v3#Identified"/>
+    <owl:minCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:minCardinality>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://bioprotocols.org/uml#observationValue">
+    <rdfs:comment>Refers to the Observations that are involved in the computation of the Duration value.</rdfs:comment>
+    <rdfs:domain rdf:resource="http://bioprotocols.org/uml#Duration"/>
+    <rdfs:domain rdf:resource="http://bioprotocols.org/uml#TimeExpression"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+    <rdfs:range rdf:resource="http://bioprotocols.org/uml#Observation"/>
+    <rdfs:label>observation</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://bioprotocols.org/uml#FinalNode">
+    <rdfs:comment>A FinalNode is a ControlNode at which a flow in an Activity stops. A FinalNode shall not have outgoing ActivityEdges. See UML 2.5.1 specification section 15.3.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="http://bioprotocols.org/uml#ControlNode"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://bioprotocols.org/uml#LiteralReference">
+    <rdfs:subClassOf rdf:resource="http://bioprotocols.org/uml#LiteralSpecification"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:subClassOf rdf:nodeID="ub10bL164C5"/>
+    <rdfs:comment>A LiteralReference is used for embedding SBOL objects as a reference.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub10bL381C5">
+    <owl:allValuesFrom rdf:resource="http://bioprotocols.org/uml#ValueSpecification"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:onProperty rdf:resource="http://bioprotocols.org/uml#lowerValue"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub10bL623C9">
+    <owl:allValuesFrom rdf:resource="http://www.w3.org/2001/XMLSchema#boolean"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:onProperty rdf:resource="http://bioprotocols.org/uml#isUnique"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub10bL366C9">
+    <owl:allValuesFrom rdf:resource="http://www.w3.org/2001/XMLSchema#anyURI"/>
+    <owl:onProperty rdf:resource="http://bioprotocols.org/uml#direction"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub10bL138C9">
+    <owl:onProperty rdf:resource="http://bioprotocols.org/uml#realValue"/>
+    <owl:minCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:minCardinality>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://bioprotocols.org/uml#LiteralIdentified">
+    <rdfs:subClassOf rdf:resource="http://bioprotocols.org/uml#LiteralSpecification"/>
+    <rdfs:subClassOf rdf:nodeID="ub10bL152C9"/>
+    <rdfs:subClassOf rdf:nodeID="ub10bL151C9"/>
+    <rdfs:subClassOf rdf:nodeID="ub10bL150C9"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:comment>A LiteralIdentified is used for linking SBOL objects as a child object to UML objects.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://bioprotocols.org/uml#TimeObservation">
+    <rdfs:subClassOf rdf:nodeID="ub10bL234C5"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:subClassOf rdf:nodeID="ub10bL232C5"/>
+    <rdfs:subClassOf rdf:resource="http://bioprotocols.org/uml#Observation"/>
+    <rdfs:comment>A TimeObservation is a reference to a time instant during an execution. It points out which entity in the model to observe and whether the observation is when this entity is entered or when it is exited.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://bioprotocols.org/opil/v1#compositionalProperty">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub10bL641C5">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:minCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:minCardinality>
+    <owl:onProperty rdf:resource="http://bioprotocols.org/uml#value"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub10bL663C5">
+    <owl:onProperty rdf:resource="http://bioprotocols.org/uml#target"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:allValuesFrom rdf:resource="http://bioprotocols.org/uml#ActivityNode"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub10bL660C5">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:allValuesFrom rdf:resource="http://bioprotocols.org/uml#ActivityNode"/>
+    <owl:onProperty rdf:resource="http://bioprotocols.org/uml#source"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://bioprotocols.org/uml#Observation">
+    <rdfs:comment>Observation specifies a value determined by observing an event or events that occur relative to other model entities.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="http://sbols.org/v3#Identified"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub10bL376C5">
+    <owl:onProperty rdf:resource="http://bioprotocols.org/uml#isOrdered"/>
+    <owl:minCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:minCardinality>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub10bL125C9">
+    <owl:onProperty rdf:resource="http://bioprotocols.org/uml#booleanValue"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:minCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:minCardinality>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub10bL665C5">
+    <owl:maxCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:maxCardinality>
+    <owl:onProperty rdf:resource="http://bioprotocols.org/uml#target"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://bioprotocols.org/uml#InitialNode">
+    <rdfs:subClassOf rdf:resource="http://bioprotocols.org/uml#ControlNode"/>
+    <rdfs:comment>An InitialNode acts as a starting point for executing an Activity. An Activity may have more than one InitialNodes that start multiple concurrent control flows. See UML 2.5.1 specification section 15.3.</rdfs:comment>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub10bL374C5">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:maxCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:maxCardinality>
+    <owl:onProperty rdf:resource="http://bioprotocols.org/uml#type"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://bioprotocols.org/uml#type">
+    <rdfs:comment>Specifies a set of Type instances constraining the allowed values. See UML 2.5.1 specification section 7.5.</rdfs:comment>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#anyURI"/>
+    <rdfs:domain rdf:resource="http://sbols.org/v3#Identified"/>
+    <rdfs:label>type</rdfs:label>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub10bL407C5">
+    <owl:allValuesFrom rdf:resource="http://bioprotocols.org/uml#OrderedPropertyValue"/>
+    <owl:onProperty rdf:resource="http://bioprotocols.org/uml#ownedParameter"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub10bL542C9">
+    <owl:maxCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:maxCardinality>
+    <owl:onProperty rdf:resource="http://bioprotocols.org/uml#type"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="ub10bL517C5">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+    <owl:onProperty rdf:resource="http://bioprotocols.org/uml#decisionInput"/>
+    <owl:allValuesFrom rdf:resource="http://bioprotocols.org/uml#Behavior"/>
+  </rdf:Description>
+</rdf:RDF>
