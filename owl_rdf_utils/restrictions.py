@@ -38,11 +38,10 @@ RELATIONS = [
     OWL.minCardinality,
     OWL.maxCardinality,
     OWL.cardinality,
-    RDF.type,
 ]
 # Properties of a restriction that we ignore when rewriting (because they are constraints ON
 # the restrictions rather than constraints on the restrictED
-IGNORE_PROPERTIES = [OWL.onProperty, RDFS.comment]
+IGNORE_PROPERTIES = [OWL.onProperty, RDFS.comment, RDF.type]
 
 RESTRICTIONS_QUERY = (
     """
@@ -85,8 +84,11 @@ def describe_bad_restr(b: Node, g: Graph) -> None:
     for x, _y, z in g.triples((b, RDF.type, None)):
         print("%s a %s" % (x, z))
     for _, y, z in triples:
-        if y != RDF.type:
+        if y not in {RDFS.comment, RDF.type}:
             print("\t%s %s" % (nsm.normalizeUri(y), nsm.normalizeUri(z)))
+    for x, _y, z in g.triples((b, RDFS.comment, None)):
+        print("\t%s rdfs:comment %s" % (x, z))
+    print()
 
 
 def translate_bad_restr(b: Node, g: Graph) -> Tuple[List[Triple], List[Triple]]:
@@ -146,13 +148,14 @@ def translate_bad_restr(b: Node, g: Graph) -> Tuple[List[Triple], List[Triple]]:
             to_add.append((bnode, RDF.type, types[0]))
             LOGGER.info(f"\towl:onProperty {nsm.normalizeUri(prop)} ;")
             to_add.append((bnode, OWL.onProperty, prop))
-            LOGGER.info(f"\t{nsm.normalizeUri(y)} {nsm.normalizeUri(z)}", end="")
+            msg = f"\t{nsm.normalizeUri(y)} {nsm.normalizeUri(z)}"
             to_add.append((bnode, y, z))
             if comment:
-                LOGGER.info(f"\n\trdfs:comment {nsm.normalizeUri(comment)} .")
+                msg += f"\n\trdfs:comment {comment} ."
                 to_add.append((bnode, RDFS.comment, comment))
             else:
-                LOGGER.info(".")
+                msg += " ."
+            LOGGER.info(msg)
     LOGGER.info("Children of this restriction are:")
     for x in find_children():
         LOGGER.info(f"\t{x}")
@@ -189,7 +192,7 @@ def repair_all_bad_restrictions(g: rdf.Graph, bad: Optional[List[rdf.BNode]] = N
     return g
 
 
-def repair_graph(bad: List[Node], graph: Graph, dry_run: bool, file=sys.stdout):
+def repair_graph(bad: List[Node], graph: Graph, dry_run: bool, file=sys.stdout, format='turtle'):
     if dry_run:
         if file != sys.stdout:
             LOGGER.addHandler(logging.StreamHandler(file))
@@ -197,7 +200,7 @@ def repair_graph(bad: List[Node], graph: Graph, dry_run: bool, file=sys.stdout):
             translate_bad_restr(x, graph)
     else:
         new_graph = repair_all_bad_restrictions(graph, bad)
-        new_graph.serialize(file)
+        print(new_graph.serialize(format=format).decode(), file=file)
 
 
 def main():
@@ -212,7 +215,7 @@ def main():
     ap.add_argument(
         "--output", "-o", help="Write repaired RDF graph or check results here."
     )
-    ap.add_argument("--verbose", "-v", dest="verbose", action="append_const")
+    ap.add_argument("--verbose", "-v", dest="verbose", action="count")
     ap.add_argument(
         "--dry-run",
         help="If repairing, just print the set of changes to be made, don't write output.",
@@ -224,9 +227,10 @@ def main():
     )
 
     values = ap.parse_args()
-    if values.verbose == 1:
+    verbose: Optional[int] = getattr(values, "verbose", 0) or 0
+    if verbose == 1:
         LOGGER.setLevel(logging.INFO)
-    elif values.verbose >= 2:
+    elif verbose >= 2:
         LOGGER.setLevel(logging.DEBUG)
     else:
         LOGGER.setLevel(logging.WARNING)
@@ -234,14 +238,18 @@ def main():
     logging.basicConfig()
 
     infile = values.input
+    outfile = getattr(values, "output", None)
     assert os.path.exists(infile), f"No such file: {infile}"
 
+    format = rdf.util.guess_format(outfile) if outfile else rdf.util.guess_format(infile)
+    LOGGER.debug("Guessed format is %s", format)
+
     graph = rdf.Graph()
-    graph.parse(infile)
+    graph.parse(infile, format=format)
 
     bad = all_bad_restrictions(graph)
 
-    if ap.action == "check":
+    if values.action == "check":
         if bad:
             print("Found bad restrictions in graph")
             if not values.quiet:
@@ -255,7 +263,7 @@ def main():
                     sys.stdout.close()
             sys.exit(1)
         sys.exit(0)
-    elif ap.action == "repair":
+    elif values.action == "repair":
         if not bad:
             print("No repairs needed", file=sys.stderr)
             sys.exit(1)
