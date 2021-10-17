@@ -1,1157 +1,65 @@
-@prefix om: <http://www.ontology-of-units-of-measure.org/resource/om-2/> .
+@prefix : <http://bioprotocols.org/paml#> .
 @prefix opil: <http://bioprotocols.org/opil/v1#> .
+@prefix om: <http://www.ontology-of-units-of-measure.org/resource/om-2/> .
 @prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 @prefix paml: <http://bioprotocols.org/paml#> .
 @prefix prov: <http://www.w3.org/ns/prov#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix sbol: <http://sbols.org/v3#> .
 @prefix uml: <http://bioprotocols.org/uml#> .
-@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix MathM: <http://www.w3.org/1998/Math/MathML> .
+@base <http://bioprotocols.org/paml#> .
 
-<http://bioprotocols.org/paml> a owl:Ontology ;
-    rdfs:comment "Protocol Activity Modeling Languge (PAML) ontology." ;
-    owl:imports <http://bioprotocols.org/uml>,
-        <http://sbols.org/v3>,
-        <http://www.ontology-of-units-of-measure.org/resource/om-2>,
-        <http://www.w3.org/ns/prov> ;
-    owl:versionInfo "0.3" .
+<http://bioprotocols.org/paml> rdf:type owl:Ontology ;
+                              owl:imports <http://bioprotocols.org/uml> ,
+                                          <http://sbols.org/v3> , <http://www.ontology-of-units-of-measure.org/resource/om-2>,
+                                          <http://www.w3.org/ns/prov> ;
+                              rdfs:comment "Protocol Activity Modeling Languge (PAML) ontology." ;
+                              owl:versionInfo "0.3" .
 
-paml:Primitive a owl:Class ;
-    rdfs:comment """A Primitive describes a library function that acts as a basic ``building block'' for a Protocol.
-              For example, a Primitive could describe pipetting, measuring absorbance in a plate reader, or centrifuging.
-              At present this class adds no additional information over uml:Behavior, but may in the future.""" ;
-    rdfs:subClassOf uml:Behavior .
+#################################################################
+#    Annotation properties
+#################################################################
 
-uml:ControlFlow a owl:Class ;
-    rdfs:comment "A ControlFlow is an ActivityEdge traversed by control tokens or object tokens of control type, which are use to control the execution of ExecutableNodes. See UML 2.5.1 specification section 15.2." ;
-    rdfs:subClassOf uml:ActivityEdge .
+###  http://www.w3.org/2002/07/owl#maxCardinality
+owl:maxCardinality rdf:type owl:AnnotationProperty .
+owl:minCardinality rdf:type owl:AnnotationProperty .
 
-uml:FlowFinalNode a owl:Class ;
-    rdfs:comment "A FlowFinalNode is a FinalNode that terminates a flow. All tokens accepted by a FlowFinalNode are destroyed. This has no effect on other flows in the Activity. See UML 2.5.1 specification section 15.3." ;
-    rdfs:subClassOf uml:FinalNode .
 
-uml:ForkNode a owl:Class ;
-    rdfs:comment "A ForkNode is a ControlNode that splits a flow into multiple concurrent flows. A ForkNode shall have exactly one incoming ActivityEdge, though it may have multiple outgoing ActivityEdges. See UML 2.5.1 specification section 15.3." ;
-    rdfs:subClassOf uml:ControlNode .
+#################################################################
+#    Datatypes
+#################################################################
 
-uml:InitialNode a owl:Class ;
-    rdfs:comment "An InitialNode acts as a starting point for executing an Activity. An Activity may have more than one InitialNodes that start multiple concurrent control flows. See UML 2.5.1 specification section 15.3." ;
-    rdfs:subClassOf uml:ControlNode .
+###  http://www.w3.org/2001/XMLSchema#anySimpleType
+xsd:anySimpleType rdf:type rdfs:Datatype .
 
-uml:JoinNode a owl:Class ;
-    rdfs:comment "A JoinNode is a ControlNode that synchronizes multiple flows. A JoinNode shall have exactly one outgoing ActivityEdge but may have multiple incoming ActivityEdges. See UML 2.5.1 specification section 15.3." ;
-    rdfs:subClassOf uml:ControlNode .
 
-uml:LiteralNull a owl:Class ;
-    rdfs:comment "A LiteralNull specifies the lack of a value. See UML 2.5.1 specification section 8.2." ;
-    rdfs:subClassOf uml:LiteralSpecification .
+#################################################################
+#    Protocol definitions, based on UML
+#################################################################
 
-uml:MergeNode a owl:Class ;
-    rdfs:comment "A MergeNode is a control node that brings together multiple flows without synchronization. A MergeNode shall have exactly one outgoing ActivityEdge but may have multiple incoming ActivityEdges. See UML 2.5.1 specification section 15.3." ;
-    rdfs:subClassOf uml:ControlNode .
-
-xsd:anySimpleType a rdfs:Datatype .
-
-owl:maxCardinality a owl:AnnotationProperty .
-
-owl:minCardinality a owl:AnnotationProperty .
-
-paml:CallBehaviorExecution a owl:Class ;
-    rdfs:comment """A CallBehaviorExecution extends ActivityNodeExecution by adding a pointer to a BehaviorExecution
-        record for the uml:Behavior that is being executed.
-
-        For a primitive action (e.g., measuring absorbance on a plate reader), this is a plain BehaviorExecution,
-        while for calling a Protocol as a sub-routine (e.g., to run a stage of an Type IIS assembly), this would be a
-        ProtocolExecution.""" ;
-    rdfs:subClassOf [ a owl:Restriction ;
-            owl:minCardinality "1"^^xsd:nonNegativeInteger ;
-            owl:onProperty paml:call ],
-        [ a owl:Restriction ;
-            owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
-            owl:onProperty paml:call ],
-        [ a owl:Restriction ;
-            owl:allValuesFrom paml:BehaviorExecution ;
-            owl:onProperty paml:call ],
-        paml:ActivityNodeExecution .
-
-paml:SampleMask a owl:Class ;
-    rdfs:comment """A SampleMask is a subset of a SampleCollection. The subset of samples to be included is defined
-        by an array of Boolean values, where true values indicate that a sample is included and false values indicate
-        that it is excluded.
-
-        The dimensions of the mask MUST be identical to the dimensions of the source SampleCollection. For this purpose,
-        the dimensions of a masked subset are not reduced, but remain the same as the original SampleArray. This allows
-        masks to be composed, such that SampleMask(source=SampleMask(source=X,mask=mask1),mask=mask2) is equivalent to
-        SampleMask(source=X,mask=mask1 AND mask2). Note that this implies masks are commutative and idempotent.""" ;
-    rdfs:subClassOf [ a owl:Restriction ;
-            owl:allValuesFrom xsd:string ;
-            owl:onProperty paml:mask ],
-        [ a owl:Restriction ;
-            owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
-            owl:onProperty paml:mask ],
-        [ a owl:Restriction ;
-            owl:minCardinality "1"^^xsd:nonNegativeInteger ;
-            owl:onProperty paml:mask ],
-        [ a owl:Restriction ;
-            owl:allValuesFrom paml:SampleCollection ;
-            owl:onProperty paml:source ],
-        [ a owl:Restriction ;
-            owl:minCardinality "1"^^xsd:nonNegativeInteger ;
-            owl:onProperty paml:source ],
-        [ a owl:Restriction ;
-            owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
-            owl:onProperty paml:source ],
-        paml:SampleCollection .
-
-paml:consumedMaterial a owl:ObjectProperty ;
-    rdfs:label "consumed_material" ;
-    rdfs:comment """This property is used to record the noteworthy consumables used during the execution of the
-        Behavior. For example, a cell culture protocols will consume various reagents and samples of cells. Materials
-        with the same specification SHOULD be consolidated, such that the list of materials SHOULD NOT contain two
-        materials with the same specification.
-
-        For example, consuming 5.0 mL of PBS and 2.0 mL of PBS should be recorded as consuming 7.0 mL of PBS.
-        Complex materials, however, MAY contain the same material more than once in their substructure.
-        For example, M9 media contains glucose, but it would not be necessary to consolidate the glucose in M9 media
-        with additional glucose that was added as a supplement, since that would change the definition of the media.""" ;
-    rdfs:domain paml:BehaviorExecution ;
-    rdfs:range paml:Material ;
-    rdfs:subPropertyOf opil:compositionalProperty .
-
-paml:execution a owl:ObjectProperty ;
-    rdfs:label "executions" ;
-    rdfs:comment """Each instance of this property links to an ActivityNodeExecution that records one
-        firing of a uml:ActivityNode during the execution of its containing Protocol""" ;
-    rdfs:domain paml:ProtocolExecution ;
-    rdfs:range paml:ActivityNodeExecution ;
-    rdfs:subPropertyOf opil:compositionalProperty .
-
-paml:flow a owl:ObjectProperty ;
-    rdfs:label "flows" ;
-    rdfs:comment """Each instance of this property links to an ActivityEdgeFlow that records one movement of a UML
-        token along a uml:ActivityEdge during the execution of its containing Protocol""" ;
-    rdfs:domain paml:ProtocolExecution ;
-    rdfs:range paml:ActivityEdgeFlow ;
-    rdfs:subPropertyOf opil:compositionalProperty .
-
-paml:incomingFlow a owl:ObjectProperty ;
-    rdfs:label "incoming_flows" ;
-    rdfs:comment """This property is used to indicate an ActivityEdgeFlow that delivered a token consumed during
-        the execution of the uml:ActivityNode.""" ;
-    rdfs:domain paml:ActivityNodeExecution ;
-    rdfs:range paml:ActivityEdgeFlow .
-
-paml:parameterValuePair a owl:ObjectProperty ;
-    rdfs:label "parameter_values" ;
-    rdfs:comment """The parameterValuePair property is used to record the value that was associated with each
-        uml:Parameter for the uml:Behavior when it was executed, by means of a ParameterValue object.
-        Any uml:Parameter that is not listed is assumed to have had no value assigned. Conversely, every non-optional
-        uml:Parameter for the uml:Behavior MUST have an associated parameter value.
-        Finally, note that this applies both to input uml:Parameter objects, whose value is set before execution begins,
-        and to output uml:Parameter objects, whose value is set by the time execution ends.
-
-        TODO: are multiple values allowed, or do those need to be passed as list/set types?
-        """ ;
-    rdfs:domain paml:BehaviorExecution ;
-    rdfs:range paml:ParameterValue ;
-    rdfs:subPropertyOf opil:compositionalProperty .
-
-<http://bioprotocols.org/uml> a owl:Ontology ;
-    rdfs:comment "Unified Modeling Languge (UML) subset, translated to an SBOL factory ontology." ;
-    owl:imports <http://bioprotocols.org/opil/v1>,
-        <http://sbols.org/v3>,
-        <http://www.ontology-of-units-of-measure.org/resource/om-2> ;
-    owl:versionInfo "1.0-alpha1" .
-
-uml:ActivityParameterNode a owl:Class ;
-    rdfs:comment "An ActivityParameterNode is an ObjectNode for accepting values from the input Parameters or providing values to the output Parameters of an Activity. UML 2.5.1 specification section 15.4." ;
-    rdfs:subClassOf [ a owl:Restriction ;
-            owl:minCardinality "1"^^xsd:nonNegativeInteger ;
-            owl:onProperty uml:parameter ],
-        [ a owl:Restriction ;
-            owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
-            owl:onProperty uml:parameter ],
-        [ a owl:Restriction ;
-            owl:allValuesFrom uml:Parameter ;
-            owl:onProperty uml:parameter ],
-        uml:ObjectNode .
-
-uml:CallAction a owl:Class ;
-    rdfs:comment "A CallAction is an abstract class for Actions that invoke a Behavior with given argument values and (if the invocation is synchronous) receive reply values. See UML 2.5.1 specification section 16.3." ;
-    rdfs:subClassOf uml:InvocationAction .
-
-uml:CallBehaviorAction a owl:Class ;
-    rdfs:comment "A CallBehaviorAction is a CallAction that invokes a Behavior directly. The argument values of the CallBehaviorAction are passed on the input Parameters of the invoked Behavior. UML 2.5.1 specification section 16.3" ;
-    rdfs:subClassOf [ a owl:Restriction ;
-            owl:minCardinality "1"^^xsd:nonNegativeInteger ;
-            owl:onProperty uml:behavior ],
-        [ a owl:Restriction ;
-            owl:allValuesFrom uml:Behavior ;
-            owl:onProperty uml:behavior ],
-        [ a owl:Restriction ;
-            owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
-            owl:onProperty uml:behavior ],
-        uml:CallAction .
-
-uml:ExecutableNode a owl:Class ;
-    rdfs:comment "An ExecutableNode is an abstract class for ActivityNodes whose execution may be controlled using ControlFlows and to which ExceptionHandlers may be attached. See UML 2.5.1 specification section 15.5." ;
-    rdfs:subClassOf uml:ActivityNode .
-
-uml:FinalNode a owl:Class ;
-    rdfs:comment "A FinalNode is a ControlNode at which a flow in an Activity stops. A FinalNode shall not have outgoing ActivityEdges. See UML 2.5.1 specification section 15.3." ;
-    rdfs:subClassOf uml:ControlNode .
-
-uml:InvocationAction a owl:Class ;
-    rdfs:comment "UML 2.5.1 specification section 16.3" ;
-    rdfs:subClassOf uml:Action .
-
-uml:LiteralBoolean a owl:Class ;
-    rdfs:comment "A LiteralBoolean is a specification of a Boolean value. See UML 2.5.1 specification section 8.2." ;
-    rdfs:subClassOf [ a owl:Restriction ;
-            owl:minCardinality "1"^^xsd:nonNegativeInteger ;
-            owl:onProperty uml:booleanValue ],
-        [ a owl:Restriction ;
-            owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
-            owl:onProperty uml:booleanValue ],
-        [ a owl:Restriction ;
-            owl:allValuesFrom xsd:boolean ;
-            owl:onProperty uml:booleanValue ],
-        uml:LiteralSpecification .
-
-uml:LiteralIdentified a owl:Class ;
-    rdfs:comment "A LiteralIdentified is used for linking SBOL objects as a child object to UML objects." ;
-    rdfs:subClassOf [ a owl:Restriction ;
-            owl:allValuesFrom sbol:Identified ;
-            owl:onProperty uml:identifiedValue ],
-        [ a owl:Restriction ;
-            owl:minCardinality "1"^^xsd:nonNegativeInteger ;
-            owl:onProperty uml:identifiedValue ],
-        [ a owl:Restriction ;
-            owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
-            owl:onProperty uml:identifiedValue ],
-        uml:LiteralSpecification .
-
-uml:LiteralInteger a owl:Class ;
-    rdfs:comment "A LiteralInteger is a specification of an Integer value. See UML 2.5.1 specification section 8.2." ;
-    rdfs:subClassOf [ a owl:Restriction ;
-            owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
-            owl:onProperty uml:integerValue ],
-        [ a owl:Restriction ;
-            owl:allValuesFrom xsd:integer ;
-            owl:onProperty uml:integerValue ],
-        [ a owl:Restriction ;
-            owl:minCardinality "1"^^xsd:nonNegativeInteger ;
-            owl:onProperty uml:integerValue ],
-        uml:LiteralSpecification .
-
-uml:LiteralReal a owl:Class ;
-    rdfs:comment "A LiteralReal is a specification of a Real value. See UML 2.5.1 specification section 8.2." ;
-    rdfs:subClassOf [ a owl:Restriction ;
-            owl:minCardinality "1"^^xsd:nonNegativeInteger ;
-            owl:onProperty uml:realValue ],
-        [ a owl:Restriction ;
-            owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
-            owl:onProperty uml:realValue ],
-        [ a owl:Restriction ;
-            owl:allValuesFrom xsd:float ;
-            owl:onProperty uml:realValue ],
-        uml:LiteralSpecification .
-
-uml:LiteralReference a owl:Class ;
-    rdfs:comment "A LiteralReference is used for embedding SBOL objects as a reference." ;
-    rdfs:subClassOf [ a owl:Restriction ;
-            owl:minCardinality "1"^^xsd:nonNegativeInteger ;
-            owl:onProperty uml:referenceValue ],
-        [ a owl:Restriction ;
-            owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
-            owl:onProperty uml:referenceValue ],
-        [ a owl:Restriction ;
-            owl:allValuesFrom sbol:Identified ;
-            owl:onProperty uml:referenceValue ],
-        uml:LiteralSpecification .
-
-uml:LiteralString a owl:Class ;
-    rdfs:comment "A LiteralSpecification identifies a literal constant being modeled. See UML 2.5.1 specification section 8.2." ;
-    rdfs:subClassOf [ a owl:Restriction ;
-            owl:allValuesFrom xsd:string ;
-            owl:onProperty uml:stringValue ],
-        [ a owl:Restriction ;
-            owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
-            owl:onProperty uml:stringValue ],
-        [ a owl:Restriction ;
-            owl:minCardinality "1"^^xsd:nonNegativeInteger ;
-            owl:onProperty uml:stringValue ],
-        uml:LiteralSpecification .
-
-uml:ValuePin a owl:Class ;
-    rdfs:comment "A ValuePin is an InputPin that provides a value by evaluating a ValueSpecification. See UML 2.5.1 specification section 16.2." ;
-    rdfs:subClassOf [ a owl:Restriction ;
-            owl:allValuesFrom uml:ValueSpecification ;
-            owl:onProperty uml:value ],
-        [ a owl:Restriction ;
-            owl:minCardinality "1"^^xsd:nonNegativeInteger ;
-            owl:onProperty uml:value ],
-        [ a owl:Restriction ;
-            owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
-            owl:onProperty uml:value ],
-        uml:InputPin .
-
-uml:constrainedElement a owl:ObjectProperty ;
-    rdfs:label "constrained_elements" ;
-    rdfs:comment "The OrderedPropertyValue referenced by this Constraint." ;
-    rdfs:domain uml:Constraint ;
-    rdfs:range uml:OrderedPropertyValue ;
-    rdfs:subPropertyOf opil:compositionalProperty .
-
-uml:edge a owl:ObjectProperty ;
-    rdfs:label "edges" ;
-    rdfs:comment "ActivityEdges expressing flow between the nodes of the Activity." ;
-    rdfs:domain uml:Activity ;
-    rdfs:range uml:ActivityEdge ;
-    rdfs:subPropertyOf opil:compositionalProperty .
-
-uml:input a owl:ObjectProperty ;
-    rdfs:label "inputs" ;
-    rdfs:comment "The ordered set of InputPins representing the inputs to the Action." ;
-    rdfs:domain uml:Action ;
-    rdfs:range uml:InputPin ;
-    rdfs:subPropertyOf opil:compositionalProperty .
-
-uml:node a owl:ObjectProperty ;
-    rdfs:label "nodes" ;
-    rdfs:comment "ActivityNodes coordinated by the Activity." ;
-    rdfs:domain uml:Activity ;
-    rdfs:range uml:ActivityNode ;
-    rdfs:subPropertyOf opil:compositionalProperty .
-
-uml:operandValue a owl:ObjectProperty ;
-    rdfs:label "operand" ;
-    rdfs:comment "Specifies a sequence of operand ValueSpecifications." ;
-    rdfs:domain uml:Expression ;
-    rdfs:range uml:OrderedPropertyValue ;
-    rdfs:subPropertyOf opil:compositionalProperty .
-
-uml:output a owl:ObjectProperty ;
-    rdfs:label "outputs" ;
-    rdfs:comment "The ordered set of OutputPins representing outputs from the Action." ;
-    rdfs:domain uml:Action ;
-    rdfs:range uml:OutputPin ;
-    rdfs:subPropertyOf opil:compositionalProperty .
-
-uml:ownedParameter a owl:ObjectProperty ;
-    rdfs:label "parameters" ;
-    rdfs:comment " a list of Parameters to the Behavior which describes the order and type of arguments that can be given when the Behavior is invoked and of the values which will be returned when the Behavior completes its execution." ;
-    rdfs:domain uml:Behavior ;
-    rdfs:range uml:OrderedPropertyValue ;
-    rdfs:subPropertyOf opil:compositionalProperty .
-
-uml:postcondition a owl:ObjectProperty ;
-    rdfs:label "postconditions" ;
-    rdfs:comment "An optional set of Constraints specifying what is fulfilled after the execution of the Behavior is completed, if its precondition was fulfilled before its invocation." ;
-    rdfs:domain uml:Behavior ;
-    rdfs:range uml:Constraint ;
-    rdfs:subPropertyOf opil:compositionalProperty .
-
-uml:precondition a owl:ObjectProperty ;
-    rdfs:label "preconditions" ;
-    rdfs:comment "An optional set of Constraints specifying what must be fulfilled before the Behavior is invoked." ;
-    rdfs:domain uml:Behavior ;
-    rdfs:range uml:Constraint ;
-    rdfs:subPropertyOf opil:compositionalProperty .
-
-paml:ContainerSpec a owl:Class ;
-    rdfs:comment """A ContainerSpec is used to indicate the type of container to be used for a SampleArray, e.g.,
-        a standard 96-well flat-bottom transparent plate.
-
-        TODO: determine if we want to use this format or modify it in some way.""" ;
-    rdfs:subClassOf [ a owl:Restriction ;
-            owl:minCardinality "1"^^xsd:nonNegativeInteger ;
-            owl:onProperty paml:prefixMap ],
-        [ a owl:Restriction ;
-            owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
-            owl:onProperty paml:queryString ],
-        [ a owl:Restriction ;
-            owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
-            owl:onProperty paml:prefixMap ],
-        [ a owl:Restriction ;
-            owl:minCardinality "1"^^xsd:nonNegativeInteger ;
-            owl:onProperty paml:queryString ],
-        sbol:Identified .
-
-paml:Protocol a owl:Class ;
-    rdfs:comment """A Protocol describes how to carry out some form of laboratory or research process.
+paml:Protocol rdf:type owl:Class ;
+              rdfs:comment '''A Protocol describes how to carry out some form of laboratory or research process.
               For example, a Protocol could describe DNA miniprep, Golden-Gate assembly, a cell culture experiment.
-              At present this class adds no additional information over uml:Activity, but may in the future.""" ;
-    rdfs:subClassOf uml:Activity .
+              At present this class adds no additional information over uml:Activity, but may in the future.''' ;
+        rdfs:subClassOf uml:Activity .
 
-paml:SampleArray a owl:Class ;
-    rdfs:comment """A SampleArray specifies an n-dimensional rectangular array of samples, all stored in the same
-        type of container. For example, a SampleCollection might describe a set of 10 cell cultures growing in
-        96-well plate cells, or a set of 6 streaked agar plates, or a single 500 mL flask filled with media.
 
-        Wells may be full, in which case the contents property should contain a URI to a description of the sample,
-        or empty, in which case the contents should be null.
+paml:Primitive rdf:type owl:Class ;
+              rdfs:comment '''A Primitive describes a library function that acts as a basic ``building block'' for a Protocol.
+              For example, a Primitive could describe pipetting, measuring absorbance in a plate reader, or centrifuging.
+              At present this class adds no additional information over uml:Behavior, but may in the future.''' ;
+        rdfs:subClassOf uml:Behavior .
 
-        Note that this is a logical array, and does not necessarily indicate the actual layout of the samples in space.
-        For example, a 2x4 array of samples in 96-well plate wells might end up being laid out as a 2x4 array in wells
-        A1 to B4 or as a 2x4 array in wells G5 to H8 or as an 8x1 column in wells A1 to H1, or even as eight wells
-        scattered arbitrarily around the plate according to an anti-bias quality control schema.
 
-        This also allows for higher-dimensional arrays where each dimension represents an experimental factor.
-        For example, an experiment testing four factors with 3, 3, 4, and 5 values per factor, for a total of 180
-        combinations, could be represented as a 4-dimensional sample array of 96-well plate wells, and then end up
-        laid out over two plates.
+#################################################################
+#    Execution record, bootstrapping from PROV-O
+#################################################################
 
-        TODO: need to decide on the format of the contents description.""" ;
-    rdfs:subClassOf [ a owl:Restriction ;
-            rdfs:comment "Type of container used for storing the samples. The size and dimension may not match that of the array: it is up to execution to lay out the array in one or more containers" ;
-            owl:minCardinality "1"^^xsd:nonNegativeInteger ;
-            owl:onProperty paml:containerType ],
-        [ a owl:Restriction ;
-            rdfs:comment "Type of container used for storing the samples. The size and dimension may not match that of the array: it is up to execution to lay out the array in one or more containers" ;
-            owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
-            owl:onProperty paml:containerType ],
-        [ a owl:Restriction ;
-            rdfs:comment "N-dimensional array of URI for specification or nulls" ;
-            owl:minCardinality "1"^^xsd:nonNegativeInteger ;
-            owl:onProperty paml:contents ],
-        [ a owl:Restriction ;
-            rdfs:comment "N-dimensional array of URI for specification or nulls" ;
-            owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
-            owl:onProperty paml:contents ],
-        [ a owl:Restriction ;
-            rdfs:comment "N-dimensional array of URI for specification or nulls" ;
-            owl:allValuesFrom xsd:string ;
-            owl:onProperty paml:contents ],
-        [ a owl:Restriction ;
-            rdfs:comment "Type of container used for storing the samples. The size and dimension may not match that of the array: it is up to execution to lay out the array in one or more containers" ;
-            owl:allValuesFrom xsd:anyURI ;
-            owl:onProperty paml:containerType ],
-        paml:SampleCollection .
-
-paml:SampleData a owl:Class ;
-    rdfs:comment """The SampleData class is used to associate a set of data with a collection of samples.
-        This is typically used to capture measurements, e.g., an array of absorbance measurements collected by
-        a plate reader. Using this data structure allows the values in a dataframe to be automatically linked to
-        the descriptions of the samples that the data describes, which is critical for data analysis.
-
-        The dimensions of the sampleDataValues MUST equal the dimensions of the SampleCollection linked with fromSamples.
-
-        TODO: the format of the data values needs to be compatible with the array format chosen for the
-        SampleArray contents property. In this case, however, we also need to consider how we want to support
-        multiple values for each sample (e.g., measurement of both fluorescence and absorbance in a plate reader),
-        as well as links to more complex data (e.g., results of flow cytometry or omics for each sample)""" ;
-    rdfs:subClassOf [ a owl:Restriction ;
-            owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
-            owl:onProperty paml:fromSamples ],
-        [ a owl:Restriction ;
-            owl:allValuesFrom xsd:string ;
-            owl:onProperty paml:sampleDataValues ],
-        [ a owl:Restriction ;
-            owl:minCardinality "1"^^xsd:nonNegativeInteger ;
-            owl:onProperty paml:sampleDataValues ],
-        [ a owl:Restriction ;
-            owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
-            owl:onProperty paml:sampleDataValues ],
-        [ a owl:Restriction ;
-            owl:minCardinality "1"^^xsd:nonNegativeInteger ;
-            owl:onProperty paml:fromSamples ],
-        [ a owl:Restriction ;
-            owl:allValuesFrom paml:SampleCollection ;
-            owl:onProperty paml:fromSamples ],
-        sbol:Identified .
-
-paml:prefixMap a owl:DatatypeProperty,
-        owl:FunctionalProperty ;
-    rdfs:label "prefixMap" ;
-    rdfs:comment "A prefix map in JSON-LD format, to be applied to a queryString." ;
-    rdfs:domain paml:ContainerSpec ;
-    rdfs:range xsd:string .
-
-paml:queryString a owl:DatatypeProperty,
-        owl:FunctionalProperty ;
-    rdfs:label "queryString" ;
-    rdfs:comment "A query string, in OWL Manchester syntax, to be used to find matching containers in the ContainerSpec." ;
-    rdfs:domain paml:ContainerSpec ;
-    rdfs:range xsd:string .
-
-uml:DecisionNode a owl:Class ;
-    rdfs:comment "A DecisionNode is a ControlNode that chooses between outgoing flows. A DecisionNode shall have at least one and at most two incoming ActivityEdges, and at least one outgoing ActivityEdge. See UML 2.5.1 specification section 15.3." ;
-    rdfs:subClassOf [ a owl:Restriction ;
-            owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
-            owl:onProperty uml:decisionInputFlow ],
-        [ a owl:Restriction ;
-            owl:allValuesFrom uml:ObjectFlow ;
-            owl:onProperty uml:decisionInputFlow ],
-        [ a owl:Restriction ;
-            owl:allValuesFrom uml:Behavior ;
-            owl:onProperty uml:decisionInput ],
-        [ a owl:Restriction ;
-            owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
-            owl:onProperty uml:decisionInput ],
-        uml:ControlNode .
-
-uml:DurationConstraint a owl:Class ;
-    rdfs:comment "A DurationConstraint is a Constraint that refers to a DurationInterval." ;
-    rdfs:subClassOf [ a owl:Restriction ;
-            owl:onClass uml:DurationInterval ;
-            owl:onProperty uml:durationSpecification ],
-        [ a owl:Restriction ;
-            owl:minCardinality "0"^^xsd:nonNegativeInteger ;
-            owl:onProperty uml:firstEventValue ],
-        [ a owl:Restriction ;
-            owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
-            owl:onProperty uml:durationSpecification ],
-        [ a owl:Restriction ;
-            owl:minCardinality "1"^^xsd:nonNegativeInteger ;
-            owl:onProperty uml:durationSpecification ],
-        [ a owl:Restriction ;
-            owl:maxCardinality "2"^^xsd:nonNegativeInteger ;
-            owl:onProperty uml:firstEventValue ],
-        [ a owl:Restriction ;
-            owl:allValuesFrom uml:OrderedPropertyValue ;
-            owl:onProperty uml:firstEventValue ],
-        uml:IntervalConstraint .
-
-uml:DurationObservation a owl:Class ;
-    rdfs:comment "A DurationObservation is a reference to a duration during an execution. It points out the entities in the model to observe and whether the observations are when these entities are entered or exited." ;
-    rdfs:subClassOf [ a owl:Restriction ;
-            owl:minCardinality "0"^^xsd:nonNegativeInteger ;
-            owl:onProperty uml:firstEventValue ],
-        [ a owl:Restriction ;
-            owl:maxCardinality "2"^^xsd:nonNegativeInteger ;
-            owl:onProperty uml:durationObservationValue ],
-        [ a owl:Restriction ;
-            owl:allValuesFrom sbol:Identified ;
-            owl:onProperty uml:durationObservationValue ],
-        [ a owl:Restriction ;
-            owl:minCardinality "1"^^xsd:nonNegativeInteger ;
-            owl:onProperty uml:durationObservationValue ],
-        [ a owl:Restriction ;
-            owl:maxCardinality "2"^^xsd:nonNegativeInteger ;
-            owl:onProperty uml:firstEventValue ],
-        [ a owl:Restriction ;
-            owl:allValuesFrom uml:OrderedPropertyValue ;
-            owl:onProperty uml:firstEventValue ],
-        uml:Observation .
-
-uml:Expression a owl:Class ;
-    rdfs:comment "An Expression represents a node in an expression tree, which may be non-terminal or terminal. It defines a symbol, and has a possibly empty sequence of operands that are ValueSpecifications. See UML 2.5.1 specification section 8.6.5.1." ;
-    rdfs:subClassOf [ a owl:Restriction ;
-            owl:minCardinality "0"^^xsd:nonNegativeInteger ;
-            owl:onProperty uml:symbolValue ],
-        [ a owl:Restriction ;
-            owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
-            owl:onProperty uml:isOrdered ],
-        [ a owl:Restriction ;
-            owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
-            owl:onProperty uml:symbolValue ],
-        [ a owl:Restriction ;
-            owl:minCardinality "1"^^xsd:nonNegativeInteger ;
-            owl:onProperty uml:isOrdered ],
-        [ a owl:Restriction ;
-            owl:allValuesFrom xsd:boolean ;
-            owl:onProperty uml:isOrdered ],
-        [ a owl:Restriction ;
-            owl:allValuesFrom uml:OrderedPropertyValue ;
-            owl:onProperty uml:operandValue ],
-        [ a owl:Restriction ;
-            owl:allValuesFrom xsd:string ;
-            owl:onProperty uml:symbolValue ],
-        uml:ValueSpecification .
-
-uml:Interval a owl:Class ;
-    rdfs:comment "An Interval defines the range between two ValueSpecifications." ;
-    rdfs:subClassOf uml:ValueSpecification .
-
-uml:IntervalConstraint a owl:Class ;
-    rdfs:comment "An IntervalConstraint is a Constraint that is specified by an Interval." ;
-    rdfs:subClassOf uml:Constraint .
-
-uml:ObjectFlow a owl:Class ;
-    rdfs:comment "An ObjectFlow is an ActivityEdge that is traversed by object tokens that may hold values. Object flows also support multicast/receive, token selection from object nodes, and transformation of tokens. See UML 2.5.1 specification section 15.2." ;
-    rdfs:subClassOf uml:ActivityEdge .
-
-uml:ObjectNode a owl:Class ;
-    rdfs:comment "An ObjectNode is a kind of ActivityNode used to hold value-containing object tokens during the course of the execution of an Activity. See UML 2.5.1 specification section 15.4." ;
-    rdfs:subClassOf [ a owl:Restriction ;
-            owl:allValuesFrom xsd:anyURI ;
-            owl:onProperty uml:type ],
-        [ a owl:Restriction ;
-            owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
-            owl:onProperty uml:type ],
-        uml:ActivityNode .
-
-uml:OutputPin a owl:Class ;
-    rdfs:comment "An OutputPin is a Pin that holds output values produced by an Action. See UML 2.5.1 specification section 16.2." ;
-    rdfs:subClassOf uml:Pin .
-
-uml:Pin a owl:Class ;
-    rdfs:comment "A Pin is an ObjectNode and MultiplicityElement that provides input values to an Action or accepts output values from an Action. See UML 2.5.1 specification section 16.2." ;
-    rdfs:subClassOf [ a owl:Restriction ;
-            owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
-            owl:onProperty uml:upperValue ],
-        [ a owl:Restriction ;
-            owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
-            owl:onProperty uml:lowerValue ],
-        [ a owl:Restriction ;
-            owl:allValuesFrom xsd:boolean ;
-            owl:onProperty uml:isUnique ],
-        [ a owl:Restriction ;
-            owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
-            owl:onProperty uml:isOrdered ],
-        [ a owl:Restriction ;
-            owl:allValuesFrom uml:ValueSpecification ;
-            owl:onProperty uml:lowerValue ],
-        [ a owl:Restriction ;
-            owl:allValuesFrom xsd:boolean ;
-            owl:onProperty uml:isOrdered ],
-        [ a owl:Restriction ;
-            owl:minCardinality "1"^^xsd:nonNegativeInteger ;
-            owl:onProperty uml:isUnique ],
-        [ a owl:Restriction ;
-            owl:allValuesFrom uml:ValueSpecification ;
-            owl:onProperty uml:upperValue ],
-        [ a owl:Restriction ;
-            owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
-            owl:onProperty uml:isUnique ],
-        [ a owl:Restriction ;
-            owl:minCardinality "1"^^xsd:nonNegativeInteger ;
-            owl:onProperty uml:isOrdered ],
-        uml:ObjectNode .
-
-uml:TimeConstraint a owl:Class ;
-    rdfs:comment "A TimeConstraint is a Constraint that refers to a TimeInterval." ;
-    rdfs:subClassOf [ a owl:Restriction ;
-            owl:allValuesFrom uml:OrderedPropertyValue ;
-            owl:onProperty uml:firstEventValue ],
-        [ a owl:Restriction ;
-            owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
-            owl:onProperty uml:timeSpecification ],
-        [ a owl:Restriction ;
-            owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
-            owl:onProperty uml:firstEventValue ],
-        [ a owl:Restriction ;
-            owl:minCardinality "0"^^xsd:nonNegativeInteger ;
-            owl:onProperty uml:firstEventValue ],
-        [ a owl:Restriction ;
-            owl:onClass uml:TimeInterval ;
-            owl:onProperty uml:timeSpecification ],
-        [ a owl:Restriction ;
-            owl:minCardinality "1"^^xsd:nonNegativeInteger ;
-            owl:onProperty uml:timeSpecification ],
-        uml:IntervalConstraint .
-
-uml:TimeObservation a owl:Class ;
-    rdfs:comment "A TimeObservation is a reference to a time instant during an execution. It points out which entity in the model to observe and whether the observation is when this entity is entered or when it is exited." ;
-    rdfs:subClassOf [ a owl:Restriction ;
-            owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
-            owl:onProperty uml:firstEventValue ],
-        [ a owl:Restriction ;
-            owl:minCardinality "1"^^xsd:nonNegativeInteger ;
-            owl:onProperty uml:firstEventValue ],
-        [ a owl:Restriction ;
-            owl:allValuesFrom sbol:Identified ;
-            owl:onProperty uml:timeObservationValue ],
-        [ a owl:Restriction ;
-            owl:minCardinality "1"^^xsd:nonNegativeInteger ;
-            owl:onProperty uml:timeObservationValue ],
-        [ a owl:Restriction ;
-            owl:allValuesFrom uml:OrderedPropertyValue ;
-            owl:onProperty uml:firstEventValue ],
-        [ a owl:Restriction ;
-            owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
-            owl:onProperty uml:timeObservationValue ],
-        uml:Observation .
-
-uml:decisionInput a owl:ObjectProperty ;
-    rdfs:label "decision_input" ;
-    rdfs:comment "A Behavior that is executed to provide an input to guard ValueSpecifications on ActivityEdges outgoing from the DecisionNode." ;
-    rdfs:domain uml:DecisionNode ;
-    rdfs:range uml:Behavior .
-
-uml:decisionInputFlow a owl:ObjectProperty ;
-    rdfs:label "decision_input_flow" ;
-    rdfs:comment "An additional ActivityEdge incoming to the DecisionNode that provides a decision input value for the guards ValueSpecifications on ActivityEdges outgoing from the DecisionNode." ;
-    rdfs:domain uml:DecisionNode ;
-    rdfs:range uml:ObjectFlow .
-
-uml:defaultValue a owl:ObjectProperty ;
-    rdfs:label "default_value" ;
-    rdfs:comment "A ValueSpecification that represents a value to be used when no argument is supplied for the Parameter." ;
-    rdfs:domain uml:Parameter ;
-    rdfs:range uml:ValueSpecification ;
-    rdfs:subPropertyOf opil:compositionalProperty .
-
-uml:observationValue a owl:ObjectProperty ;
-    rdfs:label "observation" ;
-    rdfs:comment "Refers to the Observations that are involved in the computation of the Duration value." ;
-    rdfs:domain uml:Duration,
-        uml:TimeExpression ;
-    rdfs:range uml:Observation .
-
-paml:ProtocolExecution a owl:Class ;
-    rdfs:comment """A ProtocolExecution expands on the information in a BehaviorExecution by including records for
-        the nodes and edges defining the Protocol's behavior as a uml:Activity. Specifically, the execution property
-        is used to record each firing of a uml:ActivityNode and the flow property is used to record each time a token
-        moves along a uml:ActivityEdge.
-        Otherwise, a ProtocolExecution is used exactly the same way as its parent class BehaviorExecution.
-
-        TODO: consider dropping the protocol field as redundant with use prov:type field in its parent""" ;
-    rdfs:subClassOf [ a owl:Restriction ;
-            owl:minCardinality "1"^^xsd:nonNegativeInteger ;
-            owl:onProperty paml:protocol ],
-        [ a owl:Restriction ;
-            owl:allValuesFrom paml:ActivityEdgeFlow ;
-            owl:onProperty paml:flow ],
-        [ a owl:Restriction ;
-            owl:allValuesFrom paml:ActivityNodeExecution ;
-            owl:onProperty paml:execution ],
-        [ a owl:Restriction ;
-            owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
-            owl:onProperty paml:protocol ],
-        [ a owl:Restriction ;
-            owl:allValuesFrom paml:Protocol ;
-            owl:onProperty paml:protocol ],
-        paml:BehaviorExecution .
-
-paml:amount a owl:ObjectProperty ;
-    rdfs:label "amount" ;
-    rdfs:comment """The amount property of a Material is used to indicate the quantity of material used.
-        For example, 2.5 mL (referring to a fluid) or 3 (with unit "number", referring to a group of microplates)""" ;
-    rdfs:domain paml:Material ;
-    rdfs:range om:Measure ;
-    rdfs:subPropertyOf opil:compositionalProperty .
-
-paml:call a owl:ObjectProperty ;
-    rdfs:label "call" ;
-    rdfs:comment "This property indicates the BehaviorExecution record for the uml:Behavior that was called." ;
-    rdfs:domain paml:CallBehaviorExecution ;
-    rdfs:range paml:BehaviorExecution .
-
-paml:completedNormally a owl:DatatypeProperty ;
-    rdfs:label "completed_normally" ;
-    rdfs:comment """This boolean should be set to true if the Behavior completed normally and false if there
-        was some exception condition. At present, no further information is being encoded about exceptions, but this
-        is an extension that is anticipated for the future.""" ;
-    rdfs:domain paml:BehaviorExecution ;
-    rdfs:range xsd:boolean .
-
-paml:containerType a owl:DatatypeProperty ;
-    rdfs:label "container_type" ;
-    rdfs:comment "" ;
-    rdfs:domain paml:SampleArray ;
-    rdfs:range xsd:anyURI .
-
-paml:contents a owl:DatatypeProperty ;
-    rdfs:label "contents" ;
-    rdfs:comment """Description of the contents.
-        TODO: need to decide whether this is a multi-valued property with associated array coordinates or a
-        single-valued property with an array value.
-        Currently set to string as a "dummy" value that can serialize anything.""" ;
-    rdfs:domain paml:SampleArray ;
-    rdfs:range xsd:string .
-
-paml:edge a owl:ObjectProperty ;
-    rdfs:label "edge" ;
-    rdfs:comment "This property is used to indicate the uml:ActivityEdge down which the token moved." ;
-    rdfs:domain paml:ActivityEdgeFlow ;
-    rdfs:range uml:ActivityEdge .
-
-paml:edgeValue a owl:ObjectProperty ;
-    rdfs:label "value" ;
-    rdfs:comment "This property is used to indicate the value of a token that moved on a uml:ObjectFlow edge." ;
-    rdfs:domain paml:ActivityEdgeFlow ;
-    rdfs:range uml:LiteralSpecification ;
-    rdfs:subPropertyOf opil:compositionalProperty .
-
-paml:fromSamples a owl:ObjectProperty ;
-    rdfs:label "from_samples" ;
-    rdfs:comment "The fromSamples property indicates the SampleCollection from which the data were collected." ;
-    rdfs:domain paml:SampleData ;
-    rdfs:range paml:SampleCollection ;
-    rdfs:subPropertyOf opil:compositionalProperty .
-
-paml:node a owl:ObjectProperty ;
-    rdfs:label "node" ;
-    rdfs:comment "This property is used to indicate the uml:ActivityNode that has been execcuted." ;
-    rdfs:domain paml:ActivityNodeExecution ;
-    rdfs:range uml:ActivityNode .
-
-paml:parameter a owl:ObjectProperty ;
-    rdfs:label "parameter" ;
-    rdfs:comment """This property points to the uml:Parameter associated with the value (e.g., wavelength for a
-        plate reader absorbance measurement behavior).""" ;
-    rdfs:domain paml:ParameterValue ;
-    rdfs:range uml:Parameter .
-
-paml:parameterValue a owl:ObjectProperty ;
-    rdfs:label "value" ;
-    rdfs:comment """This property points to the literal value used for the parameter during execution (e.g., a
-        uml:LiteralIdentified for an om:Measure representing a 600 nm wavelength).""" ;
-    rdfs:domain paml:ParameterValue ;
-    rdfs:range uml:LiteralSpecification ;
-    rdfs:subPropertyOf opil:compositionalProperty .
-
-paml:protocol a owl:ObjectProperty ;
-    rdfs:label "protocol" ;
-    rdfs:comment "This property appears to be redundant with the use of prov:type specified by BehaviorExecution, and is likely to be deleted" ;
-    rdfs:domain paml:ProtocolExecution ;
-    rdfs:range paml:Protocol .
-
-paml:sampleDataValues a owl:ObjectProperty ;
-    rdfs:label "values" ;
-    rdfs:comment "The sampleDataValues are an array of data values, one for each sample, format to be determined." ;
-    rdfs:domain paml:SampleData ;
-    rdfs:range xsd:string .
-
-paml:source a owl:ObjectProperty ;
-    rdfs:label "source" ;
-    rdfs:comment "The source indicates the SampleCollection that is being subsetted via the mask" ;
-    rdfs:domain paml:SampleMask ;
-    rdfs:range paml:SampleCollection .
-
-paml:specification a owl:ObjectProperty ;
-    rdfs:label "specification" ;
-    rdfs:comment """The specification property is used to indicate the type of material used.
-        For example a DNA sample would be described by an sbol:Component.
-
-        TODO: add example for glucose and for 96-well plate""" ;
-    rdfs:domain paml:Material ;
-    rdfs:range sbol:TopLevel .
-
-paml:tokenSource a owl:ObjectProperty ;
-    rdfs:label "token_source" ;
-    rdfs:comment "This property is used to indicate the ActivityNodeExecution that produced the token." ;
-    rdfs:domain paml:ActivityEdgeFlow ;
-    rdfs:range paml:ActivityNodeExecution .
-
-uml:Action a owl:Class ;
-    rdfs:comment "An Action is the fundamental unit of executable functionality. The execution of an Action represents some transformation or processing in the modeled system. Actions provide the ExecutableNodes within Activities and may also be used within Interactions. See UML 2.5.1 specification section 16." ;
-    rdfs:subClassOf [ a owl:Restriction ;
-            owl:allValuesFrom uml:OutputPin ;
-            owl:onProperty uml:output ],
-        [ a owl:Restriction ;
-            owl:allValuesFrom uml:InputPin ;
-            owl:onProperty uml:input ],
-        uml:ExecutableNode .
-
-uml:Activity a owl:Class ;
-    rdfs:comment "An Activity coordinates and groups steps in a protocol or workflow. See UML 2.5.1 specification section 15." ;
-    rdfs:subClassOf [ a owl:Restriction ;
-            owl:allValuesFrom uml:ActivityNode ;
-            owl:onProperty uml:node ],
-        [ a owl:Restriction ;
-            owl:allValuesFrom uml:ActivityEdge ;
-            owl:onProperty uml:edge ],
-        uml:Behavior .
-
-uml:InputPin a owl:Class ;
-    rdfs:comment "An InputPin is a Pin that holds input values to be consumed by an Action. See UML 2.5.1 specification section 16.2." ;
-    rdfs:subClassOf uml:Pin .
-
-uml:behavior a owl:ObjectProperty ;
-    rdfs:label "behavior" ;
-    rdfs:comment "The Behavior being invoked." ;
-    rdfs:domain uml:CallBehaviorAction ;
-    rdfs:range uml:Behavior .
-
-uml:booleanValue a owl:DatatypeProperty ;
-    rdfs:label "value" ;
-    rdfs:comment "The specified Boolean value." ;
-    rdfs:domain uml:LiteralBoolean ;
-    rdfs:range xsd:boolean .
-
-uml:direction a owl:DatatypeProperty ;
-    rdfs:label "direction" ;
-    rdfs:comment "Indicates whether a parameter is being sent into or out of a behavioral element." ;
-    rdfs:domain uml:Parameter ;
-    rdfs:range xsd:anyURI .
-
-uml:durationObservationValue a owl:ObjectProperty ;
-    rdfs:label "event" ;
-    rdfs:comment "The DurationObservation is determined as the duration between the entering or exiting of a single event during execution, or the entering/exiting of one event and the entering/exiting of a second." ;
-    rdfs:domain uml:DurationObservation ;
-    rdfs:range sbol:Identified .
-
-uml:durationSpecification a owl:ObjectProperty ;
-    rdfs:label "specification" ;
-    rdfs:comment "The DurationInterval constraining the duration." ;
-    rdfs:domain uml:DurationConstraint ;
-    rdfs:range uml:DurationInterval ;
-    rdfs:subPropertyOf opil:compositionalProperty .
-
-uml:identifiedValue a owl:ObjectProperty ;
-    rdfs:label "value" ;
-    rdfs:comment "The embedded SBOL object" ;
-    rdfs:domain uml:LiteralIdentified ;
-    rdfs:range sbol:Identified ;
-    rdfs:subPropertyOf opil:compositionalProperty .
-
-uml:indexValue a owl:DatatypeProperty ;
-    rdfs:label "index" ;
-    rdfs:domain uml:OrderedPropertyValue ;
-    rdfs:range xsd:integer .
-
-uml:integerValue a owl:DatatypeProperty ;
-    rdfs:label "value" ;
-    rdfs:comment "The specified Integer value." ;
-    rdfs:domain uml:LiteralInteger ;
-    rdfs:range xsd:integer .
-
-uml:maxDurationValue a owl:ObjectProperty ;
-    rdfs:label "max" ;
-    rdfs:comment "Refers to the Duration denoting the maximum value of the range." ;
-    rdfs:domain uml:DurationInterval ;
-    rdfs:range uml:Duration ;
-    rdfs:subPropertyOf opil:compositionalProperty .
-
-uml:maxTimeValue a owl:ObjectProperty ;
-    rdfs:label "max" ;
-    rdfs:comment "Refers to the TimeExpression denoting the maximum value of the range." ;
-    rdfs:domain uml:TimeInterval ;
-    rdfs:range uml:TimeExpression ;
-    rdfs:subPropertyOf opil:compositionalProperty .
-
-uml:minDurationValue a owl:ObjectProperty ;
-    rdfs:label "min" ;
-    rdfs:comment "Refers to the Duration denoting the minimum value of the range." ;
-    rdfs:domain uml:DurationInterval ;
-    rdfs:range uml:Duration ;
-    rdfs:subPropertyOf opil:compositionalProperty .
-
-uml:minTimeValue a owl:ObjectProperty ;
-    rdfs:label "min" ;
-    rdfs:comment "Refers to the TimeExpression denoting the minimum value of the range." ;
-    rdfs:domain uml:TimeInterval ;
-    rdfs:range uml:TimeExpression ;
-    rdfs:subPropertyOf opil:compositionalProperty .
-
-uml:parameter a owl:ObjectProperty ;
-    rdfs:label "parameter" ;
-    rdfs:comment "The Parameter for which the ActivityParameterNode will be accepting or providing values." ;
-    rdfs:domain uml:ActivityParameterNode ;
-    rdfs:range uml:Parameter .
-
-uml:propertyValue a owl:ObjectProperty ;
-    rdfs:label "property_value" ;
-    rdfs:domain uml:OrderedPropertyValue ;
-    rdfs:range sbol:Identified ;
-    rdfs:subPropertyOf opil:compositionalProperty .
-
-uml:realValue a owl:DatatypeProperty ;
-    rdfs:label "value" ;
-    rdfs:comment "The specified Real value." ;
-    rdfs:domain uml:LiteralReal ;
-    rdfs:range xsd:float .
-
-uml:referenceValue a owl:ObjectProperty ;
-    rdfs:label "value" ;
-    rdfs:comment "The referenced SBOL object." ;
-    rdfs:domain uml:LiteralReference ;
-    rdfs:range sbol:Identified .
-
-uml:source a owl:ObjectProperty ;
-    rdfs:label "source" ;
-    rdfs:comment "The ActivityNode from which tokens are taken when they traverse the ActivityEdge." ;
-    rdfs:domain uml:ActivityEdge ;
-    rdfs:range uml:ActivityNode .
-
-uml:stringValue a owl:DatatypeProperty ;
-    rdfs:label "value" ;
-    rdfs:comment "The specified String value." ;
-    rdfs:domain uml:LiteralString ;
-    rdfs:range xsd:string .
-
-uml:symbolValue a owl:DatatypeProperty ;
-    rdfs:label "symbol" ;
-    rdfs:comment "The symbol associated with this node in the expression tree." ;
-    rdfs:domain uml:Expression ;
-    rdfs:range xsd:anyURI .
-
-uml:target a owl:ObjectProperty ;
-    rdfs:label "target" ;
-    rdfs:comment "The ActivityNode to which tokens are put when they traverse the ActivityEdge." ;
-    rdfs:domain uml:ActivityEdge ;
-    rdfs:range uml:ActivityNode .
-
-uml:timeObservationValue a owl:ObjectProperty ;
-    rdfs:label "event" ;
-    rdfs:comment "The TimeObservation is determined by the entering or exiting of the event during execution." ;
-    rdfs:domain uml:TimeObservation ;
-    rdfs:range sbol:Identified .
-
-uml:timeSpecification a owl:ObjectProperty ;
-    rdfs:label "specification" ;
-    rdfs:comment "TheTimeInterval constraining the duration." ;
-    rdfs:domain uml:TimeConstraint ;
-    rdfs:range uml:TimeInterval ;
-    rdfs:subPropertyOf opil:compositionalProperty .
-
-uml:value a owl:ObjectProperty ;
-    rdfs:label "value" ;
-    rdfs:comment "The ValueSpecification that is evaluated to obtain the value that the ValuePin will provide." ;
-    rdfs:domain uml:ValuePin ;
-    rdfs:range uml:ValueSpecification ;
-    rdfs:subPropertyOf opil:compositionalProperty .
-
-paml:Material a owl:Class ;
-    rdfs:comment """An amount of material allocated for use during the execution of a behavior.
-        For example a Material might be used to specify 1 96-well flat-bottom microplate or 2.5 mL of 10 millimolar glucose.
-
-        TODO: consider changing type of specification to allow non-TopLevel descriptions, such as a ContainerSpec or sbol:ExternallyDefined
-        TODO: consider adding a field to distinguish between expended vs. reusable materials.""" ;
-    rdfs:subClassOf [ a owl:Restriction ;
-            owl:allValuesFrom sbol:TopLevel ;
-            owl:onProperty paml:specification ],
-        [ a owl:Restriction ;
-            owl:minCardinality "1"^^xsd:nonNegativeInteger ;
-            owl:onProperty paml:amount ],
-        [ a owl:Restriction ;
-            owl:allValuesFrom om:Measure ;
-            owl:onProperty paml:amount ],
-        [ a owl:Restriction ;
-            owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
-            owl:onProperty paml:amount ],
-        [ a owl:Restriction ;
-            owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
-            owl:onProperty paml:specification ],
-        [ a owl:Restriction ;
-            owl:minCardinality "1"^^xsd:nonNegativeInteger ;
-            owl:onProperty paml:specification ],
-        sbol:Identified .
-
-paml:ParameterValue a owl:Class ;
-    rdfs:comment """This class is used to represent the assignment of a value to a parameter in a BehaviorExecution
-        that records the execution of a uml:Behavior. This class is similar to prov:Usage, but instead of always
-        pointing to an object it uses an arbitrary literal (which might or might not be an object). An example would
-        be recording that a plate reader absorbance measurement was taken with its absorbance wavelength parameter set
-        to 600 nm""" ;
-    rdfs:subClassOf [ a owl:Restriction ;
-            owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
-            owl:onProperty paml:parameter ],
-        [ a owl:Restriction ;
-            owl:minCardinality "1"^^xsd:nonNegativeInteger ;
-            owl:onProperty paml:parameter ],
-        [ a owl:Restriction ;
-            owl:minCardinality "1"^^xsd:nonNegativeInteger ;
-            owl:onProperty paml:parameterValue ],
-        [ a owl:Restriction ;
-            owl:allValuesFrom uml:Parameter ;
-            owl:onProperty paml:parameter ],
-        [ a owl:Restriction ;
-            owl:allValuesFrom uml:LiteralSpecification ;
-            owl:onProperty paml:parameterValue ],
-        [ a owl:Restriction ;
-            owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
-            owl:onProperty paml:parameterValue ],
-        sbol:Identified .
-
-paml:mask a owl:DatatypeProperty ;
-    rdfs:label "mask" ;
-    rdfs:comment """The mask is an N-dimensional array of Booleans values, where each Boolean indicates whether the
-        sample at the corresponding location in the source is included in the subset.
-
-        TODO: format of mask array needs to match the array format chosen for the SampleArray contents property""" ;
-    rdfs:domain paml:mask ;
-    rdfs:range xsd:string .
-
-uml:Duration a owl:Class ;
-    rdfs:comment "A Duration is a ValueSpecification that specifies the temporal distance between two time instants." ;
-    rdfs:subClassOf [ a owl:Restriction ;
-            owl:allValuesFrom uml:Observation ;
-            owl:onProperty uml:observationValue ],
-        [ a owl:Restriction ;
-            owl:minCardinality "0"^^xsd:nonNegativeInteger ;
-            owl:onProperty uml:exprValue ],
-        [ a owl:Restriction ;
-            owl:allValuesFrom uml:ValueSpecification ;
-            owl:onProperty uml:exprValue ],
-        [ a owl:Restriction ;
-            owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
-            owl:onProperty uml:exprValue ],
-        uml:ValueSpecification .
-
-uml:DurationInterval a owl:Class ;
-    rdfs:comment "A DurationInterval defines the range between two Durations." ;
-    rdfs:subClassOf [ a owl:Restriction ;
-            owl:minCardinality "1"^^xsd:nonNegativeInteger ;
-            owl:onProperty uml:maxDurationValue ],
-        [ a owl:Restriction ;
-            owl:allValuesFrom uml:ValueSpecification ;
-            owl:onProperty uml:minDurationValue ],
-        [ a owl:Restriction ;
-            owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
-            owl:onProperty uml:maxDurationValue ],
-        [ a owl:Restriction ;
-            owl:minCardinality "1"^^xsd:nonNegativeInteger ;
-            owl:onProperty uml:minDurationValue ],
-        [ a owl:Restriction ;
-            owl:allValuesFrom uml:ValueSpecification ;
-            owl:onProperty uml:maxDurationValue ],
-        [ a owl:Restriction ;
-            owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
-            owl:onProperty uml:minDurationValue ],
-        uml:Interval .
-
-uml:TimeExpression a owl:Class ;
-    rdfs:comment "A TimeExpression is a ValueSpecification that represents a time value." ;
-    rdfs:subClassOf [ a owl:Restriction ;
-            owl:minCardinality "0"^^xsd:nonNegativeInteger ;
-            owl:onProperty uml:exprValue ],
-        [ a owl:Restriction ;
-            owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
-            owl:onProperty uml:exprValue ],
-        [ a owl:Restriction ;
-            owl:allValuesFrom uml:Observation ;
-            owl:onProperty uml:observationValue ],
-        [ a owl:Restriction ;
-            owl:allValuesFrom uml:ValueSpecification ;
-            owl:onProperty uml:exprValue ],
-        uml:ValueSpecification .
-
-uml:TimeInterval a owl:Class ;
-    rdfs:comment "A TimeInterval defines the range between two TimeExpressions." ;
-    rdfs:subClassOf [ a owl:Restriction ;
-            owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
-            owl:onProperty uml:maxTimeValue ],
-        [ a owl:Restriction ;
-            owl:allValuesFrom uml:ValueSpecification ;
-            owl:onProperty uml:minTimeValue ],
-        [ a owl:Restriction ;
-            owl:minCardinality "1"^^xsd:nonNegativeInteger ;
-            owl:onProperty uml:maxTimeValue ],
-        [ a owl:Restriction ;
-            owl:allValuesFrom uml:ValueSpecification ;
-            owl:onProperty uml:maxTimeValue ],
-        [ a owl:Restriction ;
-            owl:minCardinality "1"^^xsd:nonNegativeInteger ;
-            owl:onProperty uml:minTimeValue ],
-        [ a owl:Restriction ;
-            owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
-            owl:onProperty uml:minTimeValue ],
-        uml:Interval .
-
-uml:lowerValue a owl:ObjectProperty ;
-    rdfs:label "lower_value" ;
-    rdfs:comment "For MultiplicityElement abstract class; UML 2.5.1 specification section 7.5" ;
-    rdfs:domain sbol:Identified ;
-    rdfs:range uml:ValueSpecification ;
-    rdfs:subPropertyOf opil:compositionalProperty .
-
-uml:upperValue a owl:ObjectProperty ;
-    rdfs:label "upper_value" ;
-    rdfs:comment "For MultiplicityElement abstract class; UML 2.5.1 specification section 7.5" ;
-    rdfs:domain sbol:Identified ;
-    rdfs:range uml:ValueSpecification ;
-    rdfs:subPropertyOf opil:compositionalProperty .
-
-uml:Observation a owl:Class ;
-    rdfs:comment "Observation specifies a value determined by observing an event or events that occur relative to other model entities." ;
-    rdfs:subClassOf sbol:Identified .
-
-paml:BehaviorExecution a owl:Class ;
-    rdfs:comment """A BehaviorExecution is a record of how a Protocol, Primitive, or other uml:Behavior was carried out.
+paml:BehaviorExecution rdf:type owl:Class ;
+        rdfs:comment '''A BehaviorExecution is a record of how a Protocol, Primitive, or other uml:Behavior was carried out.
         The execution of the behavior could be either real or simulated.
 
         In specifying a BehaviorExecution, the prov:type field inherited from prov:Activity is used to indicate the
@@ -1166,26 +74,244 @@ paml:BehaviorExecution a owl:Class ;
         i.e., they are only added to and never changed.
 
         TODO: need to changing completedNormally to allow indication of an in-progress BehaviorExecution
-        TODO: Is there a good ontology for agent roles in association?""" ;
-    rdfs:subClassOf [ a owl:Restriction ;
-            owl:allValuesFrom paml:Material ;
-            owl:onProperty paml:consumedMaterial ],
-        [ a owl:Restriction ;
-            owl:allValuesFrom paml:ParameterValue ;
-            owl:onProperty paml:parameterValuePair ],
-        [ a owl:Restriction ;
-            owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
-            owl:onProperty paml:completedNormally ],
-        [ a owl:Restriction ;
-            owl:minCardinality "1"^^xsd:nonNegativeInteger ;
-            owl:onProperty paml:completedNormally ],
-        [ a owl:Restriction ;
-            owl:allValuesFrom xsd:boolean ;
-            owl:onProperty paml:completedNormally ],
-        prov:Activity .
+        TODO: Is there a good ontology for agent roles in association?''' ;
+        rdfs:subClassOf prov:Activity , # note: prov:Activity here refers to the adapted version in SBOL
+    [ rdf:type owl:Restriction ; owl:allValuesFrom paml:ParameterValue ; owl:onProperty paml:parameterValuePair ] ,
+    [ rdf:type owl:Restriction ; owl:allValuesFrom xsd:boolean ; owl:onProperty paml:completedNormally ;
+      owl:minCardinality "1"^^xsd:nonNegativeInteger ; owl:maxCardinality "1"^^xsd:nonNegativeInteger] ,
+    [ rdf:type owl:Restriction ; owl:allValuesFrom paml:Material ; owl:onProperty paml:consumedMaterial ] .
 
-paml:SampleCollection a owl:Class ;
-    rdfs:comment """SampleCollection is the base class for describing the collections of physical materials that are
+paml:parameterValuePair rdf:type owl:ObjectProperty ;
+        rdfs:comment '''The parameterValuePair property is used to record the value that was associated with each
+        uml:Parameter for the uml:Behavior when it was executed, by means of a ParameterValue object.
+        Any uml:Parameter that is not listed is assumed to have had no value assigned. Conversely, every non-optional
+        uml:Parameter for the uml:Behavior MUST have an associated parameter value.
+        Finally, note that this applies both to input uml:Parameter objects, whose value is set before execution begins,
+        and to output uml:Parameter objects, whose value is set by the time execution ends.
+
+        TODO: are multiple values allowed, or do those need to be passed as list/set types?
+        ''' ;
+              rdfs:subPropertyOf opil:compositionalProperty ;
+              rdfs:domain paml:BehaviorExecution ;
+              rdfs:range paml:ParameterValue ;
+              rdfs:label "parameter_values" .
+
+paml:completedNormally rdf:type owl:DatatypeProperty ;
+        rdfs:comment '''This boolean should be set to true if the Behavior completed normally and false if there
+        was some exception condition. At present, no further information is being encoded about exceptions, but this
+        is an extension that is anticipated for the future.''' ;
+              rdfs:domain paml:BehaviorExecution ;
+              rdfs:range xsd:boolean ;
+              rdfs:label "completed_normally" .
+
+paml:consumedMaterial rdf:type owl:ObjectProperty ;
+        rdfs:comment '''This property is used to record the noteworthy consumables used during the execution of the
+        Behavior. For example, a cell culture protocols will consume various reagents and samples of cells. Materials
+        with the same specification SHOULD be consolidated, such that the list of materials SHOULD NOT contain two
+        materials with the same specification.
+
+        For example, consuming 5.0 mL of PBS and 2.0 mL of PBS should be recorded as consuming 7.0 mL of PBS.
+        Complex materials, however, MAY contain the same material more than once in their substructure.
+        For example, M9 media contains glucose, but it would not be necessary to consolidate the glucose in M9 media
+        with additional glucose that was added as a supplement, since that would change the definition of the media.''' ;
+              rdfs:subPropertyOf opil:compositionalProperty ;
+              rdfs:domain paml:BehaviorExecution ;
+              rdfs:range paml:Material ;
+              rdfs:label "consumed_material" .
+
+paml:ParameterValue rdf:type owl:Class ;
+        rdfs:comment '''This class is used to represent the assignment of a value to a parameter in a BehaviorExecution
+        that records the execution of a uml:Behavior. This class is similar to prov:Usage, but instead of always
+        pointing to an object it uses an arbitrary literal (which might or might not be an object). An example would
+        be recording that a plate reader absorbance measurement was taken with its absorbance wavelength parameter set
+        to 600 nm''' ;
+        rdfs:subClassOf sbol:Identified,
+    [ rdf:type owl:Restriction ; owl:allValuesFrom uml:Parameter ; owl:onProperty paml:parameter ;
+      owl:minCardinality "1"^^xsd:nonNegativeInteger ; owl:maxCardinality "1"^^xsd:nonNegativeInteger ] ,
+    [ rdf:type owl:Restriction ; owl:allValuesFrom uml:LiteralSpecification ; owl:onProperty paml:parameterValue ;
+      owl:minCardinality "1"^^xsd:nonNegativeInteger ; owl:maxCardinality "1"^^xsd:nonNegativeInteger ] .
+
+paml:parameter rdf:type owl:ObjectProperty ;
+        rdfs:comment '''This property points to the uml:Parameter associated with the value (e.g., wavelength for a
+        plate reader absorbance measurement behavior).''' ;
+              rdfs:domain paml:ParameterValue ;
+              rdfs:range uml:Parameter ;
+              rdfs:label "parameter" .
+
+paml:parameterValue rdf:type owl:ObjectProperty ;
+        rdfs:comment '''This property points to the literal value used for the parameter during execution (e.g., a
+        uml:LiteralIdentified for an om:Measure representing a 600 nm wavelength).''' ;
+              rdfs:subPropertyOf opil:compositionalProperty ;
+              rdfs:domain paml:ParameterValue ;
+              rdfs:range uml:LiteralSpecification ;
+              rdfs:label "value" .
+
+
+paml:Material rdf:type owl:Class ;
+        rdfs:comment '''An amount of material allocated for use during the execution of a behavior.
+        For example a Material might be used to specify 1 96-well flat-bottom microplate or 2.5 mL of 10 millimolar glucose.
+
+        TODO: consider changing type of specification to allow non-TopLevel descriptions, such as a ContainerSpec or sbol:ExternallyDefined
+        TODO: consider adding a field to distinguish between expended vs. reusable materials.''' ;
+        rdfs:subClassOf sbol:Identified,
+    [ rdf:type owl:Restriction ; owl:allValuesFrom sbol:TopLevel ; owl:onProperty paml:specification ;
+      owl:minCardinality "1"^^xsd:nonNegativeInteger ; owl:maxCardinality "1"^^xsd:nonNegativeInteger ] ,
+    [ rdf:type owl:Restriction ; owl:allValuesFrom om:Measure ; owl:onProperty paml:amount ;
+      owl:minCardinality "1"^^xsd:nonNegativeInteger ; owl:maxCardinality "1"^^xsd:nonNegativeInteger ] .
+
+paml:specification rdf:type owl:ObjectProperty ;
+        rdfs:comment '''The specification property is used to indicate the type of material used.
+        For example a DNA sample would be described by an sbol:Component.
+
+        TODO: add example for glucose and for 96-well plate''' ;
+              rdfs:domain paml:Material ;
+              rdfs:range sbol:TopLevel ;
+              rdfs:label "specification" .
+
+paml:amount rdf:type owl:ObjectProperty ;
+        rdfs:comment '''The amount property of a Material is used to indicate the quantity of material used.
+        For example, 2.5 mL (referring to a fluid) or 3 (with unit "number", referring to a group of microplates)''' ;
+              rdfs:subPropertyOf opil:compositionalProperty ;
+              rdfs:domain paml:Material ;
+              rdfs:range om:Measure ;
+              rdfs:label "amount" .
+
+paml:ProtocolExecution rdf:type owl:Class ;
+        rdfs:comment '''A ProtocolExecution expands on the information in a BehaviorExecution by including records for
+        the nodes and edges defining the Protocol's behavior as a uml:Activity. Specifically, the execution property
+        is used to record each firing of a uml:ActivityNode and the flow property is used to record each time a token
+        moves along a uml:ActivityEdge.
+        Otherwise, a ProtocolExecution is used exactly the same way as its parent class BehaviorExecution.
+
+        TODO: consider dropping the protocol field as redundant with use prov:type field in its parent''' ;
+        rdfs:subClassOf paml:BehaviorExecution ,
+    [ rdf:type owl:Restriction ; owl:allValuesFrom paml:Protocol ; owl:onProperty paml:protocol ;
+      owl:minCardinality "1"^^xsd:nonNegativeInteger ; owl:maxCardinality "1"^^xsd:nonNegativeInteger ] ,
+    [ rdf:type owl:Restriction ; owl:allValuesFrom paml:ActivityNodeExecution ; owl:onProperty paml:execution ] ,
+    [ rdf:type owl:Restriction ; owl:allValuesFrom paml:ActivityEdgeFlow ; owl:onProperty paml:flow ] .
+
+paml:protocol rdf:type owl:ObjectProperty ;
+        rdfs:comment '''This property appears to be redundant with the use of prov:type specified by BehaviorExecution, and is likely to be deleted''' ;
+              rdfs:domain paml:ProtocolExecution ;
+              rdfs:range paml:Protocol ;
+              rdfs:label "protocol" .
+
+paml:execution rdf:type owl:ObjectProperty ;
+        rdfs:comment '''Each instance of this property links to an ActivityNodeExecution that records one
+        firing of a uml:ActivityNode during the execution of its containing Protocol''' ;
+              rdfs:subPropertyOf opil:compositionalProperty ;
+              rdfs:domain paml:ProtocolExecution ;
+              rdfs:range paml:ActivityNodeExecution ;
+              rdfs:label "executions" .
+
+paml:flow rdf:type owl:ObjectProperty ;
+        rdfs:comment '''Each instance of this property links to an ActivityEdgeFlow that records one movement of a UML
+        token along a uml:ActivityEdge during the execution of its containing Protocol''' ;
+              rdfs:subPropertyOf opil:compositionalProperty ;
+              rdfs:domain paml:ProtocolExecution ;
+              rdfs:range paml:ActivityEdgeFlow ;
+              rdfs:label "flows" .
+
+
+paml:ActivityEdgeFlow rdf:type owl:Class ;
+        rdfs:comment '''An ActivityEdgeFlow records one movement of a UML token along a uml:ActivityEdge during the
+        execution of its containing Protocol. If the edge is a uml:ObjectFlow, then the value MUST be set.
+        If the edge is a uml:ControlFlow, then the value MUST NOT be set.
+
+        For instance, the ActivityEdgeFlow for a uml:ObjectFlow might record a measurement being sent to an output
+        uml:Parameter, while the ActivityEdgeFlow for a uml:ControlFlow might record a decision to proceed down a
+        particular branch from a uml:DecisionNode.
+
+        Note that a uml:ActivityEdge might appear in multiple ActivityEdgeFlow records associated with a single
+        ProtocolExecution, e.g., due to a loop in the Protocol.  It also might not appear in any, if the
+        uml:ActivityEdge is on a path not taken due to branching control flow.
+
+        TODO: correct the cardinality: edgeValue is supposed to be optional, not edge
+        ''' ;
+        rdfs:subClassOf sbol:Identified ,
+    [ rdf:type owl:Restriction ; owl:allValuesFrom uml:ActivityEdge ; owl:onProperty paml:edge ;
+      owl:minCardinality "0"^^xsd:nonNegativeInteger ; owl:maxCardinality "1"^^xsd:nonNegativeInteger ; ] ,
+    [ rdf:type owl:Restriction ; owl:allValuesFrom sbol:Identified ; owl:onProperty paml:edgeValue ;
+      owl:minCardinality "1"^^xsd:nonNegativeInteger ; owl:maxCardinality "1"^^xsd:nonNegativeInteger ; ] ,
+    [ rdf:type owl:Restriction ; owl:allValuesFrom paml:ActivityNodeExecution ; owl:onProperty paml:tokenSource ;
+      owl:minCardinality "1"^^xsd:nonNegativeInteger ; owl:maxCardinality "1"^^xsd:nonNegativeInteger ; ] .
+
+paml:edge rdf:type owl:ObjectProperty ;
+        rdfs:comment '''This property is used to indicate the uml:ActivityEdge down which the token moved.''' ;
+              rdfs:domain paml:ActivityEdgeFlow ;
+              rdfs:range uml:ActivityEdge ;
+              rdfs:label "edge" .
+
+paml:edgeValue rdf:type owl:ObjectProperty ;
+        rdfs:comment '''This property is used to indicate the value of a token that moved on a uml:ObjectFlow edge.''' ;
+              rdfs:subPropertyOf opil:compositionalProperty ;
+              rdfs:domain paml:ActivityEdgeFlow ;
+              rdfs:range uml:LiteralSpecification ;
+              rdfs:label "value" .
+
+paml:tokenSource rdf:type owl:ObjectProperty ;
+        rdfs:comment '''This property is used to indicate the ActivityNodeExecution that produced the token.''' ;
+              rdfs:domain paml:ActivityEdgeFlow ;
+              rdfs:range paml:ActivityNodeExecution ;
+              rdfs:label "token_source" .
+
+
+paml:ActivityNodeExecution rdf:type owl:Class ;
+        rdfs:comment '''An ActivityNodeExecution records one instance in which a uml:ActivityNode is executed during the
+        execution of its containing Protocol.
+
+        For instance, the ActivityNodeExecution for a uml:CallBehaviorAction to measure absorbance on a plate reader
+        would set its node property to point to the uml:CallBehaviorAction and might have incomingFlow properties
+        indicating arrival of information about the samples to measure via a uml:ObjectFlow and the arrival a
+        of permission to begin via a uml:ControlFlow.
+
+        Note that a uml:ActivityNode might appear in multiple ActivityNodeExecution records associated with a single
+        ProtocolExecution, e.g., due to a loop in the Protocol.  It also might not appear in any, if the
+        uml:ActivityNode is on a path not taken due to branching control flow.''' ;
+        rdfs:subClassOf sbol:Identified ,
+    [ rdf:type owl:Restriction ; owl:allValuesFrom uml:ActivityNode ; owl:onProperty paml:node ;
+      owl:minCardinality "1"^^xsd:nonNegativeInteger ; owl:maxCardinality "1"^^xsd:nonNegativeInteger ; ] ,
+    [ rdf:type owl:Restriction ; owl:allValuesFrom paml:ActivityEdgeFlow ; owl:onProperty paml:incomingFlow ] .
+
+paml:node rdf:type owl:ObjectProperty ;
+        rdfs:comment '''This property is used to indicate the uml:ActivityNode that has been execcuted.''' ;
+              rdfs:domain paml:ActivityNodeExecution ;
+              rdfs:range uml:ActivityNode ;
+              rdfs:label "node" .
+
+paml:incomingFlow rdf:type owl:ObjectProperty ;
+        rdfs:comment '''This property is used to indicate an ActivityEdgeFlow that delivered a token consumed during
+        the execution of the uml:ActivityNode.''' ;
+              rdfs:domain paml:ActivityNodeExecution ;
+              rdfs:range paml:ActivityEdgeFlow ;
+              rdfs:label "incoming_flows" .
+
+
+paml:CallBehaviorExecution rdf:type owl:Class ;
+        rdfs:comment '''A CallBehaviorExecution extends ActivityNodeExecution by adding a pointer to a BehaviorExecution
+        record for the uml:Behavior that is being executed.
+
+        For a primitive action (e.g., measuring absorbance on a plate reader), this is a plain BehaviorExecution,
+        while for calling a Protocol as a sub-routine (e.g., to run a stage of an Type IIS assembly), this would be a
+        ProtocolExecution.''' ;
+        rdfs:subClassOf paml:ActivityNodeExecution ,
+    [ rdf:type owl:Restriction ; owl:allValuesFrom paml:BehaviorExecution ; owl:onProperty paml:call ;
+      owl:minCardinality "1"^^xsd:nonNegativeInteger ; owl:maxCardinality "1"^^xsd:nonNegativeInteger ; ] .
+
+paml:call rdf:type owl:ObjectProperty ;
+        rdfs:comment '''This property indicates the BehaviorExecution record for the uml:Behavior that was called.''' ;
+              rdfs:domain paml:CallBehaviorExecution ;
+              rdfs:range paml:BehaviorExecution ;
+              rdfs:label "call" .
+
+
+
+#################################################################
+#    Sample collection data model
+#################################################################
+
+paml:SampleCollection rdf:type owl:Class ;
+        rdfs:comment '''SampleCollection is the base class for describing the collections of physical materials that are
          acted upon by a Protocol. For example, a SampleCollection might describe a set of 10 cell cultures growing in
          96-well plate cells, or a set of 6 streaked agar plates, or a single 500 mL flask filled with media.
 
@@ -1203,254 +329,171 @@ paml:SampleCollection a owl:Class ;
          Consider, for example, a cell culturing protocol that includes a step to measure sample absorbance on a plate
          reader. Describing this step does not require knowing how the samples are laid out on the plate, and in many
          cases is even acceptable to run on samples across multiple plates. This flexibility will allow the cell
-         culturing protocol to be applied for experiments with different numbers and arrangements of samples.""" ;
-    rdfs:subClassOf sbol:Identified .
+         culturing protocol to be applied for experiments with different numbers and arrangements of samples.''' ;
+        rdfs:subClassOf sbol:Identified .
 
-uml:Constraint a owl:Class ;
-    rdfs:comment "A Constraint is a condition or restriction expressed in natural language text or in a machine readable language. See UML 2.5.1 specification section 7.6." ;
-    rdfs:subClassOf [ a owl:Restriction ;
-            owl:allValuesFrom uml:OrderedPropertyValue ;
-            owl:onProperty uml:constrainedElement ],
-        sbol:Identified .
 
-uml:ControlNode a owl:Class ;
-    rdfs:comment "A ControlNode is a kind of ActivityNode used to manage the flow of tokens between other nodes in an Activity. It can manage branching and merging of workflows and the implementation of logic for flow control. See UML 2.5.1 specification section 15.3." ;
-    rdfs:subClassOf uml:ActivityNode .
+paml:SampleArray rdf:type owl:Class ;
+        rdfs:comment '''A SampleArray specifies an n-dimensional rectangular array of samples, all stored in the same
+        type of container. For example, a SampleCollection might describe a set of 10 cell cultures growing in
+        96-well plate cells, or a set of 6 streaked agar plates, or a single 500 mL flask filled with media.
 
-uml:Parameter a owl:Class ;
-    rdfs:comment "A Parameter is a specification of an argument used to pass information into or out of an invocation of a Behavior. See UML 2.5.1 specification section 9.4." ;
-    rdfs:subClassOf [ a owl:Restriction ;
-            owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
-            owl:onProperty uml:isOrdered ],
-        [ a owl:Restriction ;
-            owl:allValuesFrom xsd:anyURI ;
-            owl:onProperty uml:type ],
-        [ a owl:Restriction ;
-            owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
-            owl:onProperty uml:defaultValue ],
-        [ a owl:Restriction ;
-            owl:allValuesFrom uml:ValueSpecification ;
-            owl:onProperty uml:lowerValue ],
-        [ a owl:Restriction ;
-            owl:allValuesFrom uml:ValueSpecification ;
-            owl:onProperty uml:defaultValue ],
-        [ a owl:Restriction ;
-            owl:minCardinality "1"^^xsd:nonNegativeInteger ;
-            owl:onProperty uml:direction ],
-        [ a owl:Restriction ;
-            owl:minCardinality "1"^^xsd:nonNegativeInteger ;
-            owl:onProperty uml:isOrdered ],
-        [ a owl:Restriction ;
-            owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
-            owl:onProperty uml:upperValue ],
-        [ a owl:Restriction ;
-            owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
-            owl:onProperty uml:isUnique ],
-        [ a owl:Restriction ;
-            owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
-            owl:onProperty uml:direction ],
-        [ a owl:Restriction ;
-            owl:allValuesFrom xsd:anyURI ;
-            owl:onProperty uml:direction ],
-        [ a owl:Restriction ;
-            owl:allValuesFrom uml:ValueSpecification ;
-            owl:onProperty uml:upperValue ],
-        [ a owl:Restriction ;
-            owl:allValuesFrom xsd:boolean ;
-            owl:onProperty uml:isOrdered ],
-        [ a owl:Restriction ;
-            owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
-            owl:onProperty uml:lowerValue ],
-        [ a owl:Restriction ;
-            owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
-            owl:onProperty uml:type ],
-        [ a owl:Restriction ;
-            owl:minCardinality "1"^^xsd:nonNegativeInteger ;
-            owl:onProperty uml:isUnique ],
-        [ a owl:Restriction ;
-            owl:allValuesFrom xsd:boolean ;
-            owl:onProperty uml:isUnique ],
-        sbol:Identified .
+        Wells may be full, in which case the contents property should contain a URI to a description of the sample,
+        or empty, in which case the contents should be null.
 
-uml:exprValue a owl:ObjectProperty ;
-    rdfs:label "expr" ;
-    rdfs:comment "A ValueSpecification that evaluates to the value of the Duration." ;
-    rdfs:domain uml:Duration,
-        uml:TimeExpression ;
-    rdfs:range uml:ValueSpecification ;
-    rdfs:subPropertyOf opil:compositionalProperty .
+        Note that this is a logical array, and does not necessarily indicate the actual layout of the samples in space.
+        For example, a 2x4 array of samples in 96-well plate wells might end up being laid out as a 2x4 array in wells
+        A1 to B4 or as a 2x4 array in wells G5 to H8 or as an 8x1 column in wells A1 to H1, or even as eight wells
+        scattered arbitrarily around the plate according to an anti-bias quality control schema.
 
-uml:isUnique a owl:DatatypeProperty ;
-    rdfs:label "is_unique" ;
-    rdfs:comment "For MultiplicityElement abstract class; UML 2.5.1 specification section 7.5" ;
-    rdfs:domain sbol:Identified ;
-    rdfs:range xsd:boolean .
+        This also allows for higher-dimensional arrays where each dimension represents an experimental factor.
+        For example, an experiment testing four factors with 3, 3, 4, and 5 values per factor, for a total of 180
+        combinations, could be represented as a 4-dimensional sample array of 96-well plate wells, and then end up
+        laid out over two plates.
 
-uml:type a owl:DatatypeProperty ;
-    rdfs:label "type" ;
-    rdfs:comment "Specifies a set of Type instances constraining the allowed values. See UML 2.5.1 specification section 7.5." ;
-    rdfs:domain sbol:Identified ;
-    rdfs:range xsd:anyURI .
+        TODO: need to decide on the format of the contents description.''' ;
+        rdfs:subClassOf paml:SampleCollection ,
+            [ rdf:type owl:Restriction ;
+              owl:onProperty paml:containerType ;
+              owl:allValuesFrom xsd:anyURI ; # replace with container ontology, when available
+              owl:minCardinality "1"^^xsd:nonNegativeInteger ; owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
+              rdfs:comment "Type of container used for storing the samples. The size and dimension may not match that of the array: it is up to execution to lay out the array in one or more containers"
+            ] ,
+            [ rdf:type owl:Restriction ;
+              owl:onProperty paml:contents ;
+              owl:allValuesFrom xsd:string ; # need to replace this with an serializable array model
+              owl:minCardinality "1"^^xsd:nonNegativeInteger ; owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
+              rdfs:comment "N-dimensional array of URI for specification or nulls"
+            ] .
 
-paml:ActivityEdgeFlow a owl:Class ;
-    rdfs:comment """An ActivityEdgeFlow records one movement of a UML token along a uml:ActivityEdge during the
-        execution of its containing Protocol. If the edge is a uml:ObjectFlow, then the value MUST be set.
-        If the edge is a uml:ControlFlow, then the value MUST NOT be set.
+paml:containerType rdf:type owl:DatatypeProperty ;
+        rdfs:comment '''''' ;
+              rdfs:domain paml:SampleArray ;
+              rdfs:range xsd:anyURI ;
+              rdfs:label "container_type" .
 
-        For instance, the ActivityEdgeFlow for a uml:ObjectFlow might record a measurement being sent to an output
-        uml:Parameter, while the ActivityEdgeFlow for a uml:ControlFlow might record a decision to proceed down a
-        particular branch from a uml:DecisionNode.
+paml:contents rdf:type owl:DatatypeProperty ;
+        rdfs:comment '''Description of the contents.
+        TODO: need to decide whether this is a multi-valued property with associated array coordinates or a
+        single-valued property with an array value.
+        Currently set to string as a "dummy" value that can serialize anything.''' ;
+              rdfs:domain paml:SampleArray ;
+              rdfs:range xsd:string ;
+              rdfs:label "contents" .
 
-        Note that a uml:ActivityEdge might appear in multiple ActivityEdgeFlow records associated with a single
-        ProtocolExecution, e.g., due to a loop in the Protocol.  It also might not appear in any, if the
-        uml:ActivityEdge is on a path not taken due to branching control flow.
+paml:SampleMask rdf:type owl:Class ;
+        rdfs:comment '''A SampleMask is a subset of a SampleCollection. The subset of samples to be included is defined
+        by an array of Boolean values, where true values indicate that a sample is included and false values indicate
+        that it is excluded.
 
-        TODO: correct the cardinality: edgeValue is supposed to be optional, not edge
-        """ ;
-    rdfs:subClassOf [ a owl:Restriction ;
-            owl:allValuesFrom paml:ActivityNodeExecution ;
-            owl:onProperty paml:tokenSource ],
-        [ a owl:Restriction ;
-            owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
-            owl:onProperty paml:tokenSource ],
-        [ a owl:Restriction ;
-            owl:allValuesFrom uml:ActivityEdge ;
-            owl:onProperty paml:edge ],
-        [ a owl:Restriction ;
-            owl:minCardinality "1"^^xsd:nonNegativeInteger ;
-            owl:onProperty paml:edgeValue ],
-        [ a owl:Restriction ;
-            owl:allValuesFrom sbol:Identified ;
-            owl:onProperty paml:edgeValue ],
-        [ a owl:Restriction ;
-            owl:minCardinality "0"^^xsd:nonNegativeInteger ;
-            owl:onProperty paml:edge ],
-        [ a owl:Restriction ;
-            owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
-            owl:onProperty paml:edgeValue ],
-        [ a owl:Restriction ;
-            owl:minCardinality "1"^^xsd:nonNegativeInteger ;
-            owl:onProperty paml:tokenSource ],
-        [ a owl:Restriction ;
-            owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
-            owl:onProperty paml:edge ],
-        sbol:Identified .
+        The dimensions of the mask MUST be identical to the dimensions of the source SampleCollection. For this purpose,
+        the dimensions of a masked subset are not reduced, but remain the same as the original SampleArray. This allows
+        masks to be composed, such that SampleMask(source=SampleMask(source=X,mask=mask1),mask=mask2) is equivalent to
+        SampleMask(source=X,mask=mask1 AND mask2). Note that this implies masks are commutative and idempotent.''' ;
+        rdfs:subClassOf paml:SampleCollection ,
+            [ rdf:type owl:Restriction ;
+              owl:onProperty paml:source ;
+              owl:allValuesFrom paml:SampleCollection ;
+              owl:minCardinality "1"^^xsd:nonNegativeInteger ; owl:maxCardinality "1"^^xsd:nonNegativeInteger
+            ] ,
+            [ rdf:type owl:Restriction ;
+              owl:onProperty paml:mask ;
+              owl:allValuesFrom xsd:string ; # need to replace this with an serializable array model
+              owl:minCardinality "1"^^xsd:nonNegativeInteger ; owl:maxCardinality "1"^^xsd:nonNegativeInteger
+            ] .
 
-paml:ActivityNodeExecution a owl:Class ;
-    rdfs:comment """An ActivityNodeExecution records one instance in which a uml:ActivityNode is executed during the
-        execution of its containing Protocol.
+paml:source rdf:type owl:ObjectProperty ;
+        rdfs:comment '''The source indicates the SampleCollection that is being subsetted via the mask''' ;
+              rdfs:domain paml:SampleMask ;
+              rdfs:range paml:SampleCollection ;
+              rdfs:label "source" .
 
-        For instance, the ActivityNodeExecution for a uml:CallBehaviorAction to measure absorbance on a plate reader
-        would set its node property to point to the uml:CallBehaviorAction and might have incomingFlow properties
-        indicating arrival of information about the samples to measure via a uml:ObjectFlow and the arrival a
-        of permission to begin via a uml:ControlFlow.
+paml:mask rdf:type owl:DatatypeProperty ;
+        rdfs:comment '''The mask is an N-dimensional array of Booleans values, where each Boolean indicates whether the
+        sample at the corresponding location in the source is included in the subset.
 
-        Note that a uml:ActivityNode might appear in multiple ActivityNodeExecution records associated with a single
-        ProtocolExecution, e.g., due to a loop in the Protocol.  It also might not appear in any, if the
-        uml:ActivityNode is on a path not taken due to branching control flow.""" ;
-    rdfs:subClassOf [ a owl:Restriction ;
-            owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
-            owl:onProperty paml:node ],
-        [ a owl:Restriction ;
-            owl:allValuesFrom uml:ActivityNode ;
-            owl:onProperty paml:node ],
-        [ a owl:Restriction ;
-            owl:minCardinality "1"^^xsd:nonNegativeInteger ;
-            owl:onProperty paml:node ],
-        [ a owl:Restriction ;
-            owl:allValuesFrom paml:ActivityEdgeFlow ;
-            owl:onProperty paml:incomingFlow ],
-        sbol:Identified .
+        TODO: format of mask array needs to match the array format chosen for the SampleArray contents property''' ;
+              rdfs:domain paml:mask ;
+              rdfs:range xsd:string ;
+              rdfs:label "mask" .
 
-uml:ActivityEdge a owl:Class ;
-    rdfs:comment "An ActivityEdge is an abstract class for directed connections between two ActivityNodes. See UML 2.5.1 specification section 15.2." ;
-    rdfs:subClassOf [ a owl:Restriction ;
-            owl:allValuesFrom uml:ActivityNode ;
-            owl:onProperty uml:target ],
-        [ a owl:Restriction ;
-            owl:allValuesFrom uml:ActivityNode ;
-            owl:onProperty uml:source ],
-        [ a owl:Restriction ;
-            owl:minCardinality "1"^^xsd:nonNegativeInteger ;
-            owl:onProperty uml:source ],
-        [ a owl:Restriction ;
-            owl:minCardinality "1"^^xsd:nonNegativeInteger ;
-            owl:onProperty uml:target ],
-        [ a owl:Restriction ;
-            owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
-            owl:onProperty uml:target ],
-        [ a owl:Restriction ;
-            owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
-            owl:onProperty uml:source ],
-        sbol:Identified .
 
-uml:Behavior a owl:Class ;
-    rdfs:comment "Behavior is an abstract specification of how a state changes over time. This specification may be a prospective definition of a protocol or a capture of an execution trace. See UML 2.5.1 specification section 13.2." ;
-    rdfs:subClassOf [ a owl:Restriction ;
-            owl:allValuesFrom uml:Constraint ;
-            owl:onProperty uml:postcondition ],
-        [ a owl:Restriction ;
-            owl:allValuesFrom uml:OrderedPropertyValue ;
-            owl:onProperty uml:ownedParameter ],
-        [ a owl:Restriction ;
-            owl:allValuesFrom uml:Constraint ;
-            owl:onProperty uml:precondition ],
-        sbol:TopLevel .
 
-uml:isOrdered a owl:DatatypeProperty ;
-    rdfs:label "is_ordered" ;
-    rdfs:comment "For MultiplicityElement abstract class; UML 2.5.1 specification section 7.5" ;
-    rdfs:domain sbol:Identified ;
-    rdfs:range xsd:boolean .
 
-uml:LiteralSpecification a owl:Class ;
-    rdfs:comment "A LiteralSpecification identifies a literal constant being modeled. See UML 2.5.1 specification section 8.2." ;
-    rdfs:subClassOf uml:ValueSpecification .
+paml:SampleData rdf:type owl:Class ;
+        rdfs:comment '''The SampleData class is used to associate a set of data with a collection of samples.
+        This is typically used to capture measurements, e.g., an array of absorbance measurements collected by
+        a plate reader. Using this data structure allows the values in a dataframe to be automatically linked to
+        the descriptions of the samples that the data describes, which is critical for data analysis.
 
-uml:ActivityNode a owl:Class ;
-    rdfs:comment "ActivityNode is an abstract class for points in the flow of an Activity connected by ActivityEdges. See UML 2.5.1 specification section 15.2." ;
-    rdfs:subClassOf sbol:Identified .
+        The dimensions of the sampleDataValues MUST equal the dimensions of the SampleCollection linked with fromSamples.
 
-uml:firstEventValue a owl:ObjectProperty ;
-    rdfs:label "firstEvent" ;
-    rdfs:comment "The value of firstEvent[i] is related to event[i] (where i is 1 or 2). If firstEvent[i] is true, then the correspondingobservation event is the first time instant the execution enters event[i]. If firstEvent[i] is false, then the corresponding observation event is the time instant the execution exits event[i]." ;
-    rdfs:domain uml:DurationConstraint,
-        uml:DurationObservation,
-        uml:TimeConstraint,
-        uml:TimeObservation ;
-    rdfs:range uml:OrderedPropertyValue ;
-    rdfs:subPropertyOf opil:compositionalProperty .
+        TODO: the format of the data values needs to be compatible with the array format chosen for the
+        SampleArray contents property. In this case, however, we also need to consider how we want to support
+        multiple values for each sample (e.g., measurement of both fluorescence and absorbance in a plate reader),
+        as well as links to more complex data (e.g., results of flow cytometry or omics for each sample)''' ;
+            rdfs:subClassOf sbol:Identified ,
+                            [ rdf:type owl:Restriction ;
+                              owl:onProperty paml:sampleDataValues ;
+                              owl:allValuesFrom xsd:string ; # need to replace this with an serializable array model
+                              owl:minCardinality "1"^^xsd:nonNegativeInteger ;
+                              owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
+                              ] ,
+                            [ rdf:type owl:Restriction ;
+                              owl:onProperty paml:fromSamples ;
+                              owl:allValuesFrom paml:SampleCollection ;
+                              owl:minCardinality "1"^^xsd:nonNegativeInteger ;
+                              owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
+                              ] .
 
-uml:OrderedPropertyValue a owl:Class ;
-    rdfs:subClassOf [ a owl:Restriction ;
-            owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
-            owl:onProperty uml:indexValue ],
-        [ a owl:Restriction ;
-            owl:minCardinality "1"^^xsd:nonNegativeInteger ;
-            owl:onProperty uml:propertyValue ],
-        [ a owl:Restriction ;
-            owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
-            owl:onProperty uml:propertyValue ],
-        [ a owl:Restriction ;
-            owl:allValuesFrom sbol:Identified ;
-            owl:onProperty uml:propertyValue ],
-        [ a owl:Restriction ;
-            owl:allValuesFrom xsd:integer ;
-            owl:onProperty uml:indexValue ],
-        [ a owl:Restriction ;
-            owl:minCardinality "1"^^xsd:nonNegativeInteger ;
-            owl:onProperty uml:indexValue ],
-        sbol:Identified .
+paml:sampleDataValues rdf:type owl:ObjectProperty ;
+        rdfs:comment '''The sampleDataValues are an array of data values, one for each sample, format to be determined.''';
+              rdfs:domain paml:SampleData ;
+              rdfs:range xsd:string ; # TODO: consider https://github.com/SynBioDex/sbol_factory/issues/7
+              rdfs:label "values" .
 
-uml:ValueSpecification a owl:Class ;
-    rdfs:comment "A ValueSpecification is the specification of a (possibly empty) set of values. See UML 2.5.1 specification section 8." ;
-    rdfs:subClassOf [ a owl:Restriction ;
-            owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
-            owl:onProperty uml:type ],
-        [ a owl:Restriction ;
-            owl:allValuesFrom xsd:anyURI ;
-            owl:onProperty uml:type ],
-        sbol:Identified .
+paml:fromSamples rdf:type owl:ObjectProperty ;
+        rdfs:comment '''The fromSamples property indicates the SampleCollection from which the data were collected.''' ;
+              rdfs:subPropertyOf opil:compositionalProperty ;
+              rdfs:domain paml:SampleData ;
+              rdfs:range paml:SampleCollection ;
+              rdfs:label "from_samples" .
 
-opil:compositionalProperty a owl:ObjectProperty .
 
+#################################################################
+#    Container specification
+#################################################################
+paml:queryString a owl:DatatypeProperty ,
+                   owl:FunctionalProperty ;
+    rdfs:domain paml:ContainerSpec ;
+    rdfs:range xsd:string ;
+    rdfs:label "queryString" ;
+    rdfs:comment "A query string, in OWL Manchester syntax, to be used to find matching containers in the ContainerSpec." .
+
+
+paml:prefixMap a owl:DatatypeProperty ,
+                 owl:FunctionalProperty ;
+    rdfs:domain paml:ContainerSpec ;
+    rdfs:range xsd:string ;
+    rdfs:label "prefixMap" ;
+    rdfs:comment "A prefix map in JSON-LD format, to be applied to a queryString." .
+    
+
+paml:ContainerSpec a owl:Class ;
+        rdfs:comment '''A ContainerSpec is used to indicate the type of container to be used for a SampleArray, e.g.,
+        a standard 96-well flat-bottom transparent plate.
+
+        TODO: determine if we want to use this format or modify it in some way.''' ;
+    rdfs:subClassOf sbol:Identified ,
+    [ rdf:type owl:Restriction ;
+         owl:onProperty paml:queryString ;
+         owl:maxCardinality "1"^^xsd:nonNegativeInteger ] ,
+   [ rdf:type owl:Restriction ;
+         owl:onProperty paml:queryString ;
+         owl:minCardinality "1"^^xsd:nonNegativeInteger ] ,
+    [ rdf:type owl:Restriction ;
+          owl:onProperty paml:prefixMap ;
+          owl:maxCardinality "1"^^xsd:nonNegativeInteger ] ,
+    [ rdf:type owl:Restriction ;
+          owl:onProperty paml:prefixMap ;
+          owl:minCardinality "1"^^xsd:nonNegativeInteger ] .
