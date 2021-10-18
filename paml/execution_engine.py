@@ -231,7 +231,7 @@ class ExecutionEngine(ABC):
                                        isinstance(v, uml.LiteralReference)
                                     else  uml.LiteralReference(value=v))
                                 for k, v in value_pin_values.items()}
-            pin_values = input_pin_values | value_pin_values
+            pin_values = { **input_pin_values, **value_pin_values} # merge the dicts
             parameter_values = [paml.ParameterValue(parameter=node.pin_parameter(pin.name),
                                                     value=pin_values[pin.identity])
                                 for pin in node.inputs if pin.identity in pin_values]
