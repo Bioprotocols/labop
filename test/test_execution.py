@@ -41,8 +41,8 @@ class TestProtocolExecution(unittest.TestCase):
         ########################################
         # Validate and write the document
         print('Validating and writing protocol')
-        #v = doc.validate()
-        #assert len(v) == 0, "".join(f'\n {e}' for e in v)
+        v = doc.validate()
+        assert len(v) == 0, "".join(f'\n {e}' for e in v)
 
         temp_name = os.path.join(tempfile.gettempdir(), 'igem_ludox_test.nt')
         doc.write(temp_name, sbol3.SORTED_NTRIPLES)

@@ -365,7 +365,7 @@ def primitive_compute_output(self, inputs, parameter):
         contents = ""
         name = f"{parameter.name}"
         sample_array = SampleArray(name=name,
-                                   container_type=spec.value.identity,
+                                   container_type=spec.value,
                                    contents=contents)
         return sample_array
     elif self.identity == 'https://bioprotocols.org/paml/primitives/sample_arrays/PlateCoordinates' and \

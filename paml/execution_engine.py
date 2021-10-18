@@ -225,15 +225,11 @@ class ExecutionEngine(ABC):
                                 for token in inputs if not token.edge}
             # Get Input value pins
             value_pin_values = {pin.identity: pin.value for pin in node.inputs if hasattr(pin, "value")}
-            # Convert References to non Literals to LiteralIdentified
-            value_pin_values = {k: (uml.LiteralIdentified(value=v.value.lookup())
-                                     if isinstance(v.value, sbol3.refobj_property.ReferencedURI)
-                                     else v)
-                                for k, v in value_pin_values.items()}
-            # Make Reference to referenced values
-            value_pin_values = {k: (uml.LiteralReference(value=v.value.lookup())
-                                    if isinstance(v, uml.LiteralReference)
-                                    else uml.literal(v.value))
+            # Convert References
+            value_pin_values = {k: (uml.LiteralReference(value=ex.document.find(v.value))
+                                    if isinstance(v.value, sbol3.refobj_property.ReferencedURI) or
+                                       isinstance(v, uml.LiteralReference)
+                                    else  uml.LiteralReference(value=v))
                                 for k, v in value_pin_values.items()}
             pin_values = input_pin_values | value_pin_values
             parameter_values = [paml.ParameterValue(parameter=node.pin_parameter(pin.name),
