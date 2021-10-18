@@ -18,6 +18,7 @@ setup(name='paml',
             'openpyxl'
       ],
       packages=['paml', 'paml_md', 'paml.lib', 'paml_time', 'uml', 'owl_rdf_utils'],
+      scripts=['scripts/to_sorted_ntriples', 'scripts/restrictions'],
       package_data={'paml': ['paml.ttl', 'lib/*.ttl'],
                     'paml_md': ['template.xlsx'],
                     'uml': ['uml.ttl'],
