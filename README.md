@@ -21,4 +21,4 @@ The `secrets` directory includes a template to configure Strateos credentials.  
 cp secrets/strateos_secrets.json.sample secrets/strateos_secrets.json
 # Edit contents of secrets/strateos_secrets.json
 ```
-The secrets for the Strateos API are used by the notebook `notebooks/Autoprotocol.ipynb` and pytest `test/test_convert.py`.
+The secrets for the Strateos API are used by the notebook `notebooks/Autoprotocol.ipynb` and pytest `test/test_convert.py`.  Additional user permissions may be required to submit runs to Strateos.  Please contact [Strateos support](https://strateos.com/contact-us/) for assistance.

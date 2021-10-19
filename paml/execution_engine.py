@@ -521,7 +521,8 @@ def primitive_compute_output(self, inputs, parameter):
             if i_parameter.name == "source":
                 source = value
             elif i_parameter.name == "coordinates":
-                coordinates = value.value
+                coordinates = value.value.lookup().value if isinstance(value, uml.LiteralReference) else value.value
+
         mask = paml.SampleMask(source=source,
                           mask=coordinates)
         return mask

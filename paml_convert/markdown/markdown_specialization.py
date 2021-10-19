@@ -1,14 +1,12 @@
+import logging
+
 import sbol3
 import tyto
-
-import logging
 
 import paml
 import uml
 from paml_convert.behavior_specialization import BehaviorSpecialization
 from paml_convert.markdown import MarkdownConverter
-
-from container_api.client_api import matching_containers, strateos_id
 
 l = logging.getLogger(__file__)
 l.setLevel(logging.ERROR)
@@ -111,10 +109,13 @@ class MarkdownSpecialization(BehaviorSpecialization):
         l.debug(f" specification: {spec}")
         l.debug(f" samples: {samples_var}")
 
-        possible_container_types = matching_containers(spec)
-        containers_str = ",".join([f"\n\t[{c.split('#')[1]}]({c})" for c in possible_container_types])
-
-        self.markdown_steps += [f"Provision a container named `{samples_var.name}` such as: {containers_str}."]
+        try:
+            possible_container_types = possible_container_types = self.resolve_container_spec(spec)
+            containers_str = ",".join([f"\n\t[{c.split('#')[1]}]({c})" for c in possible_container_types])
+            self.markdown_steps += [f"Provision a container named `{samples_var.name}` such as: {containers_str}."]
+        except Exception as e:
+            l.warning(e)
+            self.markdown_steps += [f"Provision a container named `{samples_var.name}` meeting specification: {spec.queryString}."]
 
         return results
 

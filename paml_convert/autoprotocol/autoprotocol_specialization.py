@@ -31,6 +31,7 @@ class AutoprotocolSpecialization(BehaviorSpecialization):
         self.resolutions = resolutions
         self.api = api
         self.var_to_entity = {}
+        self.container_api_addl_conditions = "(cont:availableAt value <https://sift.net/container-ontology/strateos-catalog#Strateos>)"
 
 
     def _init_behavior_func_map(self) -> dict:
@@ -85,19 +86,26 @@ class AutoprotocolSpecialization(BehaviorSpecialization):
         short_names = [v.shortname
                        for v in [getattr(ctype, x) for x in dir(ctype)]
                        if isinstance(v, ctype.ContainerType)]
-        possible_container_types = matching_containers(
-            spec,
-            addl_conditions="(cont:availableAt value <https://sift.net/container-ontology/strateos-catalog#Strateos>)")
-        possible_short_names = [strateos_id(x) for x in possible_container_types]
+        try:
+            possible_container_types = self.resolve_container_spec(spec,
+                                                                   addl_conditions=self.container_api_addl_conditions)
+            possible_short_names = [strateos_id(x) for x in possible_container_types]
+            matching_short_names = [x for x in short_names if x in possible_short_names]
+            name_map = {
+                '96-ubottom-clear-tc': "96-flat",
+                '96-flat-clear-clear-tc': "96-flat"
+            }
+            mapped_names = [name_map[x] for x in matching_short_names]
+            return mapped_names[0]
+            # return matching_short_names[0] # FIXME need some error handling here
 
-        matching_short_names = [x for x in short_names if x in possible_short_names]
-        name_map = {
-            '96-ubottom-clear-tc' : "96-flat",
-            '96-flat-clear-clear-tc' : "96-flat"
-        }
-        mapped_names = [name_map[x] for x in matching_short_names]
-        return mapped_names[0]
-        #return matching_short_names[0] # FIXME need some error handling here
+        except Exception as e:
+            l.warning(e)
+            container_type = "96-flat"
+            l.warning(f"Defaulting container to {container_type}")
+            return container_type
+
+
 
     def create_new_container(self, name, container_type):
         container_spec = {
