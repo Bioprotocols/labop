@@ -10,13 +10,13 @@ import unittest
 
 from paml_convert.autoprotocol.autoprotocol_specialization import AutoprotocolSpecialization
 
-from paml_convert.autoprotocol.transcriptic_api import TranscripticAPI, TranscripticConfig
+from paml_convert.autoprotocol.strateos_api import StrateosAPI, StrateosConfig
 from paml.execution_engine import ExecutionEngine
 from paml_convert.markdown.markdown_specialization import MarkdownSpecialization
 
 
 class TestConvert(unittest.TestCase):
-    @pytest.mark.skip(reason="need to put tx_secrets.json credentials on github first")
+    @pytest.mark.skip(reason="need to put strateos_secrets.json credentials on github first")
     def test_ludox(self):
         out_dir = "."
 
@@ -33,8 +33,8 @@ class TestConvert(unittest.TestCase):
         agent = sbol3.Agent("test_agent")
 
         autoprotocol_output = os.path.join(out_dir, "test_LUDOX_autoprotocol.json")
-        secrets_file = os.path.join(os.getcwd(), "../secrets/tx_secrets.json")
-        api = TranscripticAPI(cfg=TranscripticConfig.from_file(secrets_file))
+        secrets_file = os.path.join(os.getcwd(), "../secrets/strateos_secrets.json")
+        api = StrateosAPI(cfg=StrateosConfig.from_file(secrets_file))
         resolutions = {
             doc.find("https://bbn.com/scratch/LUDOX"): "rs1b6z2vgatkq7",
             doc.find("https://bbn.com/scratch/ddH2O"): "rs1c7pg8qs22dt",

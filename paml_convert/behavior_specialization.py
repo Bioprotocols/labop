@@ -9,6 +9,11 @@ class BehaviorSpecializationException(Exception):
     pass
 
 class BehaviorSpecialization(ABC):
+    """
+    This abstract class defines an API for different conversions from PAML
+    to other formats, such as Markdown or Autoprotocol.
+    """
+
     def __init__(self) -> None:
         super().__init__()
         self._behavior_func_map = self._init_behavior_func_map()

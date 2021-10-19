@@ -473,3 +473,58 @@ def protocol_execution_to_dot(self):
 
     return dot
 paml.ProtocolExecution.to_dot = protocol_execution_to_dot
+
+
+def call_behavior_execution_compute_output(self, parameter):
+    """
+    Get parameter value from call behavior execution
+    :param self:
+    :param parameter: output parameter to define value
+    :return: value
+    """
+    primitive = self.node.lookup().behavior.lookup()
+    call = self.call.lookup()
+    inputs = [x for x in call.parameter_values if x.parameter.lookup().direction == uml.PARAMETER_IN]
+    value = primitive.compute_output(inputs, parameter)
+    return value
+paml.CallBehaviorExecution.compute_output = call_behavior_execution_compute_output
+
+def primitive_compute_output(self, inputs, parameter):
+    """
+    Compute the value for parameter given the inputs. This default function will be overridden for specific primitives.
+    :param self:
+    :param inputs: list of paml.ParameterValue
+    :param parameter: Parameter needing value
+    :return: value
+    """
+    if self.identity == 'https://bioprotocols.org/paml/primitives/sample_arrays/EmptyContainer' and \
+        parameter.name == "samples" and \
+        parameter.type == 'http://bioprotocols.org/paml#SampleArray':
+        # Make a SampleArray
+        for input in inputs:
+            i_parameter = input.parameter.lookup()
+            value = input.value
+            if i_parameter.name == "specification":
+                spec = value
+        contents = ""
+        name = f"{parameter.name}"
+        sample_array = paml.SampleArray(name=name,
+                                   container_type=spec.value,
+                                   contents=contents)
+        return sample_array
+    elif self.identity == 'https://bioprotocols.org/paml/primitives/sample_arrays/PlateCoordinates' and \
+        parameter.name == "samples" and \
+        parameter.type == 'http://bioprotocols.org/paml#SampleCollection':
+        for input in inputs:
+            i_parameter = input.parameter.lookup()
+            value = input.value
+            if i_parameter.name == "source":
+                source = value
+            elif i_parameter.name == "coordinates":
+                coordinates = value.value
+        mask = paml.SampleMask(source=source,
+                          mask=coordinates)
+        return mask
+    else:
+        return f"{parameter.name}"
+paml.Primitive.compute_output = primitive_compute_output

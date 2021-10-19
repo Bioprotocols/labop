@@ -1,4 +1,4 @@
-/secrets/tx_secrets.json
+/secrets/strateos_secrets.json
 /.pytest_cache/
 /env/
 /paml.egg-info/

@@ -14,7 +14,7 @@ from autoprotocol.protocol import Protocol
 from autoprotocol.unit import Unit
 from autoprotocol import container_type as ctype
 from paml_convert.behavior_specialization import BehaviorSpecialization
-from paml_convert.autoprotocol.transcriptic_api import TranscripticAPI
+from paml_convert.autoprotocol.strateos_api import StrateosAPI
 
 from container_api.client_api import matching_containers, strateos_id
 
@@ -25,7 +25,7 @@ l = logging.getLogger(__file__)
 l.setLevel(logging.ERROR)
 
 class AutoprotocolSpecialization(BehaviorSpecialization):
-    def __init__(self, out_path, api: TranscripticAPI = None, resolutions: Dict[sbol3.Identified, str] = None) -> None:
+    def __init__(self, out_path, api: StrateosAPI = None, resolutions: Dict[sbol3.Identified, str] = None) -> None:
         super().__init__()
         self.out_path = out_path
         self.resolutions = resolutions
@@ -66,7 +66,7 @@ class AutoprotocolSpecialization(BehaviorSpecialization):
 
         #container_id = tx.inventory("flat test")['results'][1]['id']
         #container_id = "ct1g9q3bndujat5"
-        tx = self.api.get_transcriptic_connection() # Make sure that connection is alive for making the container object
+        tx = self.api.get_strateos_connection() # Make sure that connection is alive for making the container object
         tx_container = transcriptic.Container(container_id)
         container = self.protocol.ref(samples_var.name, id=tx_container.id, cont_type=tx_container.container_type, discard=True)
         self.var_to_entity[samples_var] = container

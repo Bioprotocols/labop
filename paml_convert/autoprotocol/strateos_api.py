@@ -14,14 +14,14 @@ import logging
 l = logging.getLogger(__file__)
 l.setLevel(logging.ERROR)
 
-class TranscripticException(Exception):
+class StrateosException(Exception):
     pass
 
-class TranscripticEnvironmentException(Exception):
+class StrateosEnvironmentException(Exception):
     pass
 
 
-class TranscripticConfig():
+class StrateosConfig():
     @property
     def email(self) -> str:
         return self._email
@@ -65,7 +65,7 @@ class TranscripticConfig():
         def get_file_else_error(cfg, var):
             res = cfg[var] if var in cfg else None
             if res is None:
-                raise TranscripticEnvironmentException(f"Configuration variable '{var}' is unset")
+                raise StrateosEnvironmentException(f"Configuration variable '{var}' is unset")
             return res
 
         with open(cfg_file, "r") as tx_cfg_file:
@@ -76,45 +76,45 @@ class TranscripticConfig():
             user = get_file_else_error(tx_cfg, "email")
             org = get_file_else_error(tx_cfg, "organization_id")
             project_id = get_file_else_error(tx_cfg, "project_id")
-            return TranscripticConfig(email, token, user, org, project_id)
+            return StrateosConfig(email, token, user, org, project_id)
 
     @staticmethod
     def from_environment():
         def get_env_else_error(var):
             res = os.environ.get(var)
             if res is None:
-                raise TranscripticEnvironmentException(f"Environment variable '{var}' is unset")
+                raise StrateosEnvironmentException(f"Environment variable '{var}' is unset")
             return res
         email = get_env_else_error("_TRANSCRIPTIC_EMAIL")
         token = get_env_else_error("_TRANSCRIPTIC_TOKEN")
         user = get_env_else_error("_TRANSCRIPTIC_USER_ID")
         org = get_env_else_error("_TRANSCRIPTIC_ORGANIZATION_ID")
         proj = get_env_else_error("_TRANSCRIPTIC_PROJECT_ID")
-        return TranscripticConfig(email, token, user, org, proj)
+        return StrateosConfig(email, token, user, org, proj)
 
-class TranscripticProtocol():
+class StrateosProtocol():
     def __init__(self, protocol):
         self.protocol = protocol
         self.id = protocol["id"]
         self.name = protocol["name"]
 
-class TranscripticAPI():
+class StrateosAPI():
 
     @property
-    def protocol_make_containers(self) -> TranscripticProtocol:
+    def protocol_make_containers(self) -> StrateosProtocol:
         return self._protocol_make_containers
 
-    def __init__(self, out_dir: str = "./", cfg: TranscripticConfig = None) -> None:
+    def __init__(self, out_dir: str = "./", cfg: StrateosConfig = None) -> None:
         self.out_dir = out_dir
         if not os.path.exists(self.out_dir):
             os.mkdir(self.out_dir)
 
-        self.cfg = TranscripticConfig.from_environment() if cfg is None else cfg
+        self.cfg = StrateosConfig.from_environment() if cfg is None else cfg
 
         self._protocol_name_map = {}
         ps = self.query_all_protocols()
         for p in ps:
-            tp = TranscripticProtocol(p)
+            tp = StrateosProtocol(p)
             self._protocol_name_map[p["name"]] = tp
 
         self._protocol_make_containers = self._name_to_protocol("MakeContainers")
@@ -122,7 +122,7 @@ class TranscripticAPI():
     def _name_to_protocol(self, name: str):
         res = self._protocol_name_map.get(name)
         if res is None:
-            raise TranscripticException(f"Failed to find '{name}' in protocol name map")
+            raise StrateosException(f"Failed to find '{name}' in protocol name map")
         return res
         
     def _build_headers(self):
@@ -153,46 +153,46 @@ class TranscripticAPI():
             }
         }
         # TODO verify this request then enable sending
-        response = self.submit_to_transcriptic(self._protocol_make_containers, params, title)
+        response = self.submit_to_strateos(self._protocol_make_containers, params, title)
 
         container_ids = {x['name'] : x['container_id'] for x in response['refs']}
 
         return container_ids
 
-    def get_transcriptic_connection(self):
-        """Connect (without validation) to Transcriptic.com"""
+    def get_strateos_connection(self):
+        """Connect (without validation) to Strateos.com"""
         try:
             return transcriptic.Connection(**self.cfg.to_dict())
         except Exception:
             raise
 
 
-    def submit_to_transcriptic(self,
-                               protocol: TranscripticProtocol,
-                               params,
-                               title,
-                               test_mode=True):
-        """Submit to transcriptic and record response"""
+    def submit_to_strateos(self,
+                           protocol: StrateosProtocol,
+                           params,
+                           title,
+                           test_mode=True):
+        """Submit to Strateos and record response"""
 
         launch_request_id = None
         launch_protocol = None
 
         try:
-            conn = self.get_transcriptic_connection()
+            conn = self.get_strateos_connection()
         except Exception as exc:
-            raise TranscripticException(exc)
+            raise StrateosException(exc)
 
         try:
             launch_request = self._create_launch_request(params, title, test_mode=test_mode)
             try:
                 launch_protocol = conn.launch_protocol(launch_request, protocol_id=protocol.id)
             except Exception as exc:
-                raise TranscripticException(exc)
+                raise StrateosException(exc)
             launch_request_id = launch_protocol["id"]
         except Exception as exc:
-            raise TranscripticException(exc)
+            raise StrateosException(exc)
 
-        # Delay needed because it takes Transcriptic a few seconds to
+        # Delay needed because it takes Strateos a few seconds to
         # complete launch_protocol()
         time.sleep(30)
 
@@ -218,7 +218,7 @@ class TranscripticAPI():
             return request_response
 
         except Exception as exc:
-            raise TranscripticException(exc)
+            raise StrateosException(exc)
 
     def _create_launch_request(self, params, local_name, bsl=1, test_mode=True):
         """Creates launch_request from input params"""
@@ -249,7 +249,7 @@ class TranscripticAPI():
                                             test_mode=test_mode)
             return lr
         except Exception as exc:
-            raise TranscripticException(exc)
+            raise StrateosException(exc)
 
     def resolve_resource(self, resource):
         types = resource.types
@@ -264,6 +264,6 @@ class TranscripticAPI():
             except requests.exceptions.RequestException as e:
                 l.debug(e)
 
-        conn = self.get_transcriptic_connection()
+        conn = self.get_strateos_connection()
         results = conn.resources(resource)['results']
         return results
