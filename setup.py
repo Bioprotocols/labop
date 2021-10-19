@@ -31,6 +31,10 @@ setup(name='paml',
             "container-ontology @ https://github.com/rpgoldman/container-ontology/tarball/main",
             "ipython"
       ],
+      tests_require = [
+            'nbmake',
+            'pytest-xdist'
+      ],
       packages=['paml', 'paml_convert', 'paml_convert.autoprotocol', 'paml_convert.markdown', 'paml.lib', 'paml_time', 'uml'],
       package_data={'paml': ['paml.ttl', 'lib/*.ttl'],
                     'paml_convert': ['markdown/template.xlsx'],
