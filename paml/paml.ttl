@@ -126,7 +126,7 @@ paml:ParameterValue rdf:type owl:Class ;
         be recording that a plate reader absorbance measurement was taken with its absorbance wavelength parameter set
         to 600 nm''' ;
         rdfs:subClassOf sbol:Identified,
-    [ rdf:type owl:Restriction ; owl:allValuesFrom uml:Parameter ; owl:onProperty paml:parameter ;
+    [ rdf:type owl:Restriction ; owl:allValuesFrom uml:OrderedPropertyValue ; owl:onProperty paml:parameter ;
       owl:minCardinality "1"^^xsd:nonNegativeInteger ; owl:maxCardinality "1"^^xsd:nonNegativeInteger ] ,
     [ rdf:type owl:Restriction ; owl:allValuesFrom uml:LiteralSpecification ; owl:onProperty paml:parameterValue ;
       owl:minCardinality "1"^^xsd:nonNegativeInteger ; owl:maxCardinality "1"^^xsd:nonNegativeInteger ] .
@@ -135,7 +135,7 @@ paml:parameter rdf:type owl:ObjectProperty ;
         rdfs:comment '''This property points to the uml:Parameter associated with the value (e.g., wavelength for a
         plate reader absorbance measurement behavior).''' ;
               rdfs:domain paml:ParameterValue ;
-              rdfs:range uml:Parameter ;
+              rdfs:range uml:OrderedPropertyValue ;
               rdfs:label "parameter" .
 
 paml:parameterValue rdf:type owl:ObjectProperty ;

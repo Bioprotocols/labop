@@ -9,11 +9,11 @@
 <https://bbn.com/scratch/ddH2O> <http://sbols.org/v3#name> "Water, sterile-filtered, BioReagent, suitable for cell culture" .
 <https://bbn.com/scratch/ddH2O> <http://sbols.org/v3#type> <https://identifiers.org/pubchem.substance:24901740> .
 <https://bbn.com/scratch/ddH2O> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://sbols.org/v3#Component> .
-<https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/ActivityParameterNode1> <http://bioprotocols.org/uml#parameter> <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/OrderedPropertyValue1/Parameter1> .
+<https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/ActivityParameterNode1> <http://bioprotocols.org/uml#parameter> <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/OrderedPropertyValue1> .
 <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/ActivityParameterNode1> <http://sbols.org/v3#displayId> "ActivityParameterNode1" .
 <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/ActivityParameterNode1> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://bioprotocols.org/uml#ActivityParameterNode> .
 <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/ActivityParameterNode1> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://sbols.org/v3#Identified> .
-<https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/ActivityParameterNode2> <http://bioprotocols.org/uml#parameter> <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/OrderedPropertyValue2/Parameter1> .
+<https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/ActivityParameterNode2> <http://bioprotocols.org/uml#parameter> <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/OrderedPropertyValue2> .
 <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/ActivityParameterNode2> <http://sbols.org/v3#displayId> "ActivityParameterNode2" .
 <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/ActivityParameterNode2> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://bioprotocols.org/uml#ActivityParameterNode> .
 <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/ActivityParameterNode2> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://sbols.org/v3#Identified> .

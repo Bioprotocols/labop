@@ -175,7 +175,7 @@ def protocol_to_dot(self, legend=False):
             return {'label': '', 'shape': 'diamond'}
         elif isinstance(object, uml.ObjectNode):
             if isinstance(object, uml.ActivityParameterNode):
-                label = object.parameter.lookup().name
+                label = object.parameter.lookup().property_value.name
             else:
                 raise ValueError(f'Do not know what GraphViz label to use for {object}')
             return {'label': label, 'shape': 'rectangle', 'peripheries': '2'}

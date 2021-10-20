@@ -132,13 +132,12 @@ class ExecutionEngine(ABC):
          """
         tokens_present = {node.document.find(t.edge) for t in tokens if t.edge}==protocol.incoming_edges(node)
         if hasattr(node, "inputs"):
-            required_inputs = [node.input_pin(i.name)
-                               for i in protocol.document.find(node.behavior).get_required_inputs()]
+            required_inputs = [node.input_pin(i.property_value.name)
+                               for i in node.behavior.lookup().get_required_inputs()]
             required_value_pins = {p for p in required_inputs if isinstance(p, uml.ValuePin)}
             required_input_pins = {p for p in required_inputs if not isinstance(p, uml.ValuePin)}
-            pins_with_tokens = {node.document.find(node.document.find(t.token_source).node)
-                                for t in tokens if not t.edge}
-            parameter_names = {pv.parameter.lookup().name for pv in parameter_values}
+            pins_with_tokens = {t.token_source.lookup().node.lookup() for t in tokens if not t.edge}
+            parameter_names = {pv.parameter.lookup().property_value.name for pv in parameter_values}
             pins_with_params = {p for p in required_input_pins if p.name in parameter_names}
             satisfied_pins = set(list(pins_with_params) + list(pins_with_tokens))
             input_pins_satisfied = satisfied_pins == required_input_pins
@@ -208,7 +207,7 @@ class ExecutionEngine(ABC):
         elif isinstance(node, uml.ActivityParameterNode):
             record = paml.ActivityNodeExecution(node=node, incoming_flows=inputs)
             ex.executions.append(record)
-            if node.parameter.lookup().direction == uml.PARAMETER_IN:
+            if node.parameter.lookup().property_value.direction == uml.PARAMETER_IN:
                 new_tokens = self.next_tokens(record, ex)
             else:
                 [value] = [i.value.value for i in inputs if isinstance(i.edge.lookup(), uml.ObjectFlow)]
@@ -232,9 +231,21 @@ class ExecutionEngine(ABC):
                                     else  uml.LiteralReference(value=v))
                                 for k, v in value_pin_values.items()}
             pin_values = { **input_pin_values, **value_pin_values} # merge the dicts
+
+            # # Need to sort inputs, otherwise parameter-value ordering is non-deterministic
+            # ordered_parameters = [x for x in node.behavior.lookup().parameters]
+            # ordered_parameters.sort(key=lambda x: x.index)
+            # ordered_node_inputs = [x.property_value.name
+            #                        for x in ordered_parameters
+            #                        if x.property_value.name in [x.name for x in node.inputs]]
+            # ordered_pins = [next(iter([x for x in node.inputs if x.name == n])) for n in ordered_node_inputs]
+            # parameter_values = [paml.ParameterValue(parameter=node.pin_parameter(pin.name),
+            #                                         value=pin_values[pin.identity])
+            #                     for pin in ordered_pins if pin.identity in pin_values]
             parameter_values = [paml.ParameterValue(parameter=node.pin_parameter(pin.name),
                                                     value=pin_values[pin.identity])
                                 for pin in node.inputs if pin.identity in pin_values]
+            parameter_values.sort(key=lambda x: ex.document.find(x.parameter).index)
             call = paml.BehaviorExecution(f"execute_{self.next_id()}",
                                           parameter_values=parameter_values,
                                           completed_normally=True,
@@ -265,7 +276,7 @@ class ExecutionEngine(ABC):
             new_tokens = self.next_pin_tokens(record, ex)
         elif isinstance(node, uml.OrderedPropertyValue):
             # node is an output parameter
-            out_param = node.property_value
+            out_param = node
             [value] = [i.value for i in inputs] # Assume a single input for params
             param_value = paml.ParameterValue(parameter=out_param,
                                               value=uml.literal(value.value))
@@ -323,7 +334,7 @@ class ExecutionEngine(ABC):
         if isinstance(edge, uml.ControlFlow):
             value = "uml.ControlFlow"
         elif isinstance(edge, uml.ObjectFlow):
-            parameter = activity_node.node.lookup().pin_parameter(edge.source.lookup().name)
+            parameter = activity_node.node.lookup().pin_parameter(edge.source.lookup().name).property_value
             value = activity_node.compute_output(parameter)
 
         value = uml.literal(value)
@@ -407,7 +418,7 @@ def protocol_execution_to_dot(self):
             value = value.value
 
         if isinstance(source, uml.Pin):
-            src_parameter = source.get_parent().pin_parameter(source.name)
+            src_parameter = source.get_parent().pin_parameter(source.name).property_value
             src_var = src_parameter.name
         else:
             src_var = ""
@@ -468,7 +479,7 @@ def protocol_execution_to_dot(self):
                 into_pin_flow = flow_source.incoming_flows[0]
                 #source = src_to_pin_edge.source.lookup()
                 #target = src_to_pin_edge.target.lookup()
-                dest_parameter = exec_target.pin_parameter(exec_source.name)
+                dest_parameter = exec_target.pin_parameter(exec_source.name).property_value
                 _make_object_edge(dot, into_pin_flow, into_pin_flow.lookup().edge.lookup().target.lookup(), dest_parameter=dest_parameter)
 
     return dot
@@ -484,7 +495,7 @@ def call_behavior_execution_compute_output(self, parameter):
     """
     primitive = self.node.lookup().behavior.lookup()
     call = self.call.lookup()
-    inputs = [x for x in call.parameter_values if x.parameter.lookup().direction == uml.PARAMETER_IN]
+    inputs = [x for x in call.parameter_values if x.parameter.lookup().property_value.direction == uml.PARAMETER_IN]
     value = primitive.compute_output(inputs, parameter)
     return value
 paml.CallBehaviorExecution.compute_output = call_behavior_execution_compute_output
@@ -502,7 +513,7 @@ def primitive_compute_output(self, inputs, parameter):
         parameter.type == 'http://bioprotocols.org/paml#SampleArray':
         # Make a SampleArray
         for input in inputs:
-            i_parameter = input.parameter.lookup()
+            i_parameter = input.parameter.lookup().property_value
             value = input.value
             if i_parameter.name == "specification":
                 spec = value
@@ -516,7 +527,7 @@ def primitive_compute_output(self, inputs, parameter):
         parameter.name == "samples" and \
         parameter.type == 'http://bioprotocols.org/paml#SampleCollection':
         for input in inputs:
-            i_parameter = input.parameter.lookup()
+            i_parameter = input.parameter.lookup().property_value
             value = input.value
             if i_parameter.name == "source":
                 source = value
