@@ -317,7 +317,7 @@ def behavior_execution_parameter_value_map(self):
     parameter_value_map = {}
 
     for pv in self.parameter_values:
-        name = pv.parameter.lookup().name
+        name = pv.parameter.lookup().property_value.name
         if isinstance(pv.value, uml.LiteralReference):
             ref = pv.value.value.lookup()
             value = ref.value if isinstance(ref, uml.LiteralSpecification) else ref

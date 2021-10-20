@@ -29,7 +29,8 @@ setup(name='paml',
             'transcriptic',
             'requests_html',
             "container-ontology @ https://github.com/rpgoldman/container-ontology/tarball/main",
-            "ipython"
+            "ipython",
+            "pre-commit"
       ],
       tests_require = [
             'nbmake',
@@ -43,6 +44,3 @@ setup(name='paml',
 
       include_package_data=True
 )
-
-
-

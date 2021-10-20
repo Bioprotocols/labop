@@ -41,7 +41,7 @@ class MarkdownSpecialization(BehaviorSpecialization):
         markdown = '\n\n## Protocol Inputs:\n'
         for i in parameter_values:
             parameter = i.parameter.lookup()
-            if parameter.direction == uml.PARAMETER_IN:
+            if parameter.property_value.direction == uml.PARAMETER_IN:
                 markdown += self._parameter_value_markdown(i)
         return markdown
 
@@ -49,7 +49,7 @@ class MarkdownSpecialization(BehaviorSpecialization):
         markdown = '\n\n## Protocol Outputs:\n'
         for i in parameter_values:
             parameter = i.parameter.lookup()
-            if parameter.direction == uml.PARAMETER_OUT:
+            if parameter.property_value.direction == uml.PARAMETER_OUT:
                 markdown += self._parameter_value_markdown(i, True)
         return markdown
 
@@ -63,7 +63,7 @@ class MarkdownSpecialization(BehaviorSpecialization):
         return markdown
 
     def _parameter_value_markdown(self, pv : paml.ParameterValue, is_output=False):
-        parameter = pv.parameter.lookup()
+        parameter = pv.parameter.lookup().property_value
         value = pv.value.lookup().value if isinstance(pv.value, uml.LiteralReference) else pv.value.value
         units = tyto.OM.get_term_by_uri(value.unit) if isinstance(value, sbol3.om_unit.Measure) else None
         value = str(f"{value.value} {units}")  if units else str(value)
@@ -90,8 +90,8 @@ class MarkdownSpecialization(BehaviorSpecialization):
         for i in self.execution.parameter_values:
             parameter = i.parameter.lookup()
             value = i.value.value
-            if parameter.direction == uml.PARAMETER_OUT:
-                output_parameters.append(f"`{parameter.name}` from `{value}`")
+            if parameter.property_value.direction == uml.PARAMETER_OUT:
+                output_parameters.append(f"`{parameter.property_value.name}` from `{value}`")
         output_parameters = ", ".join(output_parameters)
         return f"Report values for {output_parameters}."
 
