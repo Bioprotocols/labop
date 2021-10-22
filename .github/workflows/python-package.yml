@@ -30,8 +30,7 @@ jobs:
     - name: Notebook tests
       uses: "treebeardtech/nbmake-action@v0.2"
       with:
-        path: "./notebooks"
         path-output: .
         notebooks: |
-          paml_demo.ipynb
-          markdown.ipynb
+          "notebooks/paml_demo.ipynb"
+          "notebooks/markdown.ipynb"
