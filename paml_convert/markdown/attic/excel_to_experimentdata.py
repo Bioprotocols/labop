@@ -12,7 +12,7 @@ print('Beginning conversion of Excel to SBOL')
 
 doc = paml.Document()
 
-wb = openpyxl.load_workbook(filename ='../test/testfiles/BBN_LUDOX_OD_calibration_2021-3.xlsx')
+wb = openpyxl.load_workbook(filename ='../../../test/testfiles/BBN_LUDOX_OD_calibration_2021-3.xlsx')
 ws = wb['Data Reporting']
 
 ##############################

@@ -546,14 +546,14 @@ uml:ObjectNode rdf:type owl:Class ;
 uml:ActivityParameterNode rdf:type owl:Class ;
              rdfs:comment "An ActivityParameterNode is an ObjectNode for accepting values from the input Parameters or providing values to the output Parameters of an Activity. UML 2.5.1 specification section 15.4." ;
              rdfs:subClassOf uml:ObjectNode ,
-        [ rdf:type owl:Restriction ; owl:allValuesFrom uml:Parameter ; owl:onProperty uml:parameter ] ,
+        [ rdf:type owl:Restriction ; owl:allValuesFrom uml:OrderedPropertyValue ; owl:onProperty uml:parameter ] ,
         [ rdf:type owl:Restriction ; owl:minCardinality "1"^^xsd:nonNegativeInteger ; owl:onProperty uml:parameter ] ,
         [ rdf:type owl:Restriction ; owl:maxCardinality "1"^^xsd:nonNegativeInteger ; owl:onProperty uml:parameter ] .
 
 
 uml:parameter rdf:type owl:ObjectProperty ;
          rdfs:domain uml:ActivityParameterNode ;
-         rdfs:range uml:Parameter ;
+         rdfs:range uml:OrderedPropertyValue ;
          rdfs:comment "The Parameter for which the ActivityParameterNode will be accepting or providing values." ;
          rdfs:label "parameter" .
 

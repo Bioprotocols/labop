@@ -127,7 +127,7 @@ def behavior_get_inputs(self) -> Iterable[Parameter]:
     -------
     Iterator over Parameters
     """
-    return (p.property_value for p in self.parameters if p.property_value.direction == PARAMETER_IN)
+    return (p for p in self.parameters if p.property_value.direction == PARAMETER_IN)
 Behavior.get_inputs = behavior_get_inputs  # Add to class via monkey patch
 
 
@@ -139,7 +139,7 @@ def behavior_get_input(self, name) -> Parameter:
     -------
     Parameter, or Value error
     """
-    found = [p for p in self.get_inputs() if p.name == name]
+    found = [p for p in self.get_inputs() if p.property_value.name == name]
     if len(found) == 0:
         raise ValueError(f'Behavior {self.identity} has no input parameter named {name}')
     elif len(found) > 1:
@@ -157,7 +157,7 @@ def behavior_get_required_inputs(self):
     -------
     Iterator over Parameters
     """
-    return (p for p in self.get_inputs() if p.lower_value.value > 0)
+    return (p for p in self.get_inputs() if p.property_value.lower_value.value > 0)
 Behavior.get_required_inputs = behavior_get_required_inputs  # Add to class via monkey patch
 
 
@@ -169,7 +169,7 @@ def behavior_get_outputs(self):
     -------
     Iterator over Parameters
     """
-    return (p.property_value for p in self.parameters if p.property_value.direction == PARAMETER_OUT)
+    return (p for p in self.parameters if p.property_value.direction == PARAMETER_OUT)
 Behavior.get_outputs = behavior_get_outputs  # Add to class via monkey patch
 
 
@@ -199,7 +199,7 @@ def behavior_get_required_outputs(self):
     -------
     Iterator over Parameters
     """
-    return (p for p in self.get_outputs() if p.lower_value.value > 0)
+    return (p for p in self.get_outputs() if p.property_value.lower_value.value > 0)
 Behavior.get_required_outputs = behavior_get_required_outputs  # Add to class via monkey patch
 
 
@@ -272,7 +272,7 @@ def call_behavior_action_pin_parameter(self, pin_name: str):
         except:
             raise ValueError(f'Could not find pin named {pin_name}')
     behavior = self.behavior.lookup()
-    [parameter] = [p.property_value for p in behavior.parameters if p.property_value.name == pin_name]
+    [parameter] = [p for p in behavior.parameters if p.property_value.name == pin_name]
     return parameter
 CallBehaviorAction.pin_parameter = call_behavior_action_pin_parameter  # Add to class via monkey patch
 
@@ -285,7 +285,7 @@ def add_call_behavior_action(parent: Activity, behavior: Behavior, **input_pin_l
     :return: newly constructed
     """
     # first, make sure that all of the keyword arguments are in the inputs of the behavior
-    unmatched_keys = [key for key in input_pin_literals.keys() if key not in (i.name for i in behavior.get_inputs())]
+    unmatched_keys = [key for key in input_pin_literals.keys() if key not in (i.property_value.name for i in behavior.get_inputs())]
     if unmatched_keys:
         raise ValueError(f'Specification for "{behavior.display_id}" does not have inputs: {unmatched_keys}')
 
@@ -295,19 +295,19 @@ def add_call_behavior_action(parent: Activity, behavior: Behavior, **input_pin_l
 
     # Instantiate input pins
     for i in id_sort(behavior.get_inputs()):
-        if i.name in input_pin_literals:
-            value = input_pin_literals[i.name]
+        if i.property_value.name in input_pin_literals:
+            value = input_pin_literals[i.property_value.name]
             # TODO: type check relationship between value and parameter type specification
-            action.inputs.append(ValuePin(name=i.name, is_ordered=i.is_ordered,
-                                          is_unique=i.is_unique, value=literal(value)))
+            action.inputs.append(ValuePin(name=i.property_value.name, is_ordered=i.property_value.is_ordered,
+                                          is_unique=i.property_value.is_unique, value=literal(value)))
         else:  # if not a constant, then just a generic InputPin
-            action.inputs.append(InputPin(name=i.name, is_ordered=i.is_ordered,
-                                          is_unique=i.is_unique))
+            action.inputs.append(InputPin(name=i.property_value.name, is_ordered=i.property_value.is_ordered,
+                                          is_unique=i.property_value.is_unique))
 
     # Instantiate output pins
     for o in id_sort(behavior.get_outputs()):
-        action.outputs.append(OutputPin(name=o.name, is_ordered=o.is_ordered,
-                                        is_unique=o.is_unique))
+        action.outputs.append(OutputPin(name=o.property_value.name, is_ordered=o.property_value.is_ordered,
+                                        is_unique=o.property_value.is_unique))
 
     return action
 
@@ -362,7 +362,7 @@ def activity_input_value(self, name: str, param_type: str, optional: bool = Fals
     :return: ActivityParameterNode associated with the input
     """
     parameter = self.add_input(name=name, param_type=param_type, optional=optional, default_value=default_value)
-    node = ActivityParameterNode(parameter=parameter.property_value)
+    node = ActivityParameterNode(parameter=parameter)
     self.nodes.append(node)
     return node
 Activity.input_value = activity_input_value  # Add to class via monkey patch
@@ -378,7 +378,7 @@ def activity_designate_output(self, name: str, param_type: str, source: Activity
     :return: ActivityParameterNode associated with the output
     """
     parameter = self.add_output(name=name, param_type=param_type)
-    node = ActivityParameterNode(parameter=parameter.property_value)
+    node = ActivityParameterNode(parameter=parameter)
     self.nodes.append(node)
     self.use_value(source, node)
     return node
@@ -398,7 +398,7 @@ def activity_initiating_nodes(self) -> List[ActivityNode]:
     List of ActivityNodes able to initiate execution
     """
     return [n for n in self.nodes if isinstance(n, InitialNode) or
-            (isinstance(n, ActivityParameterNode) and n.parameter and n.parameter.lookup().direction == PARAMETER_IN)]
+            (isinstance(n, ActivityParameterNode) and n.parameter and n.parameter.lookup().property_value.direction == PARAMETER_IN)]
 Activity.initiating_nodes = activity_initiating_nodes  # Add to class via monkey patch
 
 
