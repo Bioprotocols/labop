@@ -38,7 +38,8 @@ setup(name='paml',
             "container-ontology @ https://github.com/rpgoldman/container-ontology/tarball/main",
             "paml-check @ https://github.com/SD2E/paml-check/tarball/development",
             "ipython",
-            "pre-commit"
+            "pre-commit",
+            "ipywidgets"
       ],
       tests_require=test_deps,
       extras_require=extras,
