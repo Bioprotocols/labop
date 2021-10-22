@@ -232,16 +232,6 @@ class ExecutionEngine(ABC):
                                 for k, v in value_pin_values.items()}
             pin_values = { **input_pin_values, **value_pin_values} # merge the dicts
 
-            # # Need to sort inputs, otherwise parameter-value ordering is non-deterministic
-            # ordered_parameters = [x for x in node.behavior.lookup().parameters]
-            # ordered_parameters.sort(key=lambda x: x.index)
-            # ordered_node_inputs = [x.property_value.name
-            #                        for x in ordered_parameters
-            #                        if x.property_value.name in [x.name for x in node.inputs]]
-            # ordered_pins = [next(iter([x for x in node.inputs if x.name == n])) for n in ordered_node_inputs]
-            # parameter_values = [paml.ParameterValue(parameter=node.pin_parameter(pin.name),
-            #                                         value=pin_values[pin.identity])
-            #                     for pin in ordered_pins if pin.identity in pin_values]
             parameter_values = [paml.ParameterValue(parameter=node.pin_parameter(pin.name),
                                                     value=pin_values[pin.identity])
                                 for pin in node.inputs if pin.identity in pin_values]

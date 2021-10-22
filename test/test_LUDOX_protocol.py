@@ -43,23 +43,10 @@ class TestProtocolEndToEnd(unittest.TestCase):
         print(f'Wrote file as {temp_name}')
 
         comparison_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'testfiles', 'igem_ludox_test.nt')
-        #doc.write(comparison_file, sbol3.SORTED_NTRIPLES)
+        # doc.write(comparison_file, sbol3.SORTED_NTRIPLES)
         print(f'Comparing against {comparison_file}')
         assert filecmp.cmp(temp_name, comparison_file), "Files are not identical"
         print('File identical with test file')
-
-        # render and view the dot
-        dot = protocol.to_dot()
-        dot.render(f'{protocol.name}.gv')
-        dot.view()
-
-    # def test_protocol_to_markdown(self):
-    #     doc = sbol3.Document()
-    #     doc.read('test/testfiles/igem_ludox_test.nt', 'nt')
-    #     markdown.MarkdownConverter(doc).convert('iGEM_LUDOX_OD_calibration_2018')
-
-    # Checking if files are identical needs to wait for increased stability
-    # assert filecmp.cmp('iGEM_LUDOX_OD_calibration_2018.md','test/testfiles/iGEM_LUDOX_OD_calibration_2018.md')
 
 
 if __name__ == '__main__':

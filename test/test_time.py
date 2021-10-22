@@ -1,3 +1,7 @@
+import filecmp
+import os
+import tempfile
+
 import sbol3
 import unittest
 import tyto
@@ -204,11 +208,17 @@ class TestTime(unittest.TestCase):
         assert not v.errors and not v.warnings, "".join(str(e) for e in doc.validate().errors)
 
         # assert check_doc(doc) # Is the protocol consistent?
-
         # assert get_minimum_duration(doc)  # What is the minimum duration for each protocol in doc
-        doc.write('igem_ludox_time_draft.ttl', 'turtle')
 
-        assert doc
+        temp_name = os.path.join(tempfile.gettempdir(), 'igem_ludox_time_test.nt')
+        doc.write(temp_name, sbol3.SORTED_NTRIPLES)
+        print(f'Wrote file as {temp_name}')
+
+        comparison_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'testfiles', 'igem_ludox_time_test.nt')
+        doc.write(comparison_file, sbol3.SORTED_NTRIPLES)
+        print(f'Comparing against {comparison_file}')
+        assert filecmp.cmp(temp_name, comparison_file), "Files are not identical"
+        print('File identical with test file')
 
 
     def test_expressions(self):

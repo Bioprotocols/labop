@@ -2,3 +2,4 @@
 /.pytest_cache/
 /env/
 /paml.egg-info/
+/notebooks/.ipynb_checkpoints/*
