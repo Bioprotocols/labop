@@ -36,7 +36,7 @@ setup(name='paml',
             'transcriptic',
             'requests_html',
             "container-ontology @ https://github.com/rpgoldman/container-ontology/tarball/main",
-            "paml-check @ https://github.com/SD2E/paml-check",
+            "paml-check @ https://github.com/SD2E/paml-check/tarball/development",
             "ipython",
             "pre-commit"
       ],
