@@ -8,6 +8,13 @@ def pip_install(url):
 
 #pip_install("git+https://github.com/rpgoldman/container-ontology.git")
 
+test_deps = [
+    'nbmake',
+    'pytest-xdist'
+]
+extras = {
+    'test': test_deps,
+}
 
 setup(name='paml',
       description='Protocol Activity Modeling Language',
@@ -32,10 +39,8 @@ setup(name='paml',
             "ipython",
             "pre-commit"
       ],
-      tests_require = [
-            'nbmake',
-            'pytest-xdist'
-      ],
+      tests_require=test_deps,
+      extras_require=extras,
       packages=['paml', 'paml_convert', 'paml_convert.autoprotocol', 'paml_convert.markdown', 'paml.lib', 'paml_time', 'uml'],
       package_data={'paml': ['paml.ttl', 'lib/*.ttl'],
                     'paml_convert': ['markdown/template.xlsx'],
