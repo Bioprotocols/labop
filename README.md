@@ -15,6 +15,10 @@ import paml
 ```
 The API follows the same conventions as [OPIL](https://github.com/sd2e/opil).
 
+# Example Notebooks
+
+See [notebooks](https://github.com/Bioprotocols/paml/tree/main/notebooks) for examples of how to use PAML.  An [interactive version](https://colab.research.google.com/drive/1WPvQ0REjHMEsginxXMj1ewqfFHZqSyM8?usp=sharing) of the main demonstration notebook [notebooks/paml_demo.ipynb](https://github.com/Bioprotocols/paml/tree/main/notebooks/paml_demo.ipynb) is also hosted on Google Collab.   The interactive version is shared as view only, bu t you can make a copy to modify with `File -> Save a copy in Drive` by saving it on your own Google Drive account.
+
 # Strateos Integration
 The `secrets` directory includes a template to configure Strateos credentials.  It requires renaming and editing the provided sample. (Please, never commit or share actual credentials!)
 ```
