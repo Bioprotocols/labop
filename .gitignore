@@ -3,3 +3,9 @@
 /env/
 /paml.egg-info/
 /notebooks/.ipynb_checkpoints/*
+**/__pycache__
+notebooks/out
+notebooks/cluster*
+.vscode/launch.json
+.vscode/settings.json
+notebooks/test_LUDOX_markdown.md
