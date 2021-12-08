@@ -3,8 +3,9 @@ Protocol Activity Modeling Language (PAML) is a representation designed to simpl
 
 # Installation
 
+Clone the repository and then, in its root directory, run:
 ```
-pip3 install paml
+pip3 install .
 ```
 
 # API
