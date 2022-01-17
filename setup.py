@@ -14,7 +14,7 @@ test_deps = [
 ]
 extras = {
     'test': test_deps,
-    'paml-check': "paml-check @ https://github.com/SD2E/paml-check/tarball/development",
+    'paml-check': 'paml-check@ https://github.com/SD2E/paml-check/tarball/development',
 }
 
 setup(name='paml',
@@ -22,7 +22,6 @@ setup(name='paml',
       version='1.0a1',
       install_requires=[
             'sbol3>=1.0b6',
-            'rdflib-jsonld>=0.5.0',
             'sparqlwrapper>=1.8.5',
             'python-dateutil>=2.8.1',
             'sbol-factory==1.0a8',
