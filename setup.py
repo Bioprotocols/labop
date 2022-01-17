@@ -14,6 +14,7 @@ test_deps = [
 ]
 extras = {
     'test': test_deps,
+    'paml-check': "paml-check @ https://github.com/SD2E/paml-check/tarball/development",
 }
 
 setup(name='paml',
@@ -21,10 +22,8 @@ setup(name='paml',
       version='1.0a1',
       install_requires=[
             'sbol3>=1.0b6',
-            'rdflib>=6.0.0',
             'rdflib-jsonld>=0.5.0',
             'sparqlwrapper>=1.8.5',
-            'pyshacl>=0.13.3',
             'python-dateutil>=2.8.1',
             'sbol-factory==1.0a8',
             'requests',
@@ -36,7 +35,6 @@ setup(name='paml',
             'transcriptic',
             'requests_html',
             "container-ontology @ https://github.com/rpgoldman/container-ontology/tarball/main",
-            "paml-check @ https://github.com/SD2E/paml-check/tarball/development",
             "ipython",
             "pre-commit",
             "ipywidgets"

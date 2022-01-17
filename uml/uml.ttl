@@ -26,7 +26,7 @@
 #    Object properties
 #################################################################
 
-opil:compositionalProperty rdf:type owl:ObjectProperty . # should be SBOL - sbol_factory issue #10
+sbol:directlyComprises rdf:type owl:ObjectProperty . # should be SBOL - sbol_factory issue #10
 
 #################################################################
 #    Datatypes
@@ -64,14 +64,14 @@ uml:isUnique rdf:type owl:DatatypeProperty ;
 
 uml:lowerValue rdf:type owl:ObjectProperty ;
          rdfs:comment "For MultiplicityElement abstract class; UML 2.5.1 specification section 7.5" ;
-         rdfs:subPropertyOf opil:compositionalProperty ;
+         rdfs:subPropertyOf sbol:directlyComprises ;
          rdfs:domain sbol:Identified ; # should probably actually be a union
          rdfs:range uml:ValueSpecification ;
          rdfs:label "lower_value" .
 
 uml:upperValue rdf:type owl:ObjectProperty ;
          rdfs:comment "For MultiplicityElement abstract class; UML 2.5.1 specification section 7.5" ;
-         rdfs:subPropertyOf opil:compositionalProperty ;
+         rdfs:subPropertyOf sbol:directlyComprises ;
          rdfs:domain sbol:Identified ; # should probably actually be a union
          rdfs:range uml:ValueSpecification ;
          rdfs:label "upper_value" .
@@ -153,7 +153,7 @@ uml:LiteralIdentified rdf:type owl:Class ;
         [ rdf:type owl:Restriction ;  owl:onProperty uml:identifiedValue ; owl:maxCardinality "1"^^xsd:nonNegativeInteger ] .
 
 uml:identifiedValue rdf:type owl:ObjectProperty ;
-         rdfs:subPropertyOf opil:compositionalProperty ;
+         rdfs:subPropertyOf sbol:directlyComprises ;
          rdfs:domain uml:LiteralIdentified ;
          rdfs:range sbol:Identified ;
          rdfs:comment "The embedded SBOL object" ;
@@ -187,7 +187,7 @@ uml:symbolValue rdf:type owl:DatatypeProperty ;
          rdfs:label "symbol" .
 
 uml:operandValue rdf:type owl:ObjectProperty ;
-         rdfs:subPropertyOf opil:compositionalProperty ;
+         rdfs:subPropertyOf sbol:directlyComprises ;
          rdfs:domain uml:Expression ;
          rdfs:range uml:OrderedPropertyValue ;
          rdfs:comment "Specifies a sequence of operand ValueSpecifications." ;
@@ -208,7 +208,7 @@ uml:Duration rdf:type owl:Class ;
     [ rdf:type owl:Restriction ; owl:allValuesFrom uml:Observation ; owl:onProperty uml:observationValue ] .
 
 uml:exprValue rdf:type owl:ObjectProperty ;
-         rdfs:subPropertyOf opil:compositionalProperty ;
+         rdfs:subPropertyOf sbol:directlyComprises ;
          rdfs:domain uml:TimeExpression,
                      uml:Duration;
          rdfs:range uml:ValueSpecification ;
@@ -245,7 +245,7 @@ uml:DurationObservation rdf:type owl:Class ;
       owl:minCardinality "1"^^xsd:nonNegativeInteger ; owl:maxCardinality "2"^^xsd:nonNegativeInteger] .
 
 uml:firstEventValue rdf:type owl:ObjectProperty ;
-         rdfs:subPropertyOf opil:compositionalProperty ;
+         rdfs:subPropertyOf sbol:directlyComprises ;
          rdfs:domain uml:TimeObservation,
                      uml:DurationObservation,
                      uml:TimeConstraint,
@@ -279,14 +279,14 @@ uml:TimeInterval rdf:type owl:Class ;
               rdfs:comment "A TimeInterval defines the range between two TimeExpressions." .
 
 uml:minTimeValue rdf:type owl:ObjectProperty ;
-         rdfs:subPropertyOf opil:compositionalProperty ;
+         rdfs:subPropertyOf sbol:directlyComprises ;
          rdfs:domain uml:TimeInterval ;
          rdfs:range uml:TimeExpression ;
          rdfs:comment "Refers to the TimeExpression denoting the minimum value of the range." ;
          rdfs:label "min" .
 
 uml:maxTimeValue rdf:type owl:ObjectProperty ;
-         rdfs:subPropertyOf opil:compositionalProperty ;
+         rdfs:subPropertyOf sbol:directlyComprises ;
          rdfs:domain uml:TimeInterval ;
          rdfs:range uml:TimeExpression ;
          rdfs:comment "Refers to the TimeExpression denoting the maximum value of the range." ;
@@ -301,14 +301,14 @@ uml:DurationInterval rdf:type owl:Class ;
               rdfs:comment "A DurationInterval defines the range between two Durations." .
 
 uml:minDurationValue rdf:type owl:ObjectProperty ;
-         rdfs:subPropertyOf opil:compositionalProperty ;
+         rdfs:subPropertyOf sbol:directlyComprises ;
          rdfs:domain uml:DurationInterval ;
          rdfs:range uml:Duration ;
          rdfs:comment "Refers to the Duration denoting the minimum value of the range." ;
          rdfs:label "min" .
 
 uml:maxDurationValue rdf:type owl:ObjectProperty ;
-         rdfs:subPropertyOf opil:compositionalProperty ;
+         rdfs:subPropertyOf sbol:directlyComprises ;
          rdfs:domain uml:DurationInterval ;
          rdfs:range uml:Duration ;
          rdfs:comment "Refers to the Duration denoting the maximum value of the range." ;
@@ -320,7 +320,7 @@ uml:Constraint rdf:type owl:Class ;
         [ rdf:type owl:Restriction ; owl:allValuesFrom uml:OrderedPropertyValue ; owl:onProperty uml:constrainedElement ] .
 
 uml:constrainedElement rdf:type owl:ObjectProperty ;
-         rdfs:subPropertyOf opil:compositionalProperty ;
+         rdfs:subPropertyOf sbol:directlyComprises ;
          rdfs:domain uml:Constraint ;
          rdfs:range uml:OrderedPropertyValue ; # equivalent to uml:Element in this context
          rdfs:comment "The OrderedPropertyValue referenced by this Constraint." ;
@@ -339,7 +339,7 @@ uml:TimeConstraint rdf:type owl:Class ;
               rdfs:comment "A TimeConstraint is a Constraint that refers to a TimeInterval." .
 
 uml:timeSpecification rdf:type owl:ObjectProperty ;
-         rdfs:subPropertyOf opil:compositionalProperty ;
+         rdfs:subPropertyOf sbol:directlyComprises ;
          rdfs:domain uml:TimeConstraint ;
          rdfs:range uml:TimeInterval ;
          rdfs:comment "TheTimeInterval constraining the duration." ;
@@ -354,7 +354,7 @@ uml:DurationConstraint rdf:type owl:Class ;
               rdfs:comment "A DurationConstraint is a Constraint that refers to a DurationInterval." .
 
 uml:durationSpecification rdf:type owl:ObjectProperty ;
-         rdfs:subPropertyOf opil:compositionalProperty ;
+         rdfs:subPropertyOf sbol:directlyComprises ;
          rdfs:domain uml:DurationConstraint ;
          rdfs:range uml:DurationInterval ;
          rdfs:comment "The DurationInterval constraining the duration." ;
@@ -392,7 +392,7 @@ uml:direction rdf:type owl:DatatypeProperty ;
          rdfs:label "direction" .
 
 uml:defaultValue rdf:type owl:ObjectProperty ;
-         rdfs:subPropertyOf opil:compositionalProperty ;
+         rdfs:subPropertyOf sbol:directlyComprises ;
          rdfs:domain uml:Parameter ;
          rdfs:range uml:ValueSpecification ;
          rdfs:comment "A ValueSpecification that represents a value to be used when no argument is supplied for the Parameter." ;
@@ -415,21 +415,21 @@ uml:Behavior rdf:type owl:Class ;
 #         rdfs:label "isReentrant" .
 
 uml:precondition rdf:type owl:ObjectProperty ;
-         rdfs:subPropertyOf opil:compositionalProperty ;
+         rdfs:subPropertyOf sbol:directlyComprises ;
          rdfs:domain uml:Behavior ;
          rdfs:range uml:Constraint ;
          rdfs:comment "An optional set of Constraints specifying what must be fulfilled before the Behavior is invoked." ;
          rdfs:label "preconditions" .
 
 uml:postcondition rdf:type owl:ObjectProperty ;
-         rdfs:subPropertyOf opil:compositionalProperty ;
+         rdfs:subPropertyOf sbol:directlyComprises ;
          rdfs:domain uml:Behavior ;
          rdfs:range uml:Constraint ;
          rdfs:comment "An optional set of Constraints specifying what is fulfilled after the execution of the Behavior is completed, if its precondition was fulfilled before its invocation." ;
          rdfs:label "postconditions" .
 
 uml:ownedParameter rdf:type owl:ObjectProperty ;
-         rdfs:subPropertyOf opil:compositionalProperty ;
+         rdfs:subPropertyOf sbol:directlyComprises ;
          rdfs:domain uml:Behavior ;
          rdfs:range uml:OrderedPropertyValue ;
          rdfs:comment " a list of Parameters to the Behavior which describes the order and type of arguments that can be given when the Behavior is invoked and of the values which will be returned when the Behavior completes its execution." ;
@@ -448,7 +448,7 @@ uml:indexValue rdf:type owl:DatatypeProperty ;
          rdfs:label "index" .
 
 uml:propertyValue rdf:type owl:ObjectProperty ;
-         rdfs:subPropertyOf opil:compositionalProperty ;
+         rdfs:subPropertyOf sbol:directlyComprises ;
          rdfs:domain uml:OrderedPropertyValue ;
          rdfs:range sbol:Identified ;
          rdfs:label "property_value" .
@@ -462,14 +462,14 @@ uml:Activity rdf:type owl:Class ;
     # omitted: isReadOnly, isSingleExecution, variable
 
 uml:node rdf:type owl:ObjectProperty ;
-         rdfs:subPropertyOf opil:compositionalProperty ;
+         rdfs:subPropertyOf sbol:directlyComprises ;
          rdfs:domain uml:Activity ;
          rdfs:range uml:ActivityNode ;
          rdfs:comment "ActivityNodes coordinated by the Activity." ;
          rdfs:label "nodes" .
 
 uml:edge rdf:type owl:ObjectProperty ;
-         rdfs:subPropertyOf opil:compositionalProperty ;
+         rdfs:subPropertyOf sbol:directlyComprises ;
          rdfs:domain uml:Activity ;
          rdfs:range uml:ActivityEdge ;
          rdfs:comment "ActivityEdges expressing flow between the nodes of the Activity." ;
@@ -572,14 +572,14 @@ uml:Action rdf:type owl:Class ;
     # omitted: /context, localPrecondition, localPostcondition
 
 uml:input rdf:type owl:ObjectProperty ;
-         rdfs:subPropertyOf opil:compositionalProperty ;
+         rdfs:subPropertyOf sbol:directlyComprises ;
          rdfs:domain uml:Action ;
          rdfs:range uml:InputPin ;
          rdfs:comment "The ordered set of InputPins representing the inputs to the Action." ;
          rdfs:label "inputs" .
 
 uml:output rdf:type owl:ObjectProperty ;
-         rdfs:subPropertyOf opil:compositionalProperty ;
+         rdfs:subPropertyOf sbol:directlyComprises ;
          rdfs:domain uml:Action ;
          rdfs:range uml:OutputPin ;
          rdfs:comment "The ordered set of OutputPins representing outputs from the Action." ;
@@ -643,7 +643,7 @@ uml:ValuePin rdf:type owl:Class ;
     [ rdf:type owl:Restriction ;  owl:onProperty uml:value ; owl:maxCardinality "1"^^xsd:nonNegativeInteger ] .
 
 uml:value rdf:type owl:ObjectProperty ;
-         rdfs:subPropertyOf opil:compositionalProperty ;
+         rdfs:subPropertyOf sbol:directlyComprises ;
          rdfs:domain uml:ValuePin ;
          rdfs:range uml:ValueSpecification ;
          rdfs:comment "The ValueSpecification that is evaluated to obtain the value that the ValuePin will provide." ;

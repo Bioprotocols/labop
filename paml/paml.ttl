@@ -91,7 +91,7 @@ paml:parameterValuePair rdf:type owl:ObjectProperty ;
 
         TODO: are multiple values allowed, or do those need to be passed as list/set types?
         ''' ;
-              rdfs:subPropertyOf opil:compositionalProperty ;
+              rdfs:subPropertyOf sbol:directlyComprises ;
               rdfs:domain paml:BehaviorExecution ;
               rdfs:range paml:ParameterValue ;
               rdfs:label "parameter_values" .
@@ -114,7 +114,7 @@ paml:consumedMaterial rdf:type owl:ObjectProperty ;
         Complex materials, however, MAY contain the same material more than once in their substructure.
         For example, M9 media contains glucose, but it would not be necessary to consolidate the glucose in M9 media
         with additional glucose that was added as a supplement, since that would change the definition of the media.''' ;
-              rdfs:subPropertyOf opil:compositionalProperty ;
+              rdfs:subPropertyOf sbol:directlyComprises ;
               rdfs:domain paml:BehaviorExecution ;
               rdfs:range paml:Material ;
               rdfs:label "consumed_material" .
@@ -141,7 +141,7 @@ paml:parameter rdf:type owl:ObjectProperty ;
 paml:parameterValue rdf:type owl:ObjectProperty ;
         rdfs:comment '''This property points to the literal value used for the parameter during execution (e.g., a
         uml:LiteralIdentified for an om:Measure representing a 600 nm wavelength).''' ;
-              rdfs:subPropertyOf opil:compositionalProperty ;
+              rdfs:subPropertyOf sbol:directlyComprises ;
               rdfs:domain paml:ParameterValue ;
               rdfs:range uml:LiteralSpecification ;
               rdfs:label "value" .
@@ -171,7 +171,7 @@ paml:specification rdf:type owl:ObjectProperty ;
 paml:amount rdf:type owl:ObjectProperty ;
         rdfs:comment '''The amount property of a Material is used to indicate the quantity of material used.
         For example, 2.5 mL (referring to a fluid) or 3 (with unit "number", referring to a group of microplates)''' ;
-              rdfs:subPropertyOf opil:compositionalProperty ;
+              rdfs:subPropertyOf sbol:directlyComprises ;
               rdfs:domain paml:Material ;
               rdfs:range om:Measure ;
               rdfs:label "amount" .
@@ -199,7 +199,7 @@ paml:protocol rdf:type owl:ObjectProperty ;
 paml:execution rdf:type owl:ObjectProperty ;
         rdfs:comment '''Each instance of this property links to an ActivityNodeExecution that records one
         firing of a uml:ActivityNode during the execution of its containing Protocol''' ;
-              rdfs:subPropertyOf opil:compositionalProperty ;
+              rdfs:subPropertyOf sbol:directlyComprises ;
               rdfs:domain paml:ProtocolExecution ;
               rdfs:range paml:ActivityNodeExecution ;
               rdfs:label "executions" .
@@ -207,7 +207,7 @@ paml:execution rdf:type owl:ObjectProperty ;
 paml:flow rdf:type owl:ObjectProperty ;
         rdfs:comment '''Each instance of this property links to an ActivityEdgeFlow that records one movement of a UML
         token along a uml:ActivityEdge during the execution of its containing Protocol''' ;
-              rdfs:subPropertyOf opil:compositionalProperty ;
+              rdfs:subPropertyOf sbol:directlyComprises ;
               rdfs:domain paml:ProtocolExecution ;
               rdfs:range paml:ActivityEdgeFlow ;
               rdfs:label "flows" .
@@ -244,7 +244,7 @@ paml:edge rdf:type owl:ObjectProperty ;
 
 paml:edgeValue rdf:type owl:ObjectProperty ;
         rdfs:comment '''This property is used to indicate the value of a token that moved on a uml:ObjectFlow edge.''' ;
-              rdfs:subPropertyOf opil:compositionalProperty ;
+              rdfs:subPropertyOf sbol:directlyComprises ;
               rdfs:domain paml:ActivityEdgeFlow ;
               rdfs:range uml:LiteralSpecification ;
               rdfs:label "value" .
@@ -454,7 +454,7 @@ paml:sampleDataValues rdf:type owl:ObjectProperty ;
 
 paml:fromSamples rdf:type owl:ObjectProperty ;
         rdfs:comment '''The fromSamples property indicates the SampleCollection from which the data were collected.''' ;
-              rdfs:subPropertyOf opil:compositionalProperty ;
+              rdfs:subPropertyOf sbol:directlyComprises ;
               rdfs:domain paml:SampleData ;
               rdfs:range paml:SampleCollection ;
               rdfs:label "from_samples" .
