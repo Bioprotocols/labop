@@ -1,5 +1,5 @@
 # PAML
-Protocol Activity Modeling Language (PAML) is a representation designed to simplify the exchange of protocols between laboratories. This project includes both an ontology describing PAML and a python library to 
+Protocol Activity Modeling Language (PAML) is a representation designed to simplify the exchange of protocols between laboratories. This project includes both an ontology describing PAML and a python library to manipulate PAML documents, which are stored as RDF.  The PAML specification is in [the PAML-specification repository](https://github.com/Bioprotocols/PAML-specification).
 
 # Installation
 
