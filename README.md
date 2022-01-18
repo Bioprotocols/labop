@@ -14,6 +14,17 @@ If one does not wish to check out the repository, the following will also work:
 pip3 install git+https://github.com/Bioprotocols/paml.git
 ```
 
+The optional utility `paml-check` may be used to check consistency of protocol representations:
+
+- To include the `paml-check` option with your installation:
+`pip install -e "paml[paml-check]"`
+
+- To install a local development version:
+`pip install -e ".[paml-check]"`
+
+- To install from github:
+`pip install -e "git+https://github.com/bioprotocols/paml.git#egg=paml[paml-check]"`
+
 # API
 
 To use PAML in your client application, go to the root directory of the project repository:
