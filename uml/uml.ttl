@@ -1,6 +1,5 @@
 @prefix : <http://bioprotocols.org/paml#> .
 @prefix om: <http://www.ontology-of-units-of-measure.org/resource/om-2/> .
-@prefix opil: <http://bioprotocols.org/opil/v1#> . # this needs to go - sbol_factory issue #10
 @prefix owl: <http://www.w3.org/2002/07/owl#> .
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
@@ -10,7 +9,7 @@
 @base <http://bioprotocols.org/uml#> .
 
 <http://bioprotocols.org/uml> rdf:type owl:Ontology ;
-                              owl:imports <http://sbols.org/v3>,<http://bioprotocols.org/opil/v1>, <http://www.ontology-of-units-of-measure.org/resource/om-2> ;
+                              owl:imports <http://sbols.org/v3>,<http://www.ontology-of-units-of-measure.org/resource/om-2> ;
                               rdfs:comment "Unified Modeling Languge (UML) subset, translated to an SBOL factory ontology." ;
                               owl:versionInfo "1.0-alpha1" .
 

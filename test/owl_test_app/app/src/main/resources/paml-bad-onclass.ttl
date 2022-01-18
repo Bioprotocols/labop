@@ -1,5 +1,4 @@
 @prefix : <http://bioprotocols.org/paml#> .
-@prefix opil: <http://bioprotocols.org/opil/v1#> .
 @prefix om: <http://www.ontology-of-units-of-measure.org/resource/om-2/> .
 @prefix owl: <http://www.w3.org/2002/07/owl#> .
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
@@ -147,7 +146,7 @@ paml:sampleDataValues rdf:type owl:ObjectProperty ;
               rdfs:label "values" .
 
 paml:fromSamples rdf:type owl:ObjectProperty ;
-              rdfs:subPropertyOf opil:compositionalProperty ;
+              rdfs:subPropertyOf sbol:directlyComprises ;
               rdfs:domain paml:SampleData ;
               rdfs:range paml:SampleCollection ;
               rdfs:label "from_samples" .
