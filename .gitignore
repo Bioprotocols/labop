@@ -3,3 +3,10 @@
 /env/
 /paml.egg-info/
 /notebooks/.ipynb_checkpoints/*
+.vscode/extensions.json
+.vscode/launch.json
+.vscode/settings.json
+**/__pycache__
+.DS_Store
+notebooks/cluster_*
+notebooks/out
