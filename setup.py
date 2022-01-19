@@ -17,7 +17,7 @@ extras = {
     'paml-check': 'paml-check@ https://github.com/SD2E/paml-check/tarball/development',
 }
 
-setup(name='paml',
+setup(name='pypaml',
       description='Protocol Activity Modeling Language',
       version='1.0a1',
       license='MIT',
