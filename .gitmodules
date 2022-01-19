@@ -1,0 +1,3 @@
+[submodule "paml-check"]
+	path = paml-check
+	url = https://github.com/SD2E/paml-check/
