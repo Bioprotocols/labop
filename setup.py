@@ -14,7 +14,6 @@ test_deps = [
 ]
 extras = {
     'test': test_deps,
-    'paml-check': 'paml-check@ https://github.com/SD2E/paml-check/tarball/development',
 }
 
 setup(name='pypaml',
