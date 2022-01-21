@@ -3,18 +3,12 @@ import sys
 import os
 import subprocess
 
-def pip_install(url):
-    subprocess.check_output([sys.executable, '-m', 'pip', 'install', url])
-
-#pip_install("git+https://github.com/rpgoldman/container-ontology.git")
-
 test_deps = [
     'nbmake',
     'pytest-xdist'
 ]
 extras = {
     'test': test_deps,
-    'paml-check': 'paml-check@ https://github.com/SD2E/paml-check/tarball/development',
 }
 
 setup(name='pypaml',
@@ -35,10 +29,9 @@ setup(name='pypaml',
             'autoprotocol',
             'transcriptic',
             'requests_html',
-            "container-ontology @ https://github.com/rpgoldman/container-ontology/tarball/main",
             "ipython",
             "pre-commit",
-            "ipywidgets"
+            "ipywidgets",
       ],
       tests_require=test_deps,
       extras_require=extras,
@@ -48,5 +41,5 @@ setup(name='pypaml',
                     'uml': ['uml.ttl'],
                     'paml_time': ['paml_time.ttl']},
 
-      include_package_data=True
+      include_package_data=True,
 )
