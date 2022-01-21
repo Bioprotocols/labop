@@ -1,13 +1,7 @@
-import setuptools
+from setuptools import setup
 import sys
 import os
 import subprocess
-from setuptools.command.install import install
-
-def pip_install(url):
-    subprocess.check_output([sys.executable, '-m', 'pip', 'install', url])
-
-#pip_install("git+https://github.com/rpgoldman/container-ontology.git")
 
 test_deps = [
     'nbmake',
@@ -16,16 +10,6 @@ test_deps = [
 extras = {
     'test': test_deps,
 }
-
-# This is a wrapper around setuptools.setup that performs installation on 
-# the git submodule for the container-ontology
-#
-# It may be removed later when the container-ontology is deployed on PyPI.
-# See https://github.com/rpgoldman/container-ontology/issues/13
-class PostInstall(install):
-    def run(self):
-        setuptools.setup(**args)
-        subprocess.run(['python3', os.path.join('container-ontology', 'setup.py')])
 
 setup(name='pypaml',
       description='Protocol Activity Modeling Language',
@@ -58,5 +42,4 @@ setup(name='pypaml',
                     'paml_time': ['paml_time.ttl']},
 
       include_package_data=True,
-      cmdclass={'install': PostInstall, },
 )
