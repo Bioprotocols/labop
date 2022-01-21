@@ -3,27 +3,22 @@ Protocol Activity Modeling Language (PAML) is a representation designed to simpl
 
 # Installation
 
-Clone the repository and then, in its root directory, run:
+The PAML package is available by PyPI:
+
 ```
+pip3 install pypaml
+```
+
+The PAML repo also includes git submodules containing the optional utility `paml-check` for checking consistency of protocol representations and a demo version of the `container-ontology` which provides standardized descriptions for laboratory containers.  These are currently not available as packages.  If you wish to use these you will have to clone the PAML repo and install each of these separately:
+
+```
+git clone https://github.com/Bioprotocols/paml
+pip3 install .
+cd paml/paml-check
+pip3 install .
+cd ../container-ontology
 pip3 install .
 ```
-
-If one does not wish to check out the repository, the following will also work:
-
-```
-pip3 install git+https://github.com/Bioprotocols/paml.git
-```
-
-The optional utility `paml-check` may be used to check consistency of protocol representations:
-
-- To include the `paml-check` option with your installation:
-`pip install -e "paml[paml-check]"`
-
-- To install a local development version:
-`pip install -e ".[paml-check]"`
-
-- To install from github:
-`pip install -e "git+https://github.com/bioprotocols/paml.git#egg=paml[paml-check]"`
 
 # API
 
