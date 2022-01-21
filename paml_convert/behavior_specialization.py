@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from logging import error
 
-#from container_api import matching_containers
+from container_api import matching_containers
 
 import paml
 import uml
@@ -50,14 +50,13 @@ class BehaviorSpecialization(ABC):
         return self._behavior_func_map[str(node.behavior)](record)
 
     def resolve_container_spec(self, spec, addl_conditions=None):
-#        try:
-#            if addl_conditions:
-#                possible_container_types = matching_containers(spec, addl_conditions=addl_conditions)
-#            else:
-#                possible_container_types = matching_containers(spec)
-#        except:
-#            raise ContainerAPIException(f"Cannot resolve specification {spec} with container ontology.  Is the container server running and accessible?")
-        raise ContainerAPIException(f"Cannot resolve specification {spec} with container ontology.  Is the container server running and accessible?")
+        try:
+            if addl_conditions:
+                possible_container_types = matching_containers(spec, addl_conditions=addl_conditions)
+            else:
+                possible_container_types = matching_containers(spec)
+        except:
+            raise ContainerAPIException(f"Cannot resolve specification {spec} with container ontology.  Is the container server running and accessible?")
         return possible_container_types
 
 class DefaultBehaviorSpecialization(BehaviorSpecialization):
