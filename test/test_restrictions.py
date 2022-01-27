@@ -40,7 +40,7 @@ class TestRestrictions(unittest.TestCase):
             self.assertEqual(exit_code, '0')
 
     def test_uml_actual(self):
-        ontology_file_name = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', 'uml-revised.ttl')
+        ontology_file_name = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', 'uml', 'uml.ttl')
         try:
             owl_rdf_utils.restrictions.main(action='check',
                                             infile=ontology_file_name,
