@@ -84,7 +84,7 @@ def is_bad_restr(restr: Node, graph: Graph) -> bool:
     if not has_restricted:
         print(f"Need owl:onProperty in {restr}")
         return True
-    if len(rrs) > 0:
+    if len(rrs) == 0:
         print(f"No components to restriction {restr}{rc_explanation}")
         rc_explanation = ""
         return True
@@ -198,7 +198,7 @@ def all_bad_restrictions(g: Graph) -> List[Node]:
 
 
 def repair_all_bad_restrictions(
-        g: rdf.Graph, bad: Optional[List[rdf.BNode]] = None
+    g: rdf.Graph, bad: Optional[List[rdf.BNode]] = None
 ) -> Graph:
     if bad is None:
         bad = all_bad_restrictions(g)
@@ -216,11 +216,7 @@ def repair_all_bad_restrictions(
 
 
 def repair_graph(
-    bad: List[Node],
-        graph: Graph,
-        dry_run: bool,
-        file=sys.stdout,
-        format_name="turtle"
+    bad: List[Node], graph: Graph, dry_run: bool, file=sys.stdout, format_name="turtle"
 ) -> None:
     if dry_run:
         if file != sys.stdout:
@@ -232,7 +228,63 @@ def repair_graph(
         print(new_graph.serialize(format=format_name).decode(), file=file)
 
 
-def main():
+def main(
+    *,
+    infile: str,
+    action: str,
+    verbose: int = 0,
+    quiet: bool = False,
+    dry_run: bool = False,
+    outfile: Optional[str] = None,
+):
+
+    if verbose == 1:
+        LOGGER.setLevel(logging.INFO)
+    elif verbose >= 2:
+        LOGGER.setLevel(logging.DEBUG)
+    else:
+        LOGGER.setLevel(logging.WARNING)
+    # log to standard error
+    logging.basicConfig()
+
+    assert os.path.exists(infile), f"No such file: {infile}"
+
+    format_name = (
+        rdf.util.guess_format(outfile) if outfile else rdf.util.guess_format(infile)
+    )
+    LOGGER.debug("Guessed format is %s", format_name)
+
+    graph = rdf.Graph()
+    graph.parse(infile, format=format_name)
+
+    bad = all_bad_restrictions(graph)
+
+    if action == "check":
+        if bad:
+            print("Found bad restrictions in graph")
+            if not quiet:
+                to_file: bool = False
+                if outfile:
+                    sys.stdout = open(outfile, "w")
+                    to_file = True
+                for b in bad:
+                    describe_bad_restr(b, graph)
+                if to_file:
+                    sys.stdout.close()
+            sys.exit(1)
+        sys.exit(0)
+    elif action == "repair":
+        if not bad:
+            print("No repairs needed", file=sys.stderr)
+            sys.exit(1)
+        if outfile:
+            with open(outfile, "w") as file:
+                repair_graph(bad, graph, dry_run, file)
+        else:
+            repair_graph(bad, graph, dry_run)
+
+
+def process_args():
     ap = argparse.ArgumentParser()
     ap.add_argument(
         "action",
@@ -257,54 +309,17 @@ def main():
     )
 
     values = ap.parse_args()
-    verbose: Optional[int] = getattr(values, "verbose", 0) or 0
-    if verbose == 1:
-        LOGGER.setLevel(logging.INFO)
-    elif verbose >= 2:
-        LOGGER.setLevel(logging.DEBUG)
-    else:
-        LOGGER.setLevel(logging.WARNING)
-    # log to standard error
-    logging.basicConfig()
-
-    infile = values.input
+    verbose: int = getattr(values, "verbose", 0) or 0
     outfile = getattr(values, "output", None)
-    assert os.path.exists(infile), f"No such file: {infile}"
-
-    format_name = (
-        rdf.util.guess_format(outfile) if outfile else rdf.util.guess_format(infile)
+    main(
+        action=values.action,
+        infile=values.input,
+        outfile=outfile,
+        verbose=verbose,
+        quiet=values.quiet,
+        dry_run=values.dry_run,
     )
-    LOGGER.debug("Guessed format is %s", format_name)
-
-    graph = rdf.Graph()
-    graph.parse(infile, format=format_name)
-
-    bad = all_bad_restrictions(graph)
-
-    if values.action == "check":
-        if bad:
-            print("Found bad restrictions in graph")
-            if not values.quiet:
-                to_file: bool = False
-                if hasattr(values, "output") and values.output:
-                    sys.stdout = open(values.output, "w")
-                    to_file = True
-                for b in bad:
-                    describe_bad_restr(b, graph)
-                if to_file:
-                    sys.stdout.close()
-            sys.exit(1)
-        sys.exit(0)
-    elif values.action == "repair":
-        if not bad:
-            print("No repairs needed", file=sys.stderr)
-            sys.exit(1)
-        if hasattr(values, "output") and values.output:
-            with open(values.output, "w") as file:
-                repair_graph(bad, graph, values.dry_run, file)
-        else:
-            repair_graph(bad, graph, values.dry_run)
 
 
 if __name__ == "__main__":
-    main()
+    process_args()
