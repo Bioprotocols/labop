@@ -12,7 +12,7 @@ setup(
     license="MIT",
     license_files=("LICENSE.txt"),
     install_requires=[
-        "sbol-factory==1.0a8",
+        "sbol-factory>=1.0a8",
         "sparqlwrapper>=1.8.5",
         "python-dateutil>=2.8.1",
         "requests",
