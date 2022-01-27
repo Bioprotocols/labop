@@ -1,4 +1,3 @@
-@prefix opil: <http://bioprotocols.org/opil/v1#> .
 @prefix owl: <http://www.w3.org/2002/07/owl#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix sbol: <http://sbols.org/v3#> .
@@ -7,8 +6,7 @@
 
 <http://bioprotocols.org/uml> a owl:Ontology ;
     rdfs:comment "Unified Modeling Languge (UML) subset, translated to an SBOL factory ontology." ;
-    owl:imports <http://bioprotocols.org/opil/v1>,
-        <http://sbols.org/v3>,
+    owl:imports <http://sbols.org/v3>,
         <http://www.ontology-of-units-of-measure.org/resource/om-2> ;
     owl:versionInfo "1.0-alpha1" .
 
@@ -45,7 +43,7 @@ xsd:anySimpleType a rdfs:Datatype .
 uml:ActivityParameterNode a owl:Class ;
     rdfs:comment "An ActivityParameterNode is an ObjectNode for accepting values from the input Parameters or providing values to the output Parameters of an Activity. UML 2.5.1 specification section 15.4." ;
     rdfs:subClassOf [ a owl:Restriction ;
-            owl:allValuesFrom uml:Parameter ;
+            owl:allValuesFrom uml:OrderedPropertyValue ;
             owl:onProperty uml:parameter ],
         [ a owl:Restriction ;
             owl:minCardinality "1"^^xsd:nonNegativeInteger ;
@@ -139,26 +137,26 @@ uml:LiteralReal a owl:Class ;
 uml:LiteralReference a owl:Class ;
     rdfs:comment "A LiteralReference is used for embedding SBOL objects as a reference." ;
     rdfs:subClassOf [ a owl:Restriction ;
+            owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
+            owl:onProperty uml:referenceValue ],
+        [ a owl:Restriction ;
             owl:allValuesFrom sbol:Identified ;
             owl:onProperty uml:referenceValue ],
         [ a owl:Restriction ;
             owl:minCardinality "1"^^xsd:nonNegativeInteger ;
-            owl:onProperty uml:referenceValue ],
-        [ a owl:Restriction ;
-            owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
             owl:onProperty uml:referenceValue ],
         uml:LiteralSpecification .
 
 uml:LiteralString a owl:Class ;
     rdfs:comment "A LiteralSpecification identifies a literal constant being modeled. See UML 2.5.1 specification section 8.2." ;
     rdfs:subClassOf [ a owl:Restriction ;
-            owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
-            owl:onProperty uml:stringValue ],
-        [ a owl:Restriction ;
             owl:allValuesFrom xsd:string ;
             owl:onProperty uml:stringValue ],
         [ a owl:Restriction ;
             owl:minCardinality "1"^^xsd:nonNegativeInteger ;
+            owl:onProperty uml:stringValue ],
+        [ a owl:Restriction ;
+            owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
             owl:onProperty uml:stringValue ],
         uml:LiteralSpecification .
 
@@ -180,63 +178,63 @@ uml:constrainedElement a owl:ObjectProperty ;
     rdfs:comment "The OrderedPropertyValue referenced by this Constraint." ;
     rdfs:domain uml:Constraint ;
     rdfs:range uml:OrderedPropertyValue ;
-    rdfs:subPropertyOf opil:compositionalProperty .
+    rdfs:subPropertyOf sbol:directlyComprises .
 
 uml:edge a owl:ObjectProperty ;
     rdfs:label "edges" ;
     rdfs:comment "ActivityEdges expressing flow between the nodes of the Activity." ;
     rdfs:domain uml:Activity ;
     rdfs:range uml:ActivityEdge ;
-    rdfs:subPropertyOf opil:compositionalProperty .
+    rdfs:subPropertyOf sbol:directlyComprises .
 
 uml:input a owl:ObjectProperty ;
     rdfs:label "inputs" ;
     rdfs:comment "The ordered set of InputPins representing the inputs to the Action." ;
     rdfs:domain uml:Action ;
     rdfs:range uml:InputPin ;
-    rdfs:subPropertyOf opil:compositionalProperty .
+    rdfs:subPropertyOf sbol:directlyComprises .
 
 uml:node a owl:ObjectProperty ;
     rdfs:label "nodes" ;
     rdfs:comment "ActivityNodes coordinated by the Activity." ;
     rdfs:domain uml:Activity ;
     rdfs:range uml:ActivityNode ;
-    rdfs:subPropertyOf opil:compositionalProperty .
+    rdfs:subPropertyOf sbol:directlyComprises .
 
 uml:operandValue a owl:ObjectProperty ;
     rdfs:label "operand" ;
     rdfs:comment "Specifies a sequence of operand ValueSpecifications." ;
     rdfs:domain uml:Expression ;
     rdfs:range uml:OrderedPropertyValue ;
-    rdfs:subPropertyOf opil:compositionalProperty .
+    rdfs:subPropertyOf sbol:directlyComprises .
 
 uml:output a owl:ObjectProperty ;
     rdfs:label "outputs" ;
     rdfs:comment "The ordered set of OutputPins representing outputs from the Action." ;
     rdfs:domain uml:Action ;
     rdfs:range uml:OutputPin ;
-    rdfs:subPropertyOf opil:compositionalProperty .
+    rdfs:subPropertyOf sbol:directlyComprises .
 
 uml:ownedParameter a owl:ObjectProperty ;
     rdfs:label "parameters" ;
     rdfs:comment " a list of Parameters to the Behavior which describes the order and type of arguments that can be given when the Behavior is invoked and of the values which will be returned when the Behavior completes its execution." ;
     rdfs:domain uml:Behavior ;
     rdfs:range uml:OrderedPropertyValue ;
-    rdfs:subPropertyOf opil:compositionalProperty .
+    rdfs:subPropertyOf sbol:directlyComprises .
 
 uml:postcondition a owl:ObjectProperty ;
     rdfs:label "postconditions" ;
     rdfs:comment "An optional set of Constraints specifying what is fulfilled after the execution of the Behavior is completed, if its precondition was fulfilled before its invocation." ;
     rdfs:domain uml:Behavior ;
     rdfs:range uml:Constraint ;
-    rdfs:subPropertyOf opil:compositionalProperty .
+    rdfs:subPropertyOf sbol:directlyComprises .
 
 uml:precondition a owl:ObjectProperty ;
     rdfs:label "preconditions" ;
     rdfs:comment "An optional set of Constraints specifying what must be fulfilled before the Behavior is invoked." ;
     rdfs:domain uml:Behavior ;
     rdfs:range uml:Constraint ;
-    rdfs:subPropertyOf opil:compositionalProperty .
+    rdfs:subPropertyOf sbol:directlyComprises .
 
 uml:Activity a owl:Class ;
     rdfs:comment "An Activity coordinates and groups steps in a protocol or workflow. See UML 2.5.1 specification section 15." ;
@@ -267,47 +265,50 @@ uml:DecisionNode a owl:Class ;
 uml:DurationConstraint a owl:Class ;
     rdfs:comment "A DurationConstraint is a Constraint that refers to a DurationInterval." ;
     rdfs:subClassOf [ a owl:Restriction ;
+            owl:maxCardinality "2"^^xsd:nonNegativeInteger ;
+            owl:onProperty uml:firstEventValue ],
+        [ a owl:Restriction ;
             owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
+            owl:onProperty uml:durationSpecification ],
+        [ a owl:Restriction ;
+            owl:minCardinality "1"^^xsd:nonNegativeInteger ;
             owl:onProperty uml:durationSpecification ],
         [ a owl:Restriction ;
             owl:minCardinality "0"^^xsd:nonNegativeInteger ;
             owl:onProperty uml:firstEventValue ],
         [ a owl:Restriction ;
             owl:allValuesFrom uml:OrderedPropertyValue ;
-            owl:onProperty uml:firstEventValue ],
-        [ a owl:Restriction ;
-            owl:minCardinality "1"^^xsd:nonNegativeInteger ;
-            owl:onProperty uml:durationSpecification ],
-        [ a owl:Restriction ;
-            owl:maxCardinality "2"^^xsd:nonNegativeInteger ;
             owl:onProperty uml:firstEventValue ],
         uml:IntervalConstraint .
 
 uml:DurationObservation a owl:Class ;
     rdfs:comment "A DurationObservation is a reference to a duration during an execution. It points out the entities in the model to observe and whether the observations are when these entities are entered or exited." ;
     rdfs:subClassOf [ a owl:Restriction ;
-            owl:maxCardinality "2"^^xsd:nonNegativeInteger ;
-            owl:onProperty uml:durationObservationValue ],
-        [ a owl:Restriction ;
-            owl:minCardinality "0"^^xsd:nonNegativeInteger ;
-            owl:onProperty uml:firstEventValue ],
-        [ a owl:Restriction ;
-            owl:allValuesFrom uml:OrderedPropertyValue ;
-            owl:onProperty uml:firstEventValue ],
-        [ a owl:Restriction ;
             owl:minCardinality "1"^^xsd:nonNegativeInteger ;
             owl:onProperty uml:durationObservationValue ],
         [ a owl:Restriction ;
             owl:allValuesFrom sbol:Identified ;
             owl:onProperty uml:durationObservationValue ],
         [ a owl:Restriction ;
+            owl:allValuesFrom uml:OrderedPropertyValue ;
+            owl:onProperty uml:firstEventValue ],
+        [ a owl:Restriction ;
+            owl:minCardinality "0"^^xsd:nonNegativeInteger ;
+            owl:onProperty uml:firstEventValue ],
+        [ a owl:Restriction ;
             owl:maxCardinality "2"^^xsd:nonNegativeInteger ;
             owl:onProperty uml:firstEventValue ],
+        [ a owl:Restriction ;
+            owl:maxCardinality "2"^^xsd:nonNegativeInteger ;
+            owl:onProperty uml:durationObservationValue ],
         uml:Observation .
 
 uml:Expression a owl:Class ;
     rdfs:comment "An Expression represents a node in an expression tree, which may be non-terminal or terminal. It defines a symbol, and has a possibly empty sequence of operands that are ValueSpecifications. See UML 2.5.1 specification section 8.6.5.1." ;
     rdfs:subClassOf [ a owl:Restriction ;
+            owl:minCardinality "1"^^xsd:nonNegativeInteger ;
+            owl:onProperty uml:isOrdered ],
+        [ a owl:Restriction ;
             owl:allValuesFrom xsd:boolean ;
             owl:onProperty uml:isOrdered ],
         [ a owl:Restriction ;
@@ -315,16 +316,13 @@ uml:Expression a owl:Class ;
             owl:onProperty uml:symbolValue ],
         [ a owl:Restriction ;
             owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
+            owl:onProperty uml:symbolValue ],
+        [ a owl:Restriction ;
+            owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
             owl:onProperty uml:isOrdered ],
         [ a owl:Restriction ;
             owl:allValuesFrom xsd:string ;
             owl:onProperty uml:symbolValue ],
-        [ a owl:Restriction ;
-            owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
-            owl:onProperty uml:symbolValue ],
-        [ a owl:Restriction ;
-            owl:minCardinality "1"^^xsd:nonNegativeInteger ;
-            owl:onProperty uml:isOrdered ],
         [ a owl:Restriction ;
             owl:allValuesFrom uml:OrderedPropertyValue ;
             owl:onProperty uml:operandValue ],
@@ -355,304 +353,6 @@ uml:ObjectNode a owl:Class ;
 uml:OutputPin a owl:Class ;
     rdfs:comment "An OutputPin is a Pin that holds output values produced by an Action. See UML 2.5.1 specification section 16.2." ;
     rdfs:subClassOf uml:Pin .
-
-uml:Pin a owl:Class ;
-    rdfs:comment "A Pin is an ObjectNode and MultiplicityElement that provides input values to an Action or accepts output values from an Action. See UML 2.5.1 specification section 16.2." ;
-    rdfs:subClassOf [ a owl:Restriction ;
-            owl:allValuesFrom xsd:boolean ;
-            owl:onProperty uml:isOrdered ],
-        [ a owl:Restriction ;
-            owl:minCardinality "1"^^xsd:nonNegativeInteger ;
-            owl:onProperty uml:isOrdered ],
-        [ a owl:Restriction ;
-            owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
-            owl:onProperty uml:isOrdered ],
-        [ a owl:Restriction ;
-            owl:allValuesFrom xsd:boolean ;
-            owl:onProperty uml:isUnique ],
-        [ a owl:Restriction ;
-            owl:minCardinality "1"^^xsd:nonNegativeInteger ;
-            owl:onProperty uml:isUnique ],
-        [ a owl:Restriction ;
-            owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
-            owl:onProperty uml:isUnique ],
-        [ a owl:Restriction ;
-            owl:allValuesFrom uml:ValueSpecification ;
-            owl:onProperty uml:lowerValue ],
-        [ a owl:Restriction ;
-            owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
-            owl:onProperty uml:lowerValue ],
-        [ a owl:Restriction ;
-            owl:allValuesFrom uml:ValueSpecification ;
-            owl:onProperty uml:upperValue ],
-        [ a owl:Restriction ;
-            owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
-            owl:onProperty uml:upperValue ],
-        uml:ObjectNode .
-
-uml:TimeConstraint a owl:Class ;
-    rdfs:comment "A TimeConstraint is a Constraint that refers to a TimeInterval." ;
-    rdfs:subClassOf [ a owl:Restriction ;
-            owl:minCardinality "1"^^xsd:nonNegativeInteger ;
-            owl:onProperty uml:timeSpecification ],
-        [ a owl:Restriction ;
-            owl:allValuesFrom uml:OrderedPropertyValue ;
-            owl:onProperty uml:firstEventValue ],
-        [ a owl:Restriction ;
-            owl:minCardinality "0"^^xsd:nonNegativeInteger ;
-            owl:onProperty uml:firstEventValue ],
-        [ a owl:Restriction ;
-            owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
-            owl:onProperty uml:firstEventValue ],
-        [ a owl:Restriction ;
-            owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
-            owl:onProperty uml:timeSpecification ],
-        uml:IntervalConstraint .
-
-uml:TimeObservation a owl:Class ;
-    rdfs:comment "A TimeObservation is a reference to a time instant during an execution. It points out which entity in the model to observe and whether the observation is when this entity is entered or when it is exited." ;
-    rdfs:subClassOf [ a owl:Restriction ;
-            owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
-            owl:onProperty uml:timeObservationValue ],
-        [ a owl:Restriction ;
-            owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
-            owl:onProperty uml:firstEventValue ],
-        [ a owl:Restriction ;
-            owl:minCardinality "1"^^xsd:nonNegativeInteger ;
-            owl:onProperty uml:firstEventValue ],
-        [ a owl:Restriction ;
-            owl:allValuesFrom sbol:Identified ;
-            owl:onProperty uml:timeObservationValue ],
-        [ a owl:Restriction ;
-            owl:minCardinality "1"^^xsd:nonNegativeInteger ;
-            owl:onProperty uml:timeObservationValue ],
-        [ a owl:Restriction ;
-            owl:allValuesFrom uml:OrderedPropertyValue ;
-            owl:onProperty uml:firstEventValue ],
-        uml:Observation .
-
-uml:decisionInput a owl:ObjectProperty ;
-    rdfs:label "decision_input" ;
-    rdfs:comment "A Behavior that is executed to provide an input to guard ValueSpecifications on ActivityEdges outgoing from the DecisionNode." ;
-    rdfs:domain uml:DecisionNode ;
-    rdfs:range uml:Behavior .
-
-uml:decisionInputFlow a owl:ObjectProperty ;
-    rdfs:label "decision_input_flow" ;
-    rdfs:comment "An additional ActivityEdge incoming to the DecisionNode that provides a decision input value for the guards ValueSpecifications on ActivityEdges outgoing from the DecisionNode." ;
-    rdfs:domain uml:DecisionNode ;
-    rdfs:range uml:ObjectFlow .
-
-uml:defaultValue a owl:ObjectProperty ;
-    rdfs:label "default_value" ;
-    rdfs:comment "A ValueSpecification that represents a value to be used when no argument is supplied for the Parameter." ;
-    rdfs:domain uml:Parameter ;
-    rdfs:range uml:ValueSpecification ;
-    rdfs:subPropertyOf opil:compositionalProperty .
-
-uml:observationValue a owl:ObjectProperty ;
-    rdfs:label "observation" ;
-    rdfs:comment "Refers to the Observations that are involved in the computation of the Duration value." ;
-    rdfs:domain uml:Duration,
-        uml:TimeExpression ;
-    rdfs:range uml:Observation .
-
-uml:Action a owl:Class ;
-    rdfs:comment "An Action is the fundamental unit of executable functionality. The execution of an Action represents some transformation or processing in the modeled system. Actions provide the ExecutableNodes within Activities and may also be used within Interactions. See UML 2.5.1 specification section 16." ;
-    rdfs:subClassOf [ a owl:Restriction ;
-            owl:allValuesFrom uml:InputPin ;
-            owl:onProperty uml:input ],
-        [ a owl:Restriction ;
-            owl:allValuesFrom uml:OutputPin ;
-            owl:onProperty uml:output ],
-        uml:ExecutableNode .
-
-uml:InputPin a owl:Class ;
-    rdfs:comment "An InputPin is a Pin that holds input values to be consumed by an Action. See UML 2.5.1 specification section 16.2." ;
-    rdfs:subClassOf uml:Pin .
-
-uml:behavior a owl:ObjectProperty ;
-    rdfs:label "behavior" ;
-    rdfs:comment "The Behavior being invoked." ;
-    rdfs:domain uml:CallBehaviorAction ;
-    rdfs:range uml:Behavior .
-
-uml:booleanValue a owl:DatatypeProperty ;
-    rdfs:label "value" ;
-    rdfs:comment "The specified Boolean value." ;
-    rdfs:domain uml:LiteralBoolean ;
-    rdfs:range xsd:boolean .
-
-uml:direction a owl:DatatypeProperty ;
-    rdfs:label "direction" ;
-    rdfs:comment "Indicates whether a parameter is being sent into or out of a behavioral element." ;
-    rdfs:domain uml:Parameter ;
-    rdfs:range xsd:anyURI .
-
-uml:durationObservationValue a owl:ObjectProperty ;
-    rdfs:label "event" ;
-    rdfs:comment "The DurationObservation is determined as the duration between the entering or exiting of a single event during execution, or the entering/exiting of one event and the entering/exiting of a second." ;
-    rdfs:domain uml:DurationObservation ;
-    rdfs:range sbol:Identified .
-
-uml:durationSpecification a owl:ObjectProperty ;
-    rdfs:label "specification" ;
-    rdfs:comment "The DurationInterval constraining the duration." ;
-    rdfs:domain uml:DurationConstraint ;
-    rdfs:range uml:DurationInterval ;
-    rdfs:subPropertyOf opil:compositionalProperty .
-
-uml:identifiedValue a owl:ObjectProperty ;
-    rdfs:label "value" ;
-    rdfs:comment "The embedded SBOL object" ;
-    rdfs:domain uml:LiteralIdentified ;
-    rdfs:range sbol:Identified ;
-    rdfs:subPropertyOf opil:compositionalProperty .
-
-uml:indexValue a owl:DatatypeProperty ;
-    rdfs:label "index" ;
-    rdfs:domain uml:OrderedPropertyValue ;
-    rdfs:range xsd:integer .
-
-uml:integerValue a owl:DatatypeProperty ;
-    rdfs:label "value" ;
-    rdfs:comment "The specified Integer value." ;
-    rdfs:domain uml:LiteralInteger ;
-    rdfs:range xsd:integer .
-
-uml:maxDurationValue a owl:ObjectProperty ;
-    rdfs:label "max" ;
-    rdfs:comment "Refers to the Duration denoting the maximum value of the range." ;
-    rdfs:domain uml:DurationInterval ;
-    rdfs:range uml:Duration ;
-    rdfs:subPropertyOf opil:compositionalProperty .
-
-uml:maxTimeValue a owl:ObjectProperty ;
-    rdfs:label "max" ;
-    rdfs:comment "Refers to the TimeExpression denoting the maximum value of the range." ;
-    rdfs:domain uml:TimeInterval ;
-    rdfs:range uml:TimeExpression ;
-    rdfs:subPropertyOf opil:compositionalProperty .
-
-uml:minDurationValue a owl:ObjectProperty ;
-    rdfs:label "min" ;
-    rdfs:comment "Refers to the Duration denoting the minimum value of the range." ;
-    rdfs:domain uml:DurationInterval ;
-    rdfs:range uml:Duration ;
-    rdfs:subPropertyOf opil:compositionalProperty .
-
-uml:minTimeValue a owl:ObjectProperty ;
-    rdfs:label "min" ;
-    rdfs:comment "Refers to the TimeExpression denoting the minimum value of the range." ;
-    rdfs:domain uml:TimeInterval ;
-    rdfs:range uml:TimeExpression ;
-    rdfs:subPropertyOf opil:compositionalProperty .
-
-uml:parameter a owl:ObjectProperty ;
-    rdfs:label "parameter" ;
-    rdfs:comment "The Parameter for which the ActivityParameterNode will be accepting or providing values." ;
-    rdfs:domain uml:ActivityParameterNode ;
-    rdfs:range uml:Parameter .
-
-uml:propertyValue a owl:ObjectProperty ;
-    rdfs:label "property_value" ;
-    rdfs:domain uml:OrderedPropertyValue ;
-    rdfs:range sbol:Identified ;
-    rdfs:subPropertyOf opil:compositionalProperty .
-
-uml:realValue a owl:DatatypeProperty ;
-    rdfs:label "value" ;
-    rdfs:comment "The specified Real value." ;
-    rdfs:domain uml:LiteralReal ;
-    rdfs:range xsd:float .
-
-uml:referenceValue a owl:ObjectProperty ;
-    rdfs:label "value" ;
-    rdfs:comment "The referenced SBOL object." ;
-    rdfs:domain uml:LiteralReference ;
-    rdfs:range sbol:Identified .
-
-uml:source a owl:ObjectProperty ;
-    rdfs:label "source" ;
-    rdfs:comment "The ActivityNode from which tokens are taken when they traverse the ActivityEdge." ;
-    rdfs:domain uml:ActivityEdge ;
-    rdfs:range uml:ActivityNode .
-
-uml:stringValue a owl:DatatypeProperty ;
-    rdfs:label "value" ;
-    rdfs:comment "The specified String value." ;
-    rdfs:domain uml:LiteralString ;
-    rdfs:range xsd:string .
-
-uml:symbolValue a owl:DatatypeProperty ;
-    rdfs:label "symbol" ;
-    rdfs:comment "The symbol associated with this node in the expression tree." ;
-    rdfs:domain uml:Expression ;
-    rdfs:range xsd:anyURI .
-
-uml:target a owl:ObjectProperty ;
-    rdfs:label "target" ;
-    rdfs:comment "The ActivityNode to which tokens are put when they traverse the ActivityEdge." ;
-    rdfs:domain uml:ActivityEdge ;
-    rdfs:range uml:ActivityNode .
-
-uml:timeObservationValue a owl:ObjectProperty ;
-    rdfs:label "event" ;
-    rdfs:comment "The TimeObservation is determined by the entering or exiting of the event during execution." ;
-    rdfs:domain uml:TimeObservation ;
-    rdfs:range sbol:Identified .
-
-uml:timeSpecification a owl:ObjectProperty ;
-    rdfs:label "specification" ;
-    rdfs:comment "TheTimeInterval constraining the duration." ;
-    rdfs:domain uml:TimeConstraint ;
-    rdfs:range uml:TimeInterval ;
-    rdfs:subPropertyOf opil:compositionalProperty .
-
-uml:value a owl:ObjectProperty ;
-    rdfs:label "value" ;
-    rdfs:comment "The ValueSpecification that is evaluated to obtain the value that the ValuePin will provide." ;
-    rdfs:domain uml:ValuePin ;
-    rdfs:range uml:ValueSpecification ;
-    rdfs:subPropertyOf opil:compositionalProperty .
-
-uml:Duration a owl:Class ;
-    rdfs:comment "A Duration is a ValueSpecification that specifies the temporal distance between two time instants." ;
-    rdfs:subClassOf [ a owl:Restriction ;
-            owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
-            owl:onProperty uml:exprValue ],
-        [ a owl:Restriction ;
-            owl:allValuesFrom uml:ValueSpecification ;
-            owl:onProperty uml:exprValue ],
-        [ a owl:Restriction ;
-            owl:minCardinality "0"^^xsd:nonNegativeInteger ;
-            owl:onProperty uml:exprValue ],
-        [ a owl:Restriction ;
-            owl:allValuesFrom uml:Observation ;
-            owl:onProperty uml:observationValue ],
-        uml:ValueSpecification .
-
-uml:DurationInterval a owl:Class ;
-    rdfs:comment "A DurationInterval defines the range between two Durations." ;
-    rdfs:subClassOf [ a owl:Restriction ;
-            owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
-            owl:onProperty uml:minDurationValue ],
-        [ a owl:Restriction ;
-            owl:minCardinality "1"^^xsd:nonNegativeInteger ;
-            owl:onProperty uml:minDurationValue ],
-        [ a owl:Restriction ;
-            owl:allValuesFrom uml:ValueSpecification ;
-            owl:onProperty uml:maxDurationValue ],
-        [ a owl:Restriction ;
-            owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
-            owl:onProperty uml:maxDurationValue ],
-        [ a owl:Restriction ;
-            owl:allValuesFrom uml:ValueSpecification ;
-            owl:onProperty uml:minDurationValue ],
-        [ a owl:Restriction ;
-            owl:minCardinality "1"^^xsd:nonNegativeInteger ;
-            owl:onProperty uml:maxDurationValue ],
-        uml:Interval .
 
 uml:Parameter a owl:Class ;
     rdfs:comment "A Parameter is a specification of an argument used to pass information into or out of an invocation of a Behavior. See UML 2.5.1 specification section 9.4." ;
@@ -709,16 +409,314 @@ uml:Parameter a owl:Class ;
             owl:onProperty uml:upperValue ],
         sbol:Identified .
 
+uml:Pin a owl:Class ;
+    rdfs:comment "A Pin is an ObjectNode and MultiplicityElement that provides input values to an Action or accepts output values from an Action. See UML 2.5.1 specification section 16.2." ;
+    rdfs:subClassOf [ a owl:Restriction ;
+            owl:allValuesFrom xsd:boolean ;
+            owl:onProperty uml:isOrdered ],
+        [ a owl:Restriction ;
+            owl:minCardinality "1"^^xsd:nonNegativeInteger ;
+            owl:onProperty uml:isOrdered ],
+        [ a owl:Restriction ;
+            owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
+            owl:onProperty uml:isOrdered ],
+        [ a owl:Restriction ;
+            owl:allValuesFrom xsd:boolean ;
+            owl:onProperty uml:isUnique ],
+        [ a owl:Restriction ;
+            owl:minCardinality "1"^^xsd:nonNegativeInteger ;
+            owl:onProperty uml:isUnique ],
+        [ a owl:Restriction ;
+            owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
+            owl:onProperty uml:isUnique ],
+        [ a owl:Restriction ;
+            owl:allValuesFrom uml:ValueSpecification ;
+            owl:onProperty uml:lowerValue ],
+        [ a owl:Restriction ;
+            owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
+            owl:onProperty uml:lowerValue ],
+        [ a owl:Restriction ;
+            owl:allValuesFrom uml:ValueSpecification ;
+            owl:onProperty uml:upperValue ],
+        [ a owl:Restriction ;
+            owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
+            owl:onProperty uml:upperValue ],
+        uml:ObjectNode .
+
+uml:TimeConstraint a owl:Class ;
+    rdfs:comment "A TimeConstraint is a Constraint that refers to a TimeInterval." ;
+    rdfs:subClassOf [ a owl:Restriction ;
+            owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
+            owl:onProperty uml:timeSpecification ],
+        [ a owl:Restriction ;
+            owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
+            owl:onProperty uml:firstEventValue ],
+        [ a owl:Restriction ;
+            owl:minCardinality "0"^^xsd:nonNegativeInteger ;
+            owl:onProperty uml:firstEventValue ],
+        [ a owl:Restriction ;
+            owl:minCardinality "1"^^xsd:nonNegativeInteger ;
+            owl:onProperty uml:timeSpecification ],
+        [ a owl:Restriction ;
+            owl:allValuesFrom uml:OrderedPropertyValue ;
+            owl:onProperty uml:firstEventValue ],
+        uml:IntervalConstraint .
+
+uml:TimeObservation a owl:Class ;
+    rdfs:comment "A TimeObservation is a reference to a time instant during an execution. It points out which entity in the model to observe and whether the observation is when this entity is entered or when it is exited." ;
+    rdfs:subClassOf [ a owl:Restriction ;
+            owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
+            owl:onProperty uml:timeObservationValue ],
+        [ a owl:Restriction ;
+            owl:minCardinality "1"^^xsd:nonNegativeInteger ;
+            owl:onProperty uml:timeObservationValue ],
+        [ a owl:Restriction ;
+            owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
+            owl:onProperty uml:firstEventValue ],
+        [ a owl:Restriction ;
+            owl:allValuesFrom sbol:Identified ;
+            owl:onProperty uml:timeObservationValue ],
+        [ a owl:Restriction ;
+            owl:allValuesFrom uml:OrderedPropertyValue ;
+            owl:onProperty uml:firstEventValue ],
+        [ a owl:Restriction ;
+            owl:minCardinality "1"^^xsd:nonNegativeInteger ;
+            owl:onProperty uml:firstEventValue ],
+        uml:Observation .
+
+uml:decisionInput a owl:ObjectProperty ;
+    rdfs:label "decision_input" ;
+    rdfs:comment "A Behavior that is executed to provide an input to guard ValueSpecifications on ActivityEdges outgoing from the DecisionNode." ;
+    rdfs:domain uml:DecisionNode ;
+    rdfs:range uml:Behavior .
+
+uml:decisionInputFlow a owl:ObjectProperty ;
+    rdfs:label "decision_input_flow" ;
+    rdfs:comment "An additional ActivityEdge incoming to the DecisionNode that provides a decision input value for the guards ValueSpecifications on ActivityEdges outgoing from the DecisionNode." ;
+    rdfs:domain uml:DecisionNode ;
+    rdfs:range uml:ObjectFlow .
+
+uml:defaultValue a owl:ObjectProperty ;
+    rdfs:label "default_value" ;
+    rdfs:comment "A ValueSpecification that represents a value to be used when no argument is supplied for the Parameter." ;
+    rdfs:domain uml:Parameter ;
+    rdfs:range uml:ValueSpecification ;
+    rdfs:subPropertyOf sbol:directlyComprises .
+
+uml:observationValue a owl:ObjectProperty ;
+    rdfs:label "observation" ;
+    rdfs:comment "Refers to the Observations that are involved in the computation of the Duration value." ;
+    rdfs:domain uml:Duration,
+        uml:TimeExpression ;
+    rdfs:range uml:Observation .
+
+uml:Action a owl:Class ;
+    rdfs:comment "An Action is the fundamental unit of executable functionality. The execution of an Action represents some transformation or processing in the modeled system. Actions provide the ExecutableNodes within Activities and may also be used within Interactions. See UML 2.5.1 specification section 16." ;
+    rdfs:subClassOf [ a owl:Restriction ;
+            owl:allValuesFrom uml:InputPin ;
+            owl:onProperty uml:input ],
+        [ a owl:Restriction ;
+            owl:allValuesFrom uml:OutputPin ;
+            owl:onProperty uml:output ],
+        uml:ExecutableNode .
+
+uml:InputPin a owl:Class ;
+    rdfs:comment "An InputPin is a Pin that holds input values to be consumed by an Action. See UML 2.5.1 specification section 16.2." ;
+    rdfs:subClassOf uml:Pin .
+
+uml:behavior a owl:ObjectProperty ;
+    rdfs:label "behavior" ;
+    rdfs:comment "The Behavior being invoked." ;
+    rdfs:domain uml:CallBehaviorAction ;
+    rdfs:range uml:Behavior .
+
+uml:booleanValue a owl:DatatypeProperty ;
+    rdfs:label "value" ;
+    rdfs:comment "The specified Boolean value." ;
+    rdfs:domain uml:LiteralBoolean ;
+    rdfs:range xsd:boolean .
+
+uml:direction a owl:DatatypeProperty ;
+    rdfs:label "direction" ;
+    rdfs:comment "Indicates whether a parameter is being sent into or out of a behavioral element." ;
+    rdfs:domain uml:Parameter ;
+    rdfs:range xsd:anyURI .
+
+uml:durationObservationValue a owl:ObjectProperty ;
+    rdfs:label "event" ;
+    rdfs:comment "The DurationObservation is determined as the duration between the entering or exiting of a single event during execution, or the entering/exiting of one event and the entering/exiting of a second." ;
+    rdfs:domain uml:DurationObservation ;
+    rdfs:range sbol:Identified .
+
+uml:durationSpecification a owl:ObjectProperty ;
+    rdfs:label "specification" ;
+    rdfs:comment "The DurationInterval constraining the duration." ;
+    rdfs:domain uml:DurationConstraint ;
+    rdfs:range uml:DurationInterval ;
+    rdfs:subPropertyOf sbol:directlyComprises .
+
+uml:identifiedValue a owl:ObjectProperty ;
+    rdfs:label "value" ;
+    rdfs:comment "The embedded SBOL object" ;
+    rdfs:domain uml:LiteralIdentified ;
+    rdfs:range sbol:Identified ;
+    rdfs:subPropertyOf sbol:directlyComprises .
+
+uml:indexValue a owl:DatatypeProperty ;
+    rdfs:label "index" ;
+    rdfs:domain uml:OrderedPropertyValue ;
+    rdfs:range xsd:integer .
+
+uml:integerValue a owl:DatatypeProperty ;
+    rdfs:label "value" ;
+    rdfs:comment "The specified Integer value." ;
+    rdfs:domain uml:LiteralInteger ;
+    rdfs:range xsd:integer .
+
+uml:maxDurationValue a owl:ObjectProperty ;
+    rdfs:label "max" ;
+    rdfs:comment "Refers to the Duration denoting the maximum value of the range." ;
+    rdfs:domain uml:DurationInterval ;
+    rdfs:range uml:Duration ;
+    rdfs:subPropertyOf sbol:directlyComprises .
+
+uml:maxTimeValue a owl:ObjectProperty ;
+    rdfs:label "max" ;
+    rdfs:comment "Refers to the TimeExpression denoting the maximum value of the range." ;
+    rdfs:domain uml:TimeInterval ;
+    rdfs:range uml:TimeExpression ;
+    rdfs:subPropertyOf sbol:directlyComprises .
+
+uml:minDurationValue a owl:ObjectProperty ;
+    rdfs:label "min" ;
+    rdfs:comment "Refers to the Duration denoting the minimum value of the range." ;
+    rdfs:domain uml:DurationInterval ;
+    rdfs:range uml:Duration ;
+    rdfs:subPropertyOf sbol:directlyComprises .
+
+uml:minTimeValue a owl:ObjectProperty ;
+    rdfs:label "min" ;
+    rdfs:comment "Refers to the TimeExpression denoting the minimum value of the range." ;
+    rdfs:domain uml:TimeInterval ;
+    rdfs:range uml:TimeExpression ;
+    rdfs:subPropertyOf sbol:directlyComprises .
+
+uml:parameter a owl:ObjectProperty ;
+    rdfs:label "parameter" ;
+    rdfs:comment "The Parameter for which the ActivityParameterNode will be accepting or providing values." ;
+    rdfs:domain uml:ActivityParameterNode ;
+    rdfs:range uml:OrderedPropertyValue .
+
+uml:propertyValue a owl:ObjectProperty ;
+    rdfs:label "property_value" ;
+    rdfs:domain uml:OrderedPropertyValue ;
+    rdfs:range sbol:Identified ;
+    rdfs:subPropertyOf sbol:directlyComprises .
+
+uml:realValue a owl:DatatypeProperty ;
+    rdfs:label "value" ;
+    rdfs:comment "The specified Real value." ;
+    rdfs:domain uml:LiteralReal ;
+    rdfs:range xsd:float .
+
+uml:referenceValue a owl:ObjectProperty ;
+    rdfs:label "value" ;
+    rdfs:comment "The referenced SBOL object." ;
+    rdfs:domain uml:LiteralReference ;
+    rdfs:range sbol:Identified .
+
+uml:source a owl:ObjectProperty ;
+    rdfs:label "source" ;
+    rdfs:comment "The ActivityNode from which tokens are taken when they traverse the ActivityEdge." ;
+    rdfs:domain uml:ActivityEdge ;
+    rdfs:range uml:ActivityNode .
+
+uml:stringValue a owl:DatatypeProperty ;
+    rdfs:label "value" ;
+    rdfs:comment "The specified String value." ;
+    rdfs:domain uml:LiteralString ;
+    rdfs:range xsd:string .
+
+uml:symbolValue a owl:DatatypeProperty ;
+    rdfs:label "symbol" ;
+    rdfs:comment "The symbol associated with this node in the expression tree." ;
+    rdfs:domain uml:Expression ;
+    rdfs:range xsd:anyURI .
+
+uml:target a owl:ObjectProperty ;
+    rdfs:label "target" ;
+    rdfs:comment "The ActivityNode to which tokens are put when they traverse the ActivityEdge." ;
+    rdfs:domain uml:ActivityEdge ;
+    rdfs:range uml:ActivityNode .
+
+uml:timeObservationValue a owl:ObjectProperty ;
+    rdfs:label "event" ;
+    rdfs:comment "The TimeObservation is determined by the entering or exiting of the event during execution." ;
+    rdfs:domain uml:TimeObservation ;
+    rdfs:range sbol:Identified .
+
+uml:timeSpecification a owl:ObjectProperty ;
+    rdfs:label "specification" ;
+    rdfs:comment "TheTimeInterval constraining the duration." ;
+    rdfs:domain uml:TimeConstraint ;
+    rdfs:range uml:TimeInterval ;
+    rdfs:subPropertyOf sbol:directlyComprises .
+
+uml:value a owl:ObjectProperty ;
+    rdfs:label "value" ;
+    rdfs:comment "The ValueSpecification that is evaluated to obtain the value that the ValuePin will provide." ;
+    rdfs:domain uml:ValuePin ;
+    rdfs:range uml:ValueSpecification ;
+    rdfs:subPropertyOf sbol:directlyComprises .
+
+uml:Duration a owl:Class ;
+    rdfs:comment "A Duration is a ValueSpecification that specifies the temporal distance between two time instants." ;
+    rdfs:subClassOf [ a owl:Restriction ;
+            owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
+            owl:onProperty uml:exprValue ],
+        [ a owl:Restriction ;
+            owl:allValuesFrom uml:ValueSpecification ;
+            owl:onProperty uml:exprValue ],
+        [ a owl:Restriction ;
+            owl:minCardinality "0"^^xsd:nonNegativeInteger ;
+            owl:onProperty uml:exprValue ],
+        [ a owl:Restriction ;
+            owl:allValuesFrom uml:Observation ;
+            owl:onProperty uml:observationValue ],
+        uml:ValueSpecification .
+
+uml:DurationInterval a owl:Class ;
+    rdfs:comment "A DurationInterval defines the range between two Durations." ;
+    rdfs:subClassOf [ a owl:Restriction ;
+            owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
+            owl:onProperty uml:maxDurationValue ],
+        [ a owl:Restriction ;
+            owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
+            owl:onProperty uml:minDurationValue ],
+        [ a owl:Restriction ;
+            owl:minCardinality "1"^^xsd:nonNegativeInteger ;
+            owl:onProperty uml:minDurationValue ],
+        [ a owl:Restriction ;
+            owl:minCardinality "1"^^xsd:nonNegativeInteger ;
+            owl:onProperty uml:maxDurationValue ],
+        [ a owl:Restriction ;
+            owl:allValuesFrom uml:ValueSpecification ;
+            owl:onProperty uml:minDurationValue ],
+        [ a owl:Restriction ;
+            owl:allValuesFrom uml:ValueSpecification ;
+            owl:onProperty uml:maxDurationValue ],
+        uml:Interval .
+
 uml:TimeExpression a owl:Class ;
     rdfs:comment "A TimeExpression is a ValueSpecification that represents a time value." ;
     rdfs:subClassOf [ a owl:Restriction ;
-            owl:minCardinality "0"^^xsd:nonNegativeInteger ;
+            owl:allValuesFrom uml:ValueSpecification ;
             owl:onProperty uml:exprValue ],
         [ a owl:Restriction ;
             owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
             owl:onProperty uml:exprValue ],
         [ a owl:Restriction ;
-            owl:allValuesFrom uml:ValueSpecification ;
+            owl:minCardinality "0"^^xsd:nonNegativeInteger ;
             owl:onProperty uml:exprValue ],
         [ a owl:Restriction ;
             owl:allValuesFrom uml:Observation ;
@@ -728,23 +726,23 @@ uml:TimeExpression a owl:Class ;
 uml:TimeInterval a owl:Class ;
     rdfs:comment "A TimeInterval defines the range between two TimeExpressions." ;
     rdfs:subClassOf [ a owl:Restriction ;
-            owl:minCardinality "1"^^xsd:nonNegativeInteger ;
-            owl:onProperty uml:maxTimeValue ],
-        [ a owl:Restriction ;
-            owl:allValuesFrom uml:ValueSpecification ;
-            owl:onProperty uml:maxTimeValue ],
-        [ a owl:Restriction ;
             owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
-            owl:onProperty uml:minTimeValue ],
-        [ a owl:Restriction ;
-            owl:allValuesFrom uml:ValueSpecification ;
-            owl:onProperty uml:minTimeValue ],
+            owl:onProperty uml:maxTimeValue ],
         [ a owl:Restriction ;
             owl:minCardinality "1"^^xsd:nonNegativeInteger ;
             owl:onProperty uml:minTimeValue ],
         [ a owl:Restriction ;
             owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
+            owl:onProperty uml:minTimeValue ],
+        [ a owl:Restriction ;
+            owl:allValuesFrom uml:ValueSpecification ;
             owl:onProperty uml:maxTimeValue ],
+        [ a owl:Restriction ;
+            owl:minCardinality "1"^^xsd:nonNegativeInteger ;
+            owl:onProperty uml:maxTimeValue ],
+        [ a owl:Restriction ;
+            owl:allValuesFrom uml:ValueSpecification ;
+            owl:onProperty uml:minTimeValue ],
         uml:Interval .
 
 uml:lowerValue a owl:ObjectProperty ;
@@ -752,14 +750,14 @@ uml:lowerValue a owl:ObjectProperty ;
     rdfs:comment "For MultiplicityElement abstract class; UML 2.5.1 specification section 7.5" ;
     rdfs:domain sbol:Identified ;
     rdfs:range uml:ValueSpecification ;
-    rdfs:subPropertyOf opil:compositionalProperty .
+    rdfs:subPropertyOf sbol:directlyComprises .
 
 uml:upperValue a owl:ObjectProperty ;
     rdfs:label "upper_value" ;
     rdfs:comment "For MultiplicityElement abstract class; UML 2.5.1 specification section 7.5" ;
     rdfs:domain sbol:Identified ;
     rdfs:range uml:ValueSpecification ;
-    rdfs:subPropertyOf opil:compositionalProperty .
+    rdfs:subPropertyOf sbol:directlyComprises .
 
 uml:Observation a owl:Class ;
     rdfs:comment "Observation specifies a value determined by observing an event or events that occur relative to other model entities." ;
@@ -804,7 +802,7 @@ uml:exprValue a owl:ObjectProperty ;
     rdfs:domain uml:Duration,
         uml:TimeExpression ;
     rdfs:range uml:ValueSpecification ;
-    rdfs:subPropertyOf opil:compositionalProperty .
+    rdfs:subPropertyOf sbol:directlyComprises .
 
 uml:isUnique a owl:DatatypeProperty ;
     rdfs:label "is_unique" ;
@@ -853,18 +851,18 @@ uml:firstEventValue a owl:ObjectProperty ;
         uml:TimeConstraint,
         uml:TimeObservation ;
     rdfs:range uml:OrderedPropertyValue ;
-    rdfs:subPropertyOf opil:compositionalProperty .
+    rdfs:subPropertyOf sbol:directlyComprises .
 
 uml:OrderedPropertyValue a owl:Class ;
     rdfs:subClassOf [ a owl:Restriction ;
             owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
             owl:onProperty uml:indexValue ],
         [ a owl:Restriction ;
-            owl:minCardinality "1"^^xsd:nonNegativeInteger ;
-            owl:onProperty uml:indexValue ],
+            owl:allValuesFrom sbol:Identified ;
+            owl:onProperty uml:propertyValue ],
         [ a owl:Restriction ;
             owl:minCardinality "1"^^xsd:nonNegativeInteger ;
-            owl:onProperty uml:propertyValue ],
+            owl:onProperty uml:indexValue ],
         [ a owl:Restriction ;
             owl:allValuesFrom xsd:integer ;
             owl:onProperty uml:indexValue ],
@@ -872,7 +870,7 @@ uml:OrderedPropertyValue a owl:Class ;
             owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
             owl:onProperty uml:propertyValue ],
         [ a owl:Restriction ;
-            owl:allValuesFrom sbol:Identified ;
+            owl:minCardinality "1"^^xsd:nonNegativeInteger ;
             owl:onProperty uml:propertyValue ],
         sbol:Identified .
 
@@ -886,6 +884,6 @@ uml:ValueSpecification a owl:Class ;
             owl:onProperty uml:type ],
         sbol:Identified .
 
-opil:compositionalProperty a owl:ObjectProperty .
+sbol:directlyComprises a owl:ObjectProperty .
 
 

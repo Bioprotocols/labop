@@ -1,5 +1,4 @@
 @prefix om: <http://www.ontology-of-units-of-measure.org/resource/om-2/> .
-@prefix opil: <http://bioprotocols.org/opil/v1#> .
 @prefix owl: <http://www.w3.org/2002/07/owl#> .
 @prefix paml: <http://bioprotocols.org/paml#> .
 @prefix prov: <http://www.w3.org/ns/prov#> .
@@ -39,10 +38,10 @@ paml:CallBehaviorExecution a owl:Class ;
             owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
             owl:onProperty paml:call ],
         [ a owl:Restriction ;
-            owl:minCardinality "1"^^xsd:nonNegativeInteger ;
+            owl:allValuesFrom paml:BehaviorExecution ;
             owl:onProperty paml:call ],
         [ a owl:Restriction ;
-            owl:allValuesFrom paml:BehaviorExecution ;
+            owl:minCardinality "1"^^xsd:nonNegativeInteger ;
             owl:onProperty paml:call ],
         paml:ActivityNodeExecution .
 
@@ -56,23 +55,23 @@ paml:SampleMask a owl:Class ;
         masks to be composed, such that SampleMask(source=SampleMask(source=X,mask=mask1),mask=mask2) is equivalent to
         SampleMask(source=X,mask=mask1 AND mask2). Note that this implies masks are commutative and idempotent.""" ;
     rdfs:subClassOf [ a owl:Restriction ;
-            owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
-            owl:onProperty paml:source ],
-        [ a owl:Restriction ;
             owl:minCardinality "1"^^xsd:nonNegativeInteger ;
-            owl:onProperty paml:mask ],
-        [ a owl:Restriction ;
-            owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
             owl:onProperty paml:mask ],
         [ a owl:Restriction ;
             owl:minCardinality "1"^^xsd:nonNegativeInteger ;
             owl:onProperty paml:source ],
+        [ a owl:Restriction ;
+            owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
+            owl:onProperty paml:mask ],
+        [ a owl:Restriction ;
+            owl:allValuesFrom xsd:string ;
+            owl:onProperty paml:mask ],
         [ a owl:Restriction ;
             owl:allValuesFrom paml:SampleCollection ;
             owl:onProperty paml:source ],
         [ a owl:Restriction ;
-            owl:allValuesFrom xsd:string ;
-            owl:onProperty paml:mask ],
+            owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
+            owl:onProperty paml:source ],
         paml:SampleCollection .
 
 paml:consumedMaterial a owl:ObjectProperty ;
@@ -88,7 +87,7 @@ paml:consumedMaterial a owl:ObjectProperty ;
         with additional glucose that was added as a supplement, since that would change the definition of the media.""" ;
     rdfs:domain paml:BehaviorExecution ;
     rdfs:range paml:Material ;
-    rdfs:subPropertyOf opil:compositionalProperty .
+    rdfs:subPropertyOf sbol:directlyComprises .
 
 paml:execution a owl:ObjectProperty ;
     rdfs:label "executions" ;
@@ -96,7 +95,7 @@ paml:execution a owl:ObjectProperty ;
         firing of a uml:ActivityNode during the execution of its containing Protocol""" ;
     rdfs:domain paml:ProtocolExecution ;
     rdfs:range paml:ActivityNodeExecution ;
-    rdfs:subPropertyOf opil:compositionalProperty .
+    rdfs:subPropertyOf sbol:directlyComprises .
 
 paml:flow a owl:ObjectProperty ;
     rdfs:label "flows" ;
@@ -104,7 +103,7 @@ paml:flow a owl:ObjectProperty ;
         token along a uml:ActivityEdge during the execution of its containing Protocol""" ;
     rdfs:domain paml:ProtocolExecution ;
     rdfs:range paml:ActivityEdgeFlow ;
-    rdfs:subPropertyOf opil:compositionalProperty .
+    rdfs:subPropertyOf sbol:directlyComprises .
 
 paml:incomingFlow a owl:ObjectProperty ;
     rdfs:label "incoming_flows" ;
@@ -126,7 +125,7 @@ paml:parameterValuePair a owl:ObjectProperty ;
         """ ;
     rdfs:domain paml:BehaviorExecution ;
     rdfs:range paml:ParameterValue ;
-    rdfs:subPropertyOf opil:compositionalProperty .
+    rdfs:subPropertyOf sbol:directlyComprises .
 
 paml:ContainerSpec a owl:Class ;
     rdfs:comment """A ContainerSpec is used to indicate the type of container to be used for a SampleArray, e.g.,
@@ -173,28 +172,28 @@ paml:SampleArray a owl:Class ;
 
         TODO: need to decide on the format of the contents description.""" ;
     rdfs:subClassOf [ a owl:Restriction ;
+            rdfs:comment "N-dimensional array of URI for specification or nulls" ;
+            owl:allValuesFrom xsd:string ;
+            owl:onProperty paml:contents ],
+        [ a owl:Restriction ;
             rdfs:comment "Type of container used for storing the samples. The size and dimension may not match that of the array: it is up to execution to lay out the array in one or more containers" ;
             owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
             owl:onProperty paml:containerType ],
-        [ a owl:Restriction ;
-            rdfs:comment "Type of container used for storing the samples. The size and dimension may not match that of the array: it is up to execution to lay out the array in one or more containers" ;
-            owl:minCardinality "1"^^xsd:nonNegativeInteger ;
-            owl:onProperty paml:containerType ],
-        [ a owl:Restriction ;
-            rdfs:comment "N-dimensional array of URI for specification or nulls" ;
-            owl:minCardinality "1"^^xsd:nonNegativeInteger ;
-            owl:onProperty paml:contents ],
-        [ a owl:Restriction ;
-            rdfs:comment "N-dimensional array of URI for specification or nulls" ;
-            owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
-            owl:onProperty paml:contents ],
         [ a owl:Restriction ;
             rdfs:comment "Type of container used for storing the samples. The size and dimension may not match that of the array: it is up to execution to lay out the array in one or more containers" ;
             owl:allValuesFrom xsd:anyURI ;
             owl:onProperty paml:containerType ],
         [ a owl:Restriction ;
+            rdfs:comment "Type of container used for storing the samples. The size and dimension may not match that of the array: it is up to execution to lay out the array in one or more containers" ;
+            owl:minCardinality "1"^^xsd:nonNegativeInteger ;
+            owl:onProperty paml:containerType ],
+        [ a owl:Restriction ;
             rdfs:comment "N-dimensional array of URI for specification or nulls" ;
-            owl:allValuesFrom xsd:string ;
+            owl:minCardinality "1"^^xsd:nonNegativeInteger ;
+            owl:onProperty paml:contents ],
+        [ a owl:Restriction ;
+            rdfs:comment "N-dimensional array of URI for specification or nulls" ;
+            owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
             owl:onProperty paml:contents ],
         paml:SampleCollection .
 
@@ -211,11 +210,11 @@ paml:SampleData a owl:Class ;
         multiple values for each sample (e.g., measurement of both fluorescence and absorbance in a plate reader),
         as well as links to more complex data (e.g., results of flow cytometry or omics for each sample)""" ;
     rdfs:subClassOf [ a owl:Restriction ;
-            owl:minCardinality "1"^^xsd:nonNegativeInteger ;
+            owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
             owl:onProperty paml:fromSamples ],
         [ a owl:Restriction ;
-            owl:allValuesFrom paml:SampleCollection ;
-            owl:onProperty paml:fromSamples ],
+            owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
+            owl:onProperty paml:sampleDataValues ],
         [ a owl:Restriction ;
             owl:allValuesFrom xsd:string ;
             owl:onProperty paml:sampleDataValues ],
@@ -223,10 +222,10 @@ paml:SampleData a owl:Class ;
             owl:minCardinality "1"^^xsd:nonNegativeInteger ;
             owl:onProperty paml:sampleDataValues ],
         [ a owl:Restriction ;
-            owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
-            owl:onProperty paml:sampleDataValues ],
+            owl:minCardinality "1"^^xsd:nonNegativeInteger ;
+            owl:onProperty paml:fromSamples ],
         [ a owl:Restriction ;
-            owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
+            owl:allValuesFrom paml:SampleCollection ;
             owl:onProperty paml:fromSamples ],
         sbol:Identified .
 
@@ -253,13 +252,13 @@ paml:ProtocolExecution a owl:Class ;
 
         TODO: consider dropping the protocol field as redundant with use prov:type field in its parent""" ;
     rdfs:subClassOf [ a owl:Restriction ;
-            owl:allValuesFrom paml:Protocol ;
-            owl:onProperty paml:protocol ],
-        [ a owl:Restriction ;
             owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
             owl:onProperty paml:protocol ],
         [ a owl:Restriction ;
             owl:minCardinality "1"^^xsd:nonNegativeInteger ;
+            owl:onProperty paml:protocol ],
+        [ a owl:Restriction ;
+            owl:allValuesFrom paml:Protocol ;
             owl:onProperty paml:protocol ],
         [ a owl:Restriction ;
             owl:allValuesFrom paml:ActivityNodeExecution ;
@@ -275,7 +274,7 @@ paml:amount a owl:ObjectProperty ;
         For example, 2.5 mL (referring to a fluid) or 3 (with unit "number", referring to a group of microplates)""" ;
     rdfs:domain paml:Material ;
     rdfs:range om:Measure ;
-    rdfs:subPropertyOf opil:compositionalProperty .
+    rdfs:subPropertyOf sbol:directlyComprises .
 
 paml:call a owl:ObjectProperty ;
     rdfs:label "call" ;
@@ -317,14 +316,14 @@ paml:edgeValue a owl:ObjectProperty ;
     rdfs:comment "This property is used to indicate the value of a token that moved on a uml:ObjectFlow edge." ;
     rdfs:domain paml:ActivityEdgeFlow ;
     rdfs:range uml:LiteralSpecification ;
-    rdfs:subPropertyOf opil:compositionalProperty .
+    rdfs:subPropertyOf sbol:directlyComprises .
 
 paml:fromSamples a owl:ObjectProperty ;
     rdfs:label "from_samples" ;
     rdfs:comment "The fromSamples property indicates the SampleCollection from which the data were collected." ;
     rdfs:domain paml:SampleData ;
     rdfs:range paml:SampleCollection ;
-    rdfs:subPropertyOf opil:compositionalProperty .
+    rdfs:subPropertyOf sbol:directlyComprises .
 
 paml:node a owl:ObjectProperty ;
     rdfs:label "node" ;
@@ -337,7 +336,7 @@ paml:parameter a owl:ObjectProperty ;
     rdfs:comment """This property points to the uml:Parameter associated with the value (e.g., wavelength for a
         plate reader absorbance measurement behavior).""" ;
     rdfs:domain paml:ParameterValue ;
-    rdfs:range uml:Parameter .
+    rdfs:range uml:OrderedPropertyValue .
 
 paml:parameterValue a owl:ObjectProperty ;
     rdfs:label "value" ;
@@ -345,7 +344,7 @@ paml:parameterValue a owl:ObjectProperty ;
         uml:LiteralIdentified for an om:Measure representing a 600 nm wavelength).""" ;
     rdfs:domain paml:ParameterValue ;
     rdfs:range uml:LiteralSpecification ;
-    rdfs:subPropertyOf opil:compositionalProperty .
+    rdfs:subPropertyOf sbol:directlyComprises .
 
 paml:protocol a owl:ObjectProperty ;
     rdfs:label "protocol" ;
@@ -387,20 +386,20 @@ paml:Material a owl:Class ;
         TODO: consider changing type of specification to allow non-TopLevel descriptions, such as a ContainerSpec or sbol:ExternallyDefined
         TODO: consider adding a field to distinguish between expended vs. reusable materials.""" ;
     rdfs:subClassOf [ a owl:Restriction ;
-            owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
-            owl:onProperty paml:amount ],
+            owl:minCardinality "1"^^xsd:nonNegativeInteger ;
+            owl:onProperty paml:specification ],
         [ a owl:Restriction ;
-            owl:allValuesFrom om:Measure ;
+            owl:minCardinality "1"^^xsd:nonNegativeInteger ;
             owl:onProperty paml:amount ],
         [ a owl:Restriction ;
             owl:allValuesFrom sbol:TopLevel ;
             owl:onProperty paml:specification ],
         [ a owl:Restriction ;
-            owl:minCardinality "1"^^xsd:nonNegativeInteger ;
+            owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
             owl:onProperty paml:amount ],
         [ a owl:Restriction ;
-            owl:minCardinality "1"^^xsd:nonNegativeInteger ;
-            owl:onProperty paml:specification ],
+            owl:allValuesFrom om:Measure ;
+            owl:onProperty paml:amount ],
         [ a owl:Restriction ;
             owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
             owl:onProperty paml:specification ],
@@ -413,22 +412,22 @@ paml:ParameterValue a owl:Class ;
         be recording that a plate reader absorbance measurement was taken with its absorbance wavelength parameter set
         to 600 nm""" ;
     rdfs:subClassOf [ a owl:Restriction ;
+            owl:minCardinality "1"^^xsd:nonNegativeInteger ;
+            owl:onProperty paml:parameter ],
+        [ a owl:Restriction ;
             owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
-            owl:onProperty paml:parameterValue ],
+            owl:onProperty paml:parameter ],
         [ a owl:Restriction ;
             owl:allValuesFrom uml:LiteralSpecification ;
             owl:onProperty paml:parameterValue ],
         [ a owl:Restriction ;
             owl:minCardinality "1"^^xsd:nonNegativeInteger ;
-            owl:onProperty paml:parameter ],
+            owl:onProperty paml:parameterValue ],
         [ a owl:Restriction ;
-            owl:allValuesFrom uml:Parameter ;
+            owl:allValuesFrom uml:OrderedPropertyValue ;
             owl:onProperty paml:parameter ],
         [ a owl:Restriction ;
             owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
-            owl:onProperty paml:parameter ],
-        [ a owl:Restriction ;
-            owl:minCardinality "1"^^xsd:nonNegativeInteger ;
             owl:onProperty paml:parameterValue ],
         sbol:Identified .
 
@@ -459,13 +458,13 @@ paml:BehaviorExecution a owl:Class ;
         TODO: need to changing completedNormally to allow indication of an in-progress BehaviorExecution
         TODO: Is there a good ontology for agent roles in association?""" ;
     rdfs:subClassOf [ a owl:Restriction ;
-            owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
-            owl:onProperty paml:completedNormally ],
-        [ a owl:Restriction ;
             owl:allValuesFrom xsd:boolean ;
             owl:onProperty paml:completedNormally ],
         [ a owl:Restriction ;
             owl:minCardinality "1"^^xsd:nonNegativeInteger ;
+            owl:onProperty paml:completedNormally ],
+        [ a owl:Restriction ;
+            owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
             owl:onProperty paml:completedNormally ],
         [ a owl:Restriction ;
             owl:allValuesFrom paml:ParameterValue ;
@@ -516,11 +515,17 @@ paml:ActivityEdgeFlow a owl:Class ;
             owl:allValuesFrom sbol:Identified ;
             owl:onProperty paml:edgeValue ],
         [ a owl:Restriction ;
-            owl:allValuesFrom paml:ActivityNodeExecution ;
+            owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
+            owl:onProperty paml:edge ],
+        [ a owl:Restriction ;
+            owl:minCardinality "1"^^xsd:nonNegativeInteger ;
             owl:onProperty paml:tokenSource ],
         [ a owl:Restriction ;
             owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
-            owl:onProperty paml:edge ],
+            owl:onProperty paml:edgeValue ],
+        [ a owl:Restriction ;
+            owl:minCardinality "1"^^xsd:nonNegativeInteger ;
+            owl:onProperty paml:edgeValue ],
         [ a owl:Restriction ;
             owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
             owl:onProperty paml:tokenSource ],
@@ -528,17 +533,11 @@ paml:ActivityEdgeFlow a owl:Class ;
             owl:allValuesFrom uml:ActivityEdge ;
             owl:onProperty paml:edge ],
         [ a owl:Restriction ;
-            owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
-            owl:onProperty paml:edgeValue ],
-        [ a owl:Restriction ;
             owl:minCardinality "0"^^xsd:nonNegativeInteger ;
             owl:onProperty paml:edge ],
         [ a owl:Restriction ;
-            owl:minCardinality "1"^^xsd:nonNegativeInteger ;
+            owl:allValuesFrom paml:ActivityNodeExecution ;
             owl:onProperty paml:tokenSource ],
-        [ a owl:Restriction ;
-            owl:minCardinality "1"^^xsd:nonNegativeInteger ;
-            owl:onProperty paml:edgeValue ],
         sbol:Identified .
 
 paml:ActivityNodeExecution a owl:Class ;
