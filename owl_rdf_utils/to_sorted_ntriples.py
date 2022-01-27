@@ -6,15 +6,16 @@ from rdflib import Graph
 
 NTRIPLES = "nt"
 
-__all__ = ['to_ntriples']
+__all__ = ["to_ntriples"]
 
 
 def to_ntriples(graph: Graph) -> str:
     """Return sorted n-triples representation of graph."""
     # have RDFlib give us the ntriples as a string
-    nt_text = graph.serialize(format=NTRIPLES)
+    nt_text: bytes = graph.serialize(format=NTRIPLES)
+    nt_string = nt_text.decode()
     # split it into lines
-    lines = nt_text.splitlines(keepends=True)
+    lines = nt_string.splitlines(keepends=True)
     # sort those lines
     lines.sort()
     # write out the lines
@@ -31,7 +32,8 @@ def join_lines(lines: List[Union[bytes, str]]) -> str:
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("input", help="File containing RDF graph to translate")
-    ap.add_argument("--output", "-o", help="Write RDF graph as sorted n-triples here.")
+    ap.add_argument("--output", "-o",
+                    help="Write RDF graph as sorted n-triples here.")
     values = ap.parse_args()
     infile = values.input
     assert os.path.exists(infile), f"No such file: {infile}"
@@ -39,10 +41,10 @@ def main():
     graph = Graph()
     _, ext = os.path.splitext(infile)
     print(ext)
-    format: Optional[str] = None
+    format_name: Optional[str] = None
     if ext == ".ttl":
-        format = 'turtle'
-    graph.parse(infile, format=format)
+        format_name = "turtle"
+    graph.parse(infile, format=format_name)
     new_graph: Union[bytes, str] = to_ntriples(graph)
     if isinstance(new_graph, bytes):
         new_graph = new_graph.decode()

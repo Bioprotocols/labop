@@ -20,12 +20,9 @@ import logging
 import os
 import sys
 
-from copy import deepcopy
-
 import rdflib as rdf
 from rdflib import OWL, RDF, RDFS, Graph
 from rdflib.term import Node
-from rdflib.namespace import NamespaceManager
 
 from typing import List, Tuple, Optional, Any, Set
 
@@ -39,8 +36,8 @@ RELATIONS = [
     OWL.maxCardinality,
     OWL.cardinality,
 ]
-# Properties of a restriction that we ignore when rewriting (because they are constraints ON
-# the restrictions rather than constraints on the restrictED
+# Properties of a restriction that we ignore when rewriting (because they are
+# constraints ON the restrictions rather than constraints on the restrictED)
 IGNORE_PROPERTIES = [OWL.onProperty, RDFS.comment, RDF.type]
 
 RESTRICTIONS_QUERY = (
@@ -63,17 +60,41 @@ def all_restrictions(graph: Graph) -> List[Node]:
     return [r["r"] for r in graph.query(RESTRICTIONS_QUERY)]
 
 
+PRINT_RELATIONS = [
+    x.replace("http://www.w3.org/2002/07/owl#", "owl:") for x in RELATIONS
+]
+rc_explanation: str = (
+    f": All restrictions must have one property from: {', '.join(PRINT_RELATIONS)}"
+)
+
+
 def is_bad_restr(restr: Node, graph: Graph) -> bool:
     """
     Is this an ill-formed restriction?
     """
     rrs: Set[Node] = set()
     rel: Node
+    has_restricted: bool = False
+    global rc_explanation  # pylint: disable=global-statement
     for _r, rel, _x in graph.triples((restr, None, None)):
+        if rel == OWL.onProperty:
+            has_restricted = True
         if rel in RELATIONS:
             rrs.add(rel)
-    assert len(rrs) > 0, f"No components to restriction {restr}"
-    return len(rrs) > 1
+    if not has_restricted:
+        print(f"Need owl:onProperty in {restr}")
+        return True
+    if len(rrs) > 0:
+        print(f"No components to restriction {restr}{rc_explanation}")
+        rc_explanation = ""
+        return True
+    if len(rrs) > 1:
+        restrs: str = ", ".join(
+            [x.replace("http://www.w3.org/2002/07/owl#", "owl:") for x in rrs]
+        )
+        print(f"Multiple components to restriction {restr}: {restrs}")
+        return True
+    return False
 
 
 def describe_bad_restr(b: Node, g: Graph) -> None:
@@ -116,7 +137,7 @@ def translate_bad_restr(b: Node, g: Graph) -> Tuple[List[Triple], List[Triple]]:
     comment: Optional[Any] = None
     new_bnodes: List[rdf.BNode] = []
     to_add: List[Triple] = []
-    to_delete: List[Triple] = [tuple for tuple in g.triples((b, None, None))]
+    to_delete: List[Triple] = list(g.triples((b, None, None)))
     nsm = rdf.namespace.NamespaceManager(g)
     nsm.bind("owl", OWL)
 
@@ -176,7 +197,9 @@ def all_bad_restrictions(g: Graph) -> List[Node]:
     return [r for r in restrs if is_bad_restr(r, g)]
 
 
-def repair_all_bad_restrictions(g: rdf.Graph, bad: Optional[List[rdf.BNode]] = None):
+def repair_all_bad_restrictions(
+        g: rdf.Graph, bad: Optional[List[rdf.BNode]] = None
+) -> Graph:
     if bad is None:
         bad = all_bad_restrictions(g)
     all_adds: List[Triple] = []
@@ -192,7 +215,13 @@ def repair_all_bad_restrictions(g: rdf.Graph, bad: Optional[List[rdf.BNode]] = N
     return g
 
 
-def repair_graph(bad: List[Node], graph: Graph, dry_run: bool, file=sys.stdout, format='turtle'):
+def repair_graph(
+    bad: List[Node],
+        graph: Graph,
+        dry_run: bool,
+        file=sys.stdout,
+        format_name="turtle"
+) -> None:
     if dry_run:
         if file != sys.stdout:
             LOGGER.addHandler(logging.StreamHandler(file))
@@ -200,7 +229,7 @@ def repair_graph(bad: List[Node], graph: Graph, dry_run: bool, file=sys.stdout, 
             translate_bad_restr(x, graph)
     else:
         new_graph = repair_all_bad_restrictions(graph, bad)
-        print(new_graph.serialize(format=format).decode(), file=file)
+        print(new_graph.serialize(format=format_name).decode(), file=file)
 
 
 def main():
@@ -219,6 +248,7 @@ def main():
     ap.add_argument(
         "--dry-run",
         help="If repairing, just print the set of changes to be made, don't write output.",
+        action="store_true",
     )
     ap.add_argument(
         "--quiet",
@@ -241,11 +271,13 @@ def main():
     outfile = getattr(values, "output", None)
     assert os.path.exists(infile), f"No such file: {infile}"
 
-    format = rdf.util.guess_format(outfile) if outfile else rdf.util.guess_format(infile)
-    LOGGER.debug("Guessed format is %s", format)
+    format_name = (
+        rdf.util.guess_format(outfile) if outfile else rdf.util.guess_format(infile)
+    )
+    LOGGER.debug("Guessed format is %s", format_name)
 
     graph = rdf.Graph()
-    graph.parse(infile, format=format)
+    graph.parse(infile, format=format_name)
 
     bad = all_bad_restrictions(graph)
 
@@ -255,7 +287,7 @@ def main():
             if not values.quiet:
                 to_file: bool = False
                 if hasattr(values, "output") and values.output:
-                    sys.stdout == open(values.output, "w")
+                    sys.stdout = open(values.output, "w")
                     to_file = True
                 for b in bad:
                     describe_bad_restr(b, graph)
