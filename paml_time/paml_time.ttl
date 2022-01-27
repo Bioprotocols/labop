@@ -1,5 +1,4 @@
 @prefix : <http://bioprotocols.org/paml-time#> .
-@prefix opil: <http://bioprotocols.org/opil/v1#> .
 @prefix om: <http://www.ontology-of-units-of-measure.org/resource/om-2/> .
 @prefix owl: <http://www.w3.org/2002/07/owl#> .
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
@@ -45,7 +44,7 @@ pamlt:TimeMeasure rdf:type owl:Class ;
             owl:minCardinality "1"^^xsd:nonNegativeInteger ; owl:maxCardinality "1"^^xsd:nonNegativeInteger ] .
 
 pamlt:measureValue rdf:type owl:ObjectProperty ;
-         rdfs:subPropertyOf opil:compositionalProperty ;
+         rdfs:subPropertyOf sbol:directlyComprises ;
          rdfs:domain pamlt:TimeMeasure;
          rdfs:range sbol:Measure ;
          rdfs:label "expr" .
@@ -60,7 +59,7 @@ pamlt:BooleanConstraint rdf:type owl:Class ;
 
 
 pamlt:constrainedElement rdf:type owl:ObjectProperty ;
-         rdfs:subPropertyOf opil:compositionalProperty ;
+         rdfs:subPropertyOf sbol:directlyComprises ;
          rdfs:domain pamlt:BooleanConstraint ;
          rdfs:range pamlt:OwnedOrderedPropertyValue ; # equivalent to uml:Element in this context
          rdfs:label "constrained_elements" .
@@ -73,7 +72,7 @@ pamlt:ReferencedOrderedPropertyValue rdf:type owl:Class ;
       owl:minCardinality "1"^^xsd:nonNegativeInteger ; owl:maxCardinality "1"^^xsd:nonNegativeInteger ] .
 
 pamlt:referencedPropertyValue rdf:type owl:ObjectProperty ;
-         #rdfs:subPropertyOf opil:compositionalProperty ;
+         #rdfs:subPropertyOf sbol:directlyComprises ;
          rdfs:domain pamlt:ReferencedOrderedPropertyValue ;
          rdfs:range sbol:Identified ;
          rdfs:label "property_value" .
@@ -98,7 +97,7 @@ pamlt:TimeConstraints rdf:type owl:Class ;
           [ rdf:type owl:Restriction ; owl:allValuesFrom paml:Protocol ; owl:onProperty pamlt:protocols ] .
 
 pamlt:constraints rdf:type owl:ObjectProperty ;
-         rdfs:subPropertyOf opil:compositionalProperty ;
+         rdfs:subPropertyOf sbol:directlyComprises ;
          rdfs:domain pamlt:TimeConstraints;
          rdfs:range uml:Constraint ;
          rdfs:label "constraints" .

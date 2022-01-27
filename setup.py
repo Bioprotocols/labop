@@ -1,27 +1,46 @@
 from setuptools import setup
+import sys
+import os
+import subprocess
 
-setup(name='paml',
+test_deps = [
+    'nbmake',
+    'pytest-xdist',
+    'owl_rdf_utils'
+]
+extras = {
+    'test': test_deps,
+}
+
+setup(name='pypaml',
       description='Protocol Activity Modeling Language',
       version='1.0a1',
+      license='MIT',
+      license_files=('LICENSE.txt'),
       install_requires=[
-            'sbol3',
-            'rdflib>=5.0.0, <6.0.0',
-            'rdflib-jsonld>=0.5.0',
+            'sbol3>=1.0b6',
             'sparqlwrapper>=1.8.5',
-            'pyshacl>=0.13.3',
             'python-dateutil>=2.8.1',
-            'sbol-factory==1.0a6',
+            'sbol-factory==1.0a8',
             'requests',
             'graphviz',
             'tyto',
             'numpy',
-            'openpyxl'
+            'openpyxl',
+            'autoprotocol',
+            'transcriptic',
+            'requests_html',
+            "ipython",
+            "pre-commit",
+            "ipywidgets",
       ],
-      packages=['paml', 'paml_md', 'paml.lib', 'paml_time', 'uml', 'owl_rdf_utils'],
-      scripts=['scripts/to_sorted_ntriples', 'scripts/restrictions'],
+      tests_require=test_deps,
+      extras_require=extras,
+      packages=['paml', 'paml_convert', 'paml_convert.autoprotocol', 'paml_convert.markdown', 'paml.lib', 'paml_time', 'uml'],
       package_data={'paml': ['paml.ttl', 'lib/*.ttl'],
-                    'paml_md': ['template.xlsx'],
+                    'paml_convert': ['markdown/template.xlsx'],
                     'uml': ['uml.ttl'],
                     'paml_time': ['paml_time.ttl']},
+      scripts=['scripts/to_sorted_ntriples', 'scripts/restrictions'],
       include_package_data=True,
 )
