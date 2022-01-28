@@ -1,0 +1,105 @@
+#!/usr/bin/env python
+# coding: utf-8
+
+
+import argparse
+import logging
+import os
+import sys
+from typing import Tuple, Optional, Any
+
+import rdflib as rdf
+from rdflib import OWL, RDF, RDFS
+
+from owl_rdf_utils import all_bad_restrictions, repair_graph, describe_bad_restr
+
+Triple = Tuple[Any, Any, Any]
+
+# Properties of a restriction that indicate the actual constraint
+RELATIONS = [
+    OWL.allValuesFrom,
+    OWL.someValuesFrom,
+    OWL.minCardinality,
+    OWL.maxCardinality,
+    OWL.cardinality,
+]
+# Properties of a restriction that we ignore when rewriting (because they are constraints ON
+# the restrictions rather than constraints on the restrictED
+IGNORE_PROPERTIES = [OWL.onProperty, RDFS.comment, RDF.type]
+
+LOGGER = logging.getLogger(__name__)
+
+
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument(
+        "action",
+        help="Action to perform.",
+        choices=["check", "repair"],
+        default="check",
+    )
+    ap.add_argument("input", help="File containing RDF graph to check")
+    ap.add_argument(
+        "--output", "-o", help="Write repaired RDF graph or check results here."
+    )
+    ap.add_argument("--verbose", "-v", dest="verbose", action="count")
+    ap.add_argument(
+        "--dry-run",
+        help="If repairing, just print the set of changes to be made, don't write output.",
+    )
+    ap.add_argument(
+        "--quiet",
+        help="Don't print descriptions of bad restrictions: just set exit flag.",
+        action="store_true",
+    )
+
+    values = ap.parse_args()
+    verbose: Optional[int] = getattr(values, "verbose", 0) or 0
+    if verbose == 1:
+        LOGGER.setLevel(logging.INFO)
+    elif verbose >= 2:
+        LOGGER.setLevel(logging.DEBUG)
+    else:
+        LOGGER.setLevel(logging.WARNING)
+    # log to standard error
+    logging.basicConfig()
+
+    infile = values.input
+    outfile = getattr(values, "output", None)
+    assert os.path.exists(infile), f"No such file: {infile}"
+
+    fmt = rdf.util.guess_format(outfile) if outfile else rdf.util.guess_format(infile)
+    LOGGER.debug("Guessed format is %s", fmt)
+
+    graph = rdf.Graph()
+    graph.parse(infile, format=fmt)
+
+    bad = all_bad_restrictions(graph)
+
+    if values.action == "check":
+        if bad:
+            print("Found bad restrictions in graph")
+            if not values.quiet:
+                to_file: bool = False
+                if hasattr(values, "output") and values.output:
+                    sys.stdout = open(values.output, "w")
+                    to_file = True
+                for b in bad:
+                    describe_bad_restr(b, graph)
+                if to_file:
+                    sys.stdout.close()
+            sys.exit(1)
+        sys.exit(0)
+    elif values.action == "repair":
+        if not bad:
+            print("No repairs needed", file=sys.stderr)
+            sys.exit(1)
+        if hasattr(values, "output") and values.output:
+            with open(values.output, "w") as file:
+                repair_graph(bad, graph, values.dry_run, file)
+        else:
+            repair_graph(bad, graph, values.dry_run)
+
+
+if __name__ == "__main__":
+    main()
