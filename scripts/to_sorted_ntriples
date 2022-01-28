@@ -1,0 +1,39 @@
+#! /usr/bin/env python
+
+import argparse
+import os
+from typing import Optional, Union
+
+from rdflib import Graph
+
+from owl_rdf_utils import to_ntriples
+
+
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("input", help="File containing RDF graph to translate")
+    ap.add_argument("--output", "-o", help="Write RDF graph as sorted n-triples here.")
+    values = ap.parse_args()
+    infile = values.input
+    assert os.path.exists(infile), f"No such file: {infile}"
+
+    graph = Graph()
+    _, ext = os.path.splitext(infile)
+    print(ext)
+    fmt: Optional[str] = None
+    if ext == ".ttl":
+        fmt = 'turtle'
+    graph.parse(infile, format=fmt)
+    new_graph: Union[bytes, str] = to_ntriples(graph)
+    if isinstance(new_graph, bytes):
+        new_graph = new_graph.decode()
+    new_graph = new_graph.replace("\\n", "\n")
+    if hasattr(values, "output") and values.output:
+        with open(values.output, "w") as file:
+            print(new_graph, file=file)
+    else:
+        print(new_graph)
+
+
+if __name__ == "__main__":
+    main()

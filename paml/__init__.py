@@ -1,6 +1,7 @@
 import html
 import os
 import posixpath
+from typing import Dict
 
 import graphviz
 import tyto
@@ -157,7 +158,7 @@ def protocol_to_dot(self, legend=False):
         else:
             return pin.name
 
-    def _type_attrs(object: uml.ActivityNode) -> dict[str,str]:
+    def _type_attrs(object: uml.ActivityNode) -> Dict[str,str]:
         """Get an appropriate set of properties for rendering a GraphViz node.
         Note that while these try to stay close to UML, the limits of GraphViz make us deviate in some cases
 
@@ -174,7 +175,7 @@ def protocol_to_dot(self, legend=False):
             return {'label': '', 'shape': 'diamond'}
         elif isinstance(object, uml.ObjectNode):
             if isinstance(object, uml.ActivityParameterNode):
-                label = object.parameter.lookup().name
+                label = object.parameter.lookup().property_value.name
             else:
                 raise ValueError(f'Do not know what GraphViz label to use for {object}')
             return {'label': label, 'shape': 'rectangle', 'peripheries': '2'}
@@ -305,6 +306,31 @@ Primitive: {self.identity}
 {output_str}
             """
 Primitive.__str__ = primitive_str
+
+
+def behavior_execution_parameter_value_map(self):
+    """
+    Return a dictionary mapping parameter names to value or (value, unit)
+    :param self:
+    :return:
+    """
+    parameter_value_map = {}
+
+    for pv in self.parameter_values:
+        name = pv.parameter.lookup().property_value.name
+        if isinstance(pv.value, uml.LiteralReference):
+            ref = pv.value.value.lookup()
+            value = ref.value if isinstance(ref, uml.LiteralSpecification) else ref
+            unit = ref.unit if isinstance(ref, uml.LiteralSpecification) and hasattr(ref, "unit") else None
+        else:
+            value = pv.value.value
+            unit = pv.value.unit if hasattr(pv.value, "unit") else None
+
+        parameter_value_map[name] = {"parameter" : pv.parameter.lookup(),
+                                     "value" : (value, unit) if unit else value}
+    return parameter_value_map
+BehaviorExecution.parameter_value_map = behavior_execution_parameter_value_map
+
 
 #########################################
 # Library handling

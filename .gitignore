@@ -1,3 +1,5 @@
+/secrets/strateos_secrets.json
 /.pytest_cache/
 /env/
 /paml.egg-info/
+/notebooks/.ipynb_checkpoints/*
