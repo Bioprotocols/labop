@@ -1,8 +1,6 @@
 from abc import ABC, abstractmethod
 from logging import error
 
-from container_api import matching_containers
-
 import paml
 import uml
 
@@ -32,7 +30,7 @@ class BehaviorSpecialization(ABC):
     @abstractmethod
     def _init_behavior_func_map(self) -> dict:
         pass
-    
+
     @abstractmethod
     def on_begin(self):
         pass
@@ -51,6 +49,10 @@ class BehaviorSpecialization(ABC):
 
     def resolve_container_spec(self, spec, addl_conditions=None):
         try:
+            from container_api import matching_containers
+            if "container_api" not in sys.modules:
+                raise Exception("Could not import container_api, is it installed?")
+
             if addl_conditions:
                 possible_container_types = matching_containers(spec, addl_conditions=addl_conditions)
             else:
