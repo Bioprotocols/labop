@@ -19,6 +19,7 @@ paml:Primitive a owl:Class ;
     rdfs:comment """A Primitive describes a library function that acts as a basic ``building block'' for a Protocol.
               For example, a Primitive could describe pipetting, measuring absorbance in a plate reader, or centrifuging.
               At present this class adds no additional information over uml:Behavior, but may in the future.""" ;
+    owl:disjointWith uml:Activity ;
     rdfs:subClassOf uml:Behavior .
 
 xsd:anySimpleType a rdfs:Datatype .
