@@ -1,694 +1,889 @@
-@prefix : <http://bioprotocols.org/paml#> .
-@prefix om: <http://www.ontology-of-units-of-measure.org/resource/om-2/> .
-@prefix opil: <http://bioprotocols.org/opil/v1#> . # this needs to go - sbol_factory issue #10
 @prefix owl: <http://www.w3.org/2002/07/owl#> .
-@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
-@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix sbol: <http://sbols.org/v3#> .
 @prefix uml: <http://bioprotocols.org/uml#> .
-@base <http://bioprotocols.org/uml#> .
-
-<http://bioprotocols.org/uml> rdf:type owl:Ontology ;
-                              owl:imports <http://sbols.org/v3>,<http://bioprotocols.org/opil/v1>, <http://www.ontology-of-units-of-measure.org/resource/om-2> ;
-                              rdfs:comment "Unified Modeling Languge (UML) subset, translated to an SBOL factory ontology." ;
-                              owl:versionInfo "1.0-alpha1" .
-
-#################################################################
-#    Annotation properties
-#################################################################
-
-###  http://www.w3.org/2002/07/owl#maxCardinality
-# owl:maxCardinality rdf:type owl:AnnotationProperty .
-# owl:minCardinality rdf:type owl:AnnotationProperty .
-
-#################################################################
-#    Object properties
-#################################################################
-
-opil:compositionalProperty rdf:type owl:ObjectProperty . # should be SBOL - sbol_factory issue #10
-
-#################################################################
-#    Datatypes
-#################################################################
-
-###  http://www.w3.org/2001/XMLSchema#anySimpleType
-xsd:anySimpleType rdf:type rdfs:Datatype .
-#sbol:Identified rdf:type owl:Class .
-#sbol:TopLevel rdf:type owl:Class .
-
-
-#################################################################
-#    Behaviors
-#################################################################
-
-# Properties for TypedElement
-uml:type rdf:type owl:DatatypeProperty ;
-         rdfs:comment "Specifies a set of Type instances constraining the allowed values. See UML 2.5.1 specification section 7.5." ;
-         rdfs:domain sbol:Identified ; # should probably actually be a union
-         rdfs:range xsd:anyURI ;
-         rdfs:label "type" .
-
-# Properties for MultiplicityElement
-uml:isOrdered rdf:type owl:DatatypeProperty ;
-         rdfs:comment "For MultiplicityElement abstract class; UML 2.5.1 specification section 7.5" ;
-         rdfs:domain sbol:Identified ; # should probably actually be a union
-         rdfs:range xsd:boolean ;
-         rdfs:label "is_ordered" .
-
-uml:isUnique rdf:type owl:DatatypeProperty ;
-         rdfs:comment "For MultiplicityElement abstract class; UML 2.5.1 specification section 7.5" ;
-         rdfs:domain sbol:Identified ; # should probably actually be a union
-         rdfs:range xsd:boolean ;
-         rdfs:label "is_unique" .
-
-uml:lowerValue rdf:type owl:ObjectProperty ;
-         rdfs:comment "For MultiplicityElement abstract class; UML 2.5.1 specification section 7.5" ;
-         rdfs:subPropertyOf opil:compositionalProperty ;
-         rdfs:domain sbol:Identified ; # should probably actually be a union
-         rdfs:range uml:ValueSpecification ;
-         rdfs:label "lower_value" .
-
-uml:upperValue rdf:type owl:ObjectProperty ;
-         rdfs:comment "For MultiplicityElement abstract class; UML 2.5.1 specification section 7.5" ;
-         rdfs:subPropertyOf opil:compositionalProperty ;
-         rdfs:domain sbol:Identified ; # should probably actually be a union
-         rdfs:range uml:ValueSpecification ;
-         rdfs:label "upper_value" .
-
-
-uml:ValueSpecification rdf:type owl:Class ;
-              rdfs:comment "A ValueSpecification is the specification of a (possibly empty) set of values. See UML 2.5.1 specification section 8." ;
-              rdfs:subClassOf sbol:Identified ,
-                   # Properties inherited from TypedElement:
-                   [ rdf:type owl:Restriction ; owl:onProperty uml:type ; owl:allValuesFrom xsd:anyURI ] ,
-                   [ rdf:type owl:Restriction ; owl:onProperty uml:type ; owl:maxCardinality "1"^^xsd:nonNegativeInteger ] .
-
-uml:LiteralSpecification rdf:type owl:Class ;
-              rdfs:comment "A LiteralSpecification identifies a literal constant being modeled. See UML 2.5.1 specification section 8.2." ;
-              rdfs:subClassOf uml:ValueSpecification .
-    # Omitted subclass: LiteralUnlimitedNatural
-
-uml:LiteralNull rdf:type owl:Class ;
-              rdfs:comment "A LiteralNull specifies the lack of a value. See UML 2.5.1 specification section 8.2." ;
-              rdfs:subClassOf uml:LiteralSpecification .
-
-uml:LiteralString rdf:type owl:Class ;
-              rdfs:comment "A LiteralSpecification identifies a literal constant being modeled. See UML 2.5.1 specification section 8.2." ;
-              rdfs:subClassOf uml:LiteralSpecification ,
-    [ rdf:type owl:Restriction ; owl:onProperty uml:stringValue ; owl:allValuesFrom xsd:string ] ,
-    [ rdf:type owl:Restriction ; owl:onProperty uml:stringValue ; owl:minCardinality "1"^^xsd:nonNegativeInteger ] ,
-    [ rdf:type owl:Restriction ; owl:onProperty uml:stringValue ; owl:maxCardinality "1"^^xsd:nonNegativeInteger ] .
-
-uml:stringValue rdf:type owl:DatatypeProperty ;
-         rdfs:domain uml:LiteralString ;
-         rdfs:range xsd:string ;
-         rdfs:comment "The specified String value." ;
-         rdfs:label "value" .
-
-uml:LiteralInteger rdf:type owl:Class ;
-              rdfs:comment "A LiteralInteger is a specification of an Integer value. See UML 2.5.1 specification section 8.2." ;
-              rdfs:subClassOf uml:LiteralSpecification ,
-        [ rdf:type owl:Restriction ;  owl:onProperty uml:integerValue ; owl:allValuesFrom xsd:integer ] ,
-        [ rdf:type owl:Restriction ;  owl:onProperty uml:integerValue ; owl:minCardinality "1"^^xsd:nonNegativeInteger ] ,
-        [ rdf:type owl:Restriction ;  owl:onProperty uml:integerValue ; owl:maxCardinality "1"^^xsd:nonNegativeInteger ] .
-
-uml:integerValue rdf:type owl:DatatypeProperty ;
-         rdfs:domain uml:LiteralInteger ;
-         rdfs:range xsd:integer ;
-         rdfs:comment "The specified Integer value." ;
-         rdfs:label "value" .
-
-uml:LiteralBoolean rdf:type owl:Class ;
-              rdfs:comment "A LiteralBoolean is a specification of a Boolean value. See UML 2.5.1 specification section 8.2." ;
-              rdfs:subClassOf uml:LiteralSpecification ,
-        [ rdf:type owl:Restriction ;  owl:onProperty uml:booleanValue ; owl:allValuesFrom xsd:boolean ] ,
-        [ rdf:type owl:Restriction ;  owl:onProperty uml:booleanValue ; owl:minCardinality "1"^^xsd:nonNegativeInteger ] ,
-        [ rdf:type owl:Restriction ;  owl:onProperty uml:booleanValue ; owl:maxCardinality "1"^^xsd:nonNegativeInteger ] .
-
-uml:booleanValue rdf:type owl:DatatypeProperty ;
-         rdfs:domain uml:LiteralBoolean ;
-         rdfs:range xsd:boolean ;
-         rdfs:comment "The specified Boolean value." ;
-         rdfs:label "value" .
-
-uml:LiteralReal rdf:type owl:Class ;
-              rdfs:comment "A LiteralReal is a specification of a Real value. See UML 2.5.1 specification section 8.2." ;
-              rdfs:subClassOf uml:LiteralSpecification ,
-        [ rdf:type owl:Restriction ; owl:onProperty uml:realValue ; owl:allValuesFrom xsd:float ] ,
-        [ rdf:type owl:Restriction ; owl:onProperty uml:realValue ; owl:minCardinality "1"^^xsd:nonNegativeInteger ] ,
-        [ rdf:type owl:Restriction ; owl:onProperty uml:realValue ; owl:maxCardinality "1"^^xsd:nonNegativeInteger ] .
-
-uml:realValue rdf:type owl:DatatypeProperty ;
-         rdfs:domain uml:LiteralReal ;
-         rdfs:range xsd:float ;
-         rdfs:comment "The specified Real value." ;
-         rdfs:label "value" .
-
-uml:LiteralIdentified rdf:type owl:Class ;
-              rdfs:comment "A LiteralIdentified is used for linking SBOL objects as a child object to UML objects." ;
-              rdfs:subClassOf uml:LiteralSpecification ,
-        [ rdf:type owl:Restriction ;  owl:onProperty uml:identifiedValue ; owl:allValuesFrom sbol:Identified ] ,
-        [ rdf:type owl:Restriction ;  owl:onProperty uml:identifiedValue ; owl:minCardinality "1"^^xsd:nonNegativeInteger ] ,
-        [ rdf:type owl:Restriction ;  owl:onProperty uml:identifiedValue ; owl:maxCardinality "1"^^xsd:nonNegativeInteger ] .
-
-uml:identifiedValue rdf:type owl:ObjectProperty ;
-         rdfs:subPropertyOf opil:compositionalProperty ;
-         rdfs:domain uml:LiteralIdentified ;
-         rdfs:range sbol:Identified ;
-         rdfs:comment "The embedded SBOL object" ;
-         rdfs:label "value" .
-
-uml:LiteralReference rdf:type owl:Class ;
-              rdfs:comment "A LiteralReference is used for embedding SBOL objects as a reference." ;
-              rdfs:subClassOf uml:LiteralSpecification ,
-    [ rdf:type owl:Restriction ; owl:allValuesFrom sbol:Identified ; owl:onProperty uml:referenceValue ;
-      owl:minCardinality "1"^^xsd:nonNegativeInteger ; owl:maxCardinality "1"^^xsd:nonNegativeInteger ] .
-
-uml:referenceValue rdf:type owl:ObjectProperty ;
-         rdfs:domain uml:LiteralReference ;
-         rdfs:range sbol:Identified ;
-         rdfs:comment "The referenced SBOL object." ;
-         rdfs:label "value" .
-
-uml:Expression rdf:type owl:Class ;
-              rdfs:comment "An Expression represents a node in an expression tree, which may be non-terminal or terminal. It defines a symbol, and has a possibly empty sequence of operands that are ValueSpecifications. See UML 2.5.1 specification section 8.6.5.1." ;
-              rdfs:subClassOf uml:ValueSpecification ,
-    [ rdf:type owl:Restriction ; owl:allValuesFrom xsd:string ; owl:onProperty uml:symbolValue ;
-      owl:minCardinality "0"^^xsd:nonNegativeInteger ; owl:maxCardinality "1"^^xsd:nonNegativeInteger ],
-    [ rdf:type owl:Restriction ; owl:allValuesFrom xsd:boolean ; owl:onProperty uml:isOrdered ;
-      owl:minCardinality "1"^^xsd:nonNegativeInteger ; owl:maxCardinality "1"^^xsd:nonNegativeInteger ] ,
-    [ rdf:type owl:Restriction ; owl:allValuesFrom uml:OrderedPropertyValue ; owl:onProperty uml:operandValue ] .
-
-uml:symbolValue rdf:type owl:DatatypeProperty ;
-         rdfs:domain uml:Expression ;
-         rdfs:range xsd:anyURI ;
-         rdfs:comment "The symbol associated with this node in the expression tree." ;
-         rdfs:label "symbol" .
-
-uml:operandValue rdf:type owl:ObjectProperty ;
-         rdfs:subPropertyOf opil:compositionalProperty ;
-         rdfs:domain uml:Expression ;
-         rdfs:range uml:OrderedPropertyValue ;
-         rdfs:comment "Specifies a sequence of operand ValueSpecifications." ;
-         rdfs:label "operand" .
-
-uml:TimeExpression rdf:type owl:Class ;
-              rdfs:comment "A TimeExpression is a ValueSpecification that represents a time value." ;
-              rdfs:subClassOf uml:ValueSpecification ,
-    [ rdf:type owl:Restriction ; owl:allValuesFrom uml:ValueSpecification ; owl:onProperty uml:exprValue ;
-      owl:minCardinality "0"^^xsd:nonNegativeInteger ; owl:maxCardinality "1"^^xsd:nonNegativeInteger ],
-    [ rdf:type owl:Restriction ; owl:allValuesFrom uml:Observation ; owl:onProperty uml:observationValue ] .
-
-uml:Duration rdf:type owl:Class ;
-              rdfs:comment "A Duration is a ValueSpecification that specifies the temporal distance between two time instants." ;
-              rdfs:subClassOf uml:ValueSpecification ,
-    [ rdf:type owl:Restriction ; owl:allValuesFrom uml:ValueSpecification ; owl:onProperty uml:exprValue ;
-      owl:minCardinality "0"^^xsd:nonNegativeInteger ; owl:maxCardinality "1"^^xsd:nonNegativeInteger ],
-    [ rdf:type owl:Restriction ; owl:allValuesFrom uml:Observation ; owl:onProperty uml:observationValue ] .
-
-uml:exprValue rdf:type owl:ObjectProperty ;
-         rdfs:subPropertyOf opil:compositionalProperty ;
-         rdfs:domain uml:TimeExpression,
-                     uml:Duration;
-         rdfs:range uml:ValueSpecification ;
-         rdfs:comment "A ValueSpecification that evaluates to the value of the Duration." ;
-         rdfs:label "expr" .
-
-uml:observationValue rdf:type owl:ObjectProperty ;
-         rdfs:domain uml:TimeExpression,
-                     uml:Duration;
-         rdfs:range uml:Observation ;
-         rdfs:comment "Refers to the Observations that are involved in the computation of the Duration value." ;
-         rdfs:label "observation" .
-
-uml:Observation rdf:type owl:Class ;
-              rdfs:subClassOf sbol:Identified ;
-              rdfs:comment "Observation specifies a value determined by observing an event or events that occur relative to other model entities." .
-    # Inherited from PackageableElement
-
-uml:TimeObservation rdf:type owl:Class ;
-              rdfs:comment "A TimeObservation is a reference to a time instant during an execution. It points out which entity in the model to observe and whether the observation is when this entity is entered or when it is exited." ;
-              rdfs:subClassOf uml:Observation ,
-    [ rdf:type owl:Restriction ; owl:allValuesFrom uml:OrderedPropertyValue ; owl:onProperty uml:firstEventValue ;
-      owl:minCardinality "1"^^xsd:nonNegativeInteger ; owl:maxCardinality "1"^^xsd:nonNegativeInteger ],
-    [ rdf:type owl:Restriction ; owl:allValuesFrom sbol:Identified ; owl:onProperty uml:timeObservationValue ;
-      owl:minCardinality "1"^^xsd:nonNegativeInteger ; owl:maxCardinality "1"^^xsd:nonNegativeInteger ] .
-
-uml:DurationObservation rdf:type owl:Class ;
-              rdfs:comment "A DurationObservation is a reference to a duration during an execution. It points out the entities in the model to observe and whether the observations are when these entities are entered or exited." ;
-              rdfs:subClassOf uml:Observation ,
-    [ rdf:type owl:Restriction ; owl:allValuesFrom uml:OrderedPropertyValue ; owl:onProperty uml:firstEventValue ;
-      owl:minCardinality "0"^^xsd:nonNegativeInteger ; owl:maxCardinality "2"^^xsd:nonNegativeInteger ],
-      # FIXME events must be ordered
-    [ rdf:type owl:Restriction ; owl:allValuesFrom sbol:Identified ; owl:onProperty uml:durationObservationValue ;
-      owl:minCardinality "1"^^xsd:nonNegativeInteger ; owl:maxCardinality "2"^^xsd:nonNegativeInteger] .
-
-uml:firstEventValue rdf:type owl:ObjectProperty ;
-         rdfs:subPropertyOf opil:compositionalProperty ;
-         rdfs:domain uml:TimeObservation,
-                     uml:DurationObservation,
-                     uml:TimeConstraint,
-                     uml:DurationConstraint ;
-         rdfs:range uml:OrderedPropertyValue ;
-         rdfs:comment "The value of firstEvent[i] is related to event[i] (where i is 1 or 2). If firstEvent[i] is true, then the correspondingobservation event is the first time instant the execution enters event[i]. If firstEvent[i] is false, then the corresponding observation event is the time instant the execution exits event[i]." ;
-         rdfs:label "firstEvent" .
-
-uml:timeObservationValue rdf:type owl:ObjectProperty ;
-         rdfs:comment "The TimeObservation is determined by the entering or exiting of the event during execution." ;
-         rdfs:domain uml:TimeObservation ;
-         rdfs:range sbol:Identified ; # FIXME Should be NamedElement
-         rdfs:label "event" .
-
-uml:durationObservationValue rdf:type owl:ObjectProperty ;
-         rdfs:domain uml:DurationObservation ;
-         rdfs:range sbol:Identified ; # FIXME Should be NamedElement
-         rdfs:comment "The DurationObservation is determined as the duration between the entering or exiting of a single event during execution, or the entering/exiting of one event and the entering/exiting of a second." ;
-         rdfs:label "event" .
-
-uml:Interval rdf:type owl:Class ;
-              rdfs:subClassOf uml:ValueSpecification ;
-              rdfs:comment "An Interval defines the range between two ValueSpecifications." .
-
-uml:TimeInterval rdf:type owl:Class ;
-              rdfs:subClassOf uml:Interval ,
-    [ rdf:type owl:Restriction ; owl:allValuesFrom uml:ValueSpecification ; owl:onProperty uml:minTimeValue ;
-      owl:minCardinality "1"^^xsd:nonNegativeInteger ; owl:maxCardinality "1"^^xsd:nonNegativeInteger ],
-    [ rdf:type owl:Restriction ; owl:allValuesFrom uml:ValueSpecification ; owl:onProperty uml:maxTimeValue ;
-      owl:minCardinality "1"^^xsd:nonNegativeInteger ; owl:maxCardinality "1"^^xsd:nonNegativeInteger ] ;
-              rdfs:comment "A TimeInterval defines the range between two TimeExpressions." .
-
-uml:minTimeValue rdf:type owl:ObjectProperty ;
-         rdfs:subPropertyOf opil:compositionalProperty ;
-         rdfs:domain uml:TimeInterval ;
-         rdfs:range uml:TimeExpression ;
-         rdfs:comment "Refers to the TimeExpression denoting the minimum value of the range." ;
-         rdfs:label "min" .
-
-uml:maxTimeValue rdf:type owl:ObjectProperty ;
-         rdfs:subPropertyOf opil:compositionalProperty ;
-         rdfs:domain uml:TimeInterval ;
-         rdfs:range uml:TimeExpression ;
-         rdfs:comment "Refers to the TimeExpression denoting the maximum value of the range." ;
-         rdfs:label "max" .
-
-uml:DurationInterval rdf:type owl:Class ;
-              rdfs:subClassOf uml:Interval ,
-    [ rdf:type owl:Restriction ; owl:allValuesFrom uml:ValueSpecification ; owl:onProperty uml:minDurationValue ;
-      owl:minCardinality "1"^^xsd:nonNegativeInteger ; owl:maxCardinality "1"^^xsd:nonNegativeInteger ],
-    [ rdf:type owl:Restriction ; owl:allValuesFrom uml:ValueSpecification ; owl:onProperty uml:maxDurationValue ;
-      owl:minCardinality "1"^^xsd:nonNegativeInteger ; owl:maxCardinality "1"^^xsd:nonNegativeInteger ] ;
-              rdfs:comment "A DurationInterval defines the range between two Durations." .
-
-uml:minDurationValue rdf:type owl:ObjectProperty ;
-         rdfs:subPropertyOf opil:compositionalProperty ;
-         rdfs:domain uml:DurationInterval ;
-         rdfs:range uml:Duration ;
-         rdfs:comment "Refers to the Duration denoting the minimum value of the range." ;
-         rdfs:label "min" .
-
-uml:maxDurationValue rdf:type owl:ObjectProperty ;
-         rdfs:subPropertyOf opil:compositionalProperty ;
-         rdfs:domain uml:DurationInterval ;
-         rdfs:range uml:Duration ;
-         rdfs:comment "Refers to the Duration denoting the maximum value of the range." ;
-         rdfs:label "max" .
-
-uml:Constraint rdf:type owl:Class ;
-              rdfs:comment "A Constraint is a condition or restriction expressed in natural language text or in a machine readable language. See UML 2.5.1 specification section 7.6." ;
-              rdfs:subClassOf sbol:Identified ,
-        [ rdf:type owl:Restriction ; owl:allValuesFrom uml:OrderedPropertyValue ; owl:onProperty uml:constrainedElement ] .
-
-uml:constrainedElement rdf:type owl:ObjectProperty ;
-         rdfs:subPropertyOf opil:compositionalProperty ;
-         rdfs:domain uml:Constraint ;
-         rdfs:range uml:OrderedPropertyValue ; # equivalent to uml:Element in this context
-         rdfs:comment "The OrderedPropertyValue referenced by this Constraint." ;
-         rdfs:label "constrained_elements" .
-
-uml:IntervalConstraint rdf:type owl:Class ;
-              rdfs:subClassOf uml:Constraint ;
-              rdfs:comment "An IntervalConstraint is a Constraint that is specified by an Interval." .
-
-uml:TimeConstraint rdf:type owl:Class ;
-              rdfs:subClassOf uml:IntervalConstraint ,
-    [ rdf:type owl:Restriction ; owl:onClass uml:TimeInterval ; owl:onProperty uml:timeSpecification ;
-      owl:minCardinality "1"^^xsd:nonNegativeInteger ; owl:maxCardinality "1"^^xsd:nonNegativeInteger ] ,
-    [ rdf:type owl:Restriction ; owl:allValuesFrom uml:OrderedPropertyValue ; owl:onProperty uml:firstEventValue ;
-      owl:minCardinality "0"^^xsd:nonNegativeInteger ; owl:maxCardinality "1"^^xsd:nonNegativeInteger ] ;
-              rdfs:comment "A TimeConstraint is a Constraint that refers to a TimeInterval." .
-
-uml:timeSpecification rdf:type owl:ObjectProperty ;
-         rdfs:subPropertyOf opil:compositionalProperty ;
-         rdfs:domain uml:TimeConstraint ;
-         rdfs:range uml:TimeInterval ;
-         rdfs:comment "TheTimeInterval constraining the duration." ;
-         rdfs:label "specification" .
-
-uml:DurationConstraint rdf:type owl:Class ;
-              rdfs:subClassOf uml:IntervalConstraint ,
-    [ rdf:type owl:Restriction ; owl:onClass uml:DurationInterval ; owl:onProperty uml:durationSpecification ;
-      owl:minCardinality "1"^^xsd:nonNegativeInteger ; owl:maxCardinality "1"^^xsd:nonNegativeInteger ] ,
-    [ rdf:type owl:Restriction ; owl:allValuesFrom uml:OrderedPropertyValue ; owl:onProperty uml:firstEventValue ;
-      owl:minCardinality "0"^^xsd:nonNegativeInteger ; owl:maxCardinality "2"^^xsd:nonNegativeInteger ] ;
-              rdfs:comment "A DurationConstraint is a Constraint that refers to a DurationInterval." .
-
-uml:durationSpecification rdf:type owl:ObjectProperty ;
-         rdfs:subPropertyOf opil:compositionalProperty ;
-         rdfs:domain uml:DurationConstraint ;
-         rdfs:range uml:DurationInterval ;
-         rdfs:comment "The DurationInterval constraining the duration." ;
-         rdfs:label "specification" .
-
-
-uml:Parameter rdf:type owl:Class ;
-              rdfs:comment "A Parameter is a specification of an argument used to pass information into or out of an invocation of a Behavior. See UML 2.5.1 specification section 9.4." ;
-              rdfs:subClassOf sbol:Identified ,
-        [ rdf:type owl:Restriction ;  owl:onProperty uml:direction ; owl:allValuesFrom xsd:anyURI ] ,
-        [ rdf:type owl:Restriction ;  owl:onProperty uml:direction ; owl:minCardinality "1"^^xsd:nonNegativeInteger ],
-        [ rdf:type owl:Restriction ;  owl:onProperty uml:direction ; owl:maxCardinality "1"^^xsd:nonNegativeInteger ] ,
-        [ rdf:type owl:Restriction ; owl:onProperty uml:defaultValue ; owl:allValuesFrom uml:ValueSpecification ] ,
-        [ rdf:type owl:Restriction ; owl:onProperty uml:defaultValue ; owl:maxCardinality "1"^^xsd:nonNegativeInteger ] ,
-    # omitted: /default, effect, isException, isStream
-    # Properties inherited from MultiplicityElement and TypedElement:
-    [ rdf:type owl:Restriction ; owl:onProperty uml:type ; owl:allValuesFrom xsd:anyURI ] ,
-    [ rdf:type owl:Restriction ; owl:onProperty uml:type ; owl:maxCardinality "1"^^xsd:nonNegativeInteger ] ,
-    [ rdf:type owl:Restriction ; owl:onProperty uml:isOrdered ; owl:allValuesFrom xsd:boolean ] ,
-    [ rdf:type owl:Restriction ; owl:onProperty uml:isOrdered ; owl:minCardinality "1"^^xsd:nonNegativeInteger ] ,
-    [ rdf:type owl:Restriction ; owl:onProperty uml:isOrdered ; owl:maxCardinality "1"^^xsd:nonNegativeInteger ] ,
-    [ rdf:type owl:Restriction ; owl:onProperty uml:isUnique ; owl:allValuesFrom xsd:boolean ],
-    [ rdf:type owl:Restriction ; owl:onProperty uml:isUnique ; owl:minCardinality "1"^^xsd:nonNegativeInteger ] ,
-    [ rdf:type owl:Restriction ; owl:onProperty uml:isUnique ; owl:maxCardinality "1"^^xsd:nonNegativeInteger ] ,
-    [ rdf:type owl:Restriction ; owl:onProperty uml:lowerValue ; owl:allValuesFrom uml:ValueSpecification ] ,
-    [ rdf:type owl:Restriction ; owl:onProperty uml:lowerValue ; owl:maxCardinality "1"^^xsd:nonNegativeInteger ] ,
-    [ rdf:type owl:Restriction ; owl:onProperty uml:upperValue ; owl:allValuesFrom uml:ValueSpecification ] ,
-    [ rdf:type owl:Restriction ; owl:onProperty uml:upperValue ; owl:maxCardinality "1"^^xsd:nonNegativeInteger ] .
-    # omitted: /lower, /upper
-
-uml:direction rdf:type owl:DatatypeProperty ;
-         rdfs:domain uml:Parameter ;
-         rdfs:range xsd:anyURI ; # should really be an enumeration
-         rdfs:comment "Indicates whether a parameter is being sent into or out of a behavioral element." ;
-         rdfs:label "direction" .
-
-uml:defaultValue rdf:type owl:ObjectProperty ;
-         rdfs:subPropertyOf opil:compositionalProperty ;
-         rdfs:domain uml:Parameter ;
-         rdfs:range uml:ValueSpecification ;
-         rdfs:comment "A ValueSpecification that represents a value to be used when no argument is supplied for the Parameter." ;
-         rdfs:label "default_value" .
-
-
-
-uml:Behavior rdf:type owl:Class ;
-             rdfs:comment "Behavior is an abstract specification of how a state changes over time. This specification may be a prospective definition of a protocol or a capture of an execution trace. See UML 2.5.1 specification section 13.2." ;
-             rdfs:subClassOf sbol:TopLevel ,
-    [ rdf:type owl:Restriction ; owl:allValuesFrom uml:Constraint ; owl:onProperty uml:precondition ] ,
-    [ rdf:type owl:Restriction ; owl:allValuesFrom uml:Constraint ; owl:onProperty uml:postcondition ] ,
-    [ rdf:type owl:Restriction ; owl:allValuesFrom uml:OrderedPropertyValue ; owl:onProperty uml:ownedParameter ] .
-    # omitted: context, specification, redefinedBehavior, ownedParameterSet
-    # omitted subclasses: OpaqueBehavior, FunctionBehavior
-
-#uml:isReentrant rdf:type owl:DatatypeProperty ;
-#         rdfs:domain uml:Behavior ;
-#         rdfs:range xsd:boolean ;
-#         rdfs:label "isReentrant" .
-
-uml:precondition rdf:type owl:ObjectProperty ;
-         rdfs:subPropertyOf opil:compositionalProperty ;
-         rdfs:domain uml:Behavior ;
-         rdfs:range uml:Constraint ;
-         rdfs:comment "An optional set of Constraints specifying what must be fulfilled before the Behavior is invoked." ;
-         rdfs:label "preconditions" .
-
-uml:postcondition rdf:type owl:ObjectProperty ;
-         rdfs:subPropertyOf opil:compositionalProperty ;
-         rdfs:domain uml:Behavior ;
-         rdfs:range uml:Constraint ;
-         rdfs:comment "An optional set of Constraints specifying what is fulfilled after the execution of the Behavior is completed, if its precondition was fulfilled before its invocation." ;
-         rdfs:label "postconditions" .
-
-uml:ownedParameter rdf:type owl:ObjectProperty ;
-         rdfs:subPropertyOf opil:compositionalProperty ;
-         rdfs:domain uml:Behavior ;
-         rdfs:range uml:OrderedPropertyValue ;
-         rdfs:comment " a list of Parameters to the Behavior which describes the order and type of arguments that can be given when the Behavior is invoked and of the values which will be returned when the Behavior completes its execution." ;
-         rdfs:label "parameters" .
-
-uml:OrderedPropertyValue rdf:type owl:Class ;
-         rdfs:subClassOf sbol:Identified ,
-    [ rdf:type owl:Restriction ; owl:allValuesFrom xsd:integer ; owl:onProperty uml:indexValue ;
-      owl:minCardinality "1"^^xsd:nonNegativeInteger ; owl:maxCardinality "1"^^xsd:nonNegativeInteger ] ,
-    [ rdf:type owl:Restriction ; owl:allValuesFrom sbol:Identified ; owl:onProperty uml:propertyValue ;
-      owl:minCardinality "1"^^xsd:nonNegativeInteger ; owl:maxCardinality "1"^^xsd:nonNegativeInteger ] .
-
-uml:indexValue rdf:type owl:DatatypeProperty ;
-         rdfs:domain uml:OrderedPropertyValue ;
-         rdfs:range xsd:integer ;
-         rdfs:label "index" .
-
-uml:propertyValue rdf:type owl:ObjectProperty ;
-         rdfs:subPropertyOf opil:compositionalProperty ;
-         rdfs:domain uml:OrderedPropertyValue ;
-         rdfs:range sbol:Identified ;
-         rdfs:label "property_value" .
-
-
-uml:Activity rdf:type owl:Class ;
-             rdfs:comment "An Activity coordinates and groups steps in a protocol or workflow. See UML 2.5.1 specification section 15." ;
-             rdfs:subClassOf uml:Behavior ,
-    [ rdf:type owl:Restriction ; owl:allValuesFrom uml:ActivityNode ; owl:onProperty uml:node ] ,
-    [ rdf:type owl:Restriction ; owl:allValuesFrom uml:ActivityEdge ; owl:onProperty uml:edge ] .
-    # omitted: isReadOnly, isSingleExecution, variable
-
-uml:node rdf:type owl:ObjectProperty ;
-         rdfs:subPropertyOf opil:compositionalProperty ;
-         rdfs:domain uml:Activity ;
-         rdfs:range uml:ActivityNode ;
-         rdfs:comment "ActivityNodes coordinated by the Activity." ;
-         rdfs:label "nodes" .
-
-uml:edge rdf:type owl:ObjectProperty ;
-         rdfs:subPropertyOf opil:compositionalProperty ;
-         rdfs:domain uml:Activity ;
-         rdfs:range uml:ActivityEdge ;
-         rdfs:comment "ActivityEdges expressing flow between the nodes of the Activity." ;
-         rdfs:label "edges" .
-
-
-
-uml:ActivityNode rdf:type owl:Class ;
-             rdfs:comment "ActivityNode is an abstract class for points in the flow of an Activity connected by ActivityEdges. See UML 2.5.1 specification section 15.2." ;
-             rdfs:subClassOf sbol:Identified .
-    # omitted: redefinedNode
-
-uml:ControlNode rdf:type owl:Class ;
-             rdfs:comment "A ControlNode is a kind of ActivityNode used to manage the flow of tokens between other nodes in an Activity. It can manage branching and merging of workflows and the implementation of logic for flow control. See UML 2.5.1 specification section 15.3." ;
-             rdfs:subClassOf uml:ActivityNode .
-
-uml:InitialNode rdf:type owl:Class ;
-             rdfs:comment "An InitialNode acts as a starting point for executing an Activity. An Activity may have more than one InitialNodes that start multiple concurrent control flows. See UML 2.5.1 specification section 15.3." ;
-             rdfs:subClassOf uml:ControlNode .
-
-uml:FinalNode rdf:type owl:Class ;
-             rdfs:comment "A FinalNode is a ControlNode at which a flow in an Activity stops. A FinalNode shall not have outgoing ActivityEdges. See UML 2.5.1 specification section 15.3." ;
-             rdfs:subClassOf uml:ControlNode .
-    # omitted subclass: ActivityFinalNode
-
-uml:FlowFinalNode rdf:type owl:Class ;
-             rdfs:comment "A FlowFinalNode is a FinalNode that terminates a flow. All tokens accepted by a FlowFinalNode are destroyed. This has no effect on other flows in the Activity. See UML 2.5.1 specification section 15.3." ;
-             rdfs:subClassOf uml:FinalNode .
-
-uml:ForkNode rdf:type owl:Class ;
-             rdfs:comment "A ForkNode is a ControlNode that splits a flow into multiple concurrent flows. A ForkNode shall have exactly one incoming ActivityEdge, though it may have multiple outgoing ActivityEdges. See UML 2.5.1 specification section 15.3." ;
-             rdfs:subClassOf uml:ControlNode .
-
-uml:JoinNode rdf:type owl:Class ;
-             rdfs:comment "A JoinNode is a ControlNode that synchronizes multiple flows. A JoinNode shall have exactly one outgoing ActivityEdge but may have multiple incoming ActivityEdges. See UML 2.5.1 specification section 15.3." ;
-             rdfs:subClassOf uml:ControlNode .
-    # omitted: isCombineDuplicate, joinSpec
-
-uml:MergeNode rdf:type owl:Class ;
-             rdfs:comment "A MergeNode is a control node that brings together multiple flows without synchronization. A MergeNode shall have exactly one outgoing ActivityEdge but may have multiple incoming ActivityEdges. See UML 2.5.1 specification section 15.3." ;
-             rdfs:subClassOf uml:ControlNode .
-
-uml:DecisionNode rdf:type owl:Class ;
-             rdfs:comment "A DecisionNode is a ControlNode that chooses between outgoing flows. A DecisionNode shall have at least one and at most two incoming ActivityEdges, and at least one outgoing ActivityEdge. See UML 2.5.1 specification section 15.3." ;
-             rdfs:subClassOf uml:ControlNode ,
-    [ rdf:type owl:Restriction ; owl:onProperty uml:decisionInput ; owl:allValuesFrom uml:Behavior ] ,
-    [ rdf:type owl:Restriction ; owl:onProperty uml:decisionInput ; owl:maxCardinality "1"^^xsd:nonNegativeInteger ] ,
-    [ rdf:type owl:Restriction ;  owl:onProperty uml:decisionInputFlow ; owl:allValuesFrom uml:ObjectFlow ] ,
-    [ rdf:type owl:Restriction ;  owl:onProperty uml:decisionInputFlow ; owl:maxCardinality "1"^^xsd:nonNegativeInteger ] .
-
-uml:decisionInput rdf:type owl:ObjectProperty ;
-         rdfs:domain uml:DecisionNode ;
-         rdfs:range uml:Behavior ;
-         rdfs:comment "A Behavior that is executed to provide an input to guard ValueSpecifications on ActivityEdges outgoing from the DecisionNode." ;
-         rdfs:label "decision_input" .
-
-uml:decisionInputFlow rdf:type owl:ObjectProperty ;
-         rdfs:domain uml:DecisionNode ;
-         rdfs:range uml:ObjectFlow ;
-         rdfs:comment "An additional ActivityEdge incoming to the DecisionNode that provides a decision input value for the guards ValueSpecifications on ActivityEdges outgoing from the DecisionNode." ;
-         rdfs:label "decision_input_flow" .
-
-
-uml:ObjectNode rdf:type owl:Class ;
-             rdfs:comment "An ObjectNode is a kind of ActivityNode used to hold value-containing object tokens during the course of the execution of an Activity. See UML 2.5.1 specification section 15.4." ;
-             rdfs:subClassOf uml:ActivityNode ,
-    # omitted subtype: CentralBufferNode, DataStoreNode
-    # omitted: isControlType, ordering, selection, upperBound, inState
-    # Property inherited from TypedElement:
-        [ rdf:type owl:Restriction ;  owl:onProperty uml:type ; owl:allValuesFrom xsd:anyURI ] ,
-        [ rdf:type owl:Restriction ;  owl:onProperty uml:type ; owl:maxCardinality "1"^^xsd:nonNegativeInteger ] .
-
-
-uml:ActivityParameterNode rdf:type owl:Class ;
-             rdfs:comment "An ActivityParameterNode is an ObjectNode for accepting values from the input Parameters or providing values to the output Parameters of an Activity. UML 2.5.1 specification section 15.4." ;
-             rdfs:subClassOf uml:ObjectNode ,
-        [ rdf:type owl:Restriction ; owl:allValuesFrom uml:OrderedPropertyValue ; owl:onProperty uml:parameter ] ,
-        [ rdf:type owl:Restriction ; owl:minCardinality "1"^^xsd:nonNegativeInteger ; owl:onProperty uml:parameter ] ,
-        [ rdf:type owl:Restriction ; owl:maxCardinality "1"^^xsd:nonNegativeInteger ; owl:onProperty uml:parameter ] .
-
-
-uml:parameter rdf:type owl:ObjectProperty ;
-         rdfs:domain uml:ActivityParameterNode ;
-         rdfs:range uml:OrderedPropertyValue ;
-         rdfs:comment "The Parameter for which the ActivityParameterNode will be accepting or providing values." ;
-         rdfs:label "parameter" .
-
-
-
-uml:ExecutableNode rdf:type owl:Class ;
-             rdfs:comment "An ExecutableNode is an abstract class for ActivityNodes whose execution may be controlled using ControlFlows and to which ExceptionHandlers may be attached. See UML 2.5.1 specification section 15.5." ;
-             rdfs:subClassOf uml:ActivityNode .
-    # omitted: handler
-
-uml:Action rdf:type owl:Class ;
-             rdfs:comment "An Action is the fundamental unit of executable functionality. The execution of an Action represents some transformation or processing in the modeled system. Actions provide the ExecutableNodes within Activities and may also be used within Interactions. See UML 2.5.1 specification section 16." ;
-             rdfs:subClassOf uml:ExecutableNode ,
-    [ rdf:type owl:Restriction ; owl:allValuesFrom uml:InputPin ; owl:onProperty uml:input ] ,
-    [ rdf:type owl:Restriction ; owl:allValuesFrom uml:OutputPin ; owl:onProperty uml:output ] .
-    # omitted: /context, localPrecondition, localPostcondition
-
-uml:input rdf:type owl:ObjectProperty ;
-         rdfs:subPropertyOf opil:compositionalProperty ;
-         rdfs:domain uml:Action ;
-         rdfs:range uml:InputPin ;
-         rdfs:comment "The ordered set of InputPins representing the inputs to the Action." ;
-         rdfs:label "inputs" .
-
-uml:output rdf:type owl:ObjectProperty ;
-         rdfs:subPropertyOf opil:compositionalProperty ;
-         rdfs:domain uml:Action ;
-         rdfs:range uml:OutputPin ;
-         rdfs:comment "The ordered set of OutputPins representing outputs from the Action." ;
-         rdfs:label "outputs" .
-
-# Nearly all UML actions are omitted. Only those required are added here
-
-uml:InvocationAction rdf:type owl:Class ;
-             rdfs:comment "UML 2.5.1 specification section 16.3" ;
-             rdfs:subClassOf uml:Action .
-    # aliased: argument --> input
-    # omitted: onPort
-    # omitted subclass: SendObjectAction, SendSignalAction, BroadcastSignalAction
-
-uml:CallAction rdf:type owl:Class ;
-             rdfs:comment "A CallAction is an abstract class for Actions that invoke a Behavior with given argument values and (if the invocation is synchronous) receive reply values. See UML 2.5.1 specification section 16.3." ;
-             rdfs:subClassOf uml:InvocationAction .
-    # aliased: result --> output
-    # omitted: isSynchronous
-    # omitted subclass: CallOperationAction, StartObjectBehaviorAction
-
-uml:CallBehaviorAction rdf:type owl:Class ;
-             rdfs:comment "A CallBehaviorAction is a CallAction that invokes a Behavior directly. The argument values of the CallBehaviorAction are passed on the input Parameters of the invoked Behavior. UML 2.5.1 specification section 16.3" ;
-             rdfs:subClassOf uml:CallAction ,
-        [ rdf:type owl:Restriction ;  owl:onProperty uml:behavior ; owl:allValuesFrom uml:Behavior ] ,
-        [ rdf:type owl:Restriction ;  owl:onProperty uml:behavior ; owl:minCardinality "1"^^xsd:nonNegativeInteger ] ,
-        [ rdf:type owl:Restriction ;  owl:onProperty uml:behavior ; owl:maxCardinality "1"^^xsd:nonNegativeInteger ] .
-
-uml:behavior rdf:type owl:ObjectProperty ;
-         rdfs:domain uml:CallBehaviorAction ;
-         rdfs:range uml:Behavior ;
-         rdfs:comment "The Behavior being invoked.";
-         rdfs:label "behavior" .
-
-
-uml:Pin rdf:type owl:Class ;
-             rdfs:comment "A Pin is an ObjectNode and MultiplicityElement that provides input values to an Action or accepts output values from an Action. See UML 2.5.1 specification section 16.2." ;
-             rdfs:subClassOf uml:ObjectNode ,
-             [ rdf:type owl:Restriction ; owl:onProperty uml:isOrdered ; owl:allValuesFrom xsd:boolean ] ,
-        [ rdf:type owl:Restriction ; owl:onProperty uml:isOrdered ; owl:minCardinality "1"^^xsd:nonNegativeInteger ] ,
-        [ rdf:type owl:Restriction ; owl:onProperty uml:isOrdered ; owl:maxCardinality "1"^^xsd:nonNegativeInteger ] ,
-        [ rdf:type owl:Restriction ; owl:onProperty uml:isUnique ; owl:allValuesFrom xsd:boolean ] ,
-        [ rdf:type owl:Restriction ; owl:onProperty uml:isUnique ; owl:minCardinality "1"^^xsd:nonNegativeInteger ] ,
-        [ rdf:type owl:Restriction ; owl:onProperty uml:isUnique ; owl:maxCardinality "1"^^xsd:nonNegativeInteger ] ,
-        [ rdf:type owl:Restriction ; owl:onProperty uml:lowerValue ; owl:allValuesFrom uml:ValueSpecification ] ,
-        [ rdf:type owl:Restriction ; owl:onProperty uml:lowerValue ;  owl:maxCardinality "1"^^xsd:nonNegativeInteger ] ,
-        [ rdf:type owl:Restriction ; owl:onProperty uml:upperValue ; owl:allValuesFrom uml:ValueSpecification ] ,
-        [ rdf:type owl:Restriction ; owl:onProperty uml:upperValue ;  owl:maxCardinality "1"^^xsd:nonNegativeInteger ] .
-
-
-uml:InputPin rdf:type owl:Class ;
-             rdfs:comment "An InputPin is a Pin that holds input values to be consumed by an Action. See UML 2.5.1 specification section 16.2." ;
-             rdfs:subClassOf uml:Pin .
-    # omitted subclass: ActionInputPin
-
-uml:ValuePin rdf:type owl:Class ;
-             rdfs:comment "A ValuePin is an InputPin that provides a value by evaluating a ValueSpecification. See UML 2.5.1 specification section 16.2." ;
-             rdfs:subClassOf uml:InputPin ,
-    [ rdf:type owl:Restriction ;  owl:onProperty uml:value ; owl:allValuesFrom uml:ValueSpecification ] ,
-    [ rdf:type owl:Restriction ;  owl:onProperty uml:value ; owl:minCardinality "1"^^xsd:nonNegativeInteger ] ,
-    [ rdf:type owl:Restriction ;  owl:onProperty uml:value ; owl:maxCardinality "1"^^xsd:nonNegativeInteger ] .
-
-uml:value rdf:type owl:ObjectProperty ;
-         rdfs:subPropertyOf opil:compositionalProperty ;
-         rdfs:domain uml:ValuePin ;
-         rdfs:range uml:ValueSpecification ;
-         rdfs:comment "The ValueSpecification that is evaluated to obtain the value that the ValuePin will provide." ;
-         rdfs:label "value" .
-
-
-uml:OutputPin rdf:type owl:Class ;
-             rdfs:comment "An OutputPin is a Pin that holds output values produced by an Action. See UML 2.5.1 specification section 16.2." ;
-             rdfs:subClassOf uml:Pin .
-
-
-uml:ActivityEdge rdf:type owl:Class ;
-             rdfs:comment "An ActivityEdge is an abstract class for directed connections between two ActivityNodes. See UML 2.5.1 specification section 15.2." ;
-             rdfs:subClassOf sbol:Identified ,
-    [ rdf:type owl:Restriction ;  owl:onProperty uml:source ; owl:allValuesFrom uml:ActivityNode ] ,
-    [ rdf:type owl:Restriction ;  owl:onProperty uml:source ; owl:minCardinality "1"^^xsd:nonNegativeInteger ] ,
-    [ rdf:type owl:Restriction ;  owl:onProperty uml:source ; owl:maxCardinality "1"^^xsd:nonNegativeInteger ] ,
-    [ rdf:type owl:Restriction ;  owl:onProperty uml:target ; owl:allValuesFrom uml:ActivityNode ] ,
-    [ rdf:type owl:Restriction ;  owl:onProperty uml:target ; owl:minCardinality "1"^^xsd:nonNegativeInteger ] ,
-    [ rdf:type owl:Restriction ;  owl:onProperty uml:target ; owl:maxCardinality "1"^^xsd:nonNegativeInteger ] .
-    # omitted: redefinedEdge, guard, weight
-    # Note that guard will need to be added to allow DecisionNode
-
-uml:source rdf:type owl:ObjectProperty ;
-         rdfs:domain uml:ActivityEdge ;
-         rdfs:range uml:ActivityNode ;
-         rdfs:comment "The ActivityNode from which tokens are taken when they traverse the ActivityEdge." ;
-         rdfs:label "source" .
-
-uml:target rdf:type owl:ObjectProperty ;
-         rdfs:domain uml:ActivityEdge ;
-         rdfs:range uml:ActivityNode ;
-         rdfs:comment "The ActivityNode to which tokens are put when they traverse the ActivityEdge." ;
-         rdfs:label "target" .
-
-
-
-uml:ControlFlow rdf:type owl:Class ;
-             rdfs:comment "A ControlFlow is an ActivityEdge traversed by control tokens or object tokens of control type, which are use to control the execution of ExecutableNodes. See UML 2.5.1 specification section 15.2." ;
-             rdfs:subClassOf uml:ActivityEdge .
-
-uml:ObjectFlow rdf:type owl:Class ;
-             rdfs:comment "An ObjectFlow is an ActivityEdge that is traversed by object tokens that may hold values. Object flows also support multicast/receive, token selection from object nodes, and transformation of tokens. See UML 2.5.1 specification section 15.2." ;
-             rdfs:subClassOf uml:ActivityEdge .
-    # omitted: isMulticast, isMultireceive, transformation, selection
-
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+<http://bioprotocols.org/uml> a owl:Ontology ;
+    rdfs:comment "Unified Modeling Languge (UML) subset, translated to an SBOL factory ontology." ;
+    owl:imports <http://sbols.org/v3>,
+        <http://www.ontology-of-units-of-measure.org/resource/om-2> ;
+    owl:versionInfo "1.0-alpha1" .
+
+uml:ControlFlow a owl:Class ;
+    rdfs:comment "A ControlFlow is an ActivityEdge traversed by control tokens or object tokens of control type, which are use to control the execution of ExecutableNodes. See UML 2.5.1 specification section 15.2." ;
+    rdfs:subClassOf uml:ActivityEdge .
+
+uml:FlowFinalNode a owl:Class ;
+    rdfs:comment "A FlowFinalNode is a FinalNode that terminates a flow. All tokens accepted by a FlowFinalNode are destroyed. This has no effect on other flows in the Activity. See UML 2.5.1 specification section 15.3." ;
+    rdfs:subClassOf uml:FinalNode .
+
+uml:ForkNode a owl:Class ;
+    rdfs:comment "A ForkNode is a ControlNode that splits a flow into multiple concurrent flows. A ForkNode shall have exactly one incoming ActivityEdge, though it may have multiple outgoing ActivityEdges. See UML 2.5.1 specification section 15.3." ;
+    rdfs:subClassOf uml:ControlNode .
+
+uml:InitialNode a owl:Class ;
+    rdfs:comment "An InitialNode acts as a starting point for executing an Activity. An Activity may have more than one InitialNodes that start multiple concurrent control flows. See UML 2.5.1 specification section 15.3." ;
+    rdfs:subClassOf uml:ControlNode .
+
+uml:JoinNode a owl:Class ;
+    rdfs:comment "A JoinNode is a ControlNode that synchronizes multiple flows. A JoinNode shall have exactly one outgoing ActivityEdge but may have multiple incoming ActivityEdges. See UML 2.5.1 specification section 15.3." ;
+    rdfs:subClassOf uml:ControlNode .
+
+uml:LiteralNull a owl:Class ;
+    rdfs:comment "A LiteralNull specifies the lack of a value. See UML 2.5.1 specification section 8.2." ;
+    rdfs:subClassOf uml:LiteralSpecification .
+
+uml:MergeNode a owl:Class ;
+    rdfs:comment "A MergeNode is a control node that brings together multiple flows without synchronization. A MergeNode shall have exactly one outgoing ActivityEdge but may have multiple incoming ActivityEdges. See UML 2.5.1 specification section 15.3." ;
+    rdfs:subClassOf uml:ControlNode .
+
+xsd:anySimpleType a rdfs:Datatype .
+
+uml:ActivityParameterNode a owl:Class ;
+    rdfs:comment "An ActivityParameterNode is an ObjectNode for accepting values from the input Parameters or providing values to the output Parameters of an Activity. UML 2.5.1 specification section 15.4." ;
+    rdfs:subClassOf [ a owl:Restriction ;
+            owl:allValuesFrom uml:OrderedPropertyValue ;
+            owl:onProperty uml:parameter ],
+        [ a owl:Restriction ;
+            owl:minCardinality "1"^^xsd:nonNegativeInteger ;
+            owl:onProperty uml:parameter ],
+        [ a owl:Restriction ;
+            owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
+            owl:onProperty uml:parameter ],
+        uml:ObjectNode .
+
+uml:CallAction a owl:Class ;
+    rdfs:comment "A CallAction is an abstract class for Actions that invoke a Behavior with given argument values and (if the invocation is synchronous) receive reply values. See UML 2.5.1 specification section 16.3." ;
+    rdfs:subClassOf uml:InvocationAction .
+
+uml:CallBehaviorAction a owl:Class ;
+    rdfs:comment "A CallBehaviorAction is a CallAction that invokes a Behavior directly. The argument values of the CallBehaviorAction are passed on the input Parameters of the invoked Behavior. UML 2.5.1 specification section 16.3" ;
+    rdfs:subClassOf [ a owl:Restriction ;
+            owl:allValuesFrom uml:Behavior ;
+            owl:onProperty uml:behavior ],
+        [ a owl:Restriction ;
+            owl:minCardinality "1"^^xsd:nonNegativeInteger ;
+            owl:onProperty uml:behavior ],
+        [ a owl:Restriction ;
+            owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
+            owl:onProperty uml:behavior ],
+        uml:CallAction .
+
+uml:ExecutableNode a owl:Class ;
+    rdfs:comment "An ExecutableNode is an abstract class for ActivityNodes whose execution may be controlled using ControlFlows and to which ExceptionHandlers may be attached. See UML 2.5.1 specification section 15.5." ;
+    rdfs:subClassOf uml:ActivityNode .
+
+uml:FinalNode a owl:Class ;
+    rdfs:comment "A FinalNode is a ControlNode at which a flow in an Activity stops. A FinalNode shall not have outgoing ActivityEdges. See UML 2.5.1 specification section 15.3." ;
+    rdfs:subClassOf uml:ControlNode .
+
+uml:InvocationAction a owl:Class ;
+    rdfs:comment "UML 2.5.1 specification section 16.3" ;
+    rdfs:subClassOf uml:Action .
+
+uml:LiteralBoolean a owl:Class ;
+    rdfs:comment "A LiteralBoolean is a specification of a Boolean value. See UML 2.5.1 specification section 8.2." ;
+    rdfs:subClassOf [ a owl:Restriction ;
+            owl:allValuesFrom xsd:boolean ;
+            owl:onProperty uml:booleanValue ],
+        [ a owl:Restriction ;
+            owl:minCardinality "1"^^xsd:nonNegativeInteger ;
+            owl:onProperty uml:booleanValue ],
+        [ a owl:Restriction ;
+            owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
+            owl:onProperty uml:booleanValue ],
+        uml:LiteralSpecification .
+
+uml:LiteralIdentified a owl:Class ;
+    rdfs:comment "A LiteralIdentified is used for linking SBOL objects as a child object to UML objects." ;
+    rdfs:subClassOf [ a owl:Restriction ;
+            owl:allValuesFrom sbol:Identified ;
+            owl:onProperty uml:identifiedValue ],
+        [ a owl:Restriction ;
+            owl:minCardinality "1"^^xsd:nonNegativeInteger ;
+            owl:onProperty uml:identifiedValue ],
+        [ a owl:Restriction ;
+            owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
+            owl:onProperty uml:identifiedValue ],
+        uml:LiteralSpecification .
+
+uml:LiteralInteger a owl:Class ;
+    rdfs:comment "A LiteralInteger is a specification of an Integer value. See UML 2.5.1 specification section 8.2." ;
+    rdfs:subClassOf [ a owl:Restriction ;
+            owl:allValuesFrom xsd:integer ;
+            owl:onProperty uml:integerValue ],
+        [ a owl:Restriction ;
+            owl:minCardinality "1"^^xsd:nonNegativeInteger ;
+            owl:onProperty uml:integerValue ],
+        [ a owl:Restriction ;
+            owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
+            owl:onProperty uml:integerValue ],
+        uml:LiteralSpecification .
+
+uml:LiteralReal a owl:Class ;
+    rdfs:comment "A LiteralReal is a specification of a Real value. See UML 2.5.1 specification section 8.2." ;
+    rdfs:subClassOf [ a owl:Restriction ;
+            owl:allValuesFrom xsd:float ;
+            owl:onProperty uml:realValue ],
+        [ a owl:Restriction ;
+            owl:minCardinality "1"^^xsd:nonNegativeInteger ;
+            owl:onProperty uml:realValue ],
+        [ a owl:Restriction ;
+            owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
+            owl:onProperty uml:realValue ],
+        uml:LiteralSpecification .
+
+uml:LiteralReference a owl:Class ;
+    rdfs:comment "A LiteralReference is used for embedding SBOL objects as a reference." ;
+    rdfs:subClassOf [ a owl:Restriction ;
+            owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
+            owl:onProperty uml:referenceValue ],
+        [ a owl:Restriction ;
+            owl:allValuesFrom sbol:Identified ;
+            owl:onProperty uml:referenceValue ],
+        [ a owl:Restriction ;
+            owl:minCardinality "1"^^xsd:nonNegativeInteger ;
+            owl:onProperty uml:referenceValue ],
+        uml:LiteralSpecification .
+
+uml:LiteralString a owl:Class ;
+    rdfs:comment "A LiteralSpecification identifies a literal constant being modeled. See UML 2.5.1 specification section 8.2." ;
+    rdfs:subClassOf [ a owl:Restriction ;
+            owl:allValuesFrom xsd:string ;
+            owl:onProperty uml:stringValue ],
+        [ a owl:Restriction ;
+            owl:minCardinality "1"^^xsd:nonNegativeInteger ;
+            owl:onProperty uml:stringValue ],
+        [ a owl:Restriction ;
+            owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
+            owl:onProperty uml:stringValue ],
+        uml:LiteralSpecification .
+
+uml:ValuePin a owl:Class ;
+    rdfs:comment "A ValuePin is an InputPin that provides a value by evaluating a ValueSpecification. See UML 2.5.1 specification section 16.2." ;
+    rdfs:subClassOf [ a owl:Restriction ;
+            owl:allValuesFrom uml:ValueSpecification ;
+            owl:onProperty uml:value ],
+        [ a owl:Restriction ;
+            owl:minCardinality "1"^^xsd:nonNegativeInteger ;
+            owl:onProperty uml:value ],
+        [ a owl:Restriction ;
+            owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
+            owl:onProperty uml:value ],
+        uml:InputPin .
+
+uml:constrainedElement a owl:ObjectProperty ;
+    rdfs:label "constrained_elements" ;
+    rdfs:comment "The OrderedPropertyValue referenced by this Constraint." ;
+    rdfs:domain uml:Constraint ;
+    rdfs:range uml:OrderedPropertyValue ;
+    rdfs:subPropertyOf sbol:directlyComprises .
+
+uml:edge a owl:ObjectProperty ;
+    rdfs:label "edges" ;
+    rdfs:comment "ActivityEdges expressing flow between the nodes of the Activity." ;
+    rdfs:domain uml:Activity ;
+    rdfs:range uml:ActivityEdge ;
+    rdfs:subPropertyOf sbol:directlyComprises .
+
+uml:input a owl:ObjectProperty ;
+    rdfs:label "inputs" ;
+    rdfs:comment "The ordered set of InputPins representing the inputs to the Action." ;
+    rdfs:domain uml:Action ;
+    rdfs:range uml:InputPin ;
+    rdfs:subPropertyOf sbol:directlyComprises .
+
+uml:node a owl:ObjectProperty ;
+    rdfs:label "nodes" ;
+    rdfs:comment "ActivityNodes coordinated by the Activity." ;
+    rdfs:domain uml:Activity ;
+    rdfs:range uml:ActivityNode ;
+    rdfs:subPropertyOf sbol:directlyComprises .
+
+uml:operandValue a owl:ObjectProperty ;
+    rdfs:label "operand" ;
+    rdfs:comment "Specifies a sequence of operand ValueSpecifications." ;
+    rdfs:domain uml:Expression ;
+    rdfs:range uml:OrderedPropertyValue ;
+    rdfs:subPropertyOf sbol:directlyComprises .
+
+uml:output a owl:ObjectProperty ;
+    rdfs:label "outputs" ;
+    rdfs:comment "The ordered set of OutputPins representing outputs from the Action." ;
+    rdfs:domain uml:Action ;
+    rdfs:range uml:OutputPin ;
+    rdfs:subPropertyOf sbol:directlyComprises .
+
+uml:ownedParameter a owl:ObjectProperty ;
+    rdfs:label "parameters" ;
+    rdfs:comment " a list of Parameters to the Behavior which describes the order and type of arguments that can be given when the Behavior is invoked and of the values which will be returned when the Behavior completes its execution." ;
+    rdfs:domain uml:Behavior ;
+    rdfs:range uml:OrderedPropertyValue ;
+    rdfs:subPropertyOf sbol:directlyComprises .
+
+uml:postcondition a owl:ObjectProperty ;
+    rdfs:label "postconditions" ;
+    rdfs:comment "An optional set of Constraints specifying what is fulfilled after the execution of the Behavior is completed, if its precondition was fulfilled before its invocation." ;
+    rdfs:domain uml:Behavior ;
+    rdfs:range uml:Constraint ;
+    rdfs:subPropertyOf sbol:directlyComprises .
+
+uml:precondition a owl:ObjectProperty ;
+    rdfs:label "preconditions" ;
+    rdfs:comment "An optional set of Constraints specifying what must be fulfilled before the Behavior is invoked." ;
+    rdfs:domain uml:Behavior ;
+    rdfs:range uml:Constraint ;
+    rdfs:subPropertyOf sbol:directlyComprises .
+
+uml:Activity a owl:Class ;
+    rdfs:comment "An Activity coordinates and groups steps in a protocol or workflow. See UML 2.5.1 specification section 15." ;
+    rdfs:subClassOf [ a owl:Restriction ;
+            owl:allValuesFrom uml:ActivityNode ;
+            owl:onProperty uml:node ],
+        [ a owl:Restriction ;
+            owl:allValuesFrom uml:ActivityEdge ;
+            owl:onProperty uml:edge ],
+        uml:Behavior .
+
+uml:DecisionNode a owl:Class ;
+    rdfs:comment "A DecisionNode is a ControlNode that chooses between outgoing flows. A DecisionNode shall have at least one and at most two incoming ActivityEdges, and at least one outgoing ActivityEdge. See UML 2.5.1 specification section 15.3." ;
+    rdfs:subClassOf [ a owl:Restriction ;
+            owl:allValuesFrom uml:Behavior ;
+            owl:onProperty uml:decisionInput ],
+        [ a owl:Restriction ;
+            owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
+            owl:onProperty uml:decisionInput ],
+        [ a owl:Restriction ;
+            owl:allValuesFrom uml:ObjectFlow ;
+            owl:onProperty uml:decisionInputFlow ],
+        [ a owl:Restriction ;
+            owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
+            owl:onProperty uml:decisionInputFlow ],
+        uml:ControlNode .
+
+uml:DurationConstraint a owl:Class ;
+    rdfs:comment "A DurationConstraint is a Constraint that refers to a DurationInterval." ;
+    rdfs:subClassOf [ a owl:Restriction ;
+            owl:maxCardinality "2"^^xsd:nonNegativeInteger ;
+            owl:onProperty uml:firstEventValue ],
+        [ a owl:Restriction ;
+            owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
+            owl:onProperty uml:durationSpecification ],
+        [ a owl:Restriction ;
+            owl:minCardinality "1"^^xsd:nonNegativeInteger ;
+            owl:onProperty uml:durationSpecification ],
+        [ a owl:Restriction ;
+            owl:minCardinality "0"^^xsd:nonNegativeInteger ;
+            owl:onProperty uml:firstEventValue ],
+        [ a owl:Restriction ;
+            owl:allValuesFrom uml:OrderedPropertyValue ;
+            owl:onProperty uml:firstEventValue ],
+        uml:IntervalConstraint .
+
+uml:DurationObservation a owl:Class ;
+    rdfs:comment "A DurationObservation is a reference to a duration during an execution. It points out the entities in the model to observe and whether the observations are when these entities are entered or exited." ;
+    rdfs:subClassOf [ a owl:Restriction ;
+            owl:minCardinality "1"^^xsd:nonNegativeInteger ;
+            owl:onProperty uml:durationObservationValue ],
+        [ a owl:Restriction ;
+            owl:allValuesFrom sbol:Identified ;
+            owl:onProperty uml:durationObservationValue ],
+        [ a owl:Restriction ;
+            owl:allValuesFrom uml:OrderedPropertyValue ;
+            owl:onProperty uml:firstEventValue ],
+        [ a owl:Restriction ;
+            owl:minCardinality "0"^^xsd:nonNegativeInteger ;
+            owl:onProperty uml:firstEventValue ],
+        [ a owl:Restriction ;
+            owl:maxCardinality "2"^^xsd:nonNegativeInteger ;
+            owl:onProperty uml:firstEventValue ],
+        [ a owl:Restriction ;
+            owl:maxCardinality "2"^^xsd:nonNegativeInteger ;
+            owl:onProperty uml:durationObservationValue ],
+        uml:Observation .
+
+uml:Expression a owl:Class ;
+    rdfs:comment "An Expression represents a node in an expression tree, which may be non-terminal or terminal. It defines a symbol, and has a possibly empty sequence of operands that are ValueSpecifications. See UML 2.5.1 specification section 8.6.5.1." ;
+    rdfs:subClassOf [ a owl:Restriction ;
+            owl:minCardinality "1"^^xsd:nonNegativeInteger ;
+            owl:onProperty uml:isOrdered ],
+        [ a owl:Restriction ;
+            owl:allValuesFrom xsd:boolean ;
+            owl:onProperty uml:isOrdered ],
+        [ a owl:Restriction ;
+            owl:minCardinality "0"^^xsd:nonNegativeInteger ;
+            owl:onProperty uml:symbolValue ],
+        [ a owl:Restriction ;
+            owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
+            owl:onProperty uml:symbolValue ],
+        [ a owl:Restriction ;
+            owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
+            owl:onProperty uml:isOrdered ],
+        [ a owl:Restriction ;
+            owl:allValuesFrom xsd:string ;
+            owl:onProperty uml:symbolValue ],
+        [ a owl:Restriction ;
+            owl:allValuesFrom uml:OrderedPropertyValue ;
+            owl:onProperty uml:operandValue ],
+        uml:ValueSpecification .
+
+uml:Interval a owl:Class ;
+    rdfs:comment "An Interval defines the range between two ValueSpecifications." ;
+    rdfs:subClassOf uml:ValueSpecification .
+
+uml:IntervalConstraint a owl:Class ;
+    rdfs:comment "An IntervalConstraint is a Constraint that is specified by an Interval." ;
+    rdfs:subClassOf uml:Constraint .
+
+uml:ObjectFlow a owl:Class ;
+    rdfs:comment "An ObjectFlow is an ActivityEdge that is traversed by object tokens that may hold values. Object flows also support multicast/receive, token selection from object nodes, and transformation of tokens. See UML 2.5.1 specification section 15.2." ;
+    rdfs:subClassOf uml:ActivityEdge .
+
+uml:ObjectNode a owl:Class ;
+    rdfs:comment "An ObjectNode is a kind of ActivityNode used to hold value-containing object tokens during the course of the execution of an Activity. See UML 2.5.1 specification section 15.4." ;
+    rdfs:subClassOf [ a owl:Restriction ;
+            owl:allValuesFrom xsd:anyURI ;
+            owl:onProperty uml:type ],
+        [ a owl:Restriction ;
+            owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
+            owl:onProperty uml:type ],
+        uml:ActivityNode .
+
+uml:OutputPin a owl:Class ;
+    rdfs:comment "An OutputPin is a Pin that holds output values produced by an Action. See UML 2.5.1 specification section 16.2." ;
+    rdfs:subClassOf uml:Pin .
+
+uml:Parameter a owl:Class ;
+    rdfs:comment "A Parameter is a specification of an argument used to pass information into or out of an invocation of a Behavior. See UML 2.5.1 specification section 9.4." ;
+    rdfs:subClassOf [ a owl:Restriction ;
+            owl:allValuesFrom xsd:anyURI ;
+            owl:onProperty uml:direction ],
+        [ a owl:Restriction ;
+            owl:minCardinality "1"^^xsd:nonNegativeInteger ;
+            owl:onProperty uml:direction ],
+        [ a owl:Restriction ;
+            owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
+            owl:onProperty uml:direction ],
+        [ a owl:Restriction ;
+            owl:allValuesFrom uml:ValueSpecification ;
+            owl:onProperty uml:defaultValue ],
+        [ a owl:Restriction ;
+            owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
+            owl:onProperty uml:defaultValue ],
+        [ a owl:Restriction ;
+            owl:allValuesFrom xsd:anyURI ;
+            owl:onProperty uml:type ],
+        [ a owl:Restriction ;
+            owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
+            owl:onProperty uml:type ],
+        [ a owl:Restriction ;
+            owl:allValuesFrom xsd:boolean ;
+            owl:onProperty uml:isOrdered ],
+        [ a owl:Restriction ;
+            owl:minCardinality "1"^^xsd:nonNegativeInteger ;
+            owl:onProperty uml:isOrdered ],
+        [ a owl:Restriction ;
+            owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
+            owl:onProperty uml:isOrdered ],
+        [ a owl:Restriction ;
+            owl:allValuesFrom xsd:boolean ;
+            owl:onProperty uml:isUnique ],
+        [ a owl:Restriction ;
+            owl:minCardinality "1"^^xsd:nonNegativeInteger ;
+            owl:onProperty uml:isUnique ],
+        [ a owl:Restriction ;
+            owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
+            owl:onProperty uml:isUnique ],
+        [ a owl:Restriction ;
+            owl:allValuesFrom uml:ValueSpecification ;
+            owl:onProperty uml:lowerValue ],
+        [ a owl:Restriction ;
+            owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
+            owl:onProperty uml:lowerValue ],
+        [ a owl:Restriction ;
+            owl:allValuesFrom uml:ValueSpecification ;
+            owl:onProperty uml:upperValue ],
+        [ a owl:Restriction ;
+            owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
+            owl:onProperty uml:upperValue ],
+        sbol:Identified .
+
+uml:Pin a owl:Class ;
+    rdfs:comment "A Pin is an ObjectNode and MultiplicityElement that provides input values to an Action or accepts output values from an Action. See UML 2.5.1 specification section 16.2." ;
+    rdfs:subClassOf [ a owl:Restriction ;
+            owl:allValuesFrom xsd:boolean ;
+            owl:onProperty uml:isOrdered ],
+        [ a owl:Restriction ;
+            owl:minCardinality "1"^^xsd:nonNegativeInteger ;
+            owl:onProperty uml:isOrdered ],
+        [ a owl:Restriction ;
+            owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
+            owl:onProperty uml:isOrdered ],
+        [ a owl:Restriction ;
+            owl:allValuesFrom xsd:boolean ;
+            owl:onProperty uml:isUnique ],
+        [ a owl:Restriction ;
+            owl:minCardinality "1"^^xsd:nonNegativeInteger ;
+            owl:onProperty uml:isUnique ],
+        [ a owl:Restriction ;
+            owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
+            owl:onProperty uml:isUnique ],
+        [ a owl:Restriction ;
+            owl:allValuesFrom uml:ValueSpecification ;
+            owl:onProperty uml:lowerValue ],
+        [ a owl:Restriction ;
+            owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
+            owl:onProperty uml:lowerValue ],
+        [ a owl:Restriction ;
+            owl:allValuesFrom uml:ValueSpecification ;
+            owl:onProperty uml:upperValue ],
+        [ a owl:Restriction ;
+            owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
+            owl:onProperty uml:upperValue ],
+        uml:ObjectNode .
+
+uml:TimeConstraint a owl:Class ;
+    rdfs:comment "A TimeConstraint is a Constraint that refers to a TimeInterval." ;
+    rdfs:subClassOf [ a owl:Restriction ;
+            owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
+            owl:onProperty uml:timeSpecification ],
+        [ a owl:Restriction ;
+            owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
+            owl:onProperty uml:firstEventValue ],
+        [ a owl:Restriction ;
+            owl:minCardinality "0"^^xsd:nonNegativeInteger ;
+            owl:onProperty uml:firstEventValue ],
+        [ a owl:Restriction ;
+            owl:minCardinality "1"^^xsd:nonNegativeInteger ;
+            owl:onProperty uml:timeSpecification ],
+        [ a owl:Restriction ;
+            owl:allValuesFrom uml:OrderedPropertyValue ;
+            owl:onProperty uml:firstEventValue ],
+        uml:IntervalConstraint .
+
+uml:TimeObservation a owl:Class ;
+    rdfs:comment "A TimeObservation is a reference to a time instant during an execution. It points out which entity in the model to observe and whether the observation is when this entity is entered or when it is exited." ;
+    rdfs:subClassOf [ a owl:Restriction ;
+            owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
+            owl:onProperty uml:timeObservationValue ],
+        [ a owl:Restriction ;
+            owl:minCardinality "1"^^xsd:nonNegativeInteger ;
+            owl:onProperty uml:timeObservationValue ],
+        [ a owl:Restriction ;
+            owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
+            owl:onProperty uml:firstEventValue ],
+        [ a owl:Restriction ;
+            owl:allValuesFrom sbol:Identified ;
+            owl:onProperty uml:timeObservationValue ],
+        [ a owl:Restriction ;
+            owl:allValuesFrom uml:OrderedPropertyValue ;
+            owl:onProperty uml:firstEventValue ],
+        [ a owl:Restriction ;
+            owl:minCardinality "1"^^xsd:nonNegativeInteger ;
+            owl:onProperty uml:firstEventValue ],
+        uml:Observation .
+
+uml:decisionInput a owl:ObjectProperty ;
+    rdfs:label "decision_input" ;
+    rdfs:comment "A Behavior that is executed to provide an input to guard ValueSpecifications on ActivityEdges outgoing from the DecisionNode." ;
+    rdfs:domain uml:DecisionNode ;
+    rdfs:range uml:Behavior .
+
+uml:decisionInputFlow a owl:ObjectProperty ;
+    rdfs:label "decision_input_flow" ;
+    rdfs:comment "An additional ActivityEdge incoming to the DecisionNode that provides a decision input value for the guards ValueSpecifications on ActivityEdges outgoing from the DecisionNode." ;
+    rdfs:domain uml:DecisionNode ;
+    rdfs:range uml:ObjectFlow .
+
+uml:defaultValue a owl:ObjectProperty ;
+    rdfs:label "default_value" ;
+    rdfs:comment "A ValueSpecification that represents a value to be used when no argument is supplied for the Parameter." ;
+    rdfs:domain uml:Parameter ;
+    rdfs:range uml:ValueSpecification ;
+    rdfs:subPropertyOf sbol:directlyComprises .
+
+uml:observationValue a owl:ObjectProperty ;
+    rdfs:label "observation" ;
+    rdfs:comment "Refers to the Observations that are involved in the computation of the Duration value." ;
+    rdfs:domain uml:Duration,
+        uml:TimeExpression ;
+    rdfs:range uml:Observation .
+
+uml:Action a owl:Class ;
+    rdfs:comment "An Action is the fundamental unit of executable functionality. The execution of an Action represents some transformation or processing in the modeled system. Actions provide the ExecutableNodes within Activities and may also be used within Interactions. See UML 2.5.1 specification section 16." ;
+    rdfs:subClassOf [ a owl:Restriction ;
+            owl:allValuesFrom uml:InputPin ;
+            owl:onProperty uml:input ],
+        [ a owl:Restriction ;
+            owl:allValuesFrom uml:OutputPin ;
+            owl:onProperty uml:output ],
+        uml:ExecutableNode .
+
+uml:InputPin a owl:Class ;
+    rdfs:comment "An InputPin is a Pin that holds input values to be consumed by an Action. See UML 2.5.1 specification section 16.2." ;
+    rdfs:subClassOf uml:Pin .
+
+uml:behavior a owl:ObjectProperty ;
+    rdfs:label "behavior" ;
+    rdfs:comment "The Behavior being invoked." ;
+    rdfs:domain uml:CallBehaviorAction ;
+    rdfs:range uml:Behavior .
+
+uml:booleanValue a owl:DatatypeProperty ;
+    rdfs:label "value" ;
+    rdfs:comment "The specified Boolean value." ;
+    rdfs:domain uml:LiteralBoolean ;
+    rdfs:range xsd:boolean .
+
+uml:direction a owl:DatatypeProperty ;
+    rdfs:label "direction" ;
+    rdfs:comment "Indicates whether a parameter is being sent into or out of a behavioral element." ;
+    rdfs:domain uml:Parameter ;
+    rdfs:range xsd:anyURI .
+
+uml:durationObservationValue a owl:ObjectProperty ;
+    rdfs:label "event" ;
+    rdfs:comment "The DurationObservation is determined as the duration between the entering or exiting of a single event during execution, or the entering/exiting of one event and the entering/exiting of a second." ;
+    rdfs:domain uml:DurationObservation ;
+    rdfs:range sbol:Identified .
+
+uml:durationSpecification a owl:ObjectProperty ;
+    rdfs:label "specification" ;
+    rdfs:comment "The DurationInterval constraining the duration." ;
+    rdfs:domain uml:DurationConstraint ;
+    rdfs:range uml:DurationInterval ;
+    rdfs:subPropertyOf sbol:directlyComprises .
+
+uml:identifiedValue a owl:ObjectProperty ;
+    rdfs:label "value" ;
+    rdfs:comment "The embedded SBOL object" ;
+    rdfs:domain uml:LiteralIdentified ;
+    rdfs:range sbol:Identified ;
+    rdfs:subPropertyOf sbol:directlyComprises .
+
+uml:indexValue a owl:DatatypeProperty ;
+    rdfs:label "index" ;
+    rdfs:domain uml:OrderedPropertyValue ;
+    rdfs:range xsd:integer .
+
+uml:integerValue a owl:DatatypeProperty ;
+    rdfs:label "value" ;
+    rdfs:comment "The specified Integer value." ;
+    rdfs:domain uml:LiteralInteger ;
+    rdfs:range xsd:integer .
+
+uml:maxDurationValue a owl:ObjectProperty ;
+    rdfs:label "max" ;
+    rdfs:comment "Refers to the Duration denoting the maximum value of the range." ;
+    rdfs:domain uml:DurationInterval ;
+    rdfs:range uml:Duration ;
+    rdfs:subPropertyOf sbol:directlyComprises .
+
+uml:maxTimeValue a owl:ObjectProperty ;
+    rdfs:label "max" ;
+    rdfs:comment "Refers to the TimeExpression denoting the maximum value of the range." ;
+    rdfs:domain uml:TimeInterval ;
+    rdfs:range uml:TimeExpression ;
+    rdfs:subPropertyOf sbol:directlyComprises .
+
+uml:minDurationValue a owl:ObjectProperty ;
+    rdfs:label "min" ;
+    rdfs:comment "Refers to the Duration denoting the minimum value of the range." ;
+    rdfs:domain uml:DurationInterval ;
+    rdfs:range uml:Duration ;
+    rdfs:subPropertyOf sbol:directlyComprises .
+
+uml:minTimeValue a owl:ObjectProperty ;
+    rdfs:label "min" ;
+    rdfs:comment "Refers to the TimeExpression denoting the minimum value of the range." ;
+    rdfs:domain uml:TimeInterval ;
+    rdfs:range uml:TimeExpression ;
+    rdfs:subPropertyOf sbol:directlyComprises .
+
+uml:parameter a owl:ObjectProperty ;
+    rdfs:label "parameter" ;
+    rdfs:comment "The Parameter for which the ActivityParameterNode will be accepting or providing values." ;
+    rdfs:domain uml:ActivityParameterNode ;
+    rdfs:range uml:OrderedPropertyValue .
+
+uml:propertyValue a owl:ObjectProperty ;
+    rdfs:label "property_value" ;
+    rdfs:domain uml:OrderedPropertyValue ;
+    rdfs:range sbol:Identified ;
+    rdfs:subPropertyOf sbol:directlyComprises .
+
+uml:realValue a owl:DatatypeProperty ;
+    rdfs:label "value" ;
+    rdfs:comment "The specified Real value." ;
+    rdfs:domain uml:LiteralReal ;
+    rdfs:range xsd:float .
+
+uml:referenceValue a owl:ObjectProperty ;
+    rdfs:label "value" ;
+    rdfs:comment "The referenced SBOL object." ;
+    rdfs:domain uml:LiteralReference ;
+    rdfs:range sbol:Identified .
+
+uml:source a owl:ObjectProperty ;
+    rdfs:label "source" ;
+    rdfs:comment "The ActivityNode from which tokens are taken when they traverse the ActivityEdge." ;
+    rdfs:domain uml:ActivityEdge ;
+    rdfs:range uml:ActivityNode .
+
+uml:stringValue a owl:DatatypeProperty ;
+    rdfs:label "value" ;
+    rdfs:comment "The specified String value." ;
+    rdfs:domain uml:LiteralString ;
+    rdfs:range xsd:string .
+
+uml:symbolValue a owl:DatatypeProperty ;
+    rdfs:label "symbol" ;
+    rdfs:comment "The symbol associated with this node in the expression tree." ;
+    rdfs:domain uml:Expression ;
+    rdfs:range xsd:anyURI .
+
+uml:target a owl:ObjectProperty ;
+    rdfs:label "target" ;
+    rdfs:comment "The ActivityNode to which tokens are put when they traverse the ActivityEdge." ;
+    rdfs:domain uml:ActivityEdge ;
+    rdfs:range uml:ActivityNode .
+
+uml:timeObservationValue a owl:ObjectProperty ;
+    rdfs:label "event" ;
+    rdfs:comment "The TimeObservation is determined by the entering or exiting of the event during execution." ;
+    rdfs:domain uml:TimeObservation ;
+    rdfs:range sbol:Identified .
+
+uml:timeSpecification a owl:ObjectProperty ;
+    rdfs:label "specification" ;
+    rdfs:comment "TheTimeInterval constraining the duration." ;
+    rdfs:domain uml:TimeConstraint ;
+    rdfs:range uml:TimeInterval ;
+    rdfs:subPropertyOf sbol:directlyComprises .
+
+uml:value a owl:ObjectProperty ;
+    rdfs:label "value" ;
+    rdfs:comment "The ValueSpecification that is evaluated to obtain the value that the ValuePin will provide." ;
+    rdfs:domain uml:ValuePin ;
+    rdfs:range uml:ValueSpecification ;
+    rdfs:subPropertyOf sbol:directlyComprises .
+
+uml:Duration a owl:Class ;
+    rdfs:comment "A Duration is a ValueSpecification that specifies the temporal distance between two time instants." ;
+    rdfs:subClassOf [ a owl:Restriction ;
+            owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
+            owl:onProperty uml:exprValue ],
+        [ a owl:Restriction ;
+            owl:allValuesFrom uml:ValueSpecification ;
+            owl:onProperty uml:exprValue ],
+        [ a owl:Restriction ;
+            owl:minCardinality "0"^^xsd:nonNegativeInteger ;
+            owl:onProperty uml:exprValue ],
+        [ a owl:Restriction ;
+            owl:allValuesFrom uml:Observation ;
+            owl:onProperty uml:observationValue ],
+        uml:ValueSpecification .
+
+uml:DurationInterval a owl:Class ;
+    rdfs:comment "A DurationInterval defines the range between two Durations." ;
+    rdfs:subClassOf [ a owl:Restriction ;
+            owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
+            owl:onProperty uml:maxDurationValue ],
+        [ a owl:Restriction ;
+            owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
+            owl:onProperty uml:minDurationValue ],
+        [ a owl:Restriction ;
+            owl:minCardinality "1"^^xsd:nonNegativeInteger ;
+            owl:onProperty uml:minDurationValue ],
+        [ a owl:Restriction ;
+            owl:minCardinality "1"^^xsd:nonNegativeInteger ;
+            owl:onProperty uml:maxDurationValue ],
+        [ a owl:Restriction ;
+            owl:allValuesFrom uml:ValueSpecification ;
+            owl:onProperty uml:minDurationValue ],
+        [ a owl:Restriction ;
+            owl:allValuesFrom uml:ValueSpecification ;
+            owl:onProperty uml:maxDurationValue ],
+        uml:Interval .
+
+uml:TimeExpression a owl:Class ;
+    rdfs:comment "A TimeExpression is a ValueSpecification that represents a time value." ;
+    rdfs:subClassOf [ a owl:Restriction ;
+            owl:allValuesFrom uml:ValueSpecification ;
+            owl:onProperty uml:exprValue ],
+        [ a owl:Restriction ;
+            owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
+            owl:onProperty uml:exprValue ],
+        [ a owl:Restriction ;
+            owl:minCardinality "0"^^xsd:nonNegativeInteger ;
+            owl:onProperty uml:exprValue ],
+        [ a owl:Restriction ;
+            owl:allValuesFrom uml:Observation ;
+            owl:onProperty uml:observationValue ],
+        uml:ValueSpecification .
+
+uml:TimeInterval a owl:Class ;
+    rdfs:comment "A TimeInterval defines the range between two TimeExpressions." ;
+    rdfs:subClassOf [ a owl:Restriction ;
+            owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
+            owl:onProperty uml:maxTimeValue ],
+        [ a owl:Restriction ;
+            owl:minCardinality "1"^^xsd:nonNegativeInteger ;
+            owl:onProperty uml:minTimeValue ],
+        [ a owl:Restriction ;
+            owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
+            owl:onProperty uml:minTimeValue ],
+        [ a owl:Restriction ;
+            owl:allValuesFrom uml:ValueSpecification ;
+            owl:onProperty uml:maxTimeValue ],
+        [ a owl:Restriction ;
+            owl:minCardinality "1"^^xsd:nonNegativeInteger ;
+            owl:onProperty uml:maxTimeValue ],
+        [ a owl:Restriction ;
+            owl:allValuesFrom uml:ValueSpecification ;
+            owl:onProperty uml:minTimeValue ],
+        uml:Interval .
+
+uml:lowerValue a owl:ObjectProperty ;
+    rdfs:label "lower_value" ;
+    rdfs:comment "For MultiplicityElement abstract class; UML 2.5.1 specification section 7.5" ;
+    rdfs:domain sbol:Identified ;
+    rdfs:range uml:ValueSpecification ;
+    rdfs:subPropertyOf sbol:directlyComprises .
+
+uml:upperValue a owl:ObjectProperty ;
+    rdfs:label "upper_value" ;
+    rdfs:comment "For MultiplicityElement abstract class; UML 2.5.1 specification section 7.5" ;
+    rdfs:domain sbol:Identified ;
+    rdfs:range uml:ValueSpecification ;
+    rdfs:subPropertyOf sbol:directlyComprises .
+
+uml:Observation a owl:Class ;
+    rdfs:comment "Observation specifies a value determined by observing an event or events that occur relative to other model entities." ;
+    rdfs:subClassOf sbol:Identified .
+
+uml:ActivityEdge a owl:Class ;
+    rdfs:comment "An ActivityEdge is an abstract class for directed connections between two ActivityNodes. See UML 2.5.1 specification section 15.2." ;
+    rdfs:subClassOf [ a owl:Restriction ;
+            owl:allValuesFrom uml:ActivityNode ;
+            owl:onProperty uml:source ],
+        [ a owl:Restriction ;
+            owl:minCardinality "1"^^xsd:nonNegativeInteger ;
+            owl:onProperty uml:source ],
+        [ a owl:Restriction ;
+            owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
+            owl:onProperty uml:source ],
+        [ a owl:Restriction ;
+            owl:allValuesFrom uml:ActivityNode ;
+            owl:onProperty uml:target ],
+        [ a owl:Restriction ;
+            owl:minCardinality "1"^^xsd:nonNegativeInteger ;
+            owl:onProperty uml:target ],
+        [ a owl:Restriction ;
+            owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
+            owl:onProperty uml:target ],
+        sbol:Identified .
+
+uml:Constraint a owl:Class ;
+    rdfs:comment "A Constraint is a condition or restriction expressed in natural language text or in a machine readable language. See UML 2.5.1 specification section 7.6." ;
+    rdfs:subClassOf [ a owl:Restriction ;
+            owl:allValuesFrom uml:OrderedPropertyValue ;
+            owl:onProperty uml:constrainedElement ],
+        sbol:Identified .
+
+uml:ControlNode a owl:Class ;
+    rdfs:comment "A ControlNode is a kind of ActivityNode used to manage the flow of tokens between other nodes in an Activity. It can manage branching and merging of workflows and the implementation of logic for flow control. See UML 2.5.1 specification section 15.3." ;
+    rdfs:subClassOf uml:ActivityNode .
+
+uml:exprValue a owl:ObjectProperty ;
+    rdfs:label "expr" ;
+    rdfs:comment "A ValueSpecification that evaluates to the value of the Duration." ;
+    rdfs:domain uml:Duration,
+        uml:TimeExpression ;
+    rdfs:range uml:ValueSpecification ;
+    rdfs:subPropertyOf sbol:directlyComprises .
+
+uml:isUnique a owl:DatatypeProperty ;
+    rdfs:label "is_unique" ;
+    rdfs:comment "For MultiplicityElement abstract class; UML 2.5.1 specification section 7.5" ;
+    rdfs:domain sbol:Identified ;
+    rdfs:range xsd:boolean .
+
+uml:type a owl:DatatypeProperty ;
+    rdfs:label "type" ;
+    rdfs:comment "Specifies a set of Type instances constraining the allowed values. See UML 2.5.1 specification section 7.5." ;
+    rdfs:domain sbol:Identified ;
+    rdfs:range xsd:anyURI .
+
+uml:LiteralSpecification a owl:Class ;
+    rdfs:comment "A LiteralSpecification identifies a literal constant being modeled. See UML 2.5.1 specification section 8.2." ;
+    rdfs:subClassOf uml:ValueSpecification .
+
+uml:Behavior a owl:Class ;
+    rdfs:comment "Behavior is an abstract specification of how a state changes over time. This specification may be a prospective definition of a protocol or a capture of an execution trace. See UML 2.5.1 specification section 13.2." ;
+    rdfs:subClassOf [ a owl:Restriction ;
+            owl:allValuesFrom uml:Constraint ;
+            owl:onProperty uml:precondition ],
+        [ a owl:Restriction ;
+            owl:allValuesFrom uml:Constraint ;
+            owl:onProperty uml:postcondition ],
+        [ a owl:Restriction ;
+            owl:allValuesFrom uml:OrderedPropertyValue ;
+            owl:onProperty uml:ownedParameter ],
+        sbol:TopLevel .
+
+uml:ActivityNode a owl:Class ;
+    rdfs:comment "ActivityNode is an abstract class for points in the flow of an Activity connected by ActivityEdges. See UML 2.5.1 specification section 15.2." ;
+    rdfs:subClassOf sbol:Identified .
+
+uml:isOrdered a owl:DatatypeProperty ;
+    rdfs:label "is_ordered" ;
+    rdfs:comment "For MultiplicityElement abstract class; UML 2.5.1 specification section 7.5" ;
+    rdfs:domain sbol:Identified ;
+    rdfs:range xsd:boolean .
+
+uml:firstEventValue a owl:ObjectProperty ;
+    rdfs:label "firstEvent" ;
+    rdfs:comment "The value of firstEvent[i] is related to event[i] (where i is 1 or 2). If firstEvent[i] is true, then the correspondingobservation event is the first time instant the execution enters event[i]. If firstEvent[i] is false, then the corresponding observation event is the time instant the execution exits event[i]." ;
+    rdfs:domain uml:DurationConstraint,
+        uml:DurationObservation,
+        uml:TimeConstraint,
+        uml:TimeObservation ;
+    rdfs:range uml:OrderedPropertyValue ;
+    rdfs:subPropertyOf sbol:directlyComprises .
+
+uml:OrderedPropertyValue a owl:Class ;
+    rdfs:subClassOf [ a owl:Restriction ;
+            owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
+            owl:onProperty uml:indexValue ],
+        [ a owl:Restriction ;
+            owl:allValuesFrom sbol:Identified ;
+            owl:onProperty uml:propertyValue ],
+        [ a owl:Restriction ;
+            owl:minCardinality "1"^^xsd:nonNegativeInteger ;
+            owl:onProperty uml:indexValue ],
+        [ a owl:Restriction ;
+            owl:allValuesFrom xsd:integer ;
+            owl:onProperty uml:indexValue ],
+        [ a owl:Restriction ;
+            owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
+            owl:onProperty uml:propertyValue ],
+        [ a owl:Restriction ;
+            owl:minCardinality "1"^^xsd:nonNegativeInteger ;
+            owl:onProperty uml:propertyValue ],
+        sbol:Identified .
+
+uml:ValueSpecification a owl:Class ;
+    rdfs:comment "A ValueSpecification is the specification of a (possibly empty) set of values. See UML 2.5.1 specification section 8." ;
+    rdfs:subClassOf [ a owl:Restriction ;
+            owl:allValuesFrom xsd:anyURI ;
+            owl:onProperty uml:type ],
+        [ a owl:Restriction ;
+            owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
+            owl:onProperty uml:type ],
+        sbol:Identified .
+
+sbol:directlyComprises a owl:ObjectProperty .
 
 

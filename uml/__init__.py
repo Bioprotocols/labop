@@ -80,6 +80,8 @@ def behavior_add_parameter(self, name: str, param_type: str, direction: str, opt
     """
     param = Parameter(name=name, type=param_type, direction=direction, is_ordered=True, is_unique=True)
     ordered_param = OrderedPropertyValue(index=len(self.parameters), property_value=param)
+    print(param, ordered_param)
+    print(ordered_param.__class__.__mro__)
     self.parameters.append(ordered_param)
     param.upper_value = literal(1)  # all parameters are assumed to have cardinality [0..1] or 1 for now
     if optional:
@@ -139,6 +141,7 @@ def behavior_get_input(self, name) -> Parameter:
     -------
     Parameter, or Value error
     """
+    print(p for p in self.get_inputs())
     found = [p for p in self.get_inputs() if p.property_value.name == name]
     if len(found) == 0:
         raise ValueError(f'Behavior {self.identity} has no input parameter named {name}')

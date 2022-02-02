@@ -12,10 +12,10 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
-    - name: Set up Python 3.9
+    - name: Set up Python 3.7
       uses: actions/setup-python@v2
       with:
-        python-version: 3.9
+        python-version: 3.7
     - name: Setup Graphviz
       uses: ts-graphviz/setup-graphviz@v1
     - name: Install dependencies
@@ -27,4 +27,4 @@ jobs:
       run: |
         pip install .[test]
         pytest
-        pytest --nbmake --overwrite -n=auto "notebooks/paml_demo.ipynb" "notebooks/markdown.ipynb"
+        #pytest --nbmake --overwrite -n=auto "notebooks/paml_demo.ipynb" "notebooks/markdown.ipynb"

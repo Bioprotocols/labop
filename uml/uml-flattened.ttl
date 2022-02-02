@@ -1,4 +1,3 @@
-@prefix opil:  <http://bioprotocols.org/opil/v1#> .
 @prefix :      <http://bioprotocols.org/paml#> .
 @prefix uml:   <http://bioprotocols.org/uml#> .
 @prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
@@ -10,13 +9,12 @@
 @base          <http://bioprotocols.org/uml#> .
 <> rdf:type owl:Ontology ;
                             owl:imports sbol: ,
-                                                                  opil: ,
-                                                                  om: ;
+                                        om: ;
                             rdfs:comment "Unified Modeling Languge (UML) subset, translated to an SBOL factory ontology." ;
                             owl:versionInfo "1.0-alpha1" .
 owl:maxCardinality rdf:type owl:AnnotationProperty .
 owl:minCardinality rdf:type owl:AnnotationProperty .
-opil:compositionalProperty rdf:type owl:AnnotationProperty .
+sbol:directlyComprises rdf:type owl:AnnotationProperty .
 xsd:anySimpleType rdf:type rdfs:Datatype .
 uml:type rdf:type owl:DatatypeProperty ;
                                  rdfs:domain sbol:Identified ;
@@ -31,12 +29,12 @@ uml:isUnique rdf:type owl:DatatypeProperty ;
                                      rdfs:range xsd:boolean ;
                                      rdfs:label "is_unique" .
 uml:lowerValue rdf:type owl:ObjectProperty ;
-                                       rdfs:subPropertyOf opil:compositionalProperty ;
+                                       rdfs:subPropertyOf sbol:directlyComprises ;
                                        rdfs:domain sbol:Identified ;
                                        rdfs:range uml:ValueSpecification ;
                                        rdfs:label "lower_value" .
 uml:upperValue rdf:type owl:ObjectProperty ;
-                                       rdfs:subPropertyOf opil:compositionalProperty ;
+                                       rdfs:subPropertyOf sbol:directlyComprises ;
                                        rdfs:domain sbol:Identified ;
                                        rdfs:range uml:ValueSpecification ;
                                        rdfs:label "upper_value" .
@@ -107,7 +105,7 @@ _:Bgenid5 rdf:type owl:Restriction ;
           owl:maxCardinality "1"^^xsd:nonNegativeInteger .
 uml:LiteralIdentified rdfs:subClassOf _:Bgenid5 .
 uml:identifiedValue rdf:type owl:ObjectProperty ;
-                                            rdfs:subPropertyOf opil:compositionalProperty ;
+                                            rdfs:subPropertyOf sbol:directlyComprises ;
                                             rdfs:domain uml:LiteralIdentified ;
                                             rdfs:range sbol:Identified ;
                                             rdfs:label "value" .
@@ -140,7 +138,7 @@ uml:constrainedElement rdf:type owl:ObjectProperty ;
                                                rdfs:range sbol:Identified ;
                                                rdfs:label "constrained_elements" .
 uml:specification rdf:type owl:ObjectProperty ;
-                                          rdfs:subPropertyOf opil:compositionalProperty ;
+                                          rdfs:subPropertyOf sbol:directlyComprises ;
                                           rdfs:domain uml:Constraint ;
                                           rdfs:range uml:ValueSpecification ;
                                           rdfs:label "specification" .
@@ -189,7 +187,7 @@ uml:direction rdf:type owl:DatatypeProperty ;
                                       rdfs:range xsd:anyURI ;
                                       rdfs:label "direction" .
 uml:defaultValue rdf:type owl:ObjectProperty ;
-                                         rdfs:subPropertyOf opil:compositionalProperty ;
+                                         rdfs:subPropertyOf sbol:directlyComprises ;
                                          rdfs:domain uml:Parameter ;
                                          rdfs:range uml:ValueSpecification ;
                                          rdfs:label "default_value" .
@@ -208,17 +206,17 @@ _:Bgenid18 rdf:type owl:Restriction ;
            owl:onProperty uml:ownedParameter .
 uml:Behavior rdfs:subClassOf _:Bgenid18 .
 uml:precondition rdf:type owl:ObjectProperty ;
-                                         rdfs:subPropertyOf opil:compositionalProperty ;
+                                         rdfs:subPropertyOf sbol:directlyComprises ;
                                          rdfs:domain uml:Behavior ;
                                          rdfs:range uml:Constraint ;
                                          rdfs:label "preconditions" .
 uml:postcondition rdf:type owl:ObjectProperty ;
-                                          rdfs:subPropertyOf opil:compositionalProperty ;
+                                          rdfs:subPropertyOf sbol:directlyComprises ;
                                           rdfs:domain uml:Behavior ;
                                           rdfs:range uml:Constraint ;
                                           rdfs:label "postconditions" .
 uml:ownedParameter rdf:type owl:ObjectProperty ;
-                                           rdfs:subPropertyOf opil:compositionalProperty ;
+                                           rdfs:subPropertyOf sbol:directlyComprises ;
                                            rdfs:domain uml:Behavior ;
                                            rdfs:range uml:Parameter ;
                                            rdfs:label "parameters" .
@@ -233,12 +231,12 @@ _:Bgenid20 rdf:type owl:Restriction ;
            owl:onProperty uml:edge .
 uml:Activity rdfs:subClassOf _:Bgenid20 .
 uml:node rdf:type owl:ObjectProperty ;
-                                 rdfs:subPropertyOf opil:compositionalProperty ;
+                                 rdfs:subPropertyOf sbol:directlyComprises ;
                                  rdfs:domain uml:Activity ;
                                  rdfs:range uml:ActivityNode ;
                                  rdfs:label "nodes" .
 uml:edge rdf:type owl:ObjectProperty ;
-                                 rdfs:subPropertyOf opil:compositionalProperty ;
+                                 rdfs:subPropertyOf sbol:directlyComprises ;
                                  rdfs:domain uml:Activity ;
                                  rdfs:range uml:ActivityEdge ;
                                  rdfs:label "edges" .
@@ -308,12 +306,12 @@ _:Bgenid26 rdf:type owl:Restriction ;
            owl:onProperty uml:output .
 uml:Action rdfs:subClassOf _:Bgenid26 .
 uml:input rdf:type owl:ObjectProperty ;
-                                  rdfs:subPropertyOf opil:compositionalProperty ;
+                                  rdfs:subPropertyOf sbol:directlyComprises ;
                                   rdfs:domain uml:Action ;
                                   rdfs:range uml:InputPin ;
                                   rdfs:label "inputs" .
 uml:output rdf:type owl:ObjectProperty ;
-                                   rdfs:subPropertyOf opil:compositionalProperty ;
+                                   rdfs:subPropertyOf sbol:directlyComprises ;
                                    rdfs:domain uml:Action ;
                                    rdfs:range uml:OutputPin ;
                                    rdfs:label "outputs" .
@@ -365,7 +363,7 @@ _:Bgenid32 rdf:type owl:Restriction ;
            owl:maxCardinality "1"^^xsd:nonNegativeInteger .
 uml:ValuePin rdfs:subClassOf _:Bgenid32 .
 uml:value rdf:type owl:ObjectProperty ;
-                                  rdfs:subPropertyOf opil:compositionalProperty ;
+                                  rdfs:subPropertyOf sbol:directlyComprises ;
                                   rdfs:domain uml:ValuePin ;
                                   rdfs:range uml:ValueSpecification ;
                                   rdfs:label "value" .
