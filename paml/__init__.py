@@ -1,6 +1,7 @@
 import html
 import os
 import posixpath
+from typing import Dict
 
 import graphviz
 import tyto
@@ -86,35 +87,37 @@ Protocol.primitive_step = protocol_primitive_step  # Add to class via monkey pat
 #
 ###############################################################################
 
-def protocol_to_dot(self):
+def protocol_to_dot(self, legend=False):
     def _gv_sanitize(id: str):
         return html.escape(id.replace(":", "_"))
 
     def _legend():
+        fontsize="10pt"
         legend = graphviz.Digraph(name="cluster_Legend",
                                   graph_attr={
                                       "label" : "Legend",
                                       "shape" : "rectangle",
                                       "color" : "black",
-                                      "rank" : "same"
+                                      "rank" : "TB",
+                                      "fontsize" : fontsize
                                   })
-        legend.node("InitialNode_Legend", _attributes={'label': 'InitialNode', 'fontcolor' : "white", 'shape': 'circle', 'style': 'filled', 'fillcolor': 'black' })
+        legend.node("InitialNode_Legend", _attributes={'label': 'InitialNode', 'fontcolor' : "white", 'shape': 'circle', 'style': 'filled', 'fillcolor': 'black', "fontsize" : fontsize })
         #legend.node("CallBehaviorAction_Legend", _attributes=_type_attrs(uml.CallBehaviorAction()))
-        legend.node("FinalNode_Legend", _attributes={'label': 'FinalNode', 'fontcolor' : "white", 'shape': 'doublecircle', 'style': 'filled', 'fillcolor': 'black'})
-        legend.node("ForkNode_Legend", _attributes={'label': 'ForkNode', 'fontcolor' : "white", 'shape': 'rectangle', 'height': '0.02', 'style': 'filled', 'fillcolor': 'black'})
-        legend.node("MergeNode_Legend", _attributes={'label': 'MergeNode', 'shape': 'diamond'})
-        legend.node("ActivityParameterNode_Legend", _attributes={'label': "ActivityParameterNode", 'shape': 'rectangle', 'peripheries': '2'})
+        legend.node("FinalNode_Legend", _attributes={'label': 'FinalNode', 'fontcolor' : "white", 'shape': 'doublecircle', 'style': 'filled', 'fillcolor': 'black', "fontsize" : fontsize})
+        legend.node("ForkNode_Legend", _attributes={'label': 'ForkNode', 'fontcolor' : "white", 'shape': 'rectangle', 'height': '0.02', 'style': 'filled', 'fillcolor': 'black', "fontsize" : fontsize})
+        legend.node("MergeNode_Legend", _attributes={'label': 'MergeNode', 'shape': 'diamond', "fontsize" : fontsize})
+        legend.node("ActivityParameterNode_Legend", _attributes={'label': "ActivityParameterNode", 'shape': 'rectangle', 'peripheries': '2', "fontsize" : fontsize})
         legend.node("CallBehaviorAction_Legend", _attributes={
             "label" : f'<<table border="0" cellspacing="0"><tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="InputPin1" border="1">InputPin</td><td> </td><td port="ValuePin1" border="1">ValuePin: Value</td><td> </td></tr></table></td></tr><tr><td port="node" border="1">CallBehaviorAction</td></tr><tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="OutputPin1" border="1">OutputPin</td><td> </td></tr></table></td></tr></table>>',
             "shape" : "none",
-            "style": "rounded"
+            "style": "rounded", "fontsize" : fontsize
         })
         legend.node("a", _attributes={"style": "invis"})
         legend.node("b", _attributes={"style": "invis"})
         legend.node("c", _attributes={"style": "invis"})
         legend.node("d", _attributes={"style": "invis"})
-        legend.edge("a", "b", label="uml.ControlFlow", _attributes={"color" : "blue"})
-        legend.edge("c", "d", label="uml.ObjectFlow")
+        legend.edge("a", "b", label="uml.ControlFlow", _attributes={"color" : "blue", "fontsize" : fontsize})
+        legend.edge("c", "d", label="uml.ObjectFlow", _attributes={"fontsize" : fontsize})
         legend.edge("InitialNode_Legend", "FinalNode_Legend", _attributes={"style" : "invis"})
         legend.edge("FinalNode_Legend", "ForkNode_Legend", _attributes={"style" : "invis"})
         legend.edge("ForkNode_Legend", "MergeNode_Legend", _attributes={"style": "invis"})
@@ -155,7 +158,7 @@ def protocol_to_dot(self):
         else:
             return pin.name
 
-    def _type_attrs(object: uml.ActivityNode) -> dict[str,str]:
+    def _type_attrs(object: uml.ActivityNode) -> Dict[str,str]:
         """Get an appropriate set of properties for rendering a GraphViz node.
         Note that while these try to stay close to UML, the limits of GraphViz make us deviate in some cases
 
@@ -172,7 +175,7 @@ def protocol_to_dot(self):
             return {'label': '', 'shape': 'diamond'}
         elif isinstance(object, uml.ObjectNode):
             if isinstance(object, uml.ActivityParameterNode):
-                label = object.parameter.lookup().name
+                label = object.parameter.lookup().property_value.name
             else:
                 raise ValueError(f'Do not know what GraphViz label to use for {object}')
             return {'label': label, 'shape': 'rectangle', 'peripheries': '2'}
@@ -203,7 +206,9 @@ def protocol_to_dot(self):
                                    'label': self.name,
                                    'shape': 'box'
                                })
-        dot.subgraph(_legend())
+        if legend:
+            dot.subgraph(_legend())
+
         for edge in self.edges:
             src_id = _label(edge.source.lookup()) #edge.source.replace(":", "_")
             dest_id = _label(edge.target.lookup()) #edge.target.replace(":", "_")
@@ -301,6 +306,31 @@ Primitive: {self.identity}
 {output_str}
             """
 Primitive.__str__ = primitive_str
+
+
+def behavior_execution_parameter_value_map(self):
+    """
+    Return a dictionary mapping parameter names to value or (value, unit)
+    :param self:
+    :return:
+    """
+    parameter_value_map = {}
+
+    for pv in self.parameter_values:
+        name = pv.parameter.lookup().property_value.name
+        if isinstance(pv.value, uml.LiteralReference):
+            ref = pv.value.value.lookup()
+            value = ref.value if isinstance(ref, uml.LiteralSpecification) else ref
+            unit = ref.unit if isinstance(ref, uml.LiteralSpecification) and hasattr(ref, "unit") else None
+        else:
+            value = pv.value.value
+            unit = pv.value.unit if hasattr(pv.value, "unit") else None
+
+        parameter_value_map[name] = {"parameter" : pv.parameter.lookup(),
+                                     "value" : (value, unit) if unit else value}
+    return parameter_value_map
+BehaviorExecution.parameter_value_map = behavior_execution_parameter_value_map
+
 
 #########################################
 # Library handling

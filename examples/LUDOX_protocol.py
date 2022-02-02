@@ -74,8 +74,7 @@ PLATE_SPECIFICATION = \
  cont:SLAS-4-2004 and
  (cont:wellVolume some 
     ((om:hasUnit value om:microlitre) and
-     (om:hasNumericalValue only xsd:decimal[>= "200"^^xsd:decimal]))) and
- (cont:hasWellBottomShape only cont:NotFlatWellBottom)"""
+     (om:hasNumericalValue only xsd:decimal[>= "200"^^xsd:decimal])))"""
 
 PREFIX_MAP = json.dumps({"cont": CONT_NS, "om": OM_NS})
 

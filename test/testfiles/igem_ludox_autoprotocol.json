@@ -1,0 +1,81 @@
+{
+  "instructions": [
+    {
+      "op": "provision",
+      "resource_id": "rs1c7pg8qs22dt",
+      "measurement_mode": "volume",
+      "to": [
+        {
+          "well": "samples/0",
+          "volume": "100:microliter"
+        },
+        {
+          "well": "samples/12",
+          "volume": "100:microliter"
+        },
+        {
+          "well": "samples/24",
+          "volume": "100:microliter"
+        },
+        {
+          "well": "samples/36",
+          "volume": "100:microliter"
+        }
+      ]
+    },
+    {
+      "op": "provision",
+      "resource_id": "rs1b6z2vgatkq7",
+      "measurement_mode": "volume",
+      "to": [
+        {
+          "well": "samples/1",
+          "volume": "100:microliter"
+        },
+        {
+          "well": "samples/13",
+          "volume": "100:microliter"
+        },
+        {
+          "well": "samples/25",
+          "volume": "100:microliter"
+        },
+        {
+          "well": "samples/37",
+          "volume": "100:microliter"
+        }
+      ]
+    },
+    {
+      "op": "spectrophotometry",
+      "dataref": "measurements",
+      "object": "samples",
+      "groups": [
+        {
+          "mode": "absorbance",
+          "mode_params": {
+            "wells": [
+              "samples/0",
+              "samples/1",
+              "samples/12",
+              "samples/13",
+              "samples/24",
+              "samples/25",
+              "samples/36",
+              "samples/37"
+            ],
+            "wavelength": [
+              "100:nanometer"
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "refs": {
+    "samples": {
+      "id": "ct1g9qsg4wx6gcj",
+      "discard": true
+    }
+  }
+}

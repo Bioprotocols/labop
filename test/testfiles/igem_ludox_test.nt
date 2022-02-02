@@ -9,11 +9,11 @@
 <https://bbn.com/scratch/ddH2O> <http://sbols.org/v3#name> "Water, sterile-filtered, BioReagent, suitable for cell culture" .
 <https://bbn.com/scratch/ddH2O> <http://sbols.org/v3#type> <https://identifiers.org/pubchem.substance:24901740> .
 <https://bbn.com/scratch/ddH2O> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://sbols.org/v3#Component> .
-<https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/ActivityParameterNode1> <http://bioprotocols.org/uml#parameter> <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/OrderedPropertyValue1/Parameter1> .
+<https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/ActivityParameterNode1> <http://bioprotocols.org/uml#parameter> <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/OrderedPropertyValue1> .
 <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/ActivityParameterNode1> <http://sbols.org/v3#displayId> "ActivityParameterNode1" .
 <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/ActivityParameterNode1> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://bioprotocols.org/uml#ActivityParameterNode> .
 <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/ActivityParameterNode1> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://sbols.org/v3#Identified> .
-<https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/ActivityParameterNode2> <http://bioprotocols.org/uml#parameter> <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/OrderedPropertyValue2/Parameter1> .
+<https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/ActivityParameterNode2> <http://bioprotocols.org/uml#parameter> <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/OrderedPropertyValue2> .
 <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/ActivityParameterNode2> <http://sbols.org/v3#displayId> "ActivityParameterNode2" .
 <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/ActivityParameterNode2> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://bioprotocols.org/uml#ActivityParameterNode> .
 <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/ActivityParameterNode2> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://sbols.org/v3#Identified> .
@@ -24,7 +24,7 @@
 <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/CallBehaviorAction1/OutputPin1> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://bioprotocols.org/uml#OutputPin> .
 <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/CallBehaviorAction1/OutputPin1> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://sbols.org/v3#Identified> .
 <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/CallBehaviorAction1/ValuePin1/LiteralIdentified1/ContainerSpec1> <http://bioprotocols.org/paml#prefixMap> "{\"cont\": \"https://sift.net/container-ontology/container-ontology#\", \"om\": \"http://www.ontology-of-units-of-measure.org/resource/om-2/\"}" .
-<https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/CallBehaviorAction1/ValuePin1/LiteralIdentified1/ContainerSpec1> <http://bioprotocols.org/paml#queryString> "cont:ClearPlate and \n cont:SLAS-4-2004 and\n (cont:wellVolume some \n    ((om:hasUnit value om:microlitre) and\n     (om:hasNumericalValue only xsd:decimal[>= \"200\"^^xsd:decimal]))) and\n (cont:hasWellBottomShape only cont:NotFlatWellBottom)" .
+<https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/CallBehaviorAction1/ValuePin1/LiteralIdentified1/ContainerSpec1> <http://bioprotocols.org/paml#queryString> "cont:ClearPlate and \n cont:SLAS-4-2004 and\n (cont:wellVolume some \n    ((om:hasUnit value om:microlitre) and\n     (om:hasNumericalValue only xsd:decimal[>= \"200\"^^xsd:decimal])))" .
 <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/CallBehaviorAction1/ValuePin1/LiteralIdentified1/ContainerSpec1> <http://sbols.org/v3#displayId> "ContainerSpec1" .
 <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/CallBehaviorAction1/ValuePin1/LiteralIdentified1/ContainerSpec1> <http://sbols.org/v3#name> "plateRequirement" .
 <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/CallBehaviorAction1/ValuePin1/LiteralIdentified1/ContainerSpec1> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://bioprotocols.org/paml#ContainerSpec> .

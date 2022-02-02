@@ -1,11 +1,6 @@
-import sbol3
-import paml
-import paml_md
-
-
 # TODO: allow optionals to actually be optional
 
-# Pre-declare the MarkdownConverter class to avoid circularity with paml_md.protocol_to_markdown
+# Pre-declare the MarkdownConverter class to avoid circularity with markdown.protocol_to_markdown
 class MarkdownConverter:
     pass
 

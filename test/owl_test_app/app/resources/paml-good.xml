@@ -3,6 +3,7 @@
    xmlns:owl="http://www.w3.org/2002/07/owl#"
    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
    xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+   xmlns:sbol="http://sbols.org/v3#"
 >
   <rdf:Description rdf:about="http://www.w3.org/2002/07/owl#minCardinality">
     <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#AnnotationProperty"/>
@@ -21,7 +22,7 @@
   </rdf:Description>
   <rdf:Description rdf:about="http://bioprotocols.org/paml#fromSamples">
     <rdfs:range rdf:resource="http://bioprotocols.org/paml#SampleCollection"/>
-    <rdfs:subPropertyOf rdf:resource="http://bioprotocols.org/opil/v1#compositionalProperty"/>
+    <rdfs:subPropertyOf rdf:resource="http://sbols.org/v3#directlyComprises"/>
     <rdfs:domain rdf:resource="http://bioprotocols.org/paml#SampleData"/>
     <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
     <rdfs:label>from_samples</rdfs:label>
