@@ -2,6 +2,7 @@ from abc import ABC
 from typing import List
 import uuid
 import datetime
+import logging
 
 import graphviz
 
@@ -10,6 +11,8 @@ import uml
 import sbol3
 
 from paml_convert.behavior_specialization import BehaviorSpecialization, DefaultBehaviorSpecialization
+
+logger: logging.Logger = logging.Logger(__file__)
 
 
 class ExecutionEngine(ABC):
@@ -276,7 +279,10 @@ class ExecutionEngine(ABC):
 
         if record:
             for specialization in self.specializations:
-                specialization.process(record)
+                try:
+                    specialization.process(record)
+                except Exception as e:
+                    logger.error("Could Not Process {record}: {e}")
 
         # Send outgoing control flows
         # Check that outgoing flows don't conflict with
@@ -285,7 +291,9 @@ class ExecutionEngine(ABC):
 
     def next_tokens(self, activity_node: paml.ActivityNodeExecution, ex: paml.ProtocolExecution):
         protocol = ex.protocol.lookup()
-        out_edges = [e for e in protocol.edges if activity_node.node in e.source]
+        out_edges = [e for e in protocol.edges
+                     if activity_node.node == e.source or
+                        activity_node.node == e.source.lookup().get_parent().identity]
 
         if isinstance(activity_node.node.lookup(), uml.ForkNode):
             [incoming_flow] = activity_node.incoming_flows
