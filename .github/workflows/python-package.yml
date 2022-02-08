@@ -27,4 +27,4 @@ jobs:
       run: |
         pip install .[test]
         pytest
-        #pytest --nbmake --overwrite -n=auto "notebooks/paml_demo.ipynb" "notebooks/markdown.ipynb"
+        pytest --nbmake --overwrite -n=auto "notebooks/paml_demo.ipynb" "notebooks/markdown.ipynb"

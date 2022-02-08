@@ -3,3 +3,12 @@
 /env/
 /paml.egg-info/
 /notebooks/.ipynb_checkpoints/*
+**/__pycache__
+notebooks/cluster*
+notebooks/*md
+pypaml.egg-info*
+notebooks/out
+notebooks/.*
+test/.*
+.vscode
+**/.DS_Store

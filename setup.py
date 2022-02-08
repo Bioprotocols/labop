@@ -1,6 +1,6 @@
 from setuptools import setup
 
-test_deps = ["nbmake", "pytest-xdist"]
+test_deps = ["nbmake", "pytest-xdist", "pre-commit", "nbstripout"]
 extras = {
     "test": test_deps,
 }
