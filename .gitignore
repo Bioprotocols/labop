@@ -12,4 +12,3 @@ notebooks/.*
 test/.*
 .vscode
 **/.DS_Store
-test/testfiles/igem_ludox_time_test.nt
