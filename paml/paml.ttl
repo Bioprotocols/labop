@@ -476,7 +476,7 @@ paml:BehaviorExecution a owl:Class ;
         prov:Activity .
 
 paml:SampleCollection a owl:Class ;
-    rdfs:comment """SampleCollection is the base class for describing the collections of physical materials that are
+    rdfs:comment '''SampleCollection is the base class for describing the collections of physical materials that are
          acted upon by a Protocol. For example, a SampleCollection might describe a set of 10 cell cultures growing in
          96-well plate cells, or a set of 6 streaked agar plates, or a single 500 mL flask filled with media.
 
@@ -494,8 +494,115 @@ paml:SampleCollection a owl:Class ;
          Consider, for example, a cell culturing protocol that includes a step to measure sample absorbance on a plate
          reader. Describing this step does not require knowing how the samples are laid out on the plate, and in many
          cases is even acceptable to run on samples across multiple plates. This flexibility will allow the cell
-         culturing protocol to be applied for experiments with different numbers and arrangements of samples.""" ;
-    rdfs:subClassOf sbol:Identified .
+         culturing protocol to be applied for experiments with different numbers and arrangements of samples.''' ;
+        rdfs:subClassOf sbol:Identified .
+
+
+paml:SampleArray rdf:type owl:Class ;
+        rdfs:comment '''A SampleArray specifies an n-dimensional rectangular array of samples, all stored in the same
+        type of container. For example, a SampleCollection might describe a set of 10 cell cultures growing in
+        96-well plate cells, or a set of 6 streaked agar plates, or a single 500 mL flask filled with media.
+
+        Wells may be full, in which case the contents property should contain a URI to a description of the sample,
+        or empty, in which case the contents should be null.
+
+        Note that this is a logical array, and does not necessarily indicate the actual layout of the samples in space.
+        For example, a 2x4 array of samples in 96-well plate wells might end up being laid out as a 2x4 array in wells
+        A1 to B4 or as a 2x4 array in wells G5 to H8 or as an 8x1 column in wells A1 to H1, or even as eight wells
+        scattered arbitrarily around the plate according to an anti-bias quality control schema.
+
+        This also allows for higher-dimensional arrays where each dimension represents an experimental factor.
+        For example, an experiment testing four factors with 3, 3, 4, and 5 values per factor, for a total of 180
+        combinations, could be represented as a 4-dimensional sample array of 96-well plate wells, and then end up
+        laid out over two plates.
+
+        TODO: need to decide on the format of the contents description.''' ;
+        rdfs:subClassOf paml:SampleCollection ,
+            [ rdf:type owl:Restriction ;
+              owl:onProperty paml:containerType ;
+              owl:allValuesFrom paml:ContainerSpec ;
+              owl:minCardinality "1"^^xsd:nonNegativeInteger ; owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
+              rdfs:comment "Type of container used for storing the samples. The size and dimension may not match that of the array: it is up to execution to lay out the array in one or more containers"
+            ] ,
+            [ rdf:type owl:Restriction ;
+              owl:onProperty paml:contents ;
+              owl:allValuesFrom paml:PrimitiveArray ; # need to replace this with an serializable array model
+              owl:minCardinality "1"^^xsd:nonNegativeInteger ; owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
+              rdfs:comment "N-dimensional array of URI for specification or nulls"
+            ] .
+
+paml:containerType rdf:type owl:ObjectProperty ;
+        rdfs:comment '''''' ;
+              rdfs:domain paml:SampleArray ;
+              rdfs:range paml:ContainerSpec ;
+              rdfs:label "container_type" .
+
+paml:contents rdf:type owl:ObjectProperty ;
+        rdfs:comment '''Description of the contents.
+        TODO: need to decide whether this is a multi-valued property with associated array coordinates or a
+        single-valued property with an array value.
+        Currently set to string as a "dummy" value that can serialize anything.''' ;
+        rdfs:subPropertyOf opil:compositionalProperty ;
+              rdfs:domain paml:SampleArray ;
+              rdfs:range paml:PrimitiveArray ;
+              rdfs:label "contents" .
+
+paml:PrimitiveArray rdf:type owl:Class ;
+        rdfs:comment '''A PrimitiveArray is a one-dimensional array of primtitive types represented as strings''' ;
+        rdfs:subClassOf sbol:Identified ,
+        [ rdf:type owl:Restriction ;
+          owl:onProperty paml:elements ;
+          owl:allValuesFrom uml:OrderedPropertyValue ],
+        [ rdf:type owl:Restriction ;
+          owl:onProperty paml:elements ;
+          owl:minCardinality "0"^^xsd:nonNegativeInteger ] 
+        .
+
+paml:elements rdf:type owl:ObjectProperty ;
+        rdfs:comment '''The elements of a PrimitiveArray''' ;
+        rdfs:subPropertyOf opil:compositionalProperty ;
+        rdfs:domain paml:PrimitiveArray ;
+        rdfs:range uml:OrderedPropertyValue ;
+        rdfs:label "elements" .
+
+
+paml:SampleMask rdf:type owl:Class ;
+        rdfs:comment '''A SampleMask is a subset of a SampleCollection. The subset of samples to be included is defined
+        by an array of Boolean values, where true values indicate that a sample is included and false values indicate
+        that it is excluded.
+
+        The dimensions of the mask MUST be identical to the dimensions of the source SampleCollection. For this purpose,
+        the dimensions of a masked subset are not reduced, but remain the same as the original SampleArray. This allows
+        masks to be composed, such that SampleMask(source=SampleMask(source=X,mask=mask1),mask=mask2) is equivalent to
+        SampleMask(source=X,mask=mask1 AND mask2). Note that this implies masks are commutative and idempotent.''' ;
+        rdfs:subClassOf paml:SampleCollection ,
+            [ rdf:type owl:Restriction ;
+              owl:onProperty paml:source ;
+              owl:allValuesFrom paml:SampleCollection ;
+              owl:minCardinality "1"^^xsd:nonNegativeInteger ; owl:maxCardinality "1"^^xsd:nonNegativeInteger
+            ] ,
+            [ rdf:type owl:Restriction ;
+              owl:onProperty paml:mask ;
+              owl:allValuesFrom xsd:string ; # need to replace this with an serializable array model
+              owl:minCardinality "1"^^xsd:nonNegativeInteger ; owl:maxCardinality "1"^^xsd:nonNegativeInteger
+            ] .
+
+paml:source rdf:type owl:ObjectProperty ;
+        rdfs:comment '''The source indicates the SampleCollection that is being subsetted via the mask''' ;
+              rdfs:domain paml:SampleMask ;
+              rdfs:range paml:SampleCollection ;
+              rdfs:label "source" .
+
+paml:mask rdf:type owl:DatatypeProperty ;
+        rdfs:comment '''The mask is an N-dimensional array of Booleans values, where each Boolean indicates whether the
+        sample at the corresponding location in the source is included in the subset.
+
+        TODO: format of mask array needs to match the array format chosen for the SampleArray contents property''' ;
+              rdfs:domain paml:mask ;
+              rdfs:range xsd:string ;
+              rdfs:label "mask" .
+
+
 
 paml:ActivityEdgeFlow a owl:Class ;
     rdfs:comment """An ActivityEdgeFlow records one movement of a UML token along a uml:ActivityEdge during the
@@ -509,8 +616,12 @@ paml:ActivityEdgeFlow a owl:Class ;
         Note that a uml:ActivityEdge might appear in multiple ActivityEdgeFlow records associated with a single
         ProtocolExecution, e.g., due to a loop in the Protocol.  It also might not appear in any, if the
         uml:ActivityEdge is on a path not taken due to branching control flow.
-
         TODO: correct the cardinality: edgeValue is supposed to be optional, not edge
+
+        TODO: the format of the data values needs to be compatible with the array format chosen for the
+        SampleArray contents property. In this case, however, we also need to consider how we want to support
+        multiple values for each sample (e.g., measurement of both fluorescence and absorbance in a plate reader),
+        as well as links to more complex data (e.g., results of flow cytometry or omics for each sample)
         """ ;
     rdfs:subClassOf [ a owl:Restriction ;
             owl:allValuesFrom sbol:Identified ;
@@ -539,17 +650,33 @@ paml:ActivityEdgeFlow a owl:Class ;
         [ a owl:Restriction ;
             owl:allValuesFrom paml:ActivityNodeExecution ;
             owl:onProperty paml:tokenSource ],
+        [ rdf:type owl:Restriction ;
+            owl:onProperty paml:sampleDataValues ;
+            owl:allValuesFrom xsd:string # need to replace this with an serializable array model ],
+        [ rdf:type owl:Restriction ;
+            owl:onProperty paml:sampleDataValues ;
+            owl:minCardinality "0"^^xsd:nonNegativeInteger ],
+        [ rdf:type owl:Restriction ;
+            owl:onProperty paml:sampleDataValues ;
+            owl:maxCardinality "1"^^xsd:nonNegativeInteger ],            
+        [ rdf:type owl:Restriction ;
+            owl:onProperty paml:fromSamples ;
+            owl:allValuesFrom paml:SampleCollection ],
+        [ rdf:type owl:Restriction ;
+            owl:onProperty paml:fromSamples ;
+            owl:minCardinality "1"^^xsd:nonNegativeInteger ],
+        [ rdf:type owl:Restriction ;
+            owl:onProperty paml:fromSamples ;
+             owl:maxCardinality "1"^^xsd:nonNegativeInteger ],
         sbol:Identified .
 
 paml:ActivityNodeExecution a owl:Class ;
     rdfs:comment """An ActivityNodeExecution records one instance in which a uml:ActivityNode is executed during the
         execution of its containing Protocol.
-
         For instance, the ActivityNodeExecution for a uml:CallBehaviorAction to measure absorbance on a plate reader
         would set its node property to point to the uml:CallBehaviorAction and might have incomingFlow properties
         indicating arrival of information about the samples to measure via a uml:ObjectFlow and the arrival a
         of permission to begin via a uml:ControlFlow.
-
         Note that a uml:ActivityNode might appear in multiple ActivityNodeExecution records associated with a single
         ProtocolExecution, e.g., due to a loop in the Protocol.  It also might not appear in any, if the
         uml:ActivityNode is on a path not taken due to branching control flow.""" ;
@@ -565,6 +692,37 @@ paml:ActivityNodeExecution a owl:Class ;
         [ a owl:Restriction ;
             owl:allValuesFrom paml:ActivityEdgeFlow ;
             owl:onProperty paml:incomingFlow ],
-        sbol:Identified .
+        sbol:Identified .           
+
+paml:sampleDataValues rdf:type owl:ObjectProperty ;
+        rdfs:comment '''The sampleDataValues are an array of data values, one for each sample, format to be determined.''';
+              rdfs:domain paml:SampleData ;
+              rdfs:range xsd:string ; # TODO: consider https://github.com/SynBioDex/sbol_factory/issues/7
+              rdfs:label "values" .
+
+paml:fromSamples rdf:type owl:ObjectProperty ;
+        rdfs:comment '''The fromSamples property indicates the SampleCollection from which the data were collected.''' ;
+              rdfs:domain paml:SampleData ;
+              rdfs:range paml:SampleCollection ;
+              rdfs:label "from_samples" .
+
+
+#################################################################
+#    Container specification
+#################################################################
+paml:queryString a owl:DatatypeProperty ,
+                   owl:FunctionalProperty ;
+    rdfs:domain paml:ContainerSpec ;
+    rdfs:range xsd:string ;
+    rdfs:label "queryString" ;
+    rdfs:comment "A query string, in OWL Manchester syntax, to be used to find matching containers in the ContainerSpec." .
+
+paml:prefixMap a owl:DatatypeProperty ,
+                 owl:FunctionalProperty ;
+    rdfs:domain paml:ContainerSpec ;
+    rdfs:range xsd:string ;
+    rdfs:label "prefixMap" ;
+    rdfs:comment "A prefix map in JSON-LD format, to be applied to a queryString." .
+
 
 

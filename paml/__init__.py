@@ -19,6 +19,7 @@ SBOLFactory('paml_submodule',
 # Import symbols into the top-level paml module
 from paml_submodule import *
 from paml.ui import *
+from paml.data import *
 
 #########################################
 # Kludge for getting parents and TopLevels - workaround for pySBOL3 issue #234
