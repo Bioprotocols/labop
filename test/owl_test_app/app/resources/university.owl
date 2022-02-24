@@ -8,10 +8,10 @@
      xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
      xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">
     <owl:Ontology rdf:about="http://elite.polito.it/ontologies/university.owl"/>
-    
 
 
-    <!-- 
+
+    <!--
     ///////////////////////////////////////////////////////////////////////////////////////
     //
     // Object Properties
@@ -19,7 +19,7 @@
     ///////////////////////////////////////////////////////////////////////////////////////
      -->
 
-    
+
 
 
     <!-- http://elite.polito.it/ontologies/university.owl#enrolledIn -->
@@ -28,7 +28,7 @@
         <rdfs:domain rdf:resource="http://elite.polito.it/ontologies/university.owl#Student"/>
         <rdfs:range rdf:resource="http://elite.polito.it/ontologies/university.owl#DegreeProgram"/>
     </owl:ObjectProperty>
-    
+
 
 
     <!-- http://elite.polito.it/ontologies/university.owl#follows -->
@@ -38,13 +38,13 @@
         <rdfs:domain rdf:resource="http://elite.polito.it/ontologies/university.owl#Student"/>
         <rdfs:range rdf:resource="http://elite.polito.it/ontologies/university.owl#Course"/>
     </owl:ObjectProperty>
-    
+
 
 
     <!-- http://elite.polito.it/ontologies/university.owl#isFollowed -->
 
     <owl:ObjectProperty rdf:about="http://elite.polito.it/ontologies/university.owl#isFollowed"/>
-    
+
 
 
     <!-- http://elite.polito.it/ontologies/university.owl#isInDegree -->
@@ -52,7 +52,7 @@
     <owl:ObjectProperty rdf:about="http://elite.polito.it/ontologies/university.owl#isInDegree">
         <owl:inverseOf rdf:resource="http://elite.polito.it/ontologies/university.owl#offersCourse"/>
     </owl:ObjectProperty>
-    
+
 
 
     <!-- http://elite.polito.it/ontologies/university.owl#isTaught -->
@@ -60,7 +60,7 @@
     <owl:ObjectProperty rdf:about="http://elite.polito.it/ontologies/university.owl#isTaught">
         <owl:inverseOf rdf:resource="http://elite.polito.it/ontologies/university.owl#teaches"/>
     </owl:ObjectProperty>
-    
+
 
 
     <!-- http://elite.polito.it/ontologies/university.owl#offeredBy -->
@@ -68,7 +68,7 @@
     <owl:ObjectProperty rdf:about="http://elite.polito.it/ontologies/university.owl#offeredBy">
         <owl:inverseOf rdf:resource="http://elite.polito.it/ontologies/university.owl#offersDegree"/>
     </owl:ObjectProperty>
-    
+
 
 
     <!-- http://elite.polito.it/ontologies/university.owl#offersCourse -->
@@ -77,7 +77,7 @@
         <rdfs:domain rdf:resource="http://elite.polito.it/ontologies/university.owl#DegreeProgram"/>
         <rdfs:range rdf:resource="http://elite.polito.it/ontologies/university.owl#Course"/>
     </owl:ObjectProperty>
-    
+
 
 
     <!-- http://elite.polito.it/ontologies/university.owl#offersDegree -->
@@ -86,7 +86,7 @@
         <rdfs:domain rdf:resource="http://elite.polito.it/ontologies/university.owl#University"/>
         <rdfs:range rdf:resource="http://elite.polito.it/ontologies/university.owl#DegreeProgram"/>
     </owl:ObjectProperty>
-    
+
 
 
     <!-- http://elite.polito.it/ontologies/university.owl#teaches -->
@@ -95,10 +95,10 @@
         <rdfs:domain rdf:resource="http://elite.polito.it/ontologies/university.owl#Teacher"/>
         <rdfs:range rdf:resource="http://elite.polito.it/ontologies/university.owl#Course"/>
     </owl:ObjectProperty>
-    
 
 
-    <!-- 
+
+    <!--
     ///////////////////////////////////////////////////////////////////////////////////////
     //
     // Data properties
@@ -106,7 +106,7 @@
     ///////////////////////////////////////////////////////////////////////////////////////
      -->
 
-    
+
 
 
     <!-- http://elite.polito.it/ontologies/university.owl#courseCredits -->
@@ -115,7 +115,7 @@
         <rdfs:domain rdf:resource="http://elite.polito.it/ontologies/university.owl#Course"/>
         <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#int"/>
     </owl:DatatypeProperty>
-    
+
 
 
     <!-- http://elite.polito.it/ontologies/university.owl#courseHours -->
@@ -124,7 +124,7 @@
         <rdfs:domain rdf:resource="http://elite.polito.it/ontologies/university.owl#Course"/>
         <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#int"/>
     </owl:DatatypeProperty>
-    
+
 
 
     <!-- http://elite.polito.it/ontologies/university.owl#courseName -->
@@ -133,7 +133,7 @@
         <rdfs:domain rdf:resource="http://elite.polito.it/ontologies/university.owl#Course"/>
         <rdfs:range rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#PlainLiteral"/>
     </owl:DatatypeProperty>
-    
+
 
 
     <!-- http://elite.polito.it/ontologies/university.owl#degreeName -->
@@ -142,7 +142,7 @@
         <rdfs:domain rdf:resource="http://elite.polito.it/ontologies/university.owl#DegreeProgram"/>
         <rdfs:range rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#PlainLiteral"/>
     </owl:DatatypeProperty>
-    
+
 
 
     <!-- http://elite.polito.it/ontologies/university.owl#faculty -->
@@ -151,7 +151,7 @@
         <rdfs:domain rdf:resource="http://elite.polito.it/ontologies/university.owl#Teacher"/>
         <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#boolean"/>
     </owl:DatatypeProperty>
-    
+
 
 
     <!-- http://elite.polito.it/ontologies/university.owl#personName -->
@@ -160,7 +160,7 @@
         <rdfs:domain rdf:resource="http://elite.polito.it/ontologies/university.owl#Person"/>
         <rdfs:range rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#PlainLiteral"/>
     </owl:DatatypeProperty>
-    
+
 
 
     <!-- http://elite.polito.it/ontologies/university.owl#universityName -->
@@ -169,10 +169,10 @@
         <rdfs:domain rdf:resource="http://elite.polito.it/ontologies/university.owl#University"/>
         <rdfs:range rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#PlainLiteral"/>
     </owl:DatatypeProperty>
-    
 
 
-    <!-- 
+
+    <!--
     ///////////////////////////////////////////////////////////////////////////////////////
     //
     // Classes
@@ -180,7 +180,7 @@
     ///////////////////////////////////////////////////////////////////////////////////////
      -->
 
-    
+
 
 
     <!-- http://elite.polito.it/ontologies/university.owl#Bachelor -->
@@ -188,7 +188,7 @@
     <owl:Class rdf:about="http://elite.polito.it/ontologies/university.owl#Bachelor">
         <rdfs:subClassOf rdf:resource="http://elite.polito.it/ontologies/university.owl#DegreeProgram"/>
     </owl:Class>
-    
+
 
 
     <!-- http://elite.polito.it/ontologies/university.owl#Course -->
@@ -216,7 +216,7 @@
             </owl:Restriction>
         </rdfs:subClassOf>
     </owl:Class>
-    
+
 
 
     <!-- http://elite.polito.it/ontologies/university.owl#DegreeProgram -->
@@ -236,7 +236,7 @@
             </owl:Restriction>
         </rdfs:subClassOf>
     </owl:Class>
-    
+
 
 
     <!-- http://elite.polito.it/ontologies/university.owl#Doctorate -->
@@ -244,7 +244,7 @@
     <owl:Class rdf:about="http://elite.polito.it/ontologies/university.owl#Doctorate">
         <rdfs:subClassOf rdf:resource="http://elite.polito.it/ontologies/university.owl#DegreeProgram"/>
     </owl:Class>
-    
+
 
 
     <!-- http://elite.polito.it/ontologies/university.owl#Master -->
@@ -252,7 +252,7 @@
     <owl:Class rdf:about="http://elite.polito.it/ontologies/university.owl#Master">
         <rdfs:subClassOf rdf:resource="http://elite.polito.it/ontologies/university.owl#DegreeProgram"/>
     </owl:Class>
-    
+
 
 
     <!-- http://elite.polito.it/ontologies/university.owl#Person -->
@@ -266,7 +266,7 @@
             </owl:Restriction>
         </rdfs:subClassOf>
     </owl:Class>
-    
+
 
 
     <!-- http://elite.polito.it/ontologies/university.owl#Student -->
@@ -287,7 +287,7 @@
             </owl:Restriction>
         </rdfs:subClassOf>
     </owl:Class>
-    
+
 
 
     <!-- http://elite.polito.it/ontologies/university.owl#Teacher -->
@@ -315,7 +315,7 @@
             </owl:Restriction>
         </rdfs:subClassOf>
     </owl:Class>
-    
+
 
 
     <!-- http://elite.polito.it/ontologies/university.owl#University -->
@@ -335,10 +335,10 @@
             </owl:Restriction>
         </rdfs:subClassOf>
     </owl:Class>
-    
 
 
-    <!-- 
+
+    <!--
     ///////////////////////////////////////////////////////////////////////////////////////
     //
     // Individuals
@@ -346,7 +346,7 @@
     ///////////////////////////////////////////////////////////////////////////////////////
      -->
 
-    
+
 
 
     <!-- http://elite.polito.it/ontologies/university.owl#BSComputerEngineering_TO -->
@@ -357,7 +357,7 @@
         <offersCourse rdf:resource="http://elite.polito.it/ontologies/university.owl#Mathematics1_TO"/>
         <degreeName xml:lang="it">Laurea triennale in Ingegneria Informatica</degreeName>
     </owl:NamedIndividual>
-    
+
 
 
     <!-- http://elite.polito.it/ontologies/university.owl#ComputerScience_TO -->
@@ -368,7 +368,7 @@
         <courseHours rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">80</courseHours>
         <courseName xml:lang="it">Informatica</courseName>
     </owl:NamedIndividual>
-    
+
 
 
     <!-- http://elite.polito.it/ontologies/university.owl#FulvioCorno -->
@@ -379,7 +379,7 @@
         <faculty rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">true</faculty>
         <personName>Fulvio Corno</personName>
     </owl:NamedIndividual>
-    
+
 
 
     <!-- http://elite.polito.it/ontologies/university.owl#LuigiDeRussis -->
@@ -390,7 +390,7 @@
         <follows rdf:resource="http://elite.polito.it/ontologies/university.owl#SemanticWeb_TO"/>
         <personName>Luigi De Russis</personName>
     </owl:NamedIndividual>
-    
+
 
 
     <!-- http://elite.polito.it/ontologies/university.owl#MSCOmputerEngineering_TO -->
@@ -399,7 +399,7 @@
         <rdf:type rdf:resource="http://elite.polito.it/ontologies/university.owl#Master"/>
         <degreeName xml:lang="it">Laurea magistrale in Ingegneria Informatica</degreeName>
     </owl:NamedIndividual>
-    
+
 
 
     <!-- http://elite.polito.it/ontologies/university.owl#Mathematics1_TO -->
@@ -410,7 +410,7 @@
         <courseHours rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">100</courseHours>
         <courseName xml:lang="it">Analisi matematica I</courseName>
     </owl:NamedIndividual>
-    
+
 
 
     <!-- http://elite.polito.it/ontologies/university.owl#PhDControlAndComputerEngineering_TO -->
@@ -420,7 +420,7 @@
         <offersCourse rdf:resource="http://elite.polito.it/ontologies/university.owl#SemanticWeb_TO"/>
         <degreeName xml:lang="it">Dottorato in Ingegneria Informatica e dei sistemi</degreeName>
     </owl:NamedIndividual>
-    
+
 
 
     <!-- http://elite.polito.it/ontologies/university.owl#PolitecnicoMilano -->
@@ -429,7 +429,7 @@
         <rdf:type rdf:resource="http://elite.polito.it/ontologies/university.owl#University"/>
         <universityName xml:lang="it">Politecnico di Milano</universityName>
     </owl:NamedIndividual>
-    
+
 
 
     <!-- http://elite.polito.it/ontologies/university.owl#PolitecnicoTorino -->
@@ -441,7 +441,7 @@
         <offersDegree rdf:resource="http://elite.polito.it/ontologies/university.owl#PhDControlAndComputerEngineering_TO"/>
         <universityName xml:lang="it">Politecnico di Torino</universityName>
     </owl:NamedIndividual>
-    
+
 
 
     <!-- http://elite.polito.it/ontologies/university.owl#SemanticWeb_TO -->
@@ -451,10 +451,10 @@
         <courseHours rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">20</courseHours>
         <courseName>Semantic Web</courseName>
     </owl:NamedIndividual>
-    
 
 
-    <!-- 
+
+    <!--
     ///////////////////////////////////////////////////////////////////////////////////////
     //
     // General axioms
@@ -475,4 +475,3 @@
 
 
 <!-- Generated by the OWL API (version 4.2.6.20160910-2108) https://github.com/owlcs/owlapi -->
-

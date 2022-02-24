@@ -885,5 +885,3 @@ uml:ValueSpecification a owl:Class ;
         sbol:Identified .
 
 sbol:directlyComprises a owl:ObjectProperty .
-
-

@@ -41,7 +41,7 @@ class AutoprotocolSpecialization(BehaviorSpecialization):
             "https://bioprotocols.org/paml/primitives/sample_arrays/PlateCoordinates" : self.plate_coordinates,
             "https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureAbsorbance" : self.measure_absorbance,
         }
-    
+
     def on_begin(self):
         protocol_name = self.execution.protocol.lookup().name
         self.protocol = Protocol()
@@ -182,7 +182,7 @@ class AutoprotocolSpecialization(BehaviorSpecialization):
 
         # HACK extract contrainer from well group since we do not have it as input
         container = wells[0].container
-        
+
         l.debug(f"measure_absorbance:")
         l.debug(f"  container: {container}")
         l.debug(f"  samples: {samples}")
