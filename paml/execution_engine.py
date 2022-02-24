@@ -7,7 +7,7 @@ import logging
 import graphviz
 
 import paml
-from paml_convert.autoprotocol.plate_coordinates import coordinate_rect_to_row_col_pairs, num2col
+from paml_convert.plate_coordinates import coordinate_rect_to_row_col_pairs, num2col
 import uml
 import sbol3
 
@@ -328,8 +328,6 @@ class ExecutionEngine(ABC):
             value = activity_node.compute_output(parameter)
 
         value = uml.literal(value)
-
-
         return value
 
     def next_pin_tokens(self, activity_node: paml.ActivityNodeExecution, ex: paml.ProtocolExecution):

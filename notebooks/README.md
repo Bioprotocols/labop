@@ -8,10 +8,10 @@ The notebooks in this directory demonstrate several use cases for the PAML langu
 
 # Dependencies
 
-- [container_api](https://github.com/rpgoldman/container-ontology): Needed to resolve container specifications to a list of possible container types.  Used by importing as follows:  
+- [container_api](https://github.com/rpgoldman/container-ontology): Needed to resolve container specifications to a list of possible container types.  Used by importing as follows:
   ```
   from container_api.client_api import matching_containers, strateos_id
-  
+
   possible_container_types = matching_containers(spec)
   possible_short_names = [strateos_id(x) for x in possible_container_types]
   ```

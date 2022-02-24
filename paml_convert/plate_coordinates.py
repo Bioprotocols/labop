@@ -3,6 +3,7 @@ Generic helper functions for dealing with plate coordinates
 """
 
 from string import ascii_letters
+import re
 
 def num2col(num: int):
     """
