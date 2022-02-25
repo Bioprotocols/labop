@@ -290,7 +290,7 @@ def primitive_str(self):
     :return: str
     """
     def mark_optional(parameter):
-        return "(Optional) " if parameter.lower_value.value < 1 else ""
+        return "" if not parameter.lower_value else "(Optional) "  if parameter.lower_value.value < 1 else ""
 
     input_parameter_strs = "\n\t".join([f"{parameter.property_value}{mark_optional(parameter.property_value)}"
                                         for parameter in self.parameters
