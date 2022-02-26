@@ -5,7 +5,6 @@ This file monkey-patches the imported paml classes with data handling functions.
 """
 
 import pandas as pd
-import paml_convert
 import re
 from paml_convert.plate_coordinates import coordinate_rect_to_row_col_pairs, num2col
 from paml import SampleMask, SampleData, SampleArray
