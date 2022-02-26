@@ -56,7 +56,7 @@ def sample_data_to_dataframe(self):
         df = from_samples.to_dataframe()
         df['values'] = ""
     else:
-        df = pd.read_csv(self.values, index_col=0)
+        df = pd.read_csv(StringIO(self.values), index_col=0)
 
     return df
 SampleData.to_dataframe = sample_data_to_dataframe

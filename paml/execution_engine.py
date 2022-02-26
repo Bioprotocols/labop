@@ -22,10 +22,22 @@ class ExecutionEngine(ABC):
     It needs to be extended with specific implementations that have that capability.
     """
 
-    def __init__(self, specializations: List[BehaviorSpecialization] = [DefaultBehaviorSpecialization()]):
+    def __init__(self,
+                 specializations: List[BehaviorSpecialization] = [DefaultBehaviorSpecialization()],
+                 use_ordinal_time = False):
         self.exec_counter = 0
         self.variable_counter = 0
         self.specializations = specializations
+
+        # The EE uses a configurable start_time as the reference time.
+        # Because the start_time is not always the actual time, then
+        # we need to set times relative to the start time using the
+        # relative wall clock time.
+        # if use_oridinal_time, then use a new int for each time
+        self.start_time = None  # The official start_time
+        self.wall_clock_start_time = None # The actual now() time
+        self.use_ordinal_time = use_ordinal_time # Use int instead of datetime
+        self.ordinal_time = None
 
     def next_id(self):
         next = self.exec_counter
@@ -37,11 +49,40 @@ class ExecutionEngine(ABC):
         self.variable_counter += 1
         return variable
 
+    def init_time(self, start_time):
+        self.wall_clock_start_time = datetime.datetime.now()
+        if self.use_ordinal_time:
+            self.ordinal_time = datetime.datetime.strptime("1/1/00 00:00:00", "%d/%m/%y %H:%M:%S")
+            self.start_time = self.ordinal_time
+        else:
+            start_time = start_time if start_time else datetime.datetime.now()
+            self.start_time = start_time
+
+
+
+
+    def get_current_time(self, as_string=False):
+        if self.use_ordinal_time:
+            now = self.ordinal_time
+            self.ordinal_time += datetime.timedelta(seconds=1)
+            start = self.start_time
+        else:
+            now = datetime.datetime.now()
+            start = self.wall_clock_start_time
+
+        # get the relative time from start
+        rel_start =  now - start
+        cur_time = self.start_time + rel_start
+        return  cur_time if not as_string else str(cur_time)
+
+
     def execute(self,
                 protocol: paml.Protocol,
                 agent: sbol3.Agent,
                 parameter_values: List[paml.ParameterValue] = {},
-                id: str = uuid.uuid4()) -> paml.ProtocolExecution:
+                id: str = uuid.uuid4(),
+                start_time: datetime.datetime = None
+                ) -> paml.ProtocolExecution:
         """Execute the given protocol against the provided parameters
 
         Parameters
@@ -62,7 +103,7 @@ class ExecutionEngine(ABC):
         # First, set up the record for the protocol and parameter values
         ex = paml.ProtocolExecution(id, protocol=protocol)
         doc.add(ex)
-        ex.start_time = str(datetime.datetime.now()) # TODO: remove str wrapper after sbol_factory #22 fixed
+
         ex.association.append(sbol3.Association(agent=agent, plan=protocol))
         ex.parameter_values = parameter_values
 
@@ -70,6 +111,9 @@ class ExecutionEngine(ABC):
         for specialization in self.specializations:
             specialization.initialize_protocol(ex)
             specialization.on_begin()
+
+        self.init_time(start_time)
+        ex.start_time = self.start_time # TODO: remove str wrapper after sbol_factory #22 fixed
 
         # Iteratively execute all unblocked activities until no more tokens can progress
         tokens = []  # no tokens to start
@@ -79,6 +123,8 @@ class ExecutionEngine(ABC):
                 tokens = self.execute_activity_node(ex, node, tokens)
             ready = self.executable_activity_nodes(protocol, tokens, ex.parameter_values)
 
+        ex.end_time = self.get_current_time()
+
         # TODO: think about infinite loops and how to abort
 
         # A Protocol has completed normally if all of its required output parameters have values
@@ -87,7 +133,7 @@ class ExecutionEngine(ABC):
 
         # aggregate consumed material records from all behaviors executed within, mark end time, and return
         ex.aggregate_child_materials()
-        ex.end_time = str(datetime.datetime.now()) # TODO: remove str wrapper after sbol_factory #22 fixed
+
 
         # End specializations
         for specialization in self.specializations:
@@ -239,8 +285,8 @@ class ExecutionEngine(ABC):
             call = paml.BehaviorExecution(f"execute_{self.next_id()}",
                                           parameter_values=parameter_values,
                                           completed_normally=True,
-                                          start_time=str(datetime.datetime.now()), # TODO: remove str wrapper after sbol_factory #22 fixed
-                                          end_time=str(datetime.datetime.now()), # TODO: remove str wrapper after sbol_factory #22 fixed
+                                          start_time=self.get_current_time(), # TODO: remove str wrapper after sbol_factory #22 fixed
+                                          end_time=self.get_current_time(), # TODO: remove str wrapper after sbol_factory #22 fixed
                                           consumed_material=[]) # FIXME handle materials
             record.call = call
 
