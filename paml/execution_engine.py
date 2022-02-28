@@ -579,10 +579,6 @@ def primitive_compute_output(self, inputs, parameter):
             if i_parameter.name == "samples":
                 samples = value.value.lookup() if isinstance(value, uml.LiteralReference) else value.value
 
-        ## Create an empty dataframe for values
-        #values = samples.to_dataframe()
-        #values['values'] = ""
-
         sample_data = paml.SampleData(from_samples=samples)
         return sample_data
     else:
