@@ -759,6 +759,12 @@
     ns1:propertyValue <https://bioprotocols.org/paml/primitives/liquid_handling/Vortex/OrderedPropertyValue2/Parameter1> ;
     sbol:displayId "OrderedPropertyValue2" .
 
+<https://bioprotocols.org/paml/primitives/liquid_handling/Vortex/OrderedPropertyValue3> a ns1:OrderedPropertyValue,
+        sbol:Identified ;
+    ns1:indexValue 3 ;
+    ns1:propertyValue <https://bioprotocols.org/paml/primitives/liquid_handling/Vortex/OrderedPropertyValue3/Parameter1> ;
+    sbol:displayId "OrderedPropertyValue3" .
+
 <https://bioprotocols.org/paml/primitives/liquid_handling/Vortex/OrderedPropertyValue1/Parameter1> a ns1:Parameter,
         sbol:Identified ;
     ns1:direction ns1:in ;
@@ -782,4 +788,13 @@
         sbol:Identified ;
     ns1:integerValue 0 ;
     sbol:displayId "LiteralInteger1" .
+
+<https://bioprotocols.org/paml/primitives/liquid_handling/Vortex/OrderedPropertyValue3/Parameter1> a ns1:Parameter,
+        sbol:Identified ;
+    ns1:direction ns1:out ;
+    ns1:isOrdered true ;
+    ns1:isUnique true ;
+    ns1:type <http://bioprotocols.org/paml#SampleCollection> ;
+    sbol:displayId "Parameter1" ;
+    sbol:name "vortexed sample" .
 
