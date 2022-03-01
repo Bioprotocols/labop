@@ -57,7 +57,6 @@ The `name` attribute is used for human-readable and/or lab-specific identifiers.
 
 ```
 ludox = doc.find('https://bbn.com/scratch/LUDOX')
->>>>>>> main
 ```
 
 ## Creating objects
@@ -97,6 +96,26 @@ A `Document` can be validated as follows:
 ```
 for issue in doc.validate():
     print(issue)
+```
+
+# Protocol Execution
+
+A `Protocol` may be executed an arbitrary amount of times, resulting in a unique history each time that captured by an `Execution`.  Such `Executions` may record actual times or feedback measurements from instruments during execution.
+
+The `ExecutionEngine` class is used to carry out a protocol. An `ExecutionEngine` interprets a `Protocol` in an application-specific manner using a `BehaviorSpecialization` object.  For example, a `BehaviorSpecialization` might translate a protocol encoded in PAML into specific instructions that a particular laboratory's instrumentation or robotics can interpret.  Converter tools can also be implemented.  Currently the PAML project includes a Markdown converter that will convert a PAML-encoded protocol into a human-readable Markdown document. If no `BehaviorSpecialization` is provided, the default will be used, which is essentially a no-op, but provides some utility for testing and development. 
+
+Each protocol execution requires an `Agent`, used to record the person, laboratory, or machine executing the protocol.  An execution may also require input `ParameterValues` to configure the protocol.
+  
+Following is an example execution that converts a protocol for optical density measurement into Markdown format to the `example.md` file:
+
+```
+agent = sbol3.Agent("2022_Hogwart_iGEM_team")  # Used to describe the person or machine executing the protocol
+ee = ExecutionEngine(specializations=[MarkdownSpecialization("example.md")])
+parameter_values = [
+    paml.ParameterValue(parameter=protocol.get_input("wavelength"), 
+                        value=sbol3.Measure(600, tyto.OM.nanometer))
+]
+execution = ee.execute(protocol, agent, id="OD_measurement", parameter_values=parameter_values)
 ```
 
 # Example Notebooks
