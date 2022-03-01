@@ -150,4 +150,3 @@ paml:fromSamples rdf:type owl:ObjectProperty ;
               rdfs:domain paml:SampleData ;
               rdfs:range paml:SampleCollection ;
               rdfs:label "from_samples" .
-

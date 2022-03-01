@@ -36,7 +36,7 @@ import org.semanticweb.owlapi.io.FileDocumentSource;
 
 public class AppTest {
 
-    static App test_app = new App(); 
+    static App test_app = new App();
 
     @Test public void test_valid() throws Exception {
 

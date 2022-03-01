@@ -738,4 +738,3 @@
         sbol:Identified ;
     ns1:integerValue 0 ;
     sbol:displayId "LiteralInteger2" .
-

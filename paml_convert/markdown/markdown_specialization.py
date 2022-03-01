@@ -64,7 +64,7 @@ class MarkdownSpecialization(BehaviorSpecialization):
 
     def _parameter_value_markdown(self, pv : paml.ParameterValue, is_output=False):
         parameter = pv.parameter.lookup().property_value
-        value = pv.value.lookup().value if isinstance(pv.value, uml.LiteralReference) else pv.value.value
+        value = pv.value.value.lookup() if isinstance(pv.value, uml.LiteralReference) else pv.value.value
         units = tyto.OM.get_term_by_uri(value.unit) if isinstance(value, sbol3.om_unit.Measure) else None
         value = str(f"{value.value} {units}")  if units else str(value)
         if is_output:

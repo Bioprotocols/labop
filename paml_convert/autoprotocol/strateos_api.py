@@ -118,13 +118,13 @@ class StrateosAPI():
             self._protocol_name_map[p["name"]] = tp
 
         self._protocol_make_containers = self._name_to_protocol("MakeContainers")
-        
+
     def _name_to_protocol(self, name: str):
         res = self._protocol_name_map.get(name)
         if res is None:
             raise StrateosException(f"Failed to find '{name}' in protocol name map")
         return res
-        
+
     def _build_headers(self):
         return {"X-User-Email": self.cfg.email,  # user-account-email
                 "X-User-Token": self.cfg.token,  # Regular-mode API key

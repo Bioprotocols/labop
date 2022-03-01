@@ -109,4 +109,3 @@
         prov:Activity ;
     sbol:displayId "iGEM_LUDOX_OD_calibration_2018_Execution_451cfa80_1af3_4d7d_beda_bac649826d36" ;
     sbol:type <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018> .
-

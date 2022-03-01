@@ -566,5 +566,3 @@ paml:ActivityNodeExecution a owl:Class ;
             owl:allValuesFrom paml:ActivityEdgeFlow ;
             owl:onProperty paml:incomingFlow ],
         sbol:Identified .
-
-
