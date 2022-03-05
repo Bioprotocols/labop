@@ -282,7 +282,7 @@ class ExecutionEngine(ABC):
                 try:
                     specialization.process(record)
                 except Exception as e:
-                    logger.error("Could Not Process {record}: {e}")
+                    logger.error(f"Could Not Process {record}: {e}")
 
         # Send outgoing control flows
         # Check that outgoing flows don't conflict with
