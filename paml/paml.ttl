@@ -177,7 +177,7 @@ paml:SampleArray a owl:Class ;
         as well as links to more complex data (e.g., results of flow cytometry or omics for each sample)""" ;
     rdfs:subClassOf [ a owl:Restriction ;
             rdfs:comment "N-dimensional array of URI for specification or nulls" ;
-            owl:allValuesFrom paml:PrimitiveArray ;
+            owl:allValuesFrom xsd:string ;
             owl:onProperty paml:contents ],
         [ a owl:Restriction ;
             rdfs:comment "Type of container used for storing the samples. The size and dimension may not match that of the array: it is up to execution to lay out the array in one or more containers" ;
@@ -300,7 +300,7 @@ paml:containerType a owl:ObjectProperty ;
     rdfs:domain paml:SampleArray ;
     rdfs:range paml:ContainerSpec .
 
-paml:contents a owl:ObjectProperty ;
+paml:contents a owl:DatatypeProperty ;
     rdfs:label "contents" ;
     rdfs:comment """Description of the contents.
         TODO: need to decide whether this is a multi-valued property with associated array coordinates or a
@@ -308,7 +308,7 @@ paml:contents a owl:ObjectProperty ;
         Currently set to string as a "dummy" value that can serialize anything.""" ;
     rdfs:subPropertyOf sbol:directlyComprises ;
     rdfs:domain paml:SampleArray ;
-    rdfs:range paml:PrimitiveArray .
+    rdfs:range xsd:string .
 
 paml:edge a owl:ObjectProperty ;
     rdfs:label "edge" ;
@@ -323,7 +323,7 @@ paml:edgeValue a owl:ObjectProperty ;
     rdfs:range uml:LiteralSpecification ;
     rdfs:subPropertyOf sbol:directlyComprises .
 
-paml:sampleDataValues a owl:ObjectProperty ;
+paml:sampleDataValues a owl:DatatypeProperty ;
         rdfs:comment """The sampleDataValues are an array of data values, one for each sample, format to be determined.""";
               rdfs:domain paml:SampleData ;
               rdfs:range xsd:string ; # TODO: consider https://github.com/SynBioDex/sbol_factory/issues/7

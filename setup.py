@@ -26,7 +26,7 @@ setup(
         "ipython",
         "pre-commit",
         "ipywidgets",
-        "pandas"
+        "xarray"
     ],
     tests_require=test_deps,
     extras_require=extras,

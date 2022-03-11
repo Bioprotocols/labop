@@ -20,6 +20,7 @@ SBOLFactory('paml_submodule',
 from paml_submodule import *
 from paml.ui import *
 from paml.data import *
+from paml.primitive_execution import *
 
 #########################################
 # Kludge for getting parents and TopLevels - workaround for pySBOL3 issue #234
