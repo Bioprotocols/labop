@@ -53,12 +53,14 @@ class TestProtocolEndToEnd(unittest.TestCase):
 
         # Get the SampleData objects and attach values
         # get_data() returns a dict of output parameter ids to SampleData objects
-        data = execution.get_data()
+        dataset = execution.get_data()
 
-        for k, v in data.items():
-            my_df = v.to_dataframe()  # Get the empty dataframe for SampleData
-            my_df["values"] = my_df["values"].apply(lambda x: 8)  # Fill data with dummy value of 8
-            v.values = my_df.to_csv(sep=",")  # Store values in SampleData
+        for k, v in dataset.data_vars.items():
+            for dimension in v.dims:
+                new_data = [8]*len(dataset[k].data)
+                dataset.update({k : (dimension, new_data)})
+
+        execution.set_data(dataset)
 
 
         print('Validating and writing protocol')

@@ -4,64 +4,104 @@ Functions related to data i/o in connection with a protocol execution trace.
 This file monkey-patches the imported paml classes with data handling functions.
 """
 
-import pandas as pd
-import re
-from paml_convert.plate_coordinates import coordinate_rect_to_row_col_pairs, num2col
+from cmath import nan
+import xarray as xr
+import json
+
+import paml
+from paml_convert.plate_coordinates import coordinate_rect_to_row_col_pairs, coordinate_to_row_col
 from paml import SampleMask, SampleData, SampleArray
-from io import StringIO
+import uml
 
 import logging
 l = logging.getLogger(__file__)
 l.setLevel(logging.ERROR)
 
-def sample_array_to_dataframe(self):
-    container_type = self.container_type.lookup()
-    contents = self.contents
+class Strings:
+    ALIQUOT = "aliquot"
 
-    # FIXME need to find a definition of the container topology from the type
+def protocol_execution_set_data(self, dataset):
+    """
+    Overwrite execution trace values based upon values provided in data
+    """
+    for k, v in dataset.items():
+        sample_data = self.document.find(k)
+        sample_data.values = json.dumps(v.to_dict())
+paml.ProtocolExecution.set_data = protocol_execution_set_data
 
-    # FIXME this assumes a 96 well plate
-    l.warn("Warning: Assuming that the SampleArray is a 96 well microplate!")
+def protocol_execution_get_data(self):
+    """
+    Gather paml.SampleData outputs from all CallBehaviorExecutions into a dataset
+    """
+    def output_value(o):
+        return o.value.value.lookup() if isinstance(o.value, uml.LiteralReference) else o.value.value
 
-    row_col_pairs = coordinate_rect_to_row_col_pairs("A1:H12")
-    aliquots = [f"{num2col(c+1)}{r}" for (r, c) in row_col_pairs]
-    sources = [self.name for i in range(len(aliquots))]
-    df = pd.DataFrame({
-        "aliquot" : aliquots,
-        "source" : sources})
-    return df
-SampleArray.to_dataframe = sample_array_to_dataframe
+    calls = [e for e in self.executions if isinstance(e, paml.CallBehaviorExecution)]
+    datasets = [
+                    output_value(o).to_dataset()
+                        for e in calls
+                        for o in e.get_outputs()
+                        if isinstance(output_value(o), paml.SampleData)
+                ]
+    data = xr.merge(datasets)
 
-def sample_mask_to_dataframe(self):
-    source = self.source.lookup()
-    mask = self.mask
-    m = re.match('^([a-zA-Z])([0-9]+):([a-zA-Z])([0-9]+)$', self.mask)
-    if m is None:
-        raise Exception(f"Invalid mask: {mask}")
+    return data
+paml.ProtocolExecution.get_data = protocol_execution_get_data
 
+
+def sample_array_to_data_array(self):
+    return xr.DataArray.from_dict(json.loads(self.contents))
+SampleArray.to_data_array = sample_array_to_data_array
+
+def sample_array_mask(self, mask):
+    """
+    Create a mask array out of SampleArray and mask.
+    """
+    def is_in_mask(entry, row_col_pairs):
+        return entry in row_col_pairs
+
+    contents_array = xr.DataArray.from_dict(json.loads(self.contents))
     row_col_pairs = coordinate_rect_to_row_col_pairs(mask)
-    aliquots = [f"{num2col(c+1)}{r}" for (r, c) in row_col_pairs]
-    sources = [source.name for i in range(len(aliquots))]
-    df = pd.DataFrame({
-        "aliquot" : aliquots,
-        "source" : sources})
-    return df
-SampleMask.to_dataframe = sample_mask_to_dataframe
+    mask_array = xr.DataArray(
+                        [
+                            is_in_mask(coordinate_to_row_col(x), row_col_pairs)
+                            for x in contents_array.data
+                        ],
+                        coords={Strings.ALIQUOT: contents_array}
+                    )
+    return json.dumps(mask_array.to_dict())
+SampleArray.mask = sample_array_mask
 
-def sample_data_to_dataframe(self):
+
+def sample_mask_to_data_array(self):
+    return xr.DataArray.from_dict(json.loads(self.mask))
+SampleMask.to_data_array = sample_mask_to_data_array
+
+def sample_data_to_dataset(self):
     if not hasattr(self, "values") or \
        not self.values:
         from_samples = self.from_samples.lookup()
-        df = from_samples.to_dataframe()
-        df['values'] = ""
+        sample_array = from_samples.to_data_array()
+        masked_array = sample_array.where(sample_array, drop=True) # Apply the mask
+
+        # Each dataset maps uses self.identity to write back any
+        # new values to self.
+        sample_data = xr.Dataset({
+                                    self.identity : xr.DataArray(
+                                                    [nan]*len(masked_array[Strings.ALIQUOT]),
+                                                    [ (Strings.ALIQUOT, masked_array.coords[Strings.ALIQUOT].data) ]
+                                                )})
     else:
-        df = pd.read_csv(StringIO(self.values), index_col=0)
+        sample_data = xr.Dataset.from_dict(json.loads(self.values))
 
-    return df
-SampleData.to_dataframe = sample_data_to_dataframe
+    return sample_data
+SampleData.to_dataset = sample_data_to_dataset
 
-def sample_data_from_dataframe(self, df, df_file):
-    data = df.to_csv()
-    self.values = df_file
-    df.to_csv(self.values)
-SampleData.from_dataframe = sample_data_from_dataframe
+def activity_node_execution_get_outputs(self):
+    return []
+paml.ActivityNodeExecution.get_outputs = activity_node_execution_get_outputs
+
+def call_behavior_execution_get_outputs(self):
+    return [x for x in self.call.lookup().parameter_values
+              if x.parameter.lookup().property_value.direction == uml.PARAMETER_OUT]
+paml.CallBehaviorExecution.get_outputs = call_behavior_execution_get_outputs
