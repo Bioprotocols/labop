@@ -80,8 +80,6 @@ def behavior_add_parameter(self, name: str, param_type: str, direction: str, opt
     """
     param = Parameter(name=name, type=param_type, direction=direction, is_ordered=True, is_unique=True)
     ordered_param = OrderedPropertyValue(index=len(self.parameters), property_value=param)
-    print(param, ordered_param)
-    print(ordered_param.__class__.__mro__)
     self.parameters.append(ordered_param)
     param.upper_value = literal(1)  # all parameters are assumed to have cardinality [0..1] or 1 for now
     if optional:
@@ -141,7 +139,6 @@ def behavior_get_input(self, name) -> Parameter:
     -------
     Parameter, or Value error
     """
-    print(p for p in self.get_inputs())
     found = [p for p in self.get_inputs() if p.property_value.name == name]
     if len(found) == 0:
         raise ValueError(f'Behavior {self.identity} has no input parameter named {name}')
@@ -275,8 +272,12 @@ def call_behavior_action_pin_parameter(self, pin_name: str):
         except:
             raise ValueError(f'Could not find pin named {pin_name}')
     behavior = self.behavior.lookup()
-    [parameter] = [p for p in behavior.parameters if p.property_value.name == pin_name]
-    return parameter
+    parameters = [p for p in behavior.parameters if p.property_value.name == pin_name]
+    if len(parameters) == 0:
+        raise ValueError(f'Invalid parameter {pin_name} provided for Primitive {behavior.display_id}')
+    elif len(parameters) > 1:
+        raise ValueError(f'Primitive {behavior.display_id} has multiple Parameters with the same name')
+    return parameters[0]
 CallBehaviorAction.pin_parameter = call_behavior_action_pin_parameter  # Add to class via monkey patch
 
 def add_call_behavior_action(parent: Activity, behavior: Behavior, **input_pin_literals):
@@ -311,7 +312,6 @@ def add_call_behavior_action(parent: Activity, behavior: Behavior, **input_pin_l
     for o in id_sort(behavior.get_outputs()):
         action.outputs.append(OutputPin(name=o.property_value.name, is_ordered=o.property_value.is_ordered,
                                         is_unique=o.property_value.is_unique))
-
     return action
 
 
