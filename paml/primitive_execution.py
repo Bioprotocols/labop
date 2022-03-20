@@ -4,6 +4,7 @@ from paml_convert.plate_coordinates import coordinate_rect_to_row_col_pairs, num
 import uml
 import xarray as xr
 import logging
+import sbol3
 
 
 l = logging.getLogger(__file__)
@@ -24,6 +25,55 @@ def call_behavior_execution_compute_output(self, parameter):
     return value
 paml.CallBehaviorExecution.compute_output = call_behavior_execution_compute_output
 
+def call_behavior_action_compute_output(self, inputs, parameter):
+    """
+    Get parameter value from call behavior action
+    :param self:
+    :param inputs: token values for object pins
+    :param parameter: output parameter to define value
+    :return: value
+    """
+    primitive = self.behavior.lookup()
+    inputs = self.input_parameter_values(inputs=inputs)
+    value = primitive.compute_output(inputs, parameter)
+    return value
+uml.CallBehaviorAction.compute_output = call_behavior_action_compute_output
+
+def call_behavior_action_input_parameter_values(self, inputs=None):
+    """
+    Get parameter values for all inputs
+    :param self:
+    :param parameter: output parameter to define value
+    :return: value
+    """
+
+    # Get the parameter values from input tokens for input pins
+    input_pin_values = {}
+    if inputs:
+        input_pin_values = {token.token_source.lookup().node.lookup().identity:
+                                    uml.literal(token.value, reference=True)
+                            for token in inputs if not token.edge}
+
+
+    # Get Input value pins
+    value_pin_values = {pin.identity: pin.value for pin in self.inputs if hasattr(pin, "value")}
+    # Convert References
+    value_pin_values = {k: (uml.LiteralReference(value=self.document.find(v.value))
+                            if hasattr(v, "value") and
+                               (isinstance(v.value, sbol3.refobj_property.ReferencedURI) or
+                                isinstance(v, uml.LiteralReference))
+                            else  uml.LiteralReference(value=v))
+                        for k, v in value_pin_values.items()}
+    pin_values = { **input_pin_values, **value_pin_values} # merge the dicts
+
+    parameter_values = [paml.ParameterValue(parameter=self.pin_parameter(pin.name),
+                                            value=pin_values[pin.identity])
+                        for pin in self.inputs if pin.identity in pin_values]
+    return parameter_values
+uml.CallBehaviorAction.input_parameter_values = call_behavior_action_input_parameter_values
+
+
+
 def primitive_compute_output(self, inputs, parameter):
     """
     Compute the value for parameter given the inputs. This default function will be overridden for specific primitives.
@@ -35,15 +85,21 @@ def primitive_compute_output(self, inputs, parameter):
 
     l.debug(f"Computing the output of primitive: {self.identity}, parameter: {parameter.name}")
 
+    def resolve_value(v):
+        if not isinstance(uml.LiteralReference):
+            return v.value
+        else:
+            return value.value.lookup().value
+
     if self.identity == 'https://bioprotocols.org/paml/primitives/sample_arrays/EmptyContainer' and \
         parameter.name == "samples" and \
         parameter.type == 'http://bioprotocols.org/paml#SampleArray':
         # Make a SampleArray
         for input in inputs:
-            i_parameter = input.parameter.lookup().property_value
+            i_parameter = input.parameter.lookup()
             value = input.value
             if i_parameter.name == "specification":
-                spec = value.value.lookup().value if isinstance(value, uml.LiteralReference) else value.value
+                spec = resolve_value(value)
         contents = self.initialize_contents()
         name = f"{parameter.name}"
         sample_array = paml.SampleArray(name=name,
@@ -54,17 +110,16 @@ def primitive_compute_output(self, inputs, parameter):
         parameter.name == "samples" and \
         parameter.type == 'http://bioprotocols.org/paml#SampleCollection':
         for input in inputs:
-            i_parameter = input.parameter.lookup().property_value
+            i_parameter = input.parameter.lookup()
             value = input.value
             if i_parameter.name == "source":
-                source = value.value.lookup() if isinstance(value, uml.LiteralReference) else value.value
+                source = resolve_value(value)
             elif i_parameter.name == "coordinates":
-                coordinates = value.value.lookup().value if isinstance(value, uml.LiteralReference) else value.value
+                coordinates = resolve_value(value)
                 # convert coordinates into a boolean sample mask array
                 # 1. read source contents into array
                 # 2. create parallel array for entries noted in coordinates
                 mask_array = source.mask(coordinates)
-
         mask = paml.SampleMask(source=source,
                                mask=mask_array)
         return mask
@@ -72,10 +127,10 @@ def primitive_compute_output(self, inputs, parameter):
         parameter.name == "measurements" and \
         parameter.type == 'http://bioprotocols.org/paml#SampleData':
         for input in inputs:
-            i_parameter = input.parameter.lookup().property_value
+            i_parameter = input.parameter.lookup()
             value = input.value
             if i_parameter.name == "samples":
-                samples = value.value.lookup() if isinstance(value, uml.LiteralReference) else value.value
+                samples = resolve_value(value)
 
         sample_data = paml.SampleData(from_samples=samples)
         return sample_data
