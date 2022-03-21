@@ -85,7 +85,46 @@ class TestParameters(unittest.TestCase):
         with self.assertRaises(ValueError):
             x = ee.execute(protocol, agent, id="test_execution", parameter_values=parameter_values)
 
+    def test_optional_and_required_parameters(self):
+        doc = sbol3.Document()
+        protocol = paml.Protocol('foo')
+        doc.add(protocol)
         
+        step1 = paml.Primitive('step1')
+
+        # create optional parameter
+        step1_optional_input1 = uml.OrderedPropertyValue(index=1, property_value=uml.Parameter(name='step1_optional_input1', type=sbol3.SBOL_COMPONENT, direction=PARAMETER_IN, is_ordered=True, is_unique=True))
+        step1_optional_input1.property_value.lower_value = uml.LiteralInteger(value=0)
+        step1_optional_input2 = uml.OrderedPropertyValue(index=2, property_value=uml.Parameter(name='step1_optional_input2', type=sbol3.SBOL_COMPONENT, direction=PARAMETER_IN, is_ordered=True, is_unique=True))  # Omit the lower value. This formerly caused an exception. See #119
+
+        step1.parameters.append(step1_optional_input1)
+        step1.parameters.append(step1_optional_input2)
+        doc.add(step1)
+        
+        start_action = uml.InitialNode()
+        step1_action = uml.CallBehaviorAction(behavior=step1)
+        protocol.nodes.append(start_action)
+        protocol.nodes.append(step1_action)
+        protocol.edges.append(uml.ControlFlow(source=start_action, target=step1_action))
+        
+        # Execute without specifying InputPins, this should work fine, since the Parameters are optional 
+        agent = sbol3.Agent("test_agent")
+        ee = ExecutionEngine()
+        ee.specializations[0]._behavior_func_map[step1.identity] = lambda record: None  # Register custom primitives in the execution engine
+
+        x = ee.execute(protocol, agent, id="test_execution1", parameter_values=[])
+
+        # Make optional input required, and re-execute, triggering an exception
+        step1_optional_input1.property_value.lower_value = uml.LiteralInteger(value=1)
+        with self.assertRaises(ValueError):
+            x = ee.execute(protocol, agent, id="test_execution2", parameter_values=[])
+
+        # Now provide the required input 
+        # TODO:  should this throw an error, because there is no ParameterValue?
+        step1_action.inputs.append(uml.InputPin(name='step1_optional_input1', is_ordered=True, is_unique=True))
+        x = ee.execute(protocol, agent, id="test_execution3", parameter_values=[])
+
+
     def test_execution(self):
         doc = sbol3.Document()
         protocol = paml.Protocol('foo')
@@ -113,26 +152,17 @@ class TestParameters(unittest.TestCase):
         protocol.edges.append(uml.ControlFlow(source=step1_action, target=step2_action))
         
         step1_action.outputs.append(uml.OutputPin(name='samples', is_ordered=True, is_unique=True))
-        step2_action.inputs.append(uml.InputPin(name='samples', is_ordered=True, is_unique=True))
+        step2_action.inputs.append(uml.ValuePin(name='samples', is_ordered=True, is_unique=True))
         
         
         agent = sbol3.Agent("test_agent")
         ee = ExecutionEngine()
-        parameter_values = [
-        ]
   
-        # extend BehaviorSpecialization
-        def step1_handler(behavior_specialization):
-            pass
-
-        def step2_handler(behavior_specialization):
-            pass
-
-        ee.specializations[0]._behavior_func_map[step1.identity] = step1_handler
-        ee.specializations[0]._behavior_func_map[step2.identity] = step2_handler
+        ee.specializations[0]._behavior_func_map[step1.identity] = lambda record: None
+        ee.specializations[0]._behavior_func_map[step2.identity] = lambda record: None
 
         # execute protocol
-        x = ee.execute(protocol, agent, id="test_execution", parameter_values=parameter_values)
+        x = ee.execute(protocol, agent, id="test_execution", parameter_values=[])
         for record in x.executions:
             print(record.call)
 
