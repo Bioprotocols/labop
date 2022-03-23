@@ -157,7 +157,9 @@ def behavior_get_required_inputs(self):
     -------
     Iterator over Parameters
     """
-    return (p for p in self.get_inputs() if p.property_value.lower_value.value > 0)
+    #return (p for p in self.get_inputs() if p.property_value.lower_value.value > 0)
+    return (p for p in self.get_inputs() if p.property_value.lower_value is not None and
+                                            p.property_value.lower_value.value > 0)
 Behavior.get_required_inputs = behavior_get_required_inputs  # Add to class via monkey patch
 
 
@@ -237,9 +239,9 @@ def call_behavior_action_input_pin(self, pin_name: str):
     """
     pin_set = {x for x in self.inputs if x.name == pin_name}
     if len(pin_set) == 0:
-        raise ValueError(f'Could not find input pin named {pin_name}')
+        raise ValueError(f'Could not find input pin named {pin_name} for Primitive {self.behavior.lookup().display_id}')
     if len(pin_set) > 1:
-        raise ValueError(f'Found more than one input pin named {pin_name}')
+        raise ValueError(f'Found more than one input pin named {pin_name} for Primitive {self.behavior.lookup().display_id}')
     return pin_set.pop()
 CallBehaviorAction.input_pin = call_behavior_action_input_pin  # Add to class via monkey patch
 

@@ -77,7 +77,6 @@ class ExecutionEngine(ABC):
             for node in ready:
                 tokens = self.execute_activity_node(ex, node, tokens)
             ready = self.executable_activity_nodes(protocol, tokens, ex.parameter_values)
-
         # TODO: finish implementing
         # TODO: ensure that only one token is allowed per edge
         # TODO: think about infinite loops and how to abort
@@ -137,7 +136,12 @@ class ExecutionEngine(ABC):
         if hasattr(node, "inputs"):
             required_inputs = [node.input_pin(i.property_value.name)
                                for i in node.behavior.lookup().get_required_inputs()]
+                
             required_value_pins = {p for p in required_inputs if isinstance(p, uml.ValuePin)}
+            # Validate values, see #120
+            for pin in required_value_pins:
+                if pin.value is None:
+                    raise ValueError(f'{node.behavior.lookup().display_id} Action has no ValueSpecification for Pin {pin.name}')
             required_input_pins = {p for p in required_inputs if not isinstance(p, uml.ValuePin)}
             pins_with_tokens = {t.token_source.lookup().node.lookup() for t in tokens if not t.edge}
             parameter_names = {pv.parameter.lookup().property_value.name for pv in parameter_values}
@@ -188,7 +192,6 @@ class ExecutionEngine(ABC):
             ex.executions.append(record)
             new_tokens = self.next_tokens(record, ex)
             # put a control token on all outgoing edges
-
         elif isinstance(node, uml.FlowFinalNode):
             record = paml.ActivityNodeExecution(node=node, incoming_flows=inputs)
             ex.executions.append(record)
@@ -225,8 +228,20 @@ class ExecutionEngine(ABC):
                                      if isinstance(token.value, uml.LiteralReference)
                                      else uml.literal(token.value.value))
                                 for token in inputs if not token.edge}
+
             # Get Input value pins
-            value_pin_values = {pin.identity: pin.value for pin in node.inputs if hasattr(pin, "value")}
+            value_pin_values = {}
+            
+            # Validate Pin values, see #130
+            # Although enabled_activity_node method also validates Pin values,
+            # it only checks required Pins.  This check is necessary to check optional Pins.
+            for pin in node.inputs:
+                if hasattr(pin, "value"):
+                    if pin.value is None:
+                        raise ValueError(f'{node.behavior.lookup().display_id} Action has no ValueSpecification for Pin {pin.name}')
+                    value_pin_values[pin.identity] = pin.value
+            value_pin_values = {pin.identity: pin.value for pin in node.inputs if hasattr(pin, "value") and pin.value}
+
             # Convert References
             value_pin_values = {k: (uml.LiteralReference(value=ex.document.find(v.value))
                                     if isinstance(v.value, sbol3.refobj_property.ReferencedURI) or
@@ -252,6 +267,7 @@ class ExecutionEngine(ABC):
             new_tokens = self.next_tokens(record, ex)
 
             ## Add the output values to the call parameter-values
+            ### TODO: debug what happens when the same token name occurs more than once
             for token in new_tokens:
                 edge = token.edge.lookup()
                 if isinstance(edge, uml.ObjectFlow):
@@ -262,7 +278,8 @@ class ExecutionEngine(ABC):
                         else uml.literal(token.value)
                     pv = paml.ParameterValue(parameter=parameter, value=parameter_value)
                     call.parameter_values += [pv]
-
+            pin_names = [pv.parameter.lookup().property_value.name for pv in call.parameter_values]
+            assert(len(pin_names) == len(set(pin_names)))  # Should not be any duplicate names
         elif isinstance(node, uml.Pin):
             record = paml.ActivityNodeExecution(node=node, incoming_flows=inputs)
             ex.executions.append(record)
@@ -279,10 +296,11 @@ class ExecutionEngine(ABC):
 
         if record:
             for specialization in self.specializations:
-                try:
-                    specialization.process(record)
-                except Exception as e:
-                    logger.error(f"Could Not Process {record}: {e}")
+                specialization.process(record)
+                #try:
+                #    specialization.process(record)
+                #except Exception as e:
+                #    logger.error(f"Could Not Process {record.name if record.name else record.identity}: {e}")
 
         # Send outgoing control flows
         # Check that outgoing flows don't conflict with
