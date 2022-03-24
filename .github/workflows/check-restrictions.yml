@@ -1,0 +1,53 @@
+# This workflow will install Python dependencies, run tests and lint with a variety of Python versions
+# For more information see: https://help.github.com/actions/language-and-framework-guides/using-python-with-github-actions
+
+name: Check OWL restrictions
+
+on: [push, pull_request]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.7", "3.8", "3.9", "3.10"]
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Python 3.8
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.8
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        python -m pip install pytest
+        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+    - name: Install PAML
+      run: |
+        pip install .[test]
+    - name: find Turtle files
+      run: |
+        echo "::set-output name=FILELIST::$(find . \( -name 'build' -prune \) -o \( -name 'test' -prune \) -o -name '*.ttl' -print )"
+    - name: check Turtle files
+      run: |
+        IFS="," read -a myarray <<< ${{ steps.finding-files.outputs.FILELIST }}
+        export FAILED=""
+        for i in "${myarray[@]}"; do
+          scripts/restrictions check ${i}
+          if [ $? -ne 0 ]; then
+              FAILED=${FAILED}:${i}
+          fi
+        done
+        if [ "${FAILED}x" != "x" ]; then
+          echo "Files with errors:"
+          for f in ${FAILED}; do
+             echo $f
+          done
+          exit 1
+        fi
+        exit 0
+            
+        
