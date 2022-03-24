@@ -32,7 +32,7 @@ jobs:
         echo "::set-output name=FILELIST::$(find . \( -name 'build' -prune \) -o \( -name 'test' -prune \) -o -name '*.ttl' -print )"
     - name: check Turtle files
       run: |
-        IFS="," read -a myarray <<< ${{ steps.finding-files.outputs.FILELIST }}
+        readarray -d " " myarray <<< ${{ steps.finding-files.outputs.FILELIST }}
         export FAILED=""
         for i in "${myarray[@]}"; do
           scripts/restrictions check ${i}
