@@ -13,6 +13,8 @@ __all__ = [
     "all_bad_restrictions",
     "repair_graph",
     "repair_all_bad_restrictions",
+    "RELATIONS",
+    "IGNORE_PROPERTIES"
 ]
 
 import argparse
@@ -35,6 +37,8 @@ RELATIONS = [
     OWL.minCardinality,
     OWL.maxCardinality,
     OWL.cardinality,
+    OWL.hasValue,
+    OWL.qualifiedCardinality,
 ]
 # Properties of a restriction that we ignore when rewriting (because they are
 # constraints ON the restrictions rather than constraints on the restrictED)
