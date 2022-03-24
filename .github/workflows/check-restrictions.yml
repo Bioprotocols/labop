@@ -30,9 +30,14 @@ jobs:
       id: finding-files
       run: |
         echo "::set-output name=FILELIST::$(find . \( -name 'build' -prune \) -o \( -name 'test' -prune \) -o -name '*.ttl' -print )"
+        echo "Turtle files are ${FILELIST}"
     - name: check Turtle files
       run: |
         readarray -d " " myarray <<< ${{ steps.finding-files.outputs.FILELIST }}
+        echo "List of TTL files is:"
+        for i in "${myarray[@]}"; do
+          echo $i
+        done
         export FAILED=""
         for i in "${myarray[@]}"; do
           scripts/restrictions check ${i}
