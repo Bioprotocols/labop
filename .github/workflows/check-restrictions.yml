@@ -27,6 +27,7 @@ jobs:
       run: |
         pip install .[test]
     - name: find Turtle files
+      id: finding-files
       run: |
         echo "::set-output name=FILELIST::$(find . \( -name 'build' -prune \) -o \( -name 'test' -prune \) -o -name '*.ttl' -print )"
     - name: check Turtle files
