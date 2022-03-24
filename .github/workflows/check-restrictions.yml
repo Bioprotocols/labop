@@ -26,32 +26,8 @@ jobs:
     - name: Install PAML
       run: |
         pip install .[test]
-    - name: find Turtle files
-      id: finding-files
-      run: |
-        echo "::set-output name=FILELIST::$(find . \( -name 'build' -prune \) -o \( -name 'test' -prune \) -o -name '*.ttl' -print )"
-        echo "Turtle files are ${FILELIST}"
     - name: check Turtle files
       run: |
-        readarray -d " " myarray <<< ${{ steps.finding-files.outputs.FILELIST }}
-        echo "List of TTL files is:"
-        for i in "${myarray[@]}"; do
-          echo $i
-        done
-        export FAILED=""
-        for i in "${myarray[@]}"; do
-          scripts/restrictions check ${i}
-          if [ $? -ne 0 ]; then
-              FAILED=${FAILED}:${i}
-          fi
-        done
-        if [ "${FAILED}x" != "x" ]; then
-          echo "Files with errors:"
-          for f in ${FAILED}; do
-             echo $f
-          done
-          exit 1
-        fi
-        exit 0
+        scripts/check-turtle-files .
             
         
