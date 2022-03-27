@@ -532,7 +532,8 @@ def primitive_compute_output(self, inputs, parameter):
                 spec = value
         contents = ""
         name = f"{parameter.name}"
-        sample_array = paml.SampleArray(name=name,
+        container = self.document.find(spec.value).value
+        sample_array = paml.SampleArray(name=container.name,
                                    container_type=spec.value,
                                    contents=contents)
         return sample_array

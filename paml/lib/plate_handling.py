@@ -57,6 +57,12 @@ p.add_input('temperature', sbol3.OM_MEASURE) # temperature
 p.add_input('shakingFrequency', sbol3.OM_MEASURE, True) # Hertz or RPM?; in either case, defaults to zero
 doc.add(p)
 
+p = paml.Primitive('Hold')
+p.description = 'Incubate, store, or hold a set of samples indefinitely at the specified temperature'
+p.add_input('location', 'http://bioprotocols.org/paml#SampleArray')
+p.add_input('temperature', sbol3.OM_MEASURE) # temperature
+doc.add(p)
+
 p = paml.Primitive('Spin')
 p.description = 'Centrifuge a set of samples at a given acceleration for a given period of time'
 p.add_input('location', 'http://bioprotocols.org/paml#SampleArray')

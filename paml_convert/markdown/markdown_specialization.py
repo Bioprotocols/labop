@@ -40,6 +40,7 @@ class MarkdownSpecialization(BehaviorSpecialization):
             "https://bioprotocols.org/paml/primitives/culturing/Transform": self.transform,
             "https://bioprotocols.org/paml/primitives/culturing/Culture": self.culture,
             "https://bioprotocols.org/paml/primitives/plate_handling/Incubate": self.incubate,
+            "https://bioprotocols.org/paml/primitives/plate_handling/Hold": self.hold,
             "https://bioprotocols.org/paml/primitives/liquid_handling/Dilute": self.dilute,
             "https://bioprotocols.org/paml/primitives/liquid_handling/DiluteToTargetOD": self.dilute_to_target_od,
         }
@@ -113,7 +114,6 @@ class MarkdownSpecialization(BehaviorSpecialization):
     def define_container(self, record: paml.ActivityNodeExecution):
         results = {}
         call = record.call.lookup()
-        print(record.node.lookup().behavior.lookup().display_id)
         parameter_value_map = call.parameter_value_map()
 
         spec = parameter_value_map["specification"]['value']
@@ -137,7 +137,7 @@ class MarkdownSpecialization(BehaviorSpecialization):
             # container label
             container_class = ContainerOntology.uri + '#' + spec.queryString.split(':')[-1]
             container_str = ContainerOntology.get_term_by_uri(container_class)
-            self.markdown_steps += [f'Provision a {container_str} to contain {spec.name}']
+            self.markdown_steps += [f'Provision a {container_str} to contain `{spec.name}`']
             #except Exception as e:
             #    l.warning(e)
             #    self.markdown_steps += [f"Provision a container named `{spec.name}` meeting specification: {spec.queryString}."]
@@ -222,7 +222,7 @@ class MarkdownSpecialization(BehaviorSpecialization):
         samples = parameter_value_map["samples"]["value"]
 
         # Add to markdown
-        text = f"`Vortex {samples}`"
+        text = f"Vortex {samples}"
         if duration:
             text += f' for {duration_scalar} {duration_units}'
         self.markdown_steps += [text]
@@ -251,17 +251,19 @@ class MarkdownSpecialization(BehaviorSpecialization):
         if 'dispenseVelocity' in parameter_value_map:
             dispense_velocity = parameter_value_map['dispenseVelocity']['value']
 
+        # Get destination container type
+        container_spec = record.document.find(destination.container_type).value
+        container_class = ContainerOntology.uri + '#' + container_spec.queryString.split(':')[-1]
+        container_str = ContainerOntology.get_term_by_uri(container_class)
+
         # Add to markdown
-        text = f"`Transfer {amount_scalar} {amount_units} of {source} to {destination.name}`"
+        text = f"Transfer {amount_scalar} {amount_units} of `{source.name}` to {container_str}"
         self.markdown_steps += [text]
 
     def culture(self, record: paml.ActivityNodeExecution):
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
         inoculum = parameter_value_map['inoculum']['value']
-        print('Inoculum\n--------')
-        print(inoculum)
-        if hasattr(inoculum, 'value'): print(inoculum.value)
         growth_medium = parameter_value_map['growth_medium']['value']
         volume = parameter_value_map['volume']['value']
         volume_scalar = volume.value
@@ -277,7 +279,7 @@ class MarkdownSpecialization(BehaviorSpecialization):
         # Lookup sample container to get the container name, and use that
         # as the sample label
         container_str = record.document.find(container.container_type).value.name
-        text = f'Inoculate {inoculum.name} into {volume_scalar} {volume_units} of {growth_medium.name} in {container_str} and grow for {measurement_to_text(duration)} at {measurement_to_text(temperature)} and {orbital_shake_speed.value} rpm.'
+        text = f'Inoculate `{inoculum.name}` into {volume_scalar} {volume_units} of {growth_medium.name} in {container_str} and grow for {measurement_to_text(duration)} at {measurement_to_text(temperature)} and {orbital_shake_speed.value} rpm.'
         self.markdown_steps += [text]
 
     def incubate(self, record: paml.ActivityNodeExecution):
@@ -288,7 +290,16 @@ class MarkdownSpecialization(BehaviorSpecialization):
         duration = parameter_value_map['duration']['value']
         shakingFrequency = parameter_value_map['shakingFrequency']['value']
         temperature = parameter_value_map['temperature']['value']
-        text = f'Incubate samples for {measurement_to_text(duration)} at {measurement_to_text(temperature)} at {shakingFrequency.value}.'
+        text = f'Incubate {location.name} for {measurement_to_text(duration)} at {measurement_to_text(temperature)} at {shakingFrequency.value}.'
+        self.markdown_steps += [text]
+
+    def hold(self, record: paml.ActivityNodeExecution):
+        call = record.call.lookup()
+        parameter_value_map = call.parameter_value_map()
+
+        location = parameter_value_map['location']['value']
+        temperature = parameter_value_map['temperature']['value']
+        text = f'Hold `{location.name}` at {measurement_to_text(temperature)}.'
         self.markdown_steps += [text]
 
     def dilute_to_target_od(self, record: paml.ActivityNodeExecution):
@@ -300,7 +311,12 @@ class MarkdownSpecialization(BehaviorSpecialization):
         diluent = parameter_value_map['diluent']['value']
         amount = parameter_value_map['amount']['value']
         target_od = parameter_value_map['target_od']['value']
-        text = f'Dilute {source} to a target OD of {target_od.value} in {measurement_to_text(amount)} of {diluent.name}.'
+        
+        # Get destination container type
+        container_spec = record.document.find(destination.container_type).value
+        container_class = ContainerOntology.uri + '#' + container_spec.queryString.split(':')[-1]
+        container_str = ContainerOntology.get_term_by_uri(container_class)
+        text = f'Dilute `{source.name}` with {diluent.name} into {container_str} to a target OD of {target_od.value} and final volume of {measurement_to_text(amount)}.'
         self.markdown_steps += [text]
 
     def dilute(self, record: paml.ActivityNodeExecution):
@@ -312,7 +328,13 @@ class MarkdownSpecialization(BehaviorSpecialization):
         diluent = parameter_value_map['diluent']['value']
         amount = parameter_value_map['amount']['value']
         dilution_factor = parameter_value_map['dilution_factor']['value']
-        text = f'Dilute {source} 1:{dilution_factor.value} to a final volume of {measurement_to_text(amount)} in {diluent.name}.'
+
+        # Get destination container type
+        container_spec = record.document.find(destination.container_type).value
+        container_class = ContainerOntology.uri + '#' + container_spec.queryString.split(':')[-1]
+        container_str = ContainerOntology.get_term_by_uri(container_class)
+
+        text = f'Dilute `{source.name}` with {diluent.name} into the {container_str} at a 1:{dilution_factor} ratio and final volume of {measurement_to_text(amount)}.'
         self.markdown_steps += [text]
 
     def transform(self, record: paml.ActivityNodeExecution):
@@ -329,12 +351,10 @@ class MarkdownSpecialization(BehaviorSpecialization):
 
         #transformant = record.node.lookup().output_pin('transformants')
         transformant = parameter_value_map['transformants']['value']
-        transformant.name = f'{host.name}+{dna.name} transformants'
-        print('Transformants:\n--------- ' + transformant.name)
-        print(type(transformant))
+        transformant.name = f'{host.name} + {dna.name} transformants'
 
         # Add to markdown
-        text = f"Transform {dna.name} into {host.name} and plate transformants on {medium.name}."
+        text = f"Transform `{dna.name}` into `{host.name}` and plate transformants on {medium.name}."
         self.markdown_steps += [text]
 
 def measurement_to_text(measure: sbol3.Measure):
