@@ -54,6 +54,14 @@
     sbol:displayId "Rows" ;
     sbol:hasNamespace <https://bioprotocols.org/paml/primitives/sample_arrays> .
 
+<https://bioprotocols.org/paml/primitives/sample_arrays/StockReagent> a <http://bioprotocols.org/paml#Primitive>,
+        sbol:TopLevel ;
+    ns1:ownedParameter <https://bioprotocols.org/paml/primitives/sample_arrays/StockReagent/OrderedPropertyValue1>,
+        <https://bioprotocols.org/paml/primitives/sample_arrays/StockReagent/OrderedPropertyValue2> ;
+    sbol:description "Allocate a SampleArray object representing a stock reagent" ;
+    sbol:displayId "StockReagent" ;
+    sbol:hasNamespace <https://bioprotocols.org/paml/primitives/sample_arrays> .
+
 <https://bioprotocols.org/paml/primitives/sample_arrays/Columns/OrderedPropertyValue1> a ns1:OrderedPropertyValue,
         sbol:Identified ;
     ns1:indexValue 0 ;
@@ -482,6 +490,60 @@
     sbol:displayId "LiteralInteger1" .
 
 <https://bioprotocols.org/paml/primitives/sample_arrays/Rows/OrderedPropertyValue3/Parameter1/LiteralInteger2> a ns1:LiteralInteger,
+        sbol:Identified ;
+    ns1:integerValue 1 ;
+    sbol:displayId "LiteralInteger2" .
+
+<https://bioprotocols.org/paml/primitives/sample_arrays/StockReagent/OrderedPropertyValue1> a ns1:OrderedPropertyValue,
+        sbol:Identified ;
+    ns1:indexValue 0 ;
+    ns1:propertyValue <https://bioprotocols.org/paml/primitives/sample_arrays/StockReagent/OrderedPropertyValue1/Parameter1> ;
+    sbol:displayId "OrderedPropertyValue1" .
+
+<https://bioprotocols.org/paml/primitives/sample_arrays/StockReagent/OrderedPropertyValue1/Parameter1> a ns1:Parameter,
+        sbol:Identified ;
+    ns1:direction ns1:in ;
+    ns1:isOrdered true ;
+    ns1:isUnique true ;
+    ns1:lowerValue <https://bioprotocols.org/paml/primitives/sample_arrays/StockReagent/OrderedPropertyValue1/Parameter1/LiteralInteger2> ;
+    ns1:type sbol:Identified ;
+    ns1:upperValue <https://bioprotocols.org/paml/primitives/sample_arrays/StockReagent/OrderedPropertyValue1/Parameter1/LiteralInteger1> ;
+    sbol:displayId "Parameter1" ;
+    sbol:name "contents" .
+
+<https://bioprotocols.org/paml/primitives/sample_arrays/StockReagent/OrderedPropertyValue1/Parameter1/LiteralInteger1> a ns1:LiteralInteger,
+        sbol:Identified ;
+    ns1:integerValue 1 ;
+    sbol:displayId "LiteralInteger1" .
+
+<https://bioprotocols.org/paml/primitives/sample_arrays/StockReagent/OrderedPropertyValue1/Parameter1/LiteralInteger2> a ns1:LiteralInteger,
+        sbol:Identified ;
+    ns1:integerValue 1 ;
+    sbol:displayId "LiteralInteger2" .
+
+<https://bioprotocols.org/paml/primitives/sample_arrays/StockReagent/OrderedPropertyValue2> a ns1:OrderedPropertyValue,
+        sbol:Identified ;
+    ns1:indexValue 1 ;
+    ns1:propertyValue <https://bioprotocols.org/paml/primitives/sample_arrays/StockReagent/OrderedPropertyValue2/Parameter1> ;
+    sbol:displayId "OrderedPropertyValue2" .
+
+<https://bioprotocols.org/paml/primitives/sample_arrays/StockReagent/OrderedPropertyValue2/Parameter1> a ns1:Parameter,
+        sbol:Identified ;
+    ns1:direction ns1:out ;
+    ns1:isOrdered true ;
+    ns1:isUnique true ;
+    ns1:lowerValue <https://bioprotocols.org/paml/primitives/sample_arrays/StockReagent/OrderedPropertyValue2/Parameter1/LiteralInteger2> ;
+    ns1:type <http://bioprotocols.org/paml#SampleArray> ;
+    ns1:upperValue <https://bioprotocols.org/paml/primitives/sample_arrays/StockReagent/OrderedPropertyValue2/Parameter1/LiteralInteger1> ;
+    sbol:displayId "Parameter1" ;
+    sbol:name "reagent" .
+
+<https://bioprotocols.org/paml/primitives/sample_arrays/StockReagent/OrderedPropertyValue2/Parameter1/LiteralInteger1> a ns1:LiteralInteger,
+        sbol:Identified ;
+    ns1:integerValue 1 ;
+    sbol:displayId "LiteralInteger1" .
+
+<https://bioprotocols.org/paml/primitives/sample_arrays/StockReagent/OrderedPropertyValue2/Parameter1/LiteralInteger2> a ns1:LiteralInteger,
         sbol:Identified ;
     ns1:integerValue 1 ;
     sbol:displayId "LiteralInteger2" .

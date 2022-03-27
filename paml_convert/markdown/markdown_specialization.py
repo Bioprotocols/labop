@@ -1,4 +1,6 @@
 import logging
+import json
+import os 
 
 import sbol3
 import tyto
@@ -8,8 +10,13 @@ import uml
 from paml_convert.behavior_specialization import BehaviorSpecialization
 from paml_convert.markdown import MarkdownConverter
 
+
 l = logging.getLogger(__file__)
 l.setLevel(logging.ERROR)
+
+container_ontology_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), '../../container-ontology/owl/container-ontology.ttl')
+ContainerOntology = tyto.Ontology(path=container_ontology_path, uri='https://sift.net/container-ontology/container-ontology')
+
 
 class MarkdownSpecialization(BehaviorSpecialization):
     def __init__(self, out_path) -> None:
@@ -27,6 +34,14 @@ class MarkdownSpecialization(BehaviorSpecialization):
             "https://bioprotocols.org/paml/primitives/liquid_handling/Provision": self.provision_container,
             "https://bioprotocols.org/paml/primitives/sample_arrays/PlateCoordinates": self.plate_coordinates,
             "https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureAbsorbance": self.measure_absorbance,
+            "https://bioprotocols.org/paml/primitives/liquid_handling/Vortex": self.vortex,
+            "https://bioprotocols.org/paml/primitives/liquid_handling/Discard": self.discard,
+            "https://bioprotocols.org/paml/primitives/liquid_handling/Transfer": self.transfer,
+            "https://bioprotocols.org/paml/primitives/culturing/Transform": self.transform,
+            "https://bioprotocols.org/paml/primitives/culturing/Culture": self.culture,
+            "https://bioprotocols.org/paml/primitives/plate_handling/Incubate": self.incubate,
+            "https://bioprotocols.org/paml/primitives/liquid_handling/Dilute": self.dilute,
+            "https://bioprotocols.org/paml/primitives/liquid_handling/DiluteToTargetOD": self.dilute_to_target_od,
         }
 
     def on_begin(self):
@@ -98,24 +113,34 @@ class MarkdownSpecialization(BehaviorSpecialization):
     def define_container(self, record: paml.ActivityNodeExecution):
         results = {}
         call = record.call.lookup()
+        print(record.node.lookup().behavior.lookup().display_id)
         parameter_value_map = call.parameter_value_map()
 
         spec = parameter_value_map["specification"]['value']
-        samples_var = parameter_value_map["samples"]['value']
+        #samples_var = parameter_value_map["samples"]['value']
 
         ## Define a container
 
         l.debug(f"define_container:")
         l.debug(f" specification: {spec}")
-        l.debug(f" samples: {samples_var}")
+        #l.debug(f" samples: {samples_var}")
 
         try:
-            possible_container_types = possible_container_types = self.resolve_container_spec(spec)
+            possible_container_types = self.resolve_container_spec(spec)
             containers_str = ",".join([f"\n\t[{c.split('#')[1]}]({c})" for c in possible_container_types])
-            self.markdown_steps += [f"Provision a container named `{samples_var.name}` such as: {containers_str}."]
+            self.markdown_steps += [f"Provision a container named `{spec.name}` such as: {containers_str}."]
         except Exception as e:
             l.warning(e)
-            self.markdown_steps += [f"Provision a container named `{samples_var.name}` meeting specification: {spec.queryString}."]
+            
+            # Assume that a simple container class is specified, rather
+            # than container properties.  Then use tyto to get the 
+            # container label
+            container_class = ContainerOntology.uri + '#' + spec.queryString.split(':')[-1]
+            container_str = ContainerOntology.get_term_by_uri(container_class)
+            self.markdown_steps += [f'Provision a {container_str} to contain {spec.name}']
+            #except Exception as e:
+            #    l.warning(e)
+            #    self.markdown_steps += [f"Provision a container named `{spec.name}` meeting specification: {spec.queryString}."]
 
         return results
 
@@ -169,7 +194,7 @@ class MarkdownSpecialization(BehaviorSpecialization):
         wl_units = tyto.OM.get_term_by_uri(wl.unit)
         samples = parameter_value_map["samples"]["value"]
         #wells = self.var_to_entity[samples]
-        measurements = parameter_value_map["measurements"]["value"]
+        #measurements = parameter_value_map["measurements"]["value"]
 
         # HACK extract contrainer from well group since we do not have it as input
         container = None #wells[0].container
@@ -180,6 +205,141 @@ class MarkdownSpecialization(BehaviorSpecialization):
         l.debug(f"  wavelength: {wl.value} {wl_units}")
 
         # Add to markdown
+        #samples_str = f"`{samples.source.lookup().value.lookup().value.name}({samples.mask})`"
+        # Lookup sample container to get the container name, and use that
+        # as the sample label
+        samples_str = record.document.find(samples.container_type).value.name
+        self.markdown_steps += [f'Make absorbance measurements of {samples_str} at {wl.value} {wl_units}.']
 
-        samples_str = f"`{samples.source.lookup().value.lookup().value.name}({samples.mask})`"
-        self.markdown_steps += [f'Make absorbance measurements (named `{measurements}`) of {samples_str} at {wl.value} {wl_units}.']
+    def vortex(self, record: paml.ActivityNodeExecution):
+        call = record.call.lookup()
+        parameter_value_map = call.parameter_value_map()
+        duration = None
+        if 'duration' in parameter_value_map:
+            duration_measure = parameter_value_map["duration"]["value"]
+            duration_scalar = duration_measure.value
+            duration_units = tyto.OM.get_term_by_uri(duration_measure.unit)
+        samples = parameter_value_map["samples"]["value"]
+
+        # Add to markdown
+        text = f"`Vortex {samples}`"
+        if duration:
+            text += f' for {duration_scalar} {duration_units}'
+        self.markdown_steps += [text]
+
+    def discard(self, record: paml.ActivityNodeExecution):
+        call = record.call.lookup()
+        parameter_value_map = call.parameter_value_map()
+
+        samples = parameter_value_map["samples"]["value"]
+        amount = parameter_value_map['amount']['value']
+        amount_units = tyto.OM.get_term_by_uri(amount.unit)
+
+        # Add to markdown
+        text = f"`Discard {amount} {amount_units} of {samples.name})`"
+        self.markdown_steps += [text]
+
+    def transfer(self, record: paml.ActivityNodeExecution):
+        call = record.call.lookup()
+        parameter_value_map = call.parameter_value_map()
+
+        source = parameter_value_map['source']['value']
+        destination = parameter_value_map['destination']['value']
+        amount_measure = parameter_value_map['amount']['value']
+        amount_scalar = amount_measure.value
+        amount_units = tyto.OM.get_term_by_uri(amount_measure.unit)
+        if 'dispenseVelocity' in parameter_value_map:
+            dispense_velocity = parameter_value_map['dispenseVelocity']['value']
+
+        # Add to markdown
+        text = f"`Transfer {amount_scalar} {amount_units} of {source} to {destination.name}`"
+        self.markdown_steps += [text]
+
+    def culture(self, record: paml.ActivityNodeExecution):
+        call = record.call.lookup()
+        parameter_value_map = call.parameter_value_map()
+        inoculum = parameter_value_map['inoculum']['value']
+        print('Inoculum\n--------')
+        print(inoculum)
+        if hasattr(inoculum, 'value'): print(inoculum.value)
+        growth_medium = parameter_value_map['growth_medium']['value']
+        volume = parameter_value_map['volume']['value']
+        volume_scalar = volume.value
+        volume_units = tyto.OM.get_term_by_uri(volume.unit)
+        duration = parameter_value_map['duration']['value']
+        duration_scalar = duration.value
+        duration_units = tyto.OM.get_term_by_uri(duration.unit)
+        orbital_shake_speed = parameter_value_map['orbital_shake_speed']['value']
+        temperature = parameter_value_map['temperature']['value']
+        temperature_scalar = temperature.value
+        temperature_units = tyto.OM.get_term_by_uri(temperature.unit)
+        container = parameter_value_map['container']['value']
+        # Lookup sample container to get the container name, and use that
+        # as the sample label
+        container_str = record.document.find(container.container_type).value.name
+        text = f'Inoculate {inoculum.name} into {volume_scalar} {volume_units} of {growth_medium.name} in {container_str} and grow for {measurement_to_text(duration)} at {measurement_to_text(temperature)} and {orbital_shake_speed.value} rpm.'
+        self.markdown_steps += [text]
+
+    def incubate(self, record: paml.ActivityNodeExecution):
+        call = record.call.lookup()
+        parameter_value_map = call.parameter_value_map()
+
+        location = parameter_value_map['location']['value']
+        duration = parameter_value_map['duration']['value']
+        shakingFrequency = parameter_value_map['shakingFrequency']['value']
+        temperature = parameter_value_map['temperature']['value']
+        text = f'Incubate samples for {measurement_to_text(duration)} at {measurement_to_text(temperature)} at {shakingFrequency.value}.'
+        self.markdown_steps += [text]
+
+    def dilute_to_target_od(self, record: paml.ActivityNodeExecution):
+        call = record.call.lookup()
+        parameter_value_map = call.parameter_value_map()
+
+        source = parameter_value_map['source']['value']
+        destination = parameter_value_map['destination']['value']
+        diluent = parameter_value_map['diluent']['value']
+        amount = parameter_value_map['amount']['value']
+        target_od = parameter_value_map['target_od']['value']
+        text = f'Dilute {source} to a target OD of {target_od.value} in {measurement_to_text(amount)} of {diluent.name}.'
+        self.markdown_steps += [text]
+
+    def dilute(self, record: paml.ActivityNodeExecution):
+        call = record.call.lookup()
+        parameter_value_map = call.parameter_value_map()
+
+        source = parameter_value_map['source']['value']
+        destination = parameter_value_map['destination']['value']
+        diluent = parameter_value_map['diluent']['value']
+        amount = parameter_value_map['amount']['value']
+        dilution_factor = parameter_value_map['dilution_factor']['value']
+        text = f'Dilute {source} 1:{dilution_factor.value} to a final volume of {measurement_to_text(amount)} in {diluent.name}.'
+        self.markdown_steps += [text]
+
+    def transform(self, record: paml.ActivityNodeExecution):
+        call = record.call.lookup()
+        parameter_value_map = call.parameter_value_map()
+
+        host = parameter_value_map['host']['value']
+        dna = parameter_value_map['dna']['value']
+        medium = parameter_value_map['selection_medium']['value']
+        if 'amount' in parameter_value_map:
+            amount_measure = parameter_value_map['amount']['value']
+            amount_scalar = amount_measure.value
+            amount_units = tyto.OM.get_term_by_uri(amount_measure.unit)
+
+        #transformant = record.node.lookup().output_pin('transformants')
+        transformant = parameter_value_map['transformants']['value']
+        transformant.name = f'{host.name}+{dna.name} transformants'
+        print('Transformants:\n--------- ' + transformant.name)
+        print(type(transformant))
+
+        # Add to markdown
+        text = f"Transform {dna.name} into {host.name} and plate transformants on {medium.name}."
+        self.markdown_steps += [text]
+
+def measurement_to_text(measure: sbol3.Measure):
+    measurement_scalar = measure.value
+    measurement_units = tyto.OM.get_term_by_uri(measure.unit)
+    return f'{measurement_scalar} {measurement_units}'
+
+

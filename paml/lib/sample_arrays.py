@@ -52,6 +52,13 @@ p.add_input('source', 'http://bioprotocols.org/paml#SampleCollection')
 p.add_output('samples', 'http://bioprotocols.org/paml#SampleCollection')
 doc.add(p)
 
+p = paml.Primitive('StockReagent')
+p.description = 'Allocate a SampleArray object representing a stock reagent'
+p.add_input('contents', sbol3.SBOL_IDENTIFIED)
+p.add_output('reagent', 'http://bioprotocols.org/paml#SampleArray')
+doc.add(p)
+
+
 print('Library construction complete')
 
 print('Validating library')

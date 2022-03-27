@@ -20,6 +20,7 @@ SBOLFactory('paml_submodule',
 from paml_submodule import *
 from paml.ui import *
 
+
 #########################################
 # Kludge for getting parents and TopLevels - workaround for pySBOL3 issue #234
 # TODO: remove after resolution of https://github.com/SynBioDex/pySBOL3/issues/234
@@ -315,19 +316,32 @@ def behavior_execution_parameter_value_map(self):
     :return:
     """
     parameter_value_map = {}
-
     for pv in self.parameter_values:
         name = pv.parameter.lookup().property_value.name
-        if isinstance(pv.value, uml.LiteralReference):
-            ref = pv.value.value.lookup()
-            value = ref.value if isinstance(ref, uml.LiteralSpecification) else ref
-            unit = ref.unit if isinstance(ref, uml.LiteralSpecification) and hasattr(ref, "unit") else None
+
+        # Dereference pointers to get the actual values
+        ref = pv.value
+        if isinstance(ref, uml.LiteralReference):
+            ref = ref.value.lookup()
+        if isinstance(ref, uml.LiteralReference):  # output token objects must be dereferenced twice, see compute_outputs and get_value
+            ref = ref.value.lookup()
+        if isinstance(ref, uml.LiteralIdentified):
+            ref = ref.value
+
+        # Done dereferencing, now get the actual parameter values
+        if isinstance(ref, uml.LiteralSpecification):
+            value = ref.value
+        elif isinstance(ref, sbol3.Identified):
+            value = ref
         else:
-            value = pv.value.value
-            unit = pv.value.unit if hasattr(pv.value, "unit") else None
+            raise TypeError(f'Invalid value for Parameter {name} of type {type(ref)}')
 
         parameter_value_map[name] = {"parameter" : pv.parameter.lookup(),
-                                     "value" : (value, unit) if unit else value}
+                                     "value" : value}
+    #print(self.display_id)
+    #for k, v in parameter_value_map.items():
+    #    print(f"  {k}: {v['value']}")
+    #print()
     return parameter_value_map
 BehaviorExecution.parameter_value_map = behavior_execution_parameter_value_map
 
@@ -376,3 +390,10 @@ def get_primitive(doc: sbol3.Document, name: str):
     if not isinstance(found, Primitive):
         raise ValueError(f'"{name}" should be a Primitive, but it resolves to a {type(found).__name__}')
     return found
+
+def __str__(self):
+    print(f'{self.type}: self.identity')
+
+for symbol in dir():
+    if isinstance(symbol, sbol3.Identified):
+        symbol.__str__ = __str__

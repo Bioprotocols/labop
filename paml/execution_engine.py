@@ -352,10 +352,7 @@ class ExecutionEngine(ABC):
         elif isinstance(edge, uml.ObjectFlow):
             parameter = activity_node.node.lookup().pin_parameter(edge.source.lookup().name).property_value
             value = activity_node.compute_output(parameter)
-
         value = uml.literal(value)
-
-
         return value
 
     def next_pin_tokens(self, activity_node: paml.ActivityNodeExecution, ex: paml.ProtocolExecution):
@@ -553,6 +550,27 @@ def primitive_compute_output(self, inputs, parameter):
         mask = paml.SampleMask(source=source,
                           mask=coordinates)
         return mask
+    elif parameter.type in sbol3.Document._uri_type_map:
+        # Generalized handler for output tokens, see #125
+        # TODO: This currently assumes the output token is an sbol3.TopLevel
+        # Still needs special handling for non-toplevel tokens
+
+        builder_fxn = sbol3.Document._uri_type_map[parameter.type]
+
+        # Construct object with a unique URI
+        instance_count = 0
+        successful = False
+        while not successful:
+            try:
+                token_id = f'{parameter.name}{instance_count}'
+                output_token = builder_fxn(token_id)
+                successful = self.document.add(output_token)
+            except ValueError:
+                instance_count += 1
+            except TypeError:
+                raise TypeError('Cannot compute output of {parameter.type} because it is not a TopLevel object')
+        return output_token
     else:
+        logger.warning(f'No builder found for output Parameter of type {parameter.type}. Returning a string literal by default.')
         return f"{parameter.name}"
 paml.Primitive.compute_output = primitive_compute_output

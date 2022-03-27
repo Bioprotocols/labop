@@ -3,6 +3,36 @@
 @prefix sbol: <http://sbols.org/v3#> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
+<https://bioprotocols.org/paml/primitives/liquid_handling/Dilute> a <http://bioprotocols.org/paml#Primitive>,
+        sbol:TopLevel ;
+    ns1:ownedParameter <https://bioprotocols.org/paml/primitives/liquid_handling/Dilute/OrderedPropertyValue1>,
+        <https://bioprotocols.org/paml/primitives/liquid_handling/Dilute/OrderedPropertyValue2>,
+        <https://bioprotocols.org/paml/primitives/liquid_handling/Dilute/OrderedPropertyValue3>,
+        <https://bioprotocols.org/paml/primitives/liquid_handling/Dilute/OrderedPropertyValue4>,
+        <https://bioprotocols.org/paml/primitives/liquid_handling/Dilute/OrderedPropertyValue5> ;
+    sbol:description "Dilute" ;
+    sbol:displayId "Dilute" ;
+    sbol:hasNamespace <https://bioprotocols.org/paml/primitives/liquid_handling> .
+
+<https://bioprotocols.org/paml/primitives/liquid_handling/DiluteToTargetOD> a <http://bioprotocols.org/paml#Primitive>,
+        sbol:TopLevel ;
+    ns1:ownedParameter <https://bioprotocols.org/paml/primitives/liquid_handling/DiluteToTargetOD/OrderedPropertyValue1>,
+        <https://bioprotocols.org/paml/primitives/liquid_handling/DiluteToTargetOD/OrderedPropertyValue2>,
+        <https://bioprotocols.org/paml/primitives/liquid_handling/DiluteToTargetOD/OrderedPropertyValue3>,
+        <https://bioprotocols.org/paml/primitives/liquid_handling/DiluteToTargetOD/OrderedPropertyValue4>,
+        <https://bioprotocols.org/paml/primitives/liquid_handling/DiluteToTargetOD/OrderedPropertyValue5> ;
+    sbol:description "Dilute" ;
+    sbol:displayId "DiluteToTargetOD" ;
+    sbol:hasNamespace <https://bioprotocols.org/paml/primitives/liquid_handling> .
+
+<https://bioprotocols.org/paml/primitives/liquid_handling/Discard> a <http://bioprotocols.org/paml#Primitive>,
+        sbol:TopLevel ;
+    ns1:ownedParameter <https://bioprotocols.org/paml/primitives/liquid_handling/Discard/OrderedPropertyValue1>,
+        <https://bioprotocols.org/paml/primitives/liquid_handling/Discard/OrderedPropertyValue2> ;
+    sbol:description "Discard part or all of a sample" ;
+    sbol:displayId "Discard" ;
+    sbol:hasNamespace <https://bioprotocols.org/paml/primitives/liquid_handling> .
+
 <https://bioprotocols.org/paml/primitives/liquid_handling/Dispense> a <http://bioprotocols.org/paml#Primitive>,
         sbol:TopLevel ;
     ns1:ownedParameter <https://bioprotocols.org/paml/primitives/liquid_handling/Dispense/OrderedPropertyValue1>,
@@ -63,6 +93,338 @@
     sbol:description "Mix a measured volume taken from an collection of source samples into a collection of destination samples whose shape can contain them" ;
     sbol:displayId "TransferInto" ;
     sbol:hasNamespace <https://bioprotocols.org/paml/primitives/liquid_handling> .
+
+<https://bioprotocols.org/paml/primitives/liquid_handling/Vortex> a <http://bioprotocols.org/paml#Primitive>,
+        sbol:TopLevel ;
+    ns1:ownedParameter <https://bioprotocols.org/paml/primitives/liquid_handling/Vortex/OrderedPropertyValue1>,
+        <https://bioprotocols.org/paml/primitives/liquid_handling/Vortex/OrderedPropertyValue2> ;
+    sbol:description "Vortex a sample in order to homogeneously mix or suspend its contents" ;
+    sbol:displayId "Vortex" ;
+    sbol:hasNamespace <https://bioprotocols.org/paml/primitives/liquid_handling> .
+
+<https://bioprotocols.org/paml/primitives/liquid_handling/Dilute/OrderedPropertyValue1> a ns1:OrderedPropertyValue,
+        sbol:Identified ;
+    ns1:indexValue 0 ;
+    ns1:propertyValue <https://bioprotocols.org/paml/primitives/liquid_handling/Dilute/OrderedPropertyValue1/Parameter1> ;
+    sbol:displayId "OrderedPropertyValue1" .
+
+<https://bioprotocols.org/paml/primitives/liquid_handling/Dilute/OrderedPropertyValue1/Parameter1> a ns1:Parameter,
+        sbol:Identified ;
+    ns1:direction ns1:in ;
+    ns1:isOrdered true ;
+    ns1:isUnique true ;
+    ns1:lowerValue <https://bioprotocols.org/paml/primitives/liquid_handling/Dilute/OrderedPropertyValue1/Parameter1/LiteralInteger2> ;
+    ns1:type <http://bioprotocols.org/paml#SampleCollection> ;
+    ns1:upperValue <https://bioprotocols.org/paml/primitives/liquid_handling/Dilute/OrderedPropertyValue1/Parameter1/LiteralInteger1> ;
+    sbol:displayId "Parameter1" ;
+    sbol:name "source" .
+
+<https://bioprotocols.org/paml/primitives/liquid_handling/Dilute/OrderedPropertyValue1/Parameter1/LiteralInteger1> a ns1:LiteralInteger,
+        sbol:Identified ;
+    ns1:integerValue 1 ;
+    sbol:displayId "LiteralInteger1" .
+
+<https://bioprotocols.org/paml/primitives/liquid_handling/Dilute/OrderedPropertyValue1/Parameter1/LiteralInteger2> a ns1:LiteralInteger,
+        sbol:Identified ;
+    ns1:integerValue 1 ;
+    sbol:displayId "LiteralInteger2" .
+
+<https://bioprotocols.org/paml/primitives/liquid_handling/Dilute/OrderedPropertyValue2> a ns1:OrderedPropertyValue,
+        sbol:Identified ;
+    ns1:indexValue 1 ;
+    ns1:propertyValue <https://bioprotocols.org/paml/primitives/liquid_handling/Dilute/OrderedPropertyValue2/Parameter1> ;
+    sbol:displayId "OrderedPropertyValue2" .
+
+<https://bioprotocols.org/paml/primitives/liquid_handling/Dilute/OrderedPropertyValue2/Parameter1> a ns1:Parameter,
+        sbol:Identified ;
+    ns1:direction ns1:in ;
+    ns1:isOrdered true ;
+    ns1:isUnique true ;
+    ns1:lowerValue <https://bioprotocols.org/paml/primitives/liquid_handling/Dilute/OrderedPropertyValue2/Parameter1/LiteralInteger2> ;
+    ns1:type <http://bioprotocols.org/paml#SampleCollection> ;
+    ns1:upperValue <https://bioprotocols.org/paml/primitives/liquid_handling/Dilute/OrderedPropertyValue2/Parameter1/LiteralInteger1> ;
+    sbol:displayId "Parameter1" ;
+    sbol:name "destination" .
+
+<https://bioprotocols.org/paml/primitives/liquid_handling/Dilute/OrderedPropertyValue2/Parameter1/LiteralInteger1> a ns1:LiteralInteger,
+        sbol:Identified ;
+    ns1:integerValue 1 ;
+    sbol:displayId "LiteralInteger1" .
+
+<https://bioprotocols.org/paml/primitives/liquid_handling/Dilute/OrderedPropertyValue2/Parameter1/LiteralInteger2> a ns1:LiteralInteger,
+        sbol:Identified ;
+    ns1:integerValue 1 ;
+    sbol:displayId "LiteralInteger2" .
+
+<https://bioprotocols.org/paml/primitives/liquid_handling/Dilute/OrderedPropertyValue3> a ns1:OrderedPropertyValue,
+        sbol:Identified ;
+    ns1:indexValue 2 ;
+    ns1:propertyValue <https://bioprotocols.org/paml/primitives/liquid_handling/Dilute/OrderedPropertyValue3/Parameter1> ;
+    sbol:displayId "OrderedPropertyValue3" .
+
+<https://bioprotocols.org/paml/primitives/liquid_handling/Dilute/OrderedPropertyValue3/Parameter1> a ns1:Parameter,
+        sbol:Identified ;
+    ns1:direction ns1:in ;
+    ns1:isOrdered true ;
+    ns1:isUnique true ;
+    ns1:lowerValue <https://bioprotocols.org/paml/primitives/liquid_handling/Dilute/OrderedPropertyValue3/Parameter1/LiteralInteger2> ;
+    ns1:type om:Measure ;
+    ns1:upperValue <https://bioprotocols.org/paml/primitives/liquid_handling/Dilute/OrderedPropertyValue3/Parameter1/LiteralInteger1> ;
+    sbol:displayId "Parameter1" ;
+    sbol:name "amount" .
+
+<https://bioprotocols.org/paml/primitives/liquid_handling/Dilute/OrderedPropertyValue3/Parameter1/LiteralInteger1> a ns1:LiteralInteger,
+        sbol:Identified ;
+    ns1:integerValue 1 ;
+    sbol:displayId "LiteralInteger1" .
+
+<https://bioprotocols.org/paml/primitives/liquid_handling/Dilute/OrderedPropertyValue3/Parameter1/LiteralInteger2> a ns1:LiteralInteger,
+        sbol:Identified ;
+    ns1:integerValue 1 ;
+    sbol:displayId "LiteralInteger2" .
+
+<https://bioprotocols.org/paml/primitives/liquid_handling/Dilute/OrderedPropertyValue4> a ns1:OrderedPropertyValue,
+        sbol:Identified ;
+    ns1:indexValue 3 ;
+    ns1:propertyValue <https://bioprotocols.org/paml/primitives/liquid_handling/Dilute/OrderedPropertyValue4/Parameter1> ;
+    sbol:displayId "OrderedPropertyValue4" .
+
+<https://bioprotocols.org/paml/primitives/liquid_handling/Dilute/OrderedPropertyValue4/Parameter1> a ns1:Parameter,
+        sbol:Identified ;
+    ns1:direction ns1:in ;
+    ns1:isOrdered true ;
+    ns1:isUnique true ;
+    ns1:lowerValue <https://bioprotocols.org/paml/primitives/liquid_handling/Dilute/OrderedPropertyValue4/Parameter1/LiteralInteger2> ;
+    ns1:type sbol:Component ;
+    ns1:upperValue <https://bioprotocols.org/paml/primitives/liquid_handling/Dilute/OrderedPropertyValue4/Parameter1/LiteralInteger1> ;
+    sbol:displayId "Parameter1" ;
+    sbol:name "diluent" .
+
+<https://bioprotocols.org/paml/primitives/liquid_handling/Dilute/OrderedPropertyValue4/Parameter1/LiteralInteger1> a ns1:LiteralInteger,
+        sbol:Identified ;
+    ns1:integerValue 1 ;
+    sbol:displayId "LiteralInteger1" .
+
+<https://bioprotocols.org/paml/primitives/liquid_handling/Dilute/OrderedPropertyValue4/Parameter1/LiteralInteger2> a ns1:LiteralInteger,
+        sbol:Identified ;
+    ns1:integerValue 1 ;
+    sbol:displayId "LiteralInteger2" .
+
+<https://bioprotocols.org/paml/primitives/liquid_handling/Dilute/OrderedPropertyValue5> a ns1:OrderedPropertyValue,
+        sbol:Identified ;
+    ns1:indexValue 4 ;
+    ns1:propertyValue <https://bioprotocols.org/paml/primitives/liquid_handling/Dilute/OrderedPropertyValue5/Parameter1> ;
+    sbol:displayId "OrderedPropertyValue5" .
+
+<https://bioprotocols.org/paml/primitives/liquid_handling/Dilute/OrderedPropertyValue5/Parameter1> a ns1:Parameter,
+        sbol:Identified ;
+    ns1:direction ns1:in ;
+    ns1:isOrdered true ;
+    ns1:isUnique true ;
+    ns1:lowerValue <https://bioprotocols.org/paml/primitives/liquid_handling/Dilute/OrderedPropertyValue5/Parameter1/LiteralInteger2> ;
+    ns1:type om:Measure ;
+    ns1:upperValue <https://bioprotocols.org/paml/primitives/liquid_handling/Dilute/OrderedPropertyValue5/Parameter1/LiteralInteger1> ;
+    sbol:displayId "Parameter1" ;
+    sbol:name "dilution_factor" .
+
+<https://bioprotocols.org/paml/primitives/liquid_handling/Dilute/OrderedPropertyValue5/Parameter1/LiteralInteger1> a ns1:LiteralInteger,
+        sbol:Identified ;
+    ns1:integerValue 1 ;
+    sbol:displayId "LiteralInteger1" .
+
+<https://bioprotocols.org/paml/primitives/liquid_handling/Dilute/OrderedPropertyValue5/Parameter1/LiteralInteger2> a ns1:LiteralInteger,
+        sbol:Identified ;
+    ns1:integerValue 1 ;
+    sbol:displayId "LiteralInteger2" .
+
+<https://bioprotocols.org/paml/primitives/liquid_handling/DiluteToTargetOD/OrderedPropertyValue1> a ns1:OrderedPropertyValue,
+        sbol:Identified ;
+    ns1:indexValue 0 ;
+    ns1:propertyValue <https://bioprotocols.org/paml/primitives/liquid_handling/DiluteToTargetOD/OrderedPropertyValue1/Parameter1> ;
+    sbol:displayId "OrderedPropertyValue1" .
+
+<https://bioprotocols.org/paml/primitives/liquid_handling/DiluteToTargetOD/OrderedPropertyValue1/Parameter1> a ns1:Parameter,
+        sbol:Identified ;
+    ns1:direction ns1:in ;
+    ns1:isOrdered true ;
+    ns1:isUnique true ;
+    ns1:lowerValue <https://bioprotocols.org/paml/primitives/liquid_handling/DiluteToTargetOD/OrderedPropertyValue1/Parameter1/LiteralInteger2> ;
+    ns1:type <http://bioprotocols.org/paml#SampleCollection> ;
+    ns1:upperValue <https://bioprotocols.org/paml/primitives/liquid_handling/DiluteToTargetOD/OrderedPropertyValue1/Parameter1/LiteralInteger1> ;
+    sbol:displayId "Parameter1" ;
+    sbol:name "source" .
+
+<https://bioprotocols.org/paml/primitives/liquid_handling/DiluteToTargetOD/OrderedPropertyValue1/Parameter1/LiteralInteger1> a ns1:LiteralInteger,
+        sbol:Identified ;
+    ns1:integerValue 1 ;
+    sbol:displayId "LiteralInteger1" .
+
+<https://bioprotocols.org/paml/primitives/liquid_handling/DiluteToTargetOD/OrderedPropertyValue1/Parameter1/LiteralInteger2> a ns1:LiteralInteger,
+        sbol:Identified ;
+    ns1:integerValue 1 ;
+    sbol:displayId "LiteralInteger2" .
+
+<https://bioprotocols.org/paml/primitives/liquid_handling/DiluteToTargetOD/OrderedPropertyValue2> a ns1:OrderedPropertyValue,
+        sbol:Identified ;
+    ns1:indexValue 1 ;
+    ns1:propertyValue <https://bioprotocols.org/paml/primitives/liquid_handling/DiluteToTargetOD/OrderedPropertyValue2/Parameter1> ;
+    sbol:displayId "OrderedPropertyValue2" .
+
+<https://bioprotocols.org/paml/primitives/liquid_handling/DiluteToTargetOD/OrderedPropertyValue2/Parameter1> a ns1:Parameter,
+        sbol:Identified ;
+    ns1:direction ns1:in ;
+    ns1:isOrdered true ;
+    ns1:isUnique true ;
+    ns1:lowerValue <https://bioprotocols.org/paml/primitives/liquid_handling/DiluteToTargetOD/OrderedPropertyValue2/Parameter1/LiteralInteger2> ;
+    ns1:type <http://bioprotocols.org/paml#SampleCollection> ;
+    ns1:upperValue <https://bioprotocols.org/paml/primitives/liquid_handling/DiluteToTargetOD/OrderedPropertyValue2/Parameter1/LiteralInteger1> ;
+    sbol:displayId "Parameter1" ;
+    sbol:name "destination" .
+
+<https://bioprotocols.org/paml/primitives/liquid_handling/DiluteToTargetOD/OrderedPropertyValue2/Parameter1/LiteralInteger1> a ns1:LiteralInteger,
+        sbol:Identified ;
+    ns1:integerValue 1 ;
+    sbol:displayId "LiteralInteger1" .
+
+<https://bioprotocols.org/paml/primitives/liquid_handling/DiluteToTargetOD/OrderedPropertyValue2/Parameter1/LiteralInteger2> a ns1:LiteralInteger,
+        sbol:Identified ;
+    ns1:integerValue 1 ;
+    sbol:displayId "LiteralInteger2" .
+
+<https://bioprotocols.org/paml/primitives/liquid_handling/DiluteToTargetOD/OrderedPropertyValue3> a ns1:OrderedPropertyValue,
+        sbol:Identified ;
+    ns1:indexValue 2 ;
+    ns1:propertyValue <https://bioprotocols.org/paml/primitives/liquid_handling/DiluteToTargetOD/OrderedPropertyValue3/Parameter1> ;
+    sbol:displayId "OrderedPropertyValue3" .
+
+<https://bioprotocols.org/paml/primitives/liquid_handling/DiluteToTargetOD/OrderedPropertyValue3/Parameter1> a ns1:Parameter,
+        sbol:Identified ;
+    ns1:direction ns1:in ;
+    ns1:isOrdered true ;
+    ns1:isUnique true ;
+    ns1:lowerValue <https://bioprotocols.org/paml/primitives/liquid_handling/DiluteToTargetOD/OrderedPropertyValue3/Parameter1/LiteralInteger2> ;
+    ns1:type om:Measure ;
+    ns1:upperValue <https://bioprotocols.org/paml/primitives/liquid_handling/DiluteToTargetOD/OrderedPropertyValue3/Parameter1/LiteralInteger1> ;
+    sbol:displayId "Parameter1" ;
+    sbol:name "amount" .
+
+<https://bioprotocols.org/paml/primitives/liquid_handling/DiluteToTargetOD/OrderedPropertyValue3/Parameter1/LiteralInteger1> a ns1:LiteralInteger,
+        sbol:Identified ;
+    ns1:integerValue 1 ;
+    sbol:displayId "LiteralInteger1" .
+
+<https://bioprotocols.org/paml/primitives/liquid_handling/DiluteToTargetOD/OrderedPropertyValue3/Parameter1/LiteralInteger2> a ns1:LiteralInteger,
+        sbol:Identified ;
+    ns1:integerValue 1 ;
+    sbol:displayId "LiteralInteger2" .
+
+<https://bioprotocols.org/paml/primitives/liquid_handling/DiluteToTargetOD/OrderedPropertyValue4> a ns1:OrderedPropertyValue,
+        sbol:Identified ;
+    ns1:indexValue 3 ;
+    ns1:propertyValue <https://bioprotocols.org/paml/primitives/liquid_handling/DiluteToTargetOD/OrderedPropertyValue4/Parameter1> ;
+    sbol:displayId "OrderedPropertyValue4" .
+
+<https://bioprotocols.org/paml/primitives/liquid_handling/DiluteToTargetOD/OrderedPropertyValue4/Parameter1> a ns1:Parameter,
+        sbol:Identified ;
+    ns1:direction ns1:in ;
+    ns1:isOrdered true ;
+    ns1:isUnique true ;
+    ns1:lowerValue <https://bioprotocols.org/paml/primitives/liquid_handling/DiluteToTargetOD/OrderedPropertyValue4/Parameter1/LiteralInteger2> ;
+    ns1:type sbol:Component ;
+    ns1:upperValue <https://bioprotocols.org/paml/primitives/liquid_handling/DiluteToTargetOD/OrderedPropertyValue4/Parameter1/LiteralInteger1> ;
+    sbol:displayId "Parameter1" ;
+    sbol:name "diluent" .
+
+<https://bioprotocols.org/paml/primitives/liquid_handling/DiluteToTargetOD/OrderedPropertyValue4/Parameter1/LiteralInteger1> a ns1:LiteralInteger,
+        sbol:Identified ;
+    ns1:integerValue 1 ;
+    sbol:displayId "LiteralInteger1" .
+
+<https://bioprotocols.org/paml/primitives/liquid_handling/DiluteToTargetOD/OrderedPropertyValue4/Parameter1/LiteralInteger2> a ns1:LiteralInteger,
+        sbol:Identified ;
+    ns1:integerValue 1 ;
+    sbol:displayId "LiteralInteger2" .
+
+<https://bioprotocols.org/paml/primitives/liquid_handling/DiluteToTargetOD/OrderedPropertyValue5> a ns1:OrderedPropertyValue,
+        sbol:Identified ;
+    ns1:indexValue 4 ;
+    ns1:propertyValue <https://bioprotocols.org/paml/primitives/liquid_handling/DiluteToTargetOD/OrderedPropertyValue5/Parameter1> ;
+    sbol:displayId "OrderedPropertyValue5" .
+
+<https://bioprotocols.org/paml/primitives/liquid_handling/DiluteToTargetOD/OrderedPropertyValue5/Parameter1> a ns1:Parameter,
+        sbol:Identified ;
+    ns1:direction ns1:in ;
+    ns1:isOrdered true ;
+    ns1:isUnique true ;
+    ns1:lowerValue <https://bioprotocols.org/paml/primitives/liquid_handling/DiluteToTargetOD/OrderedPropertyValue5/Parameter1/LiteralInteger2> ;
+    ns1:type om:Measure ;
+    ns1:upperValue <https://bioprotocols.org/paml/primitives/liquid_handling/DiluteToTargetOD/OrderedPropertyValue5/Parameter1/LiteralInteger1> ;
+    sbol:displayId "Parameter1" ;
+    sbol:name "target_od" .
+
+<https://bioprotocols.org/paml/primitives/liquid_handling/DiluteToTargetOD/OrderedPropertyValue5/Parameter1/LiteralInteger1> a ns1:LiteralInteger,
+        sbol:Identified ;
+    ns1:integerValue 1 ;
+    sbol:displayId "LiteralInteger1" .
+
+<https://bioprotocols.org/paml/primitives/liquid_handling/DiluteToTargetOD/OrderedPropertyValue5/Parameter1/LiteralInteger2> a ns1:LiteralInteger,
+        sbol:Identified ;
+    ns1:integerValue 1 ;
+    sbol:displayId "LiteralInteger2" .
+
+<https://bioprotocols.org/paml/primitives/liquid_handling/Discard/OrderedPropertyValue1> a ns1:OrderedPropertyValue,
+        sbol:Identified ;
+    ns1:indexValue 0 ;
+    ns1:propertyValue <https://bioprotocols.org/paml/primitives/liquid_handling/Discard/OrderedPropertyValue1/Parameter1> ;
+    sbol:displayId "OrderedPropertyValue1" .
+
+<https://bioprotocols.org/paml/primitives/liquid_handling/Discard/OrderedPropertyValue1/Parameter1> a ns1:Parameter,
+        sbol:Identified ;
+    ns1:direction ns1:in ;
+    ns1:isOrdered true ;
+    ns1:isUnique true ;
+    ns1:lowerValue <https://bioprotocols.org/paml/primitives/liquid_handling/Discard/OrderedPropertyValue1/Parameter1/LiteralInteger2> ;
+    ns1:type <http://bioprotocols.org/paml#SampleCollection> ;
+    ns1:upperValue <https://bioprotocols.org/paml/primitives/liquid_handling/Discard/OrderedPropertyValue1/Parameter1/LiteralInteger1> ;
+    sbol:displayId "Parameter1" ;
+    sbol:name "samples" .
+
+<https://bioprotocols.org/paml/primitives/liquid_handling/Discard/OrderedPropertyValue1/Parameter1/LiteralInteger1> a ns1:LiteralInteger,
+        sbol:Identified ;
+    ns1:integerValue 1 ;
+    sbol:displayId "LiteralInteger1" .
+
+<https://bioprotocols.org/paml/primitives/liquid_handling/Discard/OrderedPropertyValue1/Parameter1/LiteralInteger2> a ns1:LiteralInteger,
+        sbol:Identified ;
+    ns1:integerValue 1 ;
+    sbol:displayId "LiteralInteger2" .
+
+<https://bioprotocols.org/paml/primitives/liquid_handling/Discard/OrderedPropertyValue2> a ns1:OrderedPropertyValue,
+        sbol:Identified ;
+    ns1:indexValue 1 ;
+    ns1:propertyValue <https://bioprotocols.org/paml/primitives/liquid_handling/Discard/OrderedPropertyValue2/Parameter1> ;
+    sbol:displayId "OrderedPropertyValue2" .
+
+<https://bioprotocols.org/paml/primitives/liquid_handling/Discard/OrderedPropertyValue2/Parameter1> a ns1:Parameter,
+        sbol:Identified ;
+    ns1:direction ns1:in ;
+    ns1:isOrdered true ;
+    ns1:isUnique true ;
+    ns1:lowerValue <https://bioprotocols.org/paml/primitives/liquid_handling/Discard/OrderedPropertyValue2/Parameter1/LiteralInteger2> ;
+    ns1:type om:Measure ;
+    ns1:upperValue <https://bioprotocols.org/paml/primitives/liquid_handling/Discard/OrderedPropertyValue2/Parameter1/LiteralInteger1> ;
+    sbol:displayId "Parameter1" ;
+    sbol:name "amount" .
+
+<https://bioprotocols.org/paml/primitives/liquid_handling/Discard/OrderedPropertyValue2/Parameter1/LiteralInteger1> a ns1:LiteralInteger,
+        sbol:Identified ;
+    ns1:integerValue 1 ;
+    sbol:displayId "LiteralInteger1" .
+
+<https://bioprotocols.org/paml/primitives/liquid_handling/Discard/OrderedPropertyValue2/Parameter1/LiteralInteger2> a ns1:LiteralInteger,
+        sbol:Identified ;
+    ns1:integerValue 1 ;
+    sbol:displayId "LiteralInteger2" .
 
 <https://bioprotocols.org/paml/primitives/liquid_handling/Dispense/OrderedPropertyValue1> a ns1:OrderedPropertyValue,
         sbol:Identified ;
@@ -739,62 +1101,57 @@
     ns1:integerValue 0 ;
     sbol:displayId "LiteralInteger2" .
 
-<https://bioprotocols.org/paml/primitives/liquid_handling/Vortex> a <http://bioprotocols.org/paml#Primitive>,
-        sbol:TopLevel ;
-    ns1:ownedParameter <https://bioprotocols.org/paml/primitives/liquid_handling/Vortex/OrderedPropertyValue1>,
-        <https://bioprotocols.org/paml/primitives/liquid_handling/Vortex/OrderedPropertyValue2>;
-    sbol:description "Vortex a liquid in order to mix a container's contents" ;
-    sbol:displayId "Vortex" ;
-    sbol:hasNamespace <https://bioprotocols.org/paml/primitives/liquid_handling> .
-
 <https://bioprotocols.org/paml/primitives/liquid_handling/Vortex/OrderedPropertyValue1> a ns1:OrderedPropertyValue,
         sbol:Identified ;
-    ns1:indexValue 1 ;
+    ns1:indexValue 0 ;
     ns1:propertyValue <https://bioprotocols.org/paml/primitives/liquid_handling/Vortex/OrderedPropertyValue1/Parameter1> ;
     sbol:displayId "OrderedPropertyValue1" .
-
-<https://bioprotocols.org/paml/primitives/liquid_handling/Vortex/OrderedPropertyValue2> a ns1:OrderedPropertyValue,
-        sbol:Identified ;
-    ns1:indexValue 2 ;
-    ns1:propertyValue <https://bioprotocols.org/paml/primitives/liquid_handling/Vortex/OrderedPropertyValue2/Parameter1> ;
-    sbol:displayId "OrderedPropertyValue2" .
-
-<https://bioprotocols.org/paml/primitives/liquid_handling/Vortex/OrderedPropertyValue3> a ns1:OrderedPropertyValue,
-        sbol:Identified ;
-    ns1:indexValue 3 ;
-    ns1:propertyValue <https://bioprotocols.org/paml/primitives/liquid_handling/Vortex/OrderedPropertyValue3/Parameter1> ;
-    sbol:displayId "OrderedPropertyValue3" .
 
 <https://bioprotocols.org/paml/primitives/liquid_handling/Vortex/OrderedPropertyValue1/Parameter1> a ns1:Parameter,
         sbol:Identified ;
     ns1:direction ns1:in ;
     ns1:isOrdered true ;
     ns1:isUnique true ;
+    ns1:lowerValue <https://bioprotocols.org/paml/primitives/liquid_handling/Vortex/OrderedPropertyValue1/Parameter1/LiteralInteger2> ;
     ns1:type <http://bioprotocols.org/paml#SampleCollection> ;
+    ns1:upperValue <https://bioprotocols.org/paml/primitives/liquid_handling/Vortex/OrderedPropertyValue1/Parameter1/LiteralInteger1> ;
     sbol:displayId "Parameter1" ;
-    sbol:name "sample" .
+    sbol:name "samples" .
+
+<https://bioprotocols.org/paml/primitives/liquid_handling/Vortex/OrderedPropertyValue1/Parameter1/LiteralInteger1> a ns1:LiteralInteger,
+        sbol:Identified ;
+    ns1:integerValue 1 ;
+    sbol:displayId "LiteralInteger1" .
+
+<https://bioprotocols.org/paml/primitives/liquid_handling/Vortex/OrderedPropertyValue1/Parameter1/LiteralInteger2> a ns1:LiteralInteger,
+        sbol:Identified ;
+    ns1:integerValue 1 ;
+    sbol:displayId "LiteralInteger2" .
+
+<https://bioprotocols.org/paml/primitives/liquid_handling/Vortex/OrderedPropertyValue2> a ns1:OrderedPropertyValue,
+        sbol:Identified ;
+    ns1:indexValue 1 ;
+    ns1:propertyValue <https://bioprotocols.org/paml/primitives/liquid_handling/Vortex/OrderedPropertyValue2/Parameter1> ;
+    sbol:displayId "OrderedPropertyValue2" .
 
 <https://bioprotocols.org/paml/primitives/liquid_handling/Vortex/OrderedPropertyValue2/Parameter1> a ns1:Parameter,
         sbol:Identified ;
     ns1:direction ns1:in ;
     ns1:isOrdered true ;
     ns1:isUnique true ;
-    ns1:lowerValue <https://bioprotocols.org/paml/primitives/liquid_handling/Vortex/OrderedPropertyValue2/Parameter1/LiteralInteger1>;
+    ns1:lowerValue <https://bioprotocols.org/paml/primitives/liquid_handling/Vortex/OrderedPropertyValue2/Parameter1/LiteralInteger2> ;
     ns1:type om:Measure ;
+    ns1:upperValue <https://bioprotocols.org/paml/primitives/liquid_handling/Vortex/OrderedPropertyValue2/Parameter1/LiteralInteger1> ;
     sbol:displayId "Parameter1" ;
     sbol:name "duration" .
 
 <https://bioprotocols.org/paml/primitives/liquid_handling/Vortex/OrderedPropertyValue2/Parameter1/LiteralInteger1> a ns1:LiteralInteger,
         sbol:Identified ;
-    ns1:integerValue 0 ;
+    ns1:integerValue 1 ;
     sbol:displayId "LiteralInteger1" .
 
-<https://bioprotocols.org/paml/primitives/liquid_handling/Vortex/OrderedPropertyValue3/Parameter1> a ns1:Parameter,
+<https://bioprotocols.org/paml/primitives/liquid_handling/Vortex/OrderedPropertyValue2/Parameter1/LiteralInteger2> a ns1:LiteralInteger,
         sbol:Identified ;
-    ns1:direction ns1:out ;
-    ns1:isOrdered true ;
-    ns1:isUnique true ;
-    ns1:type <http://bioprotocols.org/paml#SampleCollection> ;
-    sbol:displayId "Parameter1" ;
-    sbol:name "vortexed sample" .
+    ns1:integerValue 1 ;
+    sbol:displayId "LiteralInteger2" .
 

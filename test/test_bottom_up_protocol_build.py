@@ -183,9 +183,17 @@ class TestParameters(unittest.TestCase):
     #        print(record.call)
 
     def test_bad_ordered_property_value(self):
-        # Parameter indexes are duplicated
+        # Tests what happens when OrderedPropertyValue indexes are not 
+        # sequentially ordered
         pass
 
+    def test_output_tokens(self):
+        # Tests that the correct output objects are generated from
+        # a CallBehaviorExecution.  This should exercise the 
+        # different cases in BehaviorExecution.parameter_value_map and 
+        # Primitive.compute_output.  It should also test the failure
+        # case when a Primitive's output Parameter has an unrecognized type
+        pass
 
 if __name__ == '__main__':
     unittest.main()

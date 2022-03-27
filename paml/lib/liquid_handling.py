@@ -44,6 +44,24 @@ p.add_input('mixCycles', sbol3.OM_MEASURE, True)
 p.add_input('dispenseVelocity', sbol3.OM_MEASURE, True)
 doc.add(p)
 
+p = paml.Primitive('Dilute')
+p.description = 'Dilute'
+p.add_input('source', 'http://bioprotocols.org/paml#SampleCollection')
+p.add_input('destination', 'http://bioprotocols.org/paml#SampleCollection')
+p.add_input('amount', sbol3.OM_MEASURE) # Must be volume
+p.add_input('diluent', sbol3.SBOL_COMPONENT) 
+p.add_input('dilution_factor', sbol3.OM_MEASURE)
+doc.add(p)
+
+p = paml.Primitive('DiluteToTargetOD')
+p.description = 'Dilute'
+p.add_input('source', 'http://bioprotocols.org/paml#SampleCollection')
+p.add_input('destination', 'http://bioprotocols.org/paml#SampleCollection')
+p.add_input('amount', sbol3.OM_MEASURE) # Must be volume
+p.add_input('diluent', sbol3.SBOL_COMPONENT) 
+p.add_input('target_od', sbol3.OM_MEASURE)
+doc.add(p)
+
 p = paml.Primitive('TransferByMap')
 p.description = 'Move volumes from a collection of source samples to a collection of destination samples following a plan of value given for each location'
 p.add_input('source', 'http://bioprotocols.org/paml#SampleCollection')
@@ -58,6 +76,18 @@ p.add_input('samples', 'http://bioprotocols.org/paml#SampleCollection')
 p.add_input('amount', sbol3.OM_MEASURE) # Must be volume
 p.add_input('dispenseVelocity', sbol3.OM_MEASURE, True)
 p.add_input('cycleCount', sbol3.OM_MEASURE, True)
+doc.add(p)
+
+p = paml.Primitive('Vortex')
+p.description = 'Vortex a sample in order to homogeneously mix or suspend its contents'
+p.add_input('samples', 'http://bioprotocols.org/paml#SampleCollection')
+p.add_input('duration', sbol3.OM_MEASURE)  # Must be time
+doc.add(p)
+
+p = paml.Primitive('Discard')
+p.description = 'Discard part or all of a sample'
+p.add_input('samples', 'http://bioprotocols.org/paml#SampleCollection')
+p.add_input('amount', sbol3.OM_MEASURE)  # Must be volume
 doc.add(p)
 
 print('Library construction complete')
