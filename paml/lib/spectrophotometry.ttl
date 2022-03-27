@@ -215,7 +215,7 @@
     ns1:type om:Measure ;
     ns1:upperValue <https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureFluorescence/OrderedPropertyValue3/Parameter1/LiteralInteger1> ;
     sbol:displayId "Parameter1" ;
-    sbol:name "emissionBandpassWavelength" .
+    sbol:name "emissionWavelength" .
 
 <https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureFluorescence/OrderedPropertyValue3/Parameter1/LiteralInteger1> a ns1:LiteralInteger,
         sbol:Identified ;
