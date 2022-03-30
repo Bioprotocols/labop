@@ -81,7 +81,7 @@ class MarkdownSpecialization(BehaviorSpecialization):
 
     def _parameter_value_markdown(self, pv : paml.ParameterValue, is_output=False):
         parameter = pv.parameter.lookup().property_value
-        value = pv.value.lookup().value if isinstance(pv.value, uml.LiteralReference) else pv.value.value
+        value = pv.value.value.lookup() if isinstance(pv.value, uml.LiteralReference) else pv.value.value
         units = tyto.OM.get_term_by_uri(value.unit) if isinstance(value, sbol3.om_unit.Measure) else None
         value = str(f"{value.value} {units}")  if units else str(value)
         if is_output:
@@ -106,9 +106,10 @@ class MarkdownSpecialization(BehaviorSpecialization):
         output_parameters = []
         for i in self.execution.parameter_values:
             parameter = i.parameter.lookup()
-            value = i.value.value
+            value = i.value.value.lookup() if isinstance(i.value, uml.LiteralReference) else i.value.value
             if parameter.property_value.direction == uml.PARAMETER_OUT:
-                output_parameters.append(f"`{parameter.property_value.name}` from `{value}`")
+                #output_parameters.append(f"`{parameter.property_value.name}` from `{value}`")
+                output_parameters.append(value.name)
         output_parameters = ", ".join(output_parameters)
         return f"Report values for {output_parameters}."
 
@@ -195,17 +196,12 @@ class MarkdownSpecialization(BehaviorSpecialization):
         wl_units = tyto.OM.get_term_by_uri(wl.unit)
         samples = parameter_value_map["samples"]["value"]
         #wells = self.var_to_entity[samples]
-        #measurements = parameter_value_map["measurements"]["value"]
-        #print(measurements)
-        
-
-        # HACK extract contrainer from well group since we do not have it as input
-        container = None #wells[0].container
+        measurements = parameter_value_map["measurements"]["value"]
 
         l.debug(f"measure_absorbance:")
-        l.debug(f"  container: {container}")
         l.debug(f"  samples: {samples}")
         l.debug(f"  wavelength: {wl.value} {wl_units}")
+        l.debug(f"  measurements: {measurements}")
 
         # Lookup sample container to get the container name, and use that
         # as the sample label
@@ -214,10 +210,12 @@ class MarkdownSpecialization(BehaviorSpecialization):
             # Their source does not directly reference a SampleArray directly,
             # rather through a LiteralReference and LiteralIdentified
             samples = samples.source.lookup().value.lookup().value
-
         samples_str = record.document.find(samples.container_type).value.name
+
+        # Provide an informative name for the measurements output
+        measurements.name = f'absorbance measurements for {samples_str}'
+
         self.markdown_steps += [f'Make absorbance measurements of {samples_str} at {wl.value} {wl_units}.']
-        #measurements.name = f'{samples_str} measurements'
 
     def measure_fluorescence(self, record: paml.ActivityNodeExecution):
         results = {}
@@ -228,8 +226,7 @@ class MarkdownSpecialization(BehaviorSpecialization):
         emission = parameter_value_map['emissionWavelength']['value']
         bandpass = parameter_value_map['emissionBandpassWidth']['value']
         samples = parameter_value_map['samples']['value']
-        #measurements = parameter_value_map["measurements"]["value"]
-        #print(measurements)
+        measurements = parameter_value_map["measurements"]["value"]
 
         # Lookup sample container to get the container name, and use that
         # as the sample label
@@ -240,9 +237,12 @@ class MarkdownSpecialization(BehaviorSpecialization):
             samples = samples.source.lookup().value.lookup().value
         samples_str = record.document.find(samples.container_type).value.name
 
+        # Provide an informative name for the measurements output
+        measurements.name = f'fluorescence measurements for {samples_str}'
+
         # Add to markdown
         self.markdown_steps += [f'Make fluorescence measurements of {samples_str} with excitation wavelength of {measurement_to_text(excitation)} and emission filter of {measurement_to_text(emission)} and {measurement_to_text(bandpass)} bandpass']
-        #measurements.name = f'{samples_str} measurements'
+
 
     def vortex(self, record: paml.ActivityNodeExecution):
         call = record.call.lookup()

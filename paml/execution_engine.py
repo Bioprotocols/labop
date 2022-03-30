@@ -564,12 +564,14 @@ def primitive_compute_output(self, inputs, parameter):
         while not successful:
             try:
                 token_id = f'{parameter.name}{instance_count}'
-                output_token = builder_fxn(token_id)
-                successful = self.document.add(output_token)
+                output_token = builder_fxn(token_id, type_uri=parameter.type)
+                if isinstance(output_token, sbol3.TopLevel):
+                    self.document.add(output_token)
+                else:
+                    output_token = builder_fxn(None, type_uri=parameter.type)
+                successful = True
             except ValueError:
                 instance_count += 1
-            except TypeError:
-                raise TypeError('Cannot compute output of {parameter.type} because it is not a TopLevel object')
         return output_token
     else:
         logger.warning(f'No builder found for output Parameter of type {parameter.type}. Returning a string literal by default.')
