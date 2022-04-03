@@ -192,10 +192,6 @@ paml:SampleArray a owl:Class ;
             rdfs:comment "N-dimensional array of URI for specification or nulls" ;
             owl:minCardinality "1"^^xsd:nonNegativeInteger ;
             owl:onProperty paml:contents ],
-        [ a owl:Restriction ;
-            rdfs:comment "N-dimensional array of URI for specification or nulls" ;
-            owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
-            owl:onProperty paml:contents ],
         paml:SampleCollection .
 
 paml:SampleData a owl:Class ;
@@ -297,14 +293,14 @@ paml:containerType a owl:DatatypeProperty ;
     rdfs:domain paml:SampleArray ;
     rdfs:range xsd:anyURI .
 
-paml:contents a owl:DatatypeProperty ;
+paml:contents a owl:ObjectProperty ;
     rdfs:label "contents" ;
     rdfs:comment """Description of the contents.
         TODO: need to decide whether this is a multi-valued property with associated array coordinates or a
         single-valued property with an array value.
         Currently set to string as a "dummy" value that can serialize anything.""" ;
     rdfs:domain paml:SampleArray ;
-    rdfs:range xsd:string .
+    rdfs:range sbol:Identified .
 
 paml:edge a owl:ObjectProperty ;
     rdfs:label "edge" ;
