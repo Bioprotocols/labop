@@ -58,6 +58,12 @@ p.add_input('contents', sbol3.SBOL_IDENTIFIED)
 p.add_output('reagent', 'http://bioprotocols.org/paml#SampleArray')
 doc.add(p)
 
+p = paml.Primitive('ContainerSet')
+p.description = 'Create a new sample collection containing a set of replicate slots for every sample in the input'
+p.add_input('sources', sbol3.SBOL_COMPONENT, unbounded=True)
+p.add_input('specification', 'http://bioprotocols.org/paml#ContainerSpec')
+p.add_output('samples', 'http://bioprotocols.org/paml#SampleArray')
+doc.add(p)
 
 print('Library construction complete')
 

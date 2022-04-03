@@ -14,16 +14,16 @@ print('Making primitives for '+LIBRARY_NAME)
 p = paml.Primitive('Transform')
 p.description = 'Transform competent cells.'
 p.add_input('host', sbol3.SBOL_COMPONENT)
-p.add_input('dna', sbol3.SBOL_COMPONENT)
+p.add_input('dna', sbol3.SBOL_COMPONENT, unbounded=True)
 p.add_input('amount', sbol3.OM_MEASURE, True) # Can be mass or volume
 p.add_input('selection_medium', sbol3.SBOL_COMPONENT)
-p.add_output('transformants', sbol3.SBOL_COMPONENT)
+p.add_output('transformants', 'http://bioprotocols.org/paml#SampleArray')
 
 doc.add(p)
 
 p = paml.Primitive('Culture')
 p.description = 'Inoculate and grow cells in a growth medium.'
-p.add_input('inoculum', sbol3.SBOL_COMPONENT)
+p.add_input('inoculum', sbol3.SBOL_COMPONENT, unbounded=True)
 p.add_input('growth_medium', sbol3.SBOL_COMPONENT)
 p.add_input('volume', sbol3.OM_MEASURE, True)
 p.add_input('duration', sbol3.OM_MEASURE)

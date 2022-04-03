@@ -1,6 +1,7 @@
 import logging
 import json
 import os 
+from typing import Union
 
 import sbol3
 import tyto
@@ -44,6 +45,7 @@ class MarkdownSpecialization(BehaviorSpecialization):
             "https://bioprotocols.org/paml/primitives/plate_handling/Hold": self.hold,
             "https://bioprotocols.org/paml/primitives/liquid_handling/Dilute": self.dilute,
             "https://bioprotocols.org/paml/primitives/liquid_handling/DiluteToTargetOD": self.dilute_to_target_od,
+            "http://sbols.org/unspecified_namespace/ContainerSet": self.define_containers
         }
 
     def on_begin(self):
@@ -146,6 +148,35 @@ class MarkdownSpecialization(BehaviorSpecialization):
 
         return results
 
+    def define_containers(self, record: paml.ActivityNodeExecution):
+        results = {}
+        call = record.call.lookup()
+        parameter_value_map = call.parameter_value_map()
+
+        containers = parameter_value_map["specification"]["value"]
+        sources = parameter_value_map["sources"]["value"]
+        samples = parameter_value_map["samples"]["value"]
+        samples.container_type = containers.get_parent().identity
+        for source in sources:
+            samples.contents += [source]
+        assert(type(containers) is paml.ContainerSpec)
+
+        try:
+            
+            # Assume that a simple container class is specified, rather
+            # than container properties.  Then use tyto to get the 
+            # container label
+            container_class = ContainerOntology.uri + '#' + containers.queryString.split(':')[-1]
+            container_str = ContainerOntology.get_term_by_uri(container_class)
+            if len(sources) > 1:
+                self.markdown_steps += [f'Provision {len(sources)} {container_str}s to contain `{containers.name}`']
+            else:
+                self.markdown_steps += [f'Provision a {container_str} to contain `{containers.name}`']
+        except Exception as e:
+            l.warning(e)
+            self.markdown_steps += [f"Provision a container named `{spec.name}` meeting specification: {containers.queryString}."]
+
+        return results
     # def provision_container(self, wells: WellGroup, amounts = None, volumes = None, informatics = None) -> Provision:
     def provision_container(self, record: paml.ActivityNodeExecution):
         results = {}
@@ -313,7 +344,7 @@ class MarkdownSpecialization(BehaviorSpecialization):
     def culture(self, record: paml.ActivityNodeExecution):
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
-        inoculum = parameter_value_map['inoculum']['value']
+        inocula = parameter_value_map['inoculum']['value']
         growth_medium = parameter_value_map['growth_medium']['value']
         volume = parameter_value_map['volume']['value']
         volume_scalar = volume.value
@@ -326,10 +357,14 @@ class MarkdownSpecialization(BehaviorSpecialization):
         temperature_scalar = temperature.value
         temperature_units = tyto.OM.get_term_by_uri(temperature.unit)
         container = parameter_value_map['container']['value']
+
         # Lookup sample container to get the container name, and use that
         # as the sample label
         container_str = record.document.find(container.container_type).value.name
-        text = f'Inoculate `{inoculum.name}` into {volume_scalar} {volume_units} of {growth_medium.name} in {container_str} and grow for {measurement_to_text(duration)} at {measurement_to_text(temperature)} and {orbital_shake_speed.value} rpm.'
+        inocula_names = get_sample_names(inocula, error_msg='Culture execution failed. All input inoculum Components must specify a name.')
+
+        text = f'Inoculate `{inocula_names[0]}` into {volume_scalar} {volume_units} of {growth_medium.name} in {container_str} and grow for {measurement_to_text(duration)} at {measurement_to_text(temperature)} and {orbital_shake_speed.value} rpm.'
+        text += repeat_for_remaining_samples(inocula_names, repeat_msg=' Repeat this procedure for the other inocula: ')
         self.markdown_steps += [text]
 
     def incubate(self, record: paml.ActivityNodeExecution):
@@ -390,7 +425,6 @@ class MarkdownSpecialization(BehaviorSpecialization):
     def transform(self, record: paml.ActivityNodeExecution):
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
-
         host = parameter_value_map['host']['value']
         dna = parameter_value_map['dna']['value']
         medium = parameter_value_map['selection_medium']['value']
@@ -399,17 +433,62 @@ class MarkdownSpecialization(BehaviorSpecialization):
             amount_scalar = amount_measure.value
             amount_units = tyto.OM.get_term_by_uri(amount_measure.unit)
 
-        #transformant = record.node.lookup().output_pin('transformants')
-        transformant = parameter_value_map['transformants']['value']
-        transformant.name = f'{host.name} + {dna.name} transformants'
+        dna_names = get_sample_names(dna, error_msg='Transform execution failed. All input DNA Components must specify a name.')
 
+        # Instantiate Components to represent transformants and populate
+        # these into the output SampleArray
+        transformants = parameter_value_map['transformants']['value']
+        i_transformant = 1
+        for dna_name in dna_names:
+
+            # Use a while loop to mint a unique URI for new Components
+            UNIQUE_URI = False
+            while not UNIQUE_URI:
+                try:
+                    strain = sbol3.Component(f'transformant{i_transformant}',
+                                             sbol3.SBO_FUNCTIONAL_ENTITY,
+                                             name=f'{host.name} + {dna_name} transformant')
+                    record.document.add(strain)
+
+                    # Populate the output SampleArray with the new strain instances
+                    transformants.contents.append(strain)
+                    UNIQUE_URI = True
+                except:
+                    i_transformant += 1
+            i_transformant += 1
+          
         # Add to markdown
-        text = f"Transform `{dna.name}` into `{host.name}` and plate transformants on {medium.name}."
+        text = f"Transform `{dna_names[0]}` DNA into `{host.name}` and plate transformants on {medium.name}."
+        text += repeat_for_remaining_samples(dna_names, repeat_msg='Repeat for the remaining transformant DNA: ')
         self.markdown_steps += [text]
+
 
 def measurement_to_text(measure: sbol3.Measure):
     measurement_scalar = measure.value
     measurement_units = tyto.OM.get_term_by_uri(measure.unit)
     return f'{measurement_scalar} {measurement_units}'
 
+def get_sample_names(inputs: Union[paml.SampleArray, sbol3.Component], error_msg) -> list[str]:
+    input_names = []
+    if isinstance(inputs, paml.SampleArray):
+        input_names = [i.lookup().name for i in inputs.contents]
+    else:
+        # in case that inputs are provided directly as a list of Components
+        # (strict type-checking should have already occurred upstream)
+        input_names = [i.name for i in inputs]
+    if not all([name is not None for name in input_names]):
+        raise ValueError(error_msg)
+    return input_names            
+
+repeat_for_remaining_samples(names: list[str], repeat_msg: str):
+    if len(names) == 1:
+        return ''
+    elif len(names) == 2:
+        return f'{repeat_msg} {names[1]}'
+    elif len(names) == 3
+        return f'{repeat_msg} {names[1]} and {names[2]}'
+    else:
+        remaining = ', '.join([f'`{name}`' for name in names[1:-1]])
+        remaining += f', and names[-1]'
+        return f'{repeat_msg} {remaining}'
 
