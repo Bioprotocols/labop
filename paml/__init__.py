@@ -316,6 +316,7 @@ def behavior_execution_parameter_value_map(self):
     :return:
     """
     parameter_value_map = {}
+
     for pv in self.parameter_values:
         name = pv.parameter.lookup().property_value.name
 
@@ -336,12 +337,19 @@ def behavior_execution_parameter_value_map(self):
         else:
             raise TypeError(f'Invalid value for Parameter {name} of type {type(ref)}')
 
-        parameter_value_map[name] = {"parameter" : pv.parameter.lookup(),
-                                     "value" : value}
-    #print(self.display_id)
-    #for k, v in parameter_value_map.items():
-    #    print(f"  {k}: {v['value']}")
-    #print()
+        # TODO: Refactor the parameter_value_map to better support
+        # multi-valued parameters. However, refactoring will have
+        # downstream effects on BehaviorSpecializations
+
+        if name not in parameter_value_map:
+            parameter_value_map[name] = {"parameter" : pv.parameter.lookup(),
+                                         "value" : value}
+        else:
+            if isinstance(parameter_value_map[name]['value'], list):
+                parameter_value_map[name]['value'] += [value]
+            else:
+                parameter_value_map[name]['value'] = [parameter_value_map[name]['value'],
+                                                      value]
     return parameter_value_map
 BehaviorExecution.parameter_value_map = behavior_execution_parameter_value_map
 

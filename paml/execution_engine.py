@@ -134,8 +134,7 @@ class ExecutionEngine(ABC):
          """
         tokens_present = {node.document.find(t.edge) for t in tokens if t.edge}==protocol.incoming_edges(node)
         if hasattr(node, "inputs"):
-            required_inputs = [node.input_pin(i.property_value.name)
-                               for i in node.behavior.lookup().get_required_inputs()]
+            required_inputs = [p for i in node.behavior.lookup().get_required_inputs() for p in node.input_pins(i.property_value.name)]
                 
             required_value_pins = {p for p in required_inputs if isinstance(p, uml.ValuePin)}
             # Validate values, see #120
@@ -249,7 +248,6 @@ class ExecutionEngine(ABC):
                                     else  uml.LiteralReference(value=v))
                                 for k, v in value_pin_values.items()}
             pin_values = { **input_pin_values, **value_pin_values} # merge the dicts
-
             parameter_values = [paml.ParameterValue(parameter=node.pin_parameter(pin.name),
                                                     value=pin_values[pin.identity])
                                 for pin in node.inputs if pin.identity in pin_values]
@@ -279,7 +277,7 @@ class ExecutionEngine(ABC):
                     pv = paml.ParameterValue(parameter=parameter, value=parameter_value)
                     call.parameter_values += [pv]
             pin_names = [pv.parameter.lookup().property_value.name for pv in call.parameter_values]
-            assert(len(pin_names) == len(set(pin_names)))  # Should not be any duplicate names
+            
         elif isinstance(node, uml.Pin):
             record = paml.ActivityNodeExecution(node=node, incoming_flows=inputs)
             ex.executions.append(record)
