@@ -277,7 +277,7 @@ def call_behavior_action_pin_parameter(self, pin_name: str):
         except:
             raise ValueError(f'Could not find pin named {pin_name}')
     behavior = self.behavior.lookup()
-    [parameter] = [p.property_value for p in behavior.parameters if p.property_value.name == pin_name]
+    [parameter] = [p for p in behavior.parameters if p.property_value.name == pin_name]
     return parameter
 CallBehaviorAction.pin_parameter = call_behavior_action_pin_parameter  # Add to class via monkey patch
 

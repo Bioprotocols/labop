@@ -247,6 +247,69 @@ paml:queryString a owl:DatatypeProperty,
     rdfs:domain paml:ContainerSpec ;
     rdfs:range xsd:string .
 
+paml:SampleMap a owl:Class ;
+    rdfs:comment """The SampleMap class is used to associate SampleCollections to SampleCollections. It references
+        the ActivityNode objects that are sources or destinations.""" ;
+    rdfs:subClassOf [ a owl:Restriction ;
+            owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
+            owl:onProperty paml:sampleMapValues ],
+        [ a owl:Restriction ;
+            owl:allValuesFrom xsd:string ;
+            owl:onProperty paml:sampleMapValues ],
+        [ a owl:Restriction ;
+            owl:minCardinality "1"^^xsd:nonNegativeInteger ;
+            owl:onProperty paml:sampleMapValues ],
+        [ a owl:Restriction ;
+            owl:minCardinality "1"^^xsd:nonNegativeInteger ;
+            owl:onProperty paml:sampleMapSources ],
+        [ a owl:Restriction ;
+            owl:allValuesFrom paml:SampleCollection ;
+            owl:onProperty paml:sampleMapSources ],
+        [ a owl:Restriction ;
+            owl:minCardinality "1"^^xsd:nonNegativeInteger ;
+            owl:onProperty paml:sampleMapTargets ],
+        [ a owl:Restriction ;
+            owl:allValuesFrom paml:SampleCollection ;
+            owl:onProperty paml:sampleMapTargets ],
+        sbol:Identified .
+
+paml:ManyToOneSampleMap a owl:Class ;
+    rdfs:comment """The ManyToOneSampleMap class is used to associate SampleCollections to a SampleCollection. It references
+        the ActivityNode objects that are sources or destination.""" ;
+    rdfs:subClassOf [ a owl:Restriction ;
+            owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
+            owl:onProperty paml:sampleMapTargets ],
+        paml:SampleMap .
+
+paml:OneToManySampleMap a owl:Class ;
+    rdfs:comment """The OneToManySampleMap class is used to associate a SampleCollection to SampleCollections. It references
+        the ActivityNode objects that are sources or destination.""" ;
+    rdfs:subClassOf [ a owl:Restriction ;
+            owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
+            owl:onProperty paml:sampleMapSources ],
+        paml:SampleMap .
+
+paml:sampleMapSources a owl:ObjectProperty ;
+    rdfs:label "sources" ;
+    rdfs:comment """The sources property indicates the SampleCollection that is a source in a SampleMap.""" ;
+    rdfs:domain paml:SampleMap ;
+    rdfs:range paml:SampleCollection .
+
+paml:sampleMapTargets a owl:ObjectProperty ;
+    rdfs:label "targets" ;
+    rdfs:comment """The targets property indicates the SampleCollection that is a target in a SampleMap.""" ;
+    rdfs:domain paml:SampleMap ;
+    rdfs:range paml:SampleCollection .
+
+paml:sampleMapValues a owl:DatatypeProperty ;
+        rdfs:comment """The sampleMapValues are an encoded JSON representation of an XArray Dataset.
+            The XArray Dataset represents fan-in or fan-out maps so that the elements of the Dataset
+            are source-to-destination XArrays (fan-in) or destination-to-source XArrays (fan-out).
+        """;
+              rdfs:domain paml:SampleMap ;
+              rdfs:range xsd:string ;
+              rdfs:label "values" .
+
 paml:ProtocolExecution a owl:Class ;
     rdfs:comment """A ProtocolExecution expands on the information in a BehaviorExecution by including records for
         the nodes and edges defining the Protocol's behavior as a uml:Activity. Specifically, the execution property

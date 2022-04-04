@@ -20,6 +20,7 @@ SBOLFactory('paml_submodule',
 from paml_submodule import *
 from paml.ui import *
 from paml.data import *
+from paml.sample_maps import *
 from paml.primitive_execution import *
 
 #########################################

@@ -5,12 +5,14 @@ import os
 import tempfile
 from typing import Tuple
 import unittest
+import numpy as np
 import xarray as xr
 import json
 
 import sbol3
 import paml
 from paml.execution_engine import ExecutionEngine
+from paml_convert.plate_coordinates import get_aliquot_list
 import uml
 import tyto
 from sbol3 import Document
@@ -56,36 +58,40 @@ class TestProtocolEndToEnd(unittest.TestCase):
 
         # specification is an sbol.Identified, and we need to know the container
         # size to construct the sample map.
-        source = protocol.primitive_step('EmptyContainer', specification=None)
-
+        # TODO make specification for container to clarify its dimensions
+        source1 = protocol.primitive_step('EmptyContainer', specification="96-flat")
+        source2 = protocol.primitive_step('EmptyContainer', specification="96-flat")
         # parameter is the output (EmptyContainer returns a SampleArray Parameter)
         # source_samples will be type paml.SampleArray
 
-        source_samples = source.compute_output(None, source.pin_parameter('samples'))
-        destination = protocol.primitive_step('EmptyContainer', specification=None)
-        plan = paml.SampleData(from_samples=source.samples)
-        sample_map = protocol.primitive_step('TransferByMap', source=source, destination=destination, plan=plan)
+        # Need to know the dimensionality of the SampleArray on the output pin for the source container
+        #  Statement below could compute the SampleArray because it can be statically evaluated (i.e. all inputs are ValuePins, constants).
+        #  source_samples = source.compute_output(None, source.pin_parameter('samples'))
+
+        # TODO make specification for container to clarify its dimensions
+        target = protocol.primitive_step('EmptyContainer', specification="96-flat")
 
 
+        plan = paml.ManyToOneSampleMap(sources=[source1, source2], targets=target)
+        transfer_by_map = protocol.primitive_step('TransferByMap', source=source1, destination=target, plan=plan)
 
-        sample_map = plan.to_dataset()  # returns an xr.Dataset
+        sample_map = plan.get_map()
 
-        # sample_map will have only one variable which is named plan.identity
-        # the initial sample_map_arr will be a 1D array of nan with length equal to the number of aliquots in source
-        sample_map_arr = sample_map.to_array()  # get the xr.DataArray
+        # The coordinates of the map are the target aliquots
+        target_aliquots = sample_map.coords[target.identity].values
 
-        # We need to extend the 1D array to a 2D array (matrix) that defines the transfer
-        sample_map_arr = sample_map_arr.rename({"aliquot", "source"})
-        sample_map_arr = sample_map_arr.expand_dims("destination")
-        sample_map_arr = sample_map_arr.assign_coords(coords = {"source" : sample_map_arr.coords, "destination" : sample_map_arr.coords})
-        sample_map_arr.loc["A1", "A1"] = 1
+        for source in [source1, source2]:
+            # Identify for each target aliquot (coordinate) what source aliquot maps to it.
+            # The target_aliquots are assumed to be the same ids and dimension as the source aliquots, so
+            # select from them randomly.  In reality, we need to get the source aliquots from the source itself.
+            sources_for_target = target_aliquots.tolist()
+            sources_for_target.reverse()
+            sample_map[source.identity].values = sources_for_target
 
-        for k, v in dataset.data_vars.items():
-            for dimension in v.dims:
-                new_data = [8]*len(dataset[k].data)
-                dataset.update({k : (dimension, new_data)})
+        plan.set_map(sample_map)
 
-        plan.values=json.dumps(sample_map.to_dict())
+
+        # = json.dumps(sample_map.to_dict())
 
 
 
@@ -100,8 +106,8 @@ class TestProtocolEndToEnd(unittest.TestCase):
         # where each timepoint is one second after the previous time point
         ee = ExecutionEngine(use_ordinal_time=True)
         parameter_values = [
-            paml.ParameterValue(parameter=protocol.get_input("wavelength"),
-                                value=uml.LiteralIdentified(value=sbol3.Measure(100, tyto.OM.nanometer)))
+            # paml.ParameterValue(parameter=protocol.get_input("wavelength"),
+            #                     value=uml.LiteralIdentified(value=sbol3.Measure(100, tyto.OM.nanometer)))
         ]
         execution = ee.execute(protocol, agent, id="test_execution", parameter_values=parameter_values)
 
