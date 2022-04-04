@@ -5,6 +5,11 @@ Generic helper functions for dealing with plate coordinates
 from string import ascii_letters
 import re
 
+def get_aliquot_list(geometry="A1:H12"):
+    row_col_pairs = coordinate_rect_to_row_col_pairs(geometry)
+    aliquots = [f"{num2col(c+1)}{r+1}" for (r, c) in row_col_pairs]
+    return aliquots
+
 def num2col(num: int):
     """
     Get the alpha column string from the index.

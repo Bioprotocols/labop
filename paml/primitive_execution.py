@@ -1,6 +1,6 @@
 import json
 import paml
-from paml_convert.plate_coordinates import coordinate_rect_to_row_col_pairs, num2col
+from paml_convert.plate_coordinates import coordinate_rect_to_row_col_pairs, get_aliquot_list, num2col
 import uml
 import xarray as xr
 import logging
@@ -66,7 +66,7 @@ def call_behavior_action_input_parameter_values(self, inputs=None):
                         for k, v in value_pin_values.items()}
     pin_values = { **input_pin_values, **value_pin_values} # merge the dicts
 
-    parameter_values = [paml.ParameterValue(parameter=self.pin_parameter(pin.name),
+    parameter_values = [paml.ParameterValue(parameter=self.pin_parameter(pin.name).property_value,
                                             value=pin_values[pin.identity])
                         for pin in self.inputs if pin.identity in pin_values]
     return parameter_values
@@ -144,9 +144,7 @@ def empty_container_initialize_contents(self):
         # FIXME this assumes a 96 well plate
 
         l.warn("Warning: Assuming that the SampleArray is a 96 well microplate!")
-
-        row_col_pairs = coordinate_rect_to_row_col_pairs("A1:H12")
-        aliquots = [f"{num2col(c+1)}{r+1}" for (r, c) in row_col_pairs]
+        aliquots = get_aliquot_list(geometry="A1:H12")
         contents = json.dumps(xr.DataArray(aliquots, dims=("aliquot")).to_dict())
     else:
         raise Exception(f"Cannot initialize contents of: {self.identity}")
