@@ -163,15 +163,21 @@
     ns1:direction ns1:in ;
     ns1:isOrdered true ;
     ns1:isUnique true ;
-    ns1:lowerValue <https://bioprotocols.org/paml/primitives/sample_arrays/ContainerSet/OrderedPropertyValue1/Parameter1/LiteralInteger1> ;
-    ns1:type sbol:Component ;
+    ns1:lowerValue <https://bioprotocols.org/paml/primitives/sample_arrays/ContainerSet/OrderedPropertyValue1/Parameter1/LiteralInteger2> ;
+    ns1:type ns1:ValueSpecification ;
+    ns1:upperValue <https://bioprotocols.org/paml/primitives/sample_arrays/ContainerSet/OrderedPropertyValue1/Parameter1/LiteralInteger1> ;
     sbol:displayId "Parameter1" ;
-    sbol:name "sources" .
+    sbol:name "quantity" .
 
 <https://bioprotocols.org/paml/primitives/sample_arrays/ContainerSet/OrderedPropertyValue1/Parameter1/LiteralInteger1> a ns1:LiteralInteger,
         sbol:Identified ;
     ns1:integerValue 1 ;
     sbol:displayId "LiteralInteger1" .
+
+<https://bioprotocols.org/paml/primitives/sample_arrays/ContainerSet/OrderedPropertyValue1/Parameter1/LiteralInteger2> a ns1:LiteralInteger,
+        sbol:Identified ;
+    ns1:integerValue 1 ;
+    sbol:displayId "LiteralInteger2" .
 
 <https://bioprotocols.org/paml/primitives/sample_arrays/ContainerSet/OrderedPropertyValue2> a ns1:OrderedPropertyValue,
         sbol:Identified ;

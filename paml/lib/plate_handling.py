@@ -59,7 +59,7 @@ doc.add(p)
 
 p = paml.Primitive('Hold')
 p.description = 'Incubate, store, or hold a set of samples indefinitely at the specified temperature'
-p.add_input('location', 'http://bioprotocols.org/paml#SampleArray')
+p.add_input('location', 'http://bioprotocols.org/paml#SampleArray', unbounded=True)
 p.add_input('temperature', sbol3.OM_MEASURE) # temperature
 doc.add(p)
 

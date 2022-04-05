@@ -354,6 +354,21 @@ def behavior_execution_parameter_value_map(self):
 BehaviorExecution.parameter_value_map = behavior_execution_parameter_value_map
 
 
+def sample_array_get_sample_names(self):
+    sample_dict = json.loads(self.contents)
+    return [self.document.find(s).name for s in sample_dict.keys()]
+SampleArray.get_sample_names = sample_array_get_sample_names
+
+
+def sample_array_get_sample(self, sample_name):
+    sample_dict = json.loads(self.contents)
+    samples = [self.document.find(s) for s in sample_dict.keys()]
+    for s in samples:
+        if s.name == sample_name:
+            return self.document.find(s)
+    raise LookupError(f'SampleArray does not contain contents named {sample_name}')
+SampleArray.get_sample = sample_array_get_sample
+
 #########################################
 # Library handling
 loaded_libraries = {}

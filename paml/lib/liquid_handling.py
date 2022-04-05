@@ -31,6 +31,7 @@ p = paml.Primitive('Transfer')
 p.description = 'Move a measured volume taken from a collection of source samples to a location whose shape can contain them in a destination locations'
 p.add_input('source', 'http://bioprotocols.org/paml#SampleCollection')
 p.add_input('destination', 'http://bioprotocols.org/paml#SampleCollection')
+p.add_input('coordinates', 'http://bioprotocols.org/uml#ValueSpecification', optional=True)
 p.add_input('amount', sbol3.OM_MEASURE) # Must be volume
 p.add_input('dispenseVelocity', sbol3.OM_MEASURE, True)
 doc.add(p)
@@ -67,6 +68,7 @@ p.description = 'Move volumes from a collection of source samples to a collectio
 p.add_input('source', 'http://bioprotocols.org/paml#SampleCollection')
 p.add_input('destination', 'http://bioprotocols.org/paml#SampleCollection')
 p.add_input('plan', 'http://bioprotocols.org/paml#SampleData') # Must be a set of component/volume values
+p.add_input('amount', sbol3.OM_MEASURE) # Must be volume
 p.add_input('dispenseVelocity', sbol3.OM_MEASURE, True)
 doc.add(p)
 

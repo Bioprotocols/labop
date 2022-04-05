@@ -197,9 +197,8 @@
     ns1:direction ns1:in ;
     ns1:isOrdered true ;
     ns1:isUnique true ;
-    ns1:lowerValue <https://bioprotocols.org/paml/primitives/plate_handling/Hold/OrderedPropertyValue1/Parameter1/LiteralInteger2> ;
+    ns1:lowerValue <https://bioprotocols.org/paml/primitives/plate_handling/Hold/OrderedPropertyValue1/Parameter1/LiteralInteger1> ;
     ns1:type <http://bioprotocols.org/paml#SampleArray> ;
-    ns1:upperValue <https://bioprotocols.org/paml/primitives/plate_handling/Hold/OrderedPropertyValue1/Parameter1/LiteralInteger1> ;
     sbol:displayId "Parameter1" ;
     sbol:name "location" .
 
@@ -207,11 +206,6 @@
         sbol:Identified ;
     ns1:integerValue 1 ;
     sbol:displayId "LiteralInteger1" .
-
-<https://bioprotocols.org/paml/primitives/plate_handling/Hold/OrderedPropertyValue1/Parameter1/LiteralInteger2> a ns1:LiteralInteger,
-        sbol:Identified ;
-    ns1:integerValue 1 ;
-    sbol:displayId "LiteralInteger2" .
 
 <https://bioprotocols.org/paml/primitives/plate_handling/Hold/OrderedPropertyValue2> a ns1:OrderedPropertyValue,
         sbol:Identified ;
