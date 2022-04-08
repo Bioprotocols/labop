@@ -48,50 +48,159 @@ def initialize_protocol() -> Tuple[paml.Protocol, Document]:
     doc.add(protocol)
     return protocol, doc
 
+
+# Need logical to physical mapping
+# Need volumes, and source contents
+# Mix needs order for transfers (could be sub-protocol, media, then low volume)
+# Need to surface assumptions about operations.  (Big then small, other heuristics?, type of reagent?)
+#  Opentrons will perform in column order unless specified.
+
+
 class TestProtocolEndToEnd(unittest.TestCase):
     def test_create_protocol(self):
         protocol: paml.Protocol
         doc: sbol3.Document
-        logger = logging.getLogger("LUDOX_protocol")
+        logger = logging.getLogger("transfer_map_protocol")
         logger.setLevel(logging.INFO)
         protocol, doc = initialize_protocol()
 
-        # specification is an sbol.Identified, and we need to know the container
-        # size to construct the sample map.
-        # TODO make specification for container to clarify its dimensions
-        source1 = protocol.primitive_step('EmptyContainer', specification="96-flat")
-        source2 = protocol.primitive_step('EmptyContainer', specification="96-flat")
-        # parameter is the output (EmptyContainer returns a SampleArray Parameter)
-        # source_samples will be type paml.SampleArray
+        # The aliquots will be the coordinates of the SampleArray and SampleMap objects
+        num_aliquots = 4
+        aliquot_ids = list(range(num_aliquots))
 
-        # Need to know the dimensionality of the SampleArray on the output pin for the source container
-        #  Statement below could compute the SampleArray because it can be statically evaluated (i.e. all inputs are ValuePins, constants).
-        #  source_samples = source.compute_output(None, source.pin_parameter('samples'))
+        # Make Components for the contents of the SampleArray
+        reagent1 = sbol3.Component('ddH2Oa', 'https://identifiers.org/pubchem.substance:24901740')
+        reagent2 = sbol3.Component('ddH2Ob', 'https://identifiers.org/pubchem.substance:24901740')
+        reagents = [reagent1, reagent2]
 
-        # TODO make specification for container to clarify its dimensions
-        target = protocol.primitive_step('EmptyContainer', specification="96-flat")
+        # TODO ContainerSpec without parameters will refer to a logical container of unspecified size and geometry
+        source_spec = paml.ContainerSpec(name='abstractPlateRequirement1')
+        target_spec = paml.ContainerSpec(name='abstractPlateRequirement2')
 
-
-        plan = paml.ManyToOneSampleMap(sources=[source1, source2], targets=target)
-        transfer_by_map = protocol.primitive_step('TransferByMap', source=source1, destination=target, plan=plan)
-
-        sample_map = plan.get_map()
-
-        # The coordinates of the map are the target aliquots
-        target_aliquots = sample_map.coords[target.identity].values
-
-        for source in [source1, source2]:
-            # Identify for each target aliquot (coordinate) what source aliquot maps to it.
-            # The target_aliquots are assumed to be the same ids and dimension as the source aliquots, so
-            # select from them randomly.  In reality, we need to get the source aliquots from the source itself.
-            sources_for_target = target_aliquots.tolist()
-            sources_for_target.reverse()
-            sample_map[source.identity].values = sources_for_target
-
-        plan.set_map(sample_map)
+        # Arbitrary volume to use in specifying the reagents in the container.
+        default_volume = sbol3.Measure(600, tyto.OM.microliter)
 
 
-        # = json.dumps(sample_map.to_dict())
+        # Creating the source SampleArray involves the following steps:
+        # 1. Calling the EmptyContainer primitive with a defined specifcation
+        # 2. Creating the SampleArray and referencing the specification.
+        #    (SBOLFactory needs the specification to have an identity, which only
+        #     happens in step 1.)
+        # 3. Remove the EmptyContainer InputPin for "sample_array"
+        # 4. Create a ValuePin for "sample_array" and add it to the input of the EmptyContainer call.
+        #    (This is a place where we can map a SampleArray to a container)
+
+        # 1.
+        create_source = protocol.primitive_step('EmptyContainer', specification=source_spec)
+
+        # 2.
+        # The SampleArray is a 2D |aliquot| x |reagent| array, where values are volumes.
+        # The aliquot dimension uses aliquot_ids (specified above) as coordinates.
+        # The reagent dimension uses reagents (specified above) as coordinates.
+        #
+        # Results in the DataArray representing contents:
+        #
+        # <xarray.DataArray (aliquot: 4, contents: 2)>
+        # array([[600., 600.],
+        #        [600., 600.],
+        #        [600., 600.],
+        #        [600., 600.]])
+        # Coordinates:
+        #   * aliquot   (aliquot) int64 0 1 2 3
+        #   * contents  (contents) <U30 'https://bbn.com/scratch/ddH2Oa' 'https://bbn.c...
+        source_array = paml.SampleArray(
+            name="source",
+            container_type=source_spec,
+            contents=json.dumps(xr.DataArray([[default_volume.value
+                                                for reagent in reagents]
+                                                for id in aliquot_ids],
+                                             dims=("aliquot", "contents"),
+                                             coords={"aliquot": aliquot_ids,
+                                                     "contents": [r.identity for r in reagents]}).to_dict()))
+        # 3.
+        sample_array_parameter = create_source.pin_parameter("sample_array")
+        [old_input] = [x for x in create_source.inputs if x.name == "sample_array"]
+        create_source.inputs.remove(old_input)
+
+        # 4.
+        create_source.inputs.append(uml.ValuePin(name="sample_array", is_ordered=sample_array_parameter.property_value.is_ordered,
+                                          is_unique=sample_array_parameter.property_value.is_unique, value=uml.literal(source_array)))
+
+
+        # Similar to the source_array, above, we specify an analogous target_array
+        # 1.
+        create_target = protocol.primitive_step('EmptyContainer', specification=target_spec)
+
+        # 2.
+        target_array = paml.SampleArray(
+            name="target",
+            container_type=target_spec,
+            contents=json.dumps(xr.DataArray([[0.0
+                                                for reagent in reagents]
+                                                for id in aliquot_ids],
+                                             dims=("aliquot", "contents"),
+                                             coords={"aliquot": aliquot_ids,
+                                                     "contents": [r.identity for r in reagents]}).to_dict()))
+
+        # 3.
+        sample_array_parameter = create_target.pin_parameter("sample_array")
+        [old_input] = [x for x in create_target.inputs if x.name == "sample_array"]
+        create_target.inputs.remove(old_input)
+
+        # 4.
+        create_target.inputs.append(uml.ValuePin(name="sample_array", is_ordered=sample_array_parameter.property_value.is_ordered,
+                                          is_unique=sample_array_parameter.property_value.is_unique, value=uml.literal(target_array)))
+
+
+        # plan_mapping is a 4D array of volumes for transfers:
+        #    (source_array, source_aliquot) --volume--> (target_array, target_aliquot)
+        #
+        # The plan_mapping from above is a single source_array and single target_array:
+        #
+        # <xarray.DataArray (source_array: 1, source_aliquot: 4, target_array: 1,
+        #                    target_aliquot: 4)>
+        # array([[[[10., 10., 10., 10.]],
+
+        #         [[10., 10., 10., 10.]],
+
+        #         [[10., 10., 10., 10.]],
+
+        #         [[10., 10., 10., 10.]]]])
+        # Coordinates:
+        #   * source_array    (source_array) <U6 'source'
+        #   * source_aliquot  (source_aliquot) int64 0 1 2 3
+        #   * target_array    (target_array) <U6 'target'
+        #   * target_aliquot  (target_aliquot) int64 0 1 2 3
+
+        plan_mapping = json.dumps(xr.DataArray([[[[10.0
+                                                for target_aliquot in aliquot_ids]
+                                                for target_array in [target_array.name]]
+                                                for source_aliquot in aliquot_ids]
+                                                for source_array in [source_array.name]],
+                                           dims=("source_array", "source_aliquot", "target_array", "target_aliquot",),
+                                           coords={"source_array": [source_array.name],
+                                                   "source_aliquot": aliquot_ids,
+                                                   "target_array": [target_array.name],
+                                                   "target_aliquot": aliquot_ids
+                                                   }).to_dict())
+
+
+
+        # The SampleMap specifies the sources and targets, along with the mappings.
+        plan = paml.SampleMap(
+                            sources=[source_array],
+                            targets=[target_array],
+                            values=plan_mapping)
+
+        # The outputs of the create_source and create_target calls will be identical
+        # to the source_array and target_array.  They will not be on the output pin
+        # until execution, but the SampleMap needs to reference them.
+        transfer_by_map = protocol.primitive_step(
+                            'TransferByMap',
+                            source=create_source.output_pin('samples'),
+                            destination=create_target.output_pin('samples'),
+                            plan=plan)
+
 
 
 
@@ -111,18 +220,6 @@ class TestProtocolEndToEnd(unittest.TestCase):
         ]
         execution = ee.execute(protocol, agent, id="test_execution", parameter_values=parameter_values)
 
-        # Get the SampleData objects and attach values
-        # get_data() returns a dict of output parameter ids to SampleData objects
-        dataset = execution.get_data()
-
-        for k, v in dataset.data_vars.items():
-            for dimension in v.dims:
-                new_data = [8]*len(dataset[k].data)
-                dataset.update({k : (dimension, new_data)})
-
-        execution.set_data(dataset)
-
-
         print('Validating and writing protocol')
         v = doc.validate()
         assert len(v) == 0, "".join(f'\n {e}' for e in v)
@@ -131,8 +228,8 @@ class TestProtocolEndToEnd(unittest.TestCase):
         doc.write(temp_name, sbol3.SORTED_NTRIPLES)
         print(f'Wrote file as {temp_name}')
 
-        comparison_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'testfiles', 'igem_ludox_data_test.nt')
-        # doc.write(comparison_file, sbol3.SORTED_NTRIPLES)
+        comparison_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'testfiles', 'sample_map_test.nt')
+        doc.write(comparison_file, sbol3.SORTED_NTRIPLES)
         print(f'Comparing against {comparison_file}')
         assert filecmp.cmp(temp_name, comparison_file), "Files are not identical"
         print('File identical with test file')

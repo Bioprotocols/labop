@@ -138,13 +138,13 @@ paml:ContainerSpec a owl:Class ;
             owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
             owl:onProperty paml:queryString ],
         [ a owl:Restriction ;
-            owl:minCardinality "1"^^xsd:nonNegativeInteger ;
+            owl:minCardinality "0"^^xsd:nonNegativeInteger ;
             owl:onProperty paml:queryString ],
         [ a owl:Restriction ;
             owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
             owl:onProperty paml:prefixMap ],
         [ a owl:Restriction ;
-            owl:minCardinality "1"^^xsd:nonNegativeInteger ;
+            owl:minCardinality "0"^^xsd:nonNegativeInteger ;
             owl:onProperty paml:prefixMap ],
         sbol:Identified .
 
@@ -234,20 +234,6 @@ paml:SampleData a owl:Class ;
             owl:allValuesFrom paml:SampleCollection ;
             owl:onProperty paml:fromSamples ],
         sbol:Identified .
-
-paml:prefixMap a owl:DatatypeProperty,
-        owl:FunctionalProperty ;
-    rdfs:label "prefixMap" ;
-    rdfs:comment "A prefix map in JSON-LD format, to be applied to a queryString." ;
-    rdfs:domain paml:ContainerSpec ;
-    rdfs:range xsd:string .
-
-paml:queryString a owl:DatatypeProperty,
-        owl:FunctionalProperty ;
-    rdfs:label "queryString" ;
-    rdfs:comment "A query string, in OWL Manchester syntax, to be used to find matching containers in the ContainerSpec." ;
-    rdfs:domain paml:ContainerSpec ;
-    rdfs:range xsd:string .
 
 paml:SampleMap a owl:Class ;
     rdfs:comment """The SampleMap class is used to associate SampleCollections to SampleCollections. It references

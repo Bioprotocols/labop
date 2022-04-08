@@ -86,17 +86,17 @@ def primitive_compute_output(self, inputs, parameter):
     l.debug(f"Computing the output of primitive: {self.identity}, parameter: {parameter.name}")
 
     def resolve_value(v):
-        if not isinstance(uml.LiteralReference):
+        if not isinstance(v, uml.LiteralReference):
             return v.value
         else:
-            return value.value.lookup().value
+            return v.value.lookup().value
 
     if self.identity == 'https://bioprotocols.org/paml/primitives/sample_arrays/EmptyContainer' and \
         parameter.name == "samples" and \
         parameter.type == 'http://bioprotocols.org/paml#SampleArray':
         # Make a SampleArray
         for input in inputs:
-            i_parameter = input.parameter.lookup()
+            i_parameter = input.parameter.lookup().property_value
             value = input.value
             if i_parameter.name == "specification":
                 spec = resolve_value(value)
@@ -110,7 +110,7 @@ def primitive_compute_output(self, inputs, parameter):
         parameter.name == "samples" and \
         parameter.type == 'http://bioprotocols.org/paml#SampleCollection':
         for input in inputs:
-            i_parameter = input.parameter.lookup()
+            i_parameter = input.parameter.lookup().property_value
             value = input.value
             if i_parameter.name == "source":
                 source = resolve_value(value)
@@ -127,7 +127,7 @@ def primitive_compute_output(self, inputs, parameter):
         parameter.name == "measurements" and \
         parameter.type == 'http://bioprotocols.org/paml#SampleData':
         for input in inputs:
-            i_parameter = input.parameter.lookup()
+            i_parameter = input.parameter.lookup().property_value
             value = input.value
             if i_parameter.name == "samples":
                 samples = resolve_value(value)
