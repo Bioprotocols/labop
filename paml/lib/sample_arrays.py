@@ -15,6 +15,7 @@ print('Making primitives for '+LIBRARY_NAME)
 p = paml.Primitive('EmptyContainer')
 p.description = 'Allocate a sample array with size and type based on an empty container'
 p.add_input('specification', sbol3.SBOL_IDENTIFIED)
+p.add_input('sample_array', 'http://bioprotocols.org/paml#SampleArray', True)
 p.add_output('samples', 'http://bioprotocols.org/paml#SampleArray')
 doc.add(p)
 
