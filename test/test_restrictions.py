@@ -39,6 +39,18 @@ class TestRestrictions(unittest.TestCase):
             exit_code = str(e)
             self.assertEqual(exit_code, '0')
 
+    def test_paml_time_actual(self):
+        ontology_file_name = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', 'paml_time', 'paml_time.ttl')
+        try:
+            owl_rdf_utils.restrictions.main(action='check',
+                                            infile=ontology_file_name,
+                                            quiet=True,
+            )
+        except SystemExit as e:
+            exit_code = str(e)
+            self.assertEqual(exit_code, '0')
+
+
     def test_uml_actual(self):
         ontology_file_name = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', 'uml', 'uml.ttl')
         try:
