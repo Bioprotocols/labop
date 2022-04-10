@@ -12,3 +12,4 @@ notebooks/.*
 test/.*
 .vscode
 **/.DS_Store
+build
