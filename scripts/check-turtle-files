@@ -3,8 +3,12 @@
 
 import os
 import subprocess
+import sys
 from sys import argv
 from typing import List
+import logging
+
+logger = logging.getLogger("check-turtle-files")
 
 FILTER = (
     "\( -name 'build' -prune \) -o \( -name 'test' -prune \) -o -name '*.ttl' -print"  # .split(
@@ -28,16 +32,18 @@ def find_all_turtle_files(topdir: str) -> List[str]:
     except subprocess.CalledProcessError as e:
         print(f"Got error running find: {e}")
         raise e
-    return p.stdout.split("\n")
+    paths = p.stdout.split("\n")
+    paths.remove("")
+    return paths
 
 
 def main():
     top = os.path.abspath(argv[1])
-    print(f"Starting search from {top}")
+    logger.debug(f"Starting search from {top}")
     files = find_all_turtle_files(top)
     failed = []
     for x in files:
-        print(x)
+        print(f"Checking {x}")
         p = subprocess.run(
             [f"{script_file} check {x}"],
             capture_output=True,
@@ -52,11 +58,12 @@ def main():
             print("OK")
         print("\n\n")
     if failed:
+        logger.debug(f"failed: {failed}")
         print("Some OWL files failed the checks:")
         for x in sorted(failed):
             print(f"\t{x}")
-        exit(1)
-    exit(0)
+        sys.exit(1)
+    sys.exit(0)
 
 
 if __name__ == "__main__":
