@@ -89,7 +89,11 @@ def primitive_compute_output(self, inputs, parameter):
         if not isinstance(v, uml.LiteralReference):
             return v.value
         else:
-            return v.value.lookup().value
+            resolved = v.value.lookup()
+            if isinstance(resolved, uml.LiteralSpecification):
+                return resolved.value
+            else:
+                return resolved
 
     if self.identity == 'https://bioprotocols.org/paml/primitives/sample_arrays/EmptyContainer' and \
         parameter.name == "samples" and \
