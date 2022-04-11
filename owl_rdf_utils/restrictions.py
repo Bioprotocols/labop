@@ -13,6 +13,8 @@ __all__ = [
     "all_bad_restrictions",
     "repair_graph",
     "repair_all_bad_restrictions",
+    "RELATIONS",
+    "IGNORE_PROPERTIES"
 ]
 
 import argparse
@@ -35,10 +37,19 @@ RELATIONS = [
     OWL.minCardinality,
     OWL.maxCardinality,
     OWL.cardinality,
+    OWL.hasValue,
+    OWL.qualifiedCardinality,
 ]
 # Properties of a restriction that we ignore when rewriting (because they are
 # constraints ON the restrictions rather than constraints on the restrictED)
 IGNORE_PROPERTIES = [OWL.onProperty, RDFS.comment, RDF.type]
+
+CARDINALITY_RELS = [
+    OWL.minCardinality,
+    OWL.maxCardinality,
+    OWL.cardinality,
+    OWL.qualifiedCardinality,
+]
 
 RESTRICTIONS_QUERY = (
     """
@@ -75,12 +86,18 @@ def is_bad_restr(restr: Node, graph: Graph) -> bool:
     rrs: Set[Node] = set()
     rel: Node
     has_restricted: bool = False
+    has_onClass: bool = False
+    is_cardinality_rel: bool = False
     global rc_explanation  # pylint: disable=global-statement
     for _r, rel, _x in graph.triples((restr, None, None)):
         if rel == OWL.onProperty:
             has_restricted = True
+        if rel in CARDINALITY_RELS:
+            is_cardinality_rel = True
         if rel in RELATIONS:
             rrs.add(rel)
+        if rel == OWL.onClass:
+            has_onClass = True
     if not has_restricted:
         print(f"Need owl:onProperty in {restr}")
         return True
@@ -94,6 +111,8 @@ def is_bad_restr(restr: Node, graph: Graph) -> bool:
         )
         print(f"Multiple components to restriction {restr}: {restrs}")
         return True
+    if has_onClass and not is_cardinality_rel:
+        print("owl:onClass is only permissible in cardinality restrictions.")
     return False
 
 

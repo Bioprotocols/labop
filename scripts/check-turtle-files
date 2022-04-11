@@ -1,0 +1,75 @@
+#!/usr/bin/env python
+# coding: utf-8
+
+import os
+import subprocess
+import sys
+from sys import argv
+from typing import List
+import logging
+
+logger = logging.getLogger("check-turtle-files")
+
+FILTER = (
+    "\( -name 'build' -prune \) -o \( -name 'test' -prune \) -o -name '*.ttl' -print"  # .split(
+    #     " "
+    # )
+)
+
+script_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), "restrictions")
+
+
+def find_all_turtle_files(topdir: str) -> List[str]:
+    cmd: str = f"find {topdir} {FILTER}"
+    try:
+        p: subprocess.CompletedProcess = subprocess.run(
+            [cmd],
+            capture_output=True,
+            check=True,
+            text=True,
+            shell=True,
+        )
+    except subprocess.CalledProcessError as e:
+        print(f"Got error running find: {e}")
+        raise e
+    paths = p.stdout.split("\n")
+    paths.remove("")
+    return paths
+
+
+def main():
+    top = os.path.abspath(argv[1])
+    logger.debug(f"Starting search from {top}")
+    files = find_all_turtle_files(top)
+    failed = []
+    for x in files:
+        print(f"Checking {x}")
+        p = subprocess.run(
+            [f"{script_file} check {x}"],
+            capture_output=True,
+            check=False,
+            text=True,
+            shell=True,
+        )
+        if p.returncode != 0:
+            print(p.stdout)
+            failed.append(x)
+        else:
+            print("OK")
+        print("\n\n")
+    if failed:
+        logger.debug(f"failed: {failed}")
+        print("Some OWL files failed the checks:")
+        for x in sorted(failed):
+            print(f"\t{x}")
+        sys.exit(1)
+    sys.exit(0)
+
+
+if __name__ == "__main__":
+    main()
+
+# Local Variables:
+# mode: python
+# elpy-rpc-python-command: "/opt/homebrew/bin/python3"
+# End:
