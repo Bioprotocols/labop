@@ -62,7 +62,20 @@ p = paml.Primitive('ContainerSet')
 p.description = 'Create a new sample collection containing a set of replicate slots for every sample in the input'
 p.add_input('quantity', 'http://bioprotocols.org/uml#ValueSpecification')
 p.add_input('specification', 'http://bioprotocols.org/paml#ContainerSpec')
+p.add_input('replicates', 'http://bioprotocols.org/uml#ValueSpecification', optional=True)
 p.add_output('samples', 'http://bioprotocols.org/paml#SampleArray')
+doc.add(p)
+
+p = paml.Primitive('PoolSamples')
+p.description = 'Create a new sample collection containing a set of replicate slots for every sample in the input'
+p.add_input('source', 'http://bioprotocols.org/paml#SampleCollection')
+p.add_input('destination', 'http://bioprotocols.org/paml#SampleArray')
+p.add_input('volume', sbol3.OM_MEASURE)
+p.add_output('samples', 'http://bioprotocols.org/paml#SampleArray')
+doc.add(p)
+
+p = paml.Primitive('EmbeddedImage')  # This Primitive should move to a separate library
+p.add_input('image', 'http://bioprotocols.org/uml#ValueSpecification')
 doc.add(p)
 
 print('Library construction complete')

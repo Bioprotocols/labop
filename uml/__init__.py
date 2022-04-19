@@ -520,7 +520,8 @@ def activity_call_behavior(self, behavior: Behavior, **input_pin_map):
     # add flows for activities being connected implicitly
     for name, source in id_sort(activity_inputs.items()):
         for pin in cba.input_pins(name):
-            self.use_value(source, cba.input_pin(name))
+            #self.use_value(source, cba.input_pin(name))
+            self.use_value(source, pin)
     return cba
 Activity.call_behavior = activity_call_behavior  # Add to class via monkey patch
 

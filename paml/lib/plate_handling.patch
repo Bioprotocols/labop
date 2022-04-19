@@ -1,0 +1,17 @@
+diff --git a/paml/lib/plate_handling.py b/paml/lib/plate_handling.py
+index 660d981..c4f2acc 100644
+--- a/paml/lib/plate_handling.py
++++ b/paml/lib/plate_handling.py
+@@ -25,6 +25,12 @@ p.add_input('location', 'http://bioprotocols.org/paml#SampleArray')
+ p.add_input('type', 'http://www.w3.org/2001/XMLSchema#anyURI') # e.g., breathable vs. non-breathable
+ doc.add(p)
+ 
++p = paml.Primitive('EvaporativeSeal')
++p.description = 'Seal a collection of samples using a user-selected method in order to prevent evaporation'
++p.add_input('location', 'http://bioprotocols.org/paml#SampleArray')
++p.add_input('type', 'http://www.w3.org/2001/XMLSchema#anyURI') # e.g., breathable vs. non-breathable
++doc.add(p)
++
+ p = paml.Primitive('AdhesiveSeal')
+ p.description = 'Seal a collection of samples using adhesive to fix the seal, in order to guarantee isolation from the external environment'
+ p.add_input('location', 'http://bioprotocols.org/paml#SampleArray')

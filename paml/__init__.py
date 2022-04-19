@@ -82,6 +82,9 @@ def protocol_primitive_step(self, primitive: Primitive, **input_pin_map):
     return pe
 Protocol.primitive_step = protocol_primitive_step  # Add to class via monkey patch
 
+#def protocol_add_sub_protocol(self, subprotocol: Protocol, **input_pin_map):
+#    self.
+
 ###############################################################################
 #
 # Protocol class: execution related functions
@@ -316,10 +319,8 @@ def behavior_execution_parameter_value_map(self):
     :return:
     """
     parameter_value_map = {}
-
     for pv in self.parameter_values:
         name = pv.parameter.lookup().property_value.name
-
         # Dereference pointers to get the actual values
         ref = pv.value
         if isinstance(ref, uml.LiteralReference):

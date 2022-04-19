@@ -32,6 +32,7 @@ p.description = 'Move a measured volume taken from a collection of source sample
 p.add_input('source', 'http://bioprotocols.org/paml#SampleCollection')
 p.add_input('destination', 'http://bioprotocols.org/paml#SampleCollection')
 p.add_input('coordinates', 'http://bioprotocols.org/uml#ValueSpecification', optional=True)
+p.add_input('replicates', 'http://bioprotocols.org/uml#ValueSpecification', optional=True)
 p.add_input('amount', sbol3.OM_MEASURE) # Must be volume
 p.add_input('dispenseVelocity', sbol3.OM_MEASURE, True)
 doc.add(p)
@@ -50,7 +51,8 @@ p.description = 'Dilute'
 p.add_input('source', 'http://bioprotocols.org/paml#SampleCollection')
 p.add_input('destination', 'http://bioprotocols.org/paml#SampleCollection')
 p.add_input('amount', sbol3.OM_MEASURE) # Must be volume
-p.add_input('diluent', sbol3.SBOL_COMPONENT) 
+p.add_input('diluent', sbol3.SBOL_COMPONENT)
+p.add_input('replicates', 'http://bioprotocols.org/uml#ValueSpecification', optional=True) 
 p.add_input('dilution_factor', sbol3.OM_MEASURE)
 doc.add(p)
 
@@ -62,6 +64,17 @@ p.add_input('amount', sbol3.OM_MEASURE) # Must be volume
 p.add_input('diluent', sbol3.SBOL_COMPONENT) 
 p.add_input('target_od', sbol3.OM_MEASURE)
 doc.add(p)
+
+p = paml.Primitive('SerialDilution')
+p.description = 'Serial Dilution'
+p.add_input('source', 'http://bioprotocols.org/paml#SampleCollection')
+p.add_input('destination', 'http://bioprotocols.org/paml#SampleCollection')
+p.add_input('amount', sbol3.OM_MEASURE) # Must be volume
+p.add_input('diluent', sbol3.SBOL_COMPONENT) 
+p.add_input('dilution_factor', 'http://bioprotocols.org/uml#ValueSpecification')
+p.add_input('series', 'http://bioprotocols.org/uml#ValueSpecification')
+doc.add(p)
+
 
 p = paml.Primitive('TransferByMap')
 p.description = 'Move volumes from a collection of source samples to a collection of destination samples following a plan of value given for each location'
@@ -84,6 +97,7 @@ p = paml.Primitive('Vortex')
 p.description = 'Vortex a sample in order to homogeneously mix or suspend its contents'
 p.add_input('samples', 'http://bioprotocols.org/paml#SampleCollection')
 p.add_input('duration', sbol3.OM_MEASURE)  # Must be time
+p.add_output('mixed_samples', 'http://bioprotocols.org/paml#SampleCollection')
 doc.add(p)
 
 p = paml.Primitive('Discard')

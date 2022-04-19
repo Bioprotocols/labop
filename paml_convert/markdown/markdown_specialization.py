@@ -2,8 +2,11 @@ import logging
 import json
 import os 
 import json
+from datetime import datetime
 from urllib.parse import quote, unquote
-from typing import Union
+from typing import Union, List
+from collections.abc import Iterable
+
 
 import sbol3
 import tyto
@@ -46,9 +49,15 @@ class MarkdownSpecialization(BehaviorSpecialization):
             "https://bioprotocols.org/paml/primitives/culturing/Culture": self.culture,
             "https://bioprotocols.org/paml/primitives/plate_handling/Incubate": self.incubate,
             "https://bioprotocols.org/paml/primitives/plate_handling/Hold": self.hold,
+            "https://bioprotocols.org/paml/primitives/plate_handling/EvaporativeSeal": self.evaporative_seal,
             "https://bioprotocols.org/paml/primitives/liquid_handling/Dilute": self.dilute,
             "https://bioprotocols.org/paml/primitives/liquid_handling/DiluteToTargetOD": self.dilute_to_target_od,
-            "https://bioprotocols.org/paml/primitives/sample_arrays/ContainerSet": self.define_containers
+            "https://bioprotocols.org/paml/primitives/sample_arrays/ContainerSet": self.define_containers,
+            "https://bioprotocols.org/paml/primitives/liquid_handling/SerialDilution": self.serial_dilution,
+            "https://bioprotocols.org/paml/primitives/sample_arrays/PoolSamples": self.pool_samples,
+            "https://bioprotocols.org/paml/primitives/plate_handling/QuickSpin": self.quick_spin,
+            "https://bioprotocols.org/paml/primitives/plate_handling/Unseal": self.unseal,
+            "https://bioprotocols.org/paml/primitives/sample_arrays/EmbeddedImage": self.embedded_image,
         }
 
     def on_begin(self):
@@ -86,11 +95,12 @@ class MarkdownSpecialization(BehaviorSpecialization):
 
     def _parameter_value_markdown(self, pv : paml.ParameterValue, is_output=False):
         parameter = pv.parameter.lookup().property_value
-        value = pv.value.value.lookup() if isinstance(pv.value, uml.LiteralReference) else pv.value.value
+        value = pv.value.value.lookup().name if isinstance(pv.value, uml.LiteralReference) else pv.value.value
         units = tyto.OM.get_term_by_uri(value.unit) if isinstance(value, sbol3.om_unit.Measure) else None
         value = str(f"{value.value} {units}")  if units else str(value)
         if is_output:
-            return f"* `{parameter.name}`"
+            return f"* `{value}`\n"
+            #return f"* `{parameter.name}`"
         else:
             return f"* `{parameter.name}` = {value}"
 
@@ -103,7 +113,12 @@ class MarkdownSpecialization(BehaviorSpecialization):
     def on_end(self):
         self.markdown += self._outputs_markdown(self.execution.parameter_values)
         self.markdown_steps += [self.reporting_step()]
+
+        # Timestamp the protocol version
+        dt = datetime.now()
+        ts = datetime.timestamp(dt)
         self.markdown += self._steps_markdown()
+        self.markdown += f'---\nProtocol version: {datetime.fromtimestamp(ts)}'
         with open(self.out_path, "w") as f:
             f.write(self.markdown)
 
@@ -111,12 +126,12 @@ class MarkdownSpecialization(BehaviorSpecialization):
         output_parameters = []
         for i in self.execution.parameter_values:
             parameter = i.parameter.lookup()
-            value = i.value.value.lookup() if isinstance(i.value, uml.LiteralReference) else i.value.value
+            value = i.value.value.lookup().name if isinstance(i.value, uml.LiteralReference) else i.value.value
             if parameter.property_value.direction == uml.PARAMETER_OUT:
                 #output_parameters.append(f"`{parameter.property_value.name}` from `{value}`")
-                output_parameters.append(f'`{value.name}`')
+                output_parameters.append(f'`{value}`')
         output_parameters = ", ".join(output_parameters)
-        return f"Report values for {output_parameters}."
+        return f"Import data for {output_parameters} into provided Excel file."
 
     def define_container(self, record: paml.ActivityNodeExecution):
         results = {}
@@ -144,7 +159,12 @@ class MarkdownSpecialization(BehaviorSpecialization):
             # container label
             container_class = ContainerOntology.uri + '#' + spec.queryString.split(':')[-1]
             container_str = ContainerOntology.get_term_by_uri(container_class)
-            self.markdown_steps += [f'Provision a {container_str} to contain `{spec.name}`']
+            if container_class == f'{ContainerOntology.uri}#StockReagent':
+                text = f'Provision the {container_str} containing `{spec.name}`'
+            else:
+                text = f'Provision a {container_str} to contain `{spec.name}`'
+            text = add_description(record, text)
+            self.markdown_steps += [text]
             #except Exception as e:
             #    l.warning(e)
             #    self.markdown_steps += [f"Provision a container named `{spec.name}` meeting specification: {spec.queryString}."]
@@ -168,10 +188,14 @@ class MarkdownSpecialization(BehaviorSpecialization):
             # container label
             container_class = ContainerOntology.uri + '#' + containers.queryString.split(':')[-1]
             container_str = ContainerOntology.get_term_by_uri(container_class)
+           
             if quantity > 1:
-                self.markdown_steps += [f'Provision {quantity} x {container_str}s to contain `{containers.name}`']
+                text = f'Provision {quantity} x {container_str}s to contain `{containers.name}`'
             else:
-                self.markdown_steps += [f'Provision a {container_str} to contain `{containers.name}`']
+                text = f'Provision a {container_str} to contain `{containers.name}`'
+            text = add_description(record, text)
+            self.markdown_steps += [text]
+
             samples.name = containers.name
         except Exception as e:
             l.warning(e)
@@ -249,7 +273,9 @@ class MarkdownSpecialization(BehaviorSpecialization):
         # Provide an informative name for the measurements output
         measurements.name = f'absorbance measurements for {samples_str}'
 
-        self.markdown_steps += [f'Make absorbance measurements of `{samples_str}` at {wl.value} {wl_units}.']
+        text = f'Make absorbance measurements of `{samples_str}` at {wl.value} {wl_units}.'
+        text = add_description(record, text)
+        self.markdown_steps += [text]
 
     def measure_fluorescence(self, record: paml.ActivityNodeExecution):
         results = {}
@@ -287,9 +313,11 @@ class MarkdownSpecialization(BehaviorSpecialization):
             duration_scalar = duration_measure.value
             duration_units = tyto.OM.get_term_by_uri(duration_measure.unit)
         samples = parameter_value_map["samples"]["value"]
+        mixed_samples = parameter_value_map["mixed_samples"]["value"]
+        mixed_samples.name = samples.name
 
         # Add to markdown
-        text = f"Vortex {samples}"
+        text = f"Vortex {samples.name}"
         if duration:
             text += f' for {duration_scalar} {duration_units}'
         self.markdown_steps += [text]
@@ -300,10 +328,24 @@ class MarkdownSpecialization(BehaviorSpecialization):
 
         samples = parameter_value_map["samples"]["value"]
         amount = parameter_value_map['amount']['value']
-        amount_units = tyto.OM.get_term_by_uri(amount.unit)
+
+        # Get coordinates if this is a plate
+        coordinates = ''
+        if isinstance(samples, paml.SampleMask):
+            coordinates = f'wells {samples.mask} of '
+            # SampleMasks are generated by the PlateCoordinates primitive
+            # Their source does not directly reference a SampleArray directly,
+            # rather through a LiteralReference and LiteralIdentified
+            samples = samples.source.lookup().value.lookup().value
+
+        # Get the container specs
+        container_spec = record.document.find(samples.container_type).value
+        container_class = ContainerOntology.uri + '#' + container_spec.queryString.split(':')[-1]
+        container_str = ContainerOntology.get_term_by_uri(container_class)
 
         # Add to markdown
-        text = f"`Discard {amount} {amount_units} of {samples.name})`"
+        text = f"Discard {measurement_to_text(amount)} from {coordinates}{container_str} `{container_spec.name}`."
+        text = add_description(record, text) 
         self.markdown_steps += [text]
 
     def transfer(self, record: paml.ActivityNodeExecution):
@@ -312,54 +354,85 @@ class MarkdownSpecialization(BehaviorSpecialization):
 
         source = parameter_value_map['source']['value']
         destination = parameter_value_map['destination']['value']
-        destination_coordinates = parameter_value_map['coordinates']['value'] if 'coordinates' in parameter_value_map else ''
+        samples = parameter_value_map['samples']['value'] if 'samples' in parameter_value_map else None
+        #destination_coordinates = parameter_value_map['coordinates']['value'] if 'coordinates' in parameter_value_map else ''
+        replicates = parameter_value_map['replicates']['value'] if 'replicates' in parameter_value_map else 1
         amount_measure = parameter_value_map['amount']['value']
         amount_scalar = amount_measure.value
         amount_units = tyto.OM.get_term_by_uri(amount_measure.unit)
         if 'dispenseVelocity' in parameter_value_map:
             dispense_velocity = parameter_value_map['dispenseVelocity']['value']
 
-        # Get destination container type
+        source_coordinates = ''
+        if isinstance(source, paml.SampleMask):
+            source_coordinates = source.mask
+            # Get the corresponding SampleArray. The source property does not directly reference a SampleArray,
+            # rather through a LiteralReference and LiteralIdentified
+            # (this seems to bend the official specification a little)
+            source = source.source.lookup().value.lookup().value
+        source_contents = read_sample_contents(source)
+        if source_coordinates:
+            source_contents = {source_coordinates: source_contents[source_coordinates]}
+
+        destination_coordinates = ''
         if isinstance(destination, paml.SampleMask):
             # Currently SampleMasks are generated by the PlateCoordinates primitive
-      
-            # Since we are dealing with PlateCoordinates, try to get the wells
-            try:
-                destination_coordinates = destination.get_parent().get_parent().token_source.lookup().node.lookup().input_pin('coordinates').value.value
-                destination_coordinates = f'wells {destination_coordinates}'
-            except:
-                pass
+            destination_coordinates = destination.mask
+            ## Since we are dealing with PlateCoordinates, try to get the wells
+            #try:
+            #    destination_coordinates = destination.get_parent().get_parent().token_source.lookup().node.lookup().input_pin('coordinates').value.value
+            #    destination_coordinates = f'wells {destination_coordinates}'
+            #except:
+            #    pass
 
             # Get the corresponding SampleArray. The source property does not directly reference a SampleArray,
             # rather through a LiteralReference and LiteralIdentified
             # (this seems to bend the official specification a little)
             destination = destination.source.lookup().value.lookup().value
+        #destination_contents = read_sample_contents(destination)
+        #print('-------')
+        #print(destination_coordinates)
+        #print('Source contents: ', source_contents)
+        #print('Initial destination contents: ', destination_contents)
+        #if source_coordinates and destination_coordinates:
+        #    destination_contents[destination_coordinates] = source_contents[source_coordinates]
+        #elif destination_coordinates:
+        #    destination_contents[destination_coordinates] = source_contents['1']  # source is assumed to be a Component
+        #else:
+        #    destination_contents = source_contents
+        #print('Final destination contents: ', destination_contents) 
+        #samples.contents = quote(json.dumps(destination_contents))
 
+        # Get destination container type
         container_spec = record.document.find(destination.container_type).value
         container_class = ContainerOntology.uri + '#' + container_spec.queryString.split(':')[-1]
         container_str = ContainerOntology.get_term_by_uri(container_class)
+        destination.name = container_spec.name
 
-        # Propagate source details to destination
+        ## Propagate source details to destination
         if isinstance(destination, paml.SampleArray):
             if isinstance(source, paml.SampleArray):
                 # Do a complete transfer of all source contents
-                destination.contents = source.contents
+                destination.contents = write_sample_contents(source,
+                                                             replicates=replicates)
             elif destination_coordinates:
                 # Add more samples to a plate that already has contents
-                contents = json.loads(unquote(destination.contents))
+                contents = read_sample_contents(destination)
                 contents[destination_coordinates] = source.identity
-                destination.contents = quote(json.dumps(contents))
-                print(contents)
+                #destination.contents = quote(json.dumps(contents))
+                destination.contents = write_sample_contents(contents, replicates)
             
         source_names = get_sample_names(source, error_msg='Transfer execution failed. All source Components must specify a name.')
 
         # Add to markdown
         if destination_coordinates:
             destination_coordinates = f'wells {destination_coordinates} of'
-        text = f"Transfer {amount_scalar} {amount_units} of `{source_names[0]}` sample to {destination_coordinates} {container_str} `{container_spec.name}`."
-        if len(source_names) > 1:
-            text += f' Repeat for the remaining {len(source_names)-1} `{container_spec.name}` samples.'
-
+        if len(source_names) == 1:
+            text = f"Transfer {amount_scalar} {amount_units} of `{source_names[0]}` sample to {destination_coordinates} {container_str} `{container_spec.name}`."
+        elif len(source_names) > 1:
+            text = f"Transfer {amount_scalar} {amount_units} of each of {len(source_names)*replicates} `{container_spec.name}` samples to {destination_coordinates} {container_str} `{container_spec.name}`."
+            # f' Repeat for the remaining {len(source_names)-1} `{container_spec.name}` samples.'
+        text = add_description(record, text)
         self.markdown_steps += [text]
 
     def transfer_by_map(self, record: paml.ActivityNodeExecution):
@@ -381,18 +454,26 @@ class MarkdownSpecialization(BehaviorSpecialization):
         container_str = ContainerOntology.get_term_by_uri(container_class)
 
         # Propagate source details to destination
-        contents = json.loads(unquote(source.contents))
-        new_contents = {}
-        for k, v in contents.items():
-            new_contents[map[k]] = v
-        destination.contents = quote(json.dumps(new_contents))
+        source_contents = read_sample_contents(source)
+        destination_contents = read_sample_contents(destination)
+
+        try:
+            for k, v in source_contents.items():
+                destination_contents[map[k]] = v
+        except:
+            print('Transfer By Map:')
+            print(source.name)
+            print(source_contents)
+            raise Exception()
+        destination.contents = quote(json.dumps(destination_contents))
         source_names = get_sample_names(source, error_msg='Transfer execution failed. All source Components must specify a name.')
 
         # Add to markdown
         text = f"Transfer {amount_scalar} {amount_units} of each `{source.name}` sample to {container_str} `{container_spec.name}` in the wells indicated below.\n\n"
         text +=  '| Sample | Wells |\n'
         text +=  '| --- | --- |\n'
-        for name, coordinates in zip(source_names, new_contents.keys()):
+        for coordinates, uri in destination_contents.items():
+            name = record.document.find(uri).name
             text += f'|{name}|{coordinates}|\n'
 
         self.markdown_steps += [text]
@@ -412,16 +493,19 @@ class MarkdownSpecialization(BehaviorSpecialization):
         temperature = parameter_value_map['temperature']['value']
         temperature_scalar = temperature.value
         temperature_units = tyto.OM.get_term_by_uri(temperature.unit)
-        container = parameter_value_map['container']['value']
-        container.contents = inocula.contents
+        replicates = parameter_value_map['replicates']['value'] if 'replicates' in parameter_value_map else 1
+        container = parameter_value_map['container']['value'] 
 
-        # Lookup sample container to get the container name, and use that
-        # as the sample label
-        container_str = record.document.find(container.container_type).value.name
+        # Generate markdown
+        container_str = record.document.find(container.container_type).value.name 
         inocula_names = get_sample_names(inocula, error_msg='Culture execution failed. All input inoculum Components must specify a name.')
-
         text = f'Inoculate `{inocula_names[0]}` into {volume_scalar} {volume_units} of {growth_medium.name} in {container_str} and grow for {measurement_to_text(duration)} at {measurement_to_text(temperature)} and {orbital_shake_speed.value} rpm.'
         text += repeat_for_remaining_samples(inocula_names, repeat_msg=' Repeat this procedure for the other inocula: ')
+        if replicates > 1:
+            text += f' Inoculate {replicates} replicates for each transformant, for a total of {replicates*len(inocula_names)} cultures.'
+
+        # Populate output SampleArray
+        container.contents = write_sample_contents(inocula, replicates)
         self.markdown_steps += [text]
 
     def incubate(self, record: paml.ActivityNodeExecution):
@@ -452,6 +536,7 @@ class MarkdownSpecialization(BehaviorSpecialization):
             text = f'Hold all `{location.name}` samples at {measurement_to_text(temperature)}.'
         else:
             text = f'Hold `{location.name}` at {measurement_to_text(temperature)}.'
+        text = add_description(record, text)
         self.markdown_steps += [text]
 
     def dilute_to_target_od(self, record: paml.ActivityNodeExecution):
@@ -464,7 +549,7 @@ class MarkdownSpecialization(BehaviorSpecialization):
         amount = parameter_value_map['amount']['value']
         target_od = parameter_value_map['target_od']['value']
         destination.contents = source.contents
-        
+       
         # Get destination container type
         container_spec = record.document.find(destination.container_type).value
         container_class = ContainerOntology.uri + '#' + container_spec.queryString.split(':')[-1]
@@ -484,6 +569,7 @@ class MarkdownSpecialization(BehaviorSpecialization):
         destination = parameter_value_map['destination']['value']
         diluent = parameter_value_map['diluent']['value']
         amount = parameter_value_map['amount']['value']
+        replicates = parameter_value_map['replicates']['value'] if 'replicates' in parameter_value_map else 1
         dilution_factor = parameter_value_map['dilution_factor']['value']
 
         destination.contents = source.contents
@@ -491,14 +577,18 @@ class MarkdownSpecialization(BehaviorSpecialization):
         # Get destination container type
         container_spec = record.document.find(destination.container_type).value
         container_class = ContainerOntology.uri + '#' + container_spec.queryString.split(':')[-1]
-        container_str = ContainerOntology.get_term_by_uri(container_class)
+        container_text = ContainerOntology.get_term_by_uri(container_class)
 
         # Get sample names
         sample_names = get_sample_names(source, error_msg='Dilute execution failed. All source Components must specify a name.')
-        text = f'Dilute `{sample_names[0]}` `{source.name}` with {diluent.name} into the {container_str} at a 1:{dilution_factor} ratio and final volume of {measurement_to_text(amount)}.'
-        if len(sample_names) > 1:
-            text += f' Repeat for the remaining {len(sample_names)-1} `{source.name}` samples.'
+
+        replicate_text = ' and each of {replicates} replicates ' if replicates else ''
+        if len(sample_names) == 1:
+            text = f'Dilute `{sample_names[0]}`{replicate_text}`{source.name}` with {diluent.name} into the {container_text} at a 1:{dilution_factor} ratio and final volume of {measurement_to_text(amount)}.'
+        elif len(sample_names) > 1:
+            text = f'Dilute each of {replicates*len(sample_names)} `{source.name}` samples with {diluent.name} into the {container_text} at a 1:{dilution_factor} ratio and final volume of {measurement_to_text(amount)}.'
         #repeat_for_remaining_samples(sample_names, repeat_msg='Repeat for the remaining cultures:')
+        text = add_description(record, text)
         self.markdown_steps += [text]
 
     def transform(self, record: paml.ActivityNodeExecution):
@@ -543,28 +633,158 @@ class MarkdownSpecialization(BehaviorSpecialization):
         text += repeat_for_remaining_samples(dna_names, repeat_msg='Repeat for the remaining transformant DNA: ')
         self.markdown_steps += [text]
 
+    def serial_dilution(self, record: paml.ActivityNodeExecution):
+        call = record.call.lookup()
+        parameter_value_map = call.parameter_value_map()
+
+        source = parameter_value_map['source']['value']
+        destination = parameter_value_map['destination']['value']
+        diluent = parameter_value_map['diluent']['value']
+        amount = parameter_value_map['amount']['value']
+        dilution_factor = parameter_value_map['dilution_factor']['value']
+        series = parameter_value_map['series']['value']
+
+
+        destination_coordinates = ''
+        if isinstance(destination, paml.SampleMask):
+            # SampleMasks are generated by the PlateCoordinates primitive
+            # Their source does not directly reference a SampleArray directly,
+            # rather through a LiteralReference and LiteralIdentified
+            destination_coordinates = f' wells {destination.mask} of'
+            destination = destination.source.lookup().value.lookup().value
+        source_coordinates = ''
+        if isinstance(source, paml.SampleMask):
+            # SampleMasks are generated by the PlateCoordinates primitive
+            # Their source does not directly reference a SampleArray directly,
+            # rather through a LiteralReference and LiteralIdentified
+            source_coordinates = source.mask
+            source = source.source.lookup().value.lookup().value
+
+        # Get destination container type
+        container_spec = record.document.find(destination.container_type).value
+        container_class = ContainerOntology.uri + '#' + container_spec.queryString.split(':')[-1]
+        container_str = ContainerOntology.get_term_by_uri(container_class)
+
+        # Update destination contents
+        destination.contents = source.contents
+
+        # Get sample names
+        sample_names = get_sample_names(source, error_msg='Dilute execution failed. All source Components must specify a name.', coordinates=source_coordinates)
+        text = f'Perform a series of {series} {dilution_factor}-fold dilutions on `{sample_names[0]}` using `{diluent.name}` as diluent to a final volume of {measurement_to_text(amount)} in {destination_coordinates} {container_str} `{container_spec.name}`.'
+        if len(sample_names) > 1 and not coordinates:
+            text += f' Repeat for the remaining {len(sample_names)-1} `{source.name}` samples.'
+        #repeat_for_remaining_samples(sample_names, repeat_msg='Repeat for the remaining cultures:')
+        text = add_description(record, text)
+        self.markdown_steps += [text]
+
+    def evaporative_seal(self, record: paml.ActivityNodeExecution):
+        call = record.call.lookup()
+        parameter_value_map = call.parameter_value_map()
+
+        location = parameter_value_map['location']['value']
+        type = parameter_value_map['type']['value']
+
+        # Get destination container type
+        container_spec = record.document.find(location.container_type).value
+        container_class = ContainerOntology.uri + '#' + container_spec.queryString.split(':')[-1]
+        container_str = ContainerOntology.get_term_by_uri(container_class)
+
+        text = f'Cover `{location.name}` samples in {container_str} with your choice of material to prevent evaporation.'
+        self.markdown_steps += [text]
+
+    def unseal(self, record: paml.ActivityNodeExecution):
+        call = record.call.lookup()
+        parameter_value_map = call.parameter_value_map()
+
+        location = parameter_value_map['location']['value']
+
+        # Get destination container type
+        container_spec = record.document.find(location.container_type).value
+        container_class = ContainerOntology.uri + '#' + container_spec.queryString.split(':')[-1]
+        container_str = ContainerOntology.get_term_by_uri(container_class)
+
+        text = f'Remove the seal from {container_str} containing `{location.name}` samples.'
+        self.markdown_steps += [text]
+
+    def pool_samples(self, record: paml.ActivityNodeExecution):
+        call = record.call.lookup()
+        parameter_value_map = call.parameter_value_map()
+
+        source = parameter_value_map['source']['value']
+        samples = parameter_value_map['samples']['value']
+        destination = parameter_value_map['destination']['value']
+        volume = parameter_value_map['volume']['value']
+        source_contents = read_sample_contents(source)
+
+        # Get destination container type
+        container_spec = record.document.find(destination.container_type).value
+        container_class = ContainerOntology.uri + '#' + container_spec.queryString.split(':')[-1]
+        container_str = ContainerOntology.get_term_by_uri(container_class)
+
+        # Condense replicates
+        n_samples = len(source_contents.values())
+        source_contents = list(dict.fromkeys(source_contents.values()))  # Remove replicates while preserving order, see Stack Overflow #53657523
+
+        source_contents += source_contents  # This is a kludge to support the iGEM protocol, necessary because we don't have a good way to track replicates
+        n_replicates = int(n_samples / len(source_contents))
+        samples.contents = write_sample_contents(source_contents)
+        samples.name = source.name
+
+        text = f'Pool {measurement_to_text(volume)} from each of {n_replicates} replicate `{source.name}` samples into {container_str} `{container_spec.name}`.'
+        self.markdown_steps += [text]
+        
+    def quick_spin(self, record: paml.ActivityNodeExecution):
+        call = record.call.lookup()
+        parameter_value_map = call.parameter_value_map()
+
+        location = parameter_value_map['location']['value']
+
+        # Get destination container type
+        container_spec = record.document.find(location.container_type).value
+        container_class = ContainerOntology.uri + '#' + container_spec.queryString.split(':')[-1]
+        container_str = ContainerOntology.get_term_by_uri(container_class)
+
+        text = f'Perform a brief centrifugation on {container_str} containing `{container_spec.name}` samples.'
+        text = add_description(record, text)
+        self.markdown_steps += [text]
+
+    def embedded_image(self, record: paml.ActivityNodeExecution):
+        call = record.call.lookup()
+        parameter_value_map = call.parameter_value_map()
+
+        image = parameter_value_map['image']['value']
+
+        text = f'\n\n![]({image})\n\n'
+        self.markdown_steps[-1] += text
 
 def measurement_to_text(measure: sbol3.Measure):
     measurement_scalar = measure.value
     measurement_units = tyto.OM.get_term_by_uri(measure.unit)
     return f'{measurement_scalar} {measurement_units}'
 
-def get_sample_names(inputs: Union[paml.SampleArray, sbol3.Component], error_msg) -> list[str]:
+def get_sample_names(inputs: Union[paml.SampleArray, sbol3.Component], error_msg, coordinates=None) -> list[str]:
     # Since some behavior inputs may be specified as either a SampleArray or directly as a list 
     # of Components, this provides a convenient way to unpack a list of sample names
     input_names = []
     if isinstance(inputs, paml.SampleArray):
         if inputs.contents:
-            contents = json.loads(unquote(inputs.contents))
-            input_names = [inputs.document.find(i).name for i in contents.values()]
-    elif isinstance(inputs, sbol3.Component):
-        input_names = [inputs.name]        
+            contents = read_sample_contents(inputs)
+            if coordinates:
+                print(list(contents.keys()))
+                input_names = {inputs.document.find(contents[coordinates]).name}
+            else:
+                try:
+                    input_names = {inputs.document.find(c).name for c in contents.values()}
+                except:
+                    print(contents)
+                    raise Exception()
+    elif isinstance(inputs, Iterable):
+        input_names = {i.name for i in inputs}        
     else:
-        # in case multiple inputs are provided directly as a list
-        input_names = [i.name for i in inputs]
+        input_names = {inputs.name}
     if not all([name is not None for name in input_names]):
         raise ValueError(error_msg)
-    return input_names            
+    return sorted(input_names)
 
 def repeat_for_remaining_samples(names: list[str], repeat_msg: str):
     # Helps convert multiple samples to natural language
@@ -589,14 +809,29 @@ def get_sample_label(sample: paml.SampleCollection) -> str:
         sample = sample.source.lookup().value.lookup().value
     return record.document.find(sample.container_type).value.name
 
-def get_sample_coordinates(sample: paml.SampleCollection) -> str:
-    # Lookup sample container to get the container name, and use that
-    # as the sample label
-    if isinstance(sample, paml.SampleMask):
-        # SampleMasks are generated by the PlateCoordinates primitive
-        # Their source does not directly reference a SampleArray directly,
-        # rather through a LiteralReference and LiteralIdentified
-        sample = sample.source.lookup().value.lookup().value
-    return record.document.find(sample.container_type).value.name
+def write_sample_contents(sample_array: Union[dict, List[sbol3.Component]], replicates=1) -> str:
+    if isinstance(sample_array, paml.SampleArray):
+        old_contents = read_sample_contents(sample_array)
+        contents = []
+        for r in range(replicates):
+            for c in old_contents.values():
+                contents.append(c)
+                #sample_array.document.find(c).name += f' replicate {r}'
+        contents = {i+1: c for i, c in enumerate(contents)}
+    else:
+        contents = {i+1: c for i, c in enumerate(sample_array) for r in range(replicates)}
+    return quote(json.dumps(contents))
 
+def read_sample_contents(sample_array: paml.SampleArray) -> dict:
+    if not isinstance(sample_array, paml.SampleArray):
+        return {'1': sample_array.identity}
+    if not sample_array.contents:
+        return {}
+    # De-serialize the contents field of a SampleArray
+    return json.loads(unquote(sample_array.contents))
 
+def add_description(record, text):
+    description = record.node.lookup().description
+    if description:
+        text += f' {description}'
+    return text

@@ -252,6 +252,8 @@ class ExecutionEngine(ABC):
                                                     value=pin_values[pin.identity])
                                 for pin in node.inputs if pin.identity in pin_values]
             parameter_values.sort(key=lambda x: ex.document.find(x.parameter).index)
+
+
             call = paml.BehaviorExecution(f"execute_{self.next_id()}",
                                           parameter_values=parameter_values,
                                           completed_normally=True,
@@ -294,6 +296,13 @@ class ExecutionEngine(ABC):
 
         if record:
             for specialization in self.specializations:
+                if isinstance(node, uml.CallBehaviorAction):
+                    if isinstance(node.behavior.lookup(), paml.Protocol):
+                        self.execute(node.behavior.lookup(),
+                                     ex.association[0].agent.lookup(),
+                                     id=f'{ex.display_id}{uuid.uuid4()}'.replace('-', '_'),
+                                     parameter_values=[])
+                        continue
                 specialization.process(record)
                 #try:
                 #    specialization.process(record)
@@ -545,7 +554,6 @@ def primitive_compute_output(self, inputs, parameter):
                 source = value
             elif i_parameter.name == "coordinates":
                 coordinates = value.value.lookup().value if isinstance(value, uml.LiteralReference) else value.value
-
         mask = paml.SampleMask(source=source,
                           mask=coordinates)
         return mask

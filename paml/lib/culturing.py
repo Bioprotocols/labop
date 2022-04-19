@@ -24,6 +24,7 @@ doc.add(p)
 p = paml.Primitive('Culture')
 p.description = 'Inoculate and grow cells in a growth medium.'
 p.add_input('inoculum', sbol3.SBOL_COMPONENT, unbounded=True)
+p.add_input('replicates', 'http://bioprotocols.org/uml#ValueSpecification', optional=True)
 p.add_input('growth_medium', sbol3.SBOL_COMPONENT)
 p.add_input('volume', sbol3.OM_MEASURE, True)
 p.add_input('duration', sbol3.OM_MEASURE)
