@@ -137,9 +137,9 @@ back_dilution = protocol.primitive_step('Dilute',
                                         dilution_factor=uml.LiteralInteger(value=10))
 
 baseline_absorbance = protocol.primitive_step('MeasureAbsorbance',
-                                             samples=culture_container_day2.output_pin('samples'),
-                                             wavelength=sbol3.Measure(600, OM.nanometer))
-baseline_absorbance.description = '''Reliability of Abs600 measurement prior to dilution: stay between 0.1-0.9'''
+                                              samples=culture_container_day2.output_pin('samples'),
+                                              wavelength=sbol3.Measure(600, OM.nanometer))
+
 
 conical_tube = protocol.primitive_step('ContainerSet', 
                                        quantity=2*len(plasmids),
@@ -156,21 +156,38 @@ dilution = protocol.primitive_step('DiluteToTargetOD',
                                    target_od=sbol3.Measure(0.2, None))  # Dilute to a target OD of 0.2, opaque container
 dilution.description = '(Reliability of the dilution upon Abs600 measurement: should stay between 0.1-0.9)'
 
-
 embedded_image = protocol.primitive_step('EmbeddedImage',
                                          image='/Users/bbartley/Dev/git/sd2/paml/fig1_cell_calibration.png')
 
-# Transfer cultures to a microplate for outgrowth
+
+# Transfer cultures to a microplate baseline measurement and outgrowth
+timepoint_0hrs = protocol.primitive_step('ContainerSet',
+                                         quantity=2*len(plasmids), 
+                                         specification=paml.ContainerSpec(name='cultures (0 hr timepoint)',
+                                         queryString='cont:MicrofugeTube',
+                                         prefixMap={'cont': 'https://sift.net/container-ontology/container-ontology#'}))
 plate1 = protocol.primitive_step('EmptyContainer',
                                  specification=paml.ContainerSpec(name='plate 1',
                                  queryString='cont:Plate96Well',
                                  prefixMap={'cont': 'https://sift.net/container-ontology/container-ontology#'}))
 
-plate_blanks = protocol.primitive_step('Transfer',
-                                       source=[lb_cam],
-                                       destination=plate1.output_pin('samples'),
-                                       coordinates='A1:H1',
-                                       amount=sbol3.Measure(100, OM.microliter))
+# Hold on ice
+hold = protocol.primitive_step('Hold',
+                               location=timepoint_0hrs.output_pin('samples'),
+                               temperature=sbol3.Measure(4, OM.degree_Celsius))
+hold.description = 'This will prevent cell growth while transferring samples.'
+
+hold = protocol.primitive_step('Hold',
+                               location=plate1.output_pin('samples'),
+                               temperature=sbol3.Measure(4, OM.degree_Celsius))
+
+
+transfer = protocol.primitive_step('Transfer',
+                                   source=conical_tube.output_pin('samples'),
+                                   destination=timepoint_0hrs.output_pin('samples'),
+                                   amount=sbol3.Measure(1, OM.milliliter))
+
+
 
 plan = paml.SampleData(values=quote(json.dumps({'1':  'A2:D2',
                                                 '2':  'E2:H2',
@@ -191,34 +208,21 @@ plan = paml.SampleData(values=quote(json.dumps({'1':  'A2:D2',
 
 
 transfer = protocol.primitive_step('TransferByMap',
-                                    source=conical_tube.output_pin('samples'),
+                                    source=timepoint_0hrs.output_pin('samples'),
                                     destination=plate1.output_pin('samples'),
                                     amount=sbol3.Measure(100, OM.microliter),
                                     plan=plan)
+transfer.description = 'See also the plate layout below.'
+
+plate_blanks = protocol.primitive_step('Transfer',
+                                       source=[lb_cam],
+                                       destination=plate1.output_pin('samples'),
+                                       coordinates='A1:H1, A10:H10, A12:H12',
+                                       amount=sbol3.Measure(100, OM.microliter))
+plate_blanks.description = 'These samples are blanks.'
 
 embedded_image = protocol.primitive_step('EmbeddedImage',
                                          image='/Users/bbartley/Dev/git/sd2/paml/fig2_cell_calibration.png')
-
-timepoint_0hrs = protocol.primitive_step('ContainerSet',
-                                              quantity=4*len(plasmids), 
-                                              specification=paml.ContainerSpec(name='cultures (0 hr timepoint)',
-                                              queryString='cont:MicrofugeTube',
-                                              prefixMap={'cont': 'https://sift.net/container-ontology/container-ontology#'}))
-
-# Hold back a fraction of the cultures for baseline measurement
-transfer = protocol.primitive_step('Transfer',
-                                   source=conical_tube.output_pin('samples'),
-                                   destination=timepoint_0hrs.output_pin('samples'),
-                                   replicates=2,
-                                   amount=sbol3.Measure(1, OM.milliliter))
-
-# Hold at RT for at least 15 minutes
-hold = protocol.primitive_step('Hold',
-                               location=timepoint_0hrs.output_pin('samples'),
-                               temperature=sbol3.Measure(22.5, OM.degree_Celsius))
-hold = protocol.primitive_step('Hold',
-                               location=plate1.output_pin('samples'),
-                               temperature=sbol3.Measure(22.5, OM.degree_Celsius))
 
 
 
@@ -239,7 +243,7 @@ seal = protocol.primitive_step('EvaporativeSeal',
 
 # Begin outgrowth
 incubate = protocol.primitive_step('Incubate',
-                                   location=timepoint_0hrs.output_pin('samples'),
+                                   location=conical_tube.output_pin('samples'),
                                    duration=sbol3.Measure(6, OM.hour),
                                    temperature=sbol3.Measure(37, OM.degree_Celsius),
                                    shakingFrequency=sbol3.Measure(220, None))
@@ -262,33 +266,36 @@ hold = protocol.primitive_step('Hold',
 hold.description = 'This will inhibit cell growth during the subsequent pipetting steps.'
 
 
-# Pool replicates and take a 6hr timepoint measurement
+# Take a 6hr timepoint measurement
 timepoint_6hrs = protocol.primitive_step('ContainerSet',
                                          quantity=len(plasmids)*2,
                                          specification=paml.ContainerSpec(name=f'6hr timepoint',
                                                                           queryString='cont:MicrofugeTube', 
                                                                           prefixMap={'cont': 'https://sift.net/container-ontology/container-ontology#'}))
        
-pool_samples = protocol.primitive_step('PoolSamples',
-                                       source=timepoint_0hrs.output_pin('samples'),
-                                       destination=timepoint_6hrs.output_pin('samples'),
-                                       volume=sbol3.Measure(0.5, OM.millilitre))
-
-
-
-        
 plate2 = protocol.primitive_step('EmptyContainer',
                                  specification=paml.ContainerSpec(name='plate 2',
                                  queryString='cont:Plate96Well',
                                  prefixMap={'cont': 'https://sift.net/container-ontology/container-ontology#'}))
 
-# Plate the blanks
-plate_blanks = protocol.primitive_step('Transfer',
-                                       source=[lb_cam],
-                                       destination=plate2.output_pin('samples'),
-                                       coordinates='A1:H1',
-                                       amount=sbol3.Measure(100, OM.microliter))
-plate_blanks.description = 'These are the blanks.'
+# Hold on ice
+hold = protocol.primitive_step('Hold',
+                               location=timepoint_6hrs.output_pin('samples'),
+                               temperature=sbol3.Measure(4, OM.degree_Celsius))
+hold.description = 'This will prevent cell growth while transferring samples.'
+
+hold = protocol.primitive_step('Hold',
+                               location=plate2.output_pin('samples'),
+                               temperature=sbol3.Measure(4, OM.degree_Celsius))
+
+
+transfer = protocol.primitive_step('Transfer',
+                                   source=conical_tube.output_pin('samples'),
+                                   destination=timepoint_6hrs.output_pin('samples'),
+                                   amount=sbol3.Measure(1, OM.milliliter))
+
+
+        
 
 plan = paml.SampleData(values=quote(json.dumps({'1':  'A2:D2',
                                                 '2':  'E2:H2',
@@ -308,10 +315,20 @@ plan = paml.SampleData(values=quote(json.dumps({'1':  'A2:D2',
                                                 '16': 'E10:H10',})))
 
 transfer = protocol.primitive_step('TransferByMap',
-                                   source=pool_samples.output_pin('samples'),
+                                   source=timepoint_6hrs.output_pin('samples'),
                                    destination=plate2.output_pin('samples'),
                                    amount=sbol3.Measure(100, OM.microliter),
                                    plan=plan)
+transfer.description = 'See the plate layout.'
+
+# Plate the blanks
+plate_blanks = protocol.primitive_step('Transfer',
+                                       source=[lb_cam],
+                                       destination=plate2.output_pin('samples'),
+                                       coordinates='A1:H1, A10:H10, A12:H12',
+                                       amount=sbol3.Measure(100, OM.microliter))
+plate_blanks.description = 'These are the blanks.'
+
 
 quick_spin = protocol.primitive_step('QuickSpin',
                                      location=plate1.output_pin('samples'))
