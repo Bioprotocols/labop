@@ -188,6 +188,7 @@ class MarkdownSpecialization(BehaviorSpecialization):
         containers = parameter_value_map["specification"]["value"]
         samples = parameter_value_map["samples"]["value"]
         quantity = parameter_value_map["quantity"]["value"]
+        replicates = parameter_value_map["replicates"]["value"] if "replicates" in parameter_value_map else 1
         samples.container_type = containers.get_parent().identity
         assert(type(containers) is paml.ContainerSpec)
         try:
@@ -199,7 +200,10 @@ class MarkdownSpecialization(BehaviorSpecialization):
             container_str = ContainerOntology.get_term_by_uri(container_class)
            
             if quantity > 1:
-                text = f'Provision {quantity} x {container_str}s to contain `{containers.name}`'
+                if replicates > 1:
+                    text = f'Provision a total of {quantity*replicates} x {container_str}s to contain {replicates} replicates each of `{containers.name}`'
+                else:
+                    text = f'Provision {quantity} x {container_str}s to contain `{containers.name}`'
             else:
                 text = f'Provision a {container_str} to contain `{containers.name}`'
             text = add_description(record, text)
@@ -432,13 +436,16 @@ class MarkdownSpecialization(BehaviorSpecialization):
 
         # Add to markdown
         if destination_coordinates:
-            destination_coordinates = f'wells {destination_coordinates} of'
+            destination_coordinates = f'wells {destination_coordinates} of '
 
         source_names = get_sample_names(source, error_msg='Transfer execution failed. All source Components must specify a name.')
         if len(source_names) == 1:
             text = f"Transfer {amount_scalar} {amount_units} of `{source_names[0]}` sample to {destination_coordinates} {container_str} `{container_spec.name}`."
         elif len(source_names) > 1:
-            text = f"Transfer {amount_scalar} {amount_units} of each of {len(read_sample_contents(source))} `{source.name}` samples to {destination_coordinates} {container_str} `{container_spec.name}`."
+            n_source = len(read_sample_contents(source))
+            n_destination = n_source * replicates
+            replicate_str = f'each of {replicates} replicate ' if replicates > 1 else ''
+            text = f"Transfer {amount_scalar} {amount_units} of each of {n_source} `{source.name}` samples to {destination_coordinates}{replicate_str}{container_str} containers to contain a total of {n_destination} `{container_spec.name}` samples."
             # f' Repeat for the remaining {len(source_names)-1} `{container_spec.name}` samples.'
         text = add_description(record, text)
         self.markdown_steps += [text]
