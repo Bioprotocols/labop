@@ -284,9 +284,14 @@ class MarkdownSpecialization(BehaviorSpecialization):
         samples_str = record.document.find(samples.container_type).value.name
 
         # Provide an informative name for the measurements output
-        measurements.name = f'absorbance measurements for {samples_str}'
+        action=record.node.lookup()
+        if action.name:
+            measurements.name = f'{action.name} measurements of {samples_str}'
+            text = f'Measure {action.name} of `{samples_str}` at {wl.value} {wl_units}.'
+        else:
+            measurements.name = f'absorbance measurements of {samples_str}'
+            text = f'Measure absorbance of `{samples_str}` at {wl.value} {wl_units}.'
 
-        text = f'Make absorbance measurements of `{samples_str}` at {wl.value} {wl_units}.'
         text = add_description(record, text)
         self.markdown_steps += [text]
 
@@ -311,10 +316,18 @@ class MarkdownSpecialization(BehaviorSpecialization):
         samples_str = record.document.find(samples.container_type).value.name
 
         # Provide an informative name for the measurements output
-        measurements.name = f'fluorescence measurements for {samples_str}'
+        action = record.node.lookup()
+        if action.name:
+            measurements.name = f'{action.name} measurements of {samples_str}'
+            text = f'Measure {action.name} of `{samples_str}` with excitation wavelength of {measurement_to_text(excitation)} and emission filter of {measurement_to_text(emission)} and {measurement_to_text(bandpass)} bandpass'
+        else:
+            measurements.name = f'fluorescence measurements of {samples_str}'
+            text = f'Measure fluorescence of `{samples_str}` with excitation wavelength of {measurement_to_text(excitation)} and emission filter of {measurement_to_text(emission)} and {measurement_to_text(bandpass)} bandpass'
+
+        text = add_description(record, text)
 
         # Add to markdown
-        self.markdown_steps += [f'Make fluorescence measurements of `{samples_str}` with excitation wavelength of {measurement_to_text(excitation)} and emission filter of {measurement_to_text(emission)} and {measurement_to_text(bandpass)} bandpass']
+        self.markdown_steps += [text]
 
 
     def vortex(self, record: paml.ActivityNodeExecution):

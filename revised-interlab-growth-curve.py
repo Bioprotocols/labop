@@ -142,6 +142,7 @@ back_dilution = protocol.primitive_step('Dilute',
 baseline_absorbance = protocol.primitive_step('MeasureAbsorbance',
                                               samples=culture_container_day2.output_pin('samples'),
                                               wavelength=sbol3.Measure(600, OM.nanometer))
+baseline_absorbance.name = 'baseline absorbance of culture (day 2)'
 
 
 conical_tube = protocol.primitive_step('ContainerSet', 
@@ -233,11 +234,13 @@ embedded_image = protocol.primitive_step('EmbeddedImage',
 absorbance_plate1 = protocol.primitive_step('MeasureAbsorbance',
                                                 samples=plate1.output_pin('samples'),
                                                 wavelength=sbol3.Measure(600, OM.nanometer))
+absorbance_plate1.name = '0 hr absorbance timepoint'
 fluorescence_plate1 = protocol.primitive_step('MeasureFluorescence',
                                                   samples=plate1.output_pin('samples'),
                                                   excitationWavelength=sbol3.Measure(485, OM.nanometer),
                                                   emissionWavelength=sbol3.Measure(530, OM.nanometer),
                                                   emissionBandpassWidth=sbol3.Measure(30, OM.nanometer))
+fluorescence_plate1.name = '0 hr fluorescence timepoint'
 
 # Cover plate
 seal = protocol.primitive_step('EvaporativeSeal',
@@ -343,22 +346,26 @@ remove_seal = protocol.primitive_step('Unseal',
 endpoint_absorbance_plate1 = protocol.primitive_step('MeasureAbsorbance',
                                                      samples=plate1.output_pin('samples'),
                                                      wavelength=sbol3.Measure(600, OM.nanometer))
+endpoint_absorbance_plate1.name = '6 hr absorbance timepoint'
 
 endpoint_fluorescence_plate1 = protocol.primitive_step('MeasureFluorescence',
                                                        samples=plate1.output_pin('samples'),
                                                        excitationWavelength=sbol3.Measure(485, OM.nanometer),
                                                        emissionWavelength=sbol3.Measure(530, OM.nanometer),
                                                        emissionBandpassWidth=sbol3.Measure(30, OM.nanometer))
+endpoint_fluorescence_plate1.name = '6 hr fluorescence timepoint'
 
 endpoint_absorbance_plate2 = protocol.primitive_step('MeasureAbsorbance',
                                                      samples=plate2.output_pin('samples'),
                                                      wavelength=sbol3.Measure(600, OM.nanometer))
+endpoint_absorbance_plate2.name = '6 hr absorbance timepoint'
 
 endpoint_fluorescence_plate2 = protocol.primitive_step('MeasureFluorescence',
                                                        samples=plate2.output_pin('samples'),
                                                        excitationWavelength=sbol3.Measure(485, OM.nanometer),
                                                        emissionWavelength=sbol3.Measure(530, OM.nanometer),
                                                        emissionBandpassWidth=sbol3.Measure(30, OM.nanometer))
+endpoint_fluorescence_plate2.name = '6 hr fluorescence timepoint'
 
 protocol.designate_output('measurements', 'http://bioprotocols.org/paml#SampleData', source=baseline_absorbance.output_pin('measurements'))
 protocol.designate_output('measurements', 'http://bioprotocols.org/paml#SampleData', source=absorbance_plate1.output_pin('measurements'))
@@ -376,5 +383,5 @@ ee = ExecutionEngine(specializations=[MarkdownSpecialization("test_LUDOX_markdow
 execution = ee.execute(protocol, agent, id="test_execution", parameter_values=[])
 print(ee.specializations[0].markdown)
 ee.specializations[0].markdown = ee.specializations[0].markdown.replace('`_E. coli_', '_`E. coli`_ `')
-with open('example.md', 'w', encoding='utf-8') as f:
+with open('interlab_growth_curve.md', 'w', encoding='utf-8') as f:
     f.write(ee.specializations[0].markdown)
