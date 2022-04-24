@@ -7,10 +7,10 @@ import re
 
 def get_aliquot_list(geometry="A1:H12"):
     row_col_pairs = coordinate_rect_to_row_col_pairs(geometry)
-    aliquots = [f"{num2col(c+1)}{r+1}" for (r, c) in row_col_pairs]
+    aliquots = [f"{num2row(r+1)}{c+1}" for (r, c) in row_col_pairs]
     return aliquots
 
-def num2col(num: int):
+def num2row(num: int):
     """
     Get the alpha column string from the index.
     - 1 -> A
@@ -30,7 +30,7 @@ def num2col(num: int):
             return chr(num + ord('A') - 1) + col
 
 
-def col2num(col: str):
+def row2num(col: str):
     """
     Get the index of the alpha column string.
     - A -> 1
@@ -53,15 +53,15 @@ def coordinate_to_row_col(coord: str):
     if m is None:
         raise Exception(f"Invalid coordinate: {coord}")
     # convert column to index and then adjust to zero-based indices
-    return (col2num(m.group(1)) - 1), (int(m.group(2)) - 1)
+    return (row2num(m.group(1)) - 1), (int(m.group(2)) - 1)
 
 
 def coordinate_rect_to_row_col_pairs(coords: str):
     parts = coords.split(':')
     if len(parts) != 2:
         raise Exception(f"Invalid coordinates: {coords}")
-    fcol, frow = coordinate_to_row_col(parts[0])
-    scol, srow = coordinate_to_row_col(parts[1])
+    frow, fcol = coordinate_to_row_col(parts[0])
+    srow, scol = coordinate_to_row_col(parts[1])
 
     indices = []
     for i in range(fcol, scol + 1):

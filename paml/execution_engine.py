@@ -7,7 +7,7 @@ import pandas as pd
 import graphviz
 
 import paml
-from paml_convert.plate_coordinates import coordinate_rect_to_row_col_pairs, num2col
+from paml_convert.plate_coordinates import coordinate_rect_to_row_col_pairs, num2row
 import uml
 import sbol3
 

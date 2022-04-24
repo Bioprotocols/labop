@@ -1,6 +1,6 @@
 import json
 import paml
-from paml_convert.plate_coordinates import coordinate_rect_to_row_col_pairs, get_aliquot_list, num2col
+from paml_convert.plate_coordinates import coordinate_rect_to_row_col_pairs, get_aliquot_list, num2row
 import uml
 import xarray as xr
 import logging
@@ -149,6 +149,8 @@ def empty_container_initialize_contents(self):
 
         l.warn("Warning: Assuming that the SampleArray is a 96 well microplate!")
         aliquots = get_aliquot_list(geometry="A1:H12")
+        #contents = json.dumps(xr.DataArray(dims=("aliquot", "contents"), 
+        #                                   coords={"aliquot": aliquots}).to_dict())
         contents = json.dumps(xr.DataArray(aliquots, dims=("aliquot")).to_dict())
     else:
         raise Exception(f"Cannot initialize contents of: {self.identity}")
