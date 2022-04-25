@@ -137,7 +137,8 @@ back_dilution = protocol.primitive_step('Dilute',
                                         replicates=2,
                                         diluent=lb_cam,
                                         amount=sbol3.Measure(5.0, OM.millilitre),
-                                        dilution_factor=uml.LiteralInteger(value=10))
+                                        dilution_factor=uml.LiteralInteger(value=10),
+                                        temperature=sbol3.Measure(4, OM.degree_Celsius))
 
 baseline_absorbance = protocol.primitive_step('MeasureAbsorbance',
                                               samples=culture_container_day2.output_pin('samples'),
@@ -157,8 +158,9 @@ dilution = protocol.primitive_step('DiluteToTargetOD',
                                    destination=conical_tube.output_pin('samples'),
                                    diluent=lb_cam,
                                    amount=sbol3.Measure(12, OM.millilitre),
-                                   target_od=sbol3.Measure(0.2, None))  # Dilute to a target OD of 0.2, opaque container
-dilution.description = '(Reliability of the dilution upon Abs600 measurement: should stay between 0.1-0.9)'
+                                   target_od=sbol3.Measure(0.02, None),
+                                   temperature=sbol3.Measure(4, OM.degree_Celsius))  # Dilute to a target OD of 0.2, opaque container
+dilution.description = ' Use the provided Excel sheet to calculate this dilution. Reliability of the dilution upon Abs600 measurement: should stay between 0.1-0.9'
 
 embedded_image = protocol.primitive_step('EmbeddedImage',
                                          image='/Users/bbartley/Dev/git/sd2/paml/fig1_cell_calibration.png')
@@ -189,7 +191,8 @@ hold = protocol.primitive_step('Hold',
 transfer = protocol.primitive_step('Transfer',
                                    source=conical_tube.output_pin('samples'),
                                    destination=timepoint_0hrs.output_pin('samples'),
-                                   amount=sbol3.Measure(1, OM.milliliter))
+                                   amount=sbol3.Measure(1, OM.milliliter),
+                                   temperature=sbol3.Measure(4, OM.degree_Celsius))
 
 
 
@@ -215,6 +218,7 @@ transfer = protocol.primitive_step('TransferByMap',
                                     source=timepoint_0hrs.output_pin('samples'),
                                     destination=plate1.output_pin('samples'),
                                     amount=sbol3.Measure(100, OM.microliter),
+                                    temperature=sbol3.Measure(4, OM.degree_Celsius),
                                     plan=plan)
 transfer.description = 'See also the plate layout below.'
 
@@ -222,6 +226,7 @@ plate_blanks = protocol.primitive_step('Transfer',
                                        source=[lb_cam],
                                        destination=plate1.output_pin('samples'),
                                        coordinates='A1:H1, A10:H10, A12:H12',
+                                       temperature=sbol3.Measure(4, OM.degree_Celsius),
                                        amount=sbol3.Measure(100, OM.microliter))
 plate_blanks.description = 'These samples are blanks.'
 
@@ -237,7 +242,7 @@ absorbance_plate1 = protocol.primitive_step('MeasureAbsorbance',
 absorbance_plate1.name = '0 hr absorbance timepoint'
 fluorescence_plate1 = protocol.primitive_step('MeasureFluorescence',
                                                   samples=plate1.output_pin('samples'),
-                                                  excitationWavelength=sbol3.Measure(485, OM.nanometer),
+                                                  excitationWavelength=sbol3.Measure(488, OM.nanometer),
                                                   emissionWavelength=sbol3.Measure(530, OM.nanometer),
                                                   emissionBandpassWidth=sbol3.Measure(30, OM.nanometer))
 fluorescence_plate1.name = '0 hr fluorescence timepoint'
@@ -298,6 +303,7 @@ hold = protocol.primitive_step('Hold',
 transfer = protocol.primitive_step('Transfer',
                                    source=conical_tube.output_pin('samples'),
                                    destination=timepoint_6hrs.output_pin('samples'),
+                                   temperature=sbol3.Measure(4, OM.degree_Celsius),
                                    amount=sbol3.Measure(1, OM.milliliter))
 
 
@@ -324,6 +330,7 @@ transfer = protocol.primitive_step('TransferByMap',
                                    source=timepoint_6hrs.output_pin('samples'),
                                    destination=plate2.output_pin('samples'),
                                    amount=sbol3.Measure(100, OM.microliter),
+                                   temperature=sbol3.Measure(4, OM.degree_Celsius),
                                    plan=plan)
 transfer.description = 'See the plate layout.'
 
@@ -332,6 +339,7 @@ plate_blanks = protocol.primitive_step('Transfer',
                                        source=[lb_cam],
                                        destination=plate2.output_pin('samples'),
                                        coordinates='A1:H1, A10:H10, A12:H12',
+                                       temperature=sbol3.Measure(4, OM.degree_Celsius),
                                        amount=sbol3.Measure(100, OM.microliter))
 plate_blanks.description = 'These are the blanks.'
 

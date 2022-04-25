@@ -383,6 +383,7 @@ class MarkdownSpecialization(BehaviorSpecialization):
         samples = parameter_value_map['samples']['value'] if 'samples' in parameter_value_map else None
         destination_coordinates = parameter_value_map['coordinates']['value'] if 'coordinates' in parameter_value_map else ''
         replicates = parameter_value_map['replicates']['value'] if 'replicates' in parameter_value_map else 1
+        temperature = parameter_value_map['temperature']['value'] if 'temperature' in parameter_value_map else None
         amount_measure = parameter_value_map['amount']['value']
         amount_scalar = amount_measure.value
         amount_units = tyto.OM.get_term_by_uri(amount_measure.unit)
@@ -460,6 +461,8 @@ class MarkdownSpecialization(BehaviorSpecialization):
             replicate_str = f'each of {replicates} replicate ' if replicates > 1 else ''
             text = f"Transfer {amount_scalar} {amount_units} of each of {n_source} `{source.name}` samples to {destination_coordinates}{replicate_str}{container_str} containers to contain a total of {n_destination} `{container_spec.name}` samples."
             # f' Repeat for the remaining {len(source_names)-1} `{container_spec.name}` samples.'
+        if temperature:
+            text += f' Maintain at {measurement_to_text(temperature)} during transfer.'
         text = add_description(record, text)
         self.markdown_steps += [text]
 
@@ -469,6 +472,7 @@ class MarkdownSpecialization(BehaviorSpecialization):
 
         source = parameter_value_map['source']['value']
         destination = parameter_value_map['destination']['value']
+        temperature = parameter_value_map['temperature']['value'] if 'temperature' in parameter_value_map else None
         amount_measure = parameter_value_map['amount']['value']
         amount_scalar = amount_measure.value
         amount_units = tyto.OM.get_term_by_uri(amount_measure.unit)
@@ -501,6 +505,9 @@ class MarkdownSpecialization(BehaviorSpecialization):
         #for coordinates, uri in destination_contents.items():
         #    name = record.document.find(uri).name
         #    text += f'|{name}|{coordinates}|\n'
+
+        if temperature:
+            text += f' Maintain at {measurement_to_text(temperature)} during transfer.'
 
         self.markdown_steps += [text]
 
@@ -574,6 +581,7 @@ class MarkdownSpecialization(BehaviorSpecialization):
         diluent = parameter_value_map['diluent']['value']
         amount = parameter_value_map['amount']['value']
         target_od = parameter_value_map['target_od']['value']
+        temperature = parameter_value_map['temperature']['value'] if 'temperature' in parameter_value_map else None
         destination.contents = source.contents
        
         # Get destination container type
@@ -587,6 +595,9 @@ class MarkdownSpecialization(BehaviorSpecialization):
             text = f'Back-dilute `{sample_names[0]}` `{source.name}` with {diluent.name} into {container_str} to a target OD of {target_od.value} and final volume of {measurement_to_text(amount)}.'
         elif len(sample_names) > 1:
             text = f'Back-dilute each of {len(read_sample_contents(source))} `{source.name}` samples to a target OD of {target_od.value} using {diluent.name} as diluent to a final volume of {measurement_to_text(amount)}.'
+
+        if temperature:
+            text += f' Maintain at {measurement_to_text(temperature)} while performing dilutions.'
         self.markdown_steps += [text]
 
     def dilute(self, record: paml.ActivityNodeExecution):
@@ -599,6 +610,7 @@ class MarkdownSpecialization(BehaviorSpecialization):
         amount = parameter_value_map['amount']['value']
         replicates = parameter_value_map['replicates']['value'] if 'replicates' in parameter_value_map else 1
         dilution_factor = parameter_value_map['dilution_factor']['value']
+        temperature = parameter_value_map['temperature']['value'] if 'temperature' in parameter_value_map else None
 
         destination.contents = source.contents
 
@@ -616,6 +628,9 @@ class MarkdownSpecialization(BehaviorSpecialization):
         elif len(sample_names) > 1:
             text = f'Dilute each of {replicates*len(sample_names)} `{source.name}` samples with {diluent.name} into the {container_text} at a 1:{dilution_factor} ratio and final volume of {measurement_to_text(amount)}.'
         #repeat_for_remaining_samples(sample_names, repeat_msg='Repeat for the remaining cultures:')
+
+        if temperature:
+            text += f' Maintain at {measurement_to_text(temperature)} while performing dilutions.'
         text = add_description(record, text)
         self.markdown_steps += [text]
 

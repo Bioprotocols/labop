@@ -10,7 +10,8 @@
         <https://bioprotocols.org/paml/primitives/liquid_handling/Dilute/OrderedPropertyValue3>,
         <https://bioprotocols.org/paml/primitives/liquid_handling/Dilute/OrderedPropertyValue4>,
         <https://bioprotocols.org/paml/primitives/liquid_handling/Dilute/OrderedPropertyValue5>,
-        <https://bioprotocols.org/paml/primitives/liquid_handling/Dilute/OrderedPropertyValue6> ;
+        <https://bioprotocols.org/paml/primitives/liquid_handling/Dilute/OrderedPropertyValue6>,
+        <https://bioprotocols.org/paml/primitives/liquid_handling/Dilute/OrderedPropertyValue7> ;
     sbol:description "Dilute" ;
     sbol:displayId "Dilute" ;
     sbol:hasNamespace <https://bioprotocols.org/paml/primitives/liquid_handling> .
@@ -21,7 +22,8 @@
         <https://bioprotocols.org/paml/primitives/liquid_handling/DiluteToTargetOD/OrderedPropertyValue2>,
         <https://bioprotocols.org/paml/primitives/liquid_handling/DiluteToTargetOD/OrderedPropertyValue3>,
         <https://bioprotocols.org/paml/primitives/liquid_handling/DiluteToTargetOD/OrderedPropertyValue4>,
-        <https://bioprotocols.org/paml/primitives/liquid_handling/DiluteToTargetOD/OrderedPropertyValue5> ;
+        <https://bioprotocols.org/paml/primitives/liquid_handling/DiluteToTargetOD/OrderedPropertyValue5>,
+        <https://bioprotocols.org/paml/primitives/liquid_handling/DiluteToTargetOD/OrderedPropertyValue6> ;
     sbol:description "Dilute" ;
     sbol:displayId "DiluteToTargetOD" ;
     sbol:hasNamespace <https://bioprotocols.org/paml/primitives/liquid_handling> .
@@ -83,7 +85,8 @@
         <https://bioprotocols.org/paml/primitives/liquid_handling/Transfer/OrderedPropertyValue3>,
         <https://bioprotocols.org/paml/primitives/liquid_handling/Transfer/OrderedPropertyValue4>,
         <https://bioprotocols.org/paml/primitives/liquid_handling/Transfer/OrderedPropertyValue5>,
-        <https://bioprotocols.org/paml/primitives/liquid_handling/Transfer/OrderedPropertyValue6> ;
+        <https://bioprotocols.org/paml/primitives/liquid_handling/Transfer/OrderedPropertyValue6>,
+        <https://bioprotocols.org/paml/primitives/liquid_handling/Transfer/OrderedPropertyValue7> ;
     sbol:description "Move a measured volume taken from a collection of source samples to a location whose shape can contain them in a destination locations" ;
     sbol:displayId "Transfer" ;
     sbol:hasNamespace <https://bioprotocols.org/paml/primitives/liquid_handling> .
@@ -94,7 +97,8 @@
         <https://bioprotocols.org/paml/primitives/liquid_handling/TransferByMap/OrderedPropertyValue2>,
         <https://bioprotocols.org/paml/primitives/liquid_handling/TransferByMap/OrderedPropertyValue3>,
         <https://bioprotocols.org/paml/primitives/liquid_handling/TransferByMap/OrderedPropertyValue4>,
-        <https://bioprotocols.org/paml/primitives/liquid_handling/TransferByMap/OrderedPropertyValue5> ;
+        <https://bioprotocols.org/paml/primitives/liquid_handling/TransferByMap/OrderedPropertyValue5>,
+        <https://bioprotocols.org/paml/primitives/liquid_handling/TransferByMap/OrderedPropertyValue6> ;
     sbol:description "Move volumes from a collection of source samples to a collection of destination samples following a plan of value given for each location" ;
     sbol:displayId "TransferByMap" ;
     sbol:hasNamespace <https://bioprotocols.org/paml/primitives/liquid_handling> .
@@ -281,6 +285,33 @@
     ns1:integerValue 1 ;
     sbol:displayId "LiteralInteger2" .
 
+<https://bioprotocols.org/paml/primitives/liquid_handling/Dilute/OrderedPropertyValue7> a ns1:OrderedPropertyValue,
+        sbol:Identified ;
+    ns1:indexValue 6 ;
+    ns1:propertyValue <https://bioprotocols.org/paml/primitives/liquid_handling/Dilute/OrderedPropertyValue7/Parameter1> ;
+    sbol:displayId "OrderedPropertyValue7" .
+
+<https://bioprotocols.org/paml/primitives/liquid_handling/Dilute/OrderedPropertyValue7/Parameter1> a ns1:Parameter,
+        sbol:Identified ;
+    ns1:direction ns1:in ;
+    ns1:isOrdered true ;
+    ns1:isUnique true ;
+    ns1:lowerValue <https://bioprotocols.org/paml/primitives/liquid_handling/Dilute/OrderedPropertyValue7/Parameter1/LiteralInteger2> ;
+    ns1:type om:Measure ;
+    ns1:upperValue <https://bioprotocols.org/paml/primitives/liquid_handling/Dilute/OrderedPropertyValue7/Parameter1/LiteralInteger1> ;
+    sbol:displayId "Parameter1" ;
+    sbol:name "temperature" .
+
+<https://bioprotocols.org/paml/primitives/liquid_handling/Dilute/OrderedPropertyValue7/Parameter1/LiteralInteger1> a ns1:LiteralInteger,
+        sbol:Identified ;
+    ns1:integerValue 1 ;
+    sbol:displayId "LiteralInteger1" .
+
+<https://bioprotocols.org/paml/primitives/liquid_handling/Dilute/OrderedPropertyValue7/Parameter1/LiteralInteger2> a ns1:LiteralInteger,
+        sbol:Identified ;
+    ns1:integerValue 0 ;
+    sbol:displayId "LiteralInteger2" .
+
 <https://bioprotocols.org/paml/primitives/liquid_handling/DiluteToTargetOD/OrderedPropertyValue1> a ns1:OrderedPropertyValue,
         sbol:Identified ;
     ns1:indexValue 0 ;
@@ -412,6 +443,33 @@
     sbol:displayId "LiteralInteger1" .
 
 <https://bioprotocols.org/paml/primitives/liquid_handling/DiluteToTargetOD/OrderedPropertyValue5/Parameter1/LiteralInteger2> a ns1:LiteralInteger,
+        sbol:Identified ;
+    ns1:integerValue 1 ;
+    sbol:displayId "LiteralInteger2" .
+
+<https://bioprotocols.org/paml/primitives/liquid_handling/DiluteToTargetOD/OrderedPropertyValue6> a ns1:OrderedPropertyValue,
+        sbol:Identified ;
+    ns1:indexValue 5 ;
+    ns1:propertyValue <https://bioprotocols.org/paml/primitives/liquid_handling/DiluteToTargetOD/OrderedPropertyValue6/Parameter1> ;
+    sbol:displayId "OrderedPropertyValue6" .
+
+<https://bioprotocols.org/paml/primitives/liquid_handling/DiluteToTargetOD/OrderedPropertyValue6/Parameter1> a ns1:Parameter,
+        sbol:Identified ;
+    ns1:direction ns1:in ;
+    ns1:isOrdered true ;
+    ns1:isUnique true ;
+    ns1:lowerValue <https://bioprotocols.org/paml/primitives/liquid_handling/DiluteToTargetOD/OrderedPropertyValue6/Parameter1/LiteralInteger2> ;
+    ns1:type om:Measure ;
+    ns1:upperValue <https://bioprotocols.org/paml/primitives/liquid_handling/DiluteToTargetOD/OrderedPropertyValue6/Parameter1/LiteralInteger1> ;
+    sbol:displayId "Parameter1" ;
+    sbol:name "temperature" .
+
+<https://bioprotocols.org/paml/primitives/liquid_handling/DiluteToTargetOD/OrderedPropertyValue6/Parameter1/LiteralInteger1> a ns1:LiteralInteger,
+        sbol:Identified ;
+    ns1:integerValue 1 ;
+    sbol:displayId "LiteralInteger1" .
+
+<https://bioprotocols.org/paml/primitives/liquid_handling/DiluteToTargetOD/OrderedPropertyValue6/Parameter1/LiteralInteger2> a ns1:LiteralInteger,
         sbol:Identified ;
     ns1:integerValue 1 ;
     sbol:displayId "LiteralInteger2" .
@@ -1079,7 +1137,7 @@
     ns1:type om:Measure ;
     ns1:upperValue <https://bioprotocols.org/paml/primitives/liquid_handling/Transfer/OrderedPropertyValue5/Parameter1/LiteralInteger1> ;
     sbol:displayId "Parameter1" ;
-    sbol:name "amount" .
+    sbol:name "temperature" .
 
 <https://bioprotocols.org/paml/primitives/liquid_handling/Transfer/OrderedPropertyValue5/Parameter1/LiteralInteger1> a ns1:LiteralInteger,
         sbol:Identified ;
@@ -1088,7 +1146,7 @@
 
 <https://bioprotocols.org/paml/primitives/liquid_handling/Transfer/OrderedPropertyValue5/Parameter1/LiteralInteger2> a ns1:LiteralInteger,
         sbol:Identified ;
-    ns1:integerValue 1 ;
+    ns1:integerValue 0 ;
     sbol:displayId "LiteralInteger2" .
 
 <https://bioprotocols.org/paml/primitives/liquid_handling/Transfer/OrderedPropertyValue6> a ns1:OrderedPropertyValue,
@@ -1106,7 +1164,7 @@
     ns1:type om:Measure ;
     ns1:upperValue <https://bioprotocols.org/paml/primitives/liquid_handling/Transfer/OrderedPropertyValue6/Parameter1/LiteralInteger1> ;
     sbol:displayId "Parameter1" ;
-    sbol:name "dispenseVelocity" .
+    sbol:name "amount" .
 
 <https://bioprotocols.org/paml/primitives/liquid_handling/Transfer/OrderedPropertyValue6/Parameter1/LiteralInteger1> a ns1:LiteralInteger,
         sbol:Identified ;
@@ -1114,6 +1172,33 @@
     sbol:displayId "LiteralInteger1" .
 
 <https://bioprotocols.org/paml/primitives/liquid_handling/Transfer/OrderedPropertyValue6/Parameter1/LiteralInteger2> a ns1:LiteralInteger,
+        sbol:Identified ;
+    ns1:integerValue 1 ;
+    sbol:displayId "LiteralInteger2" .
+
+<https://bioprotocols.org/paml/primitives/liquid_handling/Transfer/OrderedPropertyValue7> a ns1:OrderedPropertyValue,
+        sbol:Identified ;
+    ns1:indexValue 6 ;
+    ns1:propertyValue <https://bioprotocols.org/paml/primitives/liquid_handling/Transfer/OrderedPropertyValue7/Parameter1> ;
+    sbol:displayId "OrderedPropertyValue7" .
+
+<https://bioprotocols.org/paml/primitives/liquid_handling/Transfer/OrderedPropertyValue7/Parameter1> a ns1:Parameter,
+        sbol:Identified ;
+    ns1:direction ns1:in ;
+    ns1:isOrdered true ;
+    ns1:isUnique true ;
+    ns1:lowerValue <https://bioprotocols.org/paml/primitives/liquid_handling/Transfer/OrderedPropertyValue7/Parameter1/LiteralInteger2> ;
+    ns1:type om:Measure ;
+    ns1:upperValue <https://bioprotocols.org/paml/primitives/liquid_handling/Transfer/OrderedPropertyValue7/Parameter1/LiteralInteger1> ;
+    sbol:displayId "Parameter1" ;
+    sbol:name "dispenseVelocity" .
+
+<https://bioprotocols.org/paml/primitives/liquid_handling/Transfer/OrderedPropertyValue7/Parameter1/LiteralInteger1> a ns1:LiteralInteger,
+        sbol:Identified ;
+    ns1:integerValue 1 ;
+    sbol:displayId "LiteralInteger1" .
+
+<https://bioprotocols.org/paml/primitives/liquid_handling/Transfer/OrderedPropertyValue7/Parameter1/LiteralInteger2> a ns1:LiteralInteger,
         sbol:Identified ;
     ns1:integerValue 0 ;
     sbol:displayId "LiteralInteger2" .
@@ -1241,7 +1326,7 @@
     ns1:type om:Measure ;
     ns1:upperValue <https://bioprotocols.org/paml/primitives/liquid_handling/TransferByMap/OrderedPropertyValue5/Parameter1/LiteralInteger1> ;
     sbol:displayId "Parameter1" ;
-    sbol:name "dispenseVelocity" .
+    sbol:name "temperature" .
 
 <https://bioprotocols.org/paml/primitives/liquid_handling/TransferByMap/OrderedPropertyValue5/Parameter1/LiteralInteger1> a ns1:LiteralInteger,
         sbol:Identified ;
@@ -1249,6 +1334,33 @@
     sbol:displayId "LiteralInteger1" .
 
 <https://bioprotocols.org/paml/primitives/liquid_handling/TransferByMap/OrderedPropertyValue5/Parameter1/LiteralInteger2> a ns1:LiteralInteger,
+        sbol:Identified ;
+    ns1:integerValue 1 ;
+    sbol:displayId "LiteralInteger2" .
+
+<https://bioprotocols.org/paml/primitives/liquid_handling/TransferByMap/OrderedPropertyValue6> a ns1:OrderedPropertyValue,
+        sbol:Identified ;
+    ns1:indexValue 5 ;
+    ns1:propertyValue <https://bioprotocols.org/paml/primitives/liquid_handling/TransferByMap/OrderedPropertyValue6/Parameter1> ;
+    sbol:displayId "OrderedPropertyValue6" .
+
+<https://bioprotocols.org/paml/primitives/liquid_handling/TransferByMap/OrderedPropertyValue6/Parameter1> a ns1:Parameter,
+        sbol:Identified ;
+    ns1:direction ns1:in ;
+    ns1:isOrdered true ;
+    ns1:isUnique true ;
+    ns1:lowerValue <https://bioprotocols.org/paml/primitives/liquid_handling/TransferByMap/OrderedPropertyValue6/Parameter1/LiteralInteger2> ;
+    ns1:type om:Measure ;
+    ns1:upperValue <https://bioprotocols.org/paml/primitives/liquid_handling/TransferByMap/OrderedPropertyValue6/Parameter1/LiteralInteger1> ;
+    sbol:displayId "Parameter1" ;
+    sbol:name "dispenseVelocity" .
+
+<https://bioprotocols.org/paml/primitives/liquid_handling/TransferByMap/OrderedPropertyValue6/Parameter1/LiteralInteger1> a ns1:LiteralInteger,
+        sbol:Identified ;
+    ns1:integerValue 1 ;
+    sbol:displayId "LiteralInteger1" .
+
+<https://bioprotocols.org/paml/primitives/liquid_handling/TransferByMap/OrderedPropertyValue6/Parameter1/LiteralInteger2> a ns1:LiteralInteger,
         sbol:Identified ;
     ns1:integerValue 0 ;
     sbol:displayId "LiteralInteger2" .

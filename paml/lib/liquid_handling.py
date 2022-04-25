@@ -33,6 +33,7 @@ p.add_input('source', 'http://bioprotocols.org/paml#SampleCollection')
 p.add_input('destination', 'http://bioprotocols.org/paml#SampleCollection')
 p.add_input('coordinates', 'http://bioprotocols.org/uml#ValueSpecification', optional=True)
 p.add_input('replicates', 'http://bioprotocols.org/uml#ValueSpecification', optional=True)
+p.add_input('temperature', sbol3.OM_MEASURE, optional=True)
 p.add_input('amount', sbol3.OM_MEASURE) # Must be volume
 p.add_input('dispenseVelocity', sbol3.OM_MEASURE, True)
 doc.add(p)
@@ -54,6 +55,7 @@ p.add_input('amount', sbol3.OM_MEASURE) # Must be volume
 p.add_input('diluent', sbol3.SBOL_COMPONENT)
 p.add_input('replicates', 'http://bioprotocols.org/uml#ValueSpecification', optional=True) 
 p.add_input('dilution_factor', sbol3.OM_MEASURE)
+p.add_input('temperature', sbol3.OM_MEASURE, optional=True)
 doc.add(p)
 
 p = paml.Primitive('DiluteToTargetOD')
@@ -63,6 +65,7 @@ p.add_input('destination', 'http://bioprotocols.org/paml#SampleCollection')
 p.add_input('amount', sbol3.OM_MEASURE) # Must be volume
 p.add_input('diluent', sbol3.SBOL_COMPONENT) 
 p.add_input('target_od', sbol3.OM_MEASURE)
+p.add_input('temperature', sbol3.OM_MEASURE)
 doc.add(p)
 
 p = paml.Primitive('SerialDilution')
@@ -82,6 +85,7 @@ p.add_input('source', 'http://bioprotocols.org/paml#SampleCollection')
 p.add_input('destination', 'http://bioprotocols.org/paml#SampleCollection')
 p.add_input('plan', 'http://bioprotocols.org/paml#SampleData') # Must be a set of component/volume values
 p.add_input('amount', sbol3.OM_MEASURE) # Must be volume
+p.add_input('temperature', sbol3.OM_MEASURE)
 p.add_input('dispenseVelocity', sbol3.OM_MEASURE, True)
 doc.add(p)
 
