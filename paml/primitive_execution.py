@@ -105,7 +105,7 @@ def primitive_compute_output(self, inputs, parameter):
             if i_parameter.name == "specification":
                 spec = resolve_value(value)
         contents = self.initialize_contents()
-        name = f"{parameter.name}"
+        name = spec.name if spec.name else parameter.name
         sample_array = paml.SampleArray(name=name,
                                    container_type=spec,
                                    contents=contents)
@@ -138,7 +138,30 @@ def primitive_compute_output(self, inputs, parameter):
 
         sample_data = paml.SampleData(from_samples=samples)
         return sample_data
+    elif parameter.type in sbol3.Document._uri_type_map:
+        # Generalized handler for output tokens, see #125
+        # TODO: This currently assumes the output token is an sbol3.TopLevel
+        # Still needs special handling for non-toplevel tokens
+
+        builder_fxn = sbol3.Document._uri_type_map[parameter.type]
+
+        # Construct object with a unique URI
+        instance_count = 0
+        successful = False
+        while not successful:
+            try:
+                token_id = f'{parameter.name}{instance_count}'
+                output_token = builder_fxn(token_id, type_uri=parameter.type)
+                if isinstance(output_token, sbol3.TopLevel):
+                    self.document.add(output_token)
+                else:
+                    output_token = builder_fxn(None, type_uri=parameter.type)
+                successful = True
+            except ValueError:
+                instance_count += 1
+        return output_token
     else:
+        logger.warning(f'No builder found for output Parameter of type {parameter.type}. Returning a string literal by default.')
         return f"{parameter.name}"
 paml.Primitive.compute_output = primitive_compute_output
 
