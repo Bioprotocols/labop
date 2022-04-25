@@ -18,7 +18,11 @@ p.add_input('dna', sbol3.SBOL_COMPONENT)
 p.add_input('amount', sbol3.OM_MEASURE, True) # Can be mass or volume
 p.add_input('selection_medium', sbol3.SBOL_COMPONENT)
 p.add_output('transformants', 'http://bioprotocols.org/paml#SampleArray')
+doc.add(p)
 
+p = paml.Primitive('Inoculate')
+p.add_input('source', sbol3.SBOL_COMPONENT)
+p.add_input('destination', 'http://bioprotocols.org/paml#SampleArray')
 doc.add(p)
 
 p = paml.Primitive('Culture')
