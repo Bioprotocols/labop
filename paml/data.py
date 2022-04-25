@@ -77,6 +77,19 @@ def sample_mask_to_data_array(self):
     return xr.DataArray.from_dict(json.loads(self.mask))
 SampleMask.to_data_array = sample_mask_to_data_array
 
+
+def sample_mask_get_coordinates(self):
+    mask = self.to_data_array()
+    return [c for c in mask.aliquot.data if mask.loc[c]]
+SampleMask.get_coordinates = sample_mask_get_coordinates
+
+
+def sample_array_get_coordinates(self):
+    contents = self.to_data_array()
+    return [c for c in contents.aliquot.data]
+SampleArray.get_coordinates = sample_mask_get_coordinates
+
+
 def sample_data_to_dataset(self):
     if not hasattr(self, "values") or \
        not self.values:
