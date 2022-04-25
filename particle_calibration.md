@@ -38,8 +38,8 @@ Adapted from [https://dx.doi.org/10.17504/protocols.io.bht7j6rn](https://dx.doi.
 11. Transfer 1.0 milliliter of `Water, sterile-filtered, BioReagent, suitable for cell culture` sample to  stock reagent container `NanoCym 950 nm microspheres`. The resuspended microspheres will have a final concentration of 3e9 microspheres/mL in ddH20.
 12. Vortex NanoCym 950 nm microspheres
 13. Provision a 96 well microplate to contain `calibration plate`
-14. Transfer 200.0 microliter of `Phosphate Buffered Saline` sample to wells A12:D12 of  96 well microplate `calibration plate`.  These are blanks.
-15. Transfer 200.0 microliter of `Water, sterile-filtered, BioReagent, suitable for cell culture` sample to wells E12:H12 of  96 well microplate `calibration plate`.  These are blanks.
+14. Transfer 100.0 microliter of `Phosphate Buffered Saline` sample to wells A12:D12 of  96 well microplate `calibration plate`.  These are blanks.
+15. Transfer 100.0 microliter of `Water, sterile-filtered, BioReagent, suitable for cell culture` sample to wells E12:H12 of  96 well microplate `calibration plate`.  These are blanks.
 16. Transfer 200.0 microliter of `Fluorescein calibrant` sample to wells A1 of  96 well microplate `calibration plate`.
 17. Transfer 200.0 microliter of `Fluorescein calibrant` sample to wells B1 of  96 well microplate `calibration plate`.
 18. Transfer 200.0 microliter of `Sulforhodamine 101 calibrant` sample to wells C1 of  96 well microplate `calibration plate`.
@@ -57,11 +57,13 @@ Adapted from [https://dx.doi.org/10.17504/protocols.io.bht7j6rn](https://dx.doi.
 30. Perform a series of 10 2-fold dilutions on `NanoCym 950 nm microspheres` using `Water, sterile-filtered, BioReagent, suitable for cell culture` as diluent to a final volume of 200.0 microliter in  wells G1:G11 of 96 well microplate `calibration plate`.  For each transfer, pipette up and down 3X to ensure the dilution is mixed homogeneously.
 31. Perform a series of 10 2-fold dilutions on `NanoCym 950 nm microspheres` using `Water, sterile-filtered, BioReagent, suitable for cell culture` as diluent to a final volume of 200.0 microliter in  wells H1:H11 of 96 well microplate `calibration plate`.  For each transfer, pipette up and down 3X to ensure the dilution is mixed homogeneously.
 32. Discard 100.0 microliter from wells A11:H11 of 96 well microplate `calibration plate`.  This step ensures that all wells contain an equivalent volume. Be sure to change pipette tips for every well to avoid cross-contamination
-33. Measure fluorescein and bead fluorescence of `calibration plate` with excitation wavelength of 488.0 nanometer and emission filter of 530.0 nanometer and 30.0 nanometer bandpass
-34. Measure sulforhodamine 101 fluorescence of `calibration plate` with excitation wavelength of 561.0 nanometer and emission filter of 610.0 nanometer and 20.0 nanometer bandpass
-35. Measure cascade blue fluorescence of `calibration plate` with excitation wavelength of 405.0 nanometer and emission filter of 450.0 nanometer and 50.0 nanometer bandpass
-36. Measure absorbance of `calibration plate` at 600.0 nanometer.
-37. Import data for `fluorescein and bead fluorescence measurements of calibration plate`, `sulforhodamine 101 fluorescence measurements of calibration plate`, `cascade blue fluorescence measurements of calibration plate`, `absorbance measurements of calibration plate` into provided Excel file.
+33. Transfer 100.0 microliter of `Phosphate Buffered Saline` sample to wells A1:D12 of  96 well microplate `calibration plate`.  This will bring all wells to volume 200 microliter.
+34. Transfer 100.0 microliter of `Water, sterile-filtered, BioReagent, suitable for cell culture` sample to wells E1:H12 of  96 well microplate `calibration plate`.  This will bring all wells to volume 200 microliter.
+35. Measure fluorescein and bead fluorescence of `calibration plate` with excitation wavelength of 488.0 nanometer and emission filter of 530.0 nanometer and 30.0 nanometer bandpass
+36. Measure sulforhodamine 101 fluorescence of `calibration plate` with excitation wavelength of 561.0 nanometer and emission filter of 610.0 nanometer and 20.0 nanometer bandpass
+37. Measure cascade blue fluorescence of `calibration plate` with excitation wavelength of 405.0 nanometer and emission filter of 450.0 nanometer and 50.0 nanometer bandpass
+38. Measure absorbance of `calibration plate` at 600.0 nanometer.
+39. Import data for `fluorescein and bead fluorescence measurements of calibration plate`, `sulforhodamine 101 fluorescence measurements of calibration plate`, `cascade blue fluorescence measurements of calibration plate`, `absorbance measurements of calibration plate` into provided Excel file.
 ---
-Timestamp: 2022-04-21 19:01:08.330822---
+Timestamp: 2022-04-24 22:14:30.132906---
 Protocol version: 1.0b

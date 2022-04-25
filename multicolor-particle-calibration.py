@@ -183,12 +183,12 @@ blank_wells2 = protocol.primitive_step('PlateCoordinates',
 transfer_blanks1 = protocol.primitive_step('Transfer',
                                       source=pbs,
                                       destination=blank_wells1.output_pin('samples'),
-                                      amount=sbol3.Measure(200, OM.microlitre))
+                                      amount=sbol3.Measure(100, OM.microlitre))
 transfer_blanks1.description = ' These are blanks.'
 transfer_blanks2 = protocol.primitive_step('Transfer',
                                       source=ddh2o,
                                       destination=blank_wells2.output_pin('samples'),
-                                      amount=sbol3.Measure(200, OM.microlitre))
+                                      amount=sbol3.Measure(100, OM.microlitre))
 transfer_blanks2.description = ' These are blanks.'
 
 ### Plate calibrants in first column
@@ -346,6 +346,26 @@ discard = protocol.primitive_step('Discard',
                                   amount=sbol3.Measure(100, OM.microlitre))
 
 discard.description = ' This step ensures that all wells contain an equivalent volume. Be sure to change pipette tips for every well to avoid cross-contamination'
+
+# Bring to volume of 200 ul
+samples_in_pbs = protocol.primitive_step('PlateCoordinates',
+                                           source=calibration_plate.output_pin('samples'),
+                                           coordinates='A1:D12')
+samples_in_ddh2o = protocol.primitive_step('PlateCoordinates',
+                                           source=calibration_plate.output_pin('samples'),
+                                           coordinates='E1:H12')
+btv1 = protocol.primitive_step('Transfer',
+                               source=pbs,
+                               destination=samples_in_pbs.output_pin('samples'),
+                               amount=sbol3.Measure(100, OM.microlitre))
+btv1.description = ' This will bring all wells to volume 200 microliter.'
+btv2 = protocol.primitive_step('Transfer',
+                               source=ddh2o,
+                               destination=samples_in_ddh2o.output_pin('samples'),
+                               amount=sbol3.Measure(100, OM.microlitre))
+btv2.description = ' This will bring all wells to volume 200 microliter.'
+
+
 
 
 # Perform measurements
