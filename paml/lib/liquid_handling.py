@@ -70,7 +70,6 @@ p.add_input('destination', 'http://bioprotocols.org/paml#SampleCollection')
 p.add_input('amount', sbol3.OM_MEASURE) # Must be volume
 p.add_input('diluent', sbol3.SBOL_COMPONENT) 
 p.add_input('dilution_factor', 'http://bioprotocols.org/uml#ValueSpecification')
-p.add_input('series', 'http://bioprotocols.org/uml#ValueSpecification')
 doc.add(p)
 
 

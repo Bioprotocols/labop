@@ -62,8 +62,7 @@
         <https://bioprotocols.org/paml/primitives/liquid_handling/SerialDilution/OrderedPropertyValue2>,
         <https://bioprotocols.org/paml/primitives/liquid_handling/SerialDilution/OrderedPropertyValue3>,
         <https://bioprotocols.org/paml/primitives/liquid_handling/SerialDilution/OrderedPropertyValue4>,
-        <https://bioprotocols.org/paml/primitives/liquid_handling/SerialDilution/OrderedPropertyValue5>,
-        <https://bioprotocols.org/paml/primitives/liquid_handling/SerialDilution/OrderedPropertyValue6> ;
+        <https://bioprotocols.org/paml/primitives/liquid_handling/SerialDilution/OrderedPropertyValue5> ;
     sbol:description "Serial Dilution" ;
     sbol:displayId "SerialDilution" ;
     sbol:hasNamespace <https://bioprotocols.org/paml/primitives/liquid_handling> .
@@ -852,33 +851,6 @@
     sbol:displayId "LiteralInteger1" .
 
 <https://bioprotocols.org/paml/primitives/liquid_handling/SerialDilution/OrderedPropertyValue5/Parameter1/LiteralInteger2> a ns1:LiteralInteger,
-        sbol:Identified ;
-    ns1:integerValue 1 ;
-    sbol:displayId "LiteralInteger2" .
-
-<https://bioprotocols.org/paml/primitives/liquid_handling/SerialDilution/OrderedPropertyValue6> a ns1:OrderedPropertyValue,
-        sbol:Identified ;
-    ns1:indexValue 5 ;
-    ns1:propertyValue <https://bioprotocols.org/paml/primitives/liquid_handling/SerialDilution/OrderedPropertyValue6/Parameter1> ;
-    sbol:displayId "OrderedPropertyValue6" .
-
-<https://bioprotocols.org/paml/primitives/liquid_handling/SerialDilution/OrderedPropertyValue6/Parameter1> a ns1:Parameter,
-        sbol:Identified ;
-    ns1:direction ns1:in ;
-    ns1:isOrdered true ;
-    ns1:isUnique true ;
-    ns1:lowerValue <https://bioprotocols.org/paml/primitives/liquid_handling/SerialDilution/OrderedPropertyValue6/Parameter1/LiteralInteger2> ;
-    ns1:type ns1:ValueSpecification ;
-    ns1:upperValue <https://bioprotocols.org/paml/primitives/liquid_handling/SerialDilution/OrderedPropertyValue6/Parameter1/LiteralInteger1> ;
-    sbol:displayId "Parameter1" ;
-    sbol:name "series" .
-
-<https://bioprotocols.org/paml/primitives/liquid_handling/SerialDilution/OrderedPropertyValue6/Parameter1/LiteralInteger1> a ns1:LiteralInteger,
-        sbol:Identified ;
-    ns1:integerValue 1 ;
-    sbol:displayId "LiteralInteger1" .
-
-<https://bioprotocols.org/paml/primitives/liquid_handling/SerialDilution/OrderedPropertyValue6/Parameter1/LiteralInteger2> a ns1:LiteralInteger,
         sbol:Identified ;
     ns1:integerValue 1 ;
     sbol:displayId "LiteralInteger2" .
