@@ -55,6 +55,7 @@ paml:SampleMask a owl:Class ;
         the dimensions of a masked subset are not reduced, but remain the same as the original SampleArray. This allows
         masks to be composed, such that SampleMask(source=SampleMask(source=X,mask=mask1),mask=mask2) is equivalent to
         SampleMask(source=X,mask=mask1 AND mask2). Note that this implies masks are commutative and idempotent.""" ;
+    rdfs:label "SampleMask" ;
     rdfs:subClassOf [ a owl:Restriction ;
             owl:minCardinality "1"^^xsd:nonNegativeInteger ;
             owl:onProperty paml:mask ],
@@ -154,6 +155,7 @@ paml:Protocol a owl:Class ;
     rdfs:subClassOf uml:Activity .
 
 paml:SampleArray a owl:Class ;
+    rdfs:label "SampleArray" ;
     rdfs:comment """A SampleArray specifies an n-dimensional rectangular array of samples, all stored in the same
         type of container. For example, a SampleCollection might describe a set of 10 cell cultures growing in
         96-well plate cells, or a set of 6 streaked agar plates, or a single 500 mL flask filled with media.

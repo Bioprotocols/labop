@@ -875,6 +875,7 @@ uml:OrderedPropertyValue a owl:Class ;
         sbol:Identified .
 
 uml:ValueSpecification a owl:Class ;
+    rdfs:label "ValueSpecification" ;
     rdfs:comment "A ValueSpecification is the specification of a (possibly empty) set of values. See UML 2.5.1 specification section 8." ;
     rdfs:subClassOf [ a owl:Restriction ;
             owl:allValuesFrom xsd:anyURI ;
