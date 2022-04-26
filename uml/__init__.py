@@ -141,7 +141,6 @@ def behavior_get_input(self, name) -> Parameter:
     -------
     Parameter, or Value error
     """
-    print(p for p in self.get_inputs())
     found = [p for p in self.get_inputs() if p.property_value.name == name]
     if len(found) == 0:
         raise ValueError(f'Behavior {self.identity} has no input parameter named {name}')
