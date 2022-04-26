@@ -20,6 +20,8 @@ SBOLFactory('paml_submodule',
 from paml_submodule import *
 from paml.ui import *
 from paml.data import *
+from paml.sample_maps import *
+from paml.primitive_execution import *
 
 #########################################
 # Kludge for getting parents and TopLevels - workaround for pySBOL3 issue #234
@@ -358,6 +360,19 @@ def import_library(library: str, extension: str = 'ttl', nickname: str = None):
     lib.read(library, extension)
     loaded_libraries[nickname] = lib
 
+def show_library(library_name: str):
+    dashes = "-" * 80
+    print(dashes)
+    print(f"library: {library_name}")
+    doc = paml.loaded_libraries[library_name]
+    for primitive in doc.objects:
+        print(primitive)
+    print(dashes)
+
+def show_libraries():
+    primitives = {}
+    for lib in paml.loaded_libraries.keys():
+        show_library(lib)
 
 def get_primitive(doc: sbol3.Document, name: str):
     """Get a Primitive for use in the protocol, either already in the document or imported from a linked library

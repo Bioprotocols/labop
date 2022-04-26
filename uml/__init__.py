@@ -82,8 +82,6 @@ def behavior_add_parameter(self, name: str, param_type: str, direction: str, opt
     """
     param = Parameter(name=name, type=param_type, direction=direction, is_ordered=True, is_unique=True)
     ordered_param = OrderedPropertyValue(index=len(self.parameters), property_value=param)
-    print(param, ordered_param)
-    print(ordered_param.__class__.__mro__)
     self.parameters.append(ordered_param)
     param.upper_value = literal(1)  # all parameters are assumed to have cardinality [0..1] or 1 for now
     if optional:
