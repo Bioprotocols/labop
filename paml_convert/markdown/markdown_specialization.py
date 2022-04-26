@@ -348,7 +348,6 @@ class MarkdownSpecialization(BehaviorSpecialization):
         parameter_value_map = call.parameter_value_map()
 
         source = parameter_value_map['source']['value']
-        print('######', source)
         destination = parameter_value_map['destination']['value']
 
         # Generate text for destination coordinates
