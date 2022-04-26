@@ -229,10 +229,10 @@ class MarkdownSpecialization(BehaviorSpecialization):
         bandpass_str = ' with {measurement_to_text(bandpass)} bandpass' if bandpass else ''
         if action.name:
             measurements.name = f'{action.name} measurements of {label(samples)}'
-            text = f'Measure {action.name} of `{label(samples)}` with excitation wavelength of {measurement_to_text(excitation)} and emission filter of {measurement_to_text(emission)}{bandpass}'
+            text = f'Measure {action.name} of `{label(samples)}` with excitation wavelength of {measurement_to_text(excitation)} and emission filter of {measurement_to_text(emission)}{bandpass_str}'
         else:
             measurements.name = f'fluorescence measurements of {label(samples)}'
-            text = f'Measure fluorescence of `{label(samples)}` with excitation wavelength of {measurement_to_text(excitation)} and emission filter of {measurement_to_text(emission)}{bandpass}'
+            text = f'Measure fluorescence of `{label(samples)}` with excitation wavelength of {measurement_to_text(excitation)} and emission filter of {measurement_to_text(emission)}{bandpass_str}'
 
         # Add to markdown
         self.markdown_steps += [text]
