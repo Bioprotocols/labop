@@ -89,7 +89,6 @@ unknowns = protocol.primitive_step('PlateCoordinates',
                                source=plate.output_pin('samples'),
                                coordinates='A2:H2')
 
-
 # Transform
 # inputs: dna, host, selection_medium
 # outputs: transformants
@@ -97,7 +96,6 @@ transformation = protocol.primitive_step('Transform',
                                          dna=test_circuit,
                                          host=dh5alpha,
                                          selection_medium=lb_broth)
-
 
 # Plate blanks  using Provision primitive
 # inputs: resource, destination, amount
@@ -112,9 +110,6 @@ protocol.primitive_step('Provision',
                         resource=lb_broth,
                         destination=unknowns.output_pin('samples'),
                         amount=sbol3.Measure(200, tyto.OM['microliter']))
-
-
-
 
 # Serial Dilution
 # inputs: destination, amount, diluent, dilution_factor, series
@@ -143,39 +138,35 @@ protocol.primitive_step('Incubate',
 # inputs: samples, excitationWavelength, emissionWavelength
 # outputs: measurements
 measure_fluorescence = protocol.primitive_step('MeasureFluorescence',
-                        samples=plate.output_pin('samples'))
-
-#                        emissionWavelength=sbol3.Measure(510, tyto.OM['nanometer']))
-#                        excitationWavelength=sbol3.Measure(485, tyto.OM['nanometer']),
+                                                samples=plate.output_pin('samples'))
 
 # Measure absorbance
+# inputs: samples, wavelength
+# outputs: measurements
+measure_absorbance = protocol.primitive_step('MeasureAbsorbance',
+                                             samples=plate.output_pin('samples'),
+                                             wavelength=sbol3.Measure(600, tyto.OM['nanometer']))
 
-
-# FIXME: Configure protocol inputs and outputs
-#ex_wavelength_param = protocol.input_value('excitationWavelength', sbol3.OM_MEASURE, optional=True,
-#                                           default_value=sbol3.Measure(485, tyto.OM.nanometer))
-
-#em_wavelength_param = protocol.input_value('emissionWavelength', sbol3.OM_MEASURE, optional=True,
-#                                           default_value=sbol3.Measure(510, tyto.OM.nanometer))
+# Configure protocol inputs
 ex_wavelength_param = protocol.input_value('excitationWavelength', tyto.OM.Measure)
-
 em_wavelength_param = protocol.input_value('emissionWavelength', tyto.OM.Measure)
 
 protocol.use_value(ex_wavelength_param, measure_fluorescence.input_pin('excitationWavelength'))
 protocol.use_value(em_wavelength_param, measure_fluorescence.input_pin('emissionWavelength'))
 
-# Designate protocol outputs
+
+# Designate protocol outputs for fluorescence and absorbance
 protocol.designate_output('fluorescence measurements', tyto.PAML['SampleData'], measure_fluorescence.output_pin('measurements'))
+protocol.designate_output('OD600 measurements', tyto.PAML['SampleData'], measure_absorbance.output_pin('measurements'))
 
 
 # Simulate Execution of the Protocol
-
 agent = sbol3.Agent("test_agent")
 ee = ExecutionEngine(specializations=[MarkdownSpecialization(__file__.split('.')[0] + '.md')])
 parameter_values = [ paml.ParameterValue(parameter=protocol.get_input('emissionWavelength'),
                                          value=sbol3.Measure(485, tyto.OM['nanometer'])),
                      paml.ParameterValue(parameter=protocol.get_input('excitationWavelength'),
-                                         value=sbol3.Measure(510, tyto.OM['nanometer']))
+                                         value=sbol3.Measure(510, tyto.OM['nanometer'])),
 ]
 execution = ee.execute(protocol, agent, id="test_execution", parameter_values=parameter_values)
 with open(__file__.split('.')[0] + '.md', 'w') as f:
