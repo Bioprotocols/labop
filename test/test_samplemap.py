@@ -115,8 +115,8 @@ class TestProtocolEndToEnd(unittest.TestCase):
                                                 for reagent in reagents]
                                                 for id in aliquot_ids],
                                              dims=("aliquot", "contents"),
-                                             coords={"aliquot": aliquot_ids,
-                                                     "contents": [r.identity for r in reagents]}).to_dict()))
+                                             coords=[("aliquot", aliquot_ids),
+                                                     ("contents", [r.identity for r in reagents])]).to_dict()))
         # 3.
         sample_array_parameter = create_source.pin_parameter("sample_array")
         [old_input] = [x for x in create_source.inputs if x.name == "sample_array"]

@@ -44,7 +44,7 @@ def many_to_one_sample_map_get_map(self):
         source_to_target_arrays = {
             source.identity : xr.DataArray([""]*len(aliquots),
                                             dims=(target.identity),
-                                            coords={target.identity: aliquots})
+                                            coords=[(target.identity, aliquots)])
             for source in sources
         }
 
@@ -68,7 +68,7 @@ def one_to_many_sample_map_get_map(self):
         source_to_target_arrays = {
             target.identity : xr.DataArray([""]*len(aliquots),
                                             dims=(source.identity),
-                                            coords={source.identity: aliquots})
+                                            coords=[(source.identity, aliquots)])
             for target in targets
         }
 
