@@ -67,7 +67,7 @@ def sample_array_mask(self, mask):
                             is_in_mask(coordinate_to_row_col(x), row_col_pairs)
                             for x in contents_array.data
                         ],
-                        coords={Strings.ALIQUOT: contents_array}
+                        coords=[(Strings.ALIQUOT, contents_array.data)]
                     )
     return json.dumps(mask_array.to_dict())
 SampleArray.mask = sample_array_mask
