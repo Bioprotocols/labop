@@ -28,7 +28,8 @@ PAML visualizations currently depend on the `graphviz` application. To install g
 # API
 
 To use PAML in your client application, import the PAML, UML, and SBOL3 modules:
-```
+
+```python
 import paml, uml, sbol3
 ```
 
@@ -38,14 +39,14 @@ The PAML data model is encoded as an ontology using the Web Ontology Language (O
 
 All file I/O is handled through an SBOL `Document` object. In the following example, we read a file that describes the protocol for an OD calibration using water and LUDOX. The file format can be any RDF format:
 
-```
+```python
 doc = sbol3.Document()
 doc.read('test/testfiles/igem_ludox_test.nt')
 ```
 
 Once a `Document` is loaded, you can inspect and manipulate its contents. For example, the following prints an inventory of objects and their metadata:
 
-```
+```python
 for obj in doc.objects:
     print(obj.identity)
     print(obj.name)
@@ -55,7 +56,7 @@ for obj in doc.objects:
 
 The `name` attribute is used for human-readable and/or lab-specific identifiers. The `identity` attribute specifies the unique Uniform Resource Identifier (URI) for each object. The URI can be used to retrieve specific objects from the Document.
 
-```
+```python
 ludox = doc.find('https://bbn.com/scratch/LUDOX')
 ```
 
@@ -67,7 +68,7 @@ When a new "top-level" object is created, the full URI can be either prodiced or
 
 When constructing a new `Document`, the general workflow is as follows. First, set the namespace that governs new objects. Second, create new objects. Finally, add the new object to the `Document`.  For example:
 
-```
+```python
 sbol3.set_namespace('http://example.org/synbio/')
 doc = sbol3.Document()
 protocol = paml.Protocol('TimeSeries')
@@ -76,7 +77,8 @@ doc.find('http://example.org/synbio/TimeSeries')
 ```
 
 Child objects are not named by the user, but receive their names automatically when added to a parent. For example:
-```
+
+```python
 step = uml.CallBehaviorAction()
 protocol.nodes += [step]
 step.identity  # http://example.org/synbio/TimeSeries/CallBehaviorAction1
@@ -84,7 +86,7 @@ step.identity  # http://example.org/synbio/TimeSeries/CallBehaviorAction1
 
 Note that in many cases, it is better to create child objects by means of helper functions:
 
-```
+```python
 paml.import_library('sample_arrays')
 four_wells = protocol.primitive_step('PlateCoordinates', coordinates='A2:D2')  # Note: still needs source plate indicated
 ```
@@ -93,7 +95,7 @@ four_wells = protocol.primitive_step('PlateCoordinates', coordinates='A2:D2')  #
 
 A `Document` can be validated as follows:
 
-```
+```python
 for issue in doc.validate():
     print(issue)
 ```
@@ -108,7 +110,7 @@ Each protocol execution requires an `Agent`, used to record the person, laborato
   
 Following is an example execution that converts a protocol for optical density measurement into Markdown format to the `example.md` file:
 
-```
+```python
 agent = sbol3.Agent("2022_Hogwart_iGEM_team")  # Used to describe the person or machine executing the protocol
 ee = ExecutionEngine(specializations=[MarkdownSpecialization("example.md")])
 parameter_values = [
