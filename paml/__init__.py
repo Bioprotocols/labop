@@ -74,6 +74,7 @@ def protocol_primitive_step(self, primitive: Primitive, **input_pin_map):
 
     Note that this will not give a stable order if adding to a Protocol that has been deserialized, since
     information about the order in which steps were created is not stored.
+
     :param primitive: Primitive to be invoked (object or string name)
     :param input_pin_map: literal value or ActivityNode mapped to names of Behavior parameters
     :return: CallBehaviorAction that invokes the Primitive
@@ -256,15 +257,12 @@ def protocol_to_dot(self, legend=False):
 Protocol.to_dot = protocol_to_dot
 
 def activity_edge_flow_get_target(self):
-    '''Find the target node of an edge flow
-        Parameters
-        ----------
-        self
+    """
+    Find the target node of an edge flow
 
-        Returns ActivityNode
-        -------
-
-        '''
+    :param self: 
+    :return: FIXME
+    """
     if self.edge:
         target = self.document.find(self.document.find(self.edge).target)
     else: # Tokens for pins do not have an edge connecting pin to activity
@@ -289,6 +287,7 @@ ActivityEdgeFlow.get_target = activity_edge_flow_get_target
 def primitive_str(self):
     """
     Create a human readable string describing the Primitive
+
     :param self:
     :return: str
     """
@@ -314,8 +313,9 @@ Primitive.__str__ = primitive_str
 def behavior_execution_parameter_value_map(self):
     """
     Return a dictionary mapping parameter names to value or (value, unit)
+
     :param self:
-    :return:
+    :return: FIXME
     """
     parameter_value_map = {}
 
@@ -361,6 +361,11 @@ def import_library(library: str, extension: str = 'ttl', nickname: str = None):
     loaded_libraries[nickname] = lib
 
 def show_library(library_name: str):
+    """Show information for given library
+
+    :param library_name: Name of a library
+    :return: str
+    """
     dashes = "-" * 80
     print(dashes)
     print(f"library: {library_name}")
@@ -370,6 +375,10 @@ def show_library(library_name: str):
     print(dashes)
 
 def show_libraries():
+    """Show all available libraries
+    
+    :return: str
+    """
     primitives = {}
     for lib in paml.loaded_libraries.keys():
         show_library(lib)
