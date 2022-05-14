@@ -261,13 +261,14 @@ class MarkdownSpecialization(BehaviorSpecialization):
     def measure_absorbance(self, record: paml.ActivityNodeExecution):
         results = {}
         call = record.call.lookup()
+        print(record.node.lookup().name)
         parameter_value_map = call.parameter_value_map()
 
         wl = parameter_value_map["wavelength"]["value"]
         wl_units = tyto.OM.get_term_by_uri(wl.unit)
         samples = parameter_value_map["samples"]["value"]
-        #wells = self.var_to_entity[samples]
         measurements = parameter_value_map["measurements"]["value"]
+        timepoints = parameter_value_map['timepoints']['value'] if 'timepoints' in parameter_value_map else None
 
         l.debug(f"measure_absorbance:")
         l.debug(f"  samples: {samples}")
@@ -283,14 +284,18 @@ class MarkdownSpecialization(BehaviorSpecialization):
             samples = samples.source.lookup().value.lookup().value
         samples_str = record.document.find(samples.container_type).value.name
 
+        timepoints_str = ''
+        if timepoints:
+            timepoints_str = ' at timepoints ' + ', '.join([measurement_to_text(m) for m in timepoints])
+
         # Provide an informative name for the measurements output
         action=record.node.lookup()
         if action.name:
-            measurements.name = f'{action.name} measurements of {samples_str}'
-            text = f'Measure {action.name} of `{samples_str}` at {wl.value} {wl_units}.'
+            measurements.name = f'{action.name} measurements of {samples_str}{timepoints_str}'
+            text = f'Measure {action.name} of `{samples_str}` at {wl.value} {wl_units}{timepoints_str}.'
         else:
-            measurements.name = f'absorbance measurements of {samples_str}'
-            text = f'Measure absorbance of `{samples_str}` at {wl.value} {wl_units}.'
+            measurements.name = f'absorbance measurements of {samples_str}{timepoints_str}'
+            text = f'Measure absorbance of `{samples_str}` at {wl.value} {wl_units}{timepoints_str}.'
 
         text = add_description(record, text)
         self.markdown_steps += [text]
@@ -304,6 +309,7 @@ class MarkdownSpecialization(BehaviorSpecialization):
         emission = parameter_value_map['emissionWavelength']['value']
         bandpass = parameter_value_map['emissionBandpassWidth']['value']
         samples = parameter_value_map['samples']['value']
+        timepoints = parameter_value_map['timepoints']['value'] if 'timepoints' in parameter_value_map else None
         measurements = parameter_value_map["measurements"]["value"]
 
         # Lookup sample container to get the container name, and use that
@@ -315,14 +321,18 @@ class MarkdownSpecialization(BehaviorSpecialization):
             samples = samples.source.lookup().value.lookup().value
         samples_str = record.document.find(samples.container_type).value.name
 
+        timepoints_str = ''
+        if timepoints:
+            timepoints_str = ' at timepoints ' + ', '.join([measurement_to_text(m) for m in timepoints])
+
         # Provide an informative name for the measurements output
         action = record.node.lookup()
         if action.name:
-            measurements.name = f'{action.name} measurements of {samples_str}'
-            text = f'Measure {action.name} of `{samples_str}` with excitation wavelength of {measurement_to_text(excitation)} and emission filter of {measurement_to_text(emission)} and {measurement_to_text(bandpass)} bandpass'
+            measurements.name = f'{action.name} measurements of {samples_str}{timepoints_str}'
+            text = f'Measure {action.name} of `{samples_str}` with excitation wavelength of {measurement_to_text(excitation)} and emission filter of {measurement_to_text(emission)} and {measurement_to_text(bandpass)} bandpass{timepoints_str}.'
         else:
             measurements.name = f'fluorescence measurements of {samples_str}'
-            text = f'Measure fluorescence of `{samples_str}` with excitation wavelength of {measurement_to_text(excitation)} and emission filter of {measurement_to_text(emission)} and {measurement_to_text(bandpass)} bandpass'
+            text = f'Measure fluorescence of `{samples_str}` with excitation wavelength of {measurement_to_text(excitation)} and emission filter of {measurement_to_text(emission)} and {measurement_to_text(bandpass)} bandpass{timepoints_str}.'
 
         text = add_description(record, text)
 
@@ -481,6 +491,8 @@ class MarkdownSpecialization(BehaviorSpecialization):
         plan = parameter_value_map['plan']['value']
         map = json.loads(unquote(plan.values))
 
+        source_container = record.document.find(source.container_type).value
+
         container_spec = record.document.find(destination.container_type).value
         container_class = ContainerOntology.uri + '#' + container_spec.queryString.split(':')[-1]
         container_str = ContainerOntology.get_term_by_uri(container_class)
@@ -499,7 +511,7 @@ class MarkdownSpecialization(BehaviorSpecialization):
         source_names = get_sample_names(source, error_msg='Transfer execution failed. All source Components must specify a name.')
 
         # Add to markdown
-        text = f"Transfer {amount_scalar} {amount_units} of each `{source.name}` sample to {container_str} `{container_spec.name}` in the wells indicated in the plate layout.\n"
+        text = f"Transfer {amount_scalar} {amount_units} of each `{source_container.name}` sample to {container_str} `{container_spec.name}` in the wells indicated in the plate layout.\n"
         #text +=  '| Sample | Wells |\n'
         #text +=  '| --- | --- |\n'
         #for coordinates, uri in destination_contents.items():
@@ -552,9 +564,9 @@ class MarkdownSpecialization(BehaviorSpecialization):
 
         sample_names = get_sample_names(location, error_msg='Hold execution failed. All input locations must have a name specified')
         if len(sample_names) > 1:
-            text = f'Incubate all `{location.name}` samples for {measurement_to_text(duration)} at {measurement_to_text(temperature)} at {shakingFrequency.value}.'
+            text = f'Incubate all `{location.name}` samples for {measurement_to_text(duration)} at {measurement_to_text(temperature)} at {shakingFrequency.value} rpm.'
         else:
-            text = f'Incubate `{location.name}` for {measurement_to_text(duration)} at {measurement_to_text(temperature)} at {shakingFrequency.value}.'
+            text = f'Incubate `{location.name}` for {measurement_to_text(duration)} at {measurement_to_text(temperature)} at {shakingFrequency.value} rpm.'
 
         self.markdown_steps += [text]
 

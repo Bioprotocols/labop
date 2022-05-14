@@ -8,7 +8,8 @@
     ns1:ownedParameter <https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureAbsorbance/OrderedPropertyValue1>,
         <https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureAbsorbance/OrderedPropertyValue2>,
         <https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureAbsorbance/OrderedPropertyValue3>,
-        <https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureAbsorbance/OrderedPropertyValue4> ;
+        <https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureAbsorbance/OrderedPropertyValue4>,
+        <https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureAbsorbance/OrderedPropertyValue5> ;
     sbol:description "Measure absorbance at a given wavelength from a set of samples" ;
     sbol:displayId "MeasureAbsorbance" ;
     sbol:hasNamespace <https://bioprotocols.org/paml/primitives/spectrophotometry> .
@@ -22,7 +23,8 @@
         <https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureFluorescence/OrderedPropertyValue5>,
         <https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureFluorescence/OrderedPropertyValue6>,
         <https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureFluorescence/OrderedPropertyValue7>,
-        <https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureFluorescence/OrderedPropertyValue8> ;
+        <https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureFluorescence/OrderedPropertyValue8>,
+        <https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureFluorescence/OrderedPropertyValue9> ;
     sbol:description "Measure fluorescence intensity from a set of samples stimulated by a given wavelength, with an optional bandpass or lowpass filter" ;
     sbol:displayId "MeasureFluorescence" ;
     sbol:hasNamespace <https://bioprotocols.org/paml/primitives/spectrophotometry> .
@@ -127,21 +129,42 @@
 
 <https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureAbsorbance/OrderedPropertyValue4/Parameter1> a ns1:Parameter,
         sbol:Identified ;
+    ns1:direction ns1:in ;
+    ns1:isOrdered true ;
+    ns1:isUnique true ;
+    ns1:lowerValue <https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureAbsorbance/OrderedPropertyValue4/Parameter1/LiteralInteger1> ;
+    ns1:type om:Measure ;
+    sbol:displayId "Parameter1" ;
+    sbol:name "timepoints" .
+
+<https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureAbsorbance/OrderedPropertyValue4/Parameter1/LiteralInteger1> a ns1:LiteralInteger,
+        sbol:Identified ;
+    ns1:integerValue 0 ;
+    sbol:displayId "LiteralInteger1" .
+
+<https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureAbsorbance/OrderedPropertyValue5> a ns1:OrderedPropertyValue,
+        sbol:Identified ;
+    ns1:indexValue 4 ;
+    ns1:propertyValue <https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureAbsorbance/OrderedPropertyValue5/Parameter1> ;
+    sbol:displayId "OrderedPropertyValue5" .
+
+<https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureAbsorbance/OrderedPropertyValue5/Parameter1> a ns1:Parameter,
+        sbol:Identified ;
     ns1:direction ns1:out ;
     ns1:isOrdered true ;
     ns1:isUnique true ;
-    ns1:lowerValue <https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureAbsorbance/OrderedPropertyValue4/Parameter1/LiteralInteger2> ;
+    ns1:lowerValue <https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureAbsorbance/OrderedPropertyValue5/Parameter1/LiteralInteger2> ;
     ns1:type <http://bioprotocols.org/paml#SampleData> ;
-    ns1:upperValue <https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureAbsorbance/OrderedPropertyValue4/Parameter1/LiteralInteger1> ;
+    ns1:upperValue <https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureAbsorbance/OrderedPropertyValue5/Parameter1/LiteralInteger1> ;
     sbol:displayId "Parameter1" ;
     sbol:name "measurements" .
 
-<https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureAbsorbance/OrderedPropertyValue4/Parameter1/LiteralInteger1> a ns1:LiteralInteger,
+<https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureAbsorbance/OrderedPropertyValue5/Parameter1/LiteralInteger1> a ns1:LiteralInteger,
         sbol:Identified ;
     ns1:integerValue 1 ;
     sbol:displayId "LiteralInteger1" .
 
-<https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureAbsorbance/OrderedPropertyValue4/Parameter1/LiteralInteger2> a ns1:LiteralInteger,
+<https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureAbsorbance/OrderedPropertyValue5/Parameter1/LiteralInteger2> a ns1:LiteralInteger,
         sbol:Identified ;
     ns1:integerValue 1 ;
     sbol:displayId "LiteralInteger2" .
@@ -343,21 +366,42 @@
 
 <https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureFluorescence/OrderedPropertyValue8/Parameter1> a ns1:Parameter,
         sbol:Identified ;
+    ns1:direction ns1:in ;
+    ns1:isOrdered true ;
+    ns1:isUnique true ;
+    ns1:lowerValue <https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureFluorescence/OrderedPropertyValue8/Parameter1/LiteralInteger1> ;
+    ns1:type om:Measure ;
+    sbol:displayId "Parameter1" ;
+    sbol:name "timepoints" .
+
+<https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureFluorescence/OrderedPropertyValue8/Parameter1/LiteralInteger1> a ns1:LiteralInteger,
+        sbol:Identified ;
+    ns1:integerValue 0 ;
+    sbol:displayId "LiteralInteger1" .
+
+<https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureFluorescence/OrderedPropertyValue9> a ns1:OrderedPropertyValue,
+        sbol:Identified ;
+    ns1:indexValue 8 ;
+    ns1:propertyValue <https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureFluorescence/OrderedPropertyValue9/Parameter1> ;
+    sbol:displayId "OrderedPropertyValue9" .
+
+<https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureFluorescence/OrderedPropertyValue9/Parameter1> a ns1:Parameter,
+        sbol:Identified ;
     ns1:direction ns1:out ;
     ns1:isOrdered true ;
     ns1:isUnique true ;
-    ns1:lowerValue <https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureFluorescence/OrderedPropertyValue8/Parameter1/LiteralInteger2> ;
+    ns1:lowerValue <https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureFluorescence/OrderedPropertyValue9/Parameter1/LiteralInteger2> ;
     ns1:type <http://bioprotocols.org/paml#SampleData> ;
-    ns1:upperValue <https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureFluorescence/OrderedPropertyValue8/Parameter1/LiteralInteger1> ;
+    ns1:upperValue <https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureFluorescence/OrderedPropertyValue9/Parameter1/LiteralInteger1> ;
     sbol:displayId "Parameter1" ;
     sbol:name "measurements" .
 
-<https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureFluorescence/OrderedPropertyValue8/Parameter1/LiteralInteger1> a ns1:LiteralInteger,
+<https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureFluorescence/OrderedPropertyValue9/Parameter1/LiteralInteger1> a ns1:LiteralInteger,
         sbol:Identified ;
     ns1:integerValue 1 ;
     sbol:displayId "LiteralInteger1" .
 
-<https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureFluorescence/OrderedPropertyValue8/Parameter1/LiteralInteger2> a ns1:LiteralInteger,
+<https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureFluorescence/OrderedPropertyValue9/Parameter1/LiteralInteger2> a ns1:LiteralInteger,
         sbol:Identified ;
     ns1:integerValue 1 ;
     sbol:displayId "LiteralInteger2" .
