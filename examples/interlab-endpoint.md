@@ -1,6 +1,10 @@
 # Cell measurement protocol
 
 ## Description:
+This year we plan to go towards automation, where a 96-well plate instead of a tube is used for culturing. Prior to the full establishment of this protocol, we need to evaluate how the performance is worldwide with this as well as with parallel experiment in the test tube, which has been used as standard culturing protocol.
+
+At the end of the experiment, you would have two plates to be measured (five for challenging version). You will measure both fluorescence and absorbance in each plate.
+
 Prior to performing the cell measurements you should perform all three of the calibration measurements. Please do not proceed unless you have completed the three calibration protocols. Completion of the calibrations will ensure that you understand the measurement process and that you can take the cell measurements under the same conditions. For the sake of consistency and reproducibility, we are requiring all teams to use E. coli K-12 DH5-alpha. If you do not have access to this strain, you can request streaks of the transformed devices from another team near you, and this can count as a collaboration as long as it is appropriately documented on both teams' wikis. If you are absolutely unable to obtain the DH5-alpha strain, you may still participate in the InterLab study by contacting the Measurement Committee (measurement at igem dot org) to discuss your situation.
 
 For all of these cell measurements, you must use the same plates and volumes that you used in your calibration protocol. You must also use the same settings (e.g., filters or excitation and emission wavelengths) that you used in your calibration measurements. If you do not use the same plates, volumes, and settings, the measurements will not be valid.
@@ -63,9 +67,9 @@ For all of these cell measurements, you must use the same plates and volumes tha
 
 19. Cover `plate 1` samples in 96 well microplate with your choice of material to prevent evaporation.
 20. Measure 0 hr absorbance timepoint of `plate 1` at 600.0 nanometer.
-21. Measure 0 hr fluorescence timepoint of `plate 1` with excitation wavelength of 488.0 nanometer and emission filter of 530.0 nanometer and 30.0 nanometer bandpass
-22. Incubate all `back-diluted culture` samples for 6.0 hour at 37.0 degree Celsius at 220.0.
-23. Incubate all `plate 1` samples for 6.0 hour at 37.0 degree Celsius at 220.0.
+21. Measure 0 hr fluorescence timepoint of `plate 1` with excitation wavelength of 488.0 nanometer and emission filter of 530.0 nanometer and 30.0 nanometer bandpass.
+22. Incubate all `back-diluted culture` samples for 6.0 hour at 37.0 degree Celsius at 220.0 rpm.
+23. Incubate all `plate 1` samples for 6.0 hour at 37.0 degree Celsius at 220.0 rpm.
 24. Hold all `cultures (0 hr timepoint)` samples at 4.0 degree Celsius. This will inhibit cell growth during the subsequent pipetting steps.
 25. Hold all `plate 1` samples at 4.0 degree Celsius. This will inhibit cell growth during the subsequent pipetting steps.
 26. Provision 16 x 1.5 mL microfuge tubes to contain `6hr timepoint`
@@ -78,10 +82,10 @@ For all of these cell measurements, you must use the same plates and volumes tha
 32. Transfer 100.0 microliter of `LB Broth+chloramphenicol` sample to wells A1:H1, A10:H10, A12:H12 of  96 well microplate `plate 2`. Maintain at 4.0 degree Celsius during transfer. These are the blanks.
 33. Cover `plate 1` samples in 96 well microplate with your choice of material to prevent evaporation.
 34. Measure 6 hr absorbance timepoint of `plate 1` at 600.0 nanometer.
-35. Measure 6 hr fluorescence timepoint of `plate 1` with excitation wavelength of 485.0 nanometer and emission filter of 530.0 nanometer and 30.0 nanometer bandpass
+35. Measure 6 hr fluorescence timepoint of `plate 1` with excitation wavelength of 485.0 nanometer and emission filter of 530.0 nanometer and 30.0 nanometer bandpass.
 36. Measure 6 hr absorbance timepoint of `plate 2` at 600.0 nanometer.
-37. Measure 6 hr fluorescence timepoint of `plate 2` with excitation wavelength of 485.0 nanometer and emission filter of 530.0 nanometer and 30.0 nanometer bandpass
+37. Measure 6 hr fluorescence timepoint of `plate 2` with excitation wavelength of 485.0 nanometer and emission filter of 530.0 nanometer and 30.0 nanometer bandpass.
 38. Import data for `baseline absorbance of culture (day 2) measurements of cultures (0 hr timepoint)`, `0 hr absorbance timepoint measurements of plate 1`, `0 hr fluorescence timepoint measurements of plate 1`, `6 hr absorbance timepoint measurements of plate 1`, `6 hr fluorescence timepoint measurements of plate 1`, `6 hr absorbance timepoint measurements of plate 2`, `6 hr fluorescence timepoint measurements of plate 2` into provided Excel file.
 ---
-Timestamp: 2022-05-05 15:02:10.971436---
+Timestamp: 2022-05-09 06:23:37.161603---
 Protocol version: 1.0b
