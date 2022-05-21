@@ -43,6 +43,15 @@ class BehaviorSpecialization(ABC):
         node = record.node.lookup()
         if not isinstance(node, uml.CallBehaviorAction):
             return # raise BehaviorSpecializationException(f"Cannot handle node type: {type(node)}")
+        
+        # Subprotocol specializations
+        behavior = node.behavior.lookup()
+        print(behavior)
+        if isinstance(behavior, paml.Protocol):
+            print('Executing subprotocol')
+            return self._behavior_func_map[behavior.type_uri](record)
+
+        # Individual Primitive specializations
         elif str(node.behavior) not in self._behavior_func_map:
             raise BehaviorSpecializationException(f"Failed to find handler for behavior: {node.behavior}")
         return self._behavior_func_map[str(node.behavior)](record)

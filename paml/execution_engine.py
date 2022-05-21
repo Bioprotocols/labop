@@ -302,7 +302,6 @@ class ExecutionEngine(ABC):
                                      ex.association[0].agent.lookup(),
                                      id=f'{ex.display_id}{uuid.uuid4()}'.replace('-', '_'),
                                      parameter_values=[])
-                        continue
                 specialization.process(record)
                 #try:
                 #    specialization.process(record)

@@ -58,6 +58,7 @@ class MarkdownSpecialization(BehaviorSpecialization):
             "https://bioprotocols.org/paml/primitives/plate_handling/QuickSpin": self.quick_spin,
             "https://bioprotocols.org/paml/primitives/plate_handling/Unseal": self.unseal,
             "https://bioprotocols.org/paml/primitives/sample_arrays/EmbeddedImage": self.embedded_image,
+            "http://bioprotocols.org/paml#Protocol": self.subprotocol_specialization
         }
 
     def on_begin(self):
@@ -802,6 +803,11 @@ class MarkdownSpecialization(BehaviorSpecialization):
         text = f'Perform a brief centrifugation on {container_str} containing `{container_spec.name}` samples.'
         text = add_description(record, text)
         self.markdown_steps += [text]
+
+    def subprotocol_specialization(self, record: paml.ActivityNodeExecution):
+        print('Executing subprotocol specialization...')
+        protocol = record.node.lookup().behavior.lookup()
+        self.markdown += f'\n###{protocol.name}'
 
     def embedded_image(self, record: paml.ActivityNodeExecution):
         call = record.call.lookup()
