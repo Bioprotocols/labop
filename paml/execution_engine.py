@@ -68,7 +68,7 @@ class ExecutionEngine(ABC):
         # Initialize specializations
         for specialization in self.specializations:
             specialization.initialize_protocol(ex)
-            specialization.on_begin()
+            specialization.on_begin(ex)
 
         # Iteratively execute all unblocked activities until no more tokens can progress
         tokens = []  # no tokens to start
@@ -91,7 +91,7 @@ class ExecutionEngine(ABC):
 
         # End specializations
         for specialization in self.specializations:
-            specialization.on_end()
+            specialization.on_end(ex)
 
         return ex
 
@@ -298,11 +298,12 @@ class ExecutionEngine(ABC):
             for specialization in self.specializations:
                 if isinstance(node, uml.CallBehaviorAction):
                     if isinstance(node.behavior.lookup(), paml.Protocol):
+                        print(f'Executing subprotocol {node.behavior.lookup().display_id}')
                         self.execute(node.behavior.lookup(),
                                      ex.association[0].agent.lookup(),
                                      id=f'{ex.display_id}{uuid.uuid4()}'.replace('-', '_'),
                                      parameter_values=[])
-                specialization.process(record)
+                specialization.process(record, ex)
                 #try:
                 #    specialization.process(record)
                 #except Exception as e:

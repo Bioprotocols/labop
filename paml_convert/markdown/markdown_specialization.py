@@ -28,11 +28,22 @@ class MarkdownSpecialization(BehaviorSpecialization):
     def __init__(self, out_path) -> None:
         super().__init__()
         self.out_path = out_path
-        self.markdown = ""
         self.var_to_entity = {}
         self.markdown_converter = None
-        self.markdown_steps = []
         self.doc = None
+
+    def initialize_protocol(self, execution: paml.ProtocolExecution):
+        super().initialize_protocol(execution)
+        print(f'Initializing execution {execution.display_id}')
+        # Defines sections of the markdown document
+        execution.header = ''
+        execution.inputs = ''
+        execution.materials = ''
+        execution.markdown_steps = []
+        execution.outputs = ''
+
+        # Contains the final, compiled markdown
+        execution.markdown = ''
 
     def _init_behavior_func_map(self) -> dict:
         return {
@@ -61,13 +72,13 @@ class MarkdownSpecialization(BehaviorSpecialization):
             "http://bioprotocols.org/paml#Protocol": self.subprotocol_specialization
         }
 
-    def on_begin(self):
-        if self.execution:
-            protocol = self.execution.protocol.lookup()
+    def on_begin(self, execution):
+        if execution:
+            protocol = execution.protocol.lookup()
             self.markdown_converter = MarkdownConverter(protocol.document)
-            self.markdown += self.markdown_converter.markdown_header(protocol)
-            self.markdown += self._materials_markdown(protocol)
-            self.markdown += self._inputs_markdown(self.execution.parameter_values)
+            execution.header += self.markdown_converter.markdown_header(protocol)
+            execution.materials += self._materials_markdown(protocol)
+            execution.inputs += self._inputs_markdown(execution.parameter_values)
 
     def _inputs_markdown(self, parameter_values):
         markdown = '\n\n## Protocol Inputs:\n'
@@ -105,36 +116,39 @@ class MarkdownSpecialization(BehaviorSpecialization):
         else:
             return f"* `{parameter.name}` = {value}"
 
-    def _steps_markdown(self):
+    def _steps_markdown(self, execution: paml.ProtocolExecution):
         markdown = '\n\n## Steps\n'
-        for i, step in enumerate(self.markdown_steps):
+        for i, step in enumerate(execution.markdown_steps):
             markdown += str(i + 1) + '. ' + step + '\n'
         return markdown
 
-    def on_end(self):
-        self.markdown += self._outputs_markdown(self.execution.parameter_values)
-        self.markdown_steps += [self.reporting_step()]
+    def on_end(self, execution: paml.ProtocolExecution):
+        execution.outputs += self._outputs_markdown(execution.parameter_values)
+        execution.markdown_steps += [self.reporting_step(execution)]
 
+        execution.markdown += execution.header
+        execution.markdown += execution.inputs
+        execution.markdown += execution.materials
+        execution.markdown += self._steps_markdown(execution)
+        execution.markdown += execution.outputs
 
         # Timestamp the protocol version
         dt = datetime.now()
         ts = datetime.timestamp(dt)
-        self.markdown += self._steps_markdown()
-        self.markdown += f'---\nTimestamp: {datetime.fromtimestamp(ts)}'
+        execution.markdown += f'---\nTimestamp: {datetime.fromtimestamp(ts)}'
 
         # Print document version
         # This is a little bit kludgey, because version is not an official PAML property
         # of Protocol
-        protocol = self.execution.protocol.lookup()
+        protocol = execution.protocol.lookup()
         if hasattr(protocol, 'version'):
-            self.markdown += f'---\nProtocol version: {protocol.version}'
-
+            execution.markdown += f'---\nProtocol version: {protocol.version}'
         with open(self.out_path, "w") as f:
-            f.write(self.markdown)
+            f.write(execution.markdown)
 
-    def reporting_step(self):
+    def reporting_step(self, execution: paml.ProtocolExecution):
         output_parameters = []
-        for i in self.execution.parameter_values:
+        for i in execution.parameter_values:
             parameter = i.parameter.lookup()
             value = i.value.value.lookup().name if isinstance(i.value, uml.LiteralReference) else i.value.value
             if parameter.property_value.direction == uml.PARAMETER_OUT:
@@ -143,7 +157,7 @@ class MarkdownSpecialization(BehaviorSpecialization):
         output_parameters = ", ".join(output_parameters)
         return f"Import data for {output_parameters} into provided Excel file."
 
-    def define_container(self, record: paml.ActivityNodeExecution):
+    def define_container(self, record: paml.ActivityNodeExecution, execution: paml.ProtocolExecution):
         results = {}
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
@@ -160,7 +174,7 @@ class MarkdownSpecialization(BehaviorSpecialization):
         try:
             possible_container_types = self.resolve_container_spec(spec)
             containers_str = ",".join([f"\n\t[{c.split('#')[1]}]({c})" for c in possible_container_types])
-            self.markdown_steps += [f"Provision a container named `{spec.name}` such as: {containers_str}."]
+            execution.markdown_steps += [f"Provision a container named `{spec.name}` such as: {containers_str}."]
         except Exception as e:
             l.warning(e)
             
@@ -174,14 +188,14 @@ class MarkdownSpecialization(BehaviorSpecialization):
             else:
                 text = f'Provision a {container_str} to contain `{spec.name}`'
             text = add_description(record, text)
-            self.markdown_steps += [text]
+            execution.markdown_steps += [text]
             #except Exception as e:
             #    l.warning(e)
-            #    self.markdown_steps += [f"Provision a container named `{spec.name}` meeting specification: {spec.queryString}."]
+            #    execution.markdown_steps += [f"Provision a container named `{spec.name}` meeting specification: {spec.queryString}."]
 
         return results
 
-    def define_containers(self, record: paml.ActivityNodeExecution):
+    def define_containers(self, record: paml.ActivityNodeExecution, execution: paml.ProtocolExecution):
         results = {}
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
@@ -208,15 +222,15 @@ class MarkdownSpecialization(BehaviorSpecialization):
             else:
                 text = f'Provision a {container_str} to contain `{containers.name}`'
             text = add_description(record, text)
-            self.markdown_steps += [text]
+            execution.markdown_steps += [text]
 
             samples.name = containers.name
         except Exception as e:
             l.warning(e)
-            self.markdown_steps += [f"Provision a container named `{containers.name}` meeting specification: {containers.queryString}."]
+            execution.markdown_steps += [f"Provision a container named `{containers.name}` meeting specification: {containers.queryString}."]
 
     # def provision_container(self, wells: WellGroup, amounts = None, volumes = None, informatics = None) -> Provision:
-    def provision_container(self, record: paml.ActivityNodeExecution):
+    def provision_container(self, record: paml.ActivityNodeExecution, execution: paml.ProtocolExecution):
         results = {}
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
@@ -235,12 +249,12 @@ class MarkdownSpecialization(BehaviorSpecialization):
 
         resource_str = f"[{resource.name}]({resource.types[0]})"
         destination_str = f"`{destination.source.lookup().value.lookup().value.name}({destination.mask})`"
-        self.markdown_steps += [f"Pipette {value} {units} of {resource_str} into {destination_str}."]
+        execution.markdown_steps += [f"Pipette {value} {units} of {resource_str} into {destination_str}."]
 
 
         return results
 
-    def plate_coordinates(self, record: paml.ActivityNodeExecution):
+    def plate_coordinates(self, record: paml.ActivityNodeExecution, execution: paml.ProtocolExecution):
         results = {}
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
@@ -259,10 +273,9 @@ class MarkdownSpecialization(BehaviorSpecialization):
 
         return results
 
-    def measure_absorbance(self, record: paml.ActivityNodeExecution):
+    def measure_absorbance(self, record: paml.ActivityNodeExecution, execution: paml.ProtocolExecution):
         results = {}
         call = record.call.lookup()
-        print(record.node.lookup().name)
         parameter_value_map = call.parameter_value_map()
 
         wl = parameter_value_map["wavelength"]["value"]
@@ -299,9 +312,9 @@ class MarkdownSpecialization(BehaviorSpecialization):
             text = f'Measure absorbance of `{samples_str}` at {wl.value} {wl_units}{timepoints_str}.'
 
         text = add_description(record, text)
-        self.markdown_steps += [text]
+        execution.markdown_steps += [text]
 
-    def measure_fluorescence(self, record: paml.ActivityNodeExecution):
+    def measure_fluorescence(self, record: paml.ActivityNodeExecution, execution: paml.ProtocolExecution):
         results = {}
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
@@ -338,10 +351,10 @@ class MarkdownSpecialization(BehaviorSpecialization):
         text = add_description(record, text)
 
         # Add to markdown
-        self.markdown_steps += [text]
+        execution.markdown_steps += [text]
 
 
-    def vortex(self, record: paml.ActivityNodeExecution):
+    def vortex(self, record: paml.ActivityNodeExecution, execution: paml.ProtocolExecution):
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
         duration = None
@@ -357,9 +370,9 @@ class MarkdownSpecialization(BehaviorSpecialization):
         text = f"Vortex {samples.name}"
         if duration:
             text += f' for {duration_scalar} {duration_units}'
-        self.markdown_steps += [text]
+        execution.markdown_steps += [text]
 
-    def discard(self, record: paml.ActivityNodeExecution):
+    def discard(self, record: paml.ActivityNodeExecution, execution: paml.ProtocolExecution):
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
 
@@ -383,9 +396,9 @@ class MarkdownSpecialization(BehaviorSpecialization):
         # Add to markdown
         text = f"Discard {measurement_to_text(amount)} from {coordinates}{container_str} `{container_spec.name}`."
         text = add_description(record, text) 
-        self.markdown_steps += [text]
+        execution.markdown_steps += [text]
 
-    def transfer(self, record: paml.ActivityNodeExecution):
+    def transfer(self, record: paml.ActivityNodeExecution, execution: paml.ProtocolExecution):
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
 
@@ -475,9 +488,9 @@ class MarkdownSpecialization(BehaviorSpecialization):
         if temperature:
             text += f' Maintain at {measurement_to_text(temperature)} during transfer.'
         text = add_description(record, text)
-        self.markdown_steps += [text]
+        execution.markdown_steps += [text]
 
-    def transfer_by_map(self, record: paml.ActivityNodeExecution):
+    def transfer_by_map(self, record: paml.ActivityNodeExecution, execution: paml.ProtocolExecution):
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
 
@@ -522,9 +535,9 @@ class MarkdownSpecialization(BehaviorSpecialization):
         if temperature:
             text += f' Maintain at {measurement_to_text(temperature)} during transfer.'
 
-        self.markdown_steps += [text]
+        execution.markdown_steps += [text]
 
-    def culture(self, record: paml.ActivityNodeExecution):
+    def culture(self, record: paml.ActivityNodeExecution, execution: paml.ProtocolExecution):
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
         inocula = parameter_value_map['inoculum']['value']
@@ -552,9 +565,9 @@ class MarkdownSpecialization(BehaviorSpecialization):
 
         # Populate output SampleArray
         container.contents = write_sample_contents(inocula, replicates)
-        self.markdown_steps += [text]
+        execution.markdown_steps += [text]
 
-    def incubate(self, record: paml.ActivityNodeExecution):
+    def incubate(self, record: paml.ActivityNodeExecution, execution: paml.ProtocolExecution):
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
 
@@ -569,9 +582,9 @@ class MarkdownSpecialization(BehaviorSpecialization):
         else:
             text = f'Incubate `{location.name}` for {measurement_to_text(duration)} at {measurement_to_text(temperature)} at {shakingFrequency.value} rpm.'
 
-        self.markdown_steps += [text]
+        execution.markdown_steps += [text]
 
-    def hold(self, record: paml.ActivityNodeExecution):
+    def hold(self, record: paml.ActivityNodeExecution, execution: paml.ProtocolExecution):
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
 
@@ -583,9 +596,9 @@ class MarkdownSpecialization(BehaviorSpecialization):
         else:
             text = f'Hold `{location.name}` at {measurement_to_text(temperature)}.'
         text = add_description(record, text)
-        self.markdown_steps += [text]
+        execution.markdown_steps += [text]
 
-    def dilute_to_target_od(self, record: paml.ActivityNodeExecution):
+    def dilute_to_target_od(self, record: paml.ActivityNodeExecution, execution: paml.ProtocolExecution):
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
 
@@ -611,9 +624,9 @@ class MarkdownSpecialization(BehaviorSpecialization):
 
         if temperature:
             text += f' Maintain at {measurement_to_text(temperature)} while performing dilutions.'
-        self.markdown_steps += [text]
+        execution.markdown_steps += [text]
 
-    def dilute(self, record: paml.ActivityNodeExecution):
+    def dilute(self, record: paml.ActivityNodeExecution, execution: paml.ProtocolExecution):
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
 
@@ -645,9 +658,9 @@ class MarkdownSpecialization(BehaviorSpecialization):
         if temperature:
             text += f' Maintain at {measurement_to_text(temperature)} while performing dilutions.'
         text = add_description(record, text)
-        self.markdown_steps += [text]
+        execution.markdown_steps += [text]
 
-    def transform(self, record: paml.ActivityNodeExecution):
+    def transform(self, record: paml.ActivityNodeExecution, execution: paml.ProtocolExecution):
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
         host = parameter_value_map['host']['value']
@@ -687,9 +700,9 @@ class MarkdownSpecialization(BehaviorSpecialization):
         # Add to markdown
         text = f"Transform `{dna_names[0]}` DNA into `{host.name}` and plate transformants on {medium.name}."
         text += repeat_for_remaining_samples(dna_names, repeat_msg='Repeat for the remaining transformant DNA: ')
-        self.markdown_steps += [text]
+        execution.markdown_steps += [text]
 
-    def serial_dilution(self, record: paml.ActivityNodeExecution):
+    def serial_dilution(self, record: paml.ActivityNodeExecution, execution: paml.ProtocolExecution):
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
 
@@ -731,9 +744,9 @@ class MarkdownSpecialization(BehaviorSpecialization):
             text += f' Repeat for the remaining {len(sample_names)-1} `{source.name}` samples.'
         #repeat_for_remaining_samples(sample_names, repeat_msg='Repeat for the remaining cultures:')
         text = add_description(record, text)
-        self.markdown_steps += [text]
+        execution.markdown_steps += [text]
 
-    def evaporative_seal(self, record: paml.ActivityNodeExecution):
+    def evaporative_seal(self, record: paml.ActivityNodeExecution, execution: paml.ProtocolExecution):
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
 
@@ -746,9 +759,9 @@ class MarkdownSpecialization(BehaviorSpecialization):
         container_str = ContainerOntology.get_term_by_uri(container_class)
 
         text = f'Cover `{location.name}` samples in {container_str} with your choice of material to prevent evaporation.'
-        self.markdown_steps += [text]
+        execution.markdown_steps += [text]
 
-    def unseal(self, record: paml.ActivityNodeExecution):
+    def unseal(self, record: paml.ActivityNodeExecution, execution: paml.ProtocolExecution):
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
 
@@ -760,9 +773,9 @@ class MarkdownSpecialization(BehaviorSpecialization):
         container_str = ContainerOntology.get_term_by_uri(container_class)
 
         text = f'Remove the seal from {container_str} containing `{location.name}` samples.'
-        self.markdown_steps += [text]
+        execution.markdown_steps += [text]
 
-    def pool_samples(self, record: paml.ActivityNodeExecution):
+    def pool_samples(self, record: paml.ActivityNodeExecution, execution: paml.ProtocolExecution):
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
 
@@ -787,9 +800,9 @@ class MarkdownSpecialization(BehaviorSpecialization):
         samples.name = source.name
 
         text = f'Pool {measurement_to_text(volume)} from each of {n_replicates} replicate `{source.name}` samples into {container_str} `{container_spec.name}`.'
-        self.markdown_steps += [text]
+        execution.markdown_steps += [text]
         
-    def quick_spin(self, record: paml.ActivityNodeExecution):
+    def quick_spin(self, record: paml.ActivityNodeExecution, execution: paml.ProtocolExecution):
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
 
@@ -802,21 +815,20 @@ class MarkdownSpecialization(BehaviorSpecialization):
 
         text = f'Perform a brief centrifugation on {container_str} containing `{container_spec.name}` samples.'
         text = add_description(record, text)
-        self.markdown_steps += [text]
+        execution.markdown_steps += [text]
 
-    def subprotocol_specialization(self, record: paml.ActivityNodeExecution):
-        print('Executing subprotocol specialization...')
+    def subprotocol_specialization(self, record: paml.ActivityNodeExecution, execution: paml.ProtocolExecution):
         protocol = record.node.lookup().behavior.lookup()
-        self.markdown += f'\n###{protocol.name}'
+        execution.markdown += f'\n###{protocol.name}'
 
-    def embedded_image(self, record: paml.ActivityNodeExecution):
+    def embedded_image(self, record: paml.ActivityNodeExecution, execution: paml.ProtocolExecution):
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
 
         image = parameter_value_map['image']['value']
 
         text = f'\n\n![]({image})\n\n'
-        self.markdown_steps[-1] += text
+        execution.markdown_steps[-1] += text
 
 def measurement_to_text(measure: sbol3.Measure):
     measurement_scalar = measure.value

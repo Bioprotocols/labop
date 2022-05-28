@@ -355,6 +355,31 @@ def behavior_execution_parameter_value_map(self):
 BehaviorExecution.parameter_value_map = behavior_execution_parameter_value_map
 
 
+def protocol_execution_get_ordered_executions(self):
+    protocol = self.protocol.lookup() 
+    [start_node] = [n for n in protocol.nodes if type(n) is uml.InitialNode]
+    [execution_start_node] = [x for x in self.executions if x.node == start_node.identity]  #ActivityNodeExecution
+    ordered_execution_nodes = []
+    current_execution_node = execution_start_node
+    while current_execution_node:
+        try:
+            [current_execution_node] = [x for x in self.executions for f in x.incoming_flows if f.lookup().token_source == current_execution_node.identity]
+            ordered_execution_nodes.append(current_execution_node)
+        except ValueError:
+            current_execution_node = None
+    return ordered_execution_nodes
+ProtocolExecution.get_ordered_executions = protocol_execution_get_ordered_executions
+
+
+def protocol_execution_get_subprotocol_executions(self):
+    ordered_subprotocol_executions = []
+    ordered_execution_nodes = self.get_ordered_executions()
+    ordered_subprotocol_execution_nodes = [x for x in ordered_execution_nodes if isinstance(x.node.lookup().behavior.lookup(), Protocol)]
+    return ordered_subprotocol_execution_nodes
+ProtocolExecution.get_subprotocol_executions = protocol_execution_get_subprotocol_executions
+
+
+
 def sample_array_get_sample_names(self):
     sample_dict = json.loads(self.contents)
     return [self.document.find(s).name for s in sample_dict.keys()]
