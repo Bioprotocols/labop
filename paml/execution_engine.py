@@ -261,14 +261,21 @@ class ExecutionEngine(ABC):
         # elif isinstance(node, uml.MergeNode):
         #     pass
         elif isinstance(node, uml.DecisionNode):
-            try:
-                decision_input_flow_token = next(t for t in inputs if t.edge == node.decision_input_flow)
-            except StopIteration as e:
-                decision_input_flow_token = None
-            try:
-                primary_input_flow_token = next(t for t in inputs if node.decision_input_flow)
-            except StopIteration as e:
-                primary_input_flow_token = None
+            # try:
+            #     decision_input_flow_token = next(t for t in inputs if t.edge == node.decision_input_flow)
+            # except StopIteration as e:
+            #     decision_input_flow_token = None
+
+            # try:
+            #     decision_input_return_token = [t for t in inputs if isinstance(t.edge.lookup().source.lookup(), uml.OutputPin) and t.token_source.lookup().node.lookup().behavior == node.decision_input]
+            # except StopIteration as e:
+            #     decision_input_return_token = None
+
+            # try:
+            #     primary_input_flow_token = next(t for t in inputs if t.edge != decision_input_flow_token and t.edge != decision_input_return_token)
+            # except StopIteration as e:
+            #     primary_input_flow_token = None
+
 
             record = paml.ActivityNodeExecution(node=node, incoming_flows=inputs)
             # parameter_values = []
@@ -428,14 +435,29 @@ class ExecutionEngine(ABC):
                 decision_input_flow = decision_input_flow_token.edge.lookup()
                 decision_input_value = decision_input_flow_token.value
             except StopIteration as e:
+                decision_input_flow_token = None
                 decision_input_value = None
                 decision_input_flow = None
             try:
-                primary_input_flow_token = next(t for t in activity_node.incoming_flows if node.decision_input_flow)
-                primary_input_flow = primary_input_flow_token.lookup().edge.lookup()
-                primary_input_value = primary_input_flow_token.lookup().value
+                decision_input_return_token = next(t for t in activity_node.incoming_flows if isinstance(t.lookup().edge.lookup().source.lookup(), uml.OutputPin) and t.lookup().token_source.lookup().node.lookup().behavior == node.decision_input).lookup()
+                decision_input_return_flow = decision_input_return_token.edge.lookup()
+                decision_input_return_value = decision_input_return_token.value
+            except StopIteration as e:
+                decision_input_return_value = None
+                decision_input_return_flow = None
+
+            try:
+                primary_input_flow_token = next(t for t in activity_node.incoming_flows if t.lookup() != decision_input_flow_token and t.lookup() != decision_input_return_token).lookup()
+                primary_input_flow = primary_input_flow_token.edge.lookup()
+                primary_input_value = primary_input_flow_token.value
             except StopIteration as e:
                 primary_input_value = None
+
+
+            # try:
+            #     primary_input_flow_token = next(t for t in inputs if t.edge != decision_input_flow_token and t.edge != decision_input_return_token)
+            # except StopIteration as e:
+            #     primary_input_flow_token = None
 
             # Cases to evaluate guards of decision node:
             # 1. primary_input_flow is ObjectFlow, no decision_input, no decision_input_flow:
@@ -458,7 +480,7 @@ class ExecutionEngine(ABC):
                 # The cases are combined because the cases refer to the inputs of the decision_input behavior
                 # use decision_input_value to eval guards
 
-                active_edges = [edge for edge in out_edges if decision_input_value.value == edge.guard.value]
+                active_edges = [edge for edge in out_edges if decision_input_return_value.value == edge.guard.value]
             else:
                 # Cases: 1, 2
                 if decision_input_flow:
