@@ -260,8 +260,49 @@ class ExecutionEngine(ABC):
         #     pass
         # elif isinstance(node, uml.MergeNode):
         #     pass
-        # elif isinstance(node, uml.DecisionNode):
-        #     pass
+        elif isinstance(node, uml.DecisionNode):
+            try:
+                decision_input_flow_token = next(t for t in inputs if t.edge == node.decision_input_flow)
+            except StopIteration as e:
+                decision_input_flow_token = None
+            try:
+                primary_input_flow_token = next(t for t in inputs if node.decision_input_flow)
+            except StopIteration as e:
+                primary_input_flow_token = None
+
+            record = paml.ActivityNodeExecution(node=node, incoming_flows=inputs)
+            # parameter_values = []
+            # try:
+            #     decision_input_parameter = next(iter([p for p in node.decision_input.lookup().behavior.lookup().parameters if p.property_value.name == "decision_input"]))
+            #     parameter_values.append(paml.ParameterValue(parameter=decision_input_parameter, value=uml.literal(decision_input_flow_token.value)))
+            # except StopIteration as e:
+            #     pass
+            # try:
+            #     primary_input_parameter = next(iter([p for p in node.decision_input.lookup().behavior.lookup().parameters if p.property_value.name == "primary_input"]))
+            #     parameter_values.append(paml.ParameterValue(parameter=primary_input_parameter, value=uml.literal(primary_input_flow_token.value, reference=True)))
+            # except StopIteration as e:
+            #     pass
+
+            # call = paml.BehaviorExecution(f"execute_{self.next_id()}",
+            #                               parameter_values=parameter_values,
+            #                               completed_normally=True,
+            #                               start_time=self.get_current_time(), # TODO: remove str wrapper after sbol_factory #22 fixed
+            #                               end_time=self.get_current_time(), # TODO: remove str wrapper after sbol_factory #22 fixed
+            #                               consumed_material=[]) # FIXME handle materials
+            # record.call = call
+            # ex.document.add(call)
+            ex.executions.append(record)
+            new_tokens = self.next_tokens(record, ex)
+
+            # Collect which guards are satisfied
+            # non-deterministically select one enabled branch
+
+
+            #  - no token on the outgoing edge where guard is false
+            #  - if an outgoing edge has no guard or is satisfied by token, then one eligible edge is taken.
+            #  - can have at most one edge with an "else" guard, and is satisfied if no other outgoing edges are eligible.
+
+
         elif isinstance(node, uml.ActivityParameterNode):
             record = paml.ActivityNodeExecution(node=node, incoming_flows=inputs)
             ex.executions.append(record)
@@ -370,18 +411,85 @@ class ExecutionEngine(ABC):
 
     def next_tokens(self, activity_node: paml.ActivityNodeExecution, ex: paml.ProtocolExecution):
         protocol = ex.protocol.lookup()
+        node = activity_node.node.lookup()
         out_edges = [e for e in protocol.edges
                      if activity_node.node == e.source or
                         activity_node.node == e.source.lookup().get_parent().identity]
 
-        if isinstance(activity_node.node.lookup(), uml.ForkNode):
+        if isinstance(node, uml.ForkNode):
             [incoming_flow] = activity_node.incoming_flows
             incoming_value = incoming_flow.lookup().value
             edge_tokens = [paml.ActivityEdgeFlow(edge=edge, token_source=activity_node,
                                                  value=uml.literal(incoming_value, reference=True))
                            for edge in out_edges]
-        elif isinstance(activity_node.node.lookup(), uml.ActivityParameterNode):
-            [parameter_value] = [pv.value for pv in ex.parameter_values if pv.parameter == activity_node.node.lookup().parameter]
+        elif isinstance(node, uml.DecisionNode):
+            try:
+                decision_input_flow_token = next(t for t in activity_node.incoming_flows if t.lookup().edge == node.decision_input_flow).lookup()
+                decision_input_flow = decision_input_flow_token.edge.lookup()
+                decision_input_value = decision_input_flow_token.value
+            except StopIteration as e:
+                decision_input_value = None
+                decision_input_flow = None
+            try:
+                primary_input_flow_token = next(t for t in activity_node.incoming_flows if node.decision_input_flow)
+                primary_input_flow = primary_input_flow_token.lookup().edge.lookup()
+                primary_input_value = primary_input_flow_token.lookup().value
+            except StopIteration as e:
+                primary_input_value = None
+
+            # Cases to evaluate guards of decision node:
+            # 1. primary_input_flow is ObjectFlow, no decision_input, no decision_input_flow:
+            #    Use primary_input_flow token to decide if guard is satisfied
+            # 2. primary_input_flow is any, no decision_input, decision_input_flow present:
+            #    Use decision_input_flow token to decide if guard is satisfied
+
+            # 3. primary_input_flow is ControlFlow, decision_input present, no decision_input_flow:
+            #    Use decision_input return value to decide if guard is satisfied (decision_input has no params)
+            # 4. primary_input_flow is ControlFlow, decision_input present, decision_input_flow present:
+            #    Use decision_input return value to decide if guard is satisfied (decision_input has decision_input_flow supplied parameter)
+
+            # 5. primary_input_flow is ObjectFlow, decision_input present, no decision_input_flow:
+            #    Use decision_input return value to decide if guard is satisfied (decision_input has primary_input_flow supplied parameter)
+            # 6. primary_input_flow is ObjectFlow, decision_input present,  decision_input_flow present:
+            #    Use decision_input return value to decide if guard is satisfied (decision_input has primary_input_flow and decision_input_flow supplied parameters)
+
+            if hasattr(node, "decision_input") and node.decision_input:
+                # Cases: 3, 4, 5, 6
+                # The cases are combined because the cases refer to the inputs of the decision_input behavior
+                # use decision_input_value to eval guards
+
+                active_edges = [edge for edge in out_edges if decision_input_value.value == edge.guard.value]
+            else:
+                # Cases: 1, 2
+                if decision_input_flow:
+                    # Case 2
+                    # use decision_input_flow_token to eval guards
+
+                    active_edges = [edge for edge in out_edges if decision_input_flow_token.value.value == edge.guard.value]
+
+                elif primary_input_flow and isinstance(primary_input_flow, uml.ObjectFlow):
+                    # Case 1
+                    # use primary_input_flow_token to eval guards
+                    # Outgoing tokens are uml.ObjectFlow
+
+                    active_edges = [edge for edge in out_edges if primary_input_flow_token.value.value == edge.guard.value]
+                else:
+                    raise Exception("ERROR: Cannot evaluate DecisionNode with no decision_input, no decision_input_flow, and a None or uml.ControlFlow primary_input")
+
+
+            # FIXME need to extend the logic here to allow for "else" edges
+            # This currently assumes that the edges are if/elif edges
+
+            assert(len(active_edges) > 0)
+
+            # FIXME always take first active edge, but could be different.
+            active_edge = active_edges[0]
+
+            # Pick the value of the incoming_flow that corresponds to the primary_incoming edge
+            edge_tokens = [paml.ActivityEdgeFlow(edge=active_edge, token_source=activity_node,
+                                                 value=uml.literal(primary_input_value, reference=True))]
+        elif isinstance(node, uml.ActivityParameterNode):
+            [parameter_value] = [pv.value for pv in ex.parameter_values if pv.parameter == node.parameter]
             edge_tokens = [paml.ActivityEdgeFlow(edge=edge, token_source=activity_node,
                                                  value=uml.literal(value=parameter_value, reference=True))
                            for edge in out_edges]

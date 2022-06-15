@@ -51,10 +51,10 @@ def literal(value, reference: bool = False) -> LiteralSpecification:
         return LiteralNull()
     elif isinstance(value, str):
         return LiteralString(value=value)
-    elif isinstance(value, int):
-        return LiteralInteger(value=value)
     elif isinstance(value, bool):
         return LiteralBoolean(value=value)
+    elif isinstance(value, int):
+        return LiteralInteger(value=value)
     elif isinstance(value, float):
         return LiteralReal(value=value)
     elif isinstance(value, sbol3.TopLevel) or (reference and isinstance(value, sbol3.Identified)):
