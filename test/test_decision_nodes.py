@@ -28,15 +28,6 @@ class TestProtocolEndToEnd(unittest.TestCase):
         initial = protocol.initial()
         final = protocol.final()
 
-        # # The AllocateEquipment primitive picks a resource corresponding to the specification.
-        # # This implementation is a noop, and is used to provide a
-        # allocate_equipment = paml.Primitive('AllocateEquipment')
-        # allocate_equipment.description = 'Allocate a piece of equipment.'
-        # allocate_equipment.add_input('specification', 'http://www.w3.org/2001/XMLSchema#boolean')
-        # allocate_equipment.add_output('resource', 'http://bioprotocols.org/sbol#Identified')
-        # doc.add(allocate_equipment)
-        # meter = protocol.primitive_step('AllocateEquipment', specification="meter1")
-
         pH_meter_calibrated = paml.Primitive('pHMeterCalibrated')
         pH_meter_calibrated.description = 'Determine if the pH Meter is calibrated.'
         pH_meter_calibrated.add_output('return', 'http://www.w3.org/2001/XMLSchema#boolean')
@@ -45,8 +36,6 @@ class TestProtocolEndToEnd(unittest.TestCase):
         def pH_meter_calibrated_compute_output(inputs, parameter):
             return uml.literal(True)
         pH_meter_calibrated.compute_output = pH_meter_calibrated_compute_output
-
-        # decision_input_behavior = paml.BooleanExpressionBehavior('pHMeterCalibrated', expression=uml.literal(True))
 
         decision = protocol.make_decision_node(
             initial,  # primary_incoming

@@ -187,25 +187,25 @@ class ExecutionEngine(ABC):
          -------
          bool if node is enabled
          """
-        tokens_present = {node.document.find(t.edge) for t in tokens if t.edge}==protocol.incoming_edges(node)
-        if hasattr(node, "inputs"):
-            required_inputs = [p for i in node.behavior.lookup().get_required_inputs() for p in node.input_pins(i.property_value.name)]
-                
-            required_value_pins = {p for p in required_inputs if isinstance(p, uml.ValuePin)}
-            # Validate values, see #120
-            for pin in required_value_pins:
-                if pin.value is None:
-                    raise ValueError(f'{node.behavior.lookup().display_id} Action has no ValueSpecification for Pin {pin.name}')
-            required_input_pins = {p for p in required_inputs if not isinstance(p, uml.ValuePin)}
-            pins_with_tokens = {t.token_source.lookup().node.lookup() for t in tokens if not t.edge}
-            parameter_names = {pv.parameter.lookup().property_value.name for pv in parameter_values}
-            pins_with_params = {p for p in required_input_pins if p.name in parameter_names}
-            satisfied_pins = set(list(pins_with_params) + list(pins_with_tokens))
-            input_pins_satisfied = satisfied_pins == required_input_pins
-            value_pins_assigned = all({i.value for i in required_value_pins})
-            return tokens_present and input_pins_satisfied and value_pins_assigned
+        if isinstance(node, uml.FinalNode):
+            token_present = any({t.edge.lookup() for t in tokens if t.edge}.intersection(protocol.incoming_edges(node)))
+            return token_present
         else:
-            return tokens_present
+            tokens_present = {node.document.find(t.edge) for t in tokens if t.edge}==protocol.incoming_edges(node)
+            if hasattr(node, "inputs"):
+                required_inputs = [node.input_pin(i.property_value.name)
+                                for i in node.behavior.lookup().get_required_inputs()]
+                required_value_pins = {p for p in required_inputs if isinstance(p, uml.ValuePin)}
+                required_input_pins = {p for p in required_inputs if not isinstance(p, uml.ValuePin)}
+                pins_with_tokens = {t.token_source.lookup().node.lookup() for t in tokens if not t.edge}
+                parameter_names = {pv.parameter.lookup().property_value.name for pv in parameter_values}
+                pins_with_params = {p for p in required_input_pins if p.name in parameter_names}
+                satisfied_pins = set(list(pins_with_params) + list(pins_with_tokens))
+                input_pins_satisfied = satisfied_pins == required_input_pins
+                value_pins_assigned = all({i.value for i in required_value_pins})
+                return tokens_present and input_pins_satisfied and value_pins_assigned
+            else:
+                return tokens_present
 
 
 
@@ -261,55 +261,9 @@ class ExecutionEngine(ABC):
         # elif isinstance(node, uml.MergeNode):
         #     pass
         elif isinstance(node, uml.DecisionNode):
-            # try:
-            #     decision_input_flow_token = next(t for t in inputs if t.edge == node.decision_input_flow)
-            # except StopIteration as e:
-            #     decision_input_flow_token = None
-
-            # try:
-            #     decision_input_return_token = [t for t in inputs if isinstance(t.edge.lookup().source.lookup(), uml.OutputPin) and t.token_source.lookup().node.lookup().behavior == node.decision_input]
-            # except StopIteration as e:
-            #     decision_input_return_token = None
-
-            # try:
-            #     primary_input_flow_token = next(t for t in inputs if t.edge != decision_input_flow_token and t.edge != decision_input_return_token)
-            # except StopIteration as e:
-            #     primary_input_flow_token = None
-
-
             record = paml.ActivityNodeExecution(node=node, incoming_flows=inputs)
-            # parameter_values = []
-            # try:
-            #     decision_input_parameter = next(iter([p for p in node.decision_input.lookup().behavior.lookup().parameters if p.property_value.name == "decision_input"]))
-            #     parameter_values.append(paml.ParameterValue(parameter=decision_input_parameter, value=uml.literal(decision_input_flow_token.value)))
-            # except StopIteration as e:
-            #     pass
-            # try:
-            #     primary_input_parameter = next(iter([p for p in node.decision_input.lookup().behavior.lookup().parameters if p.property_value.name == "primary_input"]))
-            #     parameter_values.append(paml.ParameterValue(parameter=primary_input_parameter, value=uml.literal(primary_input_flow_token.value, reference=True)))
-            # except StopIteration as e:
-            #     pass
-
-            # call = paml.BehaviorExecution(f"execute_{self.next_id()}",
-            #                               parameter_values=parameter_values,
-            #                               completed_normally=True,
-            #                               start_time=self.get_current_time(), # TODO: remove str wrapper after sbol_factory #22 fixed
-            #                               end_time=self.get_current_time(), # TODO: remove str wrapper after sbol_factory #22 fixed
-            #                               consumed_material=[]) # FIXME handle materials
-            # record.call = call
-            # ex.document.add(call)
             ex.executions.append(record)
             new_tokens = self.next_tokens(record, ex)
-
-            # Collect which guards are satisfied
-            # non-deterministically select one enabled branch
-
-
-            #  - no token on the outgoing edge where guard is false
-            #  - if an outgoing edge has no guard or is satisfied by token, then one eligible edge is taken.
-            #  - can have at most one edge with an "else" guard, and is satisfied if no other outgoing edges are eligible.
-
-
         elif isinstance(node, uml.ActivityParameterNode):
             record = paml.ActivityNodeExecution(node=node, incoming_flows=inputs)
             ex.executions.append(record)
@@ -329,7 +283,7 @@ class ExecutionEngine(ABC):
 
             # Get Input value pins
             value_pin_values = {}
-            
+
             # Validate Pin values, see #130
             # Although enabled_activity_node method also validates Pin values,
             # it only checks required Pins.  This check is necessary to check optional Pins.
@@ -376,7 +330,7 @@ class ExecutionEngine(ABC):
                     pv = paml.ParameterValue(parameter=parameter, value=parameter_value)
                     call.parameter_values += [pv]
             pin_names = [pv.parameter.lookup().property_value.name for pv in call.parameter_values]
-            
+
         elif isinstance(node, uml.Pin):
             record = paml.ActivityNodeExecution(node=node, incoming_flows=inputs)
             ex.executions.append(record)
@@ -393,7 +347,7 @@ class ExecutionEngine(ABC):
 
         if record:
             for specialization in self.specializations:
-               
+
                 # Execute node
                 if isinstance(node, uml.CallBehaviorAction):
 
@@ -452,12 +406,6 @@ class ExecutionEngine(ABC):
                 primary_input_value = primary_input_flow_token.value
             except StopIteration as e:
                 primary_input_value = None
-
-
-            # try:
-            #     primary_input_flow_token = next(t for t in inputs if t.edge != decision_input_flow_token and t.edge != decision_input_return_token)
-            # except StopIteration as e:
-            #     primary_input_flow_token = None
 
             # Cases to evaluate guards of decision node:
             # 1. primary_input_flow is ObjectFlow, no decision_input, no decision_input_flow:
