@@ -47,7 +47,7 @@ doc.add(chloramphenicol)
 
 neg_control_plasmid = sbol3.Component('neg_control_plasmid', sbol3.SBO_DNA)
 neg_control_plasmid.name = 'Negative control'
-neg_control_plasmid.description = 'BBa_R0040 Kit Plate 1 Well 12M'
+neg_control_plasmid.description = 'BBa_J428100 Kit Plate 1 Well 12M'
 
 pos_control_plasmid = sbol3.Component('pos_control_plasmid', sbol3.SBO_DNA)
 pos_control_plasmid.name = 'Positive control'
