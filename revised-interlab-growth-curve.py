@@ -90,7 +90,11 @@ doc.add(test_device6)
 protocol = paml.Protocol('interlab')
 protocol.name = 'Cell measurement protocol'
 protocol.version = sbol3.TextProperty(protocol, 'http://igem.org/interlab_working_group#Version', 0, 1, [], '1.0b')
-protocol.description = '''Prior to performing the cell measurements you should perform all three of the calibration measurements. Please do not proceed unless you have completed the three calibration protocols. Completion of the calibrations will ensure that you understand the measurement process and that you can take the cell measurements under the same conditions. For the sake of consistency and reproducibility, we are requiring all teams to use E. coli K-12 DH5-alpha. If you do not have access to this strain, you can request streaks of the transformed devices from another team near you, and this can count as a collaboration as long as it is appropriately documented on both teams' wikis. If you are absolutely unable to obtain the DH5-alpha strain, you may still participate in the InterLab study by contacting the Measurement Committee (measurement at igem dot org) to discuss your situation.
+protocol.description = '''This year we plan to go towards automation, where a 96-well plate instead of a tube is used for culturing. Prior to the full establishment of this protocol, we need to evaluate how the performance is worldwide with this as well as with parallel experiment in the test tube, which has been used as standard culturing protocol.
+
+At the end of the experiment, you would have two plates to be measured (five for challenging version). You will measure both fluorescence and absorbance in each plate.
+
+Prior to performing the cell measurements you should perform all three of the calibration measurements. Please do not proceed unless you have completed the three calibration protocols. Completion of the calibrations will ensure that you understand the measurement process and that you can take the cell measurements under the same conditions. For the sake of consistency and reproducibility, we are requiring all teams to use E. coli K-12 DH5-alpha. If you do not have access to this strain, you can request streaks of the transformed devices from another team near you, and this can count as a collaboration as long as it is appropriately documented on both teams' wikis. If you are absolutely unable to obtain the DH5-alpha strain, you may still participate in the InterLab study by contacting the Measurement Committee (measurement at igem dot org) to discuss your situation.
 
 For all of these cell measurements, you must use the same plates and volumes that you used in your calibration protocol. You must also use the same settings (e.g., filters or excitation and emission wavelengths) that you used in your calibration measurements. If you do not use the same plates, volumes, and settings, the measurements will not be valid.'''
 
@@ -140,10 +144,29 @@ back_dilution = protocol.primitive_step('Dilute',
                                         dilution_factor=uml.LiteralInteger(value=10),
                                         temperature=sbol3.Measure(4, OM.degree_Celsius))
 
+# Transfer cultures to a microplate baseline measurement and outgrowth
+timepoint_0hrs = protocol.primitive_step('ContainerSet',
+                                         quantity=2*len(plasmids), 
+                                         specification=paml.ContainerSpec(name='cultures (0 hr timepoint)',
+                                         queryString='cont:MicrofugeTube',
+                                         prefixMap={'cont': 'https://sift.net/container-ontology/container-ontology#'}))
+
+hold = protocol.primitive_step('Hold',
+                               location=timepoint_0hrs.output_pin('samples'),
+                               temperature=sbol3.Measure(4, OM.degree_Celsius))
+hold.description = 'This will prevent cell growth while transferring samples.'
+
+transfer = protocol.primitive_step('Transfer',
+                                   source=culture_container_day2.output_pin('samples'),
+                                   destination=timepoint_0hrs.output_pin('samples'),
+                                   amount=sbol3.Measure(1, OM.milliliter),
+                                   temperature=sbol3.Measure(4, OM.degree_Celsius))
+
 baseline_absorbance = protocol.primitive_step('MeasureAbsorbance',
-                                              samples=culture_container_day2.output_pin('samples'),
+                                              samples=timepoint_0hrs.output_pin('samples'),
                                               wavelength=sbol3.Measure(600, OM.nanometer))
 baseline_absorbance.name = 'baseline absorbance of culture (day 2)'
+
 
 
 conical_tube = protocol.primitive_step('ContainerSet', 
@@ -166,33 +189,32 @@ embedded_image = protocol.primitive_step('EmbeddedImage',
                                          image='/Users/bbartley/Dev/git/sd2/paml/fig1_cell_calibration.png')
 
 
-# Transfer cultures to a microplate baseline measurement and outgrowth
-timepoint_0hrs = protocol.primitive_step('ContainerSet',
+temporary = protocol.primitive_step('ContainerSet',
                                          quantity=2*len(plasmids), 
-                                         specification=paml.ContainerSpec(name='cultures (0 hr timepoint)',
+                                         specification=paml.ContainerSpec(name='back-diluted culture aliquots',
                                          queryString='cont:MicrofugeTube',
                                          prefixMap={'cont': 'https://sift.net/container-ontology/container-ontology#'}))
+
+hold = protocol.primitive_step('Hold',
+                               location=temporary.output_pin('samples'),
+                               temperature=sbol3.Measure(4, OM.degree_Celsius))
+hold.description = 'This will prevent cell growth while transferring samples.'
+
+transfer = protocol.primitive_step('Transfer',
+                                   source=conical_tube.output_pin('samples'),
+                                   destination=temporary.output_pin('samples'),
+                                   amount=sbol3.Measure(1, OM.milliliter),
+                                   temperature=sbol3.Measure(4, OM.degree_Celsius))
+
 plate1 = protocol.primitive_step('EmptyContainer',
                                  specification=paml.ContainerSpec(name='plate 1',
                                  queryString='cont:Plate96Well',
                                  prefixMap={'cont': 'https://sift.net/container-ontology/container-ontology#'}))
 
-# Hold on ice
-hold = protocol.primitive_step('Hold',
-                               location=timepoint_0hrs.output_pin('samples'),
-                               temperature=sbol3.Measure(4, OM.degree_Celsius))
-hold.description = 'This will prevent cell growth while transferring samples.'
 
 hold = protocol.primitive_step('Hold',
                                location=plate1.output_pin('samples'),
                                temperature=sbol3.Measure(4, OM.degree_Celsius))
-
-
-transfer = protocol.primitive_step('Transfer',
-                                   source=conical_tube.output_pin('samples'),
-                                   destination=timepoint_0hrs.output_pin('samples'),
-                                   amount=sbol3.Measure(1, OM.milliliter),
-                                   temperature=sbol3.Measure(4, OM.degree_Celsius))
 
 
 
@@ -233,6 +255,10 @@ plate_blanks.description = 'These samples are blanks.'
 embedded_image = protocol.primitive_step('EmbeddedImage',
                                          image='/Users/bbartley/Dev/git/sd2/paml/fig2_cell_calibration.png')
 
+# Cover plate
+seal = protocol.primitive_step('EvaporativeSeal',
+                               location=plate1.output_pin('samples'),
+                               type='foo')
 
 
 # Possibly display map here
@@ -247,10 +273,6 @@ fluorescence_plate1 = protocol.primitive_step('MeasureFluorescence',
                                                   emissionBandpassWidth=sbol3.Measure(30, OM.nanometer))
 fluorescence_plate1.name = '0 hr fluorescence timepoint'
 
-# Cover plate
-seal = protocol.primitive_step('EvaporativeSeal',
-                               location=plate1.output_pin('samples'),
-                               type='foo')
 
 # Begin outgrowth
 incubate = protocol.primitive_step('Incubate',
@@ -343,13 +365,18 @@ plate_blanks = protocol.primitive_step('Transfer',
                                        amount=sbol3.Measure(100, OM.microliter))
 plate_blanks.description = 'These are the blanks.'
 
+# Cover plate
+seal = protocol.primitive_step('EvaporativeSeal',
+                               location=plate1.output_pin('samples'),
+                               type='foo')
 
-quick_spin = protocol.primitive_step('QuickSpin',
-                                     location=plate1.output_pin('samples'))
-quick_spin.description = 'This will prevent cross-contamination when removing the seal.'
 
-remove_seal = protocol.primitive_step('Unseal',
-                                      location=plate1.output_pin('samples'))
+#quick_spin = protocol.primitive_step('QuickSpin',
+#                                     location=plate1.output_pin('samples'))
+#quick_spin.description = 'This will prevent cross-contamination when removing the seal.'
+#
+#remove_seal = protocol.primitive_step('Unseal',
+#                                      location=plate1.output_pin('samples'))
 
 endpoint_absorbance_plate1 = protocol.primitive_step('MeasureAbsorbance',
                                                      samples=plate1.output_pin('samples'),
@@ -391,5 +418,5 @@ ee = ExecutionEngine(specializations=[MarkdownSpecialization("test_LUDOX_markdow
 execution = ee.execute(protocol, agent, id="test_execution", parameter_values=[])
 print(ee.specializations[0].markdown)
 ee.specializations[0].markdown = ee.specializations[0].markdown.replace('`_E. coli_', '_`E. coli`_ `')
-with open('interlab_growth_curve.md', 'w', encoding='utf-8') as f:
+with open(__file__.split('.')[0] + '.md', 'w', encoding='utf-8') as f:
     f.write(ee.specializations[0].markdown)
