@@ -37,7 +37,8 @@ class TestSubprotocols(unittest.TestCase):
                               'http://sbols.org/unspecified_namespace/test_execution1/CallBehaviorExecution2',
                               'http://sbols.org/unspecified_namespace/test_execution1/CallBehaviorExecution3'])
         subprotocol_executions = ex.get_subprotocol_executions()
-        self.assertTrue(all([type(x.node.lookup().behavior.lookup()) is paml.Protocol for x in subprotocol_executions]))
+        self.assertListEqual([x.protocol.lookup() for x in subprotocol_executions],
+                             [subprotocol1, subprotocol2])
          
 if __name__ == '__main__':
     unittest.main()

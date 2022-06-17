@@ -39,6 +39,7 @@ class MarkdownSpecialization(BehaviorSpecialization):
         execution.header = ''
         execution.inputs = ''
         execution.materials = ''
+        execution.body = ''
         execution.markdown_steps = []
         execution.outputs = ''
 
@@ -76,33 +77,47 @@ class MarkdownSpecialization(BehaviorSpecialization):
         if execution:
             protocol = execution.protocol.lookup()
             self.markdown_converter = MarkdownConverter(protocol.document)
-            execution.header += self.markdown_converter.markdown_header(protocol)
-            execution.materials += self._materials_markdown(protocol)
-            execution.inputs += self._inputs_markdown(execution.parameter_values)
 
-    def _inputs_markdown(self, parameter_values):
+    def _header_markdown(self, protocol):
+        header = '# ' + (protocol.display_id if (protocol.name is None) else protocol.name) + '\n'
+        header += '\n'
+        #header += '## Description:\n' + (
+        #    'No description given' if protocol.description is None else protocol.description) + '\n'
+        header += ('No description given' if protocol.description is None else protocol.description) + '\n'
+        return header
+
+    def _inputs_markdown(self, parameter_values, subprotocol_executions):
         markdown = '\n\n## Protocol Inputs:\n'
+        markdown = ''
         for i in parameter_values:
             parameter = i.parameter.lookup()
             if parameter.property_value.direction == uml.PARAMETER_IN:
                 markdown += self._parameter_value_markdown(i)
+        for x in subprotocol_executions:
+            markdown += x.inputs
         return markdown
 
-    def _outputs_markdown(self, parameter_values):
+    def _outputs_markdown(self, parameter_values, subprotocol_executions):
         markdown = '\n\n## Protocol Outputs:\n'
+        markdown = ''
         for i in parameter_values:
             parameter = i.parameter.lookup()
             if parameter.property_value.direction == uml.PARAMETER_OUT:
                 markdown += self._parameter_value_markdown(i, True)
+        for x in subprotocol_executions:
+            markdown += x.outputs
         return markdown
 
-    def _materials_markdown(self, protocol):
+    def _materials_markdown(self, protocol, subprotocol_executions):
         document_objects = protocol.document.objects
         components = [x for x in protocol.document.objects if isinstance(x, sbol3.component.Component)]
         materials = {x.name: x for x in components}
         markdown = '\n\n## Protocol Materials:\n'
+        markdown = ''
         for name, material  in materials.items():
             markdown += f"* [{name}]({material.types[0]})\n"
+        for x in subprotocol_executions:
+            markdown += x.materials
         return markdown
 
     def _parameter_value_markdown(self, pv : paml.ParameterValue, is_output=False):
@@ -116,20 +131,34 @@ class MarkdownSpecialization(BehaviorSpecialization):
         else:
             return f"* `{parameter.name}` = {value}"
 
-    def _steps_markdown(self, execution: paml.ProtocolExecution):
+    def _steps_markdown(self, execution: paml.ProtocolExecution, subprotocol_executions):
         markdown = '\n\n## Steps\n'
+        markdown = ''
+        for x in subprotocol_executions:
+            markdown += '\n\n##' + x.header
+            markdown +=  x.body
         for i, step in enumerate(execution.markdown_steps):
             markdown += str(i + 1) + '. ' + step + '\n'
         return markdown
 
     def on_end(self, execution: paml.ProtocolExecution):
-        execution.outputs += self._outputs_markdown(execution.parameter_values)
+        protocol = execution.protocol.lookup()
+        subprotocol_executions = execution.get_subprotocol_executions()
+        execution.header += self._header_markdown(protocol)
+        execution.materials += self._materials_markdown(protocol, subprotocol_executions)
+        execution.inputs += self._inputs_markdown(execution.parameter_values, subprotocol_executions)
+        execution.outputs += self._outputs_markdown(execution.parameter_values, subprotocol_executions)
+        execution.body = self._steps_markdown(execution, subprotocol_executions)
         execution.markdown_steps += [self.reporting_step(execution)]
 
         execution.markdown += execution.header
+        execution.markdown += '\n\n## Protocol Inputs:\n'
         execution.markdown += execution.inputs
+        execution.markdown += '\n\n## Protocol Materials:\n'
         execution.markdown += execution.materials
-        execution.markdown += self._steps_markdown(execution)
+        execution.markdown += '\n\n## Protocol Steps:\n'
+        execution.markdown += self._steps_markdown(execution, subprotocol_executions)
+        execution.markdown += '\n\n## Protocol Outputs:\n'
         execution.markdown += execution.outputs
 
         # Timestamp the protocol version
@@ -143,6 +172,7 @@ class MarkdownSpecialization(BehaviorSpecialization):
         protocol = execution.protocol.lookup()
         if hasattr(protocol, 'version'):
             execution.markdown += f'---\nProtocol version: {protocol.version}'
+
         with open(self.out_path, "w") as f:
             f.write(execution.markdown)
 
@@ -818,8 +848,7 @@ class MarkdownSpecialization(BehaviorSpecialization):
         execution.markdown_steps += [text]
 
     def subprotocol_specialization(self, record: paml.ActivityNodeExecution, execution: paml.ProtocolExecution):
-        protocol = record.node.lookup().behavior.lookup()
-        execution.markdown += f'\n###{protocol.name}'
+        pass
 
     def embedded_image(self, record: paml.ActivityNodeExecution, execution: paml.ProtocolExecution):
         call = record.call.lookup()

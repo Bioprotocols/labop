@@ -374,8 +374,10 @@ ProtocolExecution.get_ordered_executions = protocol_execution_get_ordered_execut
 def protocol_execution_get_subprotocol_executions(self):
     ordered_subprotocol_executions = []
     ordered_execution_nodes = self.get_ordered_executions()
-    ordered_subprotocol_execution_nodes = [x for x in ordered_execution_nodes if isinstance(x.node.lookup().behavior.lookup(), Protocol)]
-    return ordered_subprotocol_execution_nodes
+    ordered_behavior_nodes = [x.node.lookup().behavior.lookup() for x in ordered_execution_nodes]
+    ordered_subprotocols = [x.identity for x in ordered_behavior_nodes if isinstance(x, Protocol)]
+    ordered_subprotocol_executions = [o for x in ordered_subprotocols for o in self.document.objects if type(o) is ProtocolExecution and o.protocol == x]
+    return ordered_subprotocol_executions
 ProtocolExecution.get_subprotocol_executions = protocol_execution_get_subprotocol_executions
 
 
