@@ -61,15 +61,40 @@ def protocol_make_decision_node(
     # Make edges for outgoing_targets
     if outgoing_targets:
         for (guard, target) in outgoing_targets:
-            assert((not guard) or isinstance(guard, uml.ValueSpecification))
-            kwargs = { "source": decision, "target": target }
-            if guard:
-                kwargs["guard"] = guard
-            outgoing_edge = uml.ObjectFlow(**kwargs) if \
-                    isinstance(primary_incoming_node, uml.ObjectNode) else \
-                    uml.ControlFlow(**kwargs)
-            self.edges.append(outgoing_edge)
+            decision.add_decision_output(protocol, guard, target)
 
 
     return decision
 paml.Protocol.make_decision_node = protocol_make_decision_node  # Add to class via monkey patch
+
+
+def decision_node_add_decision_output(self, protocol, guard, target):
+    """Attach a guarded edge between DecisionNode and target.
+
+    Args:
+        protocol (paml.Protocol): The protocol with the self DecisionNode.
+        guard (primitive type): edge guard
+        target (uml.ActivityNode): edge target
+    """
+
+    kwargs = { "source": self, "target": target }
+    if guard:
+        kwargs["guard"] = uml.literal(guard)
+    outgoing_edge = uml.ObjectFlow(**kwargs) if \
+            isinstance(self.get_primary_incoming_flow(protocol).source, uml.ObjectNode) else \
+            uml.ControlFlow(**kwargs)
+    protocol.edges.append(outgoing_edge)
+
+uml.DecisionNode.add_decision_output = decision_node_add_decision_output # Add to class via monkey patch
+
+def decision_node_get_primary_incoming_flow(self, protocol):
+    try:
+        primary_incoming_flow = next(e for e in protocol.edges
+                                       if e.target.lookup() == self and \
+                                          e != self.decision_input_flow and \
+                                          not (isinstance(e.source.lookup(), uml.OutputPin) and \
+                                               e.source.lookup().get_parent().behavior == self.decision_input))
+        return primary_incoming_flow
+    except StopIteration as e:
+        raise Exception(f"Could not find primary_incoming edge for DecisionNode: {self.identity}")
+uml.DecisionNode.get_primary_incoming_flow = decision_node_get_primary_incoming_flow # Add to class via monkey patch
