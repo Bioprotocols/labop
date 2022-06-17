@@ -47,35 +47,35 @@ doc.add(chloramphenicol)
 
 neg_control_plasmid = sbol3.Component('neg_control_plasmid', sbol3.SBO_DNA)
 neg_control_plasmid.name = 'Negative control'
-neg_control_plasmid.description = 'BBa_R0040 Kit Plate 7 Well 2D'
+neg_control_plasmid.description = 'BBa_R0040 Kit Plate 1 Well 12M'
 
 pos_control_plasmid = sbol3.Component('pos_control_plasmid', sbol3.SBO_DNA)
 pos_control_plasmid.name = 'Positive control'
-pos_control_plasmid.description = 'BBa_I20270 Kit Plate 7 Well 2B'
+pos_control_plasmid.description = 'BBa_I20270 Kit Plate 1 Well 1A'
 
 test_device1 = sbol3.Component('test_device1', sbol3.SBO_DNA)
 test_device1.name = 'Test Device 1'
-test_device1.description = 'BBa_J364000 Kit Plate 7 Well 2F'
+test_device1.description = 'BBa_J364000 Kit Plate 1 Well 1C'
 
 test_device2 = sbol3.Component('test_device2', sbol3.SBO_DNA)
 test_device2.name = 'Test Device 2'
-test_device2.description = 'BBa_J364001 Kit Plate 7 Well 2H'
+test_device2.description = 'BBa_J364001 Kit Plate 1 Well 1E'
 
 test_device3 = sbol3.Component('test_device3', sbol3.SBO_DNA)
 test_device3.name = 'Test Device 3'
-test_device3.description = 'BBa_J364002 Kit Plate 7 Well 2J'
+test_device3.description = 'BBa_J364002 Kit Plate 1 Well 1G'
 
 test_device4 = sbol3.Component('test_device4', sbol3.SBO_DNA)
 test_device4.name = 'Test Device 4'
-test_device4.description = 'BBa_J364007 Kit Plate 7 Well 2L'
+test_device4.description = 'BBa_J364007 Kit Plate 1 Well 1I'
 
 test_device5 = sbol3.Component('test_device5', sbol3.SBO_DNA)
 test_device5.name = 'Test Device 5'
-test_device5.description = 'BBa_J364008 Kit Plate 7 Well 2N'
+test_device5.description = 'BBa_J364008 Kit Plate 1 Well 1K'
 
 test_device6 = sbol3.Component('test_device6', sbol3.SBO_DNA)
 test_device6.name = 'Test Device 6'
-test_device6.description = 'BBa_J364009 Kit Plate 7 Well 2P'
+test_device6.description = 'BBa_J364009 Kit Plate 1 Well 1M'
 
 doc.add(neg_control_plasmid)
 doc.add(pos_control_plasmid)
