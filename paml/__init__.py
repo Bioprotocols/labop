@@ -153,12 +153,14 @@ def protocol_to_dot(self, legend=False):
                 val_str = f'{literal.value} {unit}'
             elif isinstance(literal, sbol3.Identified):
                 val_str = literal.name or literal.display_id
-            elif isinstance(literal, str) or isinstance(literal, int) or isinstance(literal, flow) or isinstance(literal, bool):
+            elif isinstance(literal, str) or isinstance(literal, int) or isinstance(literal, bool):
                 # FIXME: For longer strings, it would be better to left-justify than to center, but I have
                 # no great ideas about how to tell when that applies.
                 val_str = html.escape(str(literal)).lstrip('\n').replace('\n', '<br/>')
+            elif not literal:
+                return "None"
             else:
-                raise ValueError(f'Do not know how to render literal value {literal}')
+                raise ValueError(f'Do not know how to render literal value {literal} for pin {pin.name}')
             return f'{pin.name}: {val_str}'
         else:
             return pin.name
@@ -246,7 +248,12 @@ def protocol_to_dot(self, legend=False):
             #dot.node(dest_id, label=_name_to_label(dest_id))
             #dot.node(edge_id, label=edge_id)
             color = 'blue' if isinstance(edge, uml.ControlFlow) else 'black'
-            dot.edge(src_id, dest_id, color=color)
+            if isinstance(source, uml.DecisionNode) and hasattr(edge, "guard"):
+                label = edge.guard.value if edge.guard and edge.guard.value is not None else "None"
+                label = "Else" if label == paml.DECISION_ELSE else str(label)
+                dot.edge(src_id, dest_id, label=label)
+            else:
+                dot.edge(src_id, dest_id, color=color)
         for node in self.nodes:
             node_id = _label(node)
             dot.node(node_id, **_type_attrs(node))
@@ -312,6 +319,20 @@ Primitive: {self.identity}
             """
 Primitive.__str__ = primitive_str
 
+def primitive_inherit_parameters(self, parent_primitive):
+    """Add the parameters from parent_primitive to self parameters
+
+    :param parent_primitive: Primitive with parameters to inherit
+    """
+    for p in parent_primitive.parameters:
+        param = p.property_value
+        if param.direction == uml.PARAMETER_IN:
+            self.add_input(param.name, param.type)
+        elif param.direction == uml.PARAMETER_OUT:
+            self.add_output(param.name, param.type)
+        else:
+            raise Exception(f"Cannot inherit parameter {param.name}")
+paml.Primitive.inherit_parameters = primitive_inherit_parameters
 
 def behavior_execution_parameter_value_map(self):
     """

@@ -423,37 +423,42 @@ class ExecutionEngine(ABC):
             # 6. primary_input_flow is ObjectFlow, decision_input present,  decision_input_flow present:
             #    Use decision_input return value to decide if guard is satisfied (decision_input has primary_input_flow and decision_input_flow supplied parameters)
 
+            try:
+                else_edge = next(edge for edge in out_edges if edge.guard == paml.DECISION_ELSE)
+            except StopIteration as e:
+                else_edge = None
+            non_else_edges = [edge for edge in out_edges if edge != else_edge]
+
             if hasattr(node, "decision_input") and node.decision_input:
                 # Cases: 3, 4, 5, 6
                 # The cases are combined because the cases refer to the inputs of the decision_input behavior
                 # use decision_input_value to eval guards
 
-                active_edges = [edge for edge in out_edges if decision_input_return_value.value == edge.guard.value]
+                active_edges = [edge for edge in non_else_edges if decision_input_return_value.value == edge.guard.value]
             else:
                 # Cases: 1, 2
                 if decision_input_flow:
                     # Case 2
                     # use decision_input_flow_token to eval guards
 
-                    active_edges = [edge for edge in out_edges if decision_input_flow_token.value.value == edge.guard.value]
+                    active_edges = [edge for edge in non_else_edges if decision_input_flow_token.value.value == edge.guard.value]
 
                 elif primary_input_flow and isinstance(primary_input_flow, uml.ObjectFlow):
                     # Case 1
                     # use primary_input_flow_token to eval guards
                     # Outgoing tokens are uml.ObjectFlow
 
-                    active_edges = [edge for edge in out_edges if primary_input_flow_token.value.value == edge.guard.value]
+                    active_edges = [edge for edge in non_else_edges if primary_input_flow_token.value.value == edge.guard.value]
                 else:
                     raise Exception("ERROR: Cannot evaluate DecisionNode with no decision_input, no decision_input_flow, and a None or uml.ControlFlow primary_input")
 
+            assert(else_edge or len(active_edges) > 0)
 
-            # FIXME need to extend the logic here to allow for "else" edges
-            # This currently assumes that the edges are if/elif edges
-
-            assert(len(active_edges) > 0)
-
-            # FIXME always take first active edge, but could be different.
-            active_edge = active_edges[0]
+            if len(active_edges) > 0:
+                # FIXME always take first active edge, but could be different.
+                active_edge = active_edges[0]
+            else:
+                active_edge = else_edge
 
             # Pick the value of the incoming_flow that corresponds to the primary_incoming edge
             edge_tokens = [paml.ActivityEdgeFlow(edge=active_edge, token_source=activity_node,

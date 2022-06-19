@@ -2,6 +2,8 @@ import paml
 import uml
 from typing import Dict, List, Tuple
 
+DECISION_ELSE = 'http://bioprotocols.org/uml#else'
+
 def protocol_make_decision_node(
     self: paml.Protocol,
     primary_incoming_node: uml.ActivityNode,
@@ -22,6 +24,8 @@ def protocol_make_decision_node(
     assert(primary_incoming_node)
     primary_incoming_flow = uml.ControlFlow(source=primary_incoming_node)
     self.edges.append(primary_incoming_flow)
+
+    decision_input = None
 
     if decision_input_behavior:
         input_pin_map = {}
@@ -61,7 +65,7 @@ def protocol_make_decision_node(
     # Make edges for outgoing_targets
     if outgoing_targets:
         for (guard, target) in outgoing_targets:
-            decision.add_decision_output(protocol, guard, target)
+            decision.add_decision_output(self, guard, target)
 
 
     return decision
@@ -78,7 +82,7 @@ def decision_node_add_decision_output(self, protocol, guard, target):
     """
 
     kwargs = { "source": self, "target": target }
-    if guard:
+    if guard is not None:
         kwargs["guard"] = uml.literal(guard)
     outgoing_edge = uml.ObjectFlow(**kwargs) if \
             isinstance(self.get_primary_incoming_flow(protocol).source, uml.ObjectNode) else \

@@ -117,22 +117,21 @@ def make_pH_meter_calibrated(protocol):
     old_ns = sbol3.get_namespace()
     sbol3.set_namespace(PRIMITIVE_BASE_NAMESPACE + LIBRARY_NAME)
 
-    pH_meter_calibrated = paml.Primitive("pHMeterCalibrated")
-    pH_meter_calibrated.description = "Determine if the pH Meter is calibrated."
-    pH_meter_calibrated.add_output(
+    pH_meter_calibrated_primitive = paml.Primitive("pHMeterCalibrated")
+    pH_meter_calibrated_primitive.description = "Determine if the pH Meter is calibrated."
+    pH_meter_calibrated_primitive.add_output(
         "return", "http://www.w3.org/2001/XMLSchema#boolean"
     )
-    protocol.document.add(pH_meter_calibrated)
+    protocol.document.add(pH_meter_calibrated_primitive)
 
     sbol3.set_namespace(old_ns)
 
     def pH_meter_calibrated_compute_output(inputs, parameter):
         return uml.literal(True)
-
-    pH_meter_calibrated.compute_output = pH_meter_calibrated_compute_output
+    pH_meter_calibrated_primitive.compute_output = pH_meter_calibrated_compute_output
 
     decision = protocol.make_decision_node(
-        protocol.initial(), decision_input_behavior=pH_meter_calibrated
+        protocol.initial(), decision_input_behavior=pH_meter_calibrated_primitive
     )
     return decision
 
@@ -164,12 +163,49 @@ def resolve_value(v):
             return resolved
 
 
+def wrap_with_error_message(protocol, primitive, **kwargs):
+    name = f"{primitive.display_id}_with_exception"
+    old_ns = sbol3.get_namespace()
+    sbol3.set_namespace(PRIMITIVE_BASE_NAMESPACE + LIBRARY_NAME)
+    try:
+        wrapped_primitive = paml.get_primitive(name=name, doc=protocol.document)
+        if not wrapped_primitive:
+            raise Exception("Need to create the primitive")
+    except Exception as e:
+        wrapped_primitive = paml.Primitive(name)
+        wrapped_primitive.inherit_parameters(primitive)
+        wrapped_primitive.add_output("exception", "http://www.w3.org/2001/XMLSchema#string")
+        protocol.document.add(wrapped_primitive)
+    sbol3.set_namespace(old_ns)
+
+    wrapped_primitive_invocation = protocol.execute_primitive(
+        wrapped_primitive, **kwargs
+    )
+
+    invocation_ok = protocol.make_decision_node(
+        wrapped_primitive_invocation.output_pin("exception")
+    )
+    wrapped_primitive_error = make_error_message(
+        protocol,
+        message=wrapped_primitive_invocation.output_pin("exception"),
+    )
+    protocol.edges.append(
+        uml.ControlFlow(source=wrapped_primitive_error, target=protocol.final())
+    )
+    invocation_ok.add_decision_output(
+        protocol, paml.DECISION_ELSE, wrapped_primitive_error
+    )
+
+    return wrapped_primitive_invocation, invocation_ok
+
+
 def make_inventorise_and_confirm_materials(protocol, reaction_volume):
     old_ns = sbol3.get_namespace()
     sbol3.set_namespace(PRIMITIVE_BASE_NAMESPACE + LIBRARY_NAME)
 
     calculate_volume = paml.Primitive("calculate_volume")
     calculate_volume.description = "calculate_volume"
+    calculate_volume.add_input("resource", sbol3.Component)
     calculate_volume.add_input("total_volume", tyto.OM.milliliter)
     calculate_volume.add_input("percentage", tyto.OM.milliliter)
     calculate_volume.add_output("volume", tyto.OM.milliliter)
@@ -198,22 +234,37 @@ def make_inventorise_and_confirm_materials(protocol, reaction_volume):
         "EmptyContainer", specification="reaction_vessel"
     )
     reaction_vessel.name = "reaction_vessel"
+    protocol.edges.append(
+        uml.ControlFlow(source=protocol.initial(), target=reaction_vessel)
+    )
 
     phosphoric_acid = create_phosphoric_acid()
+    protocol.document.add(phosphoric_acid)
     ddh2o = create_h2o()
+    protocol.document.add(ddh2o)
 
     # 20% weight
-    provision_phosphoric_acid = protocol.execute_primitive(
-        "Provision",
-        resource=phosphoric_acid,
-        destination=reaction_vessel.output_pin("samples"),
-        amount=volume_phosphoric_acid.output_pin("volume"),
-    )
     volume_phosphoric_acid = protocol.execute_primitive(
         "calculate_volume",
         resource=phosphoric_acid,
         total_volume=reaction_volume,
         percentage=20,
+    )
+
+    protocol.designate_output(
+        "volume_phosphoric_acid",
+        sbol3.OM_MEASURE,
+        volume_phosphoric_acid.output_pin("volume"),
+    )
+    (
+        provision_phosphoric_acid,
+        provision_phosphoric_acid_error_handler,
+    ) = wrap_with_error_message(
+        protocol,
+        paml.loaded_libraries["liquid_handling"].find("Provision"),
+        resource=phosphoric_acid,
+        destination=reaction_vessel.output_pin("samples"),
+        amount=volume_phosphoric_acid.output_pin("volume"),
     )
 
     # 80% weight
@@ -223,39 +274,73 @@ def make_inventorise_and_confirm_materials(protocol, reaction_volume):
         total_volume=reaction_volume,
         percentage=80,
     )
-    provision_h2o = protocol.execute_primitive(
-        "Provision",
+    provision_h2o, provision_h2o_error_handler = wrap_with_error_message(
+        protocol,
+        paml.loaded_libraries["liquid_handling"].find("Provision"),
         resource=ddh2o,
         destination=reaction_vessel.output_pin("samples"),
         amount=volume_h2o.output_pin("volume"),
     )
+    protocol.designate_output(
+        "volume_h2o", sbol3.OM_MEASURE, volume_h2o.output_pin("volume")
+    )
+    provision_phosphoric_acid_error_handler.add_decision_output(
+        protocol, None, provision_h2o
+    )
 
-    return
+    return reaction_vessel, provision_h2o_error_handler
 
 
 def make_is_calibration_successful(protocol, primary_input_source):
-    old_ns = sbol3.get_namespace()
-    sbol3.set_namespace(PRIMITIVE_BASE_NAMESPACE + LIBRARY_NAME)
+    # old_ns = sbol3.get_namespace()
+    # sbol3.set_namespace(PRIMITIVE_BASE_NAMESPACE + LIBRARY_NAME)
 
-    calibration_successful = paml.Primitive("calibrationSuccessful")
-    calibration_successful.description = "Determine if calibration worked."
-    calibration_successful.add_output(
-        "return", "http://www.w3.org/2001/XMLSchema#boolean"
-    )
-    protocol.document.add(calibration_successful)
+    # calibration_successful = paml.Primitive("calibrationSuccessful")
+    # calibration_successful.description = "Determine if calibration worked."
+    # calibration_successful.add_output(
+    #     "return", "http://www.w3.org/2001/XMLSchema#boolean"
+    # )
+    # protocol.document.add(calibration_successful)
 
-    sbol3.set_namespace(old_ns)
+    # sbol3.set_namespace(old_ns)
 
-    def calibration_successful_output(inputs, parameter):
-        return uml.literal(True)
+    # def calibration_successful_output(inputs, parameter):
+    #     return uml.literal(True)
 
-    calibration_successful.compute_output = calibration_successful_output
+    # calibration_successful.compute_output = calibration_successful_output
 
     decision = protocol.make_decision_node(
-        primary_input_source, decision_input_behavior=calibration_successful
+        primary_input_source
     )
     return decision
 
+def make_mix(protocol, samples):
+    old_ns = sbol3.get_namespace()
+    sbol3.set_namespace(PRIMITIVE_BASE_NAMESPACE + LIBRARY_NAME)
+
+    mix_primitive = paml.Primitive("Mix")
+    mix_primitive.description = "Mix contents of container."
+    mix_primitive.add_input("samples", paml.SampleArray)
+    mix_primitive.add_input("rpm", sbol3.Measure)
+
+    protocol.document.add(mix_primitive)
+
+    sbol3.set_namespace(old_ns)
+
+    # Input RPM
+    rpm = protocol.input_value(
+        "rpm",
+        sbol3.OM_MEASURE,
+        optional=True,
+        default_value=sbol3.Measure(100, tyto.NCIT.get_uri_by_term("Revolution per Minute")),
+    )
+    protocol.designate_output(
+        "rpm",
+        sbol3.OM_MEASURE,
+        rpm,
+    )
+    mix_invocation = protocol.execute_primitive("Mix", samples=samples, rpm=rpm)
+    return mix_invocation
 
 def create_phosphoric_acid() -> sbol3.Component:
     h3po4 = sbol3.Component(
@@ -273,47 +358,21 @@ def create_h2o() -> sbol3.Component:
     return ddh2o
 
 
-def make_dispense_phosphoric_acid(protocol):
+def make_error_message(protocol, message=None):
     old_ns = sbol3.get_namespace()
     sbol3.set_namespace(PRIMITIVE_BASE_NAMESPACE + LIBRARY_NAME)
-
-    calibration_successful = paml.Primitive("calibrationSuccessful")
-    calibration_successful.description = "Determine if calibration worked."
-    calibration_successful.add_output(
-        "return", "http://www.w3.org/2001/XMLSchema#boolean"
-    )
-    protocol.document.add(calibration_successful)
-
-    sbol3.set_namespace(old_ns)
-
-    c_ddh2o = protocol.primitive_step(
-        "PlateCoordinates",
-        source=plate.output_pin("samples"),
-        coordinates="A1:D1",
-    )
-    protocol.primitive_step(
-        "Provision",
-        resource=ddh2o,
-        destination=c_ddh2o.output_pin("samples"),
-        amount=sbol3.Measure(100, tyto.OM.microliter),
-    )
-
-
-def make_error_message(protocol, message):
-
     try:
-        if not paml.get_primitive("error_message"):
+        error_message = paml.get_primitive(name="error_message", doc=protocol.document)
+        if not error_message:
             raise Exception("Need to create the primitive")
     except Exception as e:
-        old_ns = sbol3.get_namespace()
-        sbol3.set_namespace(PRIMITIVE_BASE_NAMESPACE + LIBRARY_NAME)
         error_message = paml.Primitive("error_message")
         error_message.description = "Determine if calibration worked."
         error_message.add_input(
             "message", "http://www.w3.org/2001/XMLSchema#string"
         )
         protocol.document.add(error_message)
-        sbol3.set_namespace(old_ns)
+    sbol3.set_namespace(old_ns)
 
     return protocol.execute_primitive("error_message", message=message)
 
@@ -350,18 +409,17 @@ def pH_calibration_protocol() -> Tuple[paml.Protocol, Document]:
     pH_meter_calibrated.add_decision_output(protocol, False, calibrate_pH_meter)
 
     # 3. If pH_meter_calibrated, then inventorize and confirm materials
-    inventorise_and_confirm_materials = make_inventorise_and_confirm_materials(
+    (reaction_vessel, provision_h2o_error_handler) = make_inventorise_and_confirm_materials(
         protocol, reaction_volume
     )
     # Link 1 -> 3 (True)
-    pH_meter_calibrated.add_decision_output(
-        protocol, True, inventorise_and_confirm_materials
-    )
+    pH_meter_calibrated.add_decision_output(protocol, True, reaction_vessel)
 
     # 4. Decide whether calibration was successful
     is_calibration_successful = make_is_calibration_successful(
-        protocol, calibrate_pH_meter
+        protocol, calibrate_pH_meter.output_pin("return")
     )
+
 
     # Error Message Activity
     calibration_error = make_error_message(protocol, "Calibration Failed!")
@@ -370,36 +428,21 @@ def pH_calibration_protocol() -> Tuple[paml.Protocol, Document]:
         protocol, False, calibration_error
     )
 
-    # 5. Dispense Phosporhic Acid
-    dispense_phosphoric_acid = make_dispense_phosphoric_acid(protocol)
+    # 5. Start Mix
+    mix_vessel = make_mix(protocol, reaction_vessel.output_pin("samples"))
+    provision_h2o_error_handler.add_decision_output(protocol, None, mix_vessel)
+
+
+    # 6. Decide if ready to adjust
+    ready_to_adjust = uml.MergeNode()
+    protocol.nodes.append(ready_to_adjust)
 
     # Link 4 -> ready_to_adjust (True)
+    is_calibration_successful.add_decision_output(protocol, True, ready_to_adjust)
+    # Link 5 -> ready_to_adjust
+    protocol.order(mix_vessel, ready_to_adjust)
 
-    # create the materials to be provisioned
-    # ddh2o = create_h2o()
-    # doc.add(ddh2o)
-
-    # ludox = create_ludox()
-    # doc.add(ludox)
-
-    # add an optional parameter for specifying the wavelength
-    # wavelength_param = protocol.input_value('wavelength', sbol3.OM_MEASURE, optional=True,
-    #                                         default_value=sbol3.Measure(600, tyto.OM.nanometer))
-
-    # # actual steps of the protocol
-    # # get a plate
-    # plate = create_plate(protocol)
-
-    # # put ludox and water in selected wells
-    # provision_h2o(protocol, plate, ddh2o)
-    # provision_ludox(protocol, plate, ludox)
-
-    # # measure the absorbance
-    # measure = measure_absorbance(protocol, plate, wavelength_param)
-
-    # output = protocol.designate_output('absorbance', sbol3.OM_MEASURE,
-    #                                    measure.output_pin('measurements'))
-    # protocol.order(protocol.get_last_step(), output)
+    protocol.to_dot().view()
     return protocol, doc
 
 
