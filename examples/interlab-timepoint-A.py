@@ -484,7 +484,8 @@ timepoint_measurement('6 hr', timepoint_subculture3, plate3, 'plate6')
 agent = sbol3.Agent("test_agent")
 ee = ExecutionEngine(specializations=[MarkdownSpecialization("test_LUDOX_markdown.md")])
 execution = ee.execute(protocol, agent, id="test_execution", parameter_values=[])
-print(ee.specializations[0].markdown)
-ee.specializations[0].markdown = ee.specializations[0].markdown.replace('`_E. coli_', '_`E. coli`_ `')
+print(execution.markdown)
+execution.markdown = execution.markdown.replace('`_E. coli_', '_`E. coli`_ `')
+
 with open(__file__.split('.')[0] + '.md', 'w', encoding='utf-8') as f:
-    f.write(ee.specializations[0].markdown)
+    f.write(execution.markdown)
