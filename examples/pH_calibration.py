@@ -52,6 +52,7 @@ def create_protocol() -> paml.Protocol:
     protocol.description = DOCSTRING
     return protocol
 
+
 def create_subprotocol(doc) -> paml.Protocol:
     logger.info("Creating subprotocol")
     protocol: paml.Protocol = paml.Protocol("pH_adjustment_protocol")
@@ -69,10 +70,15 @@ def create_subprotocol(doc) -> paml.Protocol:
         paml.SampleArray,
     )
 
-    protocol.execute_primitive("Transfer", source=naoh_container, destination=reaction_vessel, amount=sbol3.Measure(100, tyto.OM.milligram))
-
+    protocol.execute_primitive(
+        "Transfer",
+        source=naoh_container,
+        destination=reaction_vessel,
+        amount=sbol3.Measure(100, tyto.OM.milligram),
+    )
 
     return protocol
+
 
 # def create_h2o() -> sbol3.Component:
 #     ddh2o = sbol3.Component('ddH2O', 'https://identifiers.org/pubchem.substance:24901740')
@@ -139,7 +145,9 @@ def make_pH_meter_calibrated(protocol):
     sbol3.set_namespace(PRIMITIVE_BASE_NAMESPACE + LIBRARY_NAME)
 
     pH_meter_calibrated_primitive = paml.Primitive("pHMeterCalibrated")
-    pH_meter_calibrated_primitive.description = "Determine if the pH Meter is calibrated."
+    pH_meter_calibrated_primitive.description = (
+        "Determine if the pH Meter is calibrated."
+    )
     pH_meter_calibrated_primitive.add_output(
         "return", "http://www.w3.org/2001/XMLSchema#boolean"
     )
@@ -149,10 +157,14 @@ def make_pH_meter_calibrated(protocol):
 
     def pH_meter_calibrated_compute_output(inputs, parameter):
         return uml.literal(True)
-    pH_meter_calibrated_primitive.compute_output = pH_meter_calibrated_compute_output
+
+    pH_meter_calibrated_primitive.compute_output = (
+        pH_meter_calibrated_compute_output
+    )
 
     decision = protocol.make_decision_node(
-        protocol.initial(), decision_input_behavior=pH_meter_calibrated_primitive
+        protocol.initial(),
+        decision_input_behavior=pH_meter_calibrated_primitive,
     )
     return decision
 
@@ -195,7 +207,9 @@ def wrap_with_error_message(protocol, primitive, **kwargs):
     except Exception as e:
         wrapped_primitive = paml.Primitive(name)
         wrapped_primitive.inherit_parameters(primitive)
-        wrapped_primitive.add_output("exception", "http://www.w3.org/2001/XMLSchema#string")
+        wrapped_primitive.add_output(
+            "exception", "http://www.w3.org/2001/XMLSchema#string"
+        )
         protocol.document.add(wrapped_primitive)
     sbol3.set_namespace(old_ns)
 
@@ -257,7 +271,6 @@ def make_inventorise_and_confirm_materials(protocol, reaction_volume):
     reaction_vessel.name = "reaction_vessel"
     protocol.order(protocol.initial(), reaction_vessel)
 
-
     phosphoric_acid = create_phosphoric_acid()
     protocol.document.add(phosphoric_acid)
     ddh2o = create_h2o()
@@ -269,9 +282,12 @@ def make_inventorise_and_confirm_materials(protocol, reaction_volume):
         "EmptyContainer", specification="vial"
     )
     protocol.order(protocol.initial(), naoh_container)
-    naoh_provision = protocol.execute_primitive("Provision", resource=naoh, amount=sbol3.Measure(100, tyto.OM.milligram), destination=naoh_container.output_pin("samples"))
-
-
+    naoh_provision = protocol.execute_primitive(
+        "Provision",
+        resource=naoh,
+        amount=sbol3.Measure(100, tyto.OM.milligram),
+        destination=naoh_container.output_pin("samples"),
+    )
 
     # 20% weight
     volume_phosphoric_acid = protocol.execute_primitive(
@@ -340,10 +356,9 @@ def make_is_calibration_successful(protocol, primary_input_source):
 
     # calibration_successful.compute_output = calibration_successful_output
 
-    decision = protocol.make_decision_node(
-        primary_input_source
-    )
+    decision = protocol.make_decision_node(primary_input_source)
     return decision
+
 
 def make_mix(protocol, samples):
     old_ns = sbol3.get_namespace()
@@ -363,7 +378,9 @@ def make_mix(protocol, samples):
         "rpm",
         sbol3.OM_MEASURE,
         optional=True,
-        default_value=sbol3.Measure(100, tyto.NCIT.get_uri_by_term("Revolution per Minute")),
+        default_value=sbol3.Measure(
+            100, tyto.NCIT.get_uri_by_term("Revolution per Minute")
+        ),
     )
     protocol.designate_output(
         "rpm",
@@ -372,6 +389,7 @@ def make_mix(protocol, samples):
     )
     mix_invocation = protocol.execute_primitive("Mix", samples=samples, rpm=rpm)
     return mix_invocation
+
 
 def make_stop_mix(protocol, samples):
     old_ns = sbol3.get_namespace()
@@ -385,9 +403,9 @@ def make_stop_mix(protocol, samples):
 
     sbol3.set_namespace(old_ns)
 
-
     mix_invocation = protocol.execute_primitive("StopMix", samples=samples)
     return mix_invocation
+
 
 def create_phosphoric_acid() -> sbol3.Component:
     h3po4 = sbol3.Component(
@@ -406,9 +424,7 @@ def create_h2o() -> sbol3.Component:
 
 
 def create_naoh() -> sbol3.Component:
-    naoh = sbol3.Component(
-        "NaOH", tyto.PubChem.get_uri_by_term("CID14798")
-    )
+    naoh = sbol3.Component("NaOH", tyto.PubChem.get_uri_by_term("CID14798"))
     naoh.name = "NaOH"  # TODO get via tyto
     return naoh
 
@@ -417,7 +433,9 @@ def make_error_message(protocol, message=None):
     old_ns = sbol3.get_namespace()
     sbol3.set_namespace(PRIMITIVE_BASE_NAMESPACE + LIBRARY_NAME)
     try:
-        error_message = paml.get_primitive(name="error_message", doc=protocol.document)
+        error_message = paml.get_primitive(
+            name="error_message", doc=protocol.document
+        )
         if not error_message:
             raise Exception("Need to create the primitive")
     except Exception as e:
@@ -464,9 +482,11 @@ def pH_calibration_protocol() -> Tuple[paml.Protocol, Document]:
     pH_meter_calibrated.add_decision_output(protocol, False, calibrate_pH_meter)
 
     # 3. If pH_meter_calibrated, then inventorize and confirm materials
-    (reaction_vessel, provision_h2o_error_handler, naoh_container) = make_inventorise_and_confirm_materials(
-        protocol, reaction_volume
-    )
+    (
+        reaction_vessel,
+        provision_h2o_error_handler,
+        naoh_container,
+    ) = make_inventorise_and_confirm_materials(protocol, reaction_volume)
     # Link 1 -> 3 (True)
     pH_meter_calibrated.add_decision_output(protocol, True, reaction_vessel)
 
@@ -474,7 +494,6 @@ def pH_calibration_protocol() -> Tuple[paml.Protocol, Document]:
     is_calibration_successful = make_is_calibration_successful(
         protocol, calibrate_pH_meter.output_pin("return")
     )
-
 
     # Error Message Activity
     calibration_error = make_error_message(protocol, "Calibration Failed!")
@@ -487,26 +506,32 @@ def pH_calibration_protocol() -> Tuple[paml.Protocol, Document]:
     mix_vessel = make_mix(protocol, reaction_vessel.output_pin("samples"))
     provision_h2o_error_handler.add_decision_output(protocol, None, mix_vessel)
 
-
     # 6. Decide if ready to adjust
     ready_to_adjust = uml.MergeNode()
     protocol.nodes.append(ready_to_adjust)
 
     # Link 4 -> ready_to_adjust (True)
-    is_calibration_successful.add_decision_output(protocol, True, ready_to_adjust)
+    is_calibration_successful.add_decision_output(
+        protocol, True, ready_to_adjust
+    )
     # Link 5 -> ready_to_adjust
     protocol.order(mix_vessel, ready_to_adjust)
 
     # 7. Adjustment subprotocol
     subprotocol: paml.Protocol = create_subprotocol(doc)
 
-    subprotocol_invocation = protocol.execute_primitive(subprotocol, reaction_vessel=reaction_vessel, naoh_container=naoh_container)
-    #protocol.nodes.append(subprotocol)
+    subprotocol_invocation = protocol.execute_primitive(
+        subprotocol,
+        reaction_vessel=reaction_vessel,
+        naoh_container=naoh_container,
+    )
+    # protocol.nodes.append(subprotocol)
     protocol.order(ready_to_adjust, subprotocol_invocation)
 
-
     # 8. Stop Mix
-    stop_mix_vessel = make_stop_mix(protocol, reaction_vessel.output_pin("samples"))
+    stop_mix_vessel = make_stop_mix(
+        protocol, reaction_vessel.output_pin("samples")
+    )
     protocol.order(subprotocol_invocation, stop_mix_vessel)
 
     protocol.to_dot().view()
