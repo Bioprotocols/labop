@@ -110,7 +110,11 @@ class MarkdownSpecialization(BehaviorSpecialization):
 
     def _materials_markdown(self, protocol, subprotocol_executions):
         document_objects = protocol.document.objects
-        components = [x for x in protocol.document.objects if isinstance(x, sbol3.component.Component)]
+        # TODO: Use different criteria for compiling Materials list based on ValueSpecifications for ValuePins
+        components = [x for x in document_objects if isinstance(x, sbol3.component.Component)]
+        # This is a hack to avoid listing Components that are dynamically generated
+        # during protocol execution, e.g., transformants
+        components = [x for x in components if tyto.SBO.functional_entity not in x.types]
         materials = {x.name: x for x in components}
         markdown = '\n\n## Protocol Materials:\n'
         markdown = ''
