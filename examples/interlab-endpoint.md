@@ -1,6 +1,5 @@
 # Cell measurement protocol
 
-## Description:
 This year we plan to go towards automation, where a 96-well plate instead of a tube is used for culturing. Prior to the full establishment of this protocol, we need to evaluate how the performance is worldwide with this as well as with parallel experiment in the test tube, which has been used as standard culturing protocol.
 
 At the end of the experiment, you would have two plates to be measured (five for challenging version). You will measure both fluorescence and absorbance in each plate.
@@ -14,33 +13,33 @@ For all of these cell measurements, you must use the same plates and volumes tha
 * [_E. coli_ DH5 alpha](https://identifiers.org/pubchem.substance:24901740)
 * [LB Broth+chloramphenicol](https://identifiers.org/pubchem.substance:24901740)
 * [chloramphenicol](https://identifiers.org/pubchem.substance:24901740)
-* [Negative control](https://identifiers.org/SBO:0000251)
-* [Positive control](https://identifiers.org/SBO:0000251)
-* [Test Device 1](https://identifiers.org/SBO:0000251)
-* [Test Device 2](https://identifiers.org/SBO:0000251)
-* [Test Device 3](https://identifiers.org/SBO:0000251)
-* [Test Device 4](https://identifiers.org/SBO:0000251)
-* [Test Device 5](https://identifiers.org/SBO:0000251)
-* [Test Device 6](https://identifiers.org/SBO:0000251)
+* [Negative control](http://parts.igem.org/Part:BBa_J428100)
+* [Positive control (I20270)](http://parts.igem.org/Part:BBa_I20270)
+* [Test Device 1 (J364000)](http://parts.igem.org/Part:BBa_J364000)
+* [Test Device 2 (J36401)](http://parts.igem.org/Part:BBa_J364001)
+* [Test Device 3 (J36402)](http://parts.igem.org/Part:BBa_J364002)
+* [Test Device 4 (J364007)](http://parts.igem.org/Part:BBa_J364007)
+* [Test Device 5 (J364008)](http://parts.igem.org/Part:BBa_J364008)
+* [Test Device 6 (J364009)](http://parts.igem.org/Part:BBa_J364009)
 
 
-## Protocol Inputs:
+#### Part Locations in Distribution Kit
+| Part | Coordinate |
+| ---- | -------------- |
+|BBa_J428100|Kit Plate 1 Well 12M|
+|BBa_I20270|Kit Plate 1 Well 1A|
+|BBa_J364000|Kit Plate 1 Well 1C|
+|BBa_J364001|Kit Plate 1 Well 1E|
+|BBa_J364002|Kit Plate 1 Well 1G|
+|BBa_J364007|Kit Plate 1 Well 1I|
+|BBa_J364008|Kit Plate 1 Well 1K|
+|BBa_J364009|Kit Plate 1 Well 1M|
 
 
-## Protocol Outputs:
-* `baseline absorbance of culture (day 2) measurements of cultures (0 hr timepoint)`
-* `0 hr absorbance timepoint measurements of plate 1`
-* `0 hr fluorescence timepoint measurements of plate 1`
-* `6 hr absorbance timepoint measurements of plate 1`
-* `6 hr fluorescence timepoint measurements of plate 1`
-* `6 hr absorbance timepoint measurements of plate 2`
-* `6 hr fluorescence timepoint measurements of plate 2`
-
-
-## Steps
-1. Transform `Negative control` DNA into _`E. coli`_ ` DH5 alpha` and plate transformants on LB Broth+chloramphenicol. Repeat for the remaining transformant DNA:  `Positive control`, `Test Device 1`, `Test Device 2`, `Test Device 3`, `Test Device 4`, `Test Device 5`, and `Test Device 6`.
+## Protocol Steps:
+1. Transform `Negative control` DNA into _`E. coli`_ ` DH5 alpha` and plate transformants on LB Broth+chloramphenicol. Repeat for the remaining transformant DNA:  `Positive control (I20270)`, `Test Device 1 (J364000)`, `Test Device 2 (J36401)`, `Test Device 3 (J36402)`, `Test Device 4 (J364007)`, `Test Device 5 (J364008)`, and `Test Device 6 (J364009)`.
 2. Provision 16 x culture tubes to contain `culture (day 1)`
-3. Inoculate _`E. coli`_ ` DH5 alpha+Negative control transformant` into 5.0 milliliter of LB Broth+chloramphenicol in culture (day 1) and grow for 16.0 hour at 37.0 degree Celsius and 220.0 rpm.  Repeat this procedure for the other inocula:  _`E. coli`_ ` DH5 alpha+Positive control transformant`, _`E. coli`_ ` DH5 alpha+Test Device 1 transformant`, _`E. coli`_ ` DH5 alpha+Test Device 2 transformant`, _`E. coli`_ ` DH5 alpha+Test Device 3 transformant`, _`E. coli`_ ` DH5 alpha+Test Device 4 transformant`, _`E. coli`_ ` DH5 alpha+Test Device 5 transformant`, and _`E. coli`_ ` DH5 alpha+Test Device 6 transformant`. Inoculate 2 replicates for each transformant, for a total of 16 cultures.
+3. Inoculate _`E. coli`_ ` DH5 alpha+Negative control transformant` into 5.0 milliliter of LB Broth+chloramphenicol in culture (day 1) and grow for 16.0 hour at 37.0 degree Celsius and 220.0 rpm.  Repeat this procedure for the other inocula:  _`E. coli`_ ` DH5 alpha+Positive control (I20270) transformant`, _`E. coli`_ ` DH5 alpha+Test Device 1 (J364000) transformant`, _`E. coli`_ ` DH5 alpha+Test Device 2 (J36401) transformant`, _`E. coli`_ ` DH5 alpha+Test Device 3 (J36402) transformant`, _`E. coli`_ ` DH5 alpha+Test Device 4 (J364007) transformant`, _`E. coli`_ ` DH5 alpha+Test Device 5 (J364008) transformant`, and _`E. coli`_ ` DH5 alpha+Test Device 6 (J364009) transformant`. Inoculate 2 replicates for each transformant, for a total of 16 cultures.
 4. Provision 16 x culture tubes to contain `culture (day 2)`
 5. Dilute each of 16 `culture (day 1)` samples with LB Broth+chloramphenicol into the culture tube at a 1:10 ratio and final volume of 5.0 milliliter. Maintain at 4.0 degree Celsius while performing dilutions.
 6. Provision 16 x 1.5 mL microfuge tubes to contain `cultures (0 hr timepoint)`
@@ -86,6 +85,16 @@ For all of these cell measurements, you must use the same plates and volumes tha
 36. Measure 6 hr absorbance timepoint of `plate 2` at 600.0 nanometer.
 37. Measure 6 hr fluorescence timepoint of `plate 2` with excitation wavelength of 485.0 nanometer and emission filter of 530.0 nanometer and 30.0 nanometer bandpass.
 38. Import data for `baseline absorbance of culture (day 2) measurements of cultures (0 hr timepoint)`, `0 hr absorbance timepoint measurements of plate 1`, `0 hr fluorescence timepoint measurements of plate 1`, `6 hr absorbance timepoint measurements of plate 1`, `6 hr fluorescence timepoint measurements of plate 1`, `6 hr absorbance timepoint measurements of plate 2`, `6 hr fluorescence timepoint measurements of plate 2` into provided Excel file.
+
+
+## Protocol Outputs:
+* `baseline absorbance of culture (day 2) measurements of cultures (0 hr timepoint)`
+* `0 hr absorbance timepoint measurements of plate 1`
+* `0 hr fluorescence timepoint measurements of plate 1`
+* `6 hr absorbance timepoint measurements of plate 1`
+* `6 hr fluorescence timepoint measurements of plate 1`
+* `6 hr absorbance timepoint measurements of plate 2`
+* `6 hr fluorescence timepoint measurements of plate 2`
 ---
-Timestamp: 2022-05-09 06:23:37.161603---
+Timestamp: 2022-06-18 20:59:30.256529---
 Protocol version: 1.0b

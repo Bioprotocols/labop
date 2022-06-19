@@ -1,6 +1,5 @@
 # Cell measurement protocol
 
-## Description:
 Challenging A - This version of the protocol involves 2 hr. time-point measurements using a plate-reader, but incubation may be performed inside a bench-top or standing incubator. 
 
 Prior to performing the cell measurements you should perform all three of the calibration measurements. Please do not proceed unless you have completed the three calibration protocols. Completion of the calibrations will ensure that you understand the measurement process and that you can take the cell measurements under the same conditions. For the sake of consistency and reproducibility, we are requiring all teams to use E. coli K-12 DH5-alpha. If you do not have access to this strain, you can request streaks of the transformed devices from another team near you, and this can count as a collaboration as long as it is appropriately documented on both teams' wikis. If you are absolutely unable to obtain the DH5-alpha strain, you may still participate in the InterLab study by contacting the Measurement Committee (measurement at igem dot org) to discuss your situation.
@@ -12,45 +11,33 @@ For all of these cell measurements, you must use the same plates and volumes tha
 * [_E. coli_ DH5 alpha](https://identifiers.org/pubchem.substance:24901740)
 * [LB Broth+chloramphenicol](https://identifiers.org/pubchem.substance:24901740)
 * [chloramphenicol](https://identifiers.org/pubchem.substance:24901740)
-* [Negative control](https://identifiers.org/SBO:0000251)
-* [Positive control](https://identifiers.org/SBO:0000251)
-* [Test Device 1](https://identifiers.org/SBO:0000251)
-* [Test Device 2](https://identifiers.org/SBO:0000251)
-* [Test Device 3](https://identifiers.org/SBO:0000251)
-* [Test Device 4](https://identifiers.org/SBO:0000251)
-* [Test Device 5](https://identifiers.org/SBO:0000251)
-* [Test Device 6](https://identifiers.org/SBO:0000251)
+* [Negative control (J428100)](http://parts.igem.org/Part:BBa_J428100)
+* [Positive control (I20270)](http://parts.igem.org/Part:BBa_I20270)
+* [Test Device 1 (J364000)](http://parts.igem.org/Part:BBa_J364000)
+* [Test Device 2 (J364001)](http://parts.igem.org/Part:BBa_J364001)
+* [Test Device 3 (J364002)](http://parts.igem.org/Part:BBa_J364002)
+* [Test Device 4 (J364007)](http://parts.igem.org/Part:BBa_J364007)
+* [Test Device 5 (J364008)](http://parts.igem.org/Part:BBa_J364008)
+* [Test Device 6 (J364009)](http://parts.igem.org/Part:BBa_J364009)
 
 
-## Protocol Inputs:
+#### Part Locations in Distribution Kit
+| Part | Coordinate |
+| ---- | -------------- |
+|BBa_J428100|Kit Plate 1 Well 12M|
+|BBa_I20270|Kit Plate 1 Well 1A|
+|BBa_J364000|Kit Plate 1 Well 1C|
+|BBa_J364001|Kit Plate 1 Well 1E|
+|BBa_J364002|Kit Plate 1 Well 1G|
+|BBa_J364007|Kit Plate 1 Well 1I|
+|BBa_J364008|Kit Plate 1 Well 1K|
+|BBa_J364009|Kit Plate 1 Well 1M|
 
 
-## Protocol Outputs:
-* `baseline absorbance of culture (day 2) measurements of cultures (0 hr timepoint)`
-* `0 hr absorbance timepoint measurements of plate 1`
-* `0 hr absorbance timepoint measurements of plate 1`
-* `0 hr absorbance timepoint measurements of plate 1`
-* `0 hr fluorescence timepoint measurements of plate 1`
-* `0 hr fluorescence timepoint measurements of plate 1`
-* `0 hr fluorescence timepoint measurements of plate 1`
-* `2 hr absorbance timepoint measurements of plate 1`
-* `2 hr fluorescence timepoint measurements of plate 1`
-* `2 hr absorbance timepoint measurements of plate4`
-* `2 hr fluorescence timepoint measurements of plate4`
-* `4 hr absorbance timepoint measurements of plate 2`
-* `4 hr fluorescence timepoint measurements of plate 2`
-* `4 hr absorbance timepoint measurements of plate5`
-* `4 hr fluorescence timepoint measurements of plate5`
-* `6 hr absorbance timepoint measurements of plate 3`
-* `6 hr fluorescence timepoint measurements of plate 3`
-* `6 hr absorbance timepoint measurements of plate6`
-* `6 hr fluorescence timepoint measurements of plate6`
-
-
-## Steps
-1. Transform `Negative control` DNA into _`E. coli`_ ` DH5 alpha` and plate transformants on LB Broth+chloramphenicol. Repeat for the remaining transformant DNA:  `Positive control`, `Test Device 1`, `Test Device 2`, `Test Device 3`, `Test Device 4`, `Test Device 5`, and `Test Device 6`.
+## Protocol Steps:
+1. Transform `Negative control (J428100)` DNA into _`E. coli`_ ` DH5 alpha` and plate transformants on LB Broth+chloramphenicol. Repeat for the remaining transformant DNA:  `Positive control (I20270)`, `Test Device 1 (J364000)`, `Test Device 2 (J364001)`, `Test Device 3 (J364002)`, `Test Device 4 (J364007)`, `Test Device 5 (J364008)`, and `Test Device 6 (J364009)`.
 2. Provision 16 x culture tubes to contain `culture (day 1)`
-3. Inoculate _`E. coli`_ ` DH5 alpha+Negative control transformant` into 5.0 milliliter of LB Broth+chloramphenicol in culture (day 1) and grow for 16.0 hour at 37.0 degree Celsius and 220.0 rpm.  Repeat this procedure for the other inocula:  _`E. coli`_ ` DH5 alpha+Positive control transformant`, _`E. coli`_ ` DH5 alpha+Test Device 1 transformant`, _`E. coli`_ ` DH5 alpha+Test Device 2 transformant`, _`E. coli`_ ` DH5 alpha+Test Device 3 transformant`, _`E. coli`_ ` DH5 alpha+Test Device 4 transformant`, _`E. coli`_ ` DH5 alpha+Test Device 5 transformant`, and _`E. coli`_ ` DH5 alpha+Test Device 6 transformant`. Inoculate 2 replicates for each transformant, for a total of 16 cultures.
+3. Inoculate _`E. coli`_ ` DH5 alpha+Negative control (J428100) transformant` into 5.0 milliliter of LB Broth+chloramphenicol in culture (day 1) and grow for 16.0 hour at 37.0 degree Celsius and 220.0 rpm.  Repeat this procedure for the other inocula:  _`E. coli`_ ` DH5 alpha+Positive control (I20270) transformant`, _`E. coli`_ ` DH5 alpha+Test Device 1 (J364000) transformant`, _`E. coli`_ ` DH5 alpha+Test Device 2 (J364001) transformant`, _`E. coli`_ ` DH5 alpha+Test Device 3 (J364002) transformant`, _`E. coli`_ ` DH5 alpha+Test Device 4 (J364007) transformant`, _`E. coli`_ ` DH5 alpha+Test Device 5 (J364008) transformant`, and _`E. coli`_ ` DH5 alpha+Test Device 6 (J364009) transformant`. Inoculate 2 replicates for each transformant, for a total of 16 cultures.
 4. Provision 16 x culture tubes to contain `culture (day 2)`
 5. Dilute each of 16 `culture (day 1)` samples with LB Broth+chloramphenicol into the culture tube at a 1:10 ratio and final volume of 10.0 milliliter. Maintain at 4.0 degree Celsius while performing dilutions.
 6. Provision 16 x 1.5 mL microfuge tubes to contain `cultures (0 hr timepoint)`
@@ -132,6 +119,28 @@ For all of these cell measurements, you must use the same plates and volumes tha
 68. Measure 6 hr absorbance timepoint of `plate6` at 600.0 nanometer.
 69. Measure 6 hr fluorescence timepoint of `plate6` with excitation wavelength of 488.0 nanometer and emission filter of 530.0 nanometer and 30.0 nanometer bandpass.
 70. Import data for `baseline absorbance of culture (day 2) measurements of cultures (0 hr timepoint)`, `0 hr absorbance timepoint measurements of plate 1`, `0 hr absorbance timepoint measurements of plate 1`, `0 hr absorbance timepoint measurements of plate 1`, `0 hr fluorescence timepoint measurements of plate 1`, `0 hr fluorescence timepoint measurements of plate 1`, `0 hr fluorescence timepoint measurements of plate 1`, `2 hr absorbance timepoint measurements of plate 1`, `2 hr fluorescence timepoint measurements of plate 1`, `2 hr absorbance timepoint measurements of plate4`, `2 hr fluorescence timepoint measurements of plate4`, `4 hr absorbance timepoint measurements of plate 2`, `4 hr fluorescence timepoint measurements of plate 2`, `4 hr absorbance timepoint measurements of plate5`, `4 hr fluorescence timepoint measurements of plate5`, `6 hr absorbance timepoint measurements of plate 3`, `6 hr fluorescence timepoint measurements of plate 3`, `6 hr absorbance timepoint measurements of plate6`, `6 hr fluorescence timepoint measurements of plate6` into provided Excel file.
+
+
+## Protocol Outputs:
+* `baseline absorbance of culture (day 2) measurements of cultures (0 hr timepoint)`
+* `0 hr absorbance timepoint measurements of plate 1`
+* `0 hr absorbance timepoint measurements of plate 1`
+* `0 hr absorbance timepoint measurements of plate 1`
+* `0 hr fluorescence timepoint measurements of plate 1`
+* `0 hr fluorescence timepoint measurements of plate 1`
+* `0 hr fluorescence timepoint measurements of plate 1`
+* `2 hr absorbance timepoint measurements of plate 1`
+* `2 hr fluorescence timepoint measurements of plate 1`
+* `2 hr absorbance timepoint measurements of plate4`
+* `2 hr fluorescence timepoint measurements of plate4`
+* `4 hr absorbance timepoint measurements of plate 2`
+* `4 hr fluorescence timepoint measurements of plate 2`
+* `4 hr absorbance timepoint measurements of plate5`
+* `4 hr fluorescence timepoint measurements of plate5`
+* `6 hr absorbance timepoint measurements of plate 3`
+* `6 hr fluorescence timepoint measurements of plate 3`
+* `6 hr absorbance timepoint measurements of plate6`
+* `6 hr fluorescence timepoint measurements of plate6`
 ---
-Timestamp: 2022-05-09 06:19:52.143544---
+Timestamp: 2022-06-18 21:10:04.954737---
 Protocol version: 1.0b
