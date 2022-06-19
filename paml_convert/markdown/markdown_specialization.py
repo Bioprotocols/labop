@@ -149,21 +149,24 @@ class MarkdownSpecialization(BehaviorSpecialization):
         protocol = execution.protocol.lookup()
         subprotocol_executions = execution.get_subprotocol_executions()
         execution.header += self._header_markdown(protocol)
-        execution.materials += self._materials_markdown(protocol, subprotocol_executions)
         execution.inputs += self._inputs_markdown(execution.parameter_values, subprotocol_executions)
         execution.outputs += self._outputs_markdown(execution.parameter_values, subprotocol_executions)
         execution.body = self._steps_markdown(execution, subprotocol_executions)
         execution.markdown_steps += [self.reporting_step(execution)]
-
         execution.markdown += execution.header
-        execution.markdown += '\n\n## Protocol Inputs:\n'
-        execution.markdown += execution.inputs
+
+        if execution.inputs:
+            execution.markdown += '\n\n## Protocol Inputs:\n'
+            execution.markdown += execution.inputs
+
         execution.markdown += '\n\n## Protocol Materials:\n'
-        execution.markdown += execution.materials
+        execution.markdown += self._materials_markdown(protocol, subprotocol_executions)
         execution.markdown += '\n\n## Protocol Steps:\n'
         execution.markdown += self._steps_markdown(execution, subprotocol_executions)
-        execution.markdown += '\n\n## Protocol Outputs:\n'
-        execution.markdown += execution.outputs
+
+        if execution.outputs:
+            execution.markdown += '\n\n## Protocol Outputs:\n'
+            execution.markdown += execution.outputs
 
         # Timestamp the protocol version
         dt = datetime.now()
