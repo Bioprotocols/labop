@@ -11,6 +11,7 @@ import paml
 import uml
 from paml.execution_engine import ExecutionEngine
 from paml_convert.markdown.markdown_specialization import MarkdownSpecialization
+from kit_coordinates import render_kit_coordinates_table
 
 
 doc = sbol3.Document()
@@ -484,6 +485,7 @@ timepoint_measurement('6 hr', timepoint_subculture3, plate3, 'plate6')
 agent = sbol3.Agent("test_agent")
 ee = ExecutionEngine(specializations=[MarkdownSpecialization("test_LUDOX_markdown.md")])
 execution = ee.execute(protocol, agent, id="test_execution", parameter_values=[])
+render_kit_coordinates_table(execution)
 print(execution.markdown)
 execution.markdown = execution.markdown.replace('`_E. coli_', '_`E. coli`_ `')
 
