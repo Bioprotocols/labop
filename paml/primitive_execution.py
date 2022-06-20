@@ -6,10 +6,12 @@ import xarray as xr
 import logging
 import sbol3
 
+from typing import List, Dict
 
 l = logging.getLogger(__file__)
 l.setLevel(logging.ERROR)
 
+PRIMITIVE_BASE_NAMESPACE = "https://bioprotocols.org/paml/primitives/"
 
 def call_behavior_execution_compute_output(self, parameter):
     """
@@ -72,6 +74,15 @@ def call_behavior_action_input_parameter_values(self, inputs=None):
     return parameter_values
 uml.CallBehaviorAction.input_parameter_values = call_behavior_action_input_parameter_values
 
+def resolve_value(v):
+        if not isinstance(v, uml.LiteralReference):
+            return v.value
+        else:
+            resolved = v.value.lookup()
+            if isinstance(resolved, uml.LiteralSpecification):
+                return resolved.value
+            else:
+                return resolved
 
 
 def primitive_compute_output(self, inputs, parameter):
@@ -85,15 +96,6 @@ def primitive_compute_output(self, inputs, parameter):
 
     l.debug(f"Computing the output of primitive: {self.identity}, parameter: {parameter.name}")
 
-    def resolve_value(v):
-        if not isinstance(v, uml.LiteralReference):
-            return v.value
-        else:
-            resolved = v.value.lookup()
-            if isinstance(resolved, uml.LiteralSpecification):
-                return resolved.value
-            else:
-                return resolved
 
     if self.identity == 'https://bioprotocols.org/paml/primitives/sample_arrays/EmptyContainer' and \
         parameter.name == "samples" and \
@@ -172,10 +174,44 @@ def empty_container_initialize_contents(self):
 
         l.warn("Warning: Assuming that the SampleArray is a 96 well microplate!")
         aliquots = get_aliquot_list(geometry="A1:H12")
-        #contents = json.dumps(xr.DataArray(dims=("aliquot", "contents"), 
+        #contents = json.dumps(xr.DataArray(dims=("aliquot", "contents"),
         #                                   coords={"aliquot": aliquots}).to_dict())
         contents = json.dumps(xr.DataArray(aliquots, dims=("aliquot")).to_dict())
     else:
         raise Exception(f"Cannot initialize contents of: {self.identity}")
     return contents
 paml.Primitive.initialize_contents = empty_container_initialize_contents
+
+
+def declare_primitive(
+    document: sbol3.Document,
+    library: str,
+    primitive_name: str,
+    template: paml.Primitive = None,
+    inputs: List[Dict] = {},
+    outputs: List[Dict] = {},
+    description: str = ""
+):
+    old_ns = sbol3.get_namespace()
+    sbol3.set_namespace(PRIMITIVE_BASE_NAMESPACE + library)
+    try:
+        primitive = paml.get_primitive(
+            name=primitive_name, doc=document
+        )
+        if not primitive:
+            raise Exception("Need to create the primitive")
+    except Exception as e:
+        primitive = paml.Primitive(primitive_name)
+        primitive.description = description
+        if template:
+            primitive.inherit_parameters(template)
+        for input in inputs:
+            optional = input['optional'] if 'optional' in  input else False
+            default_value = input['default_value'] if 'default_value' in input else None
+            primitive.add_input(input['name'], input['type'], optional=optional, default_value=None)
+        for output in outputs:
+            primitive.add_output(output['name'], output['type'])
+
+        document.add(primitive)
+    sbol3.set_namespace(old_ns)
+    return primitive
