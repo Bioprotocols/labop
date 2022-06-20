@@ -1,7 +1,16 @@
+"""
+This script implements a pH calibration protocol that involves mixing Phosphoric Acid and water, and then adaptively adding NaOH until the solution reaches as target pH.  The protocols includes several cases for expected conditions, such as requiring pH meter re-calibration, failures in Provision steps, failures in the calibration process (i.e. unrecoverably exceeding the target pH), and failures in cleanup activities.  The primitives require custom implementations to support calculation of volumes and quantities, as well as defining decision point predicates.
+"""
+
+
 import json
 import logging
 import os
 from typing import Tuple
+
+import pdb
+import importlib
+from os.path import basename
 
 import rdflib as rdfl
 import sbol3
@@ -9,6 +18,7 @@ import tyto
 from sbol3 import Document
 
 import paml
+import paml_time as pamlt
 import uml
 
 logger: logging.Logger = logging.Logger("pH_calibration")
@@ -70,12 +80,149 @@ def create_subprotocol(doc) -> paml.Protocol:
         paml.SampleArray,
     )
 
-    protocol.execute_primitive(
+    measurement_delay = protocol.input_value(
+        "measurement_delay",
+        sbol3.Measure,
+        default_value=sbol3.Measure(10, tyto.OM.second),
+        optional=True
+    )
+
+
+
+
+    old_ns = sbol3.get_namespace()
+    sbol3.set_namespace(PRIMITIVE_BASE_NAMESPACE + LIBRARY_NAME)
+
+    measure_pH_primitive = paml.Primitive("MeasurePH")
+    measure_pH_primitive.description = (
+        "Measure pH of samples."
+    )
+    measure_pH_primitive.add_input("samples", paml.SampleArray)
+    measure_pH_primitive.add_output(
+        "measurement", paml.SampleData
+    )
+    protocol.document.add(measure_pH_primitive)
+
+    measure_temperature_primitive = paml.Primitive("MeasureTemperature")
+    measure_temperature_primitive.description = (
+        "Measure temperature of samples."
+    )
+    measure_temperature_primitive.add_input("samples", paml.SampleArray)
+    measure_temperature_primitive.add_output(
+        "measurement", paml.SampleData
+    )
+    protocol.document.add(measure_temperature_primitive)
+
+    at_target_primitive = paml.Primitive("AtTargetPH")
+    at_target_primitive.description = (
+        "Determine if pH meets target pH"
+    )
+    at_target_primitive.add_input("decision_input", paml.SampleData)
+    at_target_primitive.add_output(
+        "return", "http://www.w3.org/2001/XMLSchema#boolean"
+    )
+    protocol.document.add(at_target_primitive)
+
+    def at_target_compute_output(inputs, parameter):
+        # X% weight/volume (g/mL) = (total_volume / 100) * X
+        # return total_volume * percentage/100
+        for input in inputs:
+            i_parameter = input.parameter.lookup().property_value
+            value = input.value
+            if i_parameter.name == "measurement":
+                measurement = resolve_value(value)
+        # FIXME write predicate test
+        # volume = sbol3.Measure(
+        #     (total_volume * percentage) / 100.0, tyto.OM.milliliter
+        # )
+        return uml.literal(True)
+
+    at_target_primitive.compute_output = at_target_compute_output
+
+
+    calculate_naoh_addition = paml.Primitive("calculate_naoh_addition")
+    calculate_naoh_addition.description = "calculate_naoh_addition"
+    calculate_naoh_addition.add_input("resource", sbol3.Component)
+    calculate_naoh_addition.add_input("temperature", tyto.OM.milliliter)
+    calculate_naoh_addition.add_input("pH", tyto.OM.milliliter)
+    calculate_naoh_addition.add_input("reaction_vessel", paml.SampleArray)
+    calculate_naoh_addition.add_output("return", tyto.OM.milliliter)
+    protocol.document.add(calculate_naoh_addition)
+
+    def calculate_naoh_addition_output(inputs, parameter):
+        # X% weight/volume (g/mL) = (total_volume / 100) * X
+        # return total_volume * percentage/100
+        # for input in inputs:
+        #     i_parameter = input.parameter.lookup().property_value
+        #     value = input.value
+        #     if i_parameter.name == "total_volume":
+        #         total_volume = resolve_value(value)
+        #     elif i_parameter.name == "percentage":
+        #         percentage = resolve_value(value)
+        # volume = sbol3.Measure(
+        #     (total_volume * percentage) / 100.0, tyto.OM.milliliter
+        # )
+        return sbol3.Measure(100, tyto.OM.milligram) # uml.literal(volume)
+
+    calculate_naoh_addition.compute_output = calculate_naoh_addition_output
+
+
+    sbol3.set_namespace(old_ns)
+
+    transfer = protocol.execute_primitive(
         "Transfer",
         source=naoh_container,
         destination=reaction_vessel,
         amount=sbol3.Measure(100, tyto.OM.milligram),
     )
+
+    # Wait X seconds
+
+    # Measure pH
+    measure_pH = protocol.execute_primitive("MeasurePH", samples=reaction_vessel)
+    # Measure Temp
+    measure_temp = protocol.execute_primitive("MeasurePH", samples=reaction_vessel)
+
+    # Delay measurement
+    # FIXME measurement_delay is an input parameter, but temporal contstraints are instantiated at author time, rather than runtime.
+    # wait_pH = pamlt.precedes(transfer, measurement_delay, measure_pH, units=measurement_delay.unit)
+    protocol.order(transfer, measure_pH)
+    #wait_temp = pamlt.precedes(transfer, measurement_delay.value, measure_temp, units=measurement_delay.unit)
+    protocol.order(transfer, measure_temp)
+
+    join_node = uml.JoinNode()
+    protocol.nodes.append(join_node)
+    protocol.order(measure_pH, join_node)
+    protocol.order(measure_temp, join_node)
+
+    # At Target?
+
+
+    at_target_decision = protocol.make_decision_node(join_node, decision_input_behavior=at_target_primitive, decision_input_source=measure_pH.output_pin("measurement"))
+
+    # Yes: exit
+    at_target_decision.add_decision_output(protocol, True, protocol.final())
+
+    # No: calc next, goto Transfer
+    calculate_naoh_addition_invocation = protocol.execute_primitive("calculate_naoh_addition", resource=naoh_container, temperature=measure_temp.output_pin("measurement"), pH=measure_pH.output_pin("measurement"), reaction_vessel=reaction_vessel)
+    protocol.edges.append(uml.ObjectFlow(source=calculate_naoh_addition_invocation.output_pin("return"), target=transfer.input_pin("amount")))
+    at_target_decision.add_decision_output(protocol, False, calculate_naoh_addition_invocation)
+
+    # No change, overshoot, overflow
+    at_target_error = make_error_message(
+        protocol,
+        message="Exception",
+    )
+    at_target_decision.add_decision_output(protocol, "Exception", at_target_error)
+    protocol.edges.append(
+        uml.ControlFlow(source=at_target_error, target=protocol.final())
+    )
+
+    # time_constraints = pamlt.TimeConstraints("pH Adjustment Timing",
+    #                                             constraints=pamlt.And([wait_pH, wait_temp]),
+    #                                             protocols=[protocol])
+    # doc.add(time_constraints)
+
 
     return protocol
 
@@ -115,26 +262,6 @@ def create_subprotocol(doc) -> paml.Protocol:
 #     plate.name = 'calibration plate'
 #     return plate
 
-
-# def provision_h2o(protocol: paml.Protocol, plate, ddh2o) -> None:
-#     c_ddh2o = protocol.primitive_step('PlateCoordinates', source=plate.output_pin('samples'), coordinates='A1:D1')
-#     protocol.primitive_step('Provision', resource=ddh2o, destination=c_ddh2o.output_pin('samples'),
-#                             amount=sbol3.Measure(100, tyto.OM.microliter))
-
-
-# def provision_ludox(protocol: paml.Protocol, plate, ludox) -> None:
-#     c_ludox = protocol.primitive_step('PlateCoordinates', source=plate.output_pin('samples'), coordinates='A2:D2')
-#     protocol.primitive_step('Provision', resource=ludox, destination=c_ludox.output_pin('samples'),
-#                             amount=sbol3.Measure(100, tyto.OM.microliter))
-
-
-# def measure_absorbance(protocol: paml.Protocol, plate, wavelength_param):
-#     c_measure = protocol.primitive_step('PlateCoordinates', source=plate.output_pin('samples'), coordinates='A1:D2')
-#     return protocol.primitive_step(
-#         'MeasureAbsorbance',
-#         samples=c_measure.output_pin('samples'),
-#         wavelength=wavelength_param,
-#     )
 
 LIBRARY_NAME = "pH_calibration"
 PRIMITIVE_BASE_NAMESPACE = "https://bioprotocols.org/paml/primitives/"
@@ -339,23 +466,6 @@ def make_inventorise_and_confirm_materials(protocol, reaction_volume):
 
 
 def make_is_calibration_successful(protocol, primary_input_source):
-    # old_ns = sbol3.get_namespace()
-    # sbol3.set_namespace(PRIMITIVE_BASE_NAMESPACE + LIBRARY_NAME)
-
-    # calibration_successful = paml.Primitive("calibrationSuccessful")
-    # calibration_successful.description = "Determine if calibration worked."
-    # calibration_successful.add_output(
-    #     "return", "http://www.w3.org/2001/XMLSchema#boolean"
-    # )
-    # protocol.document.add(calibration_successful)
-
-    # sbol3.set_namespace(old_ns)
-
-    # def calibration_successful_output(inputs, parameter):
-    #     return uml.literal(True)
-
-    # calibration_successful.compute_output = calibration_successful_output
-
     decision = protocol.make_decision_node(primary_input_source)
     return decision
 
@@ -449,6 +559,22 @@ def make_error_message(protocol, message=None):
 
     return protocol.execute_primitive("error_message", message=message)
 
+def make_clean_electrode_primitive(protocol):
+
+    old_ns = sbol3.get_namespace()
+    sbol3.set_namespace(PRIMITIVE_BASE_NAMESPACE + LIBRARY_NAME)
+    try:
+        clean_electrode_primitive = paml.get_primitive(
+            name="clean_electrode", doc=protocol.document
+        )
+        if not clean_electrode_primitive:
+            raise Exception("Need to create the primitive")
+    except Exception as e:
+        clean_electrode_primitive = paml.Primitive("clean_electrode_primitive")
+        clean_electrode_primitive.description = "Clean the pH meter electrode"
+        protocol.document.add(clean_electrode_primitive)
+    sbol3.set_namespace(old_ns)
+    return clean_electrode_primitive
 
 def pH_calibration_protocol() -> Tuple[paml.Protocol, Document]:
     #############################################
@@ -524,6 +650,7 @@ def pH_calibration_protocol() -> Tuple[paml.Protocol, Document]:
         subprotocol,
         reaction_vessel=reaction_vessel,
         naoh_container=naoh_container,
+        measurement_delay=sbol3.Measure(20, tyto.OM.second)
     )
     # protocol.nodes.append(subprotocol)
     protocol.order(ready_to_adjust, subprotocol_invocation)
@@ -534,11 +661,32 @@ def pH_calibration_protocol() -> Tuple[paml.Protocol, Document]:
     )
     protocol.order(subprotocol_invocation, stop_mix_vessel)
 
+    (
+        clean_electrode_invocation,
+        clean_electrode_error_handler,
+    ) = wrap_with_error_message(
+        protocol,
+        make_clean_electrode_primitive(protocol),
+    )
+    protocol.order(stop_mix_vessel, clean_electrode_invocation)
+    protocol.order(clean_electrode_error_handler, protocol.final())
+
+
     protocol.to_dot().view()
     return protocol, doc
 
+def reload():
+    mainmodname = basename(__file__)[:-3]
+    module = importlib.import_module(mainmodname)
 
-if __name__ == "__main__":
+    # reload the module to check for changes
+    importlib.reload(module)
+    # update the globals of __main__ with the any new or changed
+    # functions or classes in the reloaded module
+    globals().update(vars(module))
+    main()
+
+def main():
     new_protocol: paml.Protocol
     new_protocol, doc = pH_calibration_protocol()
     print("Validating and writing protocol")
@@ -555,3 +703,6 @@ if __name__ == "__main__":
     dot = new_protocol.to_dot()
     dot.render(f"{new_protocol.name}.gv")
     dot.view()
+
+if __name__ == "__main__":
+    main()
