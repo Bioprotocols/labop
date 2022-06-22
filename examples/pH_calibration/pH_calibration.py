@@ -8,6 +8,7 @@ import logging
 import os
 from os.path import basename
 from typing import Tuple
+from paml.execution_engine import ExecutionEngine
 
 import ph_calibration_utils as util
 
@@ -139,7 +140,7 @@ def create_subprotocol(doc) -> paml.Protocol:
 
     # At Target -> No: 7.6 calc next, goto Transfer
     calculate_naoh_addition_invocation = protocol.execute_primitive(
-        "calculate_naoh_addition",
+        calculate_naoh_addition,
         resource=naoh_container,
         temperature=measure_temp.output_pin("measurement"),
         pH=measure_pH.output_pin("measurement"),
@@ -178,9 +179,9 @@ def create_subprotocol(doc) -> paml.Protocol:
 
 def create_setup_subprotocol(doc):
     logger.info("Creating setup_subprotocol")
-    protocol: paml.Protocol = paml.Protocol("pH_adjustment_setup_subprotocol")
-    protocol.name = "pH adjustment setup subprotocol"
-    protocol.description = "pH adjustment setup subprotocol"
+    protocol: paml.Protocol = paml.Protocol("pH_adjustment_setup_protocol")
+    protocol.name = "pH adjustment setup protocol"
+    protocol.description = "pH adjustment setup protocol"
     doc.add(protocol)
 
     ############################################################################
@@ -197,7 +198,7 @@ def create_setup_subprotocol(doc):
     ############################################################################
     # Define Custom Primitives needed for protocol
     ############################################################################
-    (calculate_volume_primitive,) = util.define_setup_protocol_primitives(
+    calculate_volume_primitive = util.define_setup_protocol_primitives(
         protocol.document, LIBRARY_NAME
     )
 
@@ -225,7 +226,7 @@ def create_setup_subprotocol(doc):
 
     # 20% weight
     volume_phosphoric_acid = protocol.execute_primitive(
-        "calculate_volume",
+        calculate_volume_primitive,
         resource=h3po4,
         total_volume=reaction_volume,
         percentage=20,
@@ -236,6 +237,7 @@ def create_setup_subprotocol(doc):
         provision_phosphoric_acid_error_handler,
     ) = util.wrap_with_error_message(
         protocol,
+        LIBRARY_NAME,
         paml.loaded_libraries["liquid_handling"].find("Provision"),
         resource=h3po4,
         destination=reaction_vessel.output_pin("samples"),
@@ -244,13 +246,14 @@ def create_setup_subprotocol(doc):
 
     # 80% weight
     volume_h2o = protocol.execute_primitive(
-        "calculate_volume",
+        calculate_volume_primitive,
         resource=h3po4,
         total_volume=reaction_volume,
         percentage=80,
     )
     (provision_h2o, provision_h2o_error_handler) = util.wrap_with_error_message(
         protocol,
+        LIBRARY_NAME,
         paml.loaded_libraries["liquid_handling"].find("Provision"),
         resource=ddh2o,
         destination=reaction_vessel.output_pin("samples"),
@@ -267,12 +270,12 @@ def create_setup_subprotocol(doc):
     protocol.designate_output(
         "naoh_container",
         paml.SampleArray,
-        naoh_container,
+        naoh_container.output_pin("samples"),
     )
     protocol.designate_output(
         "reaction_vessel",
         paml.SampleArray,
-        reaction_vessel,
+        reaction_vessel.output_pin("samples"),
     )
     protocol.designate_output(
         "volume_phosphoric_acid",
@@ -341,12 +344,11 @@ def pH_calibration_protocol() -> Tuple[paml.Protocol, Document]:
     #     provision_h2o_error_handler,
     #     naoh_container,
     # ) = make_inventorise_and_confirm_materials(protocol, reaction_volume)
-    # # Link 1 -> 3 (True)
-    # pH_meter_calibrated.add_decision_output(protocol, True, reaction_vessel)
+
 
     # 3. Setup Reagents and Labware subprotocol
     setup_subprotocol: paml.Protocol = create_setup_subprotocol(doc)
-    subprotocol_invocation = protocol.execute_primitive(
+    setup_subprotocol_invocation = protocol.execute_primitive(
         setup_subprotocol,
         reaction_volume=reaction_volume,
     )
@@ -359,11 +361,13 @@ def pH_calibration_protocol() -> Tuple[paml.Protocol, Document]:
     # 6. Decide if ready to adjust (Before 3.)
     ready_to_adjust = uml.MergeNode()
     protocol.nodes.append(ready_to_adjust)
-    protocol.order(setup_subprotocol, ready_to_adjust)
+    protocol.order(setup_subprotocol_invocation, ready_to_adjust)
     # Link 4 -> ready_to_adjust (True)
     is_calibration_successful.add_decision_output(
         protocol, True, ready_to_adjust
     )
+    # Link 1 -> 3 (True)
+    pH_meter_calibrated.add_decision_output(protocol, True, ready_to_adjust)
 
     # Error Message Activity
     error_message_primitive = util.define_error_message(
@@ -380,25 +384,28 @@ def pH_calibration_protocol() -> Tuple[paml.Protocol, Document]:
     # 5. Start Mix
     mix_vessel = protocol.execute_primitive(
         mix_primitive,
-        samples=subprotocol_invocation.output_pin("reaction_vessel"),
+        samples=setup_subprotocol_invocation.output_pin("reaction_vessel"),
         rpm=rpm,
     )
 
-    # 7. Adjustment subprotocol
-    subprotocol: paml.Protocol = create_subprotocol(doc)
+    protocol.order(ready_to_adjust, mix_vessel)
 
-    subprotocol_invocation = protocol.execute_primitive(
-        subprotocol,
-        reaction_vessel=subprotocol_invocation.output_pin("reaction_vessel"),
-        naoh_container=subprotocol_invocation.output_pin("naoh_container"),
+    # 7. Adjustment subprotocol
+    adjust_subprotocol: paml.Protocol = create_subprotocol(doc)
+
+    adjust_subprotocol_invocation = protocol.execute_primitive(
+        adjust_subprotocol,
+        reaction_vessel=setup_subprotocol_invocation.output_pin("reaction_vessel"),
+        naoh_container=setup_subprotocol_invocation.output_pin("naoh_container"),
         measurement_delay=sbol3.Measure(20, tyto.OM.second),
     )
+    protocol.order(mix_vessel, adjust_subprotocol_invocation)
 
     # 8. Stop Mix
     stop_mix_vessel = protocol.execute_primitive(
-        stop_mix_primitive, subprotocol_invocation.output_pin("reaction_vessel")
+        stop_mix_primitive, samples=setup_subprotocol_invocation.output_pin("reaction_vessel")
     )
-    protocol.order(subprotocol_invocation, stop_mix_vessel)
+    protocol.order(adjust_subprotocol_invocation, stop_mix_vessel)
 
     (
         clean_electrode_invocation,
@@ -417,7 +424,7 @@ def pH_calibration_protocol() -> Tuple[paml.Protocol, Document]:
         rpm,
     )
 
-    protocol.to_dot().view()
+    # protocol.to_dot().view()
     return protocol, doc
 
 
@@ -436,6 +443,19 @@ def reload():
 def main():
     new_protocol: paml.Protocol
     new_protocol, doc = pH_calibration_protocol()
+
+    agent = sbol3.Agent("test_agent")
+    ee = ExecutionEngine()
+    parameter_values = [
+        paml.ParameterValue(parameter=new_protocol.get_input("reaction_volume"), value=sbol3.Measure(10, tyto.OM.milliliter)),
+
+
+    ]
+    try:
+        execution = ee.execute(new_protocol, agent, id="test_execution", parameter_values=parameter_values)
+    except Exception as e:
+        logger.exception(e)
+
     print("Validating and writing protocol")
     v = doc.validate()
     assert len(v) == 0, "".join(f"\n {e}" for e in v)

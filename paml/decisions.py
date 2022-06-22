@@ -22,7 +22,7 @@ def protocol_make_decision_node(
     """
 
     assert(primary_incoming_node)
-    primary_incoming_flow = uml.ControlFlow(source=primary_incoming_node)
+    primary_incoming_flow = uml.ControlFlow(source=primary_incoming_node) if isinstance(primary_incoming_node, uml.ControlNode) else uml.ObjectFlow(source=primary_incoming_node)
     self.edges.append(primary_incoming_flow)
 
     decision_input = None

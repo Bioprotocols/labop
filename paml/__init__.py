@@ -251,7 +251,7 @@ def protocol_to_dot(self, legend=False):
             if isinstance(source, uml.DecisionNode) and hasattr(edge, "guard"):
                 label = edge.guard.value if edge.guard and edge.guard.value is not None else "None"
                 label = "Else" if label == paml.DECISION_ELSE else str(label)
-                dot.edge(src_id, dest_id, label=label)
+                dot.edge(src_id, dest_id, label=label, color=color)
             else:
                 dot.edge(src_id, dest_id, color=color)
         for node in self.nodes:
@@ -274,10 +274,17 @@ def activity_edge_flow_get_target(self):
         -------
 
         '''
+    token_source_node = self.token_source.lookup().node.lookup()
     if self.edge:
-        target = self.document.find(self.document.find(self.edge).target)
-    else: # Tokens for pins do not have an edge connecting pin to activity
-        target = self.document.find(self.document.find(self.token_source).node).get_parent()
+        target = self.edge.lookup().target.lookup()
+    elif isinstance(token_source_node, uml.Pin): # Tokens for pins do not have an edge connecting pin to activity
+        target = token_source_node.get_parent()
+    elif isinstance(token_source_node, uml.CallBehaviorAction) and \
+         isinstance(token_source_node.behavior.lookup(), paml.Protocol):
+         # If no edge (because cannot link to InitialNode), then if source is calling a subprotocol, use subprotocol initial node
+        target = token_source_node.behavior.lookup().initial()
+    else:
+        raise Exception(f"Cannot find the target node of edge flow: {self}")
     return target
 ActivityEdgeFlow.get_target = activity_edge_flow_get_target
 

@@ -79,7 +79,7 @@ class DefaultBehaviorSpecialization(BehaviorSpecialization):
             return # raise BehaviorSpecializationException(f"Cannot handle node type: {type(node)}")
         elif str(node.behavior) not in self._behavior_func_map:
             # raise BehaviorSpecializationException(f"Failed to find handler for behavior: {node.behavior}")
-            l.warning("Failed to find handler for behavior: {node.behavior}")
+            l.warning(f"Failed to find handler for behavior: {node.behavior}")
             return
         return self._behavior_func_map[str(node.behavior)](record)
 

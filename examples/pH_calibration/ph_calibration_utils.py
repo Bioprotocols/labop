@@ -95,7 +95,7 @@ def define_pH_adjustment_protocol_primitives(
         "CalculateNaOHAddition",
         inputs=[
             {"name": "resource", "type": sbol3.Component},
-            {"name": "temperature", "type": tyto.OM.celsius},
+            {"name": "temperature", "type": "http://www.ontology-of-units-of-measure.org/resource/om-2/degreeCelsius"},
             {"name": "pH", "type": "http://www.w3.org/2001/XMLSchema#float"},
             {"name": "reaction_vessel", "type": paml.SampleArray},
         ],
@@ -150,7 +150,7 @@ def wrap_with_error_message(protocol, library, primitive, **kwargs):
                 library,
                 name,
                 template=primitive,
-                inputs=[
+                outputs=[
                     {"name": "error", "type": "http://www.w3.org/2001/XMLSchema#string"},
                 ],
                 description=f"Extends {primitive} with an error output pin",
@@ -198,7 +198,9 @@ def get_ph_calibration_protocol_inputs(protocol: paml.Protocol,
         sbol3.OM_MEASURE,
         optional=True,
         default_value=sbol3.Measure(
-            100, tyto.NCIT.get_uri_by_term("Revolution per Minute")
+            100,
+            # tyto.NCIT.get_uri_by_term("Revolution per Minute")
+            "https://ncithesaurus.nci.nih.gov/ncitbrowser/ConceptReport.jsp?dictionary=NCI_Thesaurus&version=21.10d&code=C70469&ns=ncit"
         ),
     )
     return (reaction_volume, rpm)
@@ -273,8 +275,8 @@ def define_setup_protocol_primitives(
             {"name": "resource", "type": sbol3.Component},
             {"name": "total_volume", "type": tyto.OM.milliliter},
             {"name": "percentage", "type": "http://www.w3.org/2001/XMLSchema#float"},
-        ]
-        outputs=[{"name": "volume", "type": yto.OM.milliliter}],
+        ],
+        outputs=[{"name": "volume", "type": tyto.OM.milliliter}],
         description="Decide whether to calibrate pH meter.",
     )
     def calculate_volume_compute_output(inputs, parameter):
@@ -288,17 +290,14 @@ def define_setup_protocol_primitives(
             elif i_parameter.name == "percentage":
                 percentage = resolve_value(value)
         volume = sbol3.Measure(
-            (total_volume * percentage) / 100.0, tyto.OM.milliliter
+            (total_volume.value * percentage) / 100.0, tyto.OM.milliliter
         )
         return uml.literal(volume)
-
     calculate_volume_primitive.compute_output = calculate_volume_compute_output
 
 
 
-    return (
-        calculate_volume_primitive
-    )
+    return calculate_volume_primitive
 
 def define_setup_protocol_materials(document):
     h3po4 = sbol3.Component(
