@@ -325,7 +325,17 @@ paml:ProtocolExecution a owl:Class ;
         [ a owl:Restriction ;
             owl:allValuesFrom paml:ActivityEdgeFlow ;
             owl:onProperty paml:flow ],
+        [ a owl:Restriction ;
+            owl:allValuesFrom paml:edge ;
+            owl:onProperty paml:activityCallEdge ],
         paml:BehaviorExecution .
+
+paml:activityCallEdge a owl:ObjectProperty ;
+    rdfs:label "activity_call_edge" ;
+    rdfs:comment """ActivityEdge list for CallBehaviorAction to Activity invocations""" ;
+    rdfs:domain paml:ProtocolExecution ;
+    rdfs:range paml:edge ;
+    rdfs:subPropertyOf sbol:directlyComprises .
 
 paml:amount a owl:ObjectProperty ;
     rdfs:label "amount" ;
@@ -391,7 +401,7 @@ paml:fromSamples a owl:ObjectProperty ;
 
 paml:node a owl:ObjectProperty ;
     rdfs:label "node" ;
-    rdfs:comment "This property is used to indicate the uml:ActivityNode that has been execcuted." ;
+    rdfs:comment "This property is used to indicate the uml:ActivityNode that has been executed." ;
     rdfs:domain paml:ActivityNodeExecution ;
     rdfs:range uml:ActivityNode .
 
