@@ -62,7 +62,7 @@ doc.add(sulforhodamine)
 
 protocol = paml.Protocol('interlab')
 protocol.name = 'Multicolor fluorescence per bacterial particle calibration'
-protocol.version = '1.0b'
+protocol.version = '1.1b'
 protocol.description = '''Plate readers report fluorescence values in arbitrary units that vary widely from instrument to instrument. Therefore absolute fluorescence values cannot be directly compared from one instrument to another. In order to compare fluorescence output of biological devices, it is necessary to create a standard fluorescence curve. This variant of the protocol uses two replicates of three colors of dye, plus beads.
 Adapted from [https://dx.doi.org/10.17504/protocols.io.bht7j6rn](https://dx.doi.org/10.17504/protocols.io.bht7j6r) and [https://dx.doi.org/10.17504/protocols.io.6zrhf56](https://dx.doi.org/10.17504/protocols.io.6zrhf56)'''
 doc.add(protocol)
