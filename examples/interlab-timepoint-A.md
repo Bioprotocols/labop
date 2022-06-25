@@ -7,6 +7,28 @@ Prior to performing the cell measurements you should perform all three of the ca
 For all of these cell measurements, you must use the same plates and volumes that you used in your calibration protocol. You must also use the same settings (e.g., filters or excitation and emission wavelengths) that you used in your calibration measurements. If you do not use the same plates, volumes, and settings, the measurements will not be valid.
 
 
+## Protocol Outputs:
+* `baseline absorbance of culture (day 2) measurements of cultures (0 hr timepoint)`
+* `0 hr absorbance timepoint measurements of plate 1`
+* `0 hr absorbance timepoint measurements of plate 1`
+* `0 hr absorbance timepoint measurements of plate 1`
+* `0 hr fluorescence timepoint measurements of plate 1`
+* `0 hr fluorescence timepoint measurements of plate 1`
+* `0 hr fluorescence timepoint measurements of plate 1`
+* `2 hr absorbance timepoint measurements of plate 1`
+* `2 hr fluorescence timepoint measurements of plate 1`
+* `2 hr absorbance timepoint measurements of plate4`
+* `2 hr fluorescence timepoint measurements of plate4`
+* `4 hr absorbance timepoint measurements of plate 2`
+* `4 hr fluorescence timepoint measurements of plate 2`
+* `4 hr absorbance timepoint measurements of plate5`
+* `4 hr fluorescence timepoint measurements of plate5`
+* `6 hr absorbance timepoint measurements of plate 3`
+* `6 hr fluorescence timepoint measurements of plate 3`
+* `6 hr absorbance timepoint measurements of plate6`
+* `6 hr fluorescence timepoint measurements of plate6`
+
+
 ## Protocol Materials:
 * [_E. coli_ DH5 alpha](https://identifiers.org/pubchem.substance:24901740)
 * [LB Broth+chloramphenicol](https://identifiers.org/pubchem.substance:24901740)
@@ -47,7 +69,7 @@ For all of these cell measurements, you must use the same plates and volumes tha
 10. Provision 16 x 50 ml conical tubes to contain `back-diluted culture` The conical tube should be opaque, amber-colored, or covered with foil.
 11. Back-dilute each of 16 `culture (day 2)` samples to a target OD of 0.02 using LB Broth+chloramphenicol as diluent to a final volume of 40.0 milliliter. Maintain at 4.0 degree Celsius while performing dilutions.
 
-![](/Users/bbartley/Dev/git/sd2/paml/fig1_cell_calibration.png)
+![](/Users/bbartley/Dev/git/sd2/paml/examples/fig1_cell_calibration.png)
 
 
 12. Provision 16 x 50 ml conical tubes to contain `Tube 1` The conical tubes should be opaque, amber-colored, or covered with foil.
@@ -119,28 +141,6 @@ For all of these cell measurements, you must use the same plates and volumes tha
 68. Measure 6 hr absorbance timepoint of `plate6` at 600.0 nanometer.
 69. Measure 6 hr fluorescence timepoint of `plate6` with excitation wavelength of 488.0 nanometer and emission filter of 530.0 nanometer and 30.0 nanometer bandpass.
 70. Import data for `baseline absorbance of culture (day 2) measurements of cultures (0 hr timepoint)`, `0 hr absorbance timepoint measurements of plate 1`, `0 hr absorbance timepoint measurements of plate 1`, `0 hr absorbance timepoint measurements of plate 1`, `0 hr fluorescence timepoint measurements of plate 1`, `0 hr fluorescence timepoint measurements of plate 1`, `0 hr fluorescence timepoint measurements of plate 1`, `2 hr absorbance timepoint measurements of plate 1`, `2 hr fluorescence timepoint measurements of plate 1`, `2 hr absorbance timepoint measurements of plate4`, `2 hr fluorescence timepoint measurements of plate4`, `4 hr absorbance timepoint measurements of plate 2`, `4 hr fluorescence timepoint measurements of plate 2`, `4 hr absorbance timepoint measurements of plate5`, `4 hr fluorescence timepoint measurements of plate5`, `6 hr absorbance timepoint measurements of plate 3`, `6 hr fluorescence timepoint measurements of plate 3`, `6 hr absorbance timepoint measurements of plate6`, `6 hr fluorescence timepoint measurements of plate6` into provided Excel file.
-
-
-## Protocol Outputs:
-* `baseline absorbance of culture (day 2) measurements of cultures (0 hr timepoint)`
-* `0 hr absorbance timepoint measurements of plate 1`
-* `0 hr absorbance timepoint measurements of plate 1`
-* `0 hr absorbance timepoint measurements of plate 1`
-* `0 hr fluorescence timepoint measurements of plate 1`
-* `0 hr fluorescence timepoint measurements of plate 1`
-* `0 hr fluorescence timepoint measurements of plate 1`
-* `2 hr absorbance timepoint measurements of plate 1`
-* `2 hr fluorescence timepoint measurements of plate 1`
-* `2 hr absorbance timepoint measurements of plate4`
-* `2 hr fluorescence timepoint measurements of plate4`
-* `4 hr absorbance timepoint measurements of plate 2`
-* `4 hr fluorescence timepoint measurements of plate 2`
-* `4 hr absorbance timepoint measurements of plate5`
-* `4 hr fluorescence timepoint measurements of plate5`
-* `6 hr absorbance timepoint measurements of plate 3`
-* `6 hr fluorescence timepoint measurements of plate 3`
-* `6 hr absorbance timepoint measurements of plate6`
-* `6 hr fluorescence timepoint measurements of plate6`
 ---
-Timestamp: 2022-06-18 21:10:04.954737---
+Timestamp: 2022-06-25 09:48:10.927926---
 Protocol version: 1.0b

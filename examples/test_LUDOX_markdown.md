@@ -1,69 +1,86 @@
-# Multicolor fluorescence per bacterial particle calibration
+# Cell measurement protocol
 
-## Description:
-Plate readers report fluorescence values in arbitrary units that vary widely from instrument to instrument. Therefore absolute fluorescence values cannot be directly compared from one instrument to another. In order to compare fluorescence output of biological devices, it is necessary to create a standard fluorescence curve. This variant of the protocol uses two replicates of three colors of dye, plus beads.
-Adapted from [https://dx.doi.org/10.17504/protocols.io.bht7j6rn](https://dx.doi.org/10.17504/protocols.io.bht7j6r) and [https://dx.doi.org/10.17504/protocols.io.6zrhf56](https://dx.doi.org/10.17504/protocols.io.6zrhf56)
+Challenging B - This version of the interlab protocol involves 2 hr. time interval measurements and incubation inside a microplate reader/incubator.
 
+Prior to performing the cell measurements you should perform all three of the calibration measurements. Please do not proceed unless you have completed the three calibration protocols. Completion of the calibrations will ensure that you understand the measurement process and that you can take the cell measurements under the same conditions. For the sake of consistency and reproducibility, we are requiring all teams to use E. coli K-12 DH5-alpha. If you do not have access to this strain, you can request streaks of the transformed devices from another team near you, and this can count as a collaboration as long as it is appropriately documented on both teams' wikis. If you are absolutely unable to obtain the DH5-alpha strain, you may still participate in the InterLab study by contacting the Measurement Committee (measurement at igem dot org) to discuss your situation.
 
-## Protocol Materials:
-* [Water, sterile-filtered, BioReagent, suitable for cell culture](https://identifiers.org/pubchem.substance:24901740)
-* [NanoCym 950 nm monodisperse silica nanoparticles](https://nanocym.com/wp-content/uploads/2018/07/NanoCym-All-Datasheets-.pdf)
-* [Phosphate Buffered Saline](https://pubchem.ncbi.nlm.nih.gov/substance/329753341)
-* [Fluorescein](https://pubchem.ncbi.nlm.nih.gov/substance/329753341)
-* [Cascade Blue](https://pubchem.ncbi.nlm.nih.gov/substance/329753341)
-* [Sulforhodamine](https://pubchem.ncbi.nlm.nih.gov/substance/329753341)
-
-
-## Protocol Inputs:
+For all of these cell measurements, you must use the same plates and volumes that you used in your calibration protocol. You must also use the same settings (e.g., filters or excitation and emission wavelengths) that you used in your calibration measurements. If you do not use the same plates, volumes, and settings, the measurements will not be valid.
 
 
 ## Protocol Outputs:
-* `fluorescein and bead fluorescence measurements of calibration plate`
-* `sulforhodamine 101 fluorescence measurements of calibration plate`
-* `cascade blue fluorescence measurements of calibration plate`
-* `absorbance measurements of calibration plate`
+* `baseline absorbance of culture (day 2) measurements of cultures (0 hr timepoint)`
+* `0 hr absorbance timepoint measurements of plate 1`
+* `0 hr fluorescence timepoint measurements of plate 1`
+* `absorbance timepoint measurements of plate 1 at timepoints 2.0 hour, 4.0 hour, 6.0 hour`
+* `fluorescence timepoint measurements of plate 1 at timepoints 2.0 hour, 4.0 hour, 6.0 hour`
+* `absorbance timepoint measurements of Plates 2, 3, and 4`
+* `fluorescence timepoint measurements of Plates 2, 3, and 4`
 
 
-## Steps
-1. Provision the stock reagent container containing `Fluorescein calibrant`
-2. Provision the stock reagent container containing `Sulforhodamine 101 calibrant`
-3. Provision the stock reagent container containing `Cascade blue calibrant`
-4. Provision the stock reagent container containing `NanoCym 950 nm microspheres`
-5. Transfer 1.0 milliliter of `Phosphate Buffered Saline` sample to  stock reagent container `Fluorescein calibrant`. The reconsituted fluorescein calibrant will have a final concentration of 10 uM in PBS
-6. Vortex Fluorescein calibrant
-7. Transfer 1.0 milliliter of `Phosphate Buffered Saline` sample to  stock reagent container `Sulforhodamine 101 calibrant`. The reconstituted sulforhodamine standard will have a final concentration of 2 uM in PBS
-8. Vortex Sulforhodamine 101 calibrant
-9. Transfer 1.0 milliliter of `Water, sterile-filtered, BioReagent, suitable for cell culture` sample to  stock reagent container `Cascade blue calibrant`. The reconstituted cascade blue calibrant will have a final concentration of 10 uM in ddH2O.
-10. Vortex Cascade blue calibrant
-11. Transfer 1.0 milliliter of `Water, sterile-filtered, BioReagent, suitable for cell culture` sample to  stock reagent container `NanoCym 950 nm microspheres`. The resuspended microspheres will have a final concentration of 3e9 microspheres/mL in ddH20.
-12. Vortex NanoCym 950 nm microspheres
-13. Provision a 96 well microplate to contain `calibration plate`
-14. Transfer 100.0 microliter of `Phosphate Buffered Saline` sample to wells A12:D12 of  96 well microplate `calibration plate`.  These are blanks.
-15. Transfer 100.0 microliter of `Water, sterile-filtered, BioReagent, suitable for cell culture` sample to wells E12:H12 of  96 well microplate `calibration plate`.  These are blanks.
-16. Transfer 200.0 microliter of `Fluorescein calibrant` sample to wells A1 of  96 well microplate `calibration plate`.
-17. Transfer 200.0 microliter of `Fluorescein calibrant` sample to wells B1 of  96 well microplate `calibration plate`.
-18. Transfer 200.0 microliter of `Sulforhodamine 101 calibrant` sample to wells C1 of  96 well microplate `calibration plate`.
-19. Transfer 200.0 microliter of `Sulforhodamine 101 calibrant` sample to wells D1 of  96 well microplate `calibration plate`.
-20. Transfer 200.0 microliter of `Cascade blue calibrant` sample to wells E1 of  96 well microplate `calibration plate`.
-21. Transfer 200.0 microliter of `Cascade blue calibrant` sample to wells F1 of  96 well microplate `calibration plate`.
-22. Transfer 200.0 microliter of `NanoCym 950 nm microspheres` sample to wells G1 of  96 well microplate `calibration plate`.
-23. Transfer 200.0 microliter of `NanoCym 950 nm microspheres` sample to wells H1 of  96 well microplate `calibration plate`.
-24. Perform a series of 10 2-fold dilutions on `Fluorescein calibrant` using `Phosphate Buffered Saline` as diluent to a final volume of 200.0 microliter in  wells A1:A11 of 96 well microplate `calibration plate`.  For each transfer, pipette up and down 3X to ensure the dilution is mixed homogeneously.
-25. Perform a series of 10 2-fold dilutions on `Fluorescein calibrant` using `Phosphate Buffered Saline` as diluent to a final volume of 200.0 microliter in  wells B1:B11 of 96 well microplate `calibration plate`.  For each transfer, pipette up and down 3X to ensure the dilution is mixed homogeneously.
-26. Perform a series of 10 2-fold dilutions on `Sulforhodamine 101 calibrant` using `Phosphate Buffered Saline` as diluent to a final volume of 200.0 microliter in  wells C1:C11 of 96 well microplate `calibration plate`.  For each transfer, pipette up and down 3X to ensure the dilution is mixed homogeneously.
-27. Perform a series of 10 2-fold dilutions on `Sulforhodamine 101 calibrant` using `Phosphate Buffered Saline` as diluent to a final volume of 200.0 microliter in  wells D1:D11 of 96 well microplate `calibration plate`.  For each transfer, pipette up and down 3X to ensure the dilution is mixed homogeneously.
-28. Perform a series of 10 2-fold dilutions on `Cascade blue calibrant` using `Water, sterile-filtered, BioReagent, suitable for cell culture` as diluent to a final volume of 200.0 microliter in  wells E1:E11 of 96 well microplate `calibration plate`.  For each transfer, pipette up and down 3X to ensure the dilution is mixed homogeneously.
-29. Perform a series of 10 2-fold dilutions on `Cascade blue calibrant` using `Water, sterile-filtered, BioReagent, suitable for cell culture` as diluent to a final volume of 200.0 microliter in  wells F1:F11 of 96 well microplate `calibration plate`.  For each transfer, pipette up and down 3X to ensure the dilution is mixed homogeneously.
-30. Perform a series of 10 2-fold dilutions on `NanoCym 950 nm microspheres` using `Water, sterile-filtered, BioReagent, suitable for cell culture` as diluent to a final volume of 200.0 microliter in  wells G1:G11 of 96 well microplate `calibration plate`.  For each transfer, pipette up and down 3X to ensure the dilution is mixed homogeneously.
-31. Perform a series of 10 2-fold dilutions on `NanoCym 950 nm microspheres` using `Water, sterile-filtered, BioReagent, suitable for cell culture` as diluent to a final volume of 200.0 microliter in  wells H1:H11 of 96 well microplate `calibration plate`.  For each transfer, pipette up and down 3X to ensure the dilution is mixed homogeneously.
-32. Discard 100.0 microliter from wells A11:H11 of 96 well microplate `calibration plate`.  This step ensures that all wells contain an equivalent volume. Be sure to change pipette tips for every well to avoid cross-contamination
-33. Transfer 100.0 microliter of `Phosphate Buffered Saline` sample to wells A1:D12 of  96 well microplate `calibration plate`.  This will bring all wells to volume 200 microliter.
-34. Transfer 100.0 microliter of `Water, sterile-filtered, BioReagent, suitable for cell culture` sample to wells E1:H12 of  96 well microplate `calibration plate`.  This will bring all wells to volume 200 microliter.
-35. Measure fluorescein and bead fluorescence of `calibration plate` with excitation wavelength of 488.0 nanometer and emission filter of 530.0 nanometer and 30.0 nanometer bandpass.
-36. Measure sulforhodamine 101 fluorescence of `calibration plate` with excitation wavelength of 561.0 nanometer and emission filter of 610.0 nanometer and 20.0 nanometer bandpass.
-37. Measure cascade blue fluorescence of `calibration plate` with excitation wavelength of 405.0 nanometer and emission filter of 450.0 nanometer and 50.0 nanometer bandpass.
-38. Measure absorbance of `calibration plate` at 600.0 nanometer.
-39. Import data for `fluorescein and bead fluorescence measurements of calibration plate`, `sulforhodamine 101 fluorescence measurements of calibration plate`, `cascade blue fluorescence measurements of calibration plate`, `absorbance measurements of calibration plate` into provided Excel file.
+## Protocol Materials:
+* [_E. coli_ DH5 alpha](https://identifiers.org/pubchem.substance:24901740)
+* [LB Broth+chloramphenicol](https://identifiers.org/pubchem.substance:24901740)
+* [chloramphenicol](https://identifiers.org/pubchem.substance:24901740)
+* [Negative control (J428100)](http://parts.igem.org/Part:BBa_J428100)
+* [Positive control (I20270)](http://parts.igem.org/Part:BBa_I20270)
+* [Test Device 1 (J364000)](http://parts.igem.org/Part:BBa_J364000)
+* [Test Device 2 (J364001)](http://parts.igem.org/Part:BBa_J364001)
+* [Test Device 3 (J364002)](http://parts.igem.org/Part:BBa_J364002)
+* [Test Device 4 (J364007)](http://parts.igem.org/Part:BBa_J364007)
+* [Test Device 5 (J364008)](http://parts.igem.org/Part:BBa_J364008)
+* [Test Device 6 (J364009)](http://parts.igem.org/Part:BBa_J364009)
+
+
+## Protocol Steps:
+1. Transform `Negative control (J428100)` DNA into `_E. coli_ DH5 alpha` and plate transformants on LB Broth+chloramphenicol. Repeat for the remaining transformant DNA:  `Positive control (I20270)`, `Test Device 1 (J364000)`, `Test Device 2 (J364001)`, `Test Device 3 (J364002)`, `Test Device 4 (J364007)`, `Test Device 5 (J364008)`, and `Test Device 6 (J364009)`.
+2. Provision 16 x culture tubes to contain `culture (day 1)`
+3. Inoculate `_E. coli_ DH5 alpha+Negative control (J428100) transformant` into 5.0 milliliter of LB Broth+chloramphenicol in culture (day 1) and grow for 16.0 hour at 37.0 degree Celsius and 220.0 rpm.  Repeat this procedure for the other inocula:  `_E. coli_ DH5 alpha+Positive control (I20270) transformant`, `_E. coli_ DH5 alpha+Test Device 1 (J364000) transformant`, `_E. coli_ DH5 alpha+Test Device 2 (J364001) transformant`, `_E. coli_ DH5 alpha+Test Device 3 (J364002) transformant`, `_E. coli_ DH5 alpha+Test Device 4 (J364007) transformant`, `_E. coli_ DH5 alpha+Test Device 5 (J364008) transformant`, and `_E. coli_ DH5 alpha+Test Device 6 (J364009) transformant`. Inoculate 2 replicates for each transformant, for a total of 16 cultures.
+4. Provision 16 x culture tubes to contain `culture (day 2)`
+5. Dilute each of 16 `culture (day 1)` samples with LB Broth+chloramphenicol into the culture tube at a 1:10 ratio and final volume of 10.0 milliliter. Maintain at 4.0 degree Celsius while performing dilutions.
+6. Provision 16 x 1.5 mL microfuge tubes to contain `cultures (0 hr timepoint)`
+7. Hold `cultures (0 hr timepoint)` at 4.0 degree Celsius. This will prevent cell growth while transferring samples.
+8. Transfer 1.0 milliliter of each of 16 `culture (day 2)` samples to 1.5 mL microfuge tube containers to contain a total of 16 `cultures (0 hr timepoint)` samples. Maintain at 4.0 degree Celsius during transfer.
+9. Measure baseline absorbance of culture (day 2) of `cultures (0 hr timepoint)` at 600.0 nanometer.
+10. Provision 16 x 50 ml conical tubes to contain `back-diluted culture` The conical tube should be opaque, amber-colored, or covered with foil.
+11. Back-dilute each of 16 `culture (day 2)` samples to a target OD of 0.02 using LB Broth+chloramphenicol as diluent to a final volume of 40.0 milliliter. Maintain at 4.0 degree Celsius while performing dilutions.
+
+![](/Users/bbartley/Dev/git/sd2/paml/examples/fig1_cell_calibration.png)
+
+
+12. Provision 16 x 50 ml conical tubes to contain `Tubes 1, 2 and 3` The conical tubes should be opaque, amber-colored, or covered with foil.
+13. Provision 16 x 50 ml conical tubes to contain `Tube 2` The conical tubes should be opaque, amber-colored, or covered with foil.
+14. Provision 16 x 50 ml conical tubes to contain `Tube 3` The conical tubes should be opaque, amber-colored, or covered with foil.
+15. Transfer 1.0 milliliter of each of 16 `back-diluted culture` samples to 50 ml conical tube containers to contain a total of 16 `Tubes 1, 2 and 3` samples. Maintain at 4.0 degree Celsius during transfer.
+16. Transfer 1.0 milliliter of each of 16 `back-diluted culture` samples to 50 ml conical tube containers to contain a total of 16 `Tube 2` samples. Maintain at 4.0 degree Celsius during transfer.
+17. Transfer 1.0 milliliter of each of 16 `back-diluted culture` samples to 50 ml conical tube containers to contain a total of 16 `Tube 3` samples. Maintain at 4.0 degree Celsius during transfer.
+18. Provision a 96 well microplate to contain `plate 1`
+19. Hold `plate 1` at 4.0 degree Celsius.
+20. Transfer 100.0 microliter of each `Tubes 1, 2 and 3` sample to 96 well microplate `plate 1` in the wells indicated in the plate layout.
+ Maintain at 4.0 degree Celsius during transfer.
+21. Transfer 100.0 microliter of `LB Broth+chloramphenicol` sample to wells A1:H1, A10:H10, A12:H12 of  96 well microplate `plate 1`. Maintain at 4.0 degree Celsius during transfer. These samples are blanks.
+
+![](/Users/bbartley/Dev/git/sd2/paml/fig2_cell_calibration.png)
+
+
+22. Cover `plate 1` samples in 96 well microplate with your choice of material to prevent evaporation.
+23. Measure 0 hr absorbance timepoint of `plate 1` at 600.0 nanometer.
+24. Measure 0 hr fluorescence timepoint of `plate 1` with excitation wavelength of 488.0 nanometer and emission filter of 530.0 nanometer and 30.0 nanometer bandpass.
+25. Incubate all `plate 1` samples for 6.0 hour at 37.0 degree Celsius at 220.0 rpm.
+26. Measure absorbance timepoint of `plate 1` at 600.0 nanometer at timepoints 2.0 hour, 4.0 hour, 6.0 hour.
+27. Measure fluorescence timepoint of `plate 1` with excitation wavelength of 488.0 nanometer and emission filter of 530.0 nanometer and 30.0 nanometer bandpass at timepoints 2.0 hour, 4.0 hour, 6.0 hour.
+28. Incubate all `Tubes 1, 2 and 3` samples for 2.0 hour at 37.0 degree Celsius at 220.0 rpm.
+29. Hold all `Tubes 1, 2 and 3` samples at 4.0 degree Celsius. Reserve until the end of the experiment for absorbance and fluorescence measurements.
+30. Incubate all `Tube 2` samples for 4.0 hour at 37.0 degree Celsius at 220.0 rpm.
+31. Hold all `Tube 2` samples at 4.0 degree Celsius. Reserve until the end of the experiment for absorbance and fluorescence measurements.
+32. Incubate all `Tube 3` samples for 6.0 hour at 37.0 degree Celsius at 220.0 rpm.
+33. Hold all `Tube 3` samples at 4.0 degree Celsius. Reserve until the end of the experiment for absorbance and fluorescence measurements.
+34. Provision a 96 well microplate to contain `Plates 2, 3, and 4`
+35. Transfer 100.0 microliter of each `Tubes 1, 2 and 3` sample to 96 well microplate `Plates 2, 3, and 4` in the wells indicated in the plate layout.
+ Maintain at 4.0 degree Celsius during transfer.
+36. Transfer 100.0 microliter of `LB Broth+chloramphenicol` sample to wells A1:H1, A10:H10, A12:H12 of  96 well microplate `Plates 2, 3, and 4`. Maintain at 4.0 degree Celsius during transfer. These samples are blanks.
+37. Measure absorbance timepoint of `Plates 2, 3, and 4` at 600.0 nanometer.
+38. Measure fluorescence timepoint of `Plates 2, 3, and 4` with excitation wavelength of 488.0 nanometer and emission filter of 530.0 nanometer and 30.0 nanometer bandpass.
+39. Import data for `baseline absorbance of culture (day 2) measurements of cultures (0 hr timepoint)`, `0 hr absorbance timepoint measurements of plate 1`, `0 hr fluorescence timepoint measurements of plate 1`, `absorbance timepoint measurements of plate 1 at timepoints 2.0 hour, 4.0 hour, 6.0 hour`, `fluorescence timepoint measurements of plate 1 at timepoints 2.0 hour, 4.0 hour, 6.0 hour`, `absorbance timepoint measurements of Plates 2, 3, and 4`, `fluorescence timepoint measurements of Plates 2, 3, and 4` into provided Excel file.
 ---
-Timestamp: 2022-05-09 06:31:23.323879---
+Timestamp: 2022-06-25 09:56:02.290947---
 Protocol version: 1.0b

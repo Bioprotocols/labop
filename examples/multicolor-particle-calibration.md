@@ -4,6 +4,13 @@ Plate readers report fluorescence values in arbitrary units that vary widely fro
 Adapted from [https://dx.doi.org/10.17504/protocols.io.bht7j6rn](https://dx.doi.org/10.17504/protocols.io.bht7j6r) and [https://dx.doi.org/10.17504/protocols.io.6zrhf56](https://dx.doi.org/10.17504/protocols.io.6zrhf56)
 
 
+## Protocol Outputs:
+* `fluorescein and bead fluorescence measurements of calibration plate`
+* `sulforhodamine 101 fluorescence measurements of calibration plate`
+* `cascade blue fluorescence measurements of calibration plate`
+* `absorbance measurements of calibration plate`
+
+
 ## Protocol Materials:
 * [Water, sterile-filtered, BioReagent, suitable for cell culture](https://identifiers.org/pubchem.substance:24901740)
 * [NanoCym 950 nm monodisperse silica nanoparticles](https://nanocym.com/wp-content/uploads/2018/07/NanoCym-All-Datasheets-.pdf)
@@ -57,13 +64,6 @@ Adapted from [https://dx.doi.org/10.17504/protocols.io.bht7j6rn](https://dx.doi.
 37. Measure cascade blue fluorescence of `calibration plate` with excitation wavelength of 405.0 nanometer and emission filter of 450.0 nanometer and 50.0 nanometer bandpass.
 38. Measure absorbance of `calibration plate` at 600.0 nanometer.
 39. Import data for `fluorescein and bead fluorescence measurements of calibration plate`, `sulforhodamine 101 fluorescence measurements of calibration plate`, `cascade blue fluorescence measurements of calibration plate`, `absorbance measurements of calibration plate` into provided Excel file.
-
-
-## Protocol Outputs:
-* `fluorescein and bead fluorescence measurements of calibration plate`
-* `sulforhodamine 101 fluorescence measurements of calibration plate`
-* `cascade blue fluorescence measurements of calibration plate`
-* `absorbance measurements of calibration plate`
 ---
-Timestamp: 2022-06-25 09:31:11.036580---
+Timestamp: 2022-06-25 09:42:24.954472---
 Protocol version: 1.1b

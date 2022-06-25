@@ -38,10 +38,10 @@ class MarkdownSpecialization(BehaviorSpecialization):
         # Defines sections of the markdown document
         execution.header = ''
         execution.inputs = ''
+        execution.outputs = ''
         execution.materials = ''
         execution.body = ''
         execution.markdown_steps = []
-        execution.outputs = ''
 
         # Contains the final, compiled markdown
         execution.markdown = ''
@@ -159,14 +159,14 @@ class MarkdownSpecialization(BehaviorSpecialization):
             execution.markdown += '\n\n## Protocol Inputs:\n'
             execution.markdown += execution.inputs
 
+        if execution.outputs:
+            execution.markdown += '\n\n## Protocol Outputs:\n'
+            execution.markdown += execution.outputs
+
         execution.markdown += '\n\n## Protocol Materials:\n'
         execution.markdown += self._materials_markdown(protocol, subprotocol_executions)
         execution.markdown += '\n\n## Protocol Steps:\n'
         execution.markdown += self._steps_markdown(execution, subprotocol_executions)
-
-        if execution.outputs:
-            execution.markdown += '\n\n## Protocol Outputs:\n'
-            execution.markdown += execution.outputs
 
         # Timestamp the protocol version
         dt = datetime.now()
