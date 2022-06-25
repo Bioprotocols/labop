@@ -414,8 +414,6 @@ protocol.designate_output('measurements', 'http://bioprotocols.org/paml#SampleDa
 
 
 
-ee = ExecutionEngine(specializations=[MarkdownSpecialization("test_LUDOX_markdown.md")])
+ee = ExecutionEngine(specializations=[MarkdownSpecialization(__file__.split('.')[0] + '.md')])
 execution = ee.execute(protocol, sbol3.Agent('test_agent'), id="test_execution", parameter_values=[])
-print(ee.specializations[0].markdown)
-with open('particle_calibration.md', 'w', encoding='utf-8') as f:
-    f.write(ee.specializations[0].markdown)
+print(execution.markdown)
