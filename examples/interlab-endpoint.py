@@ -2,6 +2,7 @@
 http://2018.igem.org/wiki/images/0/09/2018_InterLab_Plate_Reader_Protocol.pdf
 '''
 import json
+import os
 from urllib.parse import quote
 
 import sbol3
@@ -188,7 +189,7 @@ dilution = protocol.primitive_step('DiluteToTargetOD',
 dilution.description = ' Use the provided Excel sheet to calculate this dilution. Reliability of the dilution upon Abs600 measurement: should stay between 0.1-0.9'
 
 embedded_image = protocol.primitive_step('EmbeddedImage',
-                                         image='/Users/bbartley/Dev/git/sd2/paml/fig1_cell_calibration.png')
+                                         image=os.path.join(os.path.dirname(os.path.realpath(__file__)), 'fig1_cell_calibration.png'))
 
 
 temporary = protocol.primitive_step('ContainerSet',

@@ -1,6 +1,5 @@
 # Multicolor fluorescence per bacterial particle calibration
 
-## Description:
 Plate readers report fluorescence values in arbitrary units that vary widely from instrument to instrument. Therefore absolute fluorescence values cannot be directly compared from one instrument to another. In order to compare fluorescence output of biological devices, it is necessary to create a standard fluorescence curve. This variant of the protocol uses two replicates of three colors of dye, plus beads.
 Adapted from [https://dx.doi.org/10.17504/protocols.io.bht7j6rn](https://dx.doi.org/10.17504/protocols.io.bht7j6r) and [https://dx.doi.org/10.17504/protocols.io.6zrhf56](https://dx.doi.org/10.17504/protocols.io.6zrhf56)
 
@@ -14,28 +13,18 @@ Adapted from [https://dx.doi.org/10.17504/protocols.io.bht7j6rn](https://dx.doi.
 * [Sulforhodamine](https://pubchem.ncbi.nlm.nih.gov/substance/329753341)
 
 
-## Protocol Inputs:
-
-
-## Protocol Outputs:
-* `fluorescein and bead fluorescence measurements of calibration plate`
-* `sulforhodamine 101 fluorescence measurements of calibration plate`
-* `cascade blue fluorescence measurements of calibration plate`
-* `absorbance measurements of calibration plate`
-
-
-## Steps
+## Protocol Steps:
 1. Provision the stock reagent container containing `Fluorescein calibrant`
 2. Provision the stock reagent container containing `Sulforhodamine 101 calibrant`
 3. Provision the stock reagent container containing `Cascade blue calibrant`
 4. Provision the stock reagent container containing `NanoCym 950 nm microspheres`
-5. Transfer 1.0 milliliter of `Phosphate Buffered Saline` sample to  stock reagent container `Fluorescein calibrant`. The reconsituted fluorescein calibrant will have a final concentration of 10 uM in PBS
+5. Transfer 1.0 milliliter of `Phosphate Buffered Saline` sample to  stock reagent container `Fluorescein calibrant`. The reconstituted `Fluorescein` should have a final concentration of 10 uM in `Phosphate Buffered Saline`
 6. Vortex Fluorescein calibrant
-7. Transfer 1.0 milliliter of `Phosphate Buffered Saline` sample to  stock reagent container `Sulforhodamine 101 calibrant`. The reconstituted sulforhodamine standard will have a final concentration of 2 uM in PBS
+7. Transfer 1.0 milliliter of `Phosphate Buffered Saline` sample to  stock reagent container `Sulforhodamine 101 calibrant`. The reconstituted `Sulforhodamine` standard will have a final concentration of 2 uM in `Phosphate Buffered Saline`
 8. Vortex Sulforhodamine 101 calibrant
-9. Transfer 1.0 milliliter of `Water, sterile-filtered, BioReagent, suitable for cell culture` sample to  stock reagent container `Cascade blue calibrant`. The reconstituted cascade blue calibrant will have a final concentration of 10 uM in ddH2O.
+9. Transfer 1.0 milliliter of `Water, sterile-filtered, BioReagent, suitable for cell culture` sample to  stock reagent container `Cascade blue calibrant`. The reconstituted `Cascade Blue` calibrant will have a final concentration of 10 uM in `Water, sterile-filtered, BioReagent, suitable for cell culture`.
 10. Vortex Cascade blue calibrant
-11. Transfer 1.0 milliliter of `Water, sterile-filtered, BioReagent, suitable for cell culture` sample to  stock reagent container `NanoCym 950 nm microspheres`. The resuspended microspheres will have a final concentration of 3e9 microspheres/mL in ddH20.
+11. Transfer 1.0 milliliter of `Water, sterile-filtered, BioReagent, suitable for cell culture` sample to  stock reagent container `NanoCym 950 nm microspheres`. The resuspended `NanoCym 950 nm monodisperse silica nanoparticles` will have a final concentration of 3e9 microspheres/mL in `Water, sterile-filtered, BioReagent, suitable for cell culture`.
 12. Vortex NanoCym 950 nm microspheres
 13. Provision a 96 well microplate to contain `calibration plate`
 14. Transfer 100.0 microliter of `Phosphate Buffered Saline` sample to wells A12:D12 of  96 well microplate `calibration plate`.  These are blanks.
@@ -49,6 +38,10 @@ Adapted from [https://dx.doi.org/10.17504/protocols.io.bht7j6rn](https://dx.doi.
 22. Transfer 200.0 microliter of `NanoCym 950 nm microspheres` sample to wells G1 of  96 well microplate `calibration plate`.
 23. Transfer 200.0 microliter of `NanoCym 950 nm microspheres` sample to wells H1 of  96 well microplate `calibration plate`.
 24. Perform a series of 10 2-fold dilutions on `Fluorescein calibrant` using `Phosphate Buffered Saline` as diluent to a final volume of 200.0 microliter in  wells A1:A11 of 96 well microplate `calibration plate`.  For each transfer, pipette up and down 3X to ensure the dilution is mixed homogeneously.
+
+![](/Users/bbartley/Dev/git/sd2/paml/examples/serial_dilution.png)
+
+
 25. Perform a series of 10 2-fold dilutions on `Fluorescein calibrant` using `Phosphate Buffered Saline` as diluent to a final volume of 200.0 microliter in  wells B1:B11 of 96 well microplate `calibration plate`.  For each transfer, pipette up and down 3X to ensure the dilution is mixed homogeneously.
 26. Perform a series of 10 2-fold dilutions on `Sulforhodamine 101 calibrant` using `Phosphate Buffered Saline` as diluent to a final volume of 200.0 microliter in  wells C1:C11 of 96 well microplate `calibration plate`.  For each transfer, pipette up and down 3X to ensure the dilution is mixed homogeneously.
 27. Perform a series of 10 2-fold dilutions on `Sulforhodamine 101 calibrant` using `Phosphate Buffered Saline` as diluent to a final volume of 200.0 microliter in  wells D1:D11 of 96 well microplate `calibration plate`.  For each transfer, pipette up and down 3X to ensure the dilution is mixed homogeneously.
@@ -64,6 +57,13 @@ Adapted from [https://dx.doi.org/10.17504/protocols.io.bht7j6rn](https://dx.doi.
 37. Measure cascade blue fluorescence of `calibration plate` with excitation wavelength of 405.0 nanometer and emission filter of 450.0 nanometer and 50.0 nanometer bandpass.
 38. Measure absorbance of `calibration plate` at 600.0 nanometer.
 39. Import data for `fluorescein and bead fluorescence measurements of calibration plate`, `sulforhodamine 101 fluorescence measurements of calibration plate`, `cascade blue fluorescence measurements of calibration plate`, `absorbance measurements of calibration plate` into provided Excel file.
+
+
+## Protocol Outputs:
+* `fluorescein and bead fluorescence measurements of calibration plate`
+* `sulforhodamine 101 fluorescence measurements of calibration plate`
+* `cascade blue fluorescence measurements of calibration plate`
+* `absorbance measurements of calibration plate`
 ---
-Timestamp: 2022-05-09 06:31:23.323879---
-Protocol version: 1.0b
+Timestamp: 2022-06-25 09:31:11.036580---
+Protocol version: 1.1b

@@ -1,6 +1,8 @@
 '''
 http://2018.igem.org/wiki/images/0/09/2018_InterLab_Plate_Reader_Protocol.pdf
 '''
+import os
+
 import paml
 import sbol3
 from tyto import OM
@@ -269,6 +271,9 @@ serial_dilution1 = protocol.primitive_step('SerialDilution',
                                           dilution_factor=2,
                                           series=10)
 serial_dilution1.description = ' For each transfer, pipette up and down 3X to ensure the dilution is mixed homogeneously.'
+
+embedded_image = protocol.primitive_step('EmbeddedImage',
+                                         image=os.path.join(os.path.dirname(os.path.realpath(__file__)), 'serial_dilution.png'))
 
 serial_dilution2 = protocol.primitive_step('SerialDilution',
                                           source=fluorescein_wells_B1.output_pin('samples'),
