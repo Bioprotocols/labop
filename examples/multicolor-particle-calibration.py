@@ -101,7 +101,7 @@ suspend_fluorescein = protocol.primitive_step('Transfer',
                                    source=pbs,
                                    destination=fluorescein_standard_solution_container.output_pin('samples'),
                                    amount=sbol3.Measure(1, OM.millilitre))
-suspend_fluorescein.description = 'The reconsituted fluorescein calibrant will have a final concentration of 10 uM in PBS'
+suspend_fluorescein.description = f'The reconstituted `{fluorescein.name}` should have a final concentration of 10 uM in `{pbs.name}`'
 
 vortex_fluorescein = protocol.primitive_step('Vortex',
                                              samples=fluorescein_standard_solution_container.output_pin('samples'),
@@ -111,7 +111,7 @@ suspend_sulforhodamine = protocol.primitive_step('Transfer',
                                    source=pbs,
                                    destination=sulforhodamine_standard_solution_container.output_pin('samples'),
                                    amount=sbol3.Measure(1, OM.millilitre))
-suspend_sulforhodamine.description = 'The reconstituted sulforhodamine standard will have a final concentration of 2 uM in PBS'
+suspend_sulforhodamine.description = f'The reconstituted `{sulforhodamine.name}` standard will have a final concentration of 2 uM in `{pbs.name}`'
 
 vortex_sulforhodamine = protocol.primitive_step('Vortex',
                                              samples=sulforhodamine_standard_solution_container.output_pin('samples'),
@@ -121,7 +121,7 @@ suspend_cascade_blue = protocol.primitive_step('Transfer',
                                    source=ddh2o,
                                    destination=cascade_blue_standard_solution_container.output_pin('samples'),
                                    amount=sbol3.Measure(1, OM.millilitre))
-suspend_cascade_blue.description = 'The reconstituted cascade blue calibrant will have a final concentration of 10 uM in ddH2O.'
+suspend_cascade_blue.description = f'The reconstituted `{cascade_blue.name}` calibrant will have a final concentration of 10 uM in `{ddh2o.name}`.'
 
 vortex_cascade_blue = protocol.primitive_step('Vortex',
                                              samples=cascade_blue_standard_solution_container.output_pin('samples'),
@@ -131,7 +131,7 @@ suspend_silica_beads = protocol.primitive_step('Transfer',
                                    source=ddh2o,
                                    destination=microsphere_standard_solution_container.output_pin('samples'),
                                    amount=sbol3.Measure(1, OM.millilitre))
-suspend_silica_beads.description = 'The resuspended microspheres will have a final concentration of 3e9 microspheres/mL in ddH20.'
+suspend_silica_beads.description = f'The resuspended `{silica_beads.name}` will have a final concentration of 3e9 microspheres/mL in `{ddh2o.name}`.'
 vortex_silica_beads= protocol.primitive_step('Vortex',
                                              samples=microsphere_standard_solution_container.output_pin('samples'),
                                              duration=sbol3.Measure(30, OM.second))
