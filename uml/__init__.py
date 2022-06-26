@@ -45,6 +45,8 @@ def literal(value, reference: bool = False) -> LiteralSpecification:
     """
     if isinstance(value, LiteralReference):
         return literal(value.value.lookup(), reference) # if it's a reference, make co-reference
+    elif isinstance(value, LiteralNull):
+        return LiteralNull()
     elif isinstance(value, LiteralSpecification):
         return literal(value.value, reference) # if it's a literal, unwrap and rebuild
     elif value is None:
@@ -379,7 +381,7 @@ def activity_final(self):
     """
     final = [a for a in self.nodes if isinstance(a, FinalNode)]
     if not final:
-        self.nodes.append(FlowFinalNode())
+        self.nodes.append(FinalNode())
         return self.final()
     elif len(final) == 1:
         return final[0]

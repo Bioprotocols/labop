@@ -77,6 +77,7 @@ def create_subprotocol(doc) -> paml.Protocol:
         reaction_vessel,
         naoh_container,
         measurement_delay,
+        initial_transfer_amount,
     ) = util.get_ph_adjustment_protocol_inputs(protocol)
 
     ############################################################################
@@ -101,8 +102,9 @@ def create_subprotocol(doc) -> paml.Protocol:
         "Transfer",
         source=naoh_container,
         destination=reaction_vessel,
-        amount=sbol3.Measure(100, tyto.OM.milligram),
+        amount=initial_transfer_amount,
     )
+    protocol.order(protocol.initial(), transfer)
 
     # 7.2 Wait X seconds (FIXME, need to implement)
 
@@ -260,11 +262,16 @@ def create_setup_subprotocol(doc):
         amount=volume_h2o.output_pin("volume"),
     )
 
+    # Join all tokens before the final node
+    final_join = uml.JoinNode()
+    protocol.nodes.append(final_join)
+    protocol.order(final_join, protocol.final())
+
     provision_phosphoric_acid_error_handler.add_decision_output(
-        protocol, None, protocol.final()
+        protocol, None, final_join
     )
     provision_h2o_error_handler.add_decision_output(
-        protocol, None, protocol.final()
+        protocol, None, final_join
     )
 
     protocol.designate_output(
@@ -359,15 +366,18 @@ def pH_calibration_protocol() -> Tuple[paml.Protocol, Document]:
     )
 
     # 6. Decide if ready to adjust (Before 3.)
-    ready_to_adjust = uml.MergeNode()
-    protocol.nodes.append(ready_to_adjust)
-    protocol.order(setup_subprotocol_invocation, ready_to_adjust)
+    ready_to_adjust1 = uml.MergeNode()
+    protocol.nodes.append(ready_to_adjust1)
+    protocol.order(setup_subprotocol_invocation, ready_to_adjust1)
     # Link 4 -> ready_to_adjust (True)
     is_calibration_successful.add_decision_output(
-        protocol, True, ready_to_adjust
+        protocol, True, ready_to_adjust1
     )
+    ready_to_adjust2 = uml.MergeNode()
+    protocol.nodes.append(ready_to_adjust2)
+    protocol.order(setup_subprotocol_invocation, ready_to_adjust2)
     # Link 1 -> 3 (True)
-    pH_meter_calibrated.add_decision_output(protocol, True, ready_to_adjust)
+    pH_meter_calibrated.add_decision_output(protocol, True, ready_to_adjust2)
 
     # Error Message Activity
     error_message_primitive = util.define_error_message(
@@ -388,7 +398,8 @@ def pH_calibration_protocol() -> Tuple[paml.Protocol, Document]:
         rpm=rpm,
     )
 
-    protocol.order(ready_to_adjust, mix_vessel)
+    protocol.order(ready_to_adjust1, mix_vessel)
+    protocol.order(ready_to_adjust2, mix_vessel)
 
     # 7. Adjustment subprotocol
     adjust_subprotocol: paml.Protocol = create_subprotocol(doc)
@@ -398,6 +409,7 @@ def pH_calibration_protocol() -> Tuple[paml.Protocol, Document]:
         reaction_vessel=setup_subprotocol_invocation.output_pin("reaction_vessel"),
         naoh_container=setup_subprotocol_invocation.output_pin("naoh_container"),
         measurement_delay=sbol3.Measure(20, tyto.OM.second),
+        initial_transfer_amount=sbol3.Measure(100, tyto.OM.milligram),
     )
     protocol.order(mix_vessel, adjust_subprotocol_invocation)
 
@@ -416,7 +428,9 @@ def pH_calibration_protocol() -> Tuple[paml.Protocol, Document]:
         clean_electrode_primitive,
     )
     protocol.order(stop_mix_vessel, clean_electrode_invocation)
-    protocol.order(clean_electrode_error_handler, protocol.final())
+    clean_electrode_error_handler.add_decision_output(
+        protocol, None, protocol.final()
+    )
 
     protocol.designate_output(
         "rpm",
@@ -448,8 +462,6 @@ def main():
     ee = ExecutionEngine()
     parameter_values = [
         paml.ParameterValue(parameter=new_protocol.get_input("reaction_volume"), value=sbol3.Measure(10, tyto.OM.milliliter)),
-
-
     ]
     try:
         execution = ee.execute(new_protocol, agent, id="test_execution", parameter_values=parameter_values)

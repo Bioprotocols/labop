@@ -1,4 +1,4 @@
-from abc import ABC
+from abc import ABC, abstractmethod
 import re
 from typing import List
 import uuid
@@ -132,7 +132,7 @@ class ExecutionEngine(ABC):
             for node in ready:
                 self.current_node = node
                 tokens = self.execute_activity_node(ex, node, tokens)
-            ready = self.executable_activity_nodes(tokens, ex.parameter_values)
+            ready = self.executable_activity_nodes(ex, tokens)
 
         ex.end_time = self.get_current_time()
 
@@ -156,8 +156,8 @@ class ExecutionEngine(ABC):
 
     def executable_activity_nodes(
         self,
-        tokens: List[paml.ActivityEdgeFlow],
-        parameter_values: List[paml.ParameterValue]
+        ex: paml.ProtocolExecution,
+        tokens: List[paml.ActivityEdgeFlow]
     ) -> List[uml.ActivityNode]:
         """Find all of the activity nodes that are ready to be run given the current set of tokens
         Note that this will NOT identify activities with no in-flows: those are only set up as initiating nodes
@@ -176,52 +176,7 @@ class ExecutionEngine(ABC):
             target = t.get_target()
             candidate_clusters[target] = candidate_clusters.get(target,[])+[t]
         return [n for n,nt in candidate_clusters.items()
-                if self.enabled_activity_node(n, nt, parameter_values)]
-
-    def enabled_activity_node(self, node: uml.ActivityNode,
-                              tokens: List[paml.ActivityEdgeFlow],
-                              parameter_values: List[paml.ParameterValue]):
-        """Check whether all incoming edges have values defined by a token in tokens and that all value pin values are
-           defined.
-
-         Parameters
-         ----------
-         node: node to be executed
-         tokens: current list of pending edge flows
-
-         Returns
-         -------
-         bool if node is enabled
-         """
-        protocol = get_protocol(node)
-        if isinstance(node, uml.FinalNode):
-            token_present = any({t.edge.lookup() for t in tokens if t.edge}.intersection(protocol.incoming_edges(node)))
-            return token_present
-        else:
-            # Protocol inputs should not have incoming edges stored in the protocol.  However, we add edges to the
-            # subprotocol inputs from a calling CallBehaviorAction.  Therefore, tokens may exist for protocol input
-            # nodes that don't have edges.  In this case, we ensure one token for the appropriate node is present.
-            if isinstance(node, uml.ActivityParameterNode) or isinstance(node, uml.InitialNode):
-                tokens_present = len(tokens) == 1 and tokens[0].get_target() == node
-            else:
-                tokens_present = {t.edge.lookup() for t in tokens if t.edge}==protocol.incoming_edges(node)
-            if hasattr(node, "inputs"):
-                required_inputs = [node.input_pin(i.property_value.name)
-                                for i in node.behavior.lookup().get_required_inputs()]
-                required_value_pins = {p for p in required_inputs if isinstance(p, uml.ValuePin)}
-                required_input_pins = {p for p in required_inputs if not isinstance(p, uml.ValuePin)}
-                pins_with_tokens = {t.token_source.lookup().node.lookup() for t in tokens if not t.edge}
-                parameter_names = {pv.parameter.lookup().property_value.name for pv in parameter_values}
-                pins_with_params = {p for p in required_input_pins if p.name in parameter_names}
-                satisfied_pins = set(list(pins_with_params) + list(pins_with_tokens))
-                input_pins_satisfied = required_input_pins.issubset(satisfied_pins)
-                value_pins_assigned = all({i.value for i in required_value_pins})
-                return tokens_present and input_pins_satisfied and value_pins_assigned
-            else:
-                return tokens_present
-
-
-
+                if n.enabled(ex, nt)]
 
     def execute_activity_node(self, ex : paml.ProtocolExecution, node: uml.ActivityNode,
                               tokens: List[paml.ActivityEdgeFlow]) -> List[paml.ActivityEdgeFlow]:
@@ -261,14 +216,56 @@ class ExecutionEngine(ABC):
             new_tokens = self.next_tokens(record, ex)
             # put a control token on all outgoing edges
         elif isinstance(node, uml.FlowFinalNode):
+            # FlowFinalNode consumes tokens, but does not emit
             record = paml.ActivityNodeExecution(node=node, incoming_flows=inputs)
             ex.executions.append(record)
             new_tokens = self.next_tokens(record, ex)
         elif isinstance(node, uml.FinalNode):
-            # FIXME check if need to complete a blocked CallBehaviorExecution.
+            # FinalNode completes the activity
             record = paml.ActivityNodeExecution(node=node, incoming_flows=inputs)
             ex.executions.append(record)
-            new_tokens = self.next_tokens(record, ex)
+            calling_behavior_execution = self.get_calling_behavior_execution(record)
+            if calling_behavior_execution and \
+               calling_behavior_execution in self.blocked_nodes:
+
+
+                # Map of subprotocol output parameter name to token
+                subprotocol_output_tokens = {
+                    t.token_source.lookup().node.lookup().parameter.lookup().property_value.name: t
+                    for t in tokens
+                    if isinstance(t.token_source.lookup().node.lookup(), uml.ActivityParameterNode) and
+                    calling_behavior_execution == self.get_calling_behavior_execution(t.token_source.lookup())}
+
+                # Out edges of calling behavior that need tokens corresponding to the
+                # subprotocol output tokens
+                calling_behavior_node = calling_behavior_execution.node.lookup()
+                calling_behavior_out_edges = [
+                    e for e in calling_behavior_node.protocol().edges
+                      if calling_behavior_node == e.source.lookup() or
+                         calling_behavior_node == e.source.lookup().get_parent()]
+
+                #output_edges = {t: uml.ObjectFlow(source=t.node, target=calling_behavior_execution.output_pin(t.token_source.lookup().node.lookup().name)) for t in output_tokens}
+                #ex.invocation_edges += output_edges
+                new_tokens = [
+                    paml.ActivityEdgeFlow(
+                        token_source=(
+                            subprotocol_output_tokens[e.source.lookup().name].token_source.lookup()
+                            if isinstance(e, uml.ObjectFlow)
+                            else calling_behavior_execution),
+                        edge=e,
+                        value=(
+                            uml.literal(subprotocol_output_tokens[e.source.lookup().name].value, reference=True)
+                            if isinstance(e, uml.ObjectFlow)
+                            else uml.literal("uml.ControlFlow")))
+                    for e in calling_behavior_out_edges
+                ]
+                ex.flows += new_tokens
+                # Remove output_tokens from tokens (consumed by return from subprotocol)
+                tokens = [t for t in tokens if t not in subprotocol_output_tokens.values()]
+                self.blocked_nodes.remove(calling_behavior_execution)
+
+            else:
+                new_tokens = []
 
         elif isinstance(node, uml.ForkNode):
             if len(inputs) != 1:
@@ -276,11 +273,14 @@ class ExecutionEngine(ABC):
             record = paml.ActivityNodeExecution(node=node, incoming_flows=inputs)
             ex.executions.append(record)
             new_tokens = self.next_tokens(record, ex)
-
-        # elif isinstance(node, uml.JoinNode):
-        #     pass
-        # elif isinstance(node, uml.MergeNode):
-        #     pass
+        elif isinstance(node, uml.JoinNode):
+            record = paml.ActivityNodeExecution(node=node, incoming_flows=inputs)
+            ex.executions.append(record)
+            new_tokens = self.next_tokens(record, ex)
+        elif isinstance(node, uml.MergeNode):
+            record = paml.ActivityNodeExecution(node=node, incoming_flows=inputs)
+            ex.executions.append(record)
+            new_tokens = self.next_tokens(record, ex)
         elif isinstance(node, uml.DecisionNode):
             record = paml.ActivityNodeExecution(node=node, incoming_flows=inputs)
             ex.executions.append(record)
@@ -294,11 +294,12 @@ class ExecutionEngine(ABC):
                 [value] = [i.value.value for i in inputs if isinstance(i.edge.lookup(), uml.ObjectFlow)]
                 value = uml.literal(value, reference=True)
                 ex.parameter_values += [paml.ParameterValue(parameter=node.parameter.lookup(), value=value)]
+                new_tokens = self.next_tokens(record, ex)
         elif isinstance(node, uml.CallBehaviorAction):
             record = paml.CallBehaviorExecution(node=node, incoming_flows=inputs)
 
             # Get the parameter values from input tokens for input pins
-            input_pin_values = {token.token_source.lookup().node.lookup().identity:
+            input_pin_values = {token.token_source.lookup().node.lookup():
                                      uml.literal(token.value, reference=True)
                                 for token in inputs if not token.edge}
 
@@ -323,8 +324,8 @@ class ExecutionEngine(ABC):
                                 for k, v in value_pin_values.items()}
             pin_values = { **input_pin_values, **value_pin_values} # merge the dicts
             parameter_values = [paml.ParameterValue(parameter=node.pin_parameter(pin.name),
-                                                    value=pin_values[pin.identity])
-                                for pin in node.inputs if pin.identity in pin_values]
+                                                    value=pin_values[pin])
+                                for pin in node.inputs if pin in pin_values]
             parameter_values.sort(key=lambda x: ex.document.find(x.parameter).index)
 
 
@@ -343,7 +344,7 @@ class ExecutionEngine(ABC):
                 self.blocked_nodes.add(record)
                 # new_tokens are those corresponding to the subprotocol initiating_nodes
                 init_nodes = node.behavior.lookup().initiating_nodes()
-                def get_invocation_edge(r, n):
+                def get_invocation_edge(r, value_pin_values, n):
                     invocation = {}
                     value = None
                     if isinstance(n, uml.InitialNode):
@@ -361,20 +362,28 @@ class ExecutionEngine(ABC):
 
                     elif isinstance(n, uml.ActivityParameterNode):
                         try:
-                            source = next(i for i in r.incoming_flows
-                                if i.lookup().token_source.lookup().node.lookup().name == n.parameter.lookup().property_value.name)
-                            invocation['edge'] = uml.ObjectFlow(source=source.lookup().token_source.lookup(), target=n)
-                            ex.activity_call_edge += [invocation['edge']]
-                            #ex.protocol.lookup().edges.append(invocation['edge'])
-                            invocation['value'] = uml.literal(source.lookup().value, reference=True)
+                            try:
+                                # if ActivityParameterNode is a ValuePin of the calling behavior, then it won't be an incoming flow
+                                source = next(iter([v for v in value_pin_values if v.name == n.parameter.lookup().property_value.name]))
+                                invocation['edge'] = uml.ObjectFlow(source=source, target=n)
+                                ex.activity_call_edge += [invocation['edge']]
+                                #ex.protocol.lookup().edges.append(invocation['edge'])
+                                invocation['value'] = uml.literal(value_pin_values[source], reference=True)
+                            except StopIteration as e:
+                                source = next(iter([i for i in r.incoming_flows
+                                    if i.lookup().token_source.lookup().node.lookup().name == n.parameter.lookup().property_value.name]))
+                                invocation['edge'] = uml.ObjectFlow(source=source.lookup().token_source.lookup().node.lookup(), target=n)
+                                ex.activity_call_edge += [invocation['edge']]
+                                #ex.protocol.lookup().edges.append(invocation['edge'])
+                                invocation['value'] = uml.literal(source.lookup().value, reference=True)
                         except StopIteration as e:
-                            raise e
+                            pass
 
                     return invocation
 
                 new_tokens = [paml.ActivityEdgeFlow(token_source=record,
-                                       **get_invocation_edge(record, init_node))
-                           for init_node in init_nodes]
+                                       **get_invocation_edge(record, value_pin_values, init_node))
+                           for init_node in init_nodes ]
                 ex.flows += new_tokens
             else:
                 new_tokens = self.next_tokens(record, ex)
@@ -391,10 +400,14 @@ class ExecutionEngine(ABC):
                     call.parameter_values += [pv]
             pin_names = [pv.parameter.lookup().property_value.name for pv in call.parameter_values]
 
-        elif isinstance(node, uml.Pin):
+        elif isinstance(node, uml.InputPin):
             record = paml.ActivityNodeExecution(node=node, incoming_flows=inputs)
             ex.executions.append(record)
             new_tokens = self.next_pin_tokens(record, ex)
+        elif isinstance(node, uml.OutputPin):
+            record = paml.ActivityNodeExecution(node=node, incoming_flows=inputs)
+            ex.executions.append(record)
+            new_tokens = self.next_tokens(record, ex)
         elif isinstance(node, uml.OrderedPropertyValue):
             # node is an output parameter
             out_param = node
@@ -402,6 +415,7 @@ class ExecutionEngine(ABC):
             param_value = paml.ParameterValue(parameter=out_param,
                                               value=uml.literal(value.value, reference=True))
             ex.parameter_values.append(param_value)
+            new_tokens = self.next_tokens(record, ex)
         else:
             raise ValueError(f'Do not know how to execute node {node.identity} of type {node.type_uri}')
 
@@ -425,14 +439,12 @@ class ExecutionEngine(ABC):
                         l.error('Aborting...')
                         sys.exit(1)
 
-        # Send outgoing control flows
-        # Check that outgoing flows don't conflict with
         # return updated token list
         return [t for t in tokens if t not in inputs] + new_tokens
 
     def next_tokens(self, activity_node: paml.ActivityNodeExecution, ex: paml.ProtocolExecution):
         node = activity_node.node.lookup()
-        protocol = get_protocol(node)
+        protocol = node.protocol()
         out_edges = [e for e in protocol.edges
                      if activity_node.node == e.source or
                         activity_node.node == e.source.lookup().get_parent().identity]
@@ -457,6 +469,7 @@ class ExecutionEngine(ABC):
                 decision_input_return_flow = decision_input_return_token.edge.lookup()
                 decision_input_return_value = decision_input_return_token.value
             except StopIteration as e:
+                decision_input_return_token = None
                 decision_input_return_value = None
                 decision_input_return_flow = None
 
@@ -484,31 +497,48 @@ class ExecutionEngine(ABC):
             #    Use decision_input return value to decide if guard is satisfied (decision_input has primary_input_flow and decision_input_flow supplied parameters)
 
             try:
-                else_edge = next(edge for edge in out_edges if edge.guard == paml.DECISION_ELSE)
+                else_edge = next(edge for edge in out_edges if edge.guard.value == paml.DECISION_ELSE)
             except StopIteration as e:
                 else_edge = None
             non_else_edges = [edge for edge in out_edges if edge != else_edge]
+
+            def satisfy_guard(value, guard):
+                if (value is None) or isinstance(value, uml.LiteralNull):
+                    return (guard is None) or isinstance(guard, uml.LiteralNull)
+                elif (guard is None) or isinstance(guard, uml.LiteralNull):
+                    return False
+                else:
+                    return value.value == guard.value
 
             if hasattr(node, "decision_input") and node.decision_input:
                 # Cases: 3, 4, 5, 6
                 # The cases are combined because the cases refer to the inputs of the decision_input behavior
                 # use decision_input_value to eval guards
 
-                active_edges = [edge for edge in non_else_edges if decision_input_return_value.value == edge.guard.value]
+                active_edges = [
+                    edge for edge in non_else_edges
+                    if satisfy_guard(decision_input_return_value, edge.guard)
+                    ]
             else:
                 # Cases: 1, 2
                 if decision_input_flow:
                     # Case 2
                     # use decision_input_flow_token to eval guards
 
-                    active_edges = [edge for edge in non_else_edges if decision_input_flow_token.value.value == edge.guard.value]
+                    active_edges = [
+                        edge for edge in non_else_edges
+                        if satisfy_guard(decision_input_flow_token.value, edge.guard)
+                    ]
 
                 elif primary_input_flow and isinstance(primary_input_flow, uml.ObjectFlow):
                     # Case 1
                     # use primary_input_flow_token to eval guards
                     # Outgoing tokens are uml.ObjectFlow
 
-                    active_edges = [edge for edge in non_else_edges if primary_input_flow_token.value.value == edge.guard.value]
+                    active_edges = [
+                        edge for edge in non_else_edges
+                        if satisfy_guard(primary_input_flow_token.value, edge.guard)
+                    ]
                 else:
                     raise Exception("ERROR: Cannot evaluate DecisionNode with no decision_input, no decision_input_flow, and a None or uml.ControlFlow primary_input")
 
@@ -522,8 +552,9 @@ class ExecutionEngine(ABC):
 
             # Pick the value of the incoming_flow that corresponds to the primary_incoming edge
             edge_tokens = [paml.ActivityEdgeFlow(edge=active_edge, token_source=activity_node,
-                                                 value=uml.literal(primary_input_value, reference=True))]
-        elif isinstance(node, uml.ActivityParameterNode):
+                                                 value=uml.literal(primary_input_value))]
+        elif isinstance(node, uml.ActivityParameterNode) and \
+             node.parameter.lookup().property_value.direction == uml.PARAMETER_IN:
             try:
                 parameter_value = next(pv.value for pv in ex.parameter_values if pv.parameter == node.parameter)
             except StopIteration as e:
@@ -534,6 +565,25 @@ class ExecutionEngine(ABC):
             edge_tokens = [paml.ActivityEdgeFlow(edge=edge, token_source=activity_node,
                                                  value=uml.literal(value=parameter_value, reference=True))
                            for edge in out_edges]
+        elif isinstance(node, uml.ActivityParameterNode) and \
+             node.parameter.lookup().property_value.direction == uml.PARAMETER_OUT:
+            calling_behavior_execution = self.get_calling_behavior_execution(activity_node)
+            if calling_behavior_execution:
+                return_edge = uml.ObjectFlow(
+                    source=node,
+                    target=calling_behavior_execution.node.lookup().output_pin(node.parameter.lookup().property_value.name)
+                )
+                ex.activity_call_edge += [return_edge]
+                edge_tokens = [
+                    paml.ActivityEdgeFlow(
+                        edge=return_edge,
+                        token_source=activity_node,
+                        value=self.get_value(activity_node, edge=return_edge)
+                        #uml.literal(activity_node.incoming_flows[0].lookup().value)
+                        )
+                ]
+            else:
+                edge_tokens = []
         else:
             edge_tokens = [paml.ActivityEdgeFlow(edge=edge, token_source=activity_node,
                                                  value=self.get_value(activity_node, edge=edge))
@@ -554,12 +604,26 @@ class ExecutionEngine(ABC):
 
     def get_value(self, activity_node : paml.CallBehaviorExecution, edge: uml.ActivityEdge = None):
         value = ""
+        node = activity_node.node.lookup()
+        reference = False
         if isinstance(edge, uml.ControlFlow):
             value = "uml.ControlFlow"
         elif isinstance(edge, uml.ObjectFlow):
-            parameter = activity_node.node.lookup().pin_parameter(edge.source.lookup().name).property_value
-            value = activity_node.compute_output(parameter)
-        value = uml.literal(value)
+            if isinstance(node, uml.ActivityParameterNode) and \
+               node.parameter.lookup().property_value.direction == uml.PARAMETER_OUT:
+                parameter = node.parameter.lookup().property_value
+                value = activity_node.incoming_flows[0].lookup().value
+                reference = True
+            elif isinstance(node, uml.OutputPin):
+                call_node = node.get_parent()
+                parameter = call_node.pin_parameter(edge.source.lookup().name).property_value
+                value = activity_node.incoming_flows[0].lookup().value
+                reference = True
+            else:
+                parameter = node.pin_parameter(edge.source.lookup().name).property_value
+                value = activity_node.compute_output(parameter)
+
+        value = uml.literal(value, reference=reference)
         return value
 
     def next_pin_tokens(self, activity_node: paml.ActivityNodeExecution, ex: paml.ProtocolExecution):
@@ -577,9 +641,22 @@ class ExecutionEngine(ABC):
     def execute_primitive(self, behavior: paml.Primitive, agent: sbol3.Agent, parameter_values: dict = {}, id: str = uuid.uuid4()) -> paml.BehaviorExecution:
         pass
 
+    def get_calling_behavior_execution(self, activity_node: paml.ActivityNodeExecution):
+        if activity_node in self.blocked_nodes:
+            return activity_node
+        else:
+            for incoming_flow in activity_node.incoming_flows:
+                parent_activity_node = incoming_flow.lookup().token_source.lookup()
+                if parent_activity_node:
+                    calling_behavior_execution = self.get_calling_behavior_execution(parent_activity_node)
+                    return calling_behavior_execution
+            return None
 
 ##################################
 # Helper utility functions
+
+
+
 
 def sum_measures(measure_list):
     """Add a list of measures and return a fresh measure
@@ -709,23 +786,3 @@ def protocol_execution_to_dot(self, execution_engine=None):
 
     return dot
 paml.ProtocolExecution.to_dot = protocol_execution_to_dot
-
-
-def get_protocol(node: uml.ActivityNode) -> paml.Protocol:
-    """Find protocol object that contains the node.
-
-        Parameters
-        ----------
-        node: node in a protocol
-
-        Returns
-        -------
-        protocol containing node
-        """
-    parent = node.get_parent()
-    if isinstance(parent, paml.Protocol):
-        return parent
-    elif not isinstance(parent, sbol3.TopLevel):
-        return get_protocol(parent)
-    else:
-        raise Exception(f"Cannot find protocol for node: {node}")

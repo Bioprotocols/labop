@@ -36,7 +36,12 @@ def get_ph_adjustment_protocol_inputs(
         optional=True,
     )
 
-    return reaction_vessel, naoh_container, measurement_delay
+    initial_transfer_amount = protocol.input_value(
+        "initial_transfer_amount",
+        sbol3.Measure
+    )
+
+    return reaction_vessel, naoh_container, measurement_delay, initial_transfer_amount
 
 def define_pH_adjustment_protocol_primitives(
     document: sbol3.Document, library: str
@@ -155,6 +160,12 @@ def wrap_with_error_message(protocol, library, primitive, **kwargs):
                 ],
                 description=f"Extends {primitive} with an error output pin",
             )
+
+    def wrapped_primitive_compute_output(inputs, parameter):
+        return uml.literal(None)
+    wrapped_primitive.compute_output = (
+        wrapped_primitive_compute_output
+    )
 
     wrapped_primitive_invocation = protocol.execute_primitive(
         wrapped_primitive, **kwargs

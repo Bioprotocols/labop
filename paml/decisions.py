@@ -82,8 +82,7 @@ def decision_node_add_decision_output(self, protocol, guard, target):
     """
 
     kwargs = { "source": self, "target": target }
-    if guard is not None:
-        kwargs["guard"] = uml.literal(guard)
+    kwargs["guard"] = uml.literal(guard)
     outgoing_edge = uml.ObjectFlow(**kwargs) if \
             isinstance(self.get_primary_incoming_flow(protocol).source, uml.ObjectNode) else \
             uml.ControlFlow(**kwargs)
