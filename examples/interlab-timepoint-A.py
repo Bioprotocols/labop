@@ -34,18 +34,17 @@ paml.import_library('culturing')
 
 
 # create the materials to be provisioned
-dh5alpha = sbol3.Component('dh5alpha', 'https://identifiers.org/pubchem.substance:24901740')
-dh5alpha.name = '_E. coli_ DH5 alpha'  
+dh5alpha = sbol3.Component('dh5alpha', 'https://identifiers.org/taxonomy:668369')
+dh5alpha.name = '_E. coli_ DH5 alpha'
 doc.add(dh5alpha)
 
-lb_cam = sbol3.Component('lb_cam', 'https://identifiers.org/pubchem.substance:24901740')
-lb_cam.name = 'LB Broth+chloramphenicol'  
+lb_cam = sbol3.Component('lb_cam', '')
+lb_cam.name = 'LB Broth+chloramphenicol'
 doc.add(lb_cam)
 
-chloramphenicol = sbol3.Component('chloramphenicol', 'https://identifiers.org/pubchem.substance:24901740')
-chloramphenicol.name = 'chloramphenicol'  
+chloramphenicol = sbol3.Component('chloramphenicol', 'https://pubchem.ncbi.nlm.nih.gov/compound/5959')
+chloramphenicol.name = 'chloramphenicol'
 doc.add(chloramphenicol)
-
 
 neg_control_plasmid = sbol3.Component('neg_control_plasmid', 'http://parts.igem.org/Part:BBa_J428100')
 neg_control_plasmid.name = 'Negative control (J428100)'
