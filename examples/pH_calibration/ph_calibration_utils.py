@@ -265,7 +265,11 @@ def define_pH_calibration_protocol_primitives(
         "CleanElectrode",
         description="Clean the pH meter electrode",
     )
-
+    def clean_electrode_primitive_compute_output(inputs, parameter):
+        return None
+    clean_electrode_primitive.compute_output = (
+        clean_electrode_primitive_compute_output
+    )
 
     return (
         pH_meter_calibrated_primitive,

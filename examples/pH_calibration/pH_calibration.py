@@ -359,6 +359,7 @@ def pH_calibration_protocol() -> Tuple[paml.Protocol, Document]:
         setup_subprotocol,
         reaction_volume=reaction_volume,
     )
+    protocol.order(protocol.initial(), setup_subprotocol_invocation)
 
     # 4. Decide whether calibration was successful
     is_calibration_successful = decision = protocol.make_decision_node(

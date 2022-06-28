@@ -4,6 +4,7 @@ from collections import Counter
 from typing import List, Set, Iterable
 from sbol_factory import SBOLFactory, UMLFactory
 import sbol3
+from tomlkit import value
 
 # Load ontology and create uml submodule
 SBOLFactory('uml_submodule',
@@ -66,6 +67,17 @@ def literal(value, reference: bool = False) -> LiteralSpecification:
     else:
         raise ValueError(f'Don\'t know how to make literal from {type(value)} "{value}"')
 
+def literal_value(self: LiteralSpecification):
+    return self.value
+LiteralSpecification.get_value = literal_value
+
+def literal_null_value(self: LiteralNull):
+    return None
+LiteralNull.get_value = literal_null_value
+
+def literal_reference_value(self: LiteralReference):
+    return self.value.lookup()
+LiteralReference.get_value = literal_null_value
 
 ###########################################
 # Define extension methods for Behavior

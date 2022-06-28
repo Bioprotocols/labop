@@ -1,6 +1,7 @@
 from uml import *
 import tyto
 import sbol3
+import html
 
 def activity_node_dot_attrs(self):
     return {'label': '', 'shape': 'circle'}
@@ -118,11 +119,11 @@ LiteralReference.dot_value = literal_reference_dot_value  # Add to class via mon
 
 
 def _gv_sanitize(id: str):
-    return id.replace(":", "_")
+    return html.escape(id.replace(":", "_"))
 
 def identified_dot_label(self, parent_identity=None):
-    truncated = _gv_sanitize(self.identity.replace(f'{parent_identity}/', ''))
-    in_struct = truncated.replace('/', ':')
+    truncated = _gv_sanitize(self.identity.replace(f'{parent_identity.lookup().namespace}', ''))
+    in_struct = "_".join(truncated.split('/',1)).replace("/", ":")
     return in_struct
 sbol3.Identified.dot_label = identified_dot_label   # Add to class via monkey patch
 

@@ -135,8 +135,8 @@ def protocol_to_dot(self, legend=False):
 
 
     def _label(object: sbol3.Identified):
-        truncated = _gv_sanitize(object.identity.replace(f'{self.identity}/', ''))
-        in_struct = truncated.replace('/',':')
+        truncated = _gv_sanitize(object.identity.replace(f'{self.namespace}', ''))
+        in_struct = "_".join(truncated.split('/',1)).replace("/", ":") # Replace last "/" with "_"
         return in_struct #_gv_sanitize(object.identity.replace(f'{self.identity}/', ''))
 
     def _inpin_str(pin: uml.InputPin) -> str:
@@ -173,20 +173,22 @@ def protocol_to_dot(self, legend=False):
         :param object: object to be rendered
         :return: dict of attribute/value pairs
         """
+        node_attrs = None
+        subgraph = None
         if isinstance(object, uml.InitialNode):
-            return {'label': '', 'shape': 'circle', 'style': 'filled', 'fillcolor': 'black' }
+            node_attrs = {'label': '', 'shape': 'circle', 'style': 'filled', 'fillcolor': 'black' }
         elif isinstance(object, uml.FinalNode):
-            return {'label': '', 'shape': 'doublecircle', 'style': 'filled', 'fillcolor': 'black'}
+            node_attrs = {'label': '', 'shape': 'doublecircle', 'style': 'filled', 'fillcolor': 'black'}
         elif isinstance(object, uml.ForkNode) or isinstance(object, uml.JoinNode):
-            return {'label': '', 'shape': 'rectangle', 'height': '0.02', 'style': 'filled', 'fillcolor': 'black'}
+            node_attrs = {'label': '', 'shape': 'rectangle', 'height': '0.02', 'style': 'filled', 'fillcolor': 'black'}
         elif isinstance(object, uml.MergeNode) or isinstance(object, uml.DecisionNode):
-            return {'label': '', 'shape': 'diamond'}
+            node_attrs = {'label': '', 'shape': 'diamond'}
         elif isinstance(object, uml.ObjectNode):
             if isinstance(object, uml.ActivityParameterNode):
                 label = object.parameter.lookup().property_value.name
             else:
                 raise ValueError(f'Do not know what GraphViz label to use for {object}')
-            return {'label': label, 'shape': 'rectangle', 'peripheries': '2'}
+            node_attrs = {'label': label, 'shape': 'rectangle', 'peripheries': '2'}
         elif isinstance(object, uml.ExecutableNode):
             if isinstance(object, uml.CallBehaviorAction): # render as an HMTL table with pins above/below call
                 port_row = '  <tr><td><table border="0" cellspacing="-2"><tr><td> </td>{}<td> </td></tr></table></td></tr>\n'
@@ -200,16 +202,22 @@ def protocol_to_dot(self, legend=False):
                 table_template = '<<table border="0" cellspacing="0">\n{}{}{}</table>>'
                 label = table_template.format(in_row,node_row,out_row)
                 shape = 'none'
+
+                behavior = object.behavior.lookup()
+                if isinstance(behavior, paml.Protocol):
+                    subgraph = behavior.to_dot()
             else:
                 raise ValueError(f'Do not know what GraphViz label to use for {object}')
-            return {'label': label, 'shape': shape, 'style': 'rounded'}
+            node_attrs = {'label': label, 'shape': shape, 'style': 'rounded'}
         else:
             raise ValueError(f'Do not know what GraphViz attributes to use for {object}')
+        return node_attrs, subgraph
 
     try:
         parent = graphviz.Digraph(name='_root')
         parent.attr(compound='true')
-        dot = graphviz.Digraph(name=f'cluster_{_gv_sanitize(self.identity)}',
+        subname = _gv_sanitize(self.identity.replace(self.namespace,""))
+        dot = graphviz.Digraph(name=f'cluster_{subname}',
                                graph_attr={
                                    'label': self.name,
                                    'shape': 'box'
@@ -257,7 +265,10 @@ def protocol_to_dot(self, legend=False):
                 dot.edge(src_id, dest_id, color=color)
         for node in self.nodes:
             node_id = _label(node)
-            dot.node(node_id, **_type_attrs(node))
+            type_attrs, subgraph = _type_attrs(node)
+            dot.node(node_id, **type_attrs)
+            if subgraph:
+                parent.subgraph(subgraph)
 
     except Exception as e:
         print(f"Cannot translate to graphviz: {e}")

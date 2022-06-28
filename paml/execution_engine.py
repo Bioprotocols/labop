@@ -141,8 +141,7 @@ class ExecutionEngine(ABC):
         # TODO: think about infinite loops and how to abort
 
         # A Protocol has completed normally if all of its required output parameters have values
-        set_parameters = (p.parameter.lookup() for p in ex.parameter_values)
-        ex.completed_normally = all(p in set_parameters for p in protocol.get_required_outputs())
+        ex.completed_normally = set(protocol.get_required_inputs()).issubset(set([p.parameter.lookup() for p in ex.parameter_values]))
 
         # aggregate consumed material records from all behaviors executed within, mark end time, and return
         ex.aggregate_child_materials()
@@ -707,8 +706,8 @@ def protocol_execution_to_dot(self, execution_engine=None):
     def _make_object_edge(dot, incoming_flow, target, dest_parameter=None):
         flow_source = incoming_flow.lookup().token_source.lookup()
         source = incoming_flow.lookup().edge.lookup().source.lookup()
-        value = incoming_flow.lookup().value
-        value = value.value.lookup() if isinstance(value, uml.LiteralReference) else value.value
+        value = incoming_flow.lookup().value.get_value()
+        #value = value.value.lookup() if isinstance(value, uml.LiteralReference) else value.value
 
         if isinstance(source, uml.Pin):
             src_parameter = source.get_parent().pin_parameter(source.name).property_value
@@ -725,7 +724,15 @@ def protocol_execution_to_dot(self, execution_engine=None):
         if isinstance(target, uml.CallBehaviorAction):
             target_id = f'{target_id}:node'
 
-        edge_label = f"{src_var}-[{value}]->{dest_var}"
+        if isinstance(value, sbol3.Identified):
+            edge_label = value.identity
+        else:
+            edge_label = f"{value}"
+
+        edge_index = incoming_flow.split("ActivityEdgeFlow")[-1]
+
+        edge_label = f"{edge_index}: {edge_label}"
+
         attrs = {"color": "orange"}
         dot.edge(source_id, target_id, edge_label, _attributes=attrs)
 
@@ -736,7 +743,7 @@ def protocol_execution_to_dot(self, execution_engine=None):
                            })
 
     # Protocol graph
-    protocol_graph = self.document.find(self.protocol).to_dot()
+    protocol_graph = self.protocol.lookup().to_dot()
     dot.subgraph(protocol_graph)
 
     if execution_engine and execution_engine.current_node:
