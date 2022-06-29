@@ -48,6 +48,8 @@ class ExecutionEngine(ABC):
         self.ordinal_time = None
         self.current_node = None
         self.blocked_nodes = set({})
+        self.tokens = []  # no tokens to start
+        self.ex = None
 
     def next_id(self):
         next = self.exec_counter
@@ -111,71 +113,69 @@ class ExecutionEngine(ABC):
         doc = protocol.document
 
         # First, set up the record for the protocol and parameter values
-        ex = paml.ProtocolExecution(id, protocol=protocol)
-        doc.add(ex)
+        self.ex = paml.ProtocolExecution(id, protocol=protocol)
+        doc.add(self.ex)
 
-        ex.association.append(sbol3.Association(agent=agent, plan=protocol))
-        ex.parameter_values = parameter_values
+        self.ex.association.append(sbol3.Association(agent=agent, plan=protocol))
+        self.ex.parameter_values = parameter_values
 
         # Initialize specializations
         for specialization in self.specializations:
-            specialization.initialize_protocol(ex)
-            specialization.on_begin(ex)
+            specialization.initialize_protocol(self.ex)
+            specialization.on_begin()
 
         self.init_time(start_time)
-        ex.start_time = self.start_time # TODO: remove str wrapper after sbol_factory #22 fixed
+        self.ex.start_time = self.start_time # TODO: remove str wrapper after sbol_factory #22 fixed
 
         # Iteratively execute all unblocked activities until no more tokens can progress
-        tokens = []  # no tokens to start
+
         ready = protocol.initiating_nodes()
         while ready:
             for node in ready:
                 self.current_node = node
-                tokens = self.execute_activity_node(ex, node, tokens)
-            ready = self.executable_activity_nodes(ex, tokens)
+                # tokens = self.execute_activity_node(ex, node, tokens)
+                self.tokens = node.execute(self)
+            ready = self.executable_activity_nodes()
 
-        ex.end_time = self.get_current_time()
+        self.ex.end_time = self.get_current_time()
 
         # TODO: finish implementing
         # TODO: ensure that only one token is allowed per edge
         # TODO: think about infinite loops and how to abort
 
         # A Protocol has completed normally if all of its required output parameters have values
-        ex.completed_normally = set(protocol.get_required_inputs()).issubset(set([p.parameter.lookup() for p in ex.parameter_values]))
+        self.ex.completed_normally = set(protocol.get_required_inputs()).issubset(set([p.parameter.lookup() for p in self.ex.parameter_values]))
 
         # aggregate consumed material records from all behaviors executed within, mark end time, and return
-        ex.aggregate_child_materials()
+        self.ex.aggregate_child_materials()
 
 
         # End specializations
         for specialization in self.specializations:
             specialization.on_end(ex)
 
-        return ex
+        return self.ex
 
     def executable_activity_nodes(
-        self,
-        ex: paml.ProtocolExecution,
-        tokens: List[paml.ActivityEdgeFlow]
+        self
     ) -> List[uml.ActivityNode]:
         """Find all of the activity nodes that are ready to be run given the current set of tokens
         Note that this will NOT identify activities with no in-flows: those are only set up as initiating nodes
 
         Parameters
         ----------
-        protocol: paml.Protocol being executed
-        tokens: set of ActivityEdgeFlow records that have not yet been consumed
+
 
         Returns
         -------
         List of ActivityNodes that are ready to be run
         """
         candidate_clusters = {}
-        for t in tokens:
+        for t in self.tokens:
             target = t.get_target()
             candidate_clusters[target] = candidate_clusters.get(target,[])+[t]
         return [n for n,nt in candidate_clusters.items()
-                if n.enabled(ex, nt)]
+                if n.enabled(self.ex, nt)]
 
     def execute_activity_node(self, ex : paml.ProtocolExecution, node: uml.ActivityNode,
                               tokens: List[paml.ActivityEdgeFlow]) -> List[paml.ActivityEdgeFlow]:

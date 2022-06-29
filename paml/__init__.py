@@ -23,6 +23,7 @@ from paml.data import *
 from paml.sample_maps import *
 from paml.primitive_execution import *
 from paml.decisions import *
+from paml.execution_engine import *
 from paml.execution_engine_utils import *
 
 
