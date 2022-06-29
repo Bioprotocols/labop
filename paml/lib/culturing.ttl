@@ -1,6 +1,10 @@
 @prefix ns1: <http://bioprotocols.org/uml#> .
 @prefix om: <http://www.ontology-of-units-of-measure.org/resource/om-2/> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix sbol: <http://sbols.org/v3#> .
+@prefix xml: <http://www.w3.org/XML/1998/namespace> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
 <https://bioprotocols.org/paml/primitives/culturing/Culture> a <http://bioprotocols.org/paml#Primitive>,
@@ -17,13 +21,35 @@
     sbol:displayId "Culture" ;
     sbol:hasNamespace <https://bioprotocols.org/paml/primitives/culturing> .
 
+<https://bioprotocols.org/paml/primitives/culturing/CulturePlates> a <http://bioprotocols.org/paml#Primitive>,
+        sbol:TopLevel ;
+    ns1:ownedParameter <https://bioprotocols.org/paml/primitives/culturing/CulturePlates/OrderedPropertyValue1>,
+        <https://bioprotocols.org/paml/primitives/culturing/CulturePlates/OrderedPropertyValue2>,
+        <https://bioprotocols.org/paml/primitives/culturing/CulturePlates/OrderedPropertyValue3>,
+        <https://bioprotocols.org/paml/primitives/culturing/CulturePlates/OrderedPropertyValue4>,
+        <https://bioprotocols.org/paml/primitives/culturing/CulturePlates/OrderedPropertyValue5> ;
+    sbol:description "Create a new sample collection of culture plates using a particular media type" ;
+    sbol:displayId "CulturePlates" ;
+    sbol:hasNamespace <https://bioprotocols.org/paml/primitives/culturing> .
+
+<https://bioprotocols.org/paml/primitives/culturing/PickColonies> a <http://bioprotocols.org/paml#Primitive>,
+        sbol:TopLevel ;
+    ns1:ownedParameter <https://bioprotocols.org/paml/primitives/culturing/PickColonies/OrderedPropertyValue1>,
+        <https://bioprotocols.org/paml/primitives/culturing/PickColonies/OrderedPropertyValue2>,
+        <https://bioprotocols.org/paml/primitives/culturing/PickColonies/OrderedPropertyValue3>,
+        <https://bioprotocols.org/paml/primitives/culturing/PickColonies/OrderedPropertyValue4> ;
+    sbol:description "Create a new sample collection of culture plates using a particular media type" ;
+    sbol:displayId "PickColonies" ;
+    sbol:hasNamespace <https://bioprotocols.org/paml/primitives/culturing> .
+
 <https://bioprotocols.org/paml/primitives/culturing/Transform> a <http://bioprotocols.org/paml#Primitive>,
         sbol:TopLevel ;
     ns1:ownedParameter <https://bioprotocols.org/paml/primitives/culturing/Transform/OrderedPropertyValue1>,
         <https://bioprotocols.org/paml/primitives/culturing/Transform/OrderedPropertyValue2>,
         <https://bioprotocols.org/paml/primitives/culturing/Transform/OrderedPropertyValue3>,
         <https://bioprotocols.org/paml/primitives/culturing/Transform/OrderedPropertyValue4>,
-        <https://bioprotocols.org/paml/primitives/culturing/Transform/OrderedPropertyValue5> ;
+        <https://bioprotocols.org/paml/primitives/culturing/Transform/OrderedPropertyValue5>,
+        <https://bioprotocols.org/paml/primitives/culturing/Transform/OrderedPropertyValue6> ;
     sbol:description "Transform competent cells." ;
     sbol:displayId "Transform" ;
     sbol:hasNamespace <https://bioprotocols.org/paml/primitives/culturing> .
@@ -238,6 +264,249 @@
     ns1:integerValue 1 ;
     sbol:displayId "LiteralInteger2" .
 
+<https://bioprotocols.org/paml/primitives/culturing/CulturePlates/OrderedPropertyValue1> a ns1:OrderedPropertyValue,
+        sbol:Identified ;
+    ns1:indexValue 0 ;
+    ns1:propertyValue <https://bioprotocols.org/paml/primitives/culturing/CulturePlates/OrderedPropertyValue1/Parameter1> ;
+    sbol:displayId "OrderedPropertyValue1" .
+
+<https://bioprotocols.org/paml/primitives/culturing/CulturePlates/OrderedPropertyValue1/Parameter1> a ns1:Parameter,
+        sbol:Identified ;
+    ns1:direction ns1:in ;
+    ns1:isOrdered true ;
+    ns1:isUnique true ;
+    ns1:lowerValue <https://bioprotocols.org/paml/primitives/culturing/CulturePlates/OrderedPropertyValue1/Parameter1/LiteralInteger2> ;
+    ns1:type ns1:ValueSpecification ;
+    ns1:upperValue <https://bioprotocols.org/paml/primitives/culturing/CulturePlates/OrderedPropertyValue1/Parameter1/LiteralInteger1> ;
+    sbol:displayId "Parameter1" ;
+    sbol:name "quantity" .
+
+<https://bioprotocols.org/paml/primitives/culturing/CulturePlates/OrderedPropertyValue1/Parameter1/LiteralInteger1> a ns1:LiteralInteger,
+        sbol:Identified ;
+    ns1:integerValue 1 ;
+    sbol:displayId "LiteralInteger1" .
+
+<https://bioprotocols.org/paml/primitives/culturing/CulturePlates/OrderedPropertyValue1/Parameter1/LiteralInteger2> a ns1:LiteralInteger,
+        sbol:Identified ;
+    ns1:integerValue 1 ;
+    sbol:displayId "LiteralInteger2" .
+
+<https://bioprotocols.org/paml/primitives/culturing/CulturePlates/OrderedPropertyValue2> a ns1:OrderedPropertyValue,
+        sbol:Identified ;
+    ns1:indexValue 1 ;
+    ns1:propertyValue <https://bioprotocols.org/paml/primitives/culturing/CulturePlates/OrderedPropertyValue2/Parameter1> ;
+    sbol:displayId "OrderedPropertyValue2" .
+
+<https://bioprotocols.org/paml/primitives/culturing/CulturePlates/OrderedPropertyValue2/Parameter1> a ns1:Parameter,
+        sbol:Identified ;
+    ns1:direction ns1:in ;
+    ns1:isOrdered true ;
+    ns1:isUnique true ;
+    ns1:lowerValue <https://bioprotocols.org/paml/primitives/culturing/CulturePlates/OrderedPropertyValue2/Parameter1/LiteralInteger2> ;
+    ns1:type <http://bioprotocols.org/paml#ContainerSpec> ;
+    ns1:upperValue <https://bioprotocols.org/paml/primitives/culturing/CulturePlates/OrderedPropertyValue2/Parameter1/LiteralInteger1> ;
+    sbol:displayId "Parameter1" ;
+    sbol:name "specification" .
+
+<https://bioprotocols.org/paml/primitives/culturing/CulturePlates/OrderedPropertyValue2/Parameter1/LiteralInteger1> a ns1:LiteralInteger,
+        sbol:Identified ;
+    ns1:integerValue 1 ;
+    sbol:displayId "LiteralInteger1" .
+
+<https://bioprotocols.org/paml/primitives/culturing/CulturePlates/OrderedPropertyValue2/Parameter1/LiteralInteger2> a ns1:LiteralInteger,
+        sbol:Identified ;
+    ns1:integerValue 1 ;
+    sbol:displayId "LiteralInteger2" .
+
+<https://bioprotocols.org/paml/primitives/culturing/CulturePlates/OrderedPropertyValue3> a ns1:OrderedPropertyValue,
+        sbol:Identified ;
+    ns1:indexValue 2 ;
+    ns1:propertyValue <https://bioprotocols.org/paml/primitives/culturing/CulturePlates/OrderedPropertyValue3/Parameter1> ;
+    sbol:displayId "OrderedPropertyValue3" .
+
+<https://bioprotocols.org/paml/primitives/culturing/CulturePlates/OrderedPropertyValue3/Parameter1> a ns1:Parameter,
+        sbol:Identified ;
+    ns1:direction ns1:in ;
+    ns1:isOrdered true ;
+    ns1:isUnique true ;
+    ns1:lowerValue <https://bioprotocols.org/paml/primitives/culturing/CulturePlates/OrderedPropertyValue3/Parameter1/LiteralInteger2> ;
+    ns1:type ns1:ValueSpecification ;
+    ns1:upperValue <https://bioprotocols.org/paml/primitives/culturing/CulturePlates/OrderedPropertyValue3/Parameter1/LiteralInteger1> ;
+    sbol:displayId "Parameter1" ;
+    sbol:name "replicates" .
+
+<https://bioprotocols.org/paml/primitives/culturing/CulturePlates/OrderedPropertyValue3/Parameter1/LiteralInteger1> a ns1:LiteralInteger,
+        sbol:Identified ;
+    ns1:integerValue 1 ;
+    sbol:displayId "LiteralInteger1" .
+
+<https://bioprotocols.org/paml/primitives/culturing/CulturePlates/OrderedPropertyValue3/Parameter1/LiteralInteger2> a ns1:LiteralInteger,
+        sbol:Identified ;
+    ns1:integerValue 0 ;
+    sbol:displayId "LiteralInteger2" .
+
+<https://bioprotocols.org/paml/primitives/culturing/CulturePlates/OrderedPropertyValue4> a ns1:OrderedPropertyValue,
+        sbol:Identified ;
+    ns1:indexValue 3 ;
+    ns1:propertyValue <https://bioprotocols.org/paml/primitives/culturing/CulturePlates/OrderedPropertyValue4/Parameter1> ;
+    sbol:displayId "OrderedPropertyValue4" .
+
+<https://bioprotocols.org/paml/primitives/culturing/CulturePlates/OrderedPropertyValue4/Parameter1> a ns1:Parameter,
+        sbol:Identified ;
+    ns1:direction ns1:in ;
+    ns1:isOrdered true ;
+    ns1:isUnique true ;
+    ns1:lowerValue <https://bioprotocols.org/paml/primitives/culturing/CulturePlates/OrderedPropertyValue4/Parameter1/LiteralInteger2> ;
+    ns1:type sbol:Component ;
+    ns1:upperValue <https://bioprotocols.org/paml/primitives/culturing/CulturePlates/OrderedPropertyValue4/Parameter1/LiteralInteger1> ;
+    sbol:displayId "Parameter1" ;
+    sbol:name "growth_medium" .
+
+<https://bioprotocols.org/paml/primitives/culturing/CulturePlates/OrderedPropertyValue4/Parameter1/LiteralInteger1> a ns1:LiteralInteger,
+        sbol:Identified ;
+    ns1:integerValue 1 ;
+    sbol:displayId "LiteralInteger1" .
+
+<https://bioprotocols.org/paml/primitives/culturing/CulturePlates/OrderedPropertyValue4/Parameter1/LiteralInteger2> a ns1:LiteralInteger,
+        sbol:Identified ;
+    ns1:integerValue 1 ;
+    sbol:displayId "LiteralInteger2" .
+
+<https://bioprotocols.org/paml/primitives/culturing/CulturePlates/OrderedPropertyValue5> a ns1:OrderedPropertyValue,
+        sbol:Identified ;
+    ns1:indexValue 4 ;
+    ns1:propertyValue <https://bioprotocols.org/paml/primitives/culturing/CulturePlates/OrderedPropertyValue5/Parameter1> ;
+    sbol:displayId "OrderedPropertyValue5" .
+
+<https://bioprotocols.org/paml/primitives/culturing/CulturePlates/OrderedPropertyValue5/Parameter1> a ns1:Parameter,
+        sbol:Identified ;
+    ns1:direction ns1:out ;
+    ns1:isOrdered true ;
+    ns1:isUnique true ;
+    ns1:lowerValue <https://bioprotocols.org/paml/primitives/culturing/CulturePlates/OrderedPropertyValue5/Parameter1/LiteralInteger2> ;
+    ns1:type <http://bioprotocols.org/paml#SampleArray> ;
+    ns1:upperValue <https://bioprotocols.org/paml/primitives/culturing/CulturePlates/OrderedPropertyValue5/Parameter1/LiteralInteger1> ;
+    sbol:displayId "Parameter1" ;
+    sbol:name "samples" .
+
+<https://bioprotocols.org/paml/primitives/culturing/CulturePlates/OrderedPropertyValue5/Parameter1/LiteralInteger1> a ns1:LiteralInteger,
+        sbol:Identified ;
+    ns1:integerValue 1 ;
+    sbol:displayId "LiteralInteger1" .
+
+<https://bioprotocols.org/paml/primitives/culturing/CulturePlates/OrderedPropertyValue5/Parameter1/LiteralInteger2> a ns1:LiteralInteger,
+        sbol:Identified ;
+    ns1:integerValue 1 ;
+    sbol:displayId "LiteralInteger2" .
+
+<https://bioprotocols.org/paml/primitives/culturing/PickColonies/OrderedPropertyValue1> a ns1:OrderedPropertyValue,
+        sbol:Identified ;
+    ns1:indexValue 0 ;
+    ns1:propertyValue <https://bioprotocols.org/paml/primitives/culturing/PickColonies/OrderedPropertyValue1/Parameter1> ;
+    sbol:displayId "OrderedPropertyValue1" .
+
+<https://bioprotocols.org/paml/primitives/culturing/PickColonies/OrderedPropertyValue1/Parameter1> a ns1:Parameter,
+        sbol:Identified ;
+    ns1:direction ns1:in ;
+    ns1:isOrdered true ;
+    ns1:isUnique true ;
+    ns1:lowerValue <https://bioprotocols.org/paml/primitives/culturing/PickColonies/OrderedPropertyValue1/Parameter1/LiteralInteger2> ;
+    ns1:type <http://bioprotocols.org/paml#SampleArray> ;
+    ns1:upperValue <https://bioprotocols.org/paml/primitives/culturing/PickColonies/OrderedPropertyValue1/Parameter1/LiteralInteger1> ;
+    sbol:displayId "Parameter1" ;
+    sbol:name "colonies" .
+
+<https://bioprotocols.org/paml/primitives/culturing/PickColonies/OrderedPropertyValue1/Parameter1/LiteralInteger1> a ns1:LiteralInteger,
+        sbol:Identified ;
+    ns1:integerValue 1 ;
+    sbol:displayId "LiteralInteger1" .
+
+<https://bioprotocols.org/paml/primitives/culturing/PickColonies/OrderedPropertyValue1/Parameter1/LiteralInteger2> a ns1:LiteralInteger,
+        sbol:Identified ;
+    ns1:integerValue 1 ;
+    sbol:displayId "LiteralInteger2" .
+
+<https://bioprotocols.org/paml/primitives/culturing/PickColonies/OrderedPropertyValue2> a ns1:OrderedPropertyValue,
+        sbol:Identified ;
+    ns1:indexValue 1 ;
+    ns1:propertyValue <https://bioprotocols.org/paml/primitives/culturing/PickColonies/OrderedPropertyValue2/Parameter1> ;
+    sbol:displayId "OrderedPropertyValue2" .
+
+<https://bioprotocols.org/paml/primitives/culturing/PickColonies/OrderedPropertyValue2/Parameter1> a ns1:Parameter,
+        sbol:Identified ;
+    ns1:direction ns1:in ;
+    ns1:isOrdered true ;
+    ns1:isUnique true ;
+    ns1:lowerValue <https://bioprotocols.org/paml/primitives/culturing/PickColonies/OrderedPropertyValue2/Parameter1/LiteralInteger2> ;
+    ns1:type ns1:ValueSpecification ;
+    ns1:upperValue <https://bioprotocols.org/paml/primitives/culturing/PickColonies/OrderedPropertyValue2/Parameter1/LiteralInteger1> ;
+    sbol:displayId "Parameter1" ;
+    sbol:name "quantity" .
+
+<https://bioprotocols.org/paml/primitives/culturing/PickColonies/OrderedPropertyValue2/Parameter1/LiteralInteger1> a ns1:LiteralInteger,
+        sbol:Identified ;
+    ns1:integerValue 1 ;
+    sbol:displayId "LiteralInteger1" .
+
+<https://bioprotocols.org/paml/primitives/culturing/PickColonies/OrderedPropertyValue2/Parameter1/LiteralInteger2> a ns1:LiteralInteger,
+        sbol:Identified ;
+    ns1:integerValue 1 ;
+    sbol:displayId "LiteralInteger2" .
+
+<https://bioprotocols.org/paml/primitives/culturing/PickColonies/OrderedPropertyValue3> a ns1:OrderedPropertyValue,
+        sbol:Identified ;
+    ns1:indexValue 2 ;
+    ns1:propertyValue <https://bioprotocols.org/paml/primitives/culturing/PickColonies/OrderedPropertyValue3/Parameter1> ;
+    sbol:displayId "OrderedPropertyValue3" .
+
+<https://bioprotocols.org/paml/primitives/culturing/PickColonies/OrderedPropertyValue3/Parameter1> a ns1:Parameter,
+        sbol:Identified ;
+    ns1:direction ns1:in ;
+    ns1:isOrdered true ;
+    ns1:isUnique true ;
+    ns1:lowerValue <https://bioprotocols.org/paml/primitives/culturing/PickColonies/OrderedPropertyValue3/Parameter1/LiteralInteger2> ;
+    ns1:type ns1:ValueSpecification ;
+    ns1:upperValue <https://bioprotocols.org/paml/primitives/culturing/PickColonies/OrderedPropertyValue3/Parameter1/LiteralInteger1> ;
+    sbol:displayId "Parameter1" ;
+    sbol:name "replicates" .
+
+<https://bioprotocols.org/paml/primitives/culturing/PickColonies/OrderedPropertyValue3/Parameter1/LiteralInteger1> a ns1:LiteralInteger,
+        sbol:Identified ;
+    ns1:integerValue 1 ;
+    sbol:displayId "LiteralInteger1" .
+
+<https://bioprotocols.org/paml/primitives/culturing/PickColonies/OrderedPropertyValue3/Parameter1/LiteralInteger2> a ns1:LiteralInteger,
+        sbol:Identified ;
+    ns1:integerValue 0 ;
+    sbol:displayId "LiteralInteger2" .
+
+<https://bioprotocols.org/paml/primitives/culturing/PickColonies/OrderedPropertyValue4> a ns1:OrderedPropertyValue,
+        sbol:Identified ;
+    ns1:indexValue 3 ;
+    ns1:propertyValue <https://bioprotocols.org/paml/primitives/culturing/PickColonies/OrderedPropertyValue4/Parameter1> ;
+    sbol:displayId "OrderedPropertyValue4" .
+
+<https://bioprotocols.org/paml/primitives/culturing/PickColonies/OrderedPropertyValue4/Parameter1> a ns1:Parameter,
+        sbol:Identified ;
+    ns1:direction ns1:out ;
+    ns1:isOrdered true ;
+    ns1:isUnique true ;
+    ns1:lowerValue <https://bioprotocols.org/paml/primitives/culturing/PickColonies/OrderedPropertyValue4/Parameter1/LiteralInteger2> ;
+    ns1:type <http://bioprotocols.org/paml#SampleArray> ;
+    ns1:upperValue <https://bioprotocols.org/paml/primitives/culturing/PickColonies/OrderedPropertyValue4/Parameter1/LiteralInteger1> ;
+    sbol:displayId "Parameter1" ;
+    sbol:name "samples" .
+
+<https://bioprotocols.org/paml/primitives/culturing/PickColonies/OrderedPropertyValue4/Parameter1/LiteralInteger1> a ns1:LiteralInteger,
+        sbol:Identified ;
+    ns1:integerValue 1 ;
+    sbol:displayId "LiteralInteger1" .
+
+<https://bioprotocols.org/paml/primitives/culturing/PickColonies/OrderedPropertyValue4/Parameter1/LiteralInteger2> a ns1:LiteralInteger,
+        sbol:Identified ;
+    ns1:integerValue 1 ;
+    sbol:displayId "LiteralInteger2" .
+
 <https://bioprotocols.org/paml/primitives/culturing/Transform/OrderedPropertyValue1> a ns1:OrderedPropertyValue,
         sbol:Identified ;
     ns1:indexValue 0 ;
@@ -348,14 +617,14 @@
 
 <https://bioprotocols.org/paml/primitives/culturing/Transform/OrderedPropertyValue5/Parameter1> a ns1:Parameter,
         sbol:Identified ;
-    ns1:direction ns1:out ;
+    ns1:direction ns1:in ;
     ns1:isOrdered true ;
     ns1:isUnique true ;
     ns1:lowerValue <https://bioprotocols.org/paml/primitives/culturing/Transform/OrderedPropertyValue5/Parameter1/LiteralInteger2> ;
     ns1:type <http://bioprotocols.org/paml#SampleArray> ;
     ns1:upperValue <https://bioprotocols.org/paml/primitives/culturing/Transform/OrderedPropertyValue5/Parameter1/LiteralInteger1> ;
     sbol:displayId "Parameter1" ;
-    sbol:name "transformants" .
+    sbol:name "destination" .
 
 <https://bioprotocols.org/paml/primitives/culturing/Transform/OrderedPropertyValue5/Parameter1/LiteralInteger1> a ns1:LiteralInteger,
         sbol:Identified ;
@@ -363,6 +632,33 @@
     sbol:displayId "LiteralInteger1" .
 
 <https://bioprotocols.org/paml/primitives/culturing/Transform/OrderedPropertyValue5/Parameter1/LiteralInteger2> a ns1:LiteralInteger,
+        sbol:Identified ;
+    ns1:integerValue 1 ;
+    sbol:displayId "LiteralInteger2" .
+
+<https://bioprotocols.org/paml/primitives/culturing/Transform/OrderedPropertyValue6> a ns1:OrderedPropertyValue,
+        sbol:Identified ;
+    ns1:indexValue 5 ;
+    ns1:propertyValue <https://bioprotocols.org/paml/primitives/culturing/Transform/OrderedPropertyValue6/Parameter1> ;
+    sbol:displayId "OrderedPropertyValue6" .
+
+<https://bioprotocols.org/paml/primitives/culturing/Transform/OrderedPropertyValue6/Parameter1> a ns1:Parameter,
+        sbol:Identified ;
+    ns1:direction ns1:out ;
+    ns1:isOrdered true ;
+    ns1:isUnique true ;
+    ns1:lowerValue <https://bioprotocols.org/paml/primitives/culturing/Transform/OrderedPropertyValue6/Parameter1/LiteralInteger2> ;
+    ns1:type <http://bioprotocols.org/paml#SampleArray> ;
+    ns1:upperValue <https://bioprotocols.org/paml/primitives/culturing/Transform/OrderedPropertyValue6/Parameter1/LiteralInteger1> ;
+    sbol:displayId "Parameter1" ;
+    sbol:name "transformants" .
+
+<https://bioprotocols.org/paml/primitives/culturing/Transform/OrderedPropertyValue6/Parameter1/LiteralInteger1> a ns1:LiteralInteger,
+        sbol:Identified ;
+    ns1:integerValue 1 ;
+    sbol:displayId "LiteralInteger1" .
+
+<https://bioprotocols.org/paml/primitives/culturing/Transform/OrderedPropertyValue6/Parameter1/LiteralInteger2> a ns1:LiteralInteger,
         sbol:Identified ;
     ns1:integerValue 1 ;
     sbol:displayId "LiteralInteger2" .

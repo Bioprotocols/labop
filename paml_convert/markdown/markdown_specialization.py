@@ -70,7 +70,9 @@ class MarkdownSpecialization(BehaviorSpecialization):
             "https://bioprotocols.org/paml/primitives/plate_handling/QuickSpin": self.quick_spin,
             "https://bioprotocols.org/paml/primitives/plate_handling/Unseal": self.unseal,
             "https://bioprotocols.org/paml/primitives/sample_arrays/EmbeddedImage": self.embedded_image,
-            "http://bioprotocols.org/paml#Protocol": self.subprotocol_specialization
+            "http://bioprotocols.org/paml#Protocol": self.subprotocol_specialization,
+            "https://bioprotocols.org/paml/primitives/culturing/CulturePlates": self.culture_plates,
+            "https://bioprotocols.org/paml/primitives/culturing/PickColonies": self.pick_colonies,
         }
 
     def on_begin(self, execution):
@@ -598,7 +600,8 @@ class MarkdownSpecialization(BehaviorSpecialization):
         text = f'Inoculate `{inocula_names[0]}` into {volume_scalar} {volume_units} of {growth_medium.name} in {container_str} and grow for {measurement_to_text(duration)} at {measurement_to_text(temperature)} and {orbital_shake_speed.value} rpm.'
         text += repeat_for_remaining_samples(inocula_names, repeat_msg=' Repeat this procedure for the other inocula: ')
         if replicates > 1:
-            text += f' Inoculate {replicates} replicates for each transformant, for a total of {replicates*len(inocula_names)} cultures.'
+            text = f'Inoculate {replicates} colonies of each transformant {inocula.name}, for a total of {replicates*len(inocula_names)} cultures. Inoculate each into {volume_scalar} {volume_units} of {growth_medium.name} in {container_str} and grow for {measurement_to_text(duration)} at {measurement_to_text(temperature)} and {orbital_shake_speed.value} rpm.'
+
 
         # Populate output SampleArray
         container.contents = write_sample_contents(inocula, replicates)
@@ -703,6 +706,7 @@ class MarkdownSpecialization(BehaviorSpecialization):
         host = parameter_value_map['host']['value']
         dna = parameter_value_map['dna']['value']
         medium = parameter_value_map['selection_medium']['value']
+        destination = parameter_value_map['destination']['value']
         if 'amount' in parameter_value_map:
             amount_measure = parameter_value_map['amount']['value']
             amount_scalar = amount_measure.value
@@ -733,10 +737,12 @@ class MarkdownSpecialization(BehaviorSpecialization):
                     i_transformant += 1
             i_transformant += 1
         transformants.contents = quote(json.dumps(contents))
+        transformants.name = destination.name
 
         # Add to markdown
         text = f"Transform `{dna_names[0]}` DNA into `{host.name}` and plate transformants on {medium.name}."
         text += repeat_for_remaining_samples(dna_names, repeat_msg='Repeat for the remaining transformant DNA: ')
+        text += f' Plate transformants on `{destination.name}` plates.'
         execution.markdown_steps += [text]
 
     def serial_dilution(self, record: paml.ActivityNodeExecution, execution: paml.ProtocolExecution):
@@ -865,6 +871,35 @@ class MarkdownSpecialization(BehaviorSpecialization):
 
         text = f'\n\n![]({image})\n\n'
         execution.markdown_steps[-1] += text
+
+    def culture_plates(self, record: paml.ActivityNodeExecution, execution: paml.ProtocolExecution):
+        call = record.call.lookup()
+        parameter_value_map = call.parameter_value_map()
+        container = parameter_value_map['specification']['value']
+        quantity = parameter_value_map['quantity']['value']
+        growth_medium = parameter_value_map['growth_medium']['value']
+        samples = parameter_value_map['samples']['value']
+
+        # Get destination container type
+        container_uri = ContainerOntology.uri + '#' + container.queryString.split(':')[-1]
+        container_str = ContainerOntology.get_term_by_uri(container_uri)
+        samples.name = container.name
+
+        execution.markdown_steps += [f'Provision {quantity} x {container_str} containing {growth_medium.name} growth medium for culturing `{samples.name}`']
+
+    def pick_colonies(self, record: paml.ActivityNodeExecution, execution: paml.ProtocolExecution):
+        call = record.call.lookup()
+        parameter_value_map = call.parameter_value_map()
+        colonies = parameter_value_map['colonies']['value']
+        quantity = parameter_value_map['quantity']['value']
+        replicates = parameter_value_map['replicates']['value']
+        samples = parameter_value_map['samples']['value']
+        samples.contents = colonies.contents
+        samples.name = colonies.name
+        execution.markdown_steps += [f'Pick {replicates} colonies from each `{colonies.name}` plate.']
+
+
+
 
 def measurement_to_text(measure: sbol3.Measure):
     measurement_scalar = measure.value

@@ -17,6 +17,7 @@ p.add_input('host', sbol3.SBOL_COMPONENT)
 p.add_input('dna', sbol3.SBOL_COMPONENT, unbounded=True)
 p.add_input('amount', sbol3.OM_MEASURE, True) # Can be mass or volume
 p.add_input('selection_medium', sbol3.SBOL_COMPONENT)
+p.add_input('destination', 'http://bioprotocols.org/paml#SampleArray')
 p.add_output('transformants', 'http://bioprotocols.org/paml#SampleArray')
 
 doc.add(p)
@@ -32,6 +33,23 @@ p.add_input('orbital_shake_speed', sbol3.OM_MEASURE, True)  # Should be rpm
 p.add_input('temperature', sbol3.OM_MEASURE, True)
 p.add_input('container', 'http://bioprotocols.org/paml#SampleArray')
 #p.add_output('culture', 'http://bioprotocols.org/paml#SampleArray')
+doc.add(p)
+
+p = paml.Primitive('CulturePlates')
+p.description = 'Create a new sample collection of culture plates using a particular media type'
+p.add_input('quantity', 'http://bioprotocols.org/uml#ValueSpecification')
+p.add_input('specification', 'http://bioprotocols.org/paml#ContainerSpec')
+p.add_input('replicates', 'http://bioprotocols.org/uml#ValueSpecification', optional=True)
+p.add_input('growth_medium', sbol3.SBOL_COMPONENT)
+p.add_output('samples', 'http://bioprotocols.org/paml#SampleArray')
+doc.add(p)
+
+p = paml.Primitive('PickColonies')
+p.description = 'Create a new sample collection of culture plates using a particular media type'
+p.add_input('colonies', 'http://bioprotocols.org/paml#SampleArray')
+p.add_input('quantity', 'http://bioprotocols.org/uml#ValueSpecification')
+p.add_input('replicates', 'http://bioprotocols.org/uml#ValueSpecification', optional=True)
+p.add_output('samples', 'http://bioprotocols.org/paml#SampleArray')
 doc.add(p)
 
 print('Library construction complete')
