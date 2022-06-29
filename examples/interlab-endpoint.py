@@ -40,11 +40,16 @@ dh5alpha.name = '_E. coli_ DH5 alpha'
 doc.add(dh5alpha)
 
 lb_cam = sbol3.Component('lb_cam', '')
-lb_cam.name = 'LB Broth+chloramphenicol'  
+lb_cam.name = 'LB Broth + Chloramphenicol'  
 doc.add(lb_cam)
 
+lb_agar_cam = sbol3.Component('lb_agar_cam', '')
+lb_agar_cam.name = 'LB Agar + Chloramphenicol'  
+doc.add(lb_agar_cam)
+
+
 chloramphenicol = sbol3.Component('chloramphenicol', 'https://pubchem.ncbi.nlm.nih.gov/compound/5959')
-chloramphenicol.name = 'chloramphenicol'  
+chloramphenicol.name = 'Chloramphenicol'  
 doc.add(chloramphenicol)
 
 
@@ -92,7 +97,7 @@ doc.add(test_device6)
 
 protocol = paml.Protocol('interlab')
 protocol.name = 'Cell measurement protocol'
-protocol.version = sbol3.TextProperty(protocol, 'http://igem.org/interlab_working_group#Version', 0, 1, [], '1.0b')
+protocol.version = sbol3.TextProperty(protocol, 'http://igem.org/interlab_working_group#Version', 0, 1, [], '1.1b')
 protocol.description = '''This year we plan to go towards automation, where a 96-well plate instead of a tube is used for culturing. Prior to the full establishment of this protocol, we need to evaluate how the performance is worldwide with this as well as with parallel experiment in the test tube, which has been used as standard culturing protocol.
 
 At the end of the experiment, you would have two plates to be measured (five for challenging version). You will measure both fluorescence and absorbance in each plate.
@@ -107,10 +112,18 @@ protocol = doc.find(protocol.identity)
 plasmids = [neg_control_plasmid, pos_control_plasmid, test_device1, test_device2, test_device3, test_device4, test_device5, test_device6]
 
 # Day 1: Transformation
+culture_plates = protocol.primitive_step('CulturePlates',
+                                         quantity=len(plasmids),
+                                         specification=paml.ContainerSpec(name=f'test strains',
+                                                                          queryString='cont:CulturePlate',
+                                                                          prefixMap={'cont': 'https://sift.net/container-ontology/container-ontology#'}),
+                                         growth_medium=lb_agar_cam)
+
 transformation = protocol.primitive_step(f'Transform',
                                           host=dh5alpha,
                                           dna=plasmids,
-                                          selection_medium=lb_cam)
+                                          selection_medium=lb_cam,
+                                          destination=culture_plates.output_pin('samples'))
     
 # Day 2: Pick colonies and culture overnight
 culture_container_day1 = protocol.primitive_step('ContainerSet', 
@@ -119,8 +132,13 @@ culture_container_day1 = protocol.primitive_step('ContainerSet',
                                                                                   queryString='cont:CultureTube', 
                                                                                   prefixMap={'cont': 'https://sift.net/container-ontology/container-ontology#'}))
 
+pick_colonies = protocol.primitive_step('PickColonies',
+                                        colonies=transformation.output_pin('transformants'),
+                                        quantity=2*len(plasmids),
+                                        replicates=2)
+
 overnight_culture = protocol.primitive_step('Culture',
-                                            inoculum=transformation.output_pin('transformants'),
+                                            inoculum=pick_colonies.output_pin('samples'),
                                             replicates=2,
                                             growth_medium=lb_cam,
                                             volume=sbol3.Measure(5, OM.millilitre),  # Actually 5-10 ml in the written protocol

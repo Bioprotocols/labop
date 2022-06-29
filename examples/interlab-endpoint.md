@@ -20,9 +20,10 @@ For all of these cell measurements, you must use the same plates and volumes tha
 
 
 ## Protocol Materials:
-* [_E. coli_ DH5 alpha](https://identifiers.org/pubchem.substance:24901740)
-* [LB Broth+chloramphenicol]()
-* [chloramphenicol](https://pubchem.ncbi.nlm.nih.gov/compound/5959)
+* [_E. coli_ DH5 alpha](https://identifiers.org/taxonomy:668369)
+* [LB Broth + Chloramphenicol]()
+* [LB Agar + Chloramphenicol]()
+* [Chloramphenicol](https://pubchem.ncbi.nlm.nih.gov/compound/5959)
 * [Negative control](http://parts.igem.org/Part:BBa_J428100)
 * [Positive control (I20270)](http://parts.igem.org/Part:BBa_I20270)
 * [Test Device 1 (J364000)](http://parts.igem.org/Part:BBa_J364000)
@@ -47,50 +48,52 @@ For all of these cell measurements, you must use the same plates and volumes tha
 
 
 ## Protocol Steps:
-1. Transform `Negative control` DNA into _`E. coli`_ ` DH5 alpha` and plate transformants on LB Broth+chloramphenicol. Repeat for the remaining transformant DNA:  `Positive control (I20270)`, `Test Device 1 (J364000)`, `Test Device 2 (J36401)`, `Test Device 3 (J36402)`, `Test Device 4 (J364007)`, `Test Device 5 (J364008)`, and `Test Device 6 (J364009)`.
-2. Provision 16 x culture tubes to contain `culture (day 1)`
-3. Inoculate _`E. coli`_ ` DH5 alpha+Negative control transformant` into 5.0 milliliter of LB Broth+chloramphenicol in culture (day 1) and grow for 16.0 hour at 37.0 degree Celsius and 220.0 rpm.  Repeat this procedure for the other inocula:  _`E. coli`_ ` DH5 alpha+Positive control (I20270) transformant`, _`E. coli`_ ` DH5 alpha+Test Device 1 (J364000) transformant`, _`E. coli`_ ` DH5 alpha+Test Device 2 (J36401) transformant`, _`E. coli`_ ` DH5 alpha+Test Device 3 (J36402) transformant`, _`E. coli`_ ` DH5 alpha+Test Device 4 (J364007) transformant`, _`E. coli`_ ` DH5 alpha+Test Device 5 (J364008) transformant`, and _`E. coli`_ ` DH5 alpha+Test Device 6 (J364009) transformant`. Inoculate 2 replicates for each transformant, for a total of 16 cultures.
-4. Provision 16 x culture tubes to contain `culture (day 2)`
-5. Dilute each of 16 `culture (day 1)` samples with LB Broth+chloramphenicol into the culture tube at a 1:10 ratio and final volume of 5.0 milliliter. Maintain at 4.0 degree Celsius while performing dilutions.
-6. Provision 16 x 1.5 mL microfuge tubes to contain `cultures (0 hr timepoint)`
-7. Hold `cultures (0 hr timepoint)` at 4.0 degree Celsius. This will prevent cell growth while transferring samples.
-8. Transfer 1.0 milliliter of each of 16 `culture (day 2)` samples to 1.5 mL microfuge tube containers to contain a total of 16 `cultures (0 hr timepoint)` samples. Maintain at 4.0 degree Celsius during transfer.
-9. Measure baseline absorbance of culture (day 2) of `cultures (0 hr timepoint)` at 600.0 nanometer.
-10. Provision 16 x 50 ml conical tubes to contain `back-diluted culture` The conical tube should be opaque, amber-colored, or covered with foil.
-11. Back-dilute each of 16 `culture (day 2)` samples to a target OD of 0.02 using LB Broth+chloramphenicol as diluent to a final volume of 12.0 milliliter. Maintain at 4.0 degree Celsius while performing dilutions.
+1. Provision 8 x culture plate containing LB Agar + Chloramphenicol growth medium for culturing `test strains`
+2. Transform `Negative control` DNA into _`E. coli`_ ` DH5 alpha` and plate transformants on LB Broth + Chloramphenicol. Repeat for the remaining transformant DNA:  `Positive control (I20270)`, `Test Device 1 (J364000)`, `Test Device 2 (J36401)`, `Test Device 3 (J36402)`, `Test Device 4 (J364007)`, `Test Device 5 (J364008)`, and `Test Device 6 (J364009)`. Plate transformants on `test strains` plates.
+3. Provision 16 x culture tubes to contain `culture (day 1)`
+4. Pick 2 colonies from each `test strains` plate.
+5. Inoculate 2 colonies of each transformant test strains, for a total of 16 cultures. Inoculate each into 5.0 milliliter of LB Broth + Chloramphenicol in culture (day 1) and grow for 16.0 hour at 37.0 degree Celsius and 220.0 rpm.
+6. Provision 16 x culture tubes to contain `culture (day 2)`
+7. Dilute each of 16 `culture (day 1)` samples with LB Broth + Chloramphenicol into the culture tube at a 1:10 ratio and final volume of 5.0 milliliter. Maintain at 4.0 degree Celsius while performing dilutions.
+8. Provision 16 x 1.5 mL microfuge tubes to contain `cultures (0 hr timepoint)`
+9. Hold `cultures (0 hr timepoint)` at 4.0 degree Celsius. This will prevent cell growth while transferring samples.
+10. Transfer 1.0 milliliter of each of 16 `culture (day 2)` samples to 1.5 mL microfuge tube containers to contain a total of 16 `cultures (0 hr timepoint)` samples. Maintain at 4.0 degree Celsius during transfer.
+11. Measure baseline absorbance of culture (day 2) of `cultures (0 hr timepoint)` at 600.0 nanometer.
+12. Provision 16 x 50 ml conical tubes to contain `back-diluted culture` The conical tube should be opaque, amber-colored, or covered with foil.
+13. Back-dilute each of 16 `culture (day 2)` samples to a target OD of 0.02 using LB Broth + Chloramphenicol as diluent to a final volume of 12.0 milliliter. Maintain at 4.0 degree Celsius while performing dilutions.
 
 ![](/Users/bbartley/Dev/git/sd2/paml/examples/fig1_cell_calibration.png)
 
 
-12. Provision 16 x 1.5 mL microfuge tubes to contain `back-diluted culture aliquots`
-13. Hold `back-diluted culture aliquots` at 4.0 degree Celsius. This will prevent cell growth while transferring samples.
-14. Transfer 1.0 milliliter of each of 16 `back-diluted culture` samples to 1.5 mL microfuge tube containers to contain a total of 16 `back-diluted culture aliquots` samples. Maintain at 4.0 degree Celsius during transfer.
-15. Provision a 96 well microplate to contain `plate 1`
-16. Hold `plate 1` at 4.0 degree Celsius.
-17. Transfer 200.0 microliter of each `back-diluted culture aliquots` sample to 96 well microplate `plate 1` in the wells indicated in the plate layout.
+14. Provision 16 x 1.5 mL microfuge tubes to contain `back-diluted culture aliquots`
+15. Hold `back-diluted culture aliquots` at 4.0 degree Celsius. This will prevent cell growth while transferring samples.
+16. Transfer 1.0 milliliter of each of 16 `back-diluted culture` samples to 1.5 mL microfuge tube containers to contain a total of 16 `back-diluted culture aliquots` samples. Maintain at 4.0 degree Celsius during transfer.
+17. Provision a 96 well microplate to contain `plate 1`
+18. Hold `plate 1` at 4.0 degree Celsius.
+19. Transfer 200.0 microliter of each `back-diluted culture aliquots` sample to 96 well microplate `plate 1` in the wells indicated in the plate layout.
  Maintain at 4.0 degree Celsius during transfer.
-18. Transfer 200.0 microliter of `LB Broth+chloramphenicol` sample to wells A1:H1, A10:H10, A12:H12 of  96 well microplate `plate 1`. Maintain at 4.0 degree Celsius during transfer. These samples are blanks.
+20. Transfer 200.0 microliter of `LB Broth + Chloramphenicol` sample to wells A1:H1, A10:H10, A12:H12 of  96 well microplate `plate 1`. Maintain at 4.0 degree Celsius during transfer. These samples are blanks.
 
 ![](../fig2_cell_calibration.png)
 
 
-19. Measure 0 hr absorbance timepoint of `plate 1` at 600.0 nanometer.
-20. Measure 0 hr fluorescence timepoint of `plate 1` with excitation wavelength of 488.0 nanometer and emission filter of 530.0 nanometer and 30.0 nanometer bandpass.
-21. Cover `plate 1` samples in 96 well microplate with your choice of material to prevent evaporation.
-22. Incubate all `back-diluted culture` samples for 6.0 hour at 37.0 degree Celsius at 220.0 rpm.
-23. Incubate all `plate 1` samples for 6.0 hour at 37.0 degree Celsius at 220.0 rpm.
-24. Hold all `back-diluted culture` samples at 4.0 degree Celsius. This will inhibit cell growth during the subsequent pipetting steps.
-25. Hold all `plate 1` samples at 4.0 degree Celsius. This will inhibit cell growth during the subsequent pipetting steps.
-26. Provision a 96 well microplate to contain `plate 2`
-27. Hold `plate 2` at 4.0 degree Celsius.
-28. Transfer 200.0 microliter of each `back-diluted culture` sample to 96 well microplate `plate 2` in the wells indicated in the plate layout.
+21. Measure 0 hr absorbance timepoint of `plate 1` at 600.0 nanometer.
+22. Measure 0 hr fluorescence timepoint of `plate 1` with excitation wavelength of 488.0 nanometer and emission filter of 530.0 nanometer and 30.0 nanometer bandpass.
+23. Cover `plate 1` samples in 96 well microplate with your choice of material to prevent evaporation.
+24. Incubate all `back-diluted culture` samples for 6.0 hour at 37.0 degree Celsius at 220.0 rpm.
+25. Incubate all `plate 1` samples for 6.0 hour at 37.0 degree Celsius at 220.0 rpm.
+26. Hold all `back-diluted culture` samples at 4.0 degree Celsius. This will inhibit cell growth during the subsequent pipetting steps.
+27. Hold all `plate 1` samples at 4.0 degree Celsius. This will inhibit cell growth during the subsequent pipetting steps.
+28. Provision a 96 well microplate to contain `plate 2`
+29. Hold `plate 2` at 4.0 degree Celsius.
+30. Transfer 200.0 microliter of each `back-diluted culture` sample to 96 well microplate `plate 2` in the wells indicated in the plate layout.
  Maintain at 4.0 degree Celsius during transfer.
-29. Transfer 200.0 microliter of `LB Broth+chloramphenicol` sample to wells A1:H1, A10:H10, A12:H12 of  96 well microplate `plate 2`. Maintain at 4.0 degree Celsius during transfer. These are the blanks.
-30. Measure 6 hr absorbance timepoint of `plate 1` at 600.0 nanometer.
-31. Measure 6 hr fluorescence timepoint of `plate 1` with excitation wavelength of 485.0 nanometer and emission filter of 530.0 nanometer and 30.0 nanometer bandpass.
-32. Measure 6 hr absorbance timepoint of `plate 2` at 600.0 nanometer.
-33. Measure 6 hr fluorescence timepoint of `plate 2` with excitation wavelength of 485.0 nanometer and emission filter of 530.0 nanometer and 30.0 nanometer bandpass.
-34. Import data for `baseline absorbance of culture (day 2) measurements of cultures (0 hr timepoint)`, `0 hr absorbance timepoint measurements of plate 1`, `0 hr fluorescence timepoint measurements of plate 1`, `6 hr absorbance timepoint measurements of plate 1`, `6 hr fluorescence timepoint measurements of plate 1`, `6 hr absorbance timepoint measurements of plate 2`, `6 hr fluorescence timepoint measurements of plate 2` into provided Excel file.
+31. Transfer 200.0 microliter of `LB Broth + Chloramphenicol` sample to wells A1:H1, A10:H10, A12:H12 of  96 well microplate `plate 2`. Maintain at 4.0 degree Celsius during transfer. These are the blanks.
+32. Measure 6 hr absorbance timepoint of `plate 1` at 600.0 nanometer.
+33. Measure 6 hr fluorescence timepoint of `plate 1` with excitation wavelength of 485.0 nanometer and emission filter of 530.0 nanometer and 30.0 nanometer bandpass.
+34. Measure 6 hr absorbance timepoint of `plate 2` at 600.0 nanometer.
+35. Measure 6 hr fluorescence timepoint of `plate 2` with excitation wavelength of 485.0 nanometer and emission filter of 530.0 nanometer and 30.0 nanometer bandpass.
+36. Import data for `baseline absorbance of culture (day 2) measurements of cultures (0 hr timepoint)`, `0 hr absorbance timepoint measurements of plate 1`, `0 hr fluorescence timepoint measurements of plate 1`, `6 hr absorbance timepoint measurements of plate 1`, `6 hr fluorescence timepoint measurements of plate 1`, `6 hr absorbance timepoint measurements of plate 2`, `6 hr fluorescence timepoint measurements of plate 2` into provided Excel file.
 ---
-Timestamp: 2022-06-27 08:35:16.624794---
+Timestamp: 2022-06-28 21:50:46.276394---
 Protocol version: 1.0b

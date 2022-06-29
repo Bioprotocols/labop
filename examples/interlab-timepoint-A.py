@@ -42,6 +42,10 @@ lb_cam = sbol3.Component('lb_cam', '')
 lb_cam.name = 'LB Broth+chloramphenicol'
 doc.add(lb_cam)
 
+lb_agar_cam = sbol3.Component('lb_agar_cam', '')
+lb_agar_cam.name = 'LB Agar + Chloramphenicol'
+doc.add(lb_agar_cam)
+
 chloramphenicol = sbol3.Component('chloramphenicol', 'https://pubchem.ncbi.nlm.nih.gov/compound/5959')
 chloramphenicol.name = 'chloramphenicol'
 doc.add(chloramphenicol)
@@ -90,7 +94,7 @@ doc.add(test_device6)
 
 protocol = paml.Protocol('interlab')
 protocol.name = 'Cell measurement protocol'
-protocol.version = sbol3.TextProperty(protocol, 'http://igem.org/interlab_working_group#Version', 0, 1, [], '1.0b')
+protocol.version = sbol3.TextProperty(protocol, 'http://igem.org/interlab_working_group#Version', 0, 1, [], '1.1b')
 protocol.description = '''Challenging A - This version of the protocol involves 2 hr. time-point measurements using a plate-reader, but incubation may be performed inside a bench-top or standing incubator. 
 
 Prior to performing the cell measurements you should perform all three of the calibration measurements. Please do not proceed unless you have completed the three calibration protocols. Completion of the calibrations will ensure that you understand the measurement process and that you can take the cell measurements under the same conditions. For the sake of consistency and reproducibility, we are requiring all teams to use E. coli K-12 DH5-alpha. If you do not have access to this strain, you can request streaks of the transformed devices from another team near you, and this can count as a collaboration as long as it is appropriately documented on both teams' wikis. If you are absolutely unable to obtain the DH5-alpha strain, you may still participate in the InterLab study by contacting the Measurement Committee (measurement at igem dot org) to discuss your situation.
@@ -103,10 +107,18 @@ protocol = doc.find(protocol.identity)
 plasmids = [neg_control_plasmid, pos_control_plasmid, test_device1, test_device2, test_device3, test_device4, test_device5, test_device6]
 
 # Day 1: Transformation
+culture_plates = protocol.primitive_step('CulturePlates',
+                                         quantity=len(plasmids),
+                                         specification=paml.ContainerSpec(name=f'test strains',
+                                                                          queryString='cont:CulturePlate',
+                                                                          prefixMap={'cont': 'https://sift.net/container-ontology/container-ontology#'}),
+                                         growth_medium=lb_agar_cam)
+
 transformation = protocol.primitive_step(f'Transform',
                                           host=dh5alpha,
                                           dna=plasmids,
-                                          selection_medium=lb_cam)
+                                          selection_medium=lb_cam,
+                                          destination=culture_plates.output_pin('samples'))
     
 # Day 2: Pick colonies and culture overnight
 culture_container_day1 = protocol.primitive_step('ContainerSet', 
@@ -115,8 +127,13 @@ culture_container_day1 = protocol.primitive_step('ContainerSet',
                                                                                   queryString='cont:CultureTube', 
                                                                                   prefixMap={'cont': 'https://sift.net/container-ontology/container-ontology#'}))
 
+pick_colonies = protocol.primitive_step('PickColonies',
+                                        colonies=transformation.output_pin('transformants'),
+                                        quantity=2*len(plasmids),
+                                        replicates=2)
+
 overnight_culture = protocol.primitive_step('Culture',
-                                            inoculum=transformation.output_pin('transformants'),
+                                            inoculum=pick_colonies.output_pin('samples'),
                                             replicates=2,
                                             growth_medium=lb_cam,
                                             volume=sbol3.Measure(5, OM.millilitre),  # Actually 5-10 ml in the written protocol
@@ -124,7 +141,7 @@ overnight_culture = protocol.primitive_step('Culture',
                                             orbital_shake_speed=sbol3.Measure(220, None),  # No unit for RPM or inverse minutes
                                             temperature=sbol3.Measure(37, OM.degree_Celsius),
                                             container=culture_container_day1.output_pin('samples'))
-
+    
 # Day 3 culture
 culture_container_day2 = protocol.primitive_step('ContainerSet',
                                                   quantity=2*len(plasmids), 
