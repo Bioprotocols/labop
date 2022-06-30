@@ -177,19 +177,6 @@ class ExecutionEngine(ABC):
         return [n for n,nt in candidate_clusters.items()
                 if n.enabled(self.ex, nt)]
 
-    def execute_primitive(self, behavior: paml.Primitive, agent: sbol3.Agent, parameter_values: dict = {}, id: str = uuid.uuid4()) -> paml.BehaviorExecution:
-        pass
-
-    def get_calling_behavior_execution(self, activity_node: paml.ActivityNodeExecution):
-        if activity_node in self.blocked_nodes:
-            return activity_node
-        else:
-            for incoming_flow in activity_node.incoming_flows:
-                parent_activity_node = incoming_flow.lookup().token_source.lookup()
-                if parent_activity_node:
-                    calling_behavior_execution = self.get_calling_behavior_execution(parent_activity_node)
-                    return calling_behavior_execution
-            return None
 
 ##################################
 # Helper utility functions
