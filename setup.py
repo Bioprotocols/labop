@@ -39,6 +39,7 @@ setup(
         "paml_time",
         "uml",
         "owl_rdf_utils",
+        "examples"
     ],
     package_data={
         "paml": ["paml.ttl", "lib/*.ttl"],

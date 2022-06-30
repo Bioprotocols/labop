@@ -10,7 +10,7 @@ from os.path import basename
 from typing import Tuple
 from paml.execution_engine import ExecutionEngine
 
-import ph_calibration_utils as util
+import examples.pH_calibration.ph_calibration_utils as util
 
 import paml
 # import paml_time as pamlt
