@@ -791,6 +791,7 @@ class MarkdownSpecialization(BehaviorSpecialization):
         text = f"Transform `{dna_names[0]}` DNA into `{host.name}` and plate transformants on {medium.name}."
         text += repeat_for_remaining_samples(dna_names, repeat_msg='Repeat for the remaining transformant DNA: ')
         text += f' Plate transformants on `{destination.name}` plates.'
+        text = add_description(record, text)
         execution.markdown_steps += [text]
 
     def serial_dilution(self, record: paml.ActivityNodeExecution, execution: paml.ProtocolExecution):
