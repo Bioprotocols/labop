@@ -112,7 +112,7 @@ doc.add(shaking_incubator)
 
 protocol = paml.Protocol('interlab')
 protocol.name = 'Cell measurement protocol'
-protocol.version = sbol3.TextProperty(protocol, 'http://igem.org/interlab_working_group#Version', 0, 1, [], '1.2')
+protocol.version = sbol3.TextProperty(protocol, 'http://igem.org/interlab_working_group#Version', 0, 1, [], '1.2.1')
 protocol.description = '''This year we plan to test protocols that will eventually be automated. For this reason, we will use 96-well plates instead of test tubes for culturing. Consequently, we want to evaluate how the performance of our plate culturing protocol compares to culturing in test tubes (e.g. 10 mL falcon tube) on a global scale.
 
 At the end of the experiment, you will have two plates to be measured. You will measure both fluorescence and absorbance in each plate.

@@ -106,5 +106,5 @@ Protocol summary: You will transform the eight devices listed in Table 1 into E.
 35. Measure 6 hr fluorescence timepoint of `plate 2` with excitation wavelength of 485.0 nanometer and emission filter of 530.0 nanometer and 30.0 nanometer bandpass.
 36. Import data for `baseline absorbance of culture (day 2) measurements of cultures (0 hr timepoint)`, `0 hr absorbance timepoint measurements of plate 1`, `0 hr fluorescence timepoint measurements of plate 1`, `6 hr absorbance timepoint measurements of plate 1`, `6 hr fluorescence timepoint measurements of plate 1`, `6 hr absorbance timepoint measurements of plate 2`, `6 hr fluorescence timepoint measurements of plate 2` into provided Excel file.
 ---
-Timestamp: 2022-07-01 09:42:12.043039---
-Protocol version: 1.2
+Timestamp: 2022-07-01 09:48:31.650433---
+Protocol version: 1.2.1
