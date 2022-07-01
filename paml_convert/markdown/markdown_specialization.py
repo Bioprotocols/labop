@@ -123,6 +123,39 @@ class MarkdownSpecialization(BehaviorSpecialization):
         markdown = ''
         for name, material  in materials.items():
             markdown += f"* [{name}]({material.types[0]})\n"
+
+        # Compute container types and quantities
+        document_objects = []
+        protocol.document.traverse(lambda obj: document_objects.append(obj))
+        call_behavior_actions = [obj for obj in document_objects if type(obj) is uml.CallBehaviorAction]
+        containers = {}
+        for cba in call_behavior_actions:
+            try:
+                pin = cba.input_pin('specification')
+            except:
+                continue
+            container_type = pin.value.value.queryString
+        
+            try:
+                pin = cba.input_pin('quantity')
+            except:
+                pin = None
+            qty = pin.value.value if pin else 1
+            
+            if container_type in containers:
+                containers[container_type] += qty
+            else:
+                containers[container_type] = qty
+        
+        for container_type, qty in containers.items():
+            container_class = ContainerOntology.uri + '#' + container_type.split(':')[-1]
+            container_str = ContainerOntology.get_term_by_uri(container_class)
+            text = f'* {container_str}'
+            if qty > 1:
+                text += f' (x {qty})'
+            text += '\n'
+            markdown += text
+
         for x in subprotocol_executions:
             markdown += x.materials
         return markdown
