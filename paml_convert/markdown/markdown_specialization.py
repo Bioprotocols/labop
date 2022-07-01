@@ -599,10 +599,10 @@ class MarkdownSpecialization(BehaviorSpecialization):
         # Generate markdown
         container_str = record.document.find(container.container_type).value.name 
         inocula_names = get_sample_names(inocula, error_msg='Culture execution failed. All input inoculum Components must specify a name.')
-        text = f'Inoculate `{inocula_names[0]}` into {volume_scalar} {volume_units} of {growth_medium.name} in {container_str} and grow for {measurement_to_text(duration)} at {measurement_to_text(temperature)} and {orbital_shake_speed.value} rpm.'
+        text = f'Inoculate `{inocula_names[0]}` into {volume_scalar} {volume_units} of {growth_medium.name} in {container_str} and grow for {measurement_to_text(duration)} at {measurement_to_text(temperature)} and {int(orbital_shake_speed.value)} rpm.'
         text += repeat_for_remaining_samples(inocula_names, repeat_msg=' Repeat this procedure for the other inocula: ')
         if replicates > 1:
-            text = f'Inoculate {replicates} colonies of each transformant {inocula.name}, for a total of {replicates*len(inocula_names)} cultures. Inoculate each into {volume_scalar} {volume_units} of {growth_medium.name} in {container_str} and grow for {measurement_to_text(duration)} at {measurement_to_text(temperature)} and {orbital_shake_speed.value} rpm.'
+            text = f'Inoculate {replicates} colonies of each transformant {inocula.name}, for a total of {replicates*len(inocula_names)} cultures. Inoculate each into {volume_scalar} {volume_units} of {growth_medium.name} in {container_str} and grow for {measurement_to_text(duration)} at {measurement_to_text(temperature)} and {int(orbital_shake_speed.value)} rpm.'
 
 
         # Populate output SampleArray
@@ -620,9 +620,9 @@ class MarkdownSpecialization(BehaviorSpecialization):
 
         sample_names = get_sample_names(location, error_msg='Hold execution failed. All input locations must have a name specified')
         if len(sample_names) > 1:
-            text = f'Incubate all `{location.name}` samples for {measurement_to_text(duration)} at {measurement_to_text(temperature)} at {shakingFrequency.value} rpm.'
+            text = f'Incubate all `{location.name}` samples for {measurement_to_text(duration)} at {measurement_to_text(temperature)} at {int(shakingFrequency.value)} rpm.'
         else:
-            text = f'Incubate `{location.name}` for {measurement_to_text(duration)} at {measurement_to_text(temperature)} at {shakingFrequency.value} rpm.'
+            text = f'Incubate `{location.name}` for {measurement_to_text(duration)} at {measurement_to_text(temperature)} at {int(shakingFrequency.value)} rpm.'
 
         execution.markdown_steps += [text]
 
