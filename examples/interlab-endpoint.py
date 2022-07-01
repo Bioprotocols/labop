@@ -117,11 +117,11 @@ protocol.description = '''This year we plan to test protocols that will eventual
 
 At the end of the experiment, you will have two plates to be measured. You will measure both fluorescence and absorbance in each plate.
 
-Before performing the cell measurements, you need to perform all three of the calibration measurements. Please do not proceed unless you have completed the calibration protocol. Completion of the calibrations will ensure that you understand the measurement process and that you can take the cell measurements under the same conditions. For consistency and reproducibility, we are requiring all teams to use E. coli K-12 DH5-alpha. If you do not have access to this strain, you can request streaks of the transformed devices from another team near you., If you are absolutely unable to obtain the DH5-alpha strain, you may still participate in the InterLab study by contacting the Engineering Committee (engineering [at] igem [dot] org) to discuss your situation.
+Before performing the cell measurements, you need to perform all the calibration measurements. Please do not proceed unless you have completed the calibration protocol. Completion of the calibrations will ensure that you understand the measurement process and that you can take the cell measurements under the same conditions. For consistency and reproducibility, we are requiring all teams to use E. coli K-12 DH5-alpha. If you do not have access to this strain, you can request streaks of the transformed devices from another team near you. If you are absolutely unable to obtain the DH5-alpha strain, you may still participate in the InterLab study by contacting the Engineering Committee (engineering [at] igem [dot] org) to discuss your situation.
 
 For all below indicated cell measurements, you must use the same type of plates and the same volumes that you used in your calibration protocol. You must also use the same settings (e.g., filters or excitation and emission wavelengths) that you used in your calibration measurements. If you do not use the same type of plates, volumes, and settings, the measurements will not be valid.
 
-Protocol summary: You will transform the eight parts listed in Table 1 into E. coli K-12 DH5-alpha cells. The next day you will pick two colonies from each transformation (16 total) and use them to inoculate 5 mL overnight cultures (this step is still in tubes). Each of these 16 overnight cultures will be used to inoculate four wells in a 96-well plate (200 microliters each, 4 replicates) or one test tube (5 mL). You will measure how fluorescence and optical density develops over 6 hours by taking measurements at time point 0 hour and at time point 6 hours. Follow the protocol below and the visual instructions in Figure 1 and Figure 2.'''
+Protocol summary: You will transform the eight devices listed in Table 1 into E. coli K-12 DH5-alpha cells. The next day you will pick two colonies from each transformation (16 total) and use them to inoculate 5 mL overnight cultures (this step is still in tubes). Each of these 16 overnight cultures will be used to inoculate four wells in a 96-well plate (200 microliters each, 4 replicates) or one test tube (5 mL). You will measure how fluorescence and optical density develops over 6 hours by taking measurements at time point 0 hour and at time point 6 hours. Follow the protocol below and the visual instructions in Figure 1 and Figure 2.'''
 
 doc.add(protocol)
 protocol = doc.find(protocol.identity)
@@ -141,6 +141,7 @@ transformation = protocol.primitive_step(f'Transform',
                                           dna=plasmids,
                                           selection_medium=lb_cam,
                                           destination=culture_plates.output_pin('samples'))
+transformation.description = 'Incubate at 37.0 degree Celsius for 16.0 hour (overnight).'
     
 # Day 2: Pick colonies and culture overnight
 culture_container_day1 = protocol.primitive_step('ContainerSet', 
@@ -181,6 +182,8 @@ back_dilution = protocol.primitive_step('Dilute',
                                         amount=sbol3.Measure(5.0, OM.millilitre),
                                         dilution_factor=uml.LiteralInteger(value=10),
                                         temperature=sbol3.Measure(4, OM.degree_Celsius))
+back_dilution.description = '(This can be also performed on ice).'
+                                        
 
 # Transfer cultures to a microplate baseline measurement and outgrowth
 timepoint_0hrs = protocol.primitive_step('ContainerSet',
@@ -198,7 +201,9 @@ transfer = protocol.primitive_step('Transfer',
                                    destination=timepoint_0hrs.output_pin('samples'),
                                    amount=sbol3.Measure(1, OM.milliliter),
                                    temperature=sbol3.Measure(4, OM.degree_Celsius))
-# Stap 9
+transfer.description = '(This can be also performed on Ice).'
+
+# Step 11 Abs measurement
 baseline_absorbance = protocol.primitive_step('MeasureAbsorbance',
                                               samples=timepoint_0hrs.output_pin('samples'),
                                               wavelength=sbol3.Measure(600, OM.nanometer))
@@ -220,10 +225,10 @@ dilution = protocol.primitive_step('DiluteToTargetOD',
                                    amount=sbol3.Measure(12, OM.millilitre),
                                    target_od=sbol3.Measure(0.02, None),
                                    temperature=sbol3.Measure(4, OM.degree_Celsius))  # Dilute to a target OD of 0.2, opaque container
-dilution.description = ' Use the provided Excel sheet to calculate this dilution. Reliability of the dilution upon Abs600 measurement: should stay between 0.1-0.9'
+dilution.description = f'(This can be also performed on Ice).'
 
 embedded_image = protocol.primitive_step('EmbeddedImage',
-                                         image=os.path.join(os.path.dirname(os.path.realpath(__file__)), 'fig1_cell_calibration.png'),
+                                         image='fig1_cell_calibration.png',
                                          caption='Fig 1: Visual representation of protocol')
 
 
@@ -242,6 +247,7 @@ transfer = protocol.primitive_step('Transfer',
                                    destination=temporary.output_pin('samples'),
                                    amount=sbol3.Measure(1, OM.milliliter),
                                    temperature=sbol3.Measure(4, OM.degree_Celsius))
+transfer.description = '(This can be also performed on Ice).'
 
 plate1 = protocol.primitive_step('EmptyContainer',
                                  specification=paml.ContainerSpec(name='plate 1',
@@ -289,7 +295,7 @@ plate_blanks = protocol.primitive_step('Transfer',
 plate_blanks.description = 'These samples are blanks.'
 
 embedded_image = protocol.primitive_step('EmbeddedImage',
-                                         image=os.path.join(os.path.dirname(os.path.realpath(__file__)), 'fig2_cell_calibration.png'),
+                                         image='fig2_cell_calibration.png',
                                          caption='Fig 2: Plate layout')
 
 # Possibly display map here
