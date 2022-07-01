@@ -2,6 +2,7 @@
 http://2018.igem.org/wiki/images/0/09/2018_InterLab_Plate_Reader_Protocol.pdf
 '''
 import json
+import os
 from urllib.parse import quote
 
 import sbol3
@@ -12,6 +13,7 @@ import uml
 from paml.execution_engine import ExecutionEngine
 from paml_convert.markdown.markdown_specialization import MarkdownSpecialization
 from kit_coordinates import render_kit_coordinates_table
+
 
 
 doc = sbol3.Document()
@@ -32,42 +34,42 @@ paml.import_library('culturing')
 #############################################
 
 
-# create the materials to be provisioned
+# Cells and test circuits
 dh5alpha = sbol3.Component('dh5alpha', 'https://identifiers.org/taxonomy:668369')
 dh5alpha.name = '_E. coli_ DH5 alpha competent cells'  
 doc.add(dh5alpha)
 
 neg_control_plasmid = sbol3.Component('neg_control_plasmid', 'http://parts.igem.org/Part:BBa_J428100')
-neg_control_plasmid.name = 'Negative control 2022'
+neg_control_plasmid.name = 'Negative control'
 neg_control_plasmid.description = 'BBa_J428100 Kit Plate 1 Well 12M'
 
 pos_control_plasmid = sbol3.Component('pos_control_plasmid', 'http://parts.igem.org/Part:BBa_I20270')
-pos_control_plasmid.name = 'Positive control 2018'
+pos_control_plasmid.name = 'Positive control (I20270)'
 pos_control_plasmid.description = 'BBa_I20270 Kit Plate 1 Well 1A'
 
-test_device1 = sbol3.Component('test_device1', 'http://parts.igem.org/Part:BBa_J428112')
-test_device1.name = 'Test Device 1 Exp 1 (Green Device)'
-test_device1.description = 'BBa_J428112 Kit Plate 1 Well 14C'
+test_device1 = sbol3.Component('test_device1', 'http://parts.igem.org/Part:BBa_J364000')
+test_device1.name = 'Test Device 1 (J364000)'
+test_device1.description = 'BBa_J364000 Kit Plate 1 Well 1C'
 
-test_device2 = sbol3.Component('test_device2', 'http://parts.igem.org/Part:BBa_J428110')
-test_device2.name = 'Test Device 2 Exp 1 (Red mRFP1 device)'
-test_device2.description = 'BBa_J428110 Kit Plate 1 Well 12O'
+test_device2 = sbol3.Component('test_device2', 'http://parts.igem.org/Part:BBa_J364001')
+test_device2.name = 'Test Device 2 (J36401)'
+test_device2.description = 'BBa_J364001 Kit Plate 1 Well 1E'
 
-test_device3 = sbol3.Component('test_device3', 'http://parts.igem.org/Part:BBa_J428111')
-test_device3.name = 'Test Device 3 Exp 1 (Red mCherry device)'
-test_device3.description = 'BBa_J428111 Kit Plate 1 Well 14A'
+test_device3 = sbol3.Component('test_device3', 'http://parts.igem.org/Part:BBa_J364002')
+test_device3.name = 'Test Device 3 (J36402)'
+test_device3.description = 'BBa_J364002 Kit Plate 1 Well 1G'
 
-test_device4 = sbol3.Component('test_device4', 'http://parts.igem.org/Part:BBa_J428101')
-test_device4.name = 'Test Device 4 Exp 1 (RiboJ Insulated mCherry device)'
-test_device4.description = 'BBa_J428101 Kit Plate 1 Well 12I'
+test_device4 = sbol3.Component('test_device4', 'http://parts.igem.org/Part:BBa_J364007')
+test_device4.name = 'Test Device 4 (J364007)'
+test_device4.description = 'BBa_J364007 Kit Plate 1 Well 1I'
 
-test_device5 = sbol3.Component('test_device5', 'http://parts.igem.org/Part:BBa_J428108')
-test_device5.name = 'Test Device 5 Exp 1 (Dual construct Blue and Red)'
-test_device5.description = 'BBa_J428108 Kit Plate 1 Well 14E'
+test_device5 = sbol3.Component('test_device5', 'http://parts.igem.org/Part:BBa_J364008')
+test_device5.name = 'Test Device 5 (J364008)'
+test_device5.description = 'BBa_J364008 Kit Plate 1 Well 1K'
 
-test_device6 = sbol3.Component('test_device6', 'http://parts.igem.org/Part:BBa_J428106')
-test_device6.name = 'Test Device 6 Exp 1 (Dual construct Green and Red)'
-test_device6.description = 'BBa_J428106 Kit Plate 1 Well 12G'
+test_device6 = sbol3.Component('test_device6', 'http://parts.igem.org/Part:BBa_J364009')
+test_device6.name = 'Test Device 6 (J364009)'
+test_device6.description = 'BBa_J364009 Kit Plate 1 Well 1M'
 
 doc.add(neg_control_plasmid)
 doc.add(pos_control_plasmid)
@@ -107,13 +109,19 @@ shaking_incubator.name = 'Shaking incubator'
 doc.add(plate_reader)
 doc.add(shaking_incubator)
 
-################################################################
-protocol = paml.Protocol('interlab')
-protocol.name = 'Testing the three color calibration protocol'
-protocol.version = sbol3.TextProperty(protocol, 'http://igem.org/interlab_working_group#Version', 0, 1, [], '1.0b')
-protocol.description = '''In this experiment, your team will measure the fluorescence of six devices that encode either a single fluorescence protein (blue, green, or red) or two fluorescence proteins encoded in two transcriptional units. You will calibrate the fluorescence of these devices to the three calibrant dyes and you will calibrate the optical density of the culture to the cell density calibrant.
 
-This experiment aims to assess the lab-to-lab reproducibility of the new three color calibration protocol. We will test if it works well for calibrating the fluorescence in cells that express one single fluorescent protein and for cells expressing two different fluorescent proteins at the same time.'''
+protocol = paml.Protocol('interlab')
+protocol.name = 'Cell measurement protocol'
+protocol.version = sbol3.TextProperty(protocol, 'http://igem.org/interlab_working_group#Version', 0, 1, [], '1.2.1')
+protocol.description = '''This year we plan to test protocols that will eventually be automated. For this reason, we will use 96-well plates instead of test tubes for culturing. Consequently, we want to evaluate how the performance of our plate culturing protocol compares to culturing in test tubes (e.g. 10 mL falcon tube) on a global scale.
+
+At the end of the experiment, you will have two plates to be measured. You will measure both fluorescence and absorbance in each plate.
+
+Before performing the cell measurements, you need to perform all the calibration measurements. Please do not proceed unless you have completed the calibration protocol. Completion of the calibrations will ensure that you understand the measurement process and that you can take the cell measurements under the same conditions. For consistency and reproducibility, we are requiring all teams to use E. coli K-12 DH5-alpha. If you do not have access to this strain, you can request streaks of the transformed devices from another team near you. If you are absolutely unable to obtain the DH5-alpha strain, you may still participate in the InterLab study by contacting the Engineering Committee (engineering [at] igem [dot] org) to discuss your situation.
+
+For all below indicated cell measurements, you must use the same type of plates and the same volumes that you used in your calibration protocol. You must also use the same settings (e.g., filters or excitation and emission wavelengths) that you used in your calibration measurements. If you do not use the same type of plates, volumes, and settings, the measurements will not be valid.
+
+Protocol summary: You will transform the eight devices listed in Table 1 into E. coli K-12 DH5-alpha cells. The next day you will pick two colonies from each transformation (16 total) and use them to inoculate 5 mL overnight cultures (this step is still in tubes). Each of these 16 overnight cultures will be used to inoculate four wells in a 96-well plate (200 microliters each, 4 replicates) or one test tube (12 mL). You will measure how fluorescence and optical density develops over 6 hours by taking measurements at time point 0 hour and at time point 6 hours. Follow the protocol below and the visual instructions in Figure 1 and Figure 2.'''
 
 doc.add(protocol)
 protocol = doc.find(protocol.identity)
@@ -175,6 +183,7 @@ back_dilution = protocol.primitive_step('Dilute',
                                         dilution_factor=uml.LiteralInteger(value=10),
                                         temperature=sbol3.Measure(4, OM.degree_Celsius))
 back_dilution.description = '(This can be also performed on ice).'
+                                        
 
 # Transfer cultures to a microplate baseline measurement and outgrowth
 timepoint_0hrs = protocol.primitive_step('ContainerSet',
@@ -194,7 +203,7 @@ transfer = protocol.primitive_step('Transfer',
                                    temperature=sbol3.Measure(4, OM.degree_Celsius))
 transfer.description = '(This can be also performed on Ice).'
 
-# Abs measurement
+# Step 11 Abs measurement
 baseline_absorbance = protocol.primitive_step('MeasureAbsorbance',
                                               samples=timepoint_0hrs.output_pin('samples'),
                                               wavelength=sbol3.Measure(600, OM.nanometer))
@@ -219,7 +228,7 @@ dilution = protocol.primitive_step('DiluteToTargetOD',
 dilution.description = f'(This can be also performed on Ice).'
 
 embedded_image = protocol.primitive_step('EmbeddedImage',
-                                         image='fig1_standard_protocol.png',
+                                         image=os.path.join(os.path.dirname(os.path.realpath(__file__)), 'fig1_standard_protocol.png'),
                                          caption='Fig 1: Visual representation of protocol')
 
 
@@ -286,10 +295,8 @@ plate_blanks = protocol.primitive_step('Transfer',
 plate_blanks.description = 'These samples are blanks.'
 
 embedded_image = protocol.primitive_step('EmbeddedImage',
-                                         image='fig2_cell_calibration.png',
+                                         image=os.path.join(os.path.dirname(os.path.realpath(__file__)), 'fig2_cell_calibration.png'),
                                          caption='Fig 2: Plate layout')
-
-
 
 # Possibly display map here
 absorbance_plate1 = protocol.primitive_step('MeasureAbsorbance',
@@ -301,22 +308,13 @@ fluorescence_plate1 = protocol.primitive_step('MeasureFluorescence',
                                                   excitationWavelength=sbol3.Measure(488, OM.nanometer),
                                                   emissionWavelength=sbol3.Measure(530, OM.nanometer),
                                                   emissionBandpassWidth=sbol3.Measure(30, OM.nanometer))
-fluorescence_plate1.name = '0 hr green fluorescence timepoint'
+fluorescence_plate1.name = '0 hr fluorescence timepoint'
 
-fluorescence_blue_plate1 = protocol.primitive_step('MeasureFluorescence',
-                                                       samples=plate1.output_pin('samples'),
-                                                       excitationWavelength=sbol3.Measure(405, OM.nanometer),
-                                                       emissionWavelength=sbol3.Measure(450, OM.nanometer),
-                                                       emissionBandpassWidth=sbol3.Measure(50, OM.nanometer))
-fluorescence_blue_plate1.name = '0 hr blue fluorescence timepoint'
-
-fluorescence_red_plate1 = protocol.primitive_step('MeasureFluorescence',
-                                                       samples=plate1.output_pin('samples'),
-                                                       excitationWavelength=sbol3.Measure(561, OM.nanometer),
-                                                       emissionWavelength=sbol3.Measure(610, OM.nanometer),
-                                                       emissionBandpassWidth=sbol3.Measure(20, OM.nanometer))
-fluorescence_red_plate1.name = '0 hr red fluorescence timepoint'
-
+# Cover plate
+seal = protocol.primitive_step('EvaporativeSeal',
+                               location=plate1.output_pin('samples'),
+                               specification=paml.ContainerSpec(queryString='cont:MicroplateAdhesiveSealingFilm',
+                                             prefixMap={'cont': 'https://sift.net/container-ontology/container-ontology#'}))
 
 # Begin outgrowth
 incubate = protocol.primitive_step('Incubate',
@@ -325,19 +323,31 @@ incubate = protocol.primitive_step('Incubate',
                                    temperature=sbol3.Measure(37, OM.degree_Celsius),
                                    shakingFrequency=sbol3.Measure(220, None))
 
+incubate = protocol.primitive_step('Incubate',
+                                   location=plate1.output_pin('samples'),
+                                   duration=sbol3.Measure(6, OM.hour),
+                                   temperature=sbol3.Measure(37, OM.degree_Celsius),
+                                   shakingFrequency=sbol3.Measure(220, None))
 
 # Hold on ice to inhibit cell growth
 hold = protocol.primitive_step('HoldOnIce',
                                location=conical_tube.output_pin('samples'))
 hold.description = 'This will inhibit cell growth during the subsequent pipetting steps.'
 
-# Take a 6hr timepoint measurement   
+hold = protocol.primitive_step('HoldOnIce',
+                               location=plate1.output_pin('samples'))
+hold.description = 'This will inhibit cell growth during the subsequent pipetting steps.'
+
+
+# Take a 6hr timepoint measurement
+     
 plate2 = protocol.primitive_step('EmptyContainer',
                                  specification=paml.ContainerSpec(name='plate 2',
                                  queryString='cont:Plate96Well',
                                  prefixMap={'cont': 'https://sift.net/container-ontology/container-ontology#'}))
 
 # Hold on ice
+
 hold = protocol.primitive_step('HoldOnIce',
                                location=plate2.output_pin('samples'))
 
@@ -378,6 +388,25 @@ plate_blanks = protocol.primitive_step('Transfer',
 plate_blanks.description = 'These are the blanks.'
 
 
+#quick_spin = protocol.primitive_step('QuickSpin',
+#                                     location=plate1.output_pin('samples'))
+#quick_spin.description = 'This will prevent cross-contamination when removing the seal.'
+#
+#remove_seal = protocol.primitive_step('Unseal',
+#                                      location=plate1.output_pin('samples'))
+
+endpoint_absorbance_plate1 = protocol.primitive_step('MeasureAbsorbance',
+                                                     samples=plate1.output_pin('samples'),
+                                                     wavelength=sbol3.Measure(600, OM.nanometer))
+endpoint_absorbance_plate1.name = '6 hr absorbance timepoint'
+
+endpoint_fluorescence_plate1 = protocol.primitive_step('MeasureFluorescence',
+                                                       samples=plate1.output_pin('samples'),
+                                                       excitationWavelength=sbol3.Measure(485, OM.nanometer),
+                                                       emissionWavelength=sbol3.Measure(530, OM.nanometer),
+                                                       emissionBandpassWidth=sbol3.Measure(30, OM.nanometer))
+endpoint_fluorescence_plate1.name = '6 hr fluorescence timepoint'
+
 endpoint_absorbance_plate2 = protocol.primitive_step('MeasureAbsorbance',
                                                      samples=plate2.output_pin('samples'),
                                                      wavelength=sbol3.Measure(600, OM.nanometer))
@@ -388,34 +417,18 @@ endpoint_fluorescence_plate2 = protocol.primitive_step('MeasureFluorescence',
                                                        excitationWavelength=sbol3.Measure(485, OM.nanometer),
                                                        emissionWavelength=sbol3.Measure(530, OM.nanometer),
                                                        emissionBandpassWidth=sbol3.Measure(30, OM.nanometer))
-endpoint_fluorescence_plate2.name = '6 hr green fluorescence timepoint'
-
-endpoint_fluorescence_blue_plate2 = protocol.primitive_step('MeasureFluorescence',
-                                                       samples=plate2.output_pin('samples'),
-                                                       excitationWavelength=sbol3.Measure(405, OM.nanometer),
-                                                       emissionWavelength=sbol3.Measure(450, OM.nanometer),
-                                                       emissionBandpassWidth=sbol3.Measure(50, OM.nanometer))
-endpoint_fluorescence_blue_plate2.name = '6 hr blue fluorescence timepoint'
-
-endpoint_fluorescence_red_plate2 = protocol.primitive_step('MeasureFluorescence',
-                                                       samples=plate2.output_pin('samples'),
-                                                       excitationWavelength=sbol3.Measure(561, OM.nanometer),
-                                                       emissionWavelength=sbol3.Measure(610, OM.nanometer),
-                                                       emissionBandpassWidth=sbol3.Measure(20, OM.nanometer))
-endpoint_fluorescence_red_plate2.name = '6 hr red fluorescence timepoint'
-
+endpoint_fluorescence_plate2.name = '6 hr fluorescence timepoint'
 
 protocol.designate_output('measurements', 'http://bioprotocols.org/paml#SampleData', source=baseline_absorbance.output_pin('measurements'))
 protocol.designate_output('measurements', 'http://bioprotocols.org/paml#SampleData', source=absorbance_plate1.output_pin('measurements'))
 protocol.designate_output('measurements', 'http://bioprotocols.org/paml#SampleData', source=fluorescence_plate1.output_pin('measurements'))
-protocol.designate_output('measurements', 'http://bioprotocols.org/paml#SampleData', source=fluorescence_blue_plate1.output_pin('measurements'))
-protocol.designate_output('measurements', 'http://bioprotocols.org/paml#SampleData', source=fluorescence_red_plate1.output_pin('measurements'))
 
+protocol.designate_output('measurements', 'http://bioprotocols.org/paml#SampleData', source=endpoint_absorbance_plate1.output_pin('measurements'))
+protocol.designate_output('measurements', 'http://bioprotocols.org/paml#SampleData', source=endpoint_fluorescence_plate1.output_pin('measurements'))
 
 protocol.designate_output('measurements', 'http://bioprotocols.org/paml#SampleData', source=endpoint_absorbance_plate2.output_pin('measurements'))
 protocol.designate_output('measurements', 'http://bioprotocols.org/paml#SampleData', source=endpoint_fluorescence_plate2.output_pin('measurements'))
-protocol.designate_output('measurements', 'http://bioprotocols.org/paml#SampleData', source=endpoint_fluorescence_blue_plate2.output_pin('measurements'))
-protocol.designate_output('measurements', 'http://bioprotocols.org/paml#SampleData', source=endpoint_fluorescence_red_plate2.output_pin('measurements'))
+
 
 agent = sbol3.Agent("test_agent")
 ee = ExecutionEngine(specializations=[MarkdownSpecialization("test_LUDOX_markdown.md")])
@@ -430,3 +443,4 @@ execution.markdown = execution.markdown.replace(' degree Celsius', '\u00B0C')  #
 
 with open(__file__.split('.')[0] + '.md', 'w', encoding='utf-8') as f:
     f.write(execution.markdown)
+
