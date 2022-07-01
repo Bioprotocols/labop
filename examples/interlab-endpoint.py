@@ -34,24 +34,10 @@ paml.import_library('culturing')
 #############################################
 
 
-# create the materials to be provisioned
+# Cells and test circuits
 dh5alpha = sbol3.Component('dh5alpha', 'https://identifiers.org/taxonomy:668369')
-dh5alpha.name = '_E. coli_ DH5 alpha'  
+dh5alpha.name = '_E. coli_ DH5 alpha competent cells'  
 doc.add(dh5alpha)
-
-lb_cam = sbol3.Component('lb_cam', '')
-lb_cam.name = 'LB Broth + Chloramphenicol'  
-doc.add(lb_cam)
-
-lb_agar_cam = sbol3.Component('lb_agar_cam', '')
-lb_agar_cam.name = 'LB Agar + Chloramphenicol'  
-doc.add(lb_agar_cam)
-
-
-chloramphenicol = sbol3.Component('chloramphenicol', 'https://pubchem.ncbi.nlm.nih.gov/compound/5959')
-chloramphenicol.name = 'Chloramphenicol'  
-doc.add(chloramphenicol)
-
 
 neg_control_plasmid = sbol3.Component('neg_control_plasmid', 'http://parts.igem.org/Part:BBa_J428100')
 neg_control_plasmid.name = 'Negative control'
@@ -94,17 +80,48 @@ doc.add(test_device4)
 doc.add(test_device5)
 doc.add(test_device6)
 
+# Other reagents
+lb_cam = sbol3.Component('lb_cam', '')
+lb_cam.name = 'LB Broth + Chloramphenicol (34 ug/mL)'  
+
+lb_agar_cam = sbol3.Component('lb_agar_cam', '')
+lb_agar_cam.name = 'LB Agar + Chloramphenicol (34 ug/mL)'  
+
+chloramphenicol = sbol3.Component('chloramphenicol', 'https://pubchem.ncbi.nlm.nih.gov/compound/5959')
+chloramphenicol.name = 'Chloramphenicol stock solution (34 mg/mL)'  
+
+ice = sbol3.Component('ice', '')
+ice.name = 'Ice'
+
+doc.add(lb_cam)
+doc.add(lb_agar_cam)
+doc.add(chloramphenicol)
+doc.add(ice)
+
+# Instruments and laboratory equipment
+# TODO: instruments should be represented by sbol3.Agent 
+plate_reader = sbol3.Component('plate_reader', '')
+plate_reader.name = 'Plate reader'
+
+shaking_incubator = sbol3.Component('shaking_incubator', '')
+shaking_incubator.name = 'Shaking incubator'
+
+doc.add(plate_reader)
+doc.add(shaking_incubator)
+
 
 protocol = paml.Protocol('interlab')
 protocol.name = 'Cell measurement protocol'
-protocol.version = sbol3.TextProperty(protocol, 'http://igem.org/interlab_working_group#Version', 0, 1, [], '1.1b')
-protocol.description = '''This year we plan to go towards automation, where a 96-well plate instead of a tube is used for culturing. Prior to the full establishment of this protocol, we need to evaluate how the performance is worldwide with this as well as with parallel experiment in the test tube, which has been used as standard culturing protocol.
+protocol.version = sbol3.TextProperty(protocol, 'http://igem.org/interlab_working_group#Version', 0, 1, [], '1.2')
+protocol.description = '''This year we plan to test protocols that will eventually be automated. For this reason, we will use 96-well plates instead of test tubes for culturing. Consequently, we want to evaluate how the performance of our plate culturing protocol compares to culturing in test tubes (e.g. 10 mL falcon tube) on a global scale.
 
-At the end of the experiment, you would have two plates to be measured (five for challenging version). You will measure both fluorescence and absorbance in each plate.
+At the end of the experiment, you will have two plates to be measured. You will measure both fluorescence and absorbance in each plate.
 
-Prior to performing the cell measurements you should perform all three of the calibration measurements. Please do not proceed unless you have completed the three calibration protocols. Completion of the calibrations will ensure that you understand the measurement process and that you can take the cell measurements under the same conditions. For the sake of consistency and reproducibility, we are requiring all teams to use E. coli K-12 DH5-alpha. If you do not have access to this strain, you can request streaks of the transformed devices from another team near you, and this can count as a collaboration as long as it is appropriately documented on both teams' wikis. If you are absolutely unable to obtain the DH5-alpha strain, you may still participate in the InterLab study by contacting the Measurement Committee (measurement at igem dot org) to discuss your situation.
+Before performing the cell measurements, you need to perform all three of the calibration measurements. Please do not proceed unless you have completed the calibration protocol. Completion of the calibrations will ensure that you understand the measurement process and that you can take the cell measurements under the same conditions. For consistency and reproducibility, we are requiring all teams to use E. coli K-12 DH5-alpha. If you do not have access to this strain, you can request streaks of the transformed devices from another team near you., If you are absolutely unable to obtain the DH5-alpha strain, you may still participate in the InterLab study by contacting the Engineering Committee (engineering [at] igem [dot] org) to discuss your situation.
 
-For all of these cell measurements, you must use the same plates and volumes that you used in your calibration protocol. You must also use the same settings (e.g., filters or excitation and emission wavelengths) that you used in your calibration measurements. If you do not use the same plates, volumes, and settings, the measurements will not be valid.'''
+For all below indicated cell measurements, you must use the same type of plates and the same volumes that you used in your calibration protocol. You must also use the same settings (e.g., filters or excitation and emission wavelengths) that you used in your calibration measurements. If you do not use the same type of plates, volumes, and settings, the measurements will not be valid.
+
+Protocol summary: You will transform the eight parts listed in Table 1 into E. coli K-12 DH5-alpha cells. The next day you will pick two colonies from each transformation (16 total) and use them to inoculate 5 mL overnight cultures (this step is still in tubes). Each of these 16 overnight cultures will be used to inoculate four wells in a 96-well plate (200 microliters each, 4 replicates) or one test tube (5 mL). You will measure how fluorescence and optical density develops over 6 hours by taking measurements at time point 0 hour and at time point 6 hours. Follow the protocol below and the visual instructions in Figure 1 and Figure 2.'''
 
 doc.add(protocol)
 protocol = doc.find(protocol.identity)
@@ -114,8 +131,8 @@ plasmids = [neg_control_plasmid, pos_control_plasmid, test_device1, test_device2
 # Day 1: Transformation
 culture_plates = protocol.primitive_step('CulturePlates',
                                          quantity=len(plasmids),
-                                         specification=paml.ContainerSpec(name=f'test strains',
-                                                                          queryString='cont:CulturePlate',
+                                         specification=paml.ContainerSpec(name=f'transformant strains',
+                                                                          queryString='cont:PetriDish',
                                                                           prefixMap={'cont': 'https://sift.net/container-ontology/container-ontology#'}),
                                          growth_medium=lb_agar_cam)
 
@@ -172,9 +189,8 @@ timepoint_0hrs = protocol.primitive_step('ContainerSet',
                                          queryString='cont:MicrofugeTube',
                                          prefixMap={'cont': 'https://sift.net/container-ontology/container-ontology#'}))
 
-hold = protocol.primitive_step('Hold',
-                               location=timepoint_0hrs.output_pin('samples'),
-                               temperature=sbol3.Measure(4, OM.degree_Celsius))
+hold = protocol.primitive_step('HoldOnIce',
+                               location=timepoint_0hrs.output_pin('samples'))
 hold.description = 'This will prevent cell growth while transferring samples.'
 
 transfer = protocol.primitive_step('Transfer',
@@ -207,7 +223,8 @@ dilution = protocol.primitive_step('DiluteToTargetOD',
 dilution.description = ' Use the provided Excel sheet to calculate this dilution. Reliability of the dilution upon Abs600 measurement: should stay between 0.1-0.9'
 
 embedded_image = protocol.primitive_step('EmbeddedImage',
-                                         image=os.path.join(os.path.dirname(os.path.realpath(__file__)), 'fig1_cell_calibration.png'))
+                                         image=os.path.join(os.path.dirname(os.path.realpath(__file__)), 'fig1_cell_calibration.png'),
+                                         caption='Fig 1: Visual representation of protocol')
 
 
 temporary = protocol.primitive_step('ContainerSet',
@@ -216,9 +233,8 @@ temporary = protocol.primitive_step('ContainerSet',
                                          queryString='cont:MicrofugeTube',
                                          prefixMap={'cont': 'https://sift.net/container-ontology/container-ontology#'}))
 
-hold = protocol.primitive_step('Hold',
-                               location=temporary.output_pin('samples'),
-                               temperature=sbol3.Measure(4, OM.degree_Celsius))
+hold = protocol.primitive_step('HoldOnIce',
+                               location=temporary.output_pin('samples'))
 hold.description = 'This will prevent cell growth while transferring samples.'
 
 transfer = protocol.primitive_step('Transfer',
@@ -233,9 +249,8 @@ plate1 = protocol.primitive_step('EmptyContainer',
                                  prefixMap={'cont': 'https://sift.net/container-ontology/container-ontology#'}))
 
 
-hold = protocol.primitive_step('Hold',
-                               location=plate1.output_pin('samples'),
-                               temperature=sbol3.Measure(4, OM.degree_Celsius))
+hold = protocol.primitive_step('HoldOnIce',
+                               location=plate1.output_pin('samples'))
 
 
 
@@ -274,7 +289,8 @@ plate_blanks = protocol.primitive_step('Transfer',
 plate_blanks.description = 'These samples are blanks.'
 
 embedded_image = protocol.primitive_step('EmbeddedImage',
-                                         image='../fig2_cell_calibration.png')
+                                         image=os.path.join(os.path.dirname(os.path.realpath(__file__)), 'fig2_cell_calibration.png'),
+                                         caption='Fig 2: Plate layout')
 
 # Possibly display map here
 absorbance_plate1 = protocol.primitive_step('MeasureAbsorbance',
@@ -307,14 +323,12 @@ incubate = protocol.primitive_step('Incubate',
                                    shakingFrequency=sbol3.Measure(220, None))
 
 # Hold on ice to inhibit cell growth
-hold = protocol.primitive_step('Hold',
-                               location=conical_tube.output_pin('samples'),
-                               temperature=sbol3.Measure(4, OM.degree_Celsius))
+hold = protocol.primitive_step('HoldOnIce',
+                               location=conical_tube.output_pin('samples'))
 hold.description = 'This will inhibit cell growth during the subsequent pipetting steps.'
 
-hold = protocol.primitive_step('Hold',
-                               location=plate1.output_pin('samples'),
-                               temperature=sbol3.Measure(4, OM.degree_Celsius))
+hold = protocol.primitive_step('HoldOnIce',
+                               location=plate1.output_pin('samples'))
 hold.description = 'This will inhibit cell growth during the subsequent pipetting steps.'
 
 
@@ -327,9 +341,8 @@ plate2 = protocol.primitive_step('EmptyContainer',
 
 # Hold on ice
 
-hold = protocol.primitive_step('Hold',
-                               location=plate2.output_pin('samples'),
-                               temperature=sbol3.Measure(4, OM.degree_Celsius))
+hold = protocol.primitive_step('HoldOnIce',
+                               location=plate2.output_pin('samples'))
 
        
 
@@ -415,7 +428,12 @@ ee = ExecutionEngine(specializations=[MarkdownSpecialization("test_LUDOX_markdow
 execution = ee.execute(protocol, agent, id="test_execution", parameter_values=[])
 render_kit_coordinates_table(execution)
 print(execution.markdown)
+
+# Dress up the markdown to make it pretty and more readable
 execution.markdown = execution.markdown.replace('`_E. coli_', '_`E. coli`_ `')
+execution.markdown = execution.markdown.replace('milliliter', 'mL')
+execution.markdown = execution.markdown.replace(' degree Celsius', '\u00B0C')  # degree symbol
+
 with open(__file__.split('.')[0] + '.md', 'w', encoding='utf-8') as f:
     f.write(execution.markdown)
 
