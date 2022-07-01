@@ -882,8 +882,10 @@ class MarkdownSpecialization(BehaviorSpecialization):
         parameter_value_map = call.parameter_value_map()
 
         image = parameter_value_map['image']['value']
+        caption = parameter_value_map['caption']['value']
 
-        text = f'\n\n![]({image})\n\n'
+        text = f'\n\n![]({image})\n<p align="center">{caption}</p>\n'
+
         execution.markdown_steps[-1] += text
 
     def culture_plates(self, record: paml.ActivityNodeExecution, execution: paml.ProtocolExecution):

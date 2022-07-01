@@ -76,6 +76,7 @@ doc.add(p)
 
 p = paml.Primitive('EmbeddedImage')  # This Primitive should move to a separate library
 p.add_input('image', 'http://bioprotocols.org/uml#ValueSpecification')
+p.add_input('caption', 'http://bioprotocols.org/uml#ValueSpecification')
 doc.add(p)
 
 print('Library construction complete')
