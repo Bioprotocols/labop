@@ -842,7 +842,7 @@ class MarkdownSpecialization(BehaviorSpecialization):
         parameter_value_map = call.parameter_value_map()
 
         location = parameter_value_map['location']['value']
-        type = parameter_value_map['type']['value']
+        specification = parameter_value_map['specification']['value']
 
         # Get destination container type
         container_spec = record.document.find(location.container_type).value

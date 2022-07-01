@@ -313,7 +313,8 @@ fluorescence_plate1.name = '0 hr fluorescence timepoint'
 # Cover plate
 seal = protocol.primitive_step('EvaporativeSeal',
                                location=plate1.output_pin('samples'),
-                               type='foo')
+                               specification=paml.ContainerSpec(queryString='cont:MicroplateAdhesiveSealingFilm',
+                                             prefixMap={'cont': 'https://sift.net/container-ontology/container-ontology#'}))
 
 # Begin outgrowth
 incubate = protocol.primitive_step('Incubate',

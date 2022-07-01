@@ -22,13 +22,13 @@ doc.add(p)
 p = paml.Primitive('Seal')
 p.description = 'Seal a collection of samples fixing the seal using a user-selected method, in order to guarantee isolation from the external environment'
 p.add_input('location', 'http://bioprotocols.org/paml#SampleArray')
-p.add_input('type', 'http://www.w3.org/2001/XMLSchema#anyURI') # e.g., breathable vs. non-breathable
+p.add_input('specification', 'http://bioprotocols.org/paml#ContainerSpec') # e.g., breathable vs. non-breathable
 doc.add(p)
 
 p = paml.Primitive('EvaporativeSeal')
 p.description = 'Seal a collection of samples using a user-selected method in order to prevent evaporation'
 p.add_input('location', 'http://bioprotocols.org/paml#SampleArray')
-p.add_input('type', 'http://www.w3.org/2001/XMLSchema#anyURI') # e.g., breathable vs. non-breathable
+p.add_input('specification', 'http://bioprotocols.org/paml#ContainerSpec') # e.g., breathable vs. non-breathable
 doc.add(p)
 
 p = paml.Primitive('AdhesiveSeal')
