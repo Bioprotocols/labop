@@ -20,7 +20,7 @@ def render_kit_coordinates_table(ex: paml.ProtocolExecution):
                   for c in components]   
 
     # Format markdown table
-    table = '#### Part Locations in Distribution Kit\n' \
+    table = '#### Table 1: Part Locations in Distribution Kit\n' \
             '| Part | Coordinate |\n' \
             '| ---- | -------------- |\n'
     for part, coordinate in components:
