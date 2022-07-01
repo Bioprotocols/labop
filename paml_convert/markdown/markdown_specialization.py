@@ -226,7 +226,7 @@ class MarkdownSpecialization(BehaviorSpecialization):
             if container_class == f'{ContainerOntology.uri}#StockReagent':
                 text = f'Provision the {container_str} containing `{spec.name}`'
             else:
-                text = f'Provision a {container_str} to contain `{spec.name}`'
+                text = f'Obtain a {container_str} to contain `{spec.name}`'
             text = add_description(record, text)
             execution.markdown_steps += [text]
             #except Exception as e:
@@ -256,18 +256,19 @@ class MarkdownSpecialization(BehaviorSpecialization):
            
             if quantity > 1:
                 if replicates > 1:
-                    text = f'Provision a total of {quantity*replicates} x {container_str}s to contain {replicates} replicates each of `{containers.name}`'
+                    text = f'Obtain a total of {quantity*replicates} x {container_str}s to contain {replicates} replicates each of `{containers.name}`'
                 else:
-                    text = f'Provision {quantity} x {container_str}s to contain `{containers.name}`'
+                    text = f'Obtain {quantity} x {container_str}s to contain `{containers.name}`'
             else:
-                text = f'Provision a {container_str} to contain `{containers.name}`'
+                text = f'Obtain a {container_str} to contain `{containers.name}`'
             text = add_description(record, text)
             execution.markdown_steps += [text]
 
             samples.name = containers.name
         except Exception as e:
             l.warning(e)
-            execution.markdown_steps += [f"Provision a container named `{containers.name}` meeting specification: {containers.queryString}."]
+            execution.markdown_steps += [f"Obtain a container named `{containers.name}` meeting specification: {containers.queryString}."]
+
 
     # def provision_container(self, wells: WellGroup, amounts = None, volumes = None, informatics = None) -> Provision:
     def provision_container(self, record: paml.ActivityNodeExecution, execution: paml.ProtocolExecution):
@@ -901,7 +902,7 @@ class MarkdownSpecialization(BehaviorSpecialization):
         container_str = ContainerOntology.get_term_by_uri(container_uri)
         samples.name = container.name
 
-        execution.markdown_steps += [f'Provision {quantity} x {container_str} containing {growth_medium.name} growth medium for culturing `{samples.name}`']
+        execution.markdown_steps += [f'Obtain {quantity} x {container_str} containing {growth_medium.name} growth medium for culturing `{samples.name}`']
 
     def pick_colonies(self, record: paml.ActivityNodeExecution, execution: paml.ProtocolExecution):
         call = record.call.lookup()
