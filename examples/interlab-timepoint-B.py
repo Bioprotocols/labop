@@ -203,7 +203,7 @@ dilution = protocol.primitive_step('DiluteToTargetOD',
 dilution.description = ' Use the provided Excel sheet to calculate this dilution. Reliability of the dilution upon Abs600 measurement: should stay between 0.1-0.9'
 
 embedded_image = protocol.primitive_step('EmbeddedImage',
-                                         image=os.path.join(os.path.dirname(os.path.realpath(__file__)), 'fig1_cell_calibration.png'))
+                                         image=os.path.join(os.path.dirname(os.path.realpath(__file__)), 'fig1_challenge_protocol.png'))
 
 
 ### Aliquot subcultures for timepoint samples

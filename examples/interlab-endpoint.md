@@ -59,7 +59,7 @@ Protocol summary: You will transform the eight devices listed in Table 1 into E.
 
 ## Protocol Steps:
 1. Obtain 8 x Petri dish containing LB Agar + Chloramphenicol (34 ug/mL) growth medium for culturing `transformant strains`
-2. Transform `Negative control` DNA into _`E. coli`_ ` DH5 alpha competent cells` and plate transformants on LB Broth + Chloramphenicol (34 ug/mL). Repeat for the remaining transformant DNA:  `Positive control (I20270)`, `Test Device 1 (J364000)`, `Test Device 2 (J36401)`, `Test Device 3 (J36402)`, `Test Device 4 (J364007)`, `Test Device 5 (J364008)`, and `Test Device 6 (J364009)`. Plate transformants on `transformant strains` plates. Incubate at 37.0°C for 16.0 hour (overnight).
+2. Transform `Negative control` DNA into _`E. coli`_ ` DH5 alpha competent cells` and plate transformants on LB Broth + Chloramphenicol (34 ug/mL). Repeat for the remaining transformant DNA:  `Positive control (I20270)`, `Test Device 1 (J364000)`, `Test Device 2 (J36401)`, `Test Device 3 (J36402)`, `Test Device 4 (J364007)`, `Test Device 5 (J364008)`, and `Test Device 6 (J364009)`. Plate transformants on `transformant strains` plates.
 3. Obtain 16 x culture tubes to contain `culture (day 1)`
 4. Pick 2 colonies from each `transformant strains` plate.
 5. Inoculate 2 colonies of each transformant transformant strains, for a total of 16 cultures. Inoculate each into 5.0 mL of LB Broth + Chloramphenicol (34 ug/mL) in culture (day 1) and grow for 16.0 hour at 37.0°C and 220 rpm.
@@ -72,7 +72,7 @@ Protocol summary: You will transform the eight devices listed in Table 1 into E.
 12. Obtain 16 x 50 ml conical tubes to contain `back-diluted culture` The conical tube should be opaque, amber-colored, or covered with foil.
 13. Back-dilute each of 16 `culture (day 2)` samples to a target OD of 0.02 using LB Broth + Chloramphenicol (34 ug/mL) as diluent to a final volume of 12.0 mL. Maintain at 4.0°C while performing dilutions.
 
-![](fig1_cell_calibration.png)
+![](/Users/bbartley/Dev/git/sd2/paml/examples/fig1_standard_protocol.png)
 <p align="center">Fig 1: Visual representation of protocol</p>
 
 14. Obtain 16 x 1.5 mL microfuge tubes to contain `back-diluted culture aliquots`
@@ -84,7 +84,7 @@ Protocol summary: You will transform the eight devices listed in Table 1 into E.
  Maintain at 4.0°C during transfer.
 20. Transfer 200.0 microliter of `LB Broth + Chloramphenicol (34 ug/mL)` sample to wells A1:H1, A10:H10, A12:H12 of  96 well microplate `plate 1`. Maintain at 4.0°C during transfer. These samples are blanks.
 
-![](fig2_cell_calibration.png)
+![](/Users/bbartley/Dev/git/sd2/paml/examples/fig2_cell_calibration.png)
 <p align="center">Fig 2: Plate layout</p>
 
 21. Measure 0 hr absorbance timepoint of `plate 1` at 600.0 nanometer.
@@ -105,5 +105,5 @@ Protocol summary: You will transform the eight devices listed in Table 1 into E.
 35. Measure 6 hr fluorescence timepoint of `plate 2` with excitation wavelength of 485.0 nanometer and emission filter of 530.0 nanometer and 30.0 nanometer bandpass.
 36. Import data for `baseline absorbance of culture (day 2) measurements of cultures (0 hr timepoint)`, `0 hr absorbance timepoint measurements of plate 1`, `0 hr fluorescence timepoint measurements of plate 1`, `6 hr absorbance timepoint measurements of plate 1`, `6 hr fluorescence timepoint measurements of plate 1`, `6 hr absorbance timepoint measurements of plate 2`, `6 hr fluorescence timepoint measurements of plate 2` into provided Excel file.
 ---
-Timestamp: 2022-07-01 11:45:04.524614---
+Timestamp: 2022-07-01 09:10:54.147064---
 Protocol version: 1.2

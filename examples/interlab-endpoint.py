@@ -228,7 +228,7 @@ dilution = protocol.primitive_step('DiluteToTargetOD',
 dilution.description = f'(This can be also performed on Ice).'
 
 embedded_image = protocol.primitive_step('EmbeddedImage',
-                                         image='fig1_cell_calibration.png',
+                                         image=os.path.join(os.path.dirname(os.path.realpath(__file__)), 'fig1_standard_protocol.png'),
                                          caption='Fig 1: Visual representation of protocol')
 
 
@@ -295,7 +295,7 @@ plate_blanks = protocol.primitive_step('Transfer',
 plate_blanks.description = 'These samples are blanks.'
 
 embedded_image = protocol.primitive_step('EmbeddedImage',
-                                         image='fig2_cell_calibration.png',
+                                         image=os.path.join(os.path.dirname(os.path.realpath(__file__)), 'fig2_cell_calibration.png'),
                                          caption='Fig 2: Plate layout')
 
 # Possibly display map here
