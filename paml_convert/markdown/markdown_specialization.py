@@ -61,6 +61,7 @@ class MarkdownSpecialization(BehaviorSpecialization):
             "https://bioprotocols.org/paml/primitives/culturing/Culture": self.culture,
             "https://bioprotocols.org/paml/primitives/plate_handling/Incubate": self.incubate,
             "https://bioprotocols.org/paml/primitives/plate_handling/Hold": self.hold,
+            "https://bioprotocols.org/paml/primitives/plate_handling/HoldOnIce": self.hold_on_ice,
             "https://bioprotocols.org/paml/primitives/plate_handling/EvaporativeSeal": self.evaporative_seal,
             "https://bioprotocols.org/paml/primitives/liquid_handling/Dilute": self.dilute,
             "https://bioprotocols.org/paml/primitives/liquid_handling/DiluteToTargetOD": self.dilute_to_target_od,
@@ -635,6 +636,19 @@ class MarkdownSpecialization(BehaviorSpecialization):
             text = f'Hold all `{location.name}` samples at {measurement_to_text(temperature)}.'
         else:
             text = f'Hold `{location.name}` at {measurement_to_text(temperature)}.'
+        text = add_description(record, text)
+        execution.markdown_steps += [text]
+
+    def hold_on_ice(self, record: paml.ActivityNodeExecution, execution: paml.ProtocolExecution):
+        call = record.call.lookup()
+        parameter_value_map = call.parameter_value_map()
+
+        location = parameter_value_map['location']['value']
+
+        if len(read_sample_contents(location)) > 1:
+            text = f'Hold all `{location.name}` samples on ice.'
+        else:
+            text = f'Hold `{location.name}` on ice.'
         text = add_description(record, text)
         execution.markdown_steps += [text]
 

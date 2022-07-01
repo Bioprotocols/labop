@@ -69,6 +69,11 @@ p.add_input('location', 'http://bioprotocols.org/paml#SampleArray', unbounded=Tr
 p.add_input('temperature', sbol3.OM_MEASURE) # temperature
 doc.add(p)
 
+p = paml.Primitive('HoldOnIce')
+p.description = 'Incubate, store, or hold a set of samples indefinitely on ice'
+p.add_input('location', 'http://bioprotocols.org/paml#SampleArray', unbounded=True)
+doc.add(p)
+
 p = paml.Primitive('Spin')
 p.description = 'Centrifuge a set of samples at a given acceleration for a given period of time'
 p.add_input('location', 'http://bioprotocols.org/paml#SampleArray')
