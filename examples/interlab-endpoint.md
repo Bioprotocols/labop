@@ -60,10 +60,10 @@ Protocol summary: You will transform the eight devices listed in Table 1 into E.
 
 ## Protocol Steps:
 1. Obtain 8 x Petri dish containing LB Agar + Chloramphenicol (34 ug/mL) growth medium for culturing `transformant strains`
-2. Transform `Negative control` DNA into _`E. coli`_ ` DH5 alpha competent cells` and plate transformants on LB Broth + Chloramphenicol (34 ug/mL). Repeat for the remaining transformant DNA:  `Positive control (I20270)`, `Test Device 1 (J364000)`, `Test Device 2 (J36401)`, `Test Device 3 (J36402)`, `Test Device 4 (J364007)`, `Test Device 5 (J364008)`, and `Test Device 6 (J364009)`. Plate transformants on `transformant strains` plates. Incubate at 37.0°C for 16.0 hour (overnight).
+2. Transform `Negative control` DNA into _`E. coli`_ ` DH5 alpha competent cells`. Repeat for the remaining transformant DNA:  `Positive control (I20270)`, `Test Device 1 (J364000)`, `Test Device 2 (J36401)`, `Test Device 3 (J36402)`, `Test Device 4 (J364007)`, `Test Device 5 (J364008)`, and `Test Device 6 (J364009)`. Plate transformants on LB Agar + Chloramphenicol (34 ug/mL) `transformant strains` plates. Incubate at 37.0°C for 16.0 hour (overnight).
 3. Obtain 16 x culture tubes to contain `culture (day 1)`
 4. Pick 2 colonies from each `transformant strains` plate.
-5. Inoculate 2 colonies of each transformant transformant strains, for a total of 16 cultures. Inoculate each into 5.0 mL of LB Broth + Chloramphenicol (34 ug/mL) in culture (day 1) and grow for 16.0 hour at 37.0°C and 220 rpm.
+5. Inoculate 2 colonies of each transformant strains, for a total of 16 cultures. Inoculate each into 12.0 mL of LB Broth + Chloramphenicol (34 ug/mL) in culture (day 1) and grow overnight (for 16.0 hour) at 37.0°C and 220 rpm.
 6. Obtain 16 x culture tubes to contain `culture (day 2)`
 7. Dilute each of 16 `culture (day 1)` samples with LB Broth + Chloramphenicol (34 ug/mL) into the culture tube at a 1:10 ratio and final volume of 5.0 mL. Maintain at 4.0°C while performing dilutions. (This can be also performed on ice).
 8. Obtain 16 x 1.5 mL microfuge tubes to contain `cultures (0 hr timepoint)`
@@ -106,5 +106,5 @@ Protocol summary: You will transform the eight devices listed in Table 1 into E.
 35. Measure 6 hr fluorescence timepoint of `plate 2` with excitation wavelength of 485.0 nanometer and emission filter of 530.0 nanometer and 30.0 nanometer bandpass.
 36. Import data for `baseline absorbance of culture (day 2) measurements of cultures (0 hr timepoint)`, `0 hr absorbance timepoint measurements of plate 1`, `0 hr fluorescence timepoint measurements of plate 1`, `6 hr absorbance timepoint measurements of plate 1`, `6 hr fluorescence timepoint measurements of plate 1`, `6 hr absorbance timepoint measurements of plate 2`, `6 hr fluorescence timepoint measurements of plate 2` into provided Excel file.
 ---
-Timestamp: 2022-07-01 20:48:26.325987---
-Protocol version: 1.2.1
+Timestamp: 2022-07-02 12:34:58.015749---
+Protocol version: 1.2.2

@@ -52,11 +52,11 @@ test_device1.name = 'Test Device 1 (J364000)'
 test_device1.description = 'BBa_J364000 Kit Plate 1 Well 1C'
 
 test_device2 = sbol3.Component('test_device2', 'http://parts.igem.org/Part:BBa_J364001')
-test_device2.name = 'Test Device 2 (J36401)'
+test_device2.name = 'Test Device 2 (J364001)'
 test_device2.description = 'BBa_J364001 Kit Plate 1 Well 1E'
 
 test_device3 = sbol3.Component('test_device3', 'http://parts.igem.org/Part:BBa_J364002')
-test_device3.name = 'Test Device 3 (J36402)'
+test_device3.name = 'Test Device 3 (J364002)'
 test_device3.description = 'BBa_J364002 Kit Plate 1 Well 1G'
 
 test_device4 = sbol3.Component('test_device4', 'http://parts.igem.org/Part:BBa_J364007')
@@ -112,7 +112,7 @@ doc.add(shaking_incubator)
 
 protocol = paml.Protocol('interlab')
 protocol.name = 'Cell measurement protocol'
-protocol.version = sbol3.TextProperty(protocol, 'http://igem.org/interlab_working_group#Version', 0, 1, [], '1.2.1')
+protocol.version = sbol3.TextProperty(protocol, 'http://igem.org/interlab_working_group#Version', 0, 1, [], '1.2.2')
 protocol.description = '''This year we plan to test protocols that will eventually be automated. For this reason, we will use 96-well plates instead of test tubes for culturing. Consequently, we want to evaluate how the performance of our plate culturing protocol compares to culturing in test tubes (e.g. 10 mL falcon tube) on a global scale.
 
 At the end of the experiment, you will have two plates to be measured. You will measure both fluorescence and absorbance in each plate.
@@ -121,7 +121,7 @@ Before performing the cell measurements, you need to perform all the calibration
 
 For all below indicated cell measurements, you must use the same type of plates and the same volumes that you used in your calibration protocol. You must also use the same settings (e.g., filters or excitation and emission wavelengths) that you used in your calibration measurements. If you do not use the same type of plates, volumes, and settings, the measurements will not be valid.
 
-Protocol summary: You will transform the eight devices listed in Table 1 into E. coli K-12 DH5-alpha cells. The next day you will pick two colonies from each transformation (16 total) and use them to inoculate 5 mL overnight cultures (this step is still in tubes). Each of these 16 overnight cultures will be used to inoculate four wells in a 96-well plate (200 microliters each, 4 replicates) or one test tube (12 mL). You will measure how fluorescence and optical density develops over 6 hours by taking measurements at time point 0 hour and at time point 6 hours. Follow the protocol below and the visual instructions in Figure 1 and Figure 2.'''
+Protocol summary: You will transform the eight devices listed in Table 1 into E. coli K-12 DH5-alpha cells. The next day you will pick two colonies from each transformation (16 total) and use them to inoculate 5 mL overnight cultures (this step is still in tubes). Each of these 16 overnight cultures will be used to inoculate four wells in a 96-well plate (200 microliter each, 4 replicates) and one test tube (12 mL). You will measure how fluorescence and optical density develops over 6 hours by taking measurements at time point 0 hour and at time point 6 hours. Follow the protocol below and the visual instructions in Figure 1 and Figure 2.'''
 
 doc.add(protocol)
 protocol = doc.find(protocol.identity)
@@ -139,9 +139,9 @@ culture_plates = protocol.primitive_step('CulturePlates',
 transformation = protocol.primitive_step(f'Transform',
                                           host=dh5alpha,
                                           dna=plasmids,
-                                          selection_medium=lb_cam,
+                                          selection_medium=lb_agar_cam,
                                           destination=culture_plates.output_pin('samples'))
-transformation.description = 'Incubate at 37.0 degree Celsius for 16.0 hour (overnight).'
+transformation.description = 'Incubate overnight (for 16 hour) at 37.0 degree Celsius.'
     
 # Day 2: Pick colonies and culture overnight
 culture_container_day1 = protocol.primitive_step('ContainerSet', 
@@ -159,7 +159,7 @@ overnight_culture = protocol.primitive_step('Culture',
                                             inoculum=pick_colonies.output_pin('samples'),
                                             replicates=2,
                                             growth_medium=lb_cam,
-                                            volume=sbol3.Measure(5, OM.millilitre),  # Actually 5-10 ml in the written protocol
+                                            volume=sbol3.Measure(12, OM.millilitre),  # Actually 5-10 ml in the written protocol
                                             duration=sbol3.Measure(16, OM.hour), # Actually 16-18 hours
                                             orbital_shake_speed=sbol3.Measure(220, None),  # No unit for RPM or inverse minutes
                                             temperature=sbol3.Measure(37, OM.degree_Celsius),
@@ -203,7 +203,7 @@ transfer = protocol.primitive_step('Transfer',
                                    temperature=sbol3.Measure(4, OM.degree_Celsius))
 transfer.description = '(This can be also performed on Ice).'
 
-# Step 11 Abs measurement
+# Abs measurement
 baseline_absorbance = protocol.primitive_step('MeasureAbsorbance',
                                               samples=timepoint_0hrs.output_pin('samples'),
                                               wavelength=sbol3.Measure(600, OM.nanometer))
@@ -438,8 +438,10 @@ print(execution.markdown)
 
 # Dress up the markdown to make it pretty and more readable
 execution.markdown = execution.markdown.replace('`_E. coli_', '_`E. coli`_ `')
-execution.markdown = execution.markdown.replace('milliliter', 'mL')
+execution.markdown = execution.markdown.replace(' milliliter', 'mL')
 execution.markdown = execution.markdown.replace(' degree Celsius', '\u00B0C')  # degree symbol
+execution.markdown = execution.markdown.replace(' nanometer', 'nm')
+execution.markdown = execution.markdown.replace(' microliter', 'uL')
 
 with open(__file__.split('.')[0] + '.md', 'w', encoding='utf-8') as f:
     f.write(execution.markdown)

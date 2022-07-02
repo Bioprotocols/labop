@@ -34,77 +34,112 @@ paml.import_library('culturing')
 
 # create the materials to be provisioned
 dh5alpha = sbol3.Component('dh5alpha', 'https://identifiers.org/taxonomy:668369')
-dh5alpha.name = '_E. coli_ DH5 alpha'
+dh5alpha.name = '_E. coli_ DH5 alpha competent cells'  
 doc.add(dh5alpha)
 
-lb_cam = sbol3.Component('lb_cam', '')
-lb_cam.name = 'LB Broth+chloramphenicol'
-doc.add(lb_cam)
+neg_control_plasmid = sbol3.Component('neg_control_plasmid', 'http://parts.igem.org/Part:BBa_J428100')
+neg_control_plasmid.name = 'Negative control 2022'
+neg_control_plasmid.description = 'BBa_J428100 Kit Plate 1 Well 12M'
 
-chloramphenicol = sbol3.Component('chloramphenicol', 'https://pubchem.ncbi.nlm.nih.gov/compound/5959')
-chloramphenicol.name = 'chloramphenicol'
-doc.add(chloramphenicol)
+pos_control_green_plasmid = sbol3.Component('pos_control_green_plasmid', 'http://parts.igem.org/Part:BBa_J428112')
+pos_control_green_plasmid.name = 'Positive control 2022 Green'
+pos_control_green_plasmid.description = 'BBa_J428112 Kit Plate 1 Well 14C'
 
+pos_control_red_plasmid = sbol3.Component('pos_control_red_plasmid', 'http://parts.igem.org/Part:BBa_J428101')
+pos_control_red_plasmid.name = 'Positive control red (mCherry) Exp 2'
+pos_control_red_plasmid.description = 'BBa_J428101 Kit Plate 1 Well 12I'
 
-neg_control_plasmid = sbol3.Component('neg_control_plasmid', 'http://parts.igem.org/Part:BBa_R0040')
-neg_control_plasmid.name = 'Negative control 2018'
-neg_control_plasmid.description = 'BBa_R0040 Mini-interlab Plate Well G1'
+test_device1 = sbol3.Component('test_device1', 'http://parts.igem.org/Part:BBa_J428106')
+test_device1.name = 'Test Device 1 Exp 2 (Dual construct Green and Blue)'
+test_device1.description = 'BBa_J428106 Kit Plate 1 Well 12G'
 
-pos_control_plasmid = sbol3.Component('pos_control_plasmid', 'http://parts.igem.org/Part:BBa_I20270')
-pos_control_plasmid.name = 'Positive control 2018'
-pos_control_plasmid.description = 'BBa_I20270 Mini-interlab Plate Well A1'
+test_device2 = sbol3.Component('test_device2', 'http://parts.igem.org/Part:BBa_J428107')
+test_device2.name = 'Test Device 2 Exp 2 (Dual construct Green and Red)'
+test_device2.description = 'BBa_J428107 Kit Plate 1 Well 3L'
 
-test_device1 = sbol3.Component('test_device1', 'https://github.com/iGEM-Engineering/')
-test_device1.name = 'Test Device 1 Exp 1 (Green Device Insulation 1)'
-test_device1.description = 'BBa_I20270 Mini-interlab Plate Well A2'
+test_device3 = sbol3.Component('test_device3', 'http://parts.igem.org/Part:BBa_J428105')
+test_device3.name = 'Test Device 3 Exp 2 (Dual construct Red and Blue)'
+test_device3.description = 'BBa_J428105 Kit Plate 1 Well 5J'
 
-test_device2 = sbol3.Component('test_device2', 'https://github.com/iGEM-Engineering/')
-test_device2.name = 'Test Device 2 Exp 1 (Blue device Insulation 1)'
-test_device2.description = 'BBa_I20270 Mini-interlab Plate Well B2'
+test_device4 = sbol3.Component('test_device4', 'http://parts.igem.org/Part:BBa_J428108')
+test_device4.name = 'Test Device 4 Exp 2 (Dual construct Blue and Red)'
+test_device4.description = 'BBa_J428108 Kit Plate 1 Well 14E'
 
-test_device3 = sbol3.Component('test_device3', 'https://github.com/iGEM-Engineering/')
-test_device3.name = 'Test Device 3 Exp 1 (Red device Insulation 1)'
-test_device3.description = 'C3_Red_Device_Ins_1 Mini-interlab Plate Well C2'
-
-test_device4 = sbol3.Component('test_device4', 'https://github.com/iGEM-Engineering/')
-test_device4.name = 'Test Device 4 Exp 1 (Green device Insulation 2)'
-test_device4.description = 'H6_Green_Device_Ins_2 Mini-interlab Plate Well D2'
-
-test_device5 = sbol3.Component('test_device5', 'https://github.com/iGEM-Engineering/')
-test_device5.name = 'Test Device 5 Exp 1 (Blue device Insulation 2)'
-test_device5.description = 'A3_Blue_Device_Ins_2 Mini-interlab Plate Well E2'
-
-test_device6 = sbol3.Component('test_device6', 'https://github.com/iGEM-Engineering/')
-test_device6.name = 'Test Device 6 Exp 1 (Red device Insulation 2)'
-test_device6.description = 'B6_Red_Device_Ins_2 Mini-interlab Plate Well F2'
+test_device5 = sbol3.Component('test_device5', 'http://parts.igem.org/Part:BBa_J428104')
+test_device5.name = 'Test Device 5 Exp 2 (Dual construct Red and Green)'
+test_device5.description = 'BBa_J428104 Kit Plate 1 Well 5L'
 
 doc.add(neg_control_plasmid)
-doc.add(pos_control_plasmid)
+doc.add(pos_control_green_plasmid)
+doc.add(pos_control_red_plasmid)
 doc.add(test_device1)
 doc.add(test_device2)
 doc.add(test_device3)
 doc.add(test_device4)
 doc.add(test_device5)
-doc.add(test_device6)
 
+# Other reagents
+lb_cam = sbol3.Component('lb_cam', '')
+lb_cam.name = 'LB Broth + Chloramphenicol (34 ug/mL)'  
 
+lb_agar_cam = sbol3.Component('lb_agar_cam', '')
+lb_agar_cam.name = 'LB Agar + Chloramphenicol (34 ug/mL)'  
+
+chloramphenicol = sbol3.Component('chloramphenicol', 'https://pubchem.ncbi.nlm.nih.gov/compound/5959')
+chloramphenicol.name = 'Chloramphenicol stock solution (34 mg/mL)'  
+
+ice = sbol3.Component('ice', '')
+ice.name = 'Ice'
+
+doc.add(lb_cam)
+doc.add(lb_agar_cam)
+doc.add(chloramphenicol)
+doc.add(ice)
+
+# Instruments and laboratory equipment
+# TODO: instruments should be represented by sbol3.Agent 
+plate_reader = sbol3.Component('plate_reader', '')
+plate_reader.name = 'Plate reader'
+
+shaking_incubator = sbol3.Component('shaking_incubator', '')
+shaking_incubator.name = 'Shaking incubator'
+
+doc.add(plate_reader)
+doc.add(shaking_incubator)
+
+################################################################
 protocol = paml.Protocol('interlab')
-protocol.name = 'Testing the three color calibration protocol'
-protocol.version = sbol3.TextProperty(protocol, 'http://igem.org/interlab_working_group#Version', 0, 1, [], '1.0b')
-protocol.description = '''In this experiment, your team will measure the fluorescence of six devices that encode either a single fluorescence protein (blue, green, or red) or two fluorescence proteins encoded in two transcriptional units. You will calibrate the fluorescence of these devices to the three calibrant dyes and you will calibrate the optical density of the culture to the cell density calibrant.
+protocol.name = 'Experiment 2 - Using the three color calibration protocol: Does the order of transcriptional units influence their expression strength?'
+protocol.version = sbol3.TextProperty(protocol, 'http://igem.org/interlab_working_group#Version', 0, 1, [], '1.1b')
+protocol.description = '''In this experiment, your team will measure the fluorescence of six devices that encode two fluorescence proteins in two transcriptional units. The devices differ in the order of the transcriptional units. You will calibrate the fluorescence of these devices to the calibrant dyes and the optical density of the culture to the cell density calibrant.
 
-This experiment aims to assess the lab-to-lab reproducibility of the new three color calibration protocol. We will test if it works well for calibrating the fluorescence in cells that express one single fluorescent protein and for cells expressing two different fluorescent proteins at the same time.'''
+This experiment aims to assess the lab-to-lab reproducibility of the three color calibration protocol when two fluorescent proteins are expressed in the same cell. Besides this technical question, it also adresses a fundamental synthetic biology question: does the order of the transcriptional units (that encode for the two different fluorescent proteins) on the devices influence their expression levels?
+
+Before performing the cell measurements, you need to perform all the calibration measurements. Please do not proceed unless you have completed the calibration protocol. Completion of the calibrations will ensure that you understand the measurement process and that you can take the cell measurements under the same conditions. For consistency and reproducibility, we are requiring all teams to use E. coli K-12 DH5-alpha. If you do not have access to this strain, you can request streaks of the transformed devices from another team near you. If you are absolutely unable to obtain the DH5-alpha strain, you may still participate in the InterLab study by contacting the Engineering Committee (engineering [at] igem [dot] org) to discuss your situation.
+
+For all below indicated cell measurements, you must use the same type of plates and the same volumes that you used in your calibration protocol. You must also use the same settings (e.g., filters or excitation and emission wavelengths) that you used in your calibration measurements. If you do not use the same type of plates, volumes, and settings, the measurements will not be valid.
+
+Protocol summary: You will transform the eight devices listed in Table 1 into E. coli K-12 DH5-alpha cells. The next day you will pick two colonies from each transformation (16 total) and use them to inoculate 12 mL overnight cultures (this step is still in tubes). Each of these 16 overnight cultures will be used to inoculate four wells in a 96-well plate (200 microliter each, 4 replicates) for measurement and one test tube (12 mL) for growth. You will measure how fluorescence and optical density develops over 6 hours by taking measurements at time point 0 hour and at time point 6 hours. Follow the protocol below and the visual instructions in Figure 1 and Figure 2.'''
 
 doc.add(protocol)
 protocol = doc.find(protocol.identity)
 
-plasmids = [neg_control_plasmid, pos_control_plasmid, test_device1, test_device2, test_device3, test_device4, test_device5, test_device6]
+plasmids = [neg_control_plasmid, pos_control_green_plasmid, pos_control_red_plasmid, test_device1, test_device2, test_device3, test_device4, test_device5]
 
 # Day 1: Transformation
+culture_plates = protocol.primitive_step('CulturePlates',
+                                         quantity=len(plasmids),
+                                         specification=paml.ContainerSpec(name=f'transformant strains',
+                                                                          queryString='cont:PetriDish',
+                                                                          prefixMap={'cont': 'https://sift.net/container-ontology/container-ontology#'}),
+                                         growth_medium=lb_agar_cam)
+
 transformation = protocol.primitive_step(f'Transform',
                                           host=dh5alpha,
                                           dna=plasmids,
-                                          selection_medium=lb_cam)
+                                          selection_medium=lb_agar_cam,
+                                          destination=culture_plates.output_pin('samples'))
+transformation.description = 'Incubate overnight (for 16 hour) at 37.0 degree Celsius.'
     
 # Day 2: Pick colonies and culture overnight
 culture_container_day1 = protocol.primitive_step('ContainerSet', 
@@ -113,8 +148,13 @@ culture_container_day1 = protocol.primitive_step('ContainerSet',
                                                                                   queryString='cont:CultureTube', 
                                                                                   prefixMap={'cont': 'https://sift.net/container-ontology/container-ontology#'}))
 
+pick_colonies = protocol.primitive_step('PickColonies',
+                                        colonies=transformation.output_pin('transformants'),
+                                        quantity=2*len(plasmids),
+                                        replicates=2)
+
 overnight_culture = protocol.primitive_step('Culture',
-                                            inoculum=transformation.output_pin('transformants'),
+                                            inoculum=pick_colonies.output_pin('samples'),
                                             replicates=2,
                                             growth_medium=lb_cam,
                                             volume=sbol3.Measure(5, OM.millilitre),  # Actually 5-10 ml in the written protocol
@@ -140,6 +180,7 @@ back_dilution = protocol.primitive_step('Dilute',
                                         amount=sbol3.Measure(5.0, OM.millilitre),
                                         dilution_factor=uml.LiteralInteger(value=10),
                                         temperature=sbol3.Measure(4, OM.degree_Celsius))
+back_dilution.description = '(This can be also performed on ice).'
 
 # Transfer cultures to a microplate baseline measurement and outgrowth
 timepoint_0hrs = protocol.primitive_step('ContainerSet',
@@ -148,9 +189,8 @@ timepoint_0hrs = protocol.primitive_step('ContainerSet',
                                          queryString='cont:MicrofugeTube',
                                          prefixMap={'cont': 'https://sift.net/container-ontology/container-ontology#'}))
 
-hold = protocol.primitive_step('Hold',
-                               location=timepoint_0hrs.output_pin('samples'),
-                               temperature=sbol3.Measure(4, OM.degree_Celsius))
+hold = protocol.primitive_step('HoldOnIce',
+                               location=timepoint_0hrs.output_pin('samples'))
 hold.description = 'This will prevent cell growth while transferring samples.'
 
 transfer = protocol.primitive_step('Transfer',
@@ -158,7 +198,9 @@ transfer = protocol.primitive_step('Transfer',
                                    destination=timepoint_0hrs.output_pin('samples'),
                                    amount=sbol3.Measure(1, OM.milliliter),
                                    temperature=sbol3.Measure(4, OM.degree_Celsius))
+transfer.description = '(This can be also performed on Ice).'
 
+# Abs measurement
 baseline_absorbance = protocol.primitive_step('MeasureAbsorbance',
                                               samples=timepoint_0hrs.output_pin('samples'),
                                               wavelength=sbol3.Measure(600, OM.nanometer))
@@ -180,10 +222,11 @@ dilution = protocol.primitive_step('DiluteToTargetOD',
                                    amount=sbol3.Measure(12, OM.millilitre),
                                    target_od=sbol3.Measure(0.02, None),
                                    temperature=sbol3.Measure(4, OM.degree_Celsius))  # Dilute to a target OD of 0.2, opaque container
-dilution.description = ' Use the provided Excel sheet to calculate this dilution. Reliability of the dilution upon Abs600 measurement: should stay between 0.1-0.9'
+dilution.description = f'(This can be also performed on Ice).'
 
 embedded_image = protocol.primitive_step('EmbeddedImage',
-                                         image='../fig1_cell_calibration.png')
+                                         image='fig1_standard_protocol.png',
+                                         caption='Fig 1: Visual representation of protocol')
 
 
 temporary = protocol.primitive_step('ContainerSet',
@@ -192,9 +235,8 @@ temporary = protocol.primitive_step('ContainerSet',
                                          queryString='cont:MicrofugeTube',
                                          prefixMap={'cont': 'https://sift.net/container-ontology/container-ontology#'}))
 
-hold = protocol.primitive_step('Hold',
-                               location=temporary.output_pin('samples'),
-                               temperature=sbol3.Measure(4, OM.degree_Celsius))
+hold = protocol.primitive_step('HoldOnIce',
+                               location=temporary.output_pin('samples'))
 hold.description = 'This will prevent cell growth while transferring samples.'
 
 transfer = protocol.primitive_step('Transfer',
@@ -202,6 +244,7 @@ transfer = protocol.primitive_step('Transfer',
                                    destination=temporary.output_pin('samples'),
                                    amount=sbol3.Measure(1, OM.milliliter),
                                    temperature=sbol3.Measure(4, OM.degree_Celsius))
+transfer.description = '(This can be also performed on Ice).'
 
 plate1 = protocol.primitive_step('EmptyContainer',
                                  specification=paml.ContainerSpec(name='plate 1',
@@ -209,9 +252,8 @@ plate1 = protocol.primitive_step('EmptyContainer',
                                  prefixMap={'cont': 'https://sift.net/container-ontology/container-ontology#'}))
 
 
-hold = protocol.primitive_step('Hold',
-                               location=plate1.output_pin('samples'),
-                               temperature=sbol3.Measure(4, OM.degree_Celsius))
+hold = protocol.primitive_step('HoldOnIce',
+                               location=plate1.output_pin('samples'))
 
 
 
@@ -234,9 +276,9 @@ plan = paml.SampleData(values=quote(json.dumps({'1':  'A2:D2',
 
 
 transfer = protocol.primitive_step('TransferByMap',
-                                    source=timepoint_0hrs.output_pin('samples'),
+                                    source=temporary.output_pin('samples'),
                                     destination=plate1.output_pin('samples'),
-                                    amount=sbol3.Measure(100, OM.microliter),
+                                    amount=sbol3.Measure(200, OM.microliter),
                                     temperature=sbol3.Measure(4, OM.degree_Celsius),
                                     plan=plan)
 transfer.description = 'See also the plate layout below.'
@@ -246,11 +288,13 @@ plate_blanks = protocol.primitive_step('Transfer',
                                        destination=plate1.output_pin('samples'),
                                        coordinates='A1:H1, A10:H10, A12:H12',
                                        temperature=sbol3.Measure(4, OM.degree_Celsius),
-                                       amount=sbol3.Measure(100, OM.microliter))
+                                       amount=sbol3.Measure(200, OM.microliter))
 plate_blanks.description = 'These samples are blanks.'
 
 embedded_image = protocol.primitive_step('EmbeddedImage',
-                                         image='../fig2_cell_calibration.png')
+                                         image='fig2_cell_calibration.png',
+                                         caption='Fig 2: Plate layout')
+
 
 
 # Possibly display map here
@@ -289,43 +333,21 @@ incubate = protocol.primitive_step('Incubate',
 
 
 # Hold on ice to inhibit cell growth
-hold = protocol.primitive_step('Hold',
-                               location=timepoint_0hrs.output_pin('samples'),
-                               temperature=sbol3.Measure(4, OM.degree_Celsius))
+hold = protocol.primitive_step('HoldOnIce',
+                               location=conical_tube.output_pin('samples'))
 hold.description = 'This will inhibit cell growth during the subsequent pipetting steps.'
 
-
-# Take a 6hr timepoint measurement
-timepoint_6hrs = protocol.primitive_step('ContainerSet',
-                                         quantity=len(plasmids)*2,
-                                         specification=paml.ContainerSpec(name=f'6hr timepoint',
-                                                                          queryString='cont:MicrofugeTube', 
-                                                                          prefixMap={'cont': 'https://sift.net/container-ontology/container-ontology#'}))
-       
+# Take a 6hr timepoint measurement   
 plate2 = protocol.primitive_step('EmptyContainer',
                                  specification=paml.ContainerSpec(name='plate 2',
                                  queryString='cont:Plate96Well',
                                  prefixMap={'cont': 'https://sift.net/container-ontology/container-ontology#'}))
 
 # Hold on ice
-hold = protocol.primitive_step('Hold',
-                               location=timepoint_6hrs.output_pin('samples'),
-                               temperature=sbol3.Measure(4, OM.degree_Celsius))
-hold.description = 'This will prevent cell growth while transferring samples.'
+hold = protocol.primitive_step('HoldOnIce',
+                               location=plate2.output_pin('samples'))
 
-hold = protocol.primitive_step('Hold',
-                               location=plate2.output_pin('samples'),
-                               temperature=sbol3.Measure(4, OM.degree_Celsius))
-
-
-transfer = protocol.primitive_step('Transfer',
-                                   source=conical_tube.output_pin('samples'),
-                                   destination=timepoint_6hrs.output_pin('samples'),
-                                   temperature=sbol3.Measure(4, OM.degree_Celsius),
-                                   amount=sbol3.Measure(1, OM.milliliter))
-
-
-        
+       
 
 plan = paml.SampleData(values=quote(json.dumps({'1':  'A2:D2',
                                                 '2':  'E2:H2',
@@ -345,9 +367,9 @@ plan = paml.SampleData(values=quote(json.dumps({'1':  'A2:D2',
                                                 '16': 'E10:H10',})))
 
 transfer = protocol.primitive_step('TransferByMap',
-                                   source=timepoint_6hrs.output_pin('samples'),
+                                   source=conical_tube.output_pin('samples'),
                                    destination=plate2.output_pin('samples'),
-                                   amount=sbol3.Measure(100, OM.microliter),
+                                   amount=sbol3.Measure(200, OM.microliter),
                                    temperature=sbol3.Measure(4, OM.degree_Celsius),
                                    plan=plan)
 transfer.description = 'See the plate layout.'
@@ -358,7 +380,7 @@ plate_blanks = protocol.primitive_step('Transfer',
                                        destination=plate2.output_pin('samples'),
                                        coordinates='A1:H1, A10:H10, A12:H12',
                                        temperature=sbol3.Measure(4, OM.degree_Celsius),
-                                       amount=sbol3.Measure(100, OM.microliter))
+                                       amount=sbol3.Measure(200, OM.microliter))
 plate_blanks.description = 'These are the blanks.'
 
 
@@ -404,12 +426,15 @@ protocol.designate_output('measurements', 'http://bioprotocols.org/paml#SampleDa
 agent = sbol3.Agent("test_agent")
 ee = ExecutionEngine(specializations=[MarkdownSpecialization("test_LUDOX_markdown.md")])
 execution = ee.execute(protocol, agent, id="test_execution", parameter_values=[])
-
-# Post-process the markdown to add a table that shows where each
-# iGEM part is contained in the parts distribution kit
 render_kit_coordinates_table(execution)
-
 print(execution.markdown)
+
+# Dress up the markdown to make it pretty and more readable
 execution.markdown = execution.markdown.replace('`_E. coli_', '_`E. coli`_ `')
+execution.markdown = execution.markdown.replace(' milliliter', 'mL')
+execution.markdown = execution.markdown.replace(' degree Celsius', '\u00B0C')  # degree symbol
+execution.markdown = execution.markdown.replace(' nanometer', 'nm')
+execution.markdown = execution.markdown.replace(' microliter', 'uL')
+
 with open(__file__.split('.')[0] + '.md', 'w', encoding='utf-8') as f:
     f.write(execution.markdown)

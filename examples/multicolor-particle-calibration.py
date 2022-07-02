@@ -422,3 +422,11 @@ protocol.designate_output('measurements', 'http://bioprotocols.org/paml#SampleDa
 ee = ExecutionEngine(specializations=[MarkdownSpecialization(__file__.split('.')[0] + '.md')])
 execution = ee.execute(protocol, sbol3.Agent('test_agent'), id="test_execution", parameter_values=[])
 print(execution.markdown)
+
+# Dress up the markdown to make it pretty and more readable
+execution.markdown = execution.markdown.replace(' milliliter', 'mL')
+execution.markdown = execution.markdown.replace(' nanometer', 'nm')
+execution.markdown = execution.markdown.replace(' microliter', 'uL')
+
+with open(__file__.split('.')[0] + '.md', 'w', encoding='utf-8') as f:
+    f.write(execution.markdown)
