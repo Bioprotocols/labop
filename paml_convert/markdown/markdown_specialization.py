@@ -632,10 +632,17 @@ class MarkdownSpecialization(BehaviorSpecialization):
         # Generate markdown
         container_str = record.document.find(container.container_type).value.name 
         inocula_names = get_sample_names(inocula, error_msg='Culture execution failed. All input inoculum Components must specify a name.')
-        text = f'Inoculate `{inocula_names[0]}` into {volume_scalar} {volume_units} of {growth_medium.name} in {container_str} and grow for {measurement_to_text(duration)} at {measurement_to_text(temperature)} and {int(orbital_shake_speed.value)} rpm.'
+        #text = f'Inoculate `{inocula_names[0]}` into {volume_scalar} {volume_units} of {growth_medium.name} in {container_str} and grow for {measurement_to_text(duration)} at {measurement_to_text(temperature)} and {int(orbital_shake_speed.value)} rpm.'
+        if duration_scalar > 14:
+            text = f'Inoculate `{inocula_names[0]}` into {volume_scalar} {volume_units} of {growth_medium.name} in {container_str} and grow overnight (for {measurement_to_text(duration)}) at {measurement_to_text(temperature)} and {int(orbital_shake_speed.value)} rpm.'
+        else:
+            text = f'Inoculate `{inocula_names[0]}` into {volume_scalar} {volume_units} of {growth_medium.name} in {container_str} and grow for {measurement_to_text(duration)} at {measurement_to_text(temperature)} and {int(orbital_shake_speed.value)} rpm.'
         text += repeat_for_remaining_samples(inocula_names, repeat_msg=' Repeat this procedure for the other inocula: ')
         if replicates > 1:
-            text = f'Inoculate {replicates} colonies of each transformant {inocula.name}, for a total of {replicates*len(inocula_names)} cultures. Inoculate each into {volume_scalar} {volume_units} of {growth_medium.name} in {container_str} and grow for {measurement_to_text(duration)} at {measurement_to_text(temperature)} and {int(orbital_shake_speed.value)} rpm.'
+            if duration_scalar > 14:
+                text = f'Inoculate {replicates} colonies of each {inocula.name}, for a total of {replicates*len(inocula_names)} cultures. Inoculate each into {volume_scalar} {volume_units} of {growth_medium.name} in {container_str} and grow overnight (for {measurement_to_text(duration)}) at {measurement_to_text(temperature)} and {int(orbital_shake_speed.value)} rpm.'
+            else:
+                text = f'Inoculate {replicates} colonies of each {inocula.name}, for a total of {replicates*len(inocula_names)} cultures. Inoculate each into {volume_scalar} {volume_units} of {growth_medium.name} in {container_str} and grow for {measurement_to_text(duration)} at {measurement_to_text(temperature)} and {int(orbital_shake_speed.value)} rpm.'
 
 
         # Populate output SampleArray
@@ -788,9 +795,14 @@ class MarkdownSpecialization(BehaviorSpecialization):
         transformants.name = destination.name
 
         # Add to markdown
-        text = f"Transform `{dna_names[0]}` DNA into `{host.name}` and plate transformants on {medium.name}."
+        # text = f"Transform `{dna_names[0]}` DNA into `{host.name}` and plate transformants on {medium.name}."
+        # text += repeat_for_remaining_samples(dna_names, repeat_msg='Repeat for the remaining transformant DNA: ')
+        # text += f' Plate transformants on `{destination.name}` plates.'
+        # text = add_description(record, text)
+        # execution.markdown_steps += [text]
+        text = f"Transform `{dna_names[0]}` DNA into `{host.name}`."
         text += repeat_for_remaining_samples(dna_names, repeat_msg='Repeat for the remaining transformant DNA: ')
-        text += f' Plate transformants on `{destination.name}` plates.'
+        text += f' Plate transformants on {medium.name} `{destination.name}` plates.'
         text = add_description(record, text)
         execution.markdown_steps += [text]
 
