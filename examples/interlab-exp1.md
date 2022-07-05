@@ -74,7 +74,7 @@ Protocol summary: You will transform the eight devices listed in Table 1 into E.
 12. Obtain 16 x 50 ml conical tubes to contain `back-diluted culture` The conical tube should be opaque, amber-colored, or covered with foil.
 13. Back-dilute each of 16 `culture (day 2)` samples to a target OD of 0.02 using LB Broth + Chloramphenicol (34 ug/mL) as diluent to a final volume of 12.0mL. Maintain at 4.0°C while performing dilutions.
 
-![](fig1_standard_protocol.png)
+![](Exp1_2_protocol_published.png)
 <p align="center">Fig 1: Visual representation of protocol</p>
 
 14. Obtain 16 x 1.5 mL microfuge tubes to contain `back-diluted culture aliquots`
@@ -106,5 +106,5 @@ Protocol summary: You will transform the eight devices listed in Table 1 into E.
 34. Measure 6 hr red fluorescence timepoint of `plate 2` with excitation wavelength of 561.0nm and emission filter of 610.0nm and 20.0nm bandpass.
 35. Import data for `baseline absorbance of culture (day 2) measurements of cultures (0 hr timepoint)`, `0 hr absorbance timepoint measurements of plate 1`, `0 hr green fluorescence timepoint measurements of plate 1`, `0 hr blue fluorescence timepoint measurements of plate 1`, `0 hr red fluorescence timepoint measurements of plate 1`, `6 hr absorbance timepoint measurements of plate 2`, `6 hr green fluorescence timepoint measurements of plate 2`, `6 hr blue fluorescence timepoint measurements of plate 2`, `6 hr red fluorescence timepoint measurements of plate 2` into provided Excel file.
 ---
-Timestamp: 2022-07-05 20:31:07.044387---
+Timestamp: 2022-07-05 21:27:33.144455---
 Protocol version: 1.1b

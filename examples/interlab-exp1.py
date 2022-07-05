@@ -225,7 +225,7 @@ dilution = protocol.primitive_step('DiluteToTargetOD',
 dilution.description = f'(This can be also performed on Ice).'
 
 embedded_image = protocol.primitive_step('EmbeddedImage',
-                                         image='fig1_standard_protocol.png',
+                                         image='Exp1_2_protocol_published.png',
                                          caption='Fig 1: Visual representation of protocol')
 
 
