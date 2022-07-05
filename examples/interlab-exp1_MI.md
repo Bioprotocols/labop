@@ -25,14 +25,14 @@ Protocol summary: You will transform the eight devices listed in Table 1 into E.
 
 ## Protocol Materials:
 * [_E. coli_ DH5 alpha competent cells](https://identifiers.org/taxonomy:668369)
-* [Negative control 2022](http://parts.igem.org/Part:BBa_J428100)
+* [Negative control 2018](http://parts.igem.org/Part:BBa_R0040)
 * [Positive control 2018](http://parts.igem.org/Part:BBa_I20270)
-* [Test Device 1 Exp 1 (Green Device)](http://parts.igem.org/Part:BBa_J428112)
-* [Test Device 2 Exp 1 (Red mRFP1 device)](http://parts.igem.org/Part:BBa_J428110)
-* [Test Device 3 Exp 1 (Red mCherry device)](http://parts.igem.org/Part:BBa_J428111)
-* [Test Device 4 Exp 1 (RiboJ Insulated mCherry device)](http://parts.igem.org/Part:BBa_J428101)
-* [Test Device 5 Exp 1 (Dual construct Blue and Red)](http://parts.igem.org/Part:BBa_J428108)
-* [Test Device 6 Exp 1 (Dual construct Green and Blue)](http://parts.igem.org/Part:BBa_J428106)
+* [Test Device 1 Exp 1 (Green Device Insulation 1)](https://github.com/igem-Engineering/)
+* [Test Device 2 Exp 1 (Blue device Insulation 1)](https://github.com/igem-Engineering/)
+* [Test Device 3 Exp 1 (Red device Insulation 1)](https://github.com/igem-Engineering/)
+* [Test Device 4 Exp 1 (Green device Insulation 2)](https://github.com/igem-Engineering/)
+* [Test Device 5 Exp 1 (Blue device Insulation 2)](https://github.com/igem-Engineering/)
+* [Test Device 6 Exp 1 (Red device Insulation 2)](https://github.com/igem-Engineering/)
 * [LB Broth + Chloramphenicol (34 ug/mL)]()
 * [LB Agar + Chloramphenicol (34 ug/mL)]()
 * [Chloramphenicol stock solution (34 mg/mL)](https://pubchem.ncbi.nlm.nih.gov/compound/5959)
@@ -49,19 +49,19 @@ Protocol summary: You will transform the eight devices listed in Table 1 into E.
 #### Table 1: Part Locations in Distribution Kit
 | Part | Coordinate |
 | ---- | -------------- |
-|BBa_J428100|Kit Plate 1 Well 12M|
-|BBa_I20270|Kit Plate 1 Well 1A|
-|BBa_J428112|Kit Plate 1 Well 14C|
-|BBa_J428110|Kit Plate 1 Well 12O|
-|BBa_J428111|Kit Plate 1 Well 14A|
-|BBa_J428101|Kit Plate 1 Well 12I|
-|BBa_J428108|Kit Plate 1 Well 14E|
-|BBa_J428106|Kit Plate 1 Well 12G|
+|BBa_R0040|Mini-interlab Plate Well G1|
+|BBa_I20270|Mini-interlab Plate Well A1|
+|H3_Green_Device_Ins_1|Mini-interlab Plate Well A2|
+|F2_Blue_Device_Ins_1|Mini-interlab Plate Well B2|
+|C3_Red_Device_Ins_1|Mini-interlab Plate Well C2|
+|H6_Green_Device_Ins_2|Mini-interlab Plate Well D2|
+|A3_Blue_Device_Ins_2|Mini-interlab Plate Well E2|
+|B6_Red_Device_Ins_2|Mini-interlab Plate Well F2|
 
 
 ## Protocol Steps:
 1. Obtain 8 x Petri dish containing LB Agar + Chloramphenicol (34 ug/mL) growth medium for culturing `transformant strains`
-2. Transform `Negative control 2022` DNA into _`E. coli`_ ` DH5 alpha competent cells`. Repeat for the remaining transformant DNA:  `Positive control 2018`, `Test Device 1 Exp 1 (Green Device)`, `Test Device 2 Exp 1 (Red mRFP1 device)`, `Test Device 3 Exp 1 (Red mCherry device)`, `Test Device 4 Exp 1 (RiboJ Insulated mCherry device)`, `Test Device 5 Exp 1 (Dual construct Blue and Red)`, and `Test Device 6 Exp 1 (Dual construct Green and Blue)`. Plate transformants on LB Agar + Chloramphenicol (34 ug/mL) `transformant strains` plates. Incubate overnight (for 16 hour) at 37.0°C.
+2. Transform `Negative control 2018` DNA into _`E. coli`_ ` DH5 alpha competent cells`. Repeat for the remaining transformant DNA:  `Positive control 2018`, `Test Device 1 Exp 1 (Green Device Insulation 1)`, `Test Device 2 Exp 1 (Blue device Insulation 1)`, `Test Device 3 Exp 1 (Red device Insulation 1)`, `Test Device 4 Exp 1 (Green device Insulation 2)`, `Test Device 5 Exp 1 (Blue device Insulation 2)`, and `Test Device 6 Exp 1 (Red device Insulation 2)`. Plate transformants on LB Agar + Chloramphenicol (34 ug/mL) `transformant strains` plates. Incubate overnight (for 16 hour) at 37.0°C.
 3. Obtain 16 x culture tubes to contain `culture (day 1)`
 4. Pick 2 colonies from each `transformant strains` plate.
 5. Inoculate 2 colonies of each transformant strains, for a total of 16 cultures. Inoculate each into 5.0mL of LB Broth + Chloramphenicol (34 ug/mL) in culture (day 1) and grow overnight (for 16.0 hour) at 37.0°C and 220 rpm.
@@ -106,5 +106,5 @@ Protocol summary: You will transform the eight devices listed in Table 1 into E.
 34. Measure 6 hr red fluorescence timepoint of `plate 2` with excitation wavelength of 561.0nm and emission filter of 610.0nm and 20.0nm bandpass.
 35. Import data for `baseline absorbance of culture (day 2) measurements of cultures (0 hr timepoint)`, `0 hr absorbance timepoint measurements of plate 1`, `0 hr green fluorescence timepoint measurements of plate 1`, `0 hr blue fluorescence timepoint measurements of plate 1`, `0 hr red fluorescence timepoint measurements of plate 1`, `6 hr absorbance timepoint measurements of plate 2`, `6 hr green fluorescence timepoint measurements of plate 2`, `6 hr blue fluorescence timepoint measurements of plate 2`, `6 hr red fluorescence timepoint measurements of plate 2` into provided Excel file.
 ---
-Timestamp: 2022-07-05 20:31:07.044387---
+Timestamp: 2022-07-05 18:41:12.935208---
 Protocol version: 1.1b

@@ -37,37 +37,38 @@ dh5alpha = sbol3.Component('dh5alpha', 'https://identifiers.org/taxonomy:668369'
 dh5alpha.name = '_E. coli_ DH5 alpha competent cells'  
 doc.add(dh5alpha)
 
-neg_control_plasmid = sbol3.Component('neg_control_plasmid', 'http://parts.igem.org/Part:BBa_J428100')
-neg_control_plasmid.name = 'Negative control 2022'
-neg_control_plasmid.description = 'BBa_J428100 Kit Plate 1 Well 12M'
+neg_control_plasmid = sbol3.Component('neg_control_plasmid', 'http://parts.igem.org/Part:BBa_R0040')
+neg_control_plasmid.name = 'Negative control 2018'
+neg_control_plasmid.description = 'BBa_R0040 Mini-interlab Plate Well G1'
 
 pos_control_plasmid = sbol3.Component('pos_control_plasmid', 'http://parts.igem.org/Part:BBa_I20270')
 pos_control_plasmid.name = 'Positive control 2018'
-pos_control_plasmid.description = 'BBa_I20270 Kit Plate 1 Well 1A'
+pos_control_plasmid.description = 'BBa_I20270 Mini-interlab Plate Well A1'
 
-test_device1 = sbol3.Component('test_device1', 'http://parts.igem.org/Part:BBa_J428112')
-test_device1.name = 'Test Device 1 Exp 1 (Green Device)'
-test_device1.description = 'BBa_J428112 Kit Plate 1 Well 14C'
+test_device1 = sbol3.Component('test_device1', 'https://github.com/igem-Engineering/')
+test_device1.name = 'Test Device 1 Exp 1 (Green Device Insulation 1)'
+test_device1.description = 'H3_Green_Device_Ins_1 Mini-interlab Plate Well A2'
 
-test_device2 = sbol3.Component('test_device2', 'http://parts.igem.org/Part:BBa_J428110')
-test_device2.name = 'Test Device 2 Exp 1 (Red mRFP1 device)'
-test_device2.description = 'BBa_J428110 Kit Plate 1 Well 12O'
+test_device2 = sbol3.Component('test_device2', 'https://github.com/igem-Engineering/')
+test_device2.name = 'Test Device 2 Exp 1 (Blue device Insulation 1)'
+test_device2.description = 'F2_Blue_Device_Ins_1 Mini-interlab Plate Well B2'
 
-test_device3 = sbol3.Component('test_device3', 'http://parts.igem.org/Part:BBa_J428111')
-test_device3.name = 'Test Device 3 Exp 1 (Red mCherry device)'
-test_device3.description = 'BBa_J428111 Kit Plate 1 Well 14A'
+test_device3 = sbol3.Component('test_device3', 'https://github.com/igem-Engineering/')
+test_device3.name = 'Test Device 3 Exp 1 (Red device Insulation 1)'
+test_device3.description = 'C3_Red_Device_Ins_1 Mini-interlab Plate Well C2'
 
-test_device4 = sbol3.Component('test_device4', 'http://parts.igem.org/Part:BBa_J428101')
-test_device4.name = 'Test Device 4 Exp 1 (RiboJ Insulated mCherry device)'
-test_device4.description = 'BBa_J428101 Kit Plate 1 Well 12I'
+test_device4 = sbol3.Component('test_device4', 'https://github.com/igem-Engineering/')
+test_device4.name = 'Test Device 4 Exp 1 (Green device Insulation 2)'
+test_device4.description = 'H6_Green_Device_Ins_2 Mini-interlab Plate Well D2'
 
-test_device5 = sbol3.Component('test_device5', 'http://parts.igem.org/Part:BBa_J428108')
-test_device5.name = 'Test Device 5 Exp 1 (Dual construct Blue and Red)'
-test_device5.description = 'BBa_J428108 Kit Plate 1 Well 14E'
+test_device5 = sbol3.Component('test_device5', 'https://github.com/igem-Engineering/')
+test_device5.name = 'Test Device 5 Exp 1 (Blue device Insulation 2)'
+test_device5.description = 'A3_Blue_Device_Ins_2 Mini-interlab Plate Well E2'
 
-test_device6 = sbol3.Component('test_device6', 'http://parts.igem.org/Part:BBa_J428106')
-test_device6.name = 'Test Device 6 Exp 1 (Dual construct Green and Blue)'
-test_device6.description = 'BBa_J428106 Kit Plate 1 Well 12G'
+test_device6 = sbol3.Component('test_device6', 'https://github.com/igem-Engineering/')
+test_device6.name = 'Test Device 6 Exp 1 (Red device Insulation 2)'
+test_device6.description = 'B6_Red_Device_Ins_2 Mini-interlab Plate Well F2'
+
 
 doc.add(neg_control_plasmid)
 doc.add(pos_control_plasmid)
