@@ -37,37 +37,37 @@ dh5alpha = sbol3.Component('dh5alpha', 'https://identifiers.org/taxonomy:668369'
 dh5alpha.name = '_E. coli_ DH5 alpha competent cells'  
 doc.add(dh5alpha)
 
-neg_control_plasmid = sbol3.Component('neg_control_plasmid', 'http://parts.igem.org/Part:BBa_J428100')
-neg_control_plasmid.name = 'Negative control 2022'
-neg_control_plasmid.description = 'BBa_J428100 Kit Plate 1 Well 12M'
+neg_control_plasmid = sbol3.Component('neg_control_plasmid', 'http://parts.igem.org/Part:BBa_R0040')
+neg_control_plasmid.name = 'Negative control 2018'
+neg_control_plasmid.description = 'BBa_R0040 Mini-interlab Plate Well G1'
 
 pos_control_plasmid = sbol3.Component('pos_control_plasmid', 'http://parts.igem.org/Part:BBa_I20270')
 pos_control_plasmid.name = 'Positive control 2018'
-pos_control_plasmid.description = 'BBa_I20270 Kit Plate 1 Well 1A'
+pos_control_plasmid.description = 'BBa_I20270 Mini-interlab Plate Well A1'
 
-test_device1 = sbol3.Component('test_device1', 'http://parts.igem.org/Part:BBa_J428112')
-test_device1.name = 'Test Device 1 Exp 1 (Green Device)'
-test_device1.description = 'BBa_J428112 Kit Plate 1 Well 14C'
+test_device1 = sbol3.Component('test_device1', 'https://github.com/igem-Engineering/')
+test_device1.name = 'Test Device 1 Exp 2 (Dual construct Green and Blue)'
+test_device1.description = 'H3A3_Green_Blue Mini-interlab Plate Well A4'
 
-test_device2 = sbol3.Component('test_device2', 'http://parts.igem.org/Part:BBa_J428110')
-test_device2.name = 'Test Device 2 Exp 1 (Red mRFP1 device)'
-test_device2.description = 'BBa_J428110 Kit Plate 1 Well 12O'
+test_device2 = sbol3.Component('test_device2', 'https://github.com/igem-Engineering/')
+test_device2.name = 'Test Device 2 Exp 2 (Dual construct Green and Red)'
+test_device2.description = 'H3B6_Green_Red Mini-interlab Plate Well B4'
 
-test_device3 = sbol3.Component('test_device3', 'http://parts.igem.org/Part:BBa_J428111')
-test_device3.name = 'Test Device 3 Exp 1 (Red mCherry device)'
-test_device3.description = 'BBa_J428111 Kit Plate 1 Well 14A'
+test_device3 = sbol3.Component('test_device3', 'https://github.com/igem-Engineering/')
+test_device3.name = 'Test Device 3 Exp 2 (Dual construct Blue and Green)'
+test_device3.description = 'F2H6_Blue_Green Mini-interlab Plate Well C4'
 
-test_device4 = sbol3.Component('test_device4', 'http://parts.igem.org/Part:BBa_J428101')
-test_device4.name = 'Test Device 4 Exp 1 (RiboJ Insulated mCherry device)'
-test_device4.description = 'BBa_J428101 Kit Plate 1 Well 12I'
+test_device4 = sbol3.Component('test_device4', 'https://github.com/igem-Engineering/')
+test_device4.name = 'Test Device 4 Exp 2 (Dual construct Blue and Red)'
+test_device4.description = 'F2B6_Blue_Red Mini-interlab Plate Well D4'
 
-test_device5 = sbol3.Component('test_device5', 'http://parts.igem.org/Part:BBa_J428108')
-test_device5.name = 'Test Device 5 Exp 1 (Dual construct Blue and Red)'
-test_device5.description = 'BBa_J428108 Kit Plate 1 Well 14E'
+test_device5 = sbol3.Component('test_device5', 'https://github.com/igem-Engineering/')
+test_device5.name = 'Test Device 5 Exp 2 (Dual construct Red and Green)'
+test_device5.description = 'C3H6_Red_Green Mini-interlab Plate Well E4'
 
-test_device6 = sbol3.Component('test_device6', 'http://parts.igem.org/Part:BBa_J428106')
-test_device6.name = 'Test Device 6 Exp 1 (Dual construct Green and Blue)'
-test_device6.description = 'BBa_J428106 Kit Plate 1 Well 12G'
+test_device6 = sbol3.Component('test_device6', 'https://github.com/igem-Engineering/')
+test_device6.name = 'Test Device 6 Exp 2 (Dual construct Red and Blue)'
+test_device6.description = 'C3A3_Red_Blue Mini-interlab Plate Well F4'
 
 doc.add(neg_control_plasmid)
 doc.add(pos_control_plasmid)
@@ -109,17 +109,13 @@ doc.add(shaking_incubator)
 
 ################################################################
 protocol = paml.Protocol('interlab')
-protocol.name = 'Testing the three color calibration protocol'
-protocol.version = sbol3.TextProperty(protocol, 'http://igem.org/interlab_working_group#Version', 0, 1, [], '1.1b')
-protocol.description = '''In this experiment, your team will measure the fluorescence of six devices that encode either a single fluorescence protein (blue, green, or red) or two fluorescence proteins encoded in two transcriptional units. You will calibrate the fluorescence of these devices to the three calibrant dyes and you will calibrate the optical density of the culture to the cell density calibrant.
+protocol.name = 'MINI Interlab - Experiment 2: Using the three color calibration protocol: Does the order of transcriptional units influence their expression strength?'
+protocol.version = sbol3.TextProperty(protocol, 'http://igem.org/interlab_working_group#Version', 0, 1, [], '2.0')
+protocol.description = '''In this experiment, your team will measure the fluorescence of six devices that encode two fluorescence proteins in two transcriptional units. The devices differ in the order of the transcriptional units. You will calibrate the fluorescence of these devices to the calibrant dyes and the optical density of the culture to the cell density calibrant.
 
-This experiment aims to assess the lab-to-lab reproducibility of the new three color calibration protocol. We will test if it works well for calibrating the fluorescence in cells that express one single fluorescent protein and for cells expressing two different fluorescent proteins at the same time.
+This experiment aims to assess the lab-to-lab reproducibility of the three color calibration protocol when two fluorescent proteins are expressed in the same cell. Besides this technical question, it also adresses a fundamental synthetic biology question: does the order of the transcriptional units (that encode for the two different fluorescent proteins) on the devices influence their expression levels?
 
-Before performing the cell measurements, you need to perform all the calibration measurements. Please do not proceed unless you have completed the calibration protocol. Completion of the calibrations will ensure that you understand the measurement process and that you can take the cell measurements under the same conditions. For consistency and reproducibility, we are requiring all teams to use E. coli K-12 DH5-alpha. If you do not have access to this strain, you can request streaks of the transformed devices from another team near you. If you are absolutely unable to obtain the DH5-alpha strain, you may still participate in the InterLab study by contacting the Engineering Committee (engineering [at] igem [dot] org) to discuss your situation.
-
-For all below indicated cell measurements, you must use the same type of plates and the same volumes that you used in your calibration protocol. You must also use the same settings (e.g., filters or excitation and emission wavelengths) that you used in your calibration measurements. If you do not use the same type of plates, volumes, and settings, the measurements will not be valid.
-
-Protocol summary: You will transform the eight devices listed in Table 1 into E. coli K-12 DH5-alpha cells. The next day you will pick two colonies from each transformation (16 total) and use them to inoculate 5 mL overnight cultures (this step is still in tubes). Each of these 16 overnight cultures will be used to inoculate four wells in a 96-well plate (200 microliter each, 4 replicates) and one test tube (12 mL). You will measure how fluorescence and optical density develops over 6 hours by taking measurements at time point 0 hour and at time point 6 hours. Follow the protocol below and the visual instructions in Figure 1 and Figure 2.'''
+Protocol summary: You will transform the eight devices listed in Table 1 into E. coli K-12 DH5-alpha cells. The next day you will pick two colonies from each transformation (16 total) and use them to inoculate 5 mL overnight cultures (this step is still in tubes). Each of these 16 overnight cultures will be used to inoculate four wells in a 96-well plate (200 microliter each, 4 replicates) for measurement and one test tube (12 mL) for growth. You will measure how fluorescence and optical density develops over 6 hours by taking measurements at time point 0 hour and at time point 6 hours. Follow the protocol below and the visual instructions in Figure 1 and Figure 2.'''
 
 doc.add(protocol)
 protocol = doc.find(protocol.identity)

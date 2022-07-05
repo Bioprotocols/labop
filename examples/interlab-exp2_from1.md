@@ -74,7 +74,7 @@ Protocol summary: You will transform the eight devices listed in Table 1 into E.
 12. Obtain 16 x 50 ml conical tubes to contain `back-diluted culture` The conical tube should be opaque, amber-colored, or covered with foil.
 13. Back-dilute each of 16 `culture (day 2)` samples to a target OD of 0.02 using LB Broth + Chloramphenicol (34 ug/mL) as diluent to a final volume of 12.0 mL. Maintain at 4.0°C while performing dilutions.
 
-![](fig1_standard_protocol.png)
+![](Exp1_2_protocol_published.png)
 <p align="center">Fig 1: Visual representation of protocol</p>
 
 14. Obtain 16 x 1.5 mL microfuge tubes to contain `back-diluted culture aliquots`
@@ -86,18 +86,18 @@ Protocol summary: You will transform the eight devices listed in Table 1 into E.
  Maintain at 4.0°C during transfer.
 20. Transfer 200.0uL of `LB Broth + Chloramphenicol (34 ug/mL)` sample to wells A1:H1, A10:H10, A12:H12 of  96 well microplate `plate 1`. Maintain at 4.0°C during transfer. These samples are blanks.
 
-![](fig2_cell_calibration.png)
+![](Layout_Exp2.png)
 <p align="center">Fig 2: Plate layout</p>
 
-21. Measure 0 hr absorbance timepoint of `plate 1` at 600.0nm.
-22. Measure 0 hr green fluorescence timepoint of `plate 1` with excitation wavelength of 488.0nm and emission filter of 530.0nm and 30.0nm bandpass.
-23. Measure 0 hr blue fluorescence timepoint of `plate 1` with excitation wavelength of 405.0nm and emission filter of 450.0nm and 50.0nm bandpass.
-24. Measure 0 hr red fluorescence timepoint of `plate 1` with excitation wavelength of 561.0nm and emission filter of 610.0nm and 20.0nm bandpass.
-25. Incubate all `back-diluted culture` samples for 6.0 hour at 37.0°C at 220 rpm.
-26. Hold all `back-diluted culture` samples on ice. This will inhibit cell growth during the subsequent pipetting steps.
-27. Obtain a 96 well microplate to contain `plate 2`
-28. Hold `plate 2` on ice.
-29. Transfer 200.0uL of each `back-diluted culture` sample to 96 well microplate `plate 2` in the wells indicated in the plate layout.
+1.  Measure 0 hr absorbance timepoint of `plate 1` at 600.0nm.
+2.  Measure 0 hr green fluorescence timepoint of `plate 1` with excitation wavelength of 488.0nm and emission filter of 530.0nm and 30.0nm bandpass.
+3.  Measure 0 hr blue fluorescence timepoint of `plate 1` with excitation wavelength of 405.0nm and emission filter of 450.0nm and 50.0nm bandpass.
+4.  Measure 0 hr red fluorescence timepoint of `plate 1` with excitation wavelength of 561.0nm and emission filter of 610.0nm and 20.0nm bandpass.
+5.  Incubate all `back-diluted culture` samples for 6.0 hour at 37.0°C at 220 rpm.
+6.  Hold all `back-diluted culture` samples on ice. This will inhibit cell growth during the subsequent pipetting steps.
+7.  Obtain a 96 well microplate to contain `plate 2`
+8.  Hold `plate 2` on ice.
+9.  Transfer 200.0uL of each `back-diluted culture` sample to 96 well microplate `plate 2` in the wells indicated in the plate layout.
  Maintain at 4.0°C during transfer.
 30. Transfer 200.0uL of `LB Broth + Chloramphenicol (34 ug/mL)` sample to wells A1:H1, A10:H10, A12:H12 of  96 well microplate `plate 2`. Maintain at 4.0°C during transfer. These are the blanks.
 31. Measure 6 hr absorbance timepoint of `plate 2` at 600.0nm.

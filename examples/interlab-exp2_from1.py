@@ -225,7 +225,7 @@ dilution = protocol.primitive_step('DiluteToTargetOD',
 dilution.description = f'(This can be also performed on Ice).'
 
 embedded_image = protocol.primitive_step('EmbeddedImage',
-                                         image='fig1_standard_protocol.png',
+                                         image='Exp1_2_protocol_published.png',
                                          caption='Fig 1: Visual representation of protocol')
 
 
@@ -292,7 +292,7 @@ plate_blanks = protocol.primitive_step('Transfer',
 plate_blanks.description = 'These samples are blanks.'
 
 embedded_image = protocol.primitive_step('EmbeddedImage',
-                                         image='fig2_cell_calibration.png',
+                                         image='Layout_Exp2.png',
                                          caption='Fig 2: Plate layout')
 
 
