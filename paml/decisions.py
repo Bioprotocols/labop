@@ -2,8 +2,6 @@ import paml
 import uml
 from typing import Dict, List, Tuple
 
-DECISION_ELSE = 'http://bioprotocols.org/uml#else'
-
 def protocol_make_decision_node(
     self: paml.Protocol,
     primary_incoming_node: uml.ActivityNode,
@@ -101,3 +99,22 @@ def decision_node_get_primary_incoming_flow(self, protocol):
     except StopIteration as e:
         raise Exception(f"Could not find primary_incoming edge for DecisionNode: {self.identity}")
 uml.DecisionNode.get_primary_incoming_flow = decision_node_get_primary_incoming_flow # Add to class via monkey patch
+
+def decision_node_get_decision_input_node(self):
+    if hasattr(self, "decision_input") and self.decision_input:
+        return self.decision_input
+    else:
+        # primary input flow leads to decision
+        primary_incoming_flow = self.get_primary_incoming_flow(self.protocol())
+        return primary_incoming_flow.source.lookup().get_decision_input_node()
+uml.DecisionNode.get_decision_input_node = decision_node_get_decision_input_node # Add to class via monkey patch
+
+def fork_node_get_decision_input_node(self):
+    [fork_input_edge] = [e for e in self.protocol().edges if e.target.lookup() == self]
+    decision_input_node = fork_input_edge.source.lookup().get_decision_input_node()
+    return decision_input_node
+uml.ForkNode.get_decision_input_node = fork_node_get_decision_input_node # Add to class via monkey patch
+
+def output_pin_get_decision_input_node(self):
+    return self.get_parent()
+uml.OutputPin.get_decision_input_node = output_pin_get_decision_input_node # Add to class via monkey patch

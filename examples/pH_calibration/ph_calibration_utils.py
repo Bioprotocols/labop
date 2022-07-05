@@ -182,7 +182,7 @@ def wrap_with_error_message(protocol, library, primitive, **kwargs):
         uml.ControlFlow(source=error_message_invocation, target=protocol.final())
     )
     invocation_ok.add_decision_output(
-        protocol, paml.DECISION_ELSE, error_message_invocation
+        protocol, uml.DECISION_ELSE, error_message_invocation
     )
 
     return wrapped_primitive_invocation, invocation_ok

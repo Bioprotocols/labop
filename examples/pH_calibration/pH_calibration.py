@@ -279,11 +279,12 @@ def create_setup_subprotocol(doc):
         paml.SampleArray,
         naoh_container.output_pin("samples"),
     )
-    protocol.designate_output(
+    rv_output = protocol.designate_output(
         "reaction_vessel",
         paml.SampleArray,
         reaction_vessel.output_pin("samples"),
     )
+    protocol.order(rv_output, protocol.final())
     protocol.designate_output(
         "volume_phosphoric_acid",
         sbol3.OM_MEASURE,
@@ -362,7 +363,7 @@ def pH_calibration_protocol() -> Tuple[paml.Protocol, Document]:
     protocol.order(protocol.initial(), setup_subprotocol_invocation)
 
     # 4. Decide whether calibration was successful
-    is_calibration_successful = decision = protocol.make_decision_node(
+    is_calibration_successful = protocol.make_decision_node(
         calibrate_pH_meter.output_pin("return")
     )
 

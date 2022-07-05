@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 import re
-from typing import List
+from typing import Callable, Dict, List
 import uuid
 import datetime
 import logging
@@ -12,7 +12,10 @@ import sbol3
 
 import paml
 import uml
-from paml_convert.plate_coordinates import coordinate_rect_to_row_col_pairs, num2row
+import sbol3
+
+from IPython.display import display, HTML
+
 from paml_convert.behavior_specialization import BehaviorSpecialization, DefaultBehaviorSpecialization
 
 
@@ -88,6 +91,45 @@ class ExecutionEngine(ABC):
         return  cur_time if not as_string else str(cur_time)
 
 
+    def initialize(
+        self,
+        protocol: paml.Protocol,
+        agent: sbol3.Agent,
+        id: str = uuid.uuid4(),
+        parameter_values: List[paml.ParameterValue] = {},
+    ):
+        # Record in the document containing the protocol
+        doc = protocol.document
+
+        # First, set up the record for the protocol and parameter values
+        self.ex = paml.ProtocolExecution(id, protocol=protocol)
+        doc.add(self.ex)
+
+        self.ex.association.append(sbol3.Association(agent=agent, plan=protocol))
+        self.ex.parameter_values = parameter_values
+
+        # Initialize specializations
+        for specialization in self.specializations:
+            specialization.initialize_protocol(self.ex)
+            specialization.on_begin()
+
+    def finalize(
+        self,
+        protocol: paml.Protocol,
+    ):
+        self.ex.end_time = self.get_current_time()
+
+        # A Protocol has completed normally if all of its required output parameters have values
+        self.ex.completed_normally = set(protocol.get_required_inputs()).issubset(set([p.parameter.lookup() for p in self.ex.parameter_values]))
+
+        # aggregate consumed material records from all behaviors executed within, mark end time, and return
+        self.ex.aggregate_child_materials()
+
+
+        # End specializations
+        for specialization in self.specializations:
+            specialization.on_end(ex)
+
     def execute(self,
                 protocol: paml.Protocol,
                 agent: sbol3.Agent,
@@ -109,52 +151,42 @@ class ExecutionEngine(ABC):
         ProtocolExecution containing a record of the execution
         """
 
-        # Record in the document containing the protocol
-        doc = protocol.document
+        self.initialize(protocol, agent, id, parameter_values)
+        self.run(protocol, start_time=start_time)
+        self.finalize(protocol)
 
-        # First, set up the record for the protocol and parameter values
-        self.ex = paml.ProtocolExecution(id, protocol=protocol)
-        doc.add(self.ex)
+        return self.ex
 
-        self.ex.association.append(sbol3.Association(agent=agent, plan=protocol))
-        self.ex.parameter_values = parameter_values
-
-        # Initialize specializations
-        for specialization in self.specializations:
-            specialization.initialize_protocol(self.ex)
-            specialization.on_begin()
+    def run(
+        self,
+        protocol: paml.Protocol,
+        start_time: datetime.datetime = None
+    ):
 
         self.init_time(start_time)
         self.ex.start_time = self.start_time # TODO: remove str wrapper after sbol_factory #22 fixed
 
-        # Iteratively execute all unblocked activities until no more tokens can progress
-
         ready = protocol.initiating_nodes()
+
+        # Iteratively execute all unblocked activities until no more tokens can progress
         while ready:
-            for node in ready:
-                self.current_node = node
-                # tokens = self.execute_activity_node(ex, node, tokens)
-                self.tokens = node.execute(self)
-            ready = self.executable_activity_nodes()
-
-        self.ex.end_time = self.get_current_time()
-
-        # TODO: finish implementing
-        # TODO: ensure that only one token is allowed per edge
-        # TODO: think about infinite loops and how to abort
-
-        # A Protocol has completed normally if all of its required output parameters have values
-        self.ex.completed_normally = set(protocol.get_required_inputs()).issubset(set([p.parameter.lookup() for p in self.ex.parameter_values]))
-
-        # aggregate consumed material records from all behaviors executed within, mark end time, and return
-        self.ex.aggregate_child_materials()
+            ready = self.step(ready)
+        return ready
 
 
-        # End specializations
-        for specialization in self.specializations:
-            specialization.on_end(ex)
-
-        return self.ex
+    def step(
+        self,
+        ready: List[uml.ActivityNode],
+        node_outputs: Dict[uml.ActivityNode, Callable] = {}
+    ):
+        for node in ready:
+            self.current_node = node
+            self.tokens = node.execute(
+                self,
+                node_outputs=(node_outputs[node]
+                              if node in node_outputs
+                              else None))
+        return self.executable_activity_nodes()
 
     def executable_activity_nodes(
         self
@@ -164,7 +196,6 @@ class ExecutionEngine(ABC):
 
         Parameters
         ----------
-
 
         Returns
         -------
@@ -177,6 +208,95 @@ class ExecutionEngine(ABC):
         return [n for n,nt in candidate_clusters.items()
                 if n.enabled(self.ex, nt)]
 
+
+
+
+
+class ManualExecutionEngine(ExecutionEngine):
+    def run(
+        self,
+        protocol: paml.Protocol,
+        start_time: datetime.datetime = None
+    ):
+        self.init_time(start_time)
+        self.ex.start_time = self.start_time # TODO: remove str wrapper after sbol_factory #22 fixed
+        ready = protocol.initiating_nodes()
+        ready = self.advance(ready)
+        choices = self.ready_message(ready)
+        graph = self.ex.to_dot(ready=ready, done=self.ex.backtrace()[0])
+        return ready, choices, graph
+
+    def advance(
+        self,
+        ready: List[uml.ActivityNode]
+    ):
+        def auto_advance(r):
+            # If Node is a CallBehavior action, then:
+            if isinstance(r, uml.CallBehaviorAction):
+                behavior = r.behavior.lookup()
+                return ( \
+                    # It is a subprotocol
+                    isinstance(behavior, paml.Protocol) or \
+                    # Has no output pins
+                    (len(list(behavior.get_outputs())) == 0) or \
+                    # Overrides the (empty) default implementation of compute_output()
+                    (not hasattr(behavior.compute_output, "__func__") or
+                        behavior.compute_output.__func__ != paml.primitive_execution.primitive_compute_output)
+                )
+            else:
+                return True
+
+        auto_advance_nodes = [r for r in ready if auto_advance(r)]
+
+        while len(auto_advance_nodes) > 0:
+            ready = self.step(auto_advance_nodes)
+            auto_advance_nodes = [r for r in ready if auto_advance(r)]
+
+        return self.executable_activity_nodes()
+
+
+    def ready_message(
+        self,
+        ready: List[uml.ActivityNode]
+    ):
+        msg = "Activities Ready to Execute:\n"
+
+        def activity_name(a):
+            return a.display_id
+        def behavior_name(a):
+            return a.display_id
+        def decision_name(a):
+            return a.identity
+
+        activities = [activity_name(r.protocol()) for r in ready]
+        behaviors = [behavior_name(r.behavior.lookup()) if isinstance(r, uml.CallBehaviorAction) else decision_name(r) for r in ready]
+        identities = [r.identity for r in ready]
+        choices = pd.DataFrame({ "Activity": activities, "Behavior": behaviors, "Identity": identities })
+        #ready_nodes = "\n".join([f"{idx}: {r.behavior}" for idx, r in enumerate(ready)])
+        return display(HTML("<div style='height: 200px; overflow: auto; width: fit-content'>" +
+             choices.to_html() +
+             "</div>"))
+        #return choices #f"{msg}{ready_nodes}"
+
+    def next(
+        self,
+        activity_node: uml.ActivityNode,
+        node_output: callable
+    ):
+        """Execute a single ActivityNode using the node_output function to calculate its output pin values.
+
+        Args:
+            activity_node (uml.ActivityNode): node to execute
+            node_output (callable): function to calculate output pins
+
+        Returns:
+            _type_: _description_
+        """
+        successors = self.step([activity_node], node_outputs={activity_node: node_output})
+        ready = self.advance(successors)
+        choices = self.ready_message(ready)
+        graph = self.ex.to_dot(ready=ready, done=self.ex.backtrace()[0])
+        return ready, choices, graph
 
 ##################################
 # Helper utility functions
@@ -219,7 +339,7 @@ def protocol_execution_aggregate_child_materials(self):
 paml.ProtocolExecution.aggregate_child_materials = protocol_execution_aggregate_child_materials
 
 
-def protocol_execution_to_dot(self, execution_engine=None):
+def protocol_execution_to_dot(self, execution_engine=None, ready: List[uml.ActivityNode] = [], done=set([])):
     """
     Create a dot graph that illustrates edge values appearing the execution of the protocol.
     :param self:
@@ -270,7 +390,7 @@ def protocol_execution_to_dot(self, execution_engine=None):
                            })
 
     # Protocol graph
-    protocol_graph = self.protocol.lookup().to_dot()
+    protocol_graph = self.protocol.lookup().to_dot(ready=ready, done=done)
     dot.subgraph(protocol_graph)
 
     if execution_engine and execution_engine.current_node:

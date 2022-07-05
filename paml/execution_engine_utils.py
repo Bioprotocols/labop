@@ -1,5 +1,5 @@
 from abc import abstractmethod
-from typing import List, Set, Tuple
+from typing import Callable, List, Set, Tuple
 import paml
 from paml_convert.behavior_specialization import BehaviorSpecialization
 import uml
@@ -224,23 +224,24 @@ uml.DecisionNode.enabled = decision_node_enabled
 def backtrace(self, stack=None):
     stack = self.executions if stack is None else stack
     if len(stack) == 0:
-        return ["<start>"]
+        return set([]), ["<start>"]
     else:
         tail = stack[-1]
         head = stack[:-1]
 
-        head_str = self.backtrace(stack=head)
+        nodes, head_str = self.backtrace(stack=head)
 
         behavior_str = tail.node.lookup().behavior if isinstance(tail.node.lookup(), uml.CallBehaviorAction) else ((tail.node.lookup().get_parent().behavior, tail.node.lookup().name) if isinstance(tail.node.lookup(), uml.Pin) else "")
         tail_str = f"{tail.node} ({behavior_str})"
+        nodes.add(tail.node.lookup())
 
         head_str += [tail_str]
-        return head_str
+        return nodes, head_str
 paml.ProtocolExecution.backtrace = backtrace
 
 def token_info(self: paml.ActivityEdgeFlow):
     return {
-        "edge_type": (type(self.edge) if self.edge else None),
+        "edge_type": (type(self.edge.lookup()) if self.edge else None),
         "source" : self.token_source.lookup().node.lookup().identity,
         "target": self.get_target().identity,
         "behavior": (self.get_target().behavior if isinstance(self.get_target(), uml.CallBehaviorAction) else None)
@@ -251,6 +252,7 @@ paml.ActivityEdgeFlow.info = token_info
 def activity_node_execute(
     self: uml.ActivityNode,
     engine: ExecutionEngine,
+    node_outputs: Callable = None
 ) -> List[paml.ActivityEdgeFlow]:
     """Execute a node in an activity, consuming the incoming flows and recording execution and outgoing flows
 
@@ -268,7 +270,7 @@ def activity_node_execute(
 
     record = self.execute_callback(engine, inputs)
     engine.ex.executions.append(record)
-    new_tokens = record.next_tokens(engine)
+    new_tokens = record.next_tokens(engine, node_outputs=node_outputs)
 
     if record:
         for specialization in engine.specializations:
@@ -293,7 +295,8 @@ uml.ActivityNode.execute_callback = activity_node_execute_callback
 
 def activity_node_execution_next_tokens(
     self: paml.ActivityNodeExecution,
-    engine: ExecutionEngine
+    engine: ExecutionEngine,
+    node_outputs: Callable = None
 ) -> List[paml.ActivityEdgeFlow]:
     node = self.node.lookup()
     protocol = node.protocol()
@@ -303,7 +306,7 @@ def activity_node_execution_next_tokens(
            self.node == e.source.lookup().get_parent().identity
         ]
 
-    edge_tokens = node.next_tokens_callback(self, engine, out_edges)
+    edge_tokens = node.next_tokens_callback(self, engine, out_edges, node_outputs=node_outputs)
 
     if edge_tokens:
         # Save tokens in the protocol execution
@@ -326,13 +329,14 @@ def activity_node_next_tokens_callback(
     self: uml.ActivityNode,
     source: paml.ActivityNodeExecution,
     engine: ExecutionEngine,
-    out_edges: List[uml.ActivityEdge]
+    out_edges: List[uml.ActivityEdge],
+    node_outputs: Callable = None
 ) -> List[paml.ActivityEdgeFlow]:
     edge_tokens = [
         paml.ActivityEdgeFlow(
             edge=edge,
             token_source=source,
-            value=source.get_value(edge=edge)
+            value=source.get_value(edge=edge, node_outputs=node_outputs)
             )
         for edge in out_edges]
     return edge_tokens
@@ -340,7 +344,8 @@ uml.ActivityNode.next_tokens_callback = activity_node_next_tokens_callback
 
 def activity_node_execution_get_value(
     self : paml.ActivityNodeExecution,
-    edge: uml.ActivityEdge = None
+    edge: uml.ActivityEdge = None,
+    node_outputs: Callable = None
 ):
     value = ""
     node = self.node.lookup()
@@ -361,7 +366,12 @@ def activity_node_execution_get_value(
             reference = True
         else:
             parameter = node.pin_parameter(edge.source.lookup().name).property_value
-            value = self.compute_output(parameter)
+            if node_outputs:
+                value = node_outputs(self, parameter)
+            elif hasattr(self.node.lookup().behavior.lookup(), "compute_output"):
+                value = self.compute_output(parameter)
+            else:
+                value = f"{parameter.name}"
 
     value = uml.literal(value, reference=reference)
     return value
@@ -396,7 +406,7 @@ uml.FlowFinalNode.execute_callback = flow_final_node_execute_callback
 
 def get_calling_behavior_execution(
     self: paml.ActivityNodeExecution,
-    visited: Set[paml.ActivityNodeExecution] = set({})
+    visited: Set[paml.ActivityNodeExecution] = None
 ) -> paml.ActivityNodeExecution:
     """Look for the InitialNode for the Activity including self and identify a Calling CallBehaviorExecution (if present)
 
@@ -407,6 +417,8 @@ def get_calling_behavior_execution(
         paml.CallBehaviorExecution: CallBehaviorExecution
     """
     node = self.node.lookup()
+    if visited is None:
+        visited = set({})
     if isinstance(node, uml.InitialNode):
         # Check if there is a CallBehaviorExecution incoming_flow
         try:
@@ -417,10 +429,12 @@ def get_calling_behavior_execution(
     else:
         for incoming_flow in self.incoming_flows:
             parent_activity_node = incoming_flow.lookup().token_source.lookup()
-            if parent_activity_node and (parent_activity_node not in visited):
+            if parent_activity_node and (parent_activity_node not in visited) and \
+                parent_activity_node.node.lookup().protocol() == node.protocol():
                 visited.add(parent_activity_node)
-                calling_behavior_execution = parent_activity_node.get_calling_behavior_execution(visited)
-                return calling_behavior_execution
+                calling_behavior_execution = parent_activity_node.get_calling_behavior_execution(visited=visited)
+                if calling_behavior_execution:
+                    return calling_behavior_execution
         return None
 paml.ActivityNodeExecution.get_calling_behavior_execution = get_calling_behavior_execution
 
@@ -438,7 +452,8 @@ def final_node_next_tokens_callback(
     self: uml.FinalNode,
     source: paml.ActivityNodeExecution,
     engine: ExecutionEngine,
-    out_edges: List[uml.ActivityEdge]
+    out_edges: List[uml.ActivityEdge],
+    node_outputs: Callable = None
 ) -> List[paml.ActivityEdgeFlow]:
     calling_behavior_execution = source.get_calling_behavior_execution()
     if calling_behavior_execution:
@@ -499,7 +514,8 @@ def fork_node_next_tokens_callback(
     self: uml.ForkNode,
     source: paml.ActivityNodeExecution,
     engine: ExecutionEngine,
-    out_edges: List[uml.ActivityEdge]
+    out_edges: List[uml.ActivityEdge],
+    node_outputs: Callable = None
 ) -> List[paml.ActivityEdgeFlow]:
     [incoming_flow] = source.incoming_flows
     incoming_value = incoming_flow.lookup().value
@@ -538,7 +554,8 @@ def decision_node_next_tokens_callback(
     self: uml.DecisionNode,
     source: paml.ActivityNodeExecution,
     engine: ExecutionEngine,
-    out_edges: List[uml.ActivityEdge]
+    out_edges: List[uml.ActivityEdge],
+    node_outputs: Callable = None
 ) -> List[paml.ActivityEdgeFlow]:
     try:
         decision_input_flow_token = next(t for t in source.incoming_flows if t.lookup().edge == self.decision_input_flow).lookup()
@@ -581,7 +598,7 @@ def decision_node_next_tokens_callback(
     #    Use decision_input return value to decide if guard is satisfied (decision_input has primary_input_flow and decision_input_flow supplied parameters)
 
     try:
-        else_edge = next(edge for edge in out_edges if edge.guard.value == paml.DECISION_ELSE)
+        else_edge = next(edge for edge in out_edges if edge.guard.value == uml.DECISION_ELSE)
     except StopIteration as e:
         else_edge = None
     non_else_edges = [edge for edge in out_edges if edge != else_edge]
@@ -592,7 +609,10 @@ def decision_node_next_tokens_callback(
         elif (guard is None) or isinstance(guard, uml.LiteralNull):
             return False
         else:
-            return value.value == guard.value
+            if isinstance(value.value, str):
+                return value.value == str(guard.value)
+            else:
+                return value.value == guard.value
 
     if hasattr(self, "decision_input") and self.decision_input:
         # Cases: 3, 4, 5, 6
@@ -658,7 +678,8 @@ def activity_parameter_node_next_tokens_callback(
     self: uml.ActivityParameterNode,
     source: paml.ActivityNodeExecution,
     engine: ExecutionEngine,
-    out_edges: List[uml.ActivityEdge]
+    out_edges: List[uml.ActivityEdge],
+    node_outputs: Callable = None
 ) -> List[paml.ActivityEdgeFlow]:
     if self.parameter.lookup().property_value.direction == uml.PARAMETER_IN:
         try:
@@ -734,7 +755,8 @@ def call_behavior_action_next_tokens_callback(
     self: uml.CallBehaviorAction,
     source: paml.ActivityNodeExecution,
     engine: ExecutionEngine,
-    out_edges: List[uml.ActivityEdge]
+    out_edges: List[uml.ActivityEdge],
+    node_outputs: Callable = None
 ) -> List[paml.ActivityEdgeFlow]:
     if isinstance(self.behavior.lookup(), paml.Protocol):
         # Push record onto blocked nodes to complete
@@ -783,7 +805,7 @@ def call_behavior_action_next_tokens_callback(
                     for init_node in init_nodes ]
         # engine.ex.flows += new_tokens
     else:
-        new_tokens = uml.ActivityNode.next_tokens_callback(self, source, engine, out_edges)
+        new_tokens = uml.ActivityNode.next_tokens_callback(self, source, engine, out_edges, node_outputs=node_outputs)
     return new_tokens
 uml.CallBehaviorAction.next_tokens_callback = call_behavior_action_next_tokens_callback
 
@@ -800,7 +822,8 @@ def input_pin_next_tokens_callback(
     self: uml.InputPin,
     source: paml.ActivityNodeExecution,
     engine: ExecutionEngine,
-    out_edges: List[uml.ActivityEdge]
+    out_edges: List[uml.ActivityEdge],
+    node_outputs: Callable = None
     ) -> List[paml.ActivityEdgeFlow]:
     assert len(source.incoming_flows) == 1 # One input per pin
     incoming_flow = source.incoming_flows[0].lookup()
