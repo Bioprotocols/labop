@@ -4,7 +4,6 @@ from collections import Counter
 from typing import List, Set, Iterable
 from sbol_factory import SBOLFactory, UMLFactory
 import sbol3
-from tomlkit import value
 
 # Load ontology and create uml submodule
 SBOLFactory('uml_submodule',
