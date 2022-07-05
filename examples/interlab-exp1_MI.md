@@ -1,12 +1,8 @@
-# Testing the three color calibration protocol
+# MINI Interlab - Testing the three color calibration protocol
 
-In this experiment, your team will measure the fluorescence of six devices that encode either a single fluorescence protein (blue, green, or red) or two fluorescence proteins encoded in two transcriptional units. You will calibrate the fluorescence of these devices to the three calibrant dyes and you will calibrate the optical density of the culture to the cell density calibrant.
+In this experiment, your team will measure the fluorescence of six devices that encode a single fluorescence protein (blue, green, or red). You will calibrate the fluorescence of these devices to the three calibrant dyes and you will calibrate the optical density of the culture to the cell density calibrant.
 
 This experiment aims to assess the lab-to-lab reproducibility of the new three color calibration protocol. We will test if it works well for calibrating the fluorescence in cells that express one single fluorescent protein and for cells expressing two different fluorescent proteins at the same time.
-
-Before performing the cell measurements, you need to perform all the calibration measurements. Please do not proceed unless you have completed the calibration protocol. Completion of the calibrations will ensure that you understand the measurement process and that you can take the cell measurements under the same conditions. For consistency and reproducibility, we are requiring all teams to use E. coli K-12 DH5-alpha. If you do not have access to this strain, you can request streaks of the transformed devices from another team near you. If you are absolutely unable to obtain the DH5-alpha strain, you may still participate in the InterLab study by contacting the Engineering Committee (engineering [at] igem [dot] org) to discuss your situation.
-
-For all below indicated cell measurements, you must use the same type of plates and the same volumes that you used in your calibration protocol. You must also use the same settings (e.g., filters or excitation and emission wavelengths) that you used in your calibration measurements. If you do not use the same type of plates, volumes, and settings, the measurements will not be valid.
 
 Protocol summary: You will transform the eight devices listed in Table 1 into E. coli K-12 DH5-alpha cells. The next day you will pick two colonies from each transformation (16 total) and use them to inoculate 5 mL overnight cultures (this step is still in tubes). Each of these 16 overnight cultures will be used to inoculate four wells in a 96-well plate (200uL each, 4 replicates) or one test tube (12 mL). You will measure how fluorescence and optical density develops over 6 hours by taking measurements at time point 0 hour and at time point 6 hours. Follow the protocol below and the visual instructions in Figure 1 and Figure 2.
 
@@ -25,14 +21,14 @@ Protocol summary: You will transform the eight devices listed in Table 1 into E.
 
 ## Protocol Materials:
 * [_E. coli_ DH5 alpha competent cells](https://identifiers.org/taxonomy:668369)
-* [Negative control 2022](http://parts.igem.org/Part:BBa_J428100)
+* [Negative control 2018](http://parts.igem.org/Part:BBa_R0040)
 * [Positive control 2018](http://parts.igem.org/Part:BBa_I20270)
-* [Test Device 1 Exp 1 (Green Device)](http://parts.igem.org/Part:BBa_J428112)
-* [Test Device 2 Exp 1 (Red mRFP1 device)](http://parts.igem.org/Part:BBa_J428110)
-* [Test Device 3 Exp 1 (Red mCherry device)](http://parts.igem.org/Part:BBa_J428111)
-* [Test Device 4 Exp 1 (RiboJ Insulated mCherry device)](http://parts.igem.org/Part:BBa_J428101)
-* [Test Device 5 Exp 1 (Dual construct Blue and Red)](http://parts.igem.org/Part:BBa_J428108)
-* [Test Device 6 Exp 1 (Dual construct Green and Blue)](http://parts.igem.org/Part:BBa_J428106)
+* [Test Device 1 Exp 1 (Green Device Insulation 1)](https://github.com/igem-Engineering/)
+* [Test Device 2 Exp 1 (Blue device Insulation 1)](https://github.com/igem-Engineering/)
+* [Test Device 3 Exp 1 (Red device Insulation 1)](https://github.com/igem-Engineering/)
+* [Test Device 4 Exp 1 (Green device Insulation 2)](https://github.com/igem-Engineering/)
+* [Test Device 5 Exp 1 (Blue device Insulation 2)](https://github.com/igem-Engineering/)
+* [Test Device 6 Exp 1 (Red device Insulation 2)](https://github.com/igem-Engineering/)
 * [LB Broth + Chloramphenicol (34 ug/mL)]()
 * [LB Agar + Chloramphenicol (34 ug/mL)]()
 * [Chloramphenicol stock solution (34 mg/mL)](https://pubchem.ncbi.nlm.nih.gov/compound/5959)
@@ -49,19 +45,19 @@ Protocol summary: You will transform the eight devices listed in Table 1 into E.
 #### Table 1: Part Locations in Distribution Kit
 | Part | Coordinate |
 | ---- | -------------- |
-|BBa_J428100|Kit Plate 1 Well 12M|
-|BBa_I20270|Kit Plate 1 Well 1A|
-|BBa_J428112|Kit Plate 1 Well 14C|
-|BBa_J428110|Kit Plate 1 Well 12O|
-|BBa_J428111|Kit Plate 1 Well 14A|
-|BBa_J428101|Kit Plate 1 Well 12I|
-|BBa_J428108|Kit Plate 1 Well 14E|
-|BBa_J428106|Kit Plate 1 Well 12G|
+|BBa_R0040|Mini-interlab Plate Well G1|
+|BBa_I20270|Mini-interlab Plate Well A1|
+|H3_Green_Device_Ins_1|Mini-interlab Plate Well A2|
+|F2_Blue_Device_Ins_1|Mini-interlab Plate Well B2|
+|C3_Red_Device_Ins_1|Mini-interlab Plate Well C2|
+|H6_Green_Device_Ins_2|Mini-interlab Plate Well D2|
+|A3_Blue_Device_Ins_2|Mini-interlab Plate Well E2|
+|B6_Red_Device_Ins_2|Mini-interlab Plate Well F2|
 
 
 ## Protocol Steps:
 1. Obtain 8 x Petri dish containing LB Agar + Chloramphenicol (34 ug/mL) growth medium for culturing `transformant strains`
-2. Transform `Negative control 2022` DNA into _`E. coli`_ ` DH5 alpha competent cells`. Repeat for the remaining transformant DNA:  `Positive control 2018`, `Test Device 1 Exp 1 (Green Device)`, `Test Device 2 Exp 1 (Red mRFP1 device)`, `Test Device 3 Exp 1 (Red mCherry device)`, `Test Device 4 Exp 1 (RiboJ Insulated mCherry device)`, `Test Device 5 Exp 1 (Dual construct Blue and Red)`, and `Test Device 6 Exp 1 (Dual construct Green and Blue)`. Plate transformants on LB Agar + Chloramphenicol (34 ug/mL) `transformant strains` plates. Incubate overnight (for 16 hour) at 37.0°C.
+2. Transform `Negative control 2018` DNA into _`E. coli`_ ` DH5 alpha competent cells`. Repeat for the remaining transformant DNA:  `Positive control 2018`, `Test Device 1 Exp 1 (Green Device Insulation 1)`, `Test Device 2 Exp 1 (Blue device Insulation 1)`, `Test Device 3 Exp 1 (Red device Insulation 1)`, `Test Device 4 Exp 1 (Green device Insulation 2)`, `Test Device 5 Exp 1 (Blue device Insulation 2)`, and `Test Device 6 Exp 1 (Red device Insulation 2)`. Plate transformants on LB Agar + Chloramphenicol (34 ug/mL) `transformant strains` plates. Incubate overnight (for 16 hour) at 37.0°C.
 3. Obtain 16 x culture tubes to contain `culture (day 1)`
 4. Pick 2 colonies from each `transformant strains` plate.
 5. Inoculate 2 colonies of each transformant strains, for a total of 16 cultures. Inoculate each into 5.0mL of LB Broth + Chloramphenicol (34 ug/mL) in culture (day 1) and grow overnight (for 16.0 hour) at 37.0°C and 220 rpm.
@@ -106,5 +102,5 @@ Protocol summary: You will transform the eight devices listed in Table 1 into E.
 34. Measure 6 hr red fluorescence timepoint of `plate 2` with excitation wavelength of 561.0nm and emission filter of 610.0nm and 20.0nm bandpass.
 35. Import data for `baseline absorbance of culture (day 2) measurements of cultures (0 hr timepoint)`, `0 hr absorbance timepoint measurements of plate 1`, `0 hr green fluorescence timepoint measurements of plate 1`, `0 hr blue fluorescence timepoint measurements of plate 1`, `0 hr red fluorescence timepoint measurements of plate 1`, `6 hr absorbance timepoint measurements of plate 2`, `6 hr green fluorescence timepoint measurements of plate 2`, `6 hr blue fluorescence timepoint measurements of plate 2`, `6 hr red fluorescence timepoint measurements of plate 2` into provided Excel file.
 ---
-Timestamp: 2022-07-05 21:27:33.144455---
-Protocol version: 1.1b
+Timestamp: 2022-07-05 21:26:43.856038---
+Protocol version: 2.0
