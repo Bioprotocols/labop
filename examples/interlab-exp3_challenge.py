@@ -203,7 +203,7 @@ transfer = protocol.primitive_step('Transfer',
                                    temperature=sbol3.Measure(4, OM.degree_Celsius))
 transfer.description = '(This can be also performed on Ice).'
 
-# Abs measurement
+# Abs measurement step 11
 baseline_absorbance = protocol.primitive_step('MeasureAbsorbance',
                                               samples=timepoint_0hrs.output_pin('samples'),
                                               wavelength=sbol3.Measure(600, OM.nanometer))
@@ -230,8 +230,8 @@ dilution = protocol.primitive_step('DiluteToTargetOD',
 dilution.description = f'(This can be also performed on Ice).'
 
 embedded_image = protocol.primitive_step('EmbeddedImage',
-                                         image=os.path.join(os.path.dirname(os.path.realpath(__file__)), 'fig1_standard_protocol.png'),
-                                         caption='Fig 1: Visual representation of protocol')
+                                        image='fig1_challenge_protocol.png',
+                                        caption='Fig 1: Visual representation of protocol')
 
 
 ### Aliquot subcultures for timepoint samples
@@ -260,19 +260,19 @@ timepoint_subculture3.description = 'The conical tubes should be opaque, amber-c
 transfer = protocol.primitive_step('Transfer',
                                    source=conical_tube.output_pin('samples'),
                                    destination=timepoint_subculture1.output_pin('samples'),
-                                   amount=sbol3.Measure(1, OM.milliliter),
+                                   amount=sbol3.Measure(12, OM.milliliter),
                                    temperature=sbol3.Measure(4, OM.degree_Celsius))
 
 transfer = protocol.primitive_step('Transfer',
                                    source=conical_tube.output_pin('samples'),
                                    destination=timepoint_subculture2.output_pin('samples'),
-                                   amount=sbol3.Measure(1, OM.milliliter),
+                                   amount=sbol3.Measure(12, OM.milliliter),
                                    temperature=sbol3.Measure(4, OM.degree_Celsius))
 
 transfer = protocol.primitive_step('Transfer',
                                    source=conical_tube.output_pin('samples'),
                                    destination=timepoint_subculture3.output_pin('samples'),
-                                   amount=sbol3.Measure(1, OM.milliliter),
+                                   amount=sbol3.Measure(12, OM.milliliter),
                                    temperature=sbol3.Measure(4, OM.degree_Celsius))
 
 plate1 = protocol.primitive_step('EmptyContainer',
@@ -302,9 +302,9 @@ plan = paml.SampleData(values=quote(json.dumps({'1':  'A2:D2',
 
 
 transfer = protocol.primitive_step('TransferByMap',
-                                    source=timepoint_subculture1.output_pin('samples'),
+                                    source=conical_tube.output_pin('samples'),
                                     destination=plate1.output_pin('samples'),
-                                    amount=sbol3.Measure(100, OM.microliter),
+                                    amount=sbol3.Measure(200, OM.microliter),
                                     temperature=sbol3.Measure(4, OM.degree_Celsius),
                                     plan=plan)
 transfer.description = 'See the plate layout below.'
@@ -313,7 +313,7 @@ plate_blanks = protocol.primitive_step('Transfer',
                                        destination=plate1.output_pin('samples'),
                                        coordinates='A1:H1, A10:H10, A12:H12',
                                        temperature=sbol3.Measure(4, OM.degree_Celsius),
-                                       amount=sbol3.Measure(100, OM.microliter))
+                                       amount=sbol3.Measure(200, OM.microliter))
 plate_blanks.description = 'These samples are blanks.'
 
 #Display ma here
@@ -372,7 +372,8 @@ fluorescence_plate1 = protocol.primitive_step('MeasureFluorescence',
 fluorescence_plate1.name = 'fluorescence timepoint'
 protocol.designate_output('measurements', 'http://bioprotocols.org/paml#SampleData', source=absorbance_plate1.output_pin('measurements'))
 protocol.designate_output('measurements', 'http://bioprotocols.org/paml#SampleData', source=fluorescence_plate1.output_pin('measurements'))
-
+# Added to si if it changes the next stap
+spec.name = 'Tube 1'
 incubate = protocol.primitive_step('Incubate',
                                    location=timepoint_subculture1.output_pin('samples'),
                                    duration=sbol3.Measure(2, OM.hour),
@@ -431,7 +432,7 @@ spec.name = 'Tubes 1, 2 and 3'
 transfer = protocol.primitive_step('TransferByMap',
                                    source=timepoint_subculture1.output_pin('samples'),
                                    destination=plates234.output_pin('samples'),
-                                   amount=sbol3.Measure(100, OM.microliter),
+                                   amount=sbol3.Measure(200, OM.microliter),
                                    temperature=sbol3.Measure(4, OM.degree_Celsius),
                                     plan=plan)
 
@@ -441,7 +442,7 @@ plate_blanks = protocol.primitive_step('Transfer',
                                        destination=plates234.output_pin('samples'),
                                        coordinates='A1:H1, A10:H10, A12:H12',
                                        temperature=sbol3.Measure(4, OM.degree_Celsius),
-                                       amount=sbol3.Measure(100, OM.microliter))
+                                       amount=sbol3.Measure(200, OM.microliter))
 plate_blanks.description = 'These samples are blanks.'
     
 absorbance_plate = protocol.primitive_step('MeasureAbsorbance',

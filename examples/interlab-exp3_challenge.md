@@ -73,20 +73,20 @@ Protocol summary: UPDATE You will transform the eight devices listed in Table 1 
 12. Obtain 16 x 50 ml conical tubes to contain `back-diluted culture` The conical tube should be opaque, amber-colored, or covered with foil.
 13. Back-dilute each of 16 `culture (day 2)` samples to a target OD of 0.02 using LB Broth + Chloramphenicol (34 ug/mL) as diluent to a final volume of 40.0mL. Maintain at 4.0°C while performing dilutions.
 
-![](/Users/bbartley/Dev/git/sd2/paml/examples/fig1_standard_protocol.png)
+![](fig1_challenge_protocol.png)
 <p align="center">Fig 1: Visual representation of protocol</p>
 
 14. Obtain 16 x 50 ml conical tubes to contain `Tubes 1, 2 and 3` The conical tubes should be opaque, amber-colored, or covered with foil.
 15. Obtain 16 x 50 ml conical tubes to contain `Tube 2` The conical tubes should be opaque, amber-colored, or covered with foil.
 16. Obtain 16 x 50 ml conical tubes to contain `Tube 3` The conical tubes should be opaque, amber-colored, or covered with foil.
-17. Transfer 1.0mL of each of 16 `back-diluted culture` samples to 50 ml conical tube containers to contain a total of 16 `Tubes 1, 2 and 3` samples. Maintain at 4.0°C during transfer.
-18. Transfer 1.0mL of each of 16 `back-diluted culture` samples to 50 ml conical tube containers to contain a total of 16 `Tube 2` samples. Maintain at 4.0°C during transfer.
-19. Transfer 1.0mL of each of 16 `back-diluted culture` samples to 50 ml conical tube containers to contain a total of 16 `Tube 3` samples. Maintain at 4.0°C during transfer.
+17. Transfer 12.0mL of each of 16 `back-diluted culture` samples to 50 ml conical tube containers to contain a total of 16 `Tubes 1, 2 and 3` samples. Maintain at 4.0°C during transfer.
+18. Transfer 12.0mL of each of 16 `back-diluted culture` samples to 50 ml conical tube containers to contain a total of 16 `Tube 2` samples. Maintain at 4.0°C during transfer.
+19. Transfer 12.0mL of each of 16 `back-diluted culture` samples to 50 ml conical tube containers to contain a total of 16 `Tube 3` samples. Maintain at 4.0°C during transfer.
 20. Obtain a 96 well microplate to contain `plate 1`
 21. Hold `plate 1` on ice.
-22. Transfer 100.0uL of each `Tubes 1, 2 and 3` sample to 96 well microplate `plate 1` in the wells indicated in the plate layout.
+22. Transfer 200.0uL of each `back-diluted culture` sample to 96 well microplate `plate 1` in the wells indicated in the plate layout.
  Maintain at 4.0°C during transfer.
-23. Transfer 100.0uL of `LB Broth + Chloramphenicol (34 ug/mL)` sample to wells A1:H1, A10:H10, A12:H12 of  96 well microplate `plate 1`. Maintain at 4.0°C during transfer. These samples are blanks.
+23. Transfer 200.0uL of `LB Broth + Chloramphenicol (34 ug/mL)` sample to wells A1:H1, A10:H10, A12:H12 of  96 well microplate `plate 1`. Maintain at 4.0°C during transfer. These samples are blanks.
 
 ![](fig2_cell_calibration.png)
 <p align="center">Fig 2: Plate layout</p>
@@ -104,12 +104,12 @@ Protocol summary: UPDATE You will transform the eight devices listed in Table 1 
 34. Incubate all `Tube 3` samples for 6.0 hour at 37.0°C at 220 rpm.
 35. Hold all `Tube 3` samples on ice. Reserve until the end of the experiment for absorbance and fluorescence measurements.
 36. Obtain a 96 well microplate to contain `Plates 2, 3, and 4`
-37. Transfer 100.0uL of each `Tubes 1, 2 and 3` sample to 96 well microplate `Plates 2, 3, and 4` in the wells indicated in the plate layout.
+37. Transfer 200.0uL of each `Tubes 1, 2 and 3` sample to 96 well microplate `Plates 2, 3, and 4` in the wells indicated in the plate layout.
  Maintain at 4.0°C during transfer.
-38. Transfer 100.0uL of `LB Broth + Chloramphenicol (34 ug/mL)` sample to wells A1:H1, A10:H10, A12:H12 of  96 well microplate `Plates 2, 3, and 4`. Maintain at 4.0°C during transfer. These samples are blanks.
+38. Transfer 200.0uL of `LB Broth + Chloramphenicol (34 ug/mL)` sample to wells A1:H1, A10:H10, A12:H12 of  96 well microplate `Plates 2, 3, and 4`. Maintain at 4.0°C during transfer. These samples are blanks.
 39. Measure absorbance timepoint of `Plates 2, 3, and 4` at 600.0nm.
 40. Measure fluorescence timepoint of `Plates 2, 3, and 4` with excitation wavelength of 488.0nm and emission filter of 530.0nm and 30.0nm bandpass.
 41. Import data for `baseline absorbance of culture (day 2) measurements of cultures (0 hr timepoint)`, `0 hr absorbance timepoint measurements of plate 1`, `0 hr fluorescence timepoint measurements of plate 1`, `absorbance timepoint measurements of plate 1 at timepoints 2.0 hour, 4.0 hour, 6.0 hour`, `fluorescence timepoint measurements of plate 1 at timepoints 2.0 hour, 4.0 hour, 6.0 hour`, `absorbance timepoint measurements of Plates 2, 3, and 4`, `fluorescence timepoint measurements of Plates 2, 3, and 4` into provided Excel file.
 ---
-Timestamp: 2022-07-07 19:38:27.479830---
+Timestamp: 2022-07-08 19:34:25.986146---
 Protocol version: 1.2b
