@@ -209,6 +209,8 @@ baseline_absorbance = protocol.primitive_step('MeasureAbsorbance',
                                               wavelength=sbol3.Measure(600, OM.nanometer))
 baseline_absorbance.name = 'baseline absorbance of culture (day 2)'
 
+# Every measurement primitive produces an output pin called `measurements` that must be designated as a protocol output
+protocol.designate_output('measurements', 'http://bioprotocols.org/paml#SampleData', source=baseline_absorbance.output_pin('measurements'))
 
 
 conical_tube = protocol.primitive_step('ContainerSet', 
@@ -368,8 +370,8 @@ fluorescence_plate1 = protocol.primitive_step('MeasureFluorescence',
                                                            sbol3.Measure(4, OM.hour),
                                                            sbol3.Measure(6, OM.hour)])
 fluorescence_plate1.name = 'fluorescence timepoint'
-#protocol.designate_output('measurements', 'http://bioprotocols.org/paml#SampleData', source=absorbance_plate1.output_pin('measurements'))
-#protocol.designate_output('measurements', 'http://bioprotocols.org/paml#SampleData', source=fluorescence_plate1.output_pin('measurements'))
+protocol.designate_output('measurements', 'http://bioprotocols.org/paml#SampleData', source=absorbance_plate1.output_pin('measurements'))
+protocol.designate_output('measurements', 'http://bioprotocols.org/paml#SampleData', source=fluorescence_plate1.output_pin('measurements'))
 
 incubate = protocol.primitive_step('Incubate',
                                    location=timepoint_subculture1.output_pin('samples'),

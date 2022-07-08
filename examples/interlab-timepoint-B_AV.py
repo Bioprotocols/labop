@@ -188,8 +188,8 @@ baseline_absorbance = protocol.primitive_step('MeasureAbsorbance',
                                               wavelength=sbol3.Measure(600, OM.nanometer))
 baseline_absorbance.name = 'baseline absorbance of culture (day 2)'
 
-#protocol.designate_output('measurements', 'http://bioprotocols.org/paml#SampleData', source=baseline_absorbance.output_pin('measurements'))
-
+# Every measurement primitive produces an output pin called `measurements` that must be designated as a protocol output
+protocol.designate_output('measurements', 'http://bioprotocols.org/paml#SampleData', source=baseline_absorbance.output_pin('measurements'))
 
 conical_tube = protocol.primitive_step('ContainerSet', 
                                        quantity=2*len(plasmids),
