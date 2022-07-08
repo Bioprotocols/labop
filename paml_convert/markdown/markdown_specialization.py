@@ -350,6 +350,7 @@ class MarkdownSpecialization(BehaviorSpecialization):
     def measure_absorbance(self, record: paml.ActivityNodeExecution, execution: paml.ProtocolExecution):
         results = {}
         call = record.call.lookup()
+        #print(record.node.lookup().name)
         parameter_value_map = call.parameter_value_map()
 
         wl = parameter_value_map["wavelength"]["value"]
