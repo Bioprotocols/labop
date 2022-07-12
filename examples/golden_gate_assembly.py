@@ -36,7 +36,7 @@ protocol.name = "Golden Gate Assembly"
 protocol.description = '''
 This protocol is for Golden Gate Assembly of pairs of DNA fragments into plasmids using the New England Biolabs
 Golden Gate Assembly Kit (BsaI-HFv2), product ID NEB #E1601.
-Protocol implements the specific case of two part assembly for the NEB-provided protocol: 
+Protocol implements the specific case of two part assembly for the NEB-provided protocol:
 https://www.neb.com/protocols/2018/10/02/golden-gate-assembly-protocol-for-using-neb-golden-gate-assembly-mix-e1601
 '''
 doc.add(protocol)

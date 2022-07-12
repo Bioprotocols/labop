@@ -45,9 +45,9 @@ import uk.ac.manchester.cs.owl.owlapi.OWLObjectPropertyImpl;
 /**
  * Example of use of OWL-API 4.x and the HermiT reasoner.
  * Realized with Gradle and Java 8.
- * 
+ *
  * Semantic Web course, Politecnico di Torino, Italy
- * 
+ *
  * @author Luigi De Russis, Politecnico di Torino,
  *         <a href="https://elite.polito.it">e-Lite</a> group
  * @version 1.0 (2017-02-22)
@@ -71,12 +71,12 @@ public class App
             IRI documentIRI = manager.getOntologyDocumentIRI(localont);
             logger.log(Level.INFO, "[OntologyValidator::validateOntology] Artefact: " + documentIRI);
             result = true;
-            
+
             // get and configure a reasoner (HermiT)
             OWLReasonerFactory reasonerFactory = new ReasonerFactory();
             ConsoleProgressMonitor progressMonitor = new ConsoleProgressMonitor();
             OWLReasonerConfiguration reasoner_config = new SimpleConfiguration(progressMonitor);
-    
+
             // create the reasoner instance, classify and compute inferences
             OWLReasoner reasoner = reasonerFactory.createReasoner(localont, reasoner_config);
             if (!reasoner.isConsistent())
@@ -114,5 +114,5 @@ public class App
         logger.log(Level.INFO, "[OntologyValidator::validateOntology] END");
         return result;
     }
-	
+
 }

@@ -40,8 +40,11 @@ xsd:anySimpleType rdf:type rdfs:Datatype .
 
 pamlt:TimeMeasure rdf:type owl:Class ;
           rdfs:subClassOf uml:ValueSpecification ,
-          [ rdf:type owl:Restriction ; owl:allValuesFrom sbol:Measure ; owl:onProperty pamlt:measureValue ;
-            owl:minCardinality "1"^^xsd:nonNegativeInteger ; owl:maxCardinality "1"^^xsd:nonNegativeInteger ] .
+          [ rdf:type owl:Restriction ; owl:allValuesFrom sbol:Measure ; owl:onProperty pamlt:measureValue ] ,
+        [ rdf:type owl:Restriction ; owl:onProperty pamlt:measureValue ;
+            owl:minCardinality "1"^^xsd:nonNegativeInteger ],
+        [ rdf:type owl:Restriction ; owl:onProperty pamlt:measureValue ;
+            owl:maxCardinality "1"^^xsd:nonNegativeInteger ].
 
 pamlt:measureValue rdf:type owl:ObjectProperty ;
          rdfs:subPropertyOf sbol:directlyComprises ;
@@ -66,10 +69,16 @@ pamlt:constrainedElement rdf:type owl:ObjectProperty ;
 
 pamlt:ReferencedOrderedPropertyValue rdf:type owl:Class ;
          rdfs:subClassOf uml:OrderedPropertyValue ,
-    [ rdf:type owl:Restriction ; owl:allValuesFrom xsd:integer ; owl:onProperty uml:indexValue ;
-      owl:minCardinality "1"^^xsd:nonNegativeInteger ; owl:maxCardinality "1"^^xsd:nonNegativeInteger ] ,
-    [ rdf:type owl:Restriction ; owl:allValuesFrom sbol:Identified ; owl:onProperty pamlt:referencedPropertyValue ;
-      owl:minCardinality "1"^^xsd:nonNegativeInteger ; owl:maxCardinality "1"^^xsd:nonNegativeInteger ] .
+    [ rdf:type owl:Restriction ; owl:allValuesFrom xsd:integer ; owl:onProperty uml:indexValue ] ,
+    [ rdf:type owl:Restriction ; owl:onProperty uml:indexValue ;
+      owl:minCardinality "1"^^xsd:nonNegativeInteger ] ,
+    [ rdf:type owl:Restriction ; owl:onProperty uml:indexValue ;
+      owl:maxCardinality "1"^^xsd:nonNegativeInteger ] ,
+    [ rdf:type owl:Restriction ; owl:allValuesFrom sbol:Identified ; owl:onProperty pamlt:referencedPropertyValue ] ,
+    [ rdf:type owl:Restriction ; owl:onProperty pamlt:referencedPropertyValue ;
+      owl:minCardinality "1"^^xsd:nonNegativeInteger ] ,
+    [ rdf:type owl:Restriction ; owl:onProperty pamlt:referencedPropertyValue ;
+        owl:maxCardinality "1"^^xsd:nonNegativeInteger ] .
 
 pamlt:referencedPropertyValue rdf:type owl:ObjectProperty ;
          #rdfs:subPropertyOf sbol:directlyComprises ;
@@ -89,7 +98,9 @@ pamlt:XorConstraint rdf:type owl:Class ;
 pamlt:Not rdf:type owl:Class ;
           rdfs:subClassOf pamlt:BooleanConstraint ,
           [ rdf:type owl:Restriction ; owl:onClass sbol:Identified ; owl:onProperty uml:constrainedElement ;
-            owl:minCardinality "1"^^xsd:nonNegativeInteger ; owl:maxCardinality "1"^^xsd:nonNegativeInteger ] .
+            owl:minCardinality "1"^^xsd:nonNegativeInteger ] ,
+        [ rdf:type owl:Restriction ; owl:onClass sbol:Identified ; owl:onProperty uml:constrainedElement ;
+            owl:maxCardinality "1"^^xsd:nonNegativeInteger ] .
 
 pamlt:TimeConstraints rdf:type owl:Class ;
           rdfs:subClassOf sbol:TopLevel ,

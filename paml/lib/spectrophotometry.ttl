@@ -540,4 +540,3 @@
         sbol:Identified ;
     ns1:integerValue 1 ;
     sbol:displayId "LiteralInteger2" .
-

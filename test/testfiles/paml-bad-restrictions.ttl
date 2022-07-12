@@ -477,7 +477,7 @@ paml:prefixMap a owl:DatatypeProperty ,
     rdfs:range xsd:string ;
     rdfs:label "prefixMap" ;
     rdfs:comment "A prefix map in JSON-LD format, to be applied to a queryString." .
-    
+
 
 paml:ContainerSpec a owl:Class ;
         rdfs:comment '''A ContainerSpec is used to indicate the type of container to be used for a SampleArray, e.g.,

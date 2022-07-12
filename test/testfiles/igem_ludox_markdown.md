@@ -11,7 +11,7 @@ spectrophotometer, the path length is fixed and is defined by the width of the c
 Therefore this conversion calculation can transform OD600 measurements from a plate reader (i.e. absorbance
 at 600 nm, the basic output of most instruments) into comparable OD600 measurements. The LUDOX solution
 is only weakly scattering and so will give a low absorbance value.
-        
+
 
 
 ## Protocol Materials:
@@ -26,9 +26,9 @@ is only weakly scattering and so will give a low absorbance value.
 * `absorbance`
 
 ## Steps
-1. Provision a container named `samples` meeting specification: cont:ClearPlate and 
+1. Provision a container named `samples` meeting specification: cont:ClearPlate and
  cont:SLAS-4-2004 and
- (cont:wellVolume some 
+ (cont:wellVolume some
     ((om:hasUnit value om:microlitre) and
      (om:hasNumericalValue only xsd:decimal[>= "200"^^xsd:decimal]))).
 2. Pipette 100.0 microliter of [Water, sterile-filtered, BioReagent, suitable for cell culture](https://identifiers.org/pubchem.substance:24901740) into `samples(A1:D1)`.

@@ -70,9 +70,9 @@ def create_ludox() -> sbol3.Component:
 
 
 PLATE_SPECIFICATION = \
-    """cont:ClearPlate and 
+    """cont:ClearPlate and
  cont:SLAS-4-2004 and
- (cont:wellVolume some 
+ (cont:wellVolume some
     ((om:hasUnit value om:microlitre) and
      (om:hasNumericalValue only xsd:decimal[>= "200"^^xsd:decimal])))"""
 

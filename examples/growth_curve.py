@@ -29,7 +29,7 @@ print('Constructing measurement sub-protocols')
 
 split_and_measure = paml.Protocol('SplitAndMeasure', name="Split samples, dilute, and measure")
 split_and_measure.description = '''
-Subprotocol to split a portion of each sample in a plate into another plate, diluting 
+Subprotocol to split a portion of each sample in a plate into another plate, diluting
 with PBS, then measure OD and fluorescence from that other plate
 '''
 doc.add(split_and_measure)

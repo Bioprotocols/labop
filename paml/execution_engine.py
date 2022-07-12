@@ -3,16 +3,24 @@ from typing import List
 import uuid
 import datetime
 import logging
+import sys
 
+import pandas as pd
 import graphviz
+import sbol3
 
 import paml
 import uml
-import sbol3
-
+from paml_convert.plate_coordinates import coordinate_rect_to_row_col_pairs, num2row
 from paml_convert.behavior_specialization import BehaviorSpecialization, DefaultBehaviorSpecialization
 
-logger: logging.Logger = logging.Logger(__file__)
+
+
+l = logging.getLogger(__file__)
+l.setLevel(logging.ERROR)
+
+
+failsafe = True  # By default, a protocol execution will proceed through to the end, even if a CallBehaviorAction raises an exception
 
 
 class ExecutionEngine(ABC):
@@ -21,10 +29,22 @@ class ExecutionEngine(ABC):
     It needs to be extended with specific implementations that have that capability.
     """
 
-    def __init__(self, specializations: List[BehaviorSpecialization] = [DefaultBehaviorSpecialization()]):
+    def __init__(self,
+                 specializations: List[BehaviorSpecialization] = [DefaultBehaviorSpecialization()],
+                 use_ordinal_time = False):
         self.exec_counter = 0
         self.variable_counter = 0
         self.specializations = specializations
+
+        # The EE uses a configurable start_time as the reference time.
+        # Because the start_time is not always the actual time, then
+        # we need to set times relative to the start time using the
+        # relative wall clock time.
+        # if use_oridinal_time, then use a new int for each time
+        self.start_time = None  # The official start_time
+        self.wall_clock_start_time = None # The actual now() time
+        self.use_ordinal_time = use_ordinal_time # Use int instead of datetime
+        self.ordinal_time = None
 
     def next_id(self):
         next = self.exec_counter
@@ -36,11 +56,40 @@ class ExecutionEngine(ABC):
         self.variable_counter += 1
         return variable
 
+    def init_time(self, start_time):
+        self.wall_clock_start_time = datetime.datetime.now()
+        if self.use_ordinal_time:
+            self.ordinal_time = datetime.datetime.strptime("1/1/00 00:00:00", "%d/%m/%y %H:%M:%S")
+            self.start_time = self.ordinal_time
+        else:
+            start_time = start_time if start_time else datetime.datetime.now()
+            self.start_time = start_time
+
+
+
+
+    def get_current_time(self, as_string=False):
+        if self.use_ordinal_time:
+            now = self.ordinal_time
+            self.ordinal_time += datetime.timedelta(seconds=1)
+            start = self.start_time
+        else:
+            now = datetime.datetime.now()
+            start = self.wall_clock_start_time
+
+        # get the relative time from start
+        rel_start =  now - start
+        cur_time = self.start_time + rel_start
+        return  cur_time if not as_string else str(cur_time)
+
+
     def execute(self,
                 protocol: paml.Protocol,
                 agent: sbol3.Agent,
                 parameter_values: List[paml.ParameterValue] = {},
-                id: str = uuid.uuid4()) -> paml.ProtocolExecution:
+                id: str = uuid.uuid4(),
+                start_time: datetime.datetime = None
+                ) -> paml.ProtocolExecution:
         """Execute the given protocol against the provided parameters
 
         Parameters
@@ -61,7 +110,7 @@ class ExecutionEngine(ABC):
         # First, set up the record for the protocol and parameter values
         ex = paml.ProtocolExecution(id, protocol=protocol)
         doc.add(ex)
-        ex.start_time = str(datetime.datetime.now()) # TODO: remove str wrapper after sbol_factory #22 fixed
+
         ex.association.append(sbol3.Association(agent=agent, plan=protocol))
         ex.parameter_values = parameter_values
 
@@ -70,6 +119,9 @@ class ExecutionEngine(ABC):
             specialization.initialize_protocol(ex)
             specialization.on_begin(ex)
 
+        self.init_time(start_time)
+        ex.start_time = self.start_time # TODO: remove str wrapper after sbol_factory #22 fixed
+
         # Iteratively execute all unblocked activities until no more tokens can progress
         tokens = []  # no tokens to start
         ready = protocol.initiating_nodes()
@@ -77,6 +129,9 @@ class ExecutionEngine(ABC):
             for node in ready:
                 tokens = self.execute_activity_node(ex, node, tokens)
             ready = self.executable_activity_nodes(protocol, tokens, ex.parameter_values)
+
+        ex.end_time = self.get_current_time()
+
         # TODO: finish implementing
         # TODO: ensure that only one token is allowed per edge
         # TODO: think about infinite loops and how to abort
@@ -87,7 +142,7 @@ class ExecutionEngine(ABC):
 
         # aggregate consumed material records from all behaviors executed within, mark end time, and return
         ex.aggregate_child_materials()
-        ex.end_time = str(datetime.datetime.now()) # TODO: remove str wrapper after sbol_factory #22 fixed
+
 
         # End specializations
         for specialization in self.specializations:
@@ -185,8 +240,6 @@ class ExecutionEngine(ABC):
         # Dispatch execution based on node type, collecting any object flows produced
         # The dispatch methods are the ones that can (or must be) overridden for a particular execution environment
         if isinstance(node, uml.InitialNode):
-            if len(inputs) != 0:
-                raise ValueError(f'Initial node must have zero inputs, but {node.identity} had {len(inputs)}')
             record = paml.ActivityNodeExecution(node=node, incoming_flows=inputs)
             ex.executions.append(record)
             new_tokens = self.next_tokens(record, ex)
@@ -216,16 +269,14 @@ class ExecutionEngine(ABC):
                 new_tokens = self.next_tokens(record, ex)
             else:
                 [value] = [i.value.value for i in inputs if isinstance(i.edge.lookup(), uml.ObjectFlow)]
-                value = uml.LiteralReference(value=value) if isinstance(value, sbol3.Identified) else uml.literal(value)
+                value = uml.literal(value, reference=True)
                 ex.parameter_values += [paml.ParameterValue(parameter=node.parameter.lookup(), value=value)]
         elif isinstance(node, uml.CallBehaviorAction):
             record = paml.CallBehaviorExecution(node=node, incoming_flows=inputs)
 
             # Get the parameter values from input tokens for input pins
             input_pin_values = {token.token_source.lookup().node.lookup().identity:
-                                    (uml.LiteralReference(value=token.value.value.lookup())
-                                     if isinstance(token.value, uml.LiteralReference)
-                                     else uml.literal(token.value.value))
+                                     uml.literal(token.value, reference=True)
                                 for token in inputs if not token.edge}
 
             # Get Input value pins
@@ -257,8 +308,8 @@ class ExecutionEngine(ABC):
             call = paml.BehaviorExecution(f"execute_{self.next_id()}",
                                           parameter_values=parameter_values,
                                           completed_normally=True,
-                                          start_time=str(datetime.datetime.now()), # TODO: remove str wrapper after sbol_factory #22 fixed
-                                          end_time=str(datetime.datetime.now()), # TODO: remove str wrapper after sbol_factory #22 fixed
+                                          start_time=self.get_current_time(), # TODO: remove str wrapper after sbol_factory #22 fixed
+                                          end_time=self.get_current_time(), # TODO: remove str wrapper after sbol_factory #22 fixed
                                           consumed_material=[]) # FIXME handle materials
             record.call = call
 
@@ -273,9 +324,7 @@ class ExecutionEngine(ABC):
                 if isinstance(edge, uml.ObjectFlow):
                     source = edge.source.lookup()
                     parameter = node.pin_parameter(source.name)
-                    parameter_value = uml.LiteralReference(value=token.value) \
-                        if isinstance(token.value, sbol3.Identified) \
-                        else uml.literal(token.value)
+                    parameter_value = uml.literal(token.value, reference=True)
                     pv = paml.ParameterValue(parameter=parameter, value=parameter_value)
                     call.parameter_values += [pv]
             pin_names = [pv.parameter.lookup().property_value.name for pv in call.parameter_values]
@@ -289,25 +338,30 @@ class ExecutionEngine(ABC):
             out_param = node
             [value] = [i.value for i in inputs] # Assume a single input for params
             param_value = paml.ParameterValue(parameter=out_param,
-                                              value=uml.literal(value.value))
+                                              value=uml.literal(value.value, reference=True))
             ex.parameter_values.append(param_value)
         else:
             raise ValueError(f'Do not know how to execute node {node.identity} of type {node.type_uri}')
 
         if record:
             for specialization in self.specializations:
+               
+                # Execute node
                 if isinstance(node, uml.CallBehaviorAction):
+
+                    # Execute subprotocol
                     if isinstance(node.behavior.lookup(), paml.Protocol):
-                        print(f'Executing subprotocol {node.behavior.lookup().display_id}')
                         self.execute(node.behavior.lookup(),
                                      ex.association[0].agent.lookup(),
                                      id=f'{ex.display_id}{uuid.uuid4()}'.replace('-', '_'),
                                      parameter_values=[])
-                specialization.process(record, ex)
-                #try:
-                #    specialization.process(record)
-                #except Exception as e:
-                #    logger.error(f"Could Not Process {record.name if record.name else record.identity}: {e}")
+                try:
+                    specialization.process(record)
+                except Exception as e:
+                    l.error(f"Could Not Process {record.name if record.name else record.identity}: {e}")
+                    if not failsafe:
+                        l.error('Aborting...')
+                        sys.exit(1)
 
         # Send outgoing control flows
         # Check that outgoing flows don't conflict with
@@ -323,16 +377,13 @@ class ExecutionEngine(ABC):
         if isinstance(activity_node.node.lookup(), uml.ForkNode):
             [incoming_flow] = activity_node.incoming_flows
             incoming_value = incoming_flow.lookup().value
-            value = incoming_value.value.lookup() \
-                if isinstance(incoming_value, uml.LiteralReference)\
-                else incoming_flow.lookup().value
             edge_tokens = [paml.ActivityEdgeFlow(edge=edge, token_source=activity_node,
-                                                 value=uml.LiteralReference(value=value))
+                                                 value=uml.literal(incoming_value, reference=True))
                            for edge in out_edges]
         elif isinstance(activity_node.node.lookup(), uml.ActivityParameterNode):
             [parameter_value] = [pv.value for pv in ex.parameter_values if pv.parameter == activity_node.node.lookup().parameter]
             edge_tokens = [paml.ActivityEdgeFlow(edge=edge, token_source=activity_node,
-                                                 value=uml.LiteralReference(value=parameter_value))
+                                                 value=uml.literal(value=parameter_value, reference=True))
                            for edge in out_edges]
         else:
             edge_tokens = [paml.ActivityEdgeFlow(edge=edge, token_source=activity_node,
@@ -365,8 +416,7 @@ class ExecutionEngine(ABC):
     def next_pin_tokens(self, activity_node: paml.ActivityNodeExecution, ex: paml.ProtocolExecution):
         assert len(activity_node.incoming_flows) == 1 # One input per pin
         incoming_flow = activity_node.incoming_flows[0].lookup()
-        refd_value = incoming_flow.value.value if isinstance(incoming_flow.value, uml.LiteralReference) else incoming_flow.value
-        pin_value = uml.LiteralReference(value=refd_value)
+        pin_value = uml.literal(value=incoming_flow.value, reference=True)
 
         tokens = [ paml.ActivityEdgeFlow(edge=None, token_source=activity_node, value=pin_value) ]
 
@@ -432,10 +482,7 @@ def protocol_execution_to_dot(self):
         flow_source = incoming_flow.lookup().token_source.lookup()
         source = incoming_flow.lookup().edge.lookup().source.lookup()
         value = incoming_flow.lookup().value
-        if isinstance(value, uml.LiteralReference):
-            value = value.value.lookup()
-        else:
-            value = value.value
+        value = value.value.lookup() if isinstance(value, uml.LiteralReference) else value.value
 
         if isinstance(source, uml.Pin):
             src_parameter = source.get_parent().pin_parameter(source.name).property_value
@@ -506,80 +553,80 @@ def protocol_execution_to_dot(self):
 paml.ProtocolExecution.to_dot = protocol_execution_to_dot
 
 
-def call_behavior_execution_compute_output(self, parameter):
-    """
-    Get parameter value from call behavior execution
-    :param self:
-    :param parameter: output parameter to define value
-    :return: value
-    """
-    primitive = self.node.lookup().behavior.lookup()
-    call = self.call.lookup()
-    inputs = [x for x in call.parameter_values if x.parameter.lookup().property_value.direction == uml.PARAMETER_IN]
-    value = primitive.compute_output(inputs, parameter)
-    return value
-paml.CallBehaviorExecution.compute_output = call_behavior_execution_compute_output
-
-def primitive_compute_output(self, inputs, parameter):
-    """
-    Compute the value for parameter given the inputs. This default function will be overridden for specific primitives.
-    :param self:
-    :param inputs: list of paml.ParameterValue
-    :param parameter: Parameter needing value
-    :return: value
-    """
-    if self.identity == 'https://bioprotocols.org/paml/primitives/sample_arrays/EmptyContainer' and \
-        parameter.name == "samples" and \
-        parameter.type == 'http://bioprotocols.org/paml#SampleArray':
-        # Make a SampleArray
-        for input in inputs:
-            i_parameter = input.parameter.lookup().property_value
-            value = input.value
-            if i_parameter.name == "specification":
-                spec = value
-        contents = ""
-        name = f"{parameter.name}"
-        container = self.document.find(spec.value).value
-        sample_array = paml.SampleArray(name=container.name,
-                                   container_type=spec.value,
-                                   contents=contents)
-        return sample_array
-    elif self.identity == 'https://bioprotocols.org/paml/primitives/sample_arrays/PlateCoordinates' and \
-        parameter.name == "samples" and \
-        parameter.type == 'http://bioprotocols.org/paml#SampleCollection':
-        for input in inputs:
-            i_parameter = input.parameter.lookup().property_value
-            value = input.value
-            if i_parameter.name == "source":
-                source = value
-            elif i_parameter.name == "coordinates":
-                coordinates = value.value.lookup().value if isinstance(value, uml.LiteralReference) else value.value
-        mask = paml.SampleMask(source=source,
-                          mask=coordinates)
-        return mask
-    elif parameter.type in sbol3.Document._uri_type_map:
-        # Generalized handler for output tokens, see #125
-        # TODO: This currently assumes the output token is an sbol3.TopLevel
-        # Still needs special handling for non-toplevel tokens
-
-        builder_fxn = sbol3.Document._uri_type_map[parameter.type]
-
-        # Construct object with a unique URI
-        instance_count = 0
-        successful = False
-        while not successful:
-            try:
-                token_id = f'{parameter.name}{instance_count}'
-                output_token = builder_fxn(token_id, type_uri=parameter.type)
-                if isinstance(output_token, sbol3.TopLevel):
-                    self.document.add(output_token)
-                else:
-                    output_token = builder_fxn(None, type_uri=parameter.type)
-                successful = True
-            except ValueError:
-                instance_count += 1
-        return output_token
-    else:
-        logger.warning(f'No builder found for output Parameter of type {parameter.type}. Returning a string literal by default.')
-        return f"{parameter.name}"
-paml.Primitive.compute_output = primitive_compute_output
+#def call_behavior_execution_compute_output(self, parameter):
+#    """
+#    Get parameter value from call behavior execution
+#    :param self:
+#    :param parameter: output parameter to define value
+#    :return: value
+#    """
+#    primitive = self.node.lookup().behavior.lookup()
+#    call = self.call.lookup()
+#    inputs = [x for x in call.parameter_values if x.parameter.lookup().property_value.direction == uml.PARAMETER_IN]
+#    value = primitive.compute_output(inputs, parameter)
+#    return value
+#paml.CallBehaviorExecution.compute_output = call_behavior_execution_compute_output
+#
+#def primitive_compute_output(self, inputs, parameter):
+#    """
+#    Compute the value for parameter given the inputs. This default function will be overridden for specific primitives.
+#    :param self:
+#    :param inputs: list of paml.ParameterValue
+#    :param parameter: Parameter needing value
+#    :return: value
+#    """
+#    if self.identity == 'https://bioprotocols.org/paml/primitives/sample_arrays/EmptyContainer' and \
+#        parameter.name == "samples" and \
+#        parameter.type == 'http://bioprotocols.org/paml#SampleArray':
+#        # Make a SampleArray
+#        for input in inputs:
+#            i_parameter = input.parameter.lookup().property_value
+#            value = input.value
+#            if i_parameter.name == "specification":
+#                spec = value
+#        contents = ""
+#        name = f"{parameter.name}"
+#        container = self.document.find(spec.value).value
+#        sample_array = paml.SampleArray(name=container.name,
+#                                   container_type=spec.value,
+#                                   contents=contents)
+#        return sample_array
+#    elif self.identity == 'https://bioprotocols.org/paml/primitives/sample_arrays/PlateCoordinates' and \
+#        parameter.name == "samples" and \
+#        parameter.type == 'http://bioprotocols.org/paml#SampleCollection':
+#        for input in inputs:
+#            i_parameter = input.parameter.lookup().property_value
+#            value = input.value
+#            if i_parameter.name == "source":
+#                source = value
+#            elif i_parameter.name == "coordinates":
+#                coordinates = value.value.lookup().value if isinstance(value, uml.LiteralReference) else value.value
+#        mask = paml.SampleMask(source=source,
+#                          mask=coordinates)
+#        return mask
+#    elif parameter.type in sbol3.Document._uri_type_map:
+#        # Generalized handler for output tokens, see #125
+#        # TODO: This currently assumes the output token is an sbol3.TopLevel
+#        # Still needs special handling for non-toplevel tokens
+#
+#        builder_fxn = sbol3.Document._uri_type_map[parameter.type]
+#
+#        # Construct object with a unique URI
+#        instance_count = 0
+#        successful = False
+#        while not successful:
+#            try:
+#                token_id = f'{parameter.name}{instance_count}'
+#                output_token = builder_fxn(token_id, type_uri=parameter.type)
+#                if isinstance(output_token, sbol3.TopLevel):
+#                    self.document.add(output_token)
+#                else:
+#                    output_token = builder_fxn(None, type_uri=parameter.type)
+#                successful = True
+#            except ValueError:
+#                instance_count += 1
+#        return output_token
+#    else:
+#        logger.warning(f'No builder found for output Parameter of type {parameter.type}. Returning a string literal by default.')
+#        return f"{parameter.name}"
+#paml.Primitive.compute_output = primitive_compute_output

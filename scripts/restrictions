@@ -11,20 +11,16 @@ from typing import Tuple, Optional, Any
 import rdflib as rdf
 from rdflib import OWL, RDF, RDFS
 
-from owl_rdf_utils import all_bad_restrictions, repair_graph, describe_bad_restr
+from owl_rdf_utils import (
+    all_bad_restrictions,
+    repair_graph,
+    describe_bad_restr,
+    RELATIONS,
+    IGNORE_PROPERTIES,
+)
 
 Triple = Tuple[Any, Any, Any]
 
-# Properties of a restriction that indicate the actual constraint
-RELATIONS = [
-    OWL.allValuesFrom,
-    OWL.someValuesFrom,
-    OWL.minCardinality,
-    OWL.maxCardinality,
-    OWL.cardinality,
-]
-# Properties of a restriction that we ignore when rewriting (because they are constraints ON
-# the restrictions rather than constraints on the restrictED
 IGNORE_PROPERTIES = [OWL.onProperty, RDFS.comment, RDF.type]
 
 LOGGER = logging.getLogger(__name__)

@@ -43,7 +43,9 @@ def literal(value, reference: bool = False) -> LiteralSpecification:
     -------
     LiteralSpecification of the appropriate type for the value
     """
-    if isinstance(value, LiteralSpecification):
+    if isinstance(value, LiteralReference):
+        return literal(value.value.lookup(), reference) # if it's a reference, make co-reference
+    elif isinstance(value, LiteralSpecification):
         return literal(value.value, reference) # if it's a literal, unwrap and rebuild
     elif value is None:
         return LiteralNull()

@@ -163,6 +163,7 @@ class MarkdownSpecialization(BehaviorSpecialization):
     def _parameter_value_markdown(self, pv : paml.ParameterValue, is_output=False):
         parameter = pv.parameter.lookup().property_value
         value = pv.value.value.lookup().name if isinstance(pv.value, uml.LiteralReference) else pv.value.value
+        #value = pv.value.value.lookup() if isinstance(pv.value, uml.LiteralReference) else pv.value.value
         units = tyto.OM.get_term_by_uri(value.unit) if isinstance(value, sbol3.om_unit.Measure) else None
         value = str(f"{value.value} {units}")  if units else str(value)
         if is_output:
@@ -970,7 +971,7 @@ def measurement_to_text(measure: sbol3.Measure):
     measurement_units = tyto.OM.get_term_by_uri(measure.unit)
     return f'{measurement_scalar} {measurement_units}'
 
-def get_sample_names(inputs: Union[paml.SampleArray, sbol3.Component], error_msg, coordinates=None) -> list[str]:
+def get_sample_names(inputs: Union[paml.SampleArray, sbol3.Component], error_msg, coordinates=None) -> List[str]:
     # Since some behavior inputs may be specified as either a SampleArray or directly as a list 
     # of Components, this provides a convenient way to unpack a list of sample names
     input_names = []
@@ -989,7 +990,7 @@ def get_sample_names(inputs: Union[paml.SampleArray, sbol3.Component], error_msg
         raise ValueError(error_msg)
     return sorted(input_names)
 
-def repeat_for_remaining_samples(names: list[str], repeat_msg: str):
+def repeat_for_remaining_samples(names: List[str], repeat_msg: str):
     # Helps convert multiple samples to natural language
     if len(names) == 1:
         return ''
