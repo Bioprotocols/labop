@@ -11,9 +11,60 @@ import sbol3
 PARAMETER_IN = 'http://bioprotocols.org/uml#in'
 PARAMETER_OUT = 'http://bioprotocols.org/uml#out'
 
+
+class ExampleProtocol(unittest.TestCase):
+
+    def test_bottom_up_protocol(self):
+        # Provides a minimal, working example of a Protocol built from
+        # the bottom-up without using any of the library's convenience methods
+        doc = sbol3.Document()
+        protocol = paml.Protocol('foo')
+        doc.add(protocol)
+        
+        step1 = paml.Primitive('step1')
+        step2 = paml.Primitive('step2')
+
+        step1_output = uml.OrderedPropertyValue(index=1, property_value=uml.Parameter(name='samples', type=sbol3.SBOL_COMPONENT, direction=PARAMETER_OUT, is_ordered=True, is_unique=True))
+        step2_input = uml.OrderedPropertyValue(index=1, property_value=uml.Parameter(name='samples', type=sbol3.SBOL_COMPONENT, direction=PARAMETER_IN, is_ordered=True, is_unique=True))
+        step1.parameters.append(step1_output)
+        step2.parameters.append(step2_input)
+        
+        
+        doc.add(step1)
+        doc.add(step2)
+        
+        start_action = uml.InitialNode()
+        step1_action = uml.CallBehaviorAction(behavior=step1)
+        step2_action = uml.CallBehaviorAction(behavior=step2)
+        protocol.nodes.append(start_action)
+        protocol.nodes.append(step1_action)
+        protocol.nodes.append(step2_action)
+        protocol.edges.append(uml.ControlFlow(source=start_action, target=step1_action))
+        protocol.edges.append(uml.ControlFlow(source=step1_action, target=step2_action))
+        
+        step1_action.outputs.append(uml.OutputPin(name='samples', 
+                                                  is_ordered=True, 
+                                                  is_unique=True))
+        step2_action.inputs.append(uml.ValuePin(name='samples', 
+                                                value=uml.LiteralString(value='foo'), 
+                                                is_ordered=True, 
+                                                is_unique=True))
+        
+        
+        agent = sbol3.Agent("test_agent")
+        ee = ExecutionEngine()
+  
+        ee.specializations[0]._behavior_func_map[step1.identity] = lambda record: None
+        ee.specializations[0]._behavior_func_map[step2.identity] = lambda record: None
+
+        # execute protocol
+        x = ee.execute(protocol, agent, id="test_execution", parameter_values=[])
+
+
 class TestParameters(unittest.TestCase):
 
     def test_parameters_not_found(self):
+        # Verify exception-handling when user specifies a Pin that doesn't match expected Parameter names
         doc = sbol3.Document()
         protocol = paml.Protocol('foo')
         doc.add(protocol)
@@ -42,7 +93,6 @@ class TestParameters(unittest.TestCase):
         step1_action.outputs.append(uml.OutputPin(name='output', is_ordered=True, is_unique=True))
         step2_action.inputs.append(uml.InputPin(name='input', is_ordered=True, is_unique=True))
         
-        
         agent = sbol3.Agent("test_agent")
         ee = ExecutionEngine(specializations=[MarkdownSpecialization("test_LUDOX_markdown.md")])
         parameter_values = [
@@ -51,7 +101,9 @@ class TestParameters(unittest.TestCase):
         with self.assertRaises(ValueError):
             x = ee.execute(protocol, agent, id="test_execution", parameter_values=parameter_values)
 
+
     def test_duplicate_parameters(self):
+        # Verify exception-handling for name collisions between Parameters
         doc = sbol3.Document()
         protocol = paml.Protocol('foo')
         doc.add(protocol)
@@ -84,6 +136,7 @@ class TestParameters(unittest.TestCase):
         ]
         with self.assertRaises(ValueError):
             x = ee.execute(protocol, agent, id="test_execution", parameter_values=parameter_values)
+
 
     def test_optional_and_required_parameters(self):
         doc = sbol3.Document()
@@ -141,51 +194,11 @@ class TestParameters(unittest.TestCase):
         x = ee.execute(protocol, agent, id="test_execution5", parameter_values=[])
 
 
-    #def test_execution(self):
-    #    doc = sbol3.Document()
-    #    protocol = paml.Protocol('foo')
-    #    doc.add(protocol)
-    #    
-    #    step1 = paml.Primitive('step1')
-    #    step2 = paml.Primitive('step2')
-
-    #    step1_output = uml.OrderedPropertyValue(index=1, property_value=uml.Parameter(name='samples', type=sbol3.SBOL_COMPONENT, direction=PARAMETER_OUT, is_ordered=True, is_unique=True))
-    #    step2_input = uml.OrderedPropertyValue(index=1, property_value=uml.Parameter(name='samples', type=sbol3.SBOL_COMPONENT, direction=PARAMETER_IN, is_ordered=True, is_unique=True))
-    #    step1.parameters.append(step1_output)
-    #    step2.parameters.append(step2_input)
-    #    
-    #    
-    #    doc.add(step1)
-    #    doc.add(step2)
-    #    
-    #    start_action = uml.InitialNode()
-    #    step1_action = uml.CallBehaviorAction(behavior=step1)
-    #    step2_action = uml.CallBehaviorAction(behavior=step2)
-    #    protocol.nodes.append(start_action)
-    #    protocol.nodes.append(step1_action)
-    #    protocol.nodes.append(step2_action)
-    #    protocol.edges.append(uml.ControlFlow(source=start_action, target=step1_action))
-    #    protocol.edges.append(uml.ControlFlow(source=step1_action, target=step2_action))
-    #    
-    #    step1_action.outputs.append(uml.OutputPin(name='samples', is_ordered=True, is_unique=True))
-    #    step2_action.inputs.append(uml.ValuePin(name='samples', is_ordered=True, is_unique=True))
-    #    
-    #    
-    #    agent = sbol3.Agent("test_agent")
-    #    ee = ExecutionEngine()
-  
-    #    ee.specializations[0]._behavior_func_map[step1.identity] = lambda record: None
-    #    ee.specializations[0]._behavior_func_map[step2.identity] = lambda record: None
-
-    #    # execute protocol
-    #    x = ee.execute(protocol, agent, id="test_execution", parameter_values=[])
-    #    for record in x.executions:
-    #        print(record.call)
-
     def test_bad_ordered_property_value(self):
         # Tests what happens when OrderedPropertyValue indexes are not 
         # sequentially ordered
         pass
+
 
     def test_output_tokens(self):
         # Tests that the correct output objects are generated from
@@ -194,6 +207,7 @@ class TestParameters(unittest.TestCase):
         # Primitive.compute_output.  It should also test the failure
         # case when a Primitive's output Parameter has an unrecognized type
         pass
+
 
 if __name__ == '__main__':
     unittest.main()
