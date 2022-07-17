@@ -168,7 +168,6 @@ def empty_container_initialize_contents(self):
     return contents
 paml.Primitive.initialize_contents = empty_container_initialize_contents
 
-
 def declare_primitive(
     document: sbol3.Document,
     library: str,
@@ -201,3 +200,12 @@ def declare_primitive(
         document.add(primitive)
     sbol3.set_namespace(old_ns)
     return primitive
+
+def protocol_execution_to_json(self):
+    """
+    Convert Protocol Execution to JSON
+    """
+    p_json = []
+    return p_json
+paml.ProtocolExecution.to_json = protocol_execution_to_json
+
