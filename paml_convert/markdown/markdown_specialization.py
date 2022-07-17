@@ -1,6 +1,6 @@
 import logging
 import json
-import os 
+import os
 import json
 from datetime import datetime
 from urllib.parse import quote, unquote
@@ -25,7 +25,7 @@ ContainerOntology = tyto.Ontology(path=container_ontology_path, uri='https://sif
 
 
 class MarkdownSpecialization(BehaviorSpecialization):
-    def __init__(self, out_path) -> None:
+    def __init__(self, out_path=None) -> None:
         super().__init__()
         self.out_path = out_path
         self.var_to_entity = {}
@@ -135,18 +135,18 @@ class MarkdownSpecialization(BehaviorSpecialization):
             except:
                 continue
             container_type = pin.value.value.queryString
-        
+
             try:
                 pin = cba.input_pin('quantity')
             except:
                 pin = None
             qty = pin.value.value if pin else 1
-            
+
             if container_type in containers:
                 containers[container_type] += qty
             else:
                 containers[container_type] = qty
-        
+
         for container_type, qty in containers.items():
             try:
                 container_class = ContainerOntology.uri + '#' + container_type.split(':')[-1]
@@ -257,9 +257,9 @@ class MarkdownSpecialization(BehaviorSpecialization):
             l.warning(e)
 
         if not text:
-            try:            
+            try:
                 # Assume that a simple container class is specified, rather
-                # than container properties.  Then use tyto to get the 
+                # than container properties.  Then use tyto to get the
                 # container label
                 container_class = ContainerOntology.uri + '#' + spec.queryString.split(':')[-1]
                 container_str = ContainerOntology.get_term_by_uri(container_class)
@@ -288,13 +288,13 @@ class MarkdownSpecialization(BehaviorSpecialization):
         samples.container_type = containers.get_parent().identity
         assert(type(containers) is paml.ContainerSpec)
         try:
-            
+
             # Assume that a simple container class is specified, rather
-            # than container properties.  Then use tyto to get the 
+            # than container properties.  Then use tyto to get the
             # container label
             container_class = ContainerOntology.uri + '#' + containers.queryString.split(':')[-1]
             container_str = ContainerOntology.get_term_by_uri(container_class)
-           
+
             if quantity > 1:
                 if replicates > 1:
                     text = f'Obtain a total of {quantity*replicates} x {container_str}s to contain {replicates} replicates each of `{containers.name}`'
@@ -478,7 +478,7 @@ class MarkdownSpecialization(BehaviorSpecialization):
 
         # Add to markdown
         text = f"Discard {measurement_to_text(amount)} from {coordinates}{container_str} `{container_spec.name}`."
-        text = add_description(record, text) 
+        text = add_description(record, text)
         execution.markdown_steps += [text]
 
     def transfer(self, record: paml.ActivityNodeExecution, execution: paml.ProtocolExecution):
@@ -533,7 +533,7 @@ class MarkdownSpecialization(BehaviorSpecialization):
         #    destination_contents[destination_coordinates] = source_contents['1']  # source is assumed to be a Component
         #else:
         #    destination_contents = source_contents
-        #print('Final destination contents: ', destination_contents) 
+        #print('Final destination contents: ', destination_contents)
         #samples.contents = quote(json.dumps(destination_contents))
 
         # Get destination container type
@@ -636,10 +636,10 @@ class MarkdownSpecialization(BehaviorSpecialization):
         temperature_scalar = temperature.value
         temperature_units = tyto.OM.get_term_by_uri(temperature.unit)
         replicates = parameter_value_map['replicates']['value'] if 'replicates' in parameter_value_map else 1
-        container = parameter_value_map['container']['value'] 
+        container = parameter_value_map['container']['value']
 
         # Generate markdown
-        container_str = record.document.find(container.container_type).value.name 
+        container_str = record.document.find(container.container_type).value.name
         inocula_names = get_sample_names(inocula, error_msg='Culture execution failed. All input inoculum Components must specify a name.')
         #text = f'Inoculate `{inocula_names[0]}` into {volume_scalar} {volume_units} of {growth_medium.name} in {container_str} and grow for {measurement_to_text(duration)} at {measurement_to_text(temperature)} and {int(orbital_shake_speed.value)} rpm.'
         if duration_scalar > 14:
@@ -713,7 +713,7 @@ class MarkdownSpecialization(BehaviorSpecialization):
         target_od = parameter_value_map['target_od']['value']
         temperature = parameter_value_map['temperature']['value'] if 'temperature' in parameter_value_map else None
         destination.contents = source.contents
-       
+
         # Get destination container type
         container_spec = record.document.find(destination.container_type).value
         container_class = ContainerOntology.uri + '#' + container_spec.queryString.split(':')[-1]
@@ -721,7 +721,7 @@ class MarkdownSpecialization(BehaviorSpecialization):
 
         sample_names = get_sample_names(source, error_msg='Dilute to target OD execution failed. All source Components must specify a name.')
 
-        if len(sample_names) == 1: 
+        if len(sample_names) == 1:
             text = f'Back-dilute `{sample_names[0]}` `{source.name}` with {diluent.name} into {container_str} to a target OD of {target_od.value} and final volume of {measurement_to_text(amount)}.'
         elif len(sample_names) > 1:
             text = f'Back-dilute each of {len(read_sample_contents(source))} `{source.name}` samples to a target OD of {target_od.value} using {diluent.name} as diluent to a final volume of {measurement_to_text(amount)}.'
@@ -914,7 +914,7 @@ class MarkdownSpecialization(BehaviorSpecialization):
 
         text = f'Pool {measurement_to_text(volume)} from each of {n_replicates} replicate `{source.name}` samples into {container_str} `{container_spec.name}`.'
         execution.markdown_steps += [text]
-        
+
     def quick_spin(self, record: paml.ActivityNodeExecution, execution: paml.ProtocolExecution):
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
@@ -979,7 +979,7 @@ def measurement_to_text(measure: sbol3.Measure):
     return f'{measurement_scalar} {measurement_units}'
 
 def get_sample_names(inputs: Union[paml.SampleArray, sbol3.Component], error_msg, coordinates=None) -> List[str]:
-    # Since some behavior inputs may be specified as either a SampleArray or directly as a list 
+    # Since some behavior inputs may be specified as either a SampleArray or directly as a list
     # of Components, this provides a convenient way to unpack a list of sample names
     input_names = []
     if isinstance(inputs, paml.SampleArray):
@@ -990,7 +990,7 @@ def get_sample_names(inputs: Union[paml.SampleArray, sbol3.Component], error_msg
             else:
                 input_names = {inputs.document.find(c).name for c in contents.values()}
     elif isinstance(inputs, Iterable):
-        input_names = {i.name for i in inputs}        
+        input_names = {i.name for i in inputs}
     else:
         input_names = {inputs.name}
     if not all([name is not None for name in input_names]):

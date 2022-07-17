@@ -14,7 +14,8 @@ l.setLevel(logging.ERROR)
 def activity_node_enabled(
     self: uml.ActivityNode,
     ex: paml.ProtocolExecution,
-    tokens: List[paml.ActivityEdgeFlow]
+    tokens: List[paml.ActivityEdgeFlow],
+    permissive: bool
 ):
     """Check whether all incoming edges have values defined by a token in tokens and that all value pin values are
         defined.
@@ -51,7 +52,10 @@ def activity_node_enabled(
         # satisfied_pins = set(list(pins_with_params) + list(pins_with_tokens))
         input_pins_satisfied = required_input_pins.issubset(pins_with_tokens)
         value_pins_assigned = all({i.value for i in required_value_pins})
-        return tokens_present and input_pins_satisfied and value_pins_assigned
+        if permissive:
+            return tokens_present
+        else:
+            return tokens_present and input_pins_satisfied and value_pins_assigned
     else:
         return tokens_present
 uml.ActivityNode.enabled = activity_node_enabled
@@ -79,7 +83,8 @@ uml.ActivityNode.protocol = activity_node_get_protocol
 def input_pin_enabled(
     self: uml.InputPin,
     ex: paml.ProtocolExecution,
-    tokens: List[paml.ActivityEdgeFlow]
+    tokens: List[paml.ActivityEdgeFlow],
+    permissive: bool
 ):
     protocol = self.protocol()
     incoming_controls = {e for e in protocol.incoming_edges(self) if isinstance(e, uml.ControlFlow)}
@@ -91,13 +96,14 @@ def input_pin_enabled(
     # Need at least one incoming object token
     tokens_present = {t.edge.lookup() for t in tokens if t.edge}.issubset(incoming_objects)
 
-    return tokens_present
+    return tokens_present or permissive
 uml.InputPin.enabled = input_pin_enabled
 
 def value_pin_enabled(
     self: uml.InputPin,
     ex: paml.ProtocolExecution,
-    tokens: List[paml.ActivityEdgeFlow]
+    tokens: List[paml.ActivityEdgeFlow],
+    permissive: bool
 ):
     protocol = self.protocol()
     incoming_controls = {e for e in protocol.incoming_edges(self) if isinstance(e, uml.ControlFlow)}
@@ -105,13 +111,14 @@ def value_pin_enabled(
 
     assert(len(incoming_controls) == 0 and len(incoming_objects)==0) # ValuePins do not receive flow
 
-    return True
+    return True or permissive
 uml.ValuePin.enabled = value_pin_enabled
 
 def output_pin_enabled(
     self: uml.InputPin,
     ex: paml.ProtocolExecution,
-    tokens: List[paml.ActivityEdgeFlow]
+    tokens: List[paml.ActivityEdgeFlow],
+    permissive: bool
 ):
     return False
 uml.OutputPin.enabled = output_pin_enabled
@@ -120,7 +127,8 @@ uml.OutputPin.enabled = output_pin_enabled
 def fork_node_enabled(
     self: uml.ForkNode,
     ex: paml.ProtocolExecution,
-    tokens: List[paml.ActivityEdgeFlow]
+    tokens: List[paml.ActivityEdgeFlow],
+    permissive: bool
 ):
     protocol = self.protocol()
     incoming_controls = {e for e in protocol.incoming_edges(self) if isinstance(e, uml.ControlFlow)}
@@ -137,7 +145,8 @@ uml.ForkNode.enabled = fork_node_enabled
 def final_node_enabled(
     self: uml.FinalNode,
     ex: paml.ProtocolExecution,
-    tokens: List[paml.ActivityEdgeFlow]
+    tokens: List[paml.ActivityEdgeFlow],
+    permissive: bool
 ):
     protocol = self.protocol()
     token_present = any({t.edge.lookup() for t in tokens if t.edge}.intersection(protocol.incoming_edges(self)))
@@ -147,7 +156,8 @@ uml.FinalNode.enabled = final_node_enabled
 def activity_parameter_node_enabled(
     self: uml.ActivityParameterNode,
     ex: paml.ProtocolExecution,
-    tokens: List[paml.ActivityEdgeFlow]
+    tokens: List[paml.ActivityEdgeFlow],
+    permissive: bool
 ):
     return len(tokens) == 1 and tokens[0].get_target() == self
 uml.ActivityParameterNode.enabled = activity_parameter_node_enabled
@@ -155,7 +165,8 @@ uml.ActivityParameterNode.enabled = activity_parameter_node_enabled
 def initial_node_enabled(
     self: uml.InitialNode,
     ex: paml.ProtocolExecution,
-    tokens: List[paml.ActivityEdgeFlow]
+    tokens: List[paml.ActivityEdgeFlow],
+    permissive: bool
 ):
     return len(tokens) == 1 and tokens[0].get_target() == self
 uml.InitialNode.enabled = initial_node_enabled
@@ -163,7 +174,8 @@ uml.InitialNode.enabled = initial_node_enabled
 def merge_node_enabled(
     self: uml.MergeNode,
     ex: paml.ProtocolExecution,
-    tokens: List[paml.ActivityEdgeFlow]
+    tokens: List[paml.ActivityEdgeFlow],
+    permissive: bool
 ):
     protocol = self.protocol()
     return {t.edge.lookup() for t in tokens if t.edge}==protocol.incoming_edges(self)
@@ -172,7 +184,8 @@ uml.MergeNode.enabled = merge_node_enabled
 def decision_node_enabled(
     self: uml.DecisionNode,
     ex: paml.ProtocolExecution,
-    tokens: List[paml.ActivityEdgeFlow]
+    tokens: List[paml.ActivityEdgeFlow],
+    permissive: bool
 ):
     # Cases:
     # - primary is control, input_flow, no decision_input

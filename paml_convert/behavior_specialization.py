@@ -1,9 +1,11 @@
+import sys
 from abc import ABC, abstractmethod
 from logging import error
 import logging
 
 import paml
 import uml
+import json
 
 l = logging.getLogger(__file__)
 l.setLevel(logging.WARN)
@@ -27,19 +29,23 @@ class BehaviorSpecialization(ABC):
         self.top_protocol = None
         self.execution = None
 
+        # This data field holds the results of the specialization
+        self.data = None
+
     def initialize_protocol(self, execution: paml.ProtocolExecution):
         self.execution = execution
 
-    @abstractmethod
     def _init_behavior_func_map(self) -> dict:
-        pass
+        return {}
 
     @abstractmethod
     def on_begin(self, execution: paml.ProtocolExecution):
+        self.data = []
         pass
 
     @abstractmethod
     def on_end(self, execution: paml.ProtocolExecution):
+        self.data = json.dumps(self.data)
         pass
 
     def process(self, record, execution: paml.ProtocolExecution):
@@ -56,6 +62,16 @@ class BehaviorSpecialization(ABC):
         elif str(node.behavior) not in self._behavior_func_map:
             raise BehaviorSpecializationException(f"Failed to find handler for behavior: {node.behavior}")
         return self._behavior_func_map[str(node.behavior)](record, execution)
+
+    def handle(self, record):
+        # Save basic information about the execution record
+        node = record.node.lookup()
+        node_data = {
+            "identity": node.identity,
+            "behavior": node.behavior,
+            "parameters" : node.input_parameter_values()
+        }
+        self.data.append(node_data)
 
     def resolve_container_spec(self, spec, addl_conditions=None):
         try:

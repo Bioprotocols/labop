@@ -135,7 +135,8 @@ class ExecutionEngine(ABC):
                 agent: sbol3.Agent,
                 parameter_values: List[paml.ParameterValue] = {},
                 id: str = uuid.uuid4(),
-                start_time: datetime.datetime = None
+                start_time: datetime.datetime = None,
+                permissive: bool = False
                 ) -> paml.ProtocolExecution:
         """Execute the given protocol against the provided parameters
 
@@ -145,6 +146,8 @@ class ExecutionEngine(ABC):
         agent: Agent that is executing this protocol
         parameter_values: List of all input parameter values (if any)
         id: display_id or URI to be used as the name of this execution; defaults to a UUID display_id
+        start_time: Start time for the execution
+        permissive: If True, allow execution to proceed if not all CallBehaviorAction inputs are present.
 
         Returns
         -------
@@ -189,7 +192,8 @@ class ExecutionEngine(ABC):
         return self.executable_activity_nodes()
 
     def executable_activity_nodes(
-        self
+        self,
+        permissive: bool
     ) -> List[uml.ActivityNode]:
         """Find all of the activity nodes that are ready to be run given the current set of tokens
         Note that this will NOT identify activities with no in-flows: those are only set up as initiating nodes
@@ -206,7 +210,7 @@ class ExecutionEngine(ABC):
             target = t.get_target()
             candidate_clusters[target] = candidate_clusters.get(target,[])+[t]
         return [n for n,nt in candidate_clusters.items()
-                if n.enabled(self.ex, nt)]
+                if n.enabled(self.ex, nt, permissive)]
 
 
 
