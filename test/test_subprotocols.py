@@ -12,6 +12,7 @@ class TestSubprotocols(unittest.TestCase):
 
     def test_subexecutions(self):
         doc = sbol3.Document()
+        sbol3.set_namespace('https://bbn.com/scratch/')
 
         subprotocol1 = paml.Protocol('sub1')
         subprotocol2 = paml.Protocol('sub2')
