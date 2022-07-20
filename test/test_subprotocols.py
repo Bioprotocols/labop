@@ -12,7 +12,7 @@ class TestSubprotocols(unittest.TestCase):
 
     def test_subexecutions(self):
         doc = sbol3.Document()
-        sbol3.set_namespace('https://bbn.com/scratch/')
+        sbol3.set_namespace('http://bbn.com/scratch/')
 
         subprotocol1 = paml.Protocol('sub1')
         subprotocol2 = paml.Protocol('sub2')
@@ -34,12 +34,13 @@ class TestSubprotocols(unittest.TestCase):
         
         ordered_executions = ex.get_ordered_executions()
         self.assertListEqual([x.identity for x in ordered_executions],
-                             ['http://sbols.org/unspecified_namespace/test_execution1/CallBehaviorExecution1',
-                              'http://sbols.org/unspecified_namespace/test_execution1/CallBehaviorExecution2',
-                              'http://sbols.org/unspecified_namespace/test_execution1/CallBehaviorExecution3'])
+                             ['http://bbn.com/scratch/test_execution1/CallBehaviorExecution1',
+                              'http://bbn.com/scratch/test_execution1/CallBehaviorExecution2',
+                              'https://bbn.com/scratch/test_execution1/CallBehaviorExecution3'])
         subprotocol_executions = ex.get_subprotocol_executions()
         self.assertListEqual([x.protocol.lookup() for x in subprotocol_executions],
                              [subprotocol1, subprotocol2])
-         
+
+     
 if __name__ == '__main__':
     unittest.main()
