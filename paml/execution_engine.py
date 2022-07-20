@@ -20,7 +20,7 @@ l = logging.getLogger(__file__)
 l.setLevel(logging.ERROR)
 
 
-failsafe = True  # By default, a protocol execution will proceed through to the end, even if a CallBehaviorAction raises an exception
+failsafe = False  # By default, a protocol execution will proceed through to the end, even if a CallBehaviorAction raises an exception
 
 
 class ExecutionEngine(ABC):
@@ -356,7 +356,7 @@ class ExecutionEngine(ABC):
                                      id=f'{ex.display_id}{uuid.uuid4()}'.replace('-', '_'),
                                      parameter_values=[])
                 try:
-                    specialization.process(record)
+                    specialization.process(record, ex)
                 except Exception as e:
                     l.error(f"Could Not Process {record.name if record.name else record.identity}: {e}")
                     if not failsafe:
