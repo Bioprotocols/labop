@@ -234,22 +234,56 @@ def decision_node_enabled(
             return primary_token
 uml.DecisionNode.enabled = decision_node_enabled
 
-def backtrace(self, stack=None):
+class ProtocolExecutionExtractor():
+    def extract(self, record: paml.ActivityNodeExecution):
+        pass
+
+    def extract(self, token: paml.ActivityEdgeFlow):
+        pass
+
+class JSONProtocolExecutionExtractor(ProtocolExecutionExtractor):
+    def __init__(self) -> None:
+        super().__init__()
+        self.extraction_map = {
+            uml.CallBehaviorAction : self.extract_call_behavior_action
+        }
+
+    def extract_call_behavior_action(self, token: paml.ActivityEdgeFlow):
+        return super().extract(token)
+
+    def extract(self, record: paml.ActivityNodeExecution):
+        behavior_str = record.node.lookup().behavior \
+                        if isinstance(record.node.lookup(), uml.CallBehaviorAction) \
+                        else ((record.node.lookup().get_parent().behavior, record.node.lookup().name) \
+                            if isinstance(record.node.lookup(), uml.Pin)
+                            else "")
+        record_str = f"{record.node} ({behavior_str})"
+        return record_str
+
+class StringProtocolExecutionExtractor(ProtocolExecutionExtractor):
+    def extract(self, record: paml.ActivityNodeExecution):
+        behavior_str = record.node.lookup().behavior \
+                        if isinstance(record.node.lookup(), uml.CallBehaviorAction) \
+                        else ((record.node.lookup().get_parent().behavior, record.node.lookup().name) \
+                            if isinstance(record.node.lookup(), uml.Pin)
+                            else "")
+        record_str = f"{record.node} ({behavior_str})"
+        return record_str
+
+def backtrace(
+    self,
+    stack=None,
+    extractor: ProtocolExecutionExtractor = None):
     stack = self.executions if stack is None else stack
     if len(stack) == 0:
-        return set([]), ["<start>"]
+        return set([]), []
     else:
         tail = stack[-1]
         head = stack[:-1]
-
-        nodes, head_str = self.backtrace(stack=head)
-
-        behavior_str = tail.node.lookup().behavior if isinstance(tail.node.lookup(), uml.CallBehaviorAction) else ((tail.node.lookup().get_parent().behavior, tail.node.lookup().name) if isinstance(tail.node.lookup(), uml.Pin) else "")
-        tail_str = f"{tail.node} ({behavior_str})"
+        nodes, head = self.backtrace(stack=head)
         nodes.add(tail.node.lookup())
-
-        head_str += [tail_str]
-        return nodes, head_str
+        head += [extractor.extract(tail)]
+        return nodes, head
 paml.ProtocolExecution.backtrace = backtrace
 
 def token_info(self: paml.ActivityEdgeFlow):
@@ -260,6 +294,15 @@ def token_info(self: paml.ActivityEdgeFlow):
         "behavior": (self.get_target().behavior if isinstance(self.get_target(), uml.CallBehaviorAction) else None)
     }
 paml.ActivityEdgeFlow.info = token_info
+
+def protocol_execution_to_json(self):
+    """
+    Convert Protocol Execution to JSON
+    """
+    p_json = self.backtrace(extractor=JSONProtocolExecutionExtractor())[1]
+    return json.dumps(p_json)
+paml.ProtocolExecution.to_json = protocol_execution_to_json
+
 
 
 def activity_node_execute(

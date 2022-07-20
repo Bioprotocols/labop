@@ -200,12 +200,3 @@ def declare_primitive(
         document.add(primitive)
     sbol3.set_namespace(old_ns)
     return primitive
-
-def protocol_execution_to_json(self):
-    """
-    Convert Protocol Execution to JSON
-    """
-    p_json = []
-    return p_json
-paml.ProtocolExecution.to_json = protocol_execution_to_json
-
