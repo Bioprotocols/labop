@@ -36,7 +36,7 @@ class TestSubprotocols(unittest.TestCase):
         self.assertListEqual([x.identity for x in ordered_executions],
                              ['http://bbn.com/scratch/test_execution1/CallBehaviorExecution1',
                               'http://bbn.com/scratch/test_execution1/CallBehaviorExecution2',
-                              'https://bbn.com/scratch/test_execution1/CallBehaviorExecution3'])
+                              'http://bbn.com/scratch/test_execution1/CallBehaviorExecution3'])
         subprotocol_executions = ex.get_subprotocol_executions()
         self.assertListEqual([x.protocol.lookup() for x in subprotocol_executions],
                              [subprotocol1, subprotocol2])
