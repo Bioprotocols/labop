@@ -160,9 +160,8 @@ class TestConvert(unittest.TestCase):
         # Check outputs match
 
         # Check Opentrons output
-        # FIXME use something other than this markdown file below.
         opentrons_comparison_file = os.path.join(os.path.dirname(os.path.realpath(__file__)),
-                                                'testfiles', 'igem_ludox_markdown.md')
+                                                'testfiles', 'ludox_ot2.py')
         # Uncomment next two lines to write the rubric file (Careful!)
         # with open(opentrons_comparison_file, "w") as out_file, open(opentrons_output) as in_file:
         #     out_file.write(in_file.read())
