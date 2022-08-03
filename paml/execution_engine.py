@@ -20,7 +20,7 @@ l = logging.getLogger(__file__)
 l.setLevel(logging.ERROR)
 
 
-failsafe = False  # By default, a protocol execution will proceed through to the end, even if a CallBehaviorAction raises an exception
+failsafe = True  # When set to True, a protocol execution will proceed through to the end, even if a CallBehaviorAction raises an exception.  Set to False for debugging
 
 
 class ExecutionEngine(ABC):
