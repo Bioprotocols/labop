@@ -245,28 +245,32 @@ class MarkdownSpecialization(BehaviorSpecialization):
         l.debug(f" specification: {spec}")
         #l.debug(f" samples: {samples_var}")
 
+        text = None
         try:
             possible_container_types = self.resolve_container_spec(spec)
             containers_str = ",".join([f"\n\t[{c.split('#')[1]}]({c})" for c in possible_container_types])
-            execution.markdown_steps += [f"Provision a container named `{spec.name}` such as: {containers_str}."]
+            text = f"Provision a container named `{spec.name}` such as: {containers_str}."
         except Exception as e:
             l.warning(e)
-            
-            # Assume that a simple container class is specified, rather
-            # than container properties.  Then use tyto to get the 
-            # container label
-            container_class = ContainerOntology.uri + '#' + spec.queryString.split(':')[-1]
-            container_str = ContainerOntology.get_term_by_uri(container_class)
-            if container_class == f'{ContainerOntology.uri}#StockReagent':
-                text = f'Provision the {container_str} containing `{spec.name}`'
-            else:
-                text = f'Obtain a {container_str} to contain `{spec.name}`'
-            text = add_description(record, text)
-            execution.markdown_steps += [text]
-            #except Exception as e:
-            #    l.warning(e)
-            #    execution.markdown_steps += [f"Provision a container named `{spec.name}` meeting specification: {spec.queryString}."]
 
+        if not text:
+            try:            
+                # Assume that a simple container class is specified, rather
+                # than container properties.  Then use tyto to get the 
+                # container label
+                container_class = ContainerOntology.uri + '#' + spec.queryString.split(':')[-1]
+                container_str = ContainerOntology.get_term_by_uri(container_class)
+                if container_class == f'{ContainerOntology.uri}#StockReagent':
+                    text = f'Provision the {container_str} containing `{spec.name}`'
+                else:
+                    text = f'Obtain a {container_str} to contain `{spec.name}`'
+                text = add_description(record, text)
+
+            except Exception as e:
+                l.warning(e)
+        if not text:
+            text = f"Provision a container named `{spec.name}` meeting specification: {spec.queryString}."
+        execution.markdown_steps += [text]
         return results
 
     def define_containers(self, record: paml.ActivityNodeExecution, execution: paml.ProtocolExecution):
