@@ -1,2 +1,2 @@
 theme: jekyll-theme-cayman
-baseurl: https://bioprotocols.github.io/paml
+baseurl: "docs"
