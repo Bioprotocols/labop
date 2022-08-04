@@ -13,3 +13,6 @@ test/.*
 .vscode
 **/.DS_Store
 build
+_site
+.jekyll-cache/
+.sass-cache
