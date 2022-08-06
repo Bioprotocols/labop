@@ -148,13 +148,16 @@ class MarkdownSpecialization(BehaviorSpecialization):
                 containers[container_type] = qty
         
         for container_type, qty in containers.items():
-            container_class = ContainerOntology.uri + '#' + container_type.split(':')[-1]
-            container_str = ContainerOntology.get_term_by_uri(container_class)
-            text = f'* {container_str}'
-            if qty > 1:
-                text += f' (x {qty})'
-            text += '\n'
-            markdown += text
+            try:
+                container_class = ContainerOntology.uri + '#' + container_type.split(':')[-1]
+                container_str = ContainerOntology.get_term_by_uri(container_class)
+                text = f'* {container_str}'
+                if qty > 1:
+                    text += f' (x {qty})'
+                text += '\n'
+                markdown += text
+            except:
+                pass
 
         for x in subprotocol_executions:
             markdown += x.materials
