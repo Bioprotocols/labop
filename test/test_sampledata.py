@@ -13,6 +13,14 @@ from paml.execution_engine import ExecutionEngine
 import uml
 import tyto
 
+
+# Save testfiles as artifacts when running in CI environment,
+# else save them to a local temp directory
+if 'GH_TMPDIR' in os.environ:
+    TMPDIR = os.environ['GH_TMPDIR']
+else:
+    TMPDIR = tempfile.gettempdir()
+
 protocol_def_file = os.path.join(os.path.dirname(__file__), '../examples/LUDOX_protocol.py')
 
 
@@ -67,7 +75,8 @@ class TestProtocolEndToEnd(unittest.TestCase):
         v = doc.validate()
         assert len(v) == 0, "".join(f'\n {e}' for e in v)
 
-        temp_name = os.path.join(tempfile.gettempdir(), 'igem_ludox_data_test.nt')
+        temp_name = os.path.join(TMPDIR, 'igem_ludox_data_test.nt')
+        temp_name = 'igem_ludox_data_test.nt'
         doc.write(temp_name, sbol3.SORTED_NTRIPLES)
         print(f'Wrote file as {temp_name}')
 

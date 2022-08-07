@@ -27,8 +27,19 @@ jobs:
         python -m pip install --upgrade pip
         python -m pip install pytest
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+    - name: Set up temporary directory for testing artifacts
+      run: |
+        echo "GH_TMPDIR=$(mktemp -d)" >> $GITHUB_ENV  # Export the shell temp dir out to the Github CI runner
+        echo ${{ env.GH_TMPDIR }}
     - name: Test with pytest
       run: |
         pip install .[test]
         pytest
         pytest --nbmake --overwrite -n=auto "notebooks/paml_demo.ipynb" "notebooks/markdown.ipynb"
+    - name: 'Upload test artifacts'
+      if: success() || failure()
+      uses: actions/upload-artifact@v3
+      with:
+        name: nt-test-files
+        path: ${{ env.GH_TMPDIR }}
+        retention-days: 1
