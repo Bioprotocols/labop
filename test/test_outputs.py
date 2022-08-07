@@ -38,7 +38,7 @@ class TestProtocolOutputs(unittest.TestCase):
         self.protocol = protocol        
         self.output = measure_absorbance.output_pin('measurements')
 
-    @unittest.expectedFailure
+    @unittest.skip('Not implemented yet')
     def test_protocol_outputs_not_designated(self):
         # TODO: catch output parameters that aren't explicitly designated
         # rather than breaking cryptically
