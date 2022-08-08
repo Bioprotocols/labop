@@ -48,7 +48,12 @@ class TestProtocolEndToEnd(unittest.TestCase):
         assert len(v) == 0, "".join(f'\n {e}' for e in v)
 
         temp_name = os.path.join(TMPDIR, 'igem_ludox_test.nt')
-        doc.write(temp_name, sbol3.SORTED_NTRIPLES)
+
+        # At some point, rdflib began inserting an extra newline into
+        # N-triple serializations, which breaks file comparison.
+        # Here we strip extraneous newlines, to maintain reverse compatibility
+        with open(temp_name, 'w') as f:
+            f.write(doc.write_string(sbol3.SORTED_NTRIPLES).strip())
         print(f'Wrote file as {temp_name}')
 
         comparison_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'testfiles', 'igem_ludox_test.nt')
