@@ -35,7 +35,7 @@ class ExecutionEngine(ABC):
 
     def __init__(self,
                  specializations: List[BehaviorSpecialization] = [DefaultBehaviorSpecialization()],
-                 use_ordinal_time = False):
+                 use_ordinal_time = False, failsafe=True):
         self.exec_counter = 0
         self.variable_counter = 0
         self.specializations = specializations
@@ -53,6 +53,8 @@ class ExecutionEngine(ABC):
         self.blocked_nodes = set({})
         self.tokens = []  # no tokens to start
         self.ex = None
+        self.is_asynchronous = True
+        self.failsafe = failsafe
 
     def next_id(self):
         next = self.exec_counter
@@ -111,7 +113,7 @@ class ExecutionEngine(ABC):
         # Initialize specializations
         for specialization in self.specializations:
             specialization.initialize_protocol(self.ex)
-            specialization.on_begin()
+            specialization.on_begin(self.ex)
 
     def finalize(
         self,

@@ -201,10 +201,6 @@ paml:SampleArray a owl:Class ;
             rdfs:comment "N-dimensional array of URI for specification or nulls" ;
             owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
             owl:onProperty paml:contents ],
-        [ a owl:Restriction ;
-            rdfs:comment "N-dimensional array of URI for specification or nulls" ;
-            owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
-            owl:onProperty paml:contents ],
         paml:SampleCollection .
 
 paml:SampleData a owl:Class ;
