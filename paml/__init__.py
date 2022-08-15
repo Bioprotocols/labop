@@ -23,6 +23,7 @@ from paml.data import *
 from paml.sample_maps import *
 from paml.primitive_execution import *
 
+
 #########################################
 # Kludge for getting parents and TopLevels - workaround for pySBOL3 issue #234
 # TODO: remove after resolution of https://github.com/SynBioDex/pySBOL3/issues/234
@@ -83,6 +84,9 @@ def protocol_primitive_step(self, primitive: Primitive, **input_pin_map):
     self.last_step = pe  # update the last step
     return pe
 Protocol.primitive_step = protocol_primitive_step  # Add to class via monkey patch
+
+#def protocol_add_sub_protocol(self, subprotocol: Protocol, **input_pin_map):
+#    self.
 
 ###############################################################################
 #
@@ -293,7 +297,7 @@ def primitive_str(self):
     :return: str
     """
     def mark_optional(parameter):
-        return "(Optional) " if parameter.lower_value.value < 1 else ""
+        return "" if not parameter.lower_value else "(Optional) "  if parameter.lower_value.value < 1 else ""
 
     input_parameter_strs = "\n\t".join([f"{parameter.property_value}{mark_optional(parameter.property_value)}"
                                         for parameter in self.parameters
@@ -318,22 +322,83 @@ def behavior_execution_parameter_value_map(self):
     :return:
     """
     parameter_value_map = {}
-
     for pv in self.parameter_values:
         name = pv.parameter.lookup().property_value.name
-        if isinstance(pv.value, uml.LiteralReference):
-            ref = pv.value.value.lookup()
-            value = ref.value if isinstance(ref, uml.LiteralSpecification) else ref
-            unit = ref.unit if isinstance(ref, uml.LiteralSpecification) and hasattr(ref, "unit") else None
-        else:
-            value = pv.value.value
-            unit = pv.value.unit if hasattr(pv.value, "unit") else None
+        # Dereference pointers to get the actual values
+        ref = pv.value
+        if isinstance(ref, uml.LiteralReference):
+            ref = ref.value.lookup()
+        if isinstance(ref, uml.LiteralReference):  # output token objects must be dereferenced twice, see compute_outputs and get_value
+            ref = ref.value.lookup()
+        if isinstance(ref, uml.LiteralIdentified):
+            ref = ref.value
 
-        parameter_value_map[name] = {"parameter" : pv.parameter.lookup(),
-                                     "value" : (value, unit) if unit else value}
+        # Done dereferencing, now get the actual parameter values
+        if isinstance(ref, uml.LiteralSpecification):
+            value = ref.value
+        elif isinstance(ref, sbol3.Identified):
+            value = ref
+        else:
+            raise TypeError(f'Invalid value for Parameter {name} of type {type(ref)}')
+
+        # TODO: Refactor the parameter_value_map to better support
+        # multi-valued parameters. However, refactoring will have
+        # downstream effects on BehaviorSpecializations
+
+        if name not in parameter_value_map:
+            parameter_value_map[name] = {"parameter" : pv.parameter.lookup(),
+                                         "value" : value}
+        else:
+            if isinstance(parameter_value_map[name]['value'], list):
+                parameter_value_map[name]['value'] += [value]
+            else:
+                parameter_value_map[name]['value'] = [parameter_value_map[name]['value'],
+                                                      value]
     return parameter_value_map
 BehaviorExecution.parameter_value_map = behavior_execution_parameter_value_map
 
+
+def protocol_execution_get_ordered_executions(self):
+    protocol = self.protocol.lookup() 
+    [start_node] = [n for n in protocol.nodes if type(n) is uml.InitialNode]
+    [execution_start_node] = [x for x in self.executions if x.node == start_node.identity]  #ActivityNodeExecution
+    ordered_execution_nodes = []
+    current_execution_node = execution_start_node
+    while current_execution_node:
+        try:
+            [current_execution_node] = [x for x in self.executions for f in x.incoming_flows if f.lookup().token_source == current_execution_node.identity]
+            ordered_execution_nodes.append(current_execution_node)
+        except ValueError:
+            current_execution_node = None
+    return ordered_execution_nodes
+ProtocolExecution.get_ordered_executions = protocol_execution_get_ordered_executions
+
+
+def protocol_execution_get_subprotocol_executions(self):
+    ordered_subprotocol_executions = []
+    ordered_execution_nodes = self.get_ordered_executions()
+    ordered_behavior_nodes = [x.node.lookup().behavior.lookup() for x in ordered_execution_nodes]
+    ordered_subprotocols = [x.identity for x in ordered_behavior_nodes if isinstance(x, Protocol)]
+    ordered_subprotocol_executions = [o for x in ordered_subprotocols for o in self.document.objects if type(o) is ProtocolExecution and o.protocol == x]
+    return ordered_subprotocol_executions
+ProtocolExecution.get_subprotocol_executions = protocol_execution_get_subprotocol_executions
+
+
+
+def sample_array_get_sample_names(self):
+    sample_dict = json.loads(self.contents)
+    return [self.document.find(s).name for s in sample_dict.keys()]
+SampleArray.get_sample_names = sample_array_get_sample_names
+
+
+def sample_array_get_sample(self, sample_name):
+    sample_dict = json.loads(self.contents)
+    samples = [self.document.find(s) for s in sample_dict.keys()]
+    for s in samples:
+        if s.name == sample_name:
+            return self.document.find(s)
+    raise LookupError(f'SampleArray does not contain contents named {sample_name}')
+SampleArray.get_sample = sample_array_get_sample
 
 #########################################
 # Library handling
@@ -392,3 +457,10 @@ def get_primitive(doc: sbol3.Document, name: str):
     if not isinstance(found, Primitive):
         raise ValueError(f'"{name}" should be a Primitive, but it resolves to a {type(found).__name__}')
     return found
+
+def __str__(self):
+    print(f'{self.type}: self.identity')
+
+for symbol in dir():
+    if isinstance(symbol, sbol3.Identified):
+        symbol.__str__ = __str__

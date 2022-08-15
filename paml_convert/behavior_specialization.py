@@ -32,20 +32,27 @@ class BehaviorSpecialization(ABC):
         pass
 
     @abstractmethod
-    def on_begin(self):
+    def on_begin(self, execution: paml.ProtocolExecution):
         pass
 
     @abstractmethod
-    def on_end(self):
+    def on_end(self, execution: paml.ProtocolExecution):
         pass
 
-    def process(self, record):
+    def process(self, record, execution: paml.ProtocolExecution):
         node = record.node.lookup()
         if not isinstance(node, uml.CallBehaviorAction):
             return # raise BehaviorSpecializationException(f"Cannot handle node type: {type(node)}")
+        
+        # Subprotocol specializations
+        behavior = node.behavior.lookup()
+        if isinstance(behavior, paml.Protocol):
+            return self._behavior_func_map[behavior.type_uri](record, execution)
+
+        # Individual Primitive specializations
         elif str(node.behavior) not in self._behavior_func_map:
             raise BehaviorSpecializationException(f"Failed to find handler for behavior: {node.behavior}")
-        return self._behavior_func_map[str(node.behavior)](record)
+        return self._behavior_func_map[str(node.behavior)](record, execution)
 
     def resolve_container_spec(self, spec, addl_conditions=None):
         try:
@@ -68,13 +75,14 @@ class DefaultBehaviorSpecialization(BehaviorSpecialization):
             "https://bioprotocols.org/paml/primitives/liquid_handling/Provision" : self.handle,
             "https://bioprotocols.org/paml/primitives/sample_arrays/PlateCoordinates" : self.handle,
             "https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureAbsorbance" : self.handle,
+            "http://bioprotocols.org/paml#Protocol": self.handle
         }
 
-    def handle(self, record):
+    def handle(self, record, ex):
         pass
 
-    def on_begin(self):
+    def on_begin(self, ex):
         pass
 
-    def on_end(self):
+    def on_end(self, ex):
         pass

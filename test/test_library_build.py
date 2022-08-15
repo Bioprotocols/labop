@@ -6,6 +6,14 @@ import sbol3
 import paml
 
 
+# Save testfiles as artifacts when running in CI environment,
+# else save them to a local temp directory
+if 'GH_TMPDIR' in os.environ:
+    TMPDIR = os.environ['GH_TMPDIR']
+else:
+    TMPDIR = tempfile.gettempdir()
+
+
 class TestLibraryBuilding(unittest.TestCase):
     def test_two_element_library(self):
         #############################################
@@ -43,8 +51,13 @@ class TestLibraryBuilding(unittest.TestCase):
         v = doc.validate()
         assert len(v) == 0, "".join(f'\n {e}' for e in v)
 
-        temp_name = os.path.join(tempfile.gettempdir(), 'mini_library.nt')
-        doc.write(temp_name, sbol3.SORTED_NTRIPLES)
+        temp_name = os.path.join(TMPDIR, 'mini_library.nt')
+
+        # At some point, rdflib began inserting an extra newline into
+        # N-triple serializations, which breaks file comparison.
+        # Here we strip extraneous newlines, to maintain reverse compatibility
+        with open(temp_name, 'w') as f:
+            f.write(doc.write_string(sbol3.SORTED_NTRIPLES).strip())
         print(f'Wrote file as {temp_name}')
 
         comparison_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'testfiles', 'mini_library.nt')

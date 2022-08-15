@@ -31,6 +31,9 @@ p = paml.Primitive('Transfer')
 p.description = 'Move a measured volume taken from a collection of source samples to a location whose shape can contain them in a destination locations'
 p.add_input('source', 'http://bioprotocols.org/paml#SampleCollection')
 p.add_input('destination', 'http://bioprotocols.org/paml#SampleCollection')
+p.add_input('coordinates', 'http://bioprotocols.org/uml#ValueSpecification', optional=True)
+p.add_input('replicates', 'http://bioprotocols.org/uml#ValueSpecification', optional=True)
+p.add_input('temperature', sbol3.OM_MEASURE, optional=True)
 p.add_input('amount', sbol3.OM_MEASURE) # Must be volume
 p.add_input('dispenseVelocity', sbol3.OM_MEASURE, True)
 doc.add(p)
@@ -52,6 +55,7 @@ p.add_input('amount', sbol3.OM_MEASURE) # Must be volume
 p.add_input('diluent', sbol3.SBOL_COMPONENT)
 p.add_input('replicates', 'http://bioprotocols.org/uml#ValueSpecification', optional=True) 
 p.add_input('dilution_factor', sbol3.OM_MEASURE)
+p.add_input('temperature', sbol3.OM_MEASURE, optional=True)
 doc.add(p)
 
 p = paml.Primitive('DiluteToTargetOD')
@@ -61,6 +65,7 @@ p.add_input('destination', 'http://bioprotocols.org/paml#SampleCollection')
 p.add_input('amount', sbol3.OM_MEASURE) # Must be volume
 p.add_input('diluent', sbol3.SBOL_COMPONENT) 
 p.add_input('target_od', sbol3.OM_MEASURE)
+p.add_input('temperature', sbol3.OM_MEASURE)
 doc.add(p)
 
 p = paml.Primitive('SerialDilution')
@@ -80,6 +85,7 @@ p.add_input('source', 'http://bioprotocols.org/paml#SampleCollection')
 p.add_input('destination', 'http://bioprotocols.org/paml#SampleCollection')
 p.add_input('plan', 'http://bioprotocols.org/paml#SampleData') # Must be a set of component/volume values
 p.add_input('amount', sbol3.OM_MEASURE) # Must be volume
+p.add_input('temperature', sbol3.OM_MEASURE)
 p.add_input('dispenseVelocity', sbol3.OM_MEASURE, True)
 doc.add(p)
 
@@ -89,6 +95,19 @@ p.add_input('samples', 'http://bioprotocols.org/paml#SampleCollection')
 p.add_input('amount', sbol3.OM_MEASURE) # Must be volume
 p.add_input('dispenseVelocity', sbol3.OM_MEASURE, True)
 p.add_input('cycleCount', sbol3.OM_MEASURE, True)
+doc.add(p)
+
+p = paml.Primitive('Vortex')
+p.description = 'Vortex a sample in order to homogeneously mix or suspend its contents'
+p.add_input('samples', 'http://bioprotocols.org/paml#SampleCollection')
+p.add_input('duration', sbol3.OM_MEASURE)  # Must be time
+p.add_output('mixed_samples', 'http://bioprotocols.org/paml#SampleCollection')
+doc.add(p)
+
+p = paml.Primitive('Discard')
+p.description = 'Discard part or all of a sample'
+p.add_input('samples', 'http://bioprotocols.org/paml#SampleCollection')
+p.add_input('amount', sbol3.OM_MEASURE)  # Must be volume
 doc.add(p)
 
 print('Library construction complete')

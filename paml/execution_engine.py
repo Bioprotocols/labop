@@ -3,18 +3,25 @@ from typing import List
 import uuid
 import datetime
 import logging
+import sys
+
 import pandas as pd
 import graphviz
-
-import paml
-from paml_convert.plate_coordinates import coordinate_rect_to_row_col_pairs, num2row
-import uml
 import sbol3
 
+import paml
+import uml
+from paml_convert.plate_coordinates import coordinate_rect_to_row_col_pairs, num2row
 from paml_convert.behavior_specialization import BehaviorSpecialization, DefaultBehaviorSpecialization
+
+
 
 l = logging.getLogger(__file__)
 l.setLevel(logging.ERROR)
+
+
+failsafe = True  # When set to True, a protocol execution will proceed through to the end, even if a CallBehaviorAction raises an exception.  Set to False for debugging
+
 
 class ExecutionEngine(ABC):
     """Base class for implementing and recording a PAML executions.
@@ -110,7 +117,7 @@ class ExecutionEngine(ABC):
         # Initialize specializations
         for specialization in self.specializations:
             specialization.initialize_protocol(ex)
-            specialization.on_begin()
+            specialization.on_begin(ex)
 
         self.init_time(start_time)
         ex.start_time = self.start_time # TODO: remove str wrapper after sbol_factory #22 fixed
@@ -125,6 +132,8 @@ class ExecutionEngine(ABC):
 
         ex.end_time = self.get_current_time()
 
+        # TODO: finish implementing
+        # TODO: ensure that only one token is allowed per edge
         # TODO: think about infinite loops and how to abort
 
         # A Protocol has completed normally if all of its required output parameters have values
@@ -137,7 +146,7 @@ class ExecutionEngine(ABC):
 
         # End specializations
         for specialization in self.specializations:
-            specialization.on_end()
+            specialization.on_end(ex)
 
         return ex
 
@@ -180,9 +189,13 @@ class ExecutionEngine(ABC):
          """
         tokens_present = {node.document.find(t.edge) for t in tokens if t.edge}==protocol.incoming_edges(node)
         if hasattr(node, "inputs"):
-            required_inputs = [node.input_pin(i.property_value.name)
-                               for i in node.behavior.lookup().get_required_inputs()]
+            required_inputs = [p for i in node.behavior.lookup().get_required_inputs() for p in node.input_pins(i.property_value.name)]
+                
             required_value_pins = {p for p in required_inputs if isinstance(p, uml.ValuePin)}
+            # Validate values, see #120
+            for pin in required_value_pins:
+                if pin.value is None:
+                    raise ValueError(f'{node.behavior.lookup().display_id} Action has no ValueSpecification for Pin {pin.name}')
             required_input_pins = {p for p in required_inputs if not isinstance(p, uml.ValuePin)}
             pins_with_tokens = {t.token_source.lookup().node.lookup() for t in tokens if not t.edge}
             parameter_names = {pv.parameter.lookup().property_value.name for pv in parameter_values}
@@ -227,13 +240,10 @@ class ExecutionEngine(ABC):
         # Dispatch execution based on node type, collecting any object flows produced
         # The dispatch methods are the ones that can (or must be) overridden for a particular execution environment
         if isinstance(node, uml.InitialNode):
-            if len(inputs) != 0:
-                raise ValueError(f'Initial node must have zero inputs, but {node.identity} had {len(inputs)}')
             record = paml.ActivityNodeExecution(node=node, incoming_flows=inputs)
             ex.executions.append(record)
             new_tokens = self.next_tokens(record, ex)
             # put a control token on all outgoing edges
-
         elif isinstance(node, uml.FlowFinalNode):
             record = paml.ActivityNodeExecution(node=node, incoming_flows=inputs)
             ex.executions.append(record)
@@ -268,8 +278,20 @@ class ExecutionEngine(ABC):
             input_pin_values = {token.token_source.lookup().node.lookup().identity:
                                      uml.literal(token.value, reference=True)
                                 for token in inputs if not token.edge}
+
             # Get Input value pins
-            value_pin_values = {pin.identity: pin.value for pin in node.inputs if hasattr(pin, "value")}
+            value_pin_values = {}
+            
+            # Validate Pin values, see #130
+            # Although enabled_activity_node method also validates Pin values,
+            # it only checks required Pins.  This check is necessary to check optional Pins.
+            for pin in node.inputs:
+                if hasattr(pin, "value"):
+                    if pin.value is None:
+                        raise ValueError(f'{node.behavior.lookup().display_id} Action has no ValueSpecification for Pin {pin.name}')
+                    value_pin_values[pin.identity] = pin.value
+            value_pin_values = {pin.identity: pin.value for pin in node.inputs if hasattr(pin, "value") and pin.value}
+
             # Convert References
             value_pin_values = {k: (uml.LiteralReference(value=ex.document.find(v.value))
                                     if isinstance(v.value, sbol3.refobj_property.ReferencedURI) or
@@ -277,11 +299,12 @@ class ExecutionEngine(ABC):
                                     else  uml.LiteralReference(value=v))
                                 for k, v in value_pin_values.items()}
             pin_values = { **input_pin_values, **value_pin_values} # merge the dicts
-
             parameter_values = [paml.ParameterValue(parameter=node.pin_parameter(pin.name),
                                                     value=pin_values[pin.identity])
                                 for pin in node.inputs if pin.identity in pin_values]
             parameter_values.sort(key=lambda x: ex.document.find(x.parameter).index)
+
+
             call = paml.BehaviorExecution(f"execute_{self.next_id()}",
                                           parameter_values=parameter_values,
                                           completed_normally=True,
@@ -295,6 +318,7 @@ class ExecutionEngine(ABC):
             new_tokens = self.next_tokens(record, ex)
 
             ## Add the output values to the call parameter-values
+            ### TODO: debug what happens when the same token name occurs more than once
             for token in new_tokens:
                 edge = token.edge.lookup()
                 if isinstance(edge, uml.ObjectFlow):
@@ -303,7 +327,8 @@ class ExecutionEngine(ABC):
                     parameter_value = uml.literal(token.value, reference=True)
                     pv = paml.ParameterValue(parameter=parameter, value=parameter_value)
                     call.parameter_values += [pv]
-
+            pin_names = [pv.parameter.lookup().property_value.name for pv in call.parameter_values]
+            
         elif isinstance(node, uml.Pin):
             record = paml.ActivityNodeExecution(node=node, incoming_flows=inputs)
             ex.executions.append(record)
@@ -320,10 +345,23 @@ class ExecutionEngine(ABC):
 
         if record:
             for specialization in self.specializations:
+               
+                # Execute node
+                if isinstance(node, uml.CallBehaviorAction):
+
+                    # Execute subprotocol
+                    if isinstance(node.behavior.lookup(), paml.Protocol):
+                        self.execute(node.behavior.lookup(),
+                                     ex.association[0].agent.lookup(),
+                                     id=f'{ex.display_id}{uuid.uuid4()}'.replace('-', '_'),
+                                     parameter_values=[])
                 try:
-                    specialization.process(record)
+                    specialization.process(record, ex)
                 except Exception as e:
-                    l.error("Could Not Process {record}: {e}")
+                    l.error(f"Could Not Process {record.name if record.name else record.identity}: {e}")
+                    if not failsafe:
+                        l.error('Aborting...')
+                        sys.exit(1)
 
         # Send outgoing control flows
         # Check that outgoing flows don't conflict with
@@ -372,7 +410,6 @@ class ExecutionEngine(ABC):
         elif isinstance(edge, uml.ObjectFlow):
             parameter = activity_node.node.lookup().pin_parameter(edge.source.lookup().name).property_value
             value = activity_node.compute_output(parameter)
-
         value = uml.literal(value)
         return value
 
@@ -514,3 +551,5 @@ def protocol_execution_to_dot(self):
 
     return dot
 paml.ProtocolExecution.to_dot = protocol_execution_to_dot
+
+

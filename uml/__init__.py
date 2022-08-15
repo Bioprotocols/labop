@@ -68,8 +68,9 @@ def literal(value, reference: bool = False) -> LiteralSpecification:
 ###########################################
 # Define extension methods for Behavior
 
-def behavior_add_parameter(self, name: str, param_type: str, direction: str, optional: bool = False,
-                           default_value: ValueSpecification = None) -> OrderedPropertyValue:
+def behavior_add_parameter(self, name: str, param_type: str, direction: str, optional: bool=False,
+                           unbounded: bool=False,
+                           default_value: ValueSpecification=None) -> OrderedPropertyValue:
     """Add a Parameter for this Behavior; usually not called directly
 
     Note: Current assumption is that cardinality is either [0..1] or 1
@@ -83,7 +84,11 @@ def behavior_add_parameter(self, name: str, param_type: str, direction: str, opt
     param = Parameter(name=name, type=param_type, direction=direction, is_ordered=True, is_unique=True)
     ordered_param = OrderedPropertyValue(index=len(self.parameters), property_value=param)
     self.parameters.append(ordered_param)
-    param.upper_value = literal(1)  # all parameters are assumed to have cardinality [0..1] or 1 for now
+
+    # Leave upper value property unspecified if the Parameter supports
+    # an unbounded number of ParameterValues
+    if not unbounded:
+        param.upper_value = literal(1)
     if optional:
         param.lower_value = literal(0)
     else:
@@ -94,7 +99,8 @@ def behavior_add_parameter(self, name: str, param_type: str, direction: str, opt
 Behavior.add_parameter = behavior_add_parameter  # Add to class via monkey patch
 
 
-def behavior_add_input(self, name: str, param_type: str, optional: bool = False,
+def behavior_add_input(self, name: str, param_type: str, optional: bool=False,
+                       unbounded=False,
                        default_value: ValueSpecification = None) -> OrderedPropertyValue:
     """Add an input Parameter for this Behavior
 
@@ -106,7 +112,7 @@ def behavior_add_input(self, name: str, param_type: str, optional: bool = False,
     :param default_value: default value for this parameter
     :return: Parameter that has been added
     """
-    return self.add_parameter(name, param_type, PARAMETER_IN, optional, default_value)
+    return self.add_parameter(name, param_type, PARAMETER_IN, optional, unbounded, default_value)
 Behavior.add_input = behavior_add_input  # Add to class via monkey patch
 
 
@@ -141,7 +147,6 @@ def behavior_get_input(self, name) -> Parameter:
     -------
     Parameter, or Value error
     """
-    print(p for p in self.get_inputs())
     found = [p for p in self.get_inputs() if p.property_value.name == name]
     if len(found) == 0:
         raise ValueError(f'Behavior {self.identity} has no input parameter named {name}')
@@ -160,7 +165,9 @@ def behavior_get_required_inputs(self):
     -------
     Iterator over Parameters
     """
-    return (p for p in self.get_inputs() if p.property_value.lower_value.value > 0)
+    #return (p for p in self.get_inputs() if p.property_value.lower_value.value > 0)
+    return (p for p in self.get_inputs() if p.property_value.lower_value is not None and
+                                            p.property_value.lower_value.value > 0)
 Behavior.get_required_inputs = behavior_get_required_inputs  # Add to class via monkey patch
 
 
@@ -240,11 +247,24 @@ def call_behavior_action_input_pin(self, pin_name: str):
     """
     pin_set = {x for x in self.inputs if x.name == pin_name}
     if len(pin_set) == 0:
-        raise ValueError(f'Could not find input pin named {pin_name}')
+        raise ValueError(f'Could not find input pin named {pin_name} for Primitive {self.behavior.lookup().display_id}')
     if len(pin_set) > 1:
-        raise ValueError(f'Found more than one input pin named {pin_name}')
+        raise ValueError(f'Found more than one input pin named {pin_name} for Primitive {self.behavior.lookup().display_id}')
     return pin_set.pop()
 CallBehaviorAction.input_pin = call_behavior_action_input_pin  # Add to class via monkey patch
+
+def call_behavior_action_input_pins(self, pin_name: str):
+    """Find an input pin on the action with the specified name
+
+    :param pin_name:
+    :return: Pin with specified name
+    """
+    pin_set = {x for x in self.inputs if x.name == pin_name}
+    if len(pin_set) == 0:
+        raise ValueError(f'Could not find input pin named {pin_name} for Primitive {self.behavior.lookup().display_id}')
+    return pin_set
+CallBehaviorAction.input_pins = call_behavior_action_input_pins  # Add to class via monkey patch
+
 
 
 def call_behavior_action_output_pin(self, pin_name: str):
@@ -268,15 +288,19 @@ def call_behavior_action_pin_parameter(self, pin_name: str):
     :return: Parameter with specified name
     """
     try:
-        pin = self.input_pin(pin_name)
+        pins = self.input_pins(pin_name)
     except:
         try:
             pin = self.output_pin(pin_name)
         except:
             raise ValueError(f'Could not find pin named {pin_name}')
     behavior = self.behavior.lookup()
-    [parameter] = [p for p in behavior.parameters if p.property_value.name == pin_name]
-    return parameter
+    parameters = [p for p in behavior.parameters if p.property_value.name == pin_name]
+    if len(parameters) == 0:
+        raise ValueError(f'Invalid parameter {pin_name} provided for Primitive {behavior.display_id}')
+    elif len(parameters) > 1:
+        raise ValueError(f'Primitive {behavior.display_id} has multiple Parameters with the same name')
+    return parameters[0]
 CallBehaviorAction.pin_parameter = call_behavior_action_pin_parameter  # Add to class via monkey patch
 
 def add_call_behavior_action(parent: Activity, behavior: Behavior, **input_pin_literals):
@@ -299,10 +323,22 @@ def add_call_behavior_action(parent: Activity, behavior: Behavior, **input_pin_l
     # Instantiate input pins
     for i in id_sort(behavior.get_inputs()):
         if i.property_value.name in input_pin_literals:
-            value = input_pin_literals[i.property_value.name]
+
+            # input values might be a collection or singleton
+            values = input_pin_literals[i.property_value.name]
             # TODO: type check relationship between value and parameter type specification
-            action.inputs.append(ValuePin(name=i.property_value.name, is_ordered=i.property_value.is_ordered,
-                                          is_unique=i.property_value.is_unique, value=literal(value)))
+
+            # If the value is a singleton, then wrap it in an iterable
+            if not isinstance(values, Iterable) or isinstance(values, str):
+                values = [values]
+
+            # Now create pins for all the input values
+            for value in values:
+                if isinstance(value, sbol3.TopLevel) and not value.document:
+                    raise ValueError(f'Input object {value.identity} must be added to the Document before it can be used')
+                action.inputs.append(ValuePin(name=i.property_value.name, is_ordered=i.property_value.is_ordered,
+                                              is_unique=i.property_value.is_unique, value=literal(value)))
+
         else:  # if not a constant, then just a generic InputPin
             action.inputs.append(InputPin(name=i.property_value.name, is_ordered=i.property_value.is_ordered,
                                           is_unique=i.property_value.is_unique))
@@ -311,7 +347,6 @@ def add_call_behavior_action(parent: Activity, behavior: Behavior, **input_pin_l
     for o in id_sort(behavior.get_outputs()):
         action.outputs.append(OutputPin(name=o.property_value.name, is_ordered=o.property_value.is_ordered,
                                         is_unique=o.property_value.is_unique))
-
     return action
 
 
@@ -486,7 +521,9 @@ def activity_call_behavior(self, behavior: Behavior, **input_pin_map):
     cba = add_call_behavior_action(self, behavior, **non_activity_inputs)
     # add flows for activities being connected implicitly
     for name, source in id_sort(activity_inputs.items()):
-        self.use_value(source, cba.input_pin(name))
+        for pin in cba.input_pins(name):
+            #self.use_value(source, cba.input_pin(name))
+            self.use_value(source, pin)
     return cba
 Activity.call_behavior = activity_call_behavior  # Add to class via monkey patch
 
@@ -526,6 +563,8 @@ def activity_use_value(self, source: ActivityNode, target: ActivityNode) -> Obje
     return flow
 Activity.use_value = activity_use_value  # Add to class via monkey patch
 
+def activity_use_values(self, source: ActivityNode, targets: List[ActivityNode]) -> List[ObjectFlow]:
+    return [activity_use_value(source, target) for target in targets]
 
 def activity_validate(self, report: sbol3.ValidationReport = None) -> sbol3.ValidationReport:
     '''Checks to see if the activity has any undesirable non-deterministic edges

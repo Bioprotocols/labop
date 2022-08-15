@@ -22,7 +22,13 @@ doc.add(p)
 p = paml.Primitive('Seal')
 p.description = 'Seal a collection of samples fixing the seal using a user-selected method, in order to guarantee isolation from the external environment'
 p.add_input('location', 'http://bioprotocols.org/paml#SampleArray')
-p.add_input('type', 'http://www.w3.org/2001/XMLSchema#anyURI') # e.g., breathable vs. non-breathable
+p.add_input('specification', 'http://bioprotocols.org/paml#ContainerSpec') # e.g., breathable vs. non-breathable
+doc.add(p)
+
+p = paml.Primitive('EvaporativeSeal')
+p.description = 'Seal a collection of samples using a user-selected method in order to prevent evaporation'
+p.add_input('location', 'http://bioprotocols.org/paml#SampleArray')
+p.add_input('specification', 'http://bioprotocols.org/paml#ContainerSpec') # e.g., breathable vs. non-breathable
 doc.add(p)
 
 p = paml.Primitive('AdhesiveSeal')
@@ -57,11 +63,27 @@ p.add_input('temperature', sbol3.OM_MEASURE) # temperature
 p.add_input('shakingFrequency', sbol3.OM_MEASURE, True) # Hertz or RPM?; in either case, defaults to zero
 doc.add(p)
 
+p = paml.Primitive('Hold')
+p.description = 'Incubate, store, or hold a set of samples indefinitely at the specified temperature'
+p.add_input('location', 'http://bioprotocols.org/paml#SampleArray', unbounded=True)
+p.add_input('temperature', sbol3.OM_MEASURE) # temperature
+doc.add(p)
+
+p = paml.Primitive('HoldOnIce')
+p.description = 'Incubate, store, or hold a set of samples indefinitely on ice'
+p.add_input('location', 'http://bioprotocols.org/paml#SampleArray', unbounded=True)
+doc.add(p)
+
 p = paml.Primitive('Spin')
 p.description = 'Centrifuge a set of samples at a given acceleration for a given period of time'
 p.add_input('location', 'http://bioprotocols.org/paml#SampleArray')
 p.add_input('duration', sbol3.OM_MEASURE) # time
 p.add_input('acceleration', sbol3.OM_MEASURE) # acceleration
+doc.add(p)
+
+p = paml.Primitive('QuickSpin')
+p.description = 'Perform a brief centrifugation on a set of samples to pull down stray droplets or condensate into the bottom of the container'
+p.add_input('location', 'http://bioprotocols.org/paml#SampleArray')
 doc.add(p)
 
 print('Library construction complete')
