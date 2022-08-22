@@ -393,7 +393,6 @@ class ExecutionEngine(ABC):
         # Save tokens in the protocol execution
         ex.flows += edge_tokens
 
-        # Assume that unlinked output pins are possible output parameters for the protocol
         if isinstance(activity_node, paml.CallBehaviorExecution):
             output_pins = activity_node.node.lookup().outputs
             unlinked_output_pins = [p for p in output_pins if p not in {e.source.lookup() for e in out_edges}]
@@ -401,6 +400,17 @@ class ExecutionEngine(ABC):
                                                                     value=self.get_value(activity_node))
                                                 for p in unlinked_output_pins]
             ex.parameter_values.extend(possible_output_parameter_values)
+
+            # Throw an error if there is an unused output pin, otherwise we get
+            # cryptic failures downstream
+            if len(unlinked_output_pins):
+                primitive = activity_node.node.lookup().behavior.split('/')[-1]
+                raise ValueError(f'Aborting "{primitive}" execution. Output pin ' \
+                                 f'"{unlinked_output_pins[0].name}" is not used')
+
+            # TODO: Instead of throwing an exception, assume that unlinked output pins are possible
+            # output parameters for the protocol and automatically designate them as protocol outputs
+
         return edge_tokens
 
     def get_value(self, activity_node : paml.CallBehaviorExecution, edge: uml.ActivityEdge = None):
