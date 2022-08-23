@@ -27,9 +27,9 @@ class TestProtocolInputs(unittest.TestCase):
         # Create the input, but don't add it to the Document yet
         input = sbol3.Component('input', sbol3.SBO_DNA)
 
-        container = protocol.primitive_step('EmptyContainer', 
+        container = protocol.primitive_step('EmptyContainer',
                                        specification=paml.ContainerSpec(name=f'empty container',
-                                       queryString='cont:Plate96Well', 
+                                       queryString='cont:Plate96Well',
                                        prefixMap={'cont': 'https://sift.net/container-ontology/container-ontology#'}))
 
         # Trying to use the input should throw an exception
@@ -78,8 +78,8 @@ class TestProtocolInputs(unittest.TestCase):
         ee.specializations[0]._behavior_func_map[p.identity] = lambda record: None
         ex = ee.execute(protocol, sbol3.Agent('test_agent'), id="test_execution1", parameter_values=[ ])
 
-        # Check that execution has correct inputs 
-        [container_execution] = [x for x in ex.executions if x.node == container_set.identity] 
+        # Check that execution has correct inputs
+        [container_execution] = [x for x in ex.executions if x.node == container_set.identity]
         call = container_execution.call.lookup()
         self.assertEqual(len(call.parameter_value_map()['inputs']['value']), 2)
 

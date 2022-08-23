@@ -165,7 +165,7 @@ class MarkdownSpecialization(BehaviorSpecialization):
 
     def _parameter_value_markdown(self, pv : paml.ParameterValue, is_output=False):
         parameter = pv.parameter.lookup().property_value
-        value = pv.value.value.lookup().name if isinstance(pv.value, uml.LiteralReference) else pv.value.value
+        value = pv.value.get_value().name if isinstance(pv.value, uml.LiteralReference) else pv.value.get_value()
         #value = pv.value.value.lookup() if isinstance(pv.value, uml.LiteralReference) else pv.value.value
         units = tyto.OM.get_term_by_uri(value.unit) if isinstance(value, sbol3.om_unit.Measure) else None
         value = str(f"{value.value} {units}")  if units else str(value)
@@ -227,7 +227,7 @@ class MarkdownSpecialization(BehaviorSpecialization):
         output_parameters = []
         for i in execution.parameter_values:
             parameter = i.parameter.lookup()
-            value = i.value.value.lookup().name if isinstance(i.value, uml.LiteralReference) else i.value.value
+            value = i.value.get_value().name if isinstance(i.value, uml.LiteralReference) else i.value.get_value()
             if parameter.property_value.direction == uml.PARAMETER_OUT:
                 #output_parameters.append(f"`{parameter.property_value.name}` from `{value}`")
                 output_parameters.append(f'`{value}`')

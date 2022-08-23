@@ -164,7 +164,7 @@ def activity_parameter_node_enabled(
     tokens: List[paml.ActivityEdgeFlow],
     permissive: bool
 ):
-    return len(tokens) == 1 and tokens[0].get_target() == self
+    return len(tokens) <= 2 and all([t.get_target() == self for t in tokens])
 uml.ActivityParameterNode.enabled = activity_parameter_node_enabled
 
 def initial_node_enabled(
@@ -378,6 +378,8 @@ def activity_node_execution_next_tokens(
     else:
         pass
 
+    self.check_next_tokens(edge_tokens, node_outputs=node_outputs)
+
     # # Assume that unlinked output pins are possible output parameters for the protocol
     # if isinstance(self, paml.CallBehaviorExecution):
     #     output_pins = self.node.lookup().outputs
@@ -388,6 +390,75 @@ def activity_node_execution_next_tokens(
     #     engine.ex.parameter_values.extend(possible_output_parameter_values)
     return edge_tokens
 paml.ActivityNodeExecution.next_tokens = activity_node_execution_next_tokens
+
+def activity_node_execution_check_next_tokens(
+    self: paml.ActivityNodeExecution,
+    tokens: List[paml.ActivityEdgeFlow],
+    node_outputs: Callable = None
+):
+    pass
+paml.ActivityNodeExecution.check_next_tokens = activity_node_execution_check_next_tokens
+
+def call_behavior_execution_check_next_tokens(
+    self: paml.CallBehaviorExecution,
+    tokens: List[paml.ActivityEdgeFlow],
+    node_outputs: Callable = None
+):
+
+    # ## Add the output values to the call parameter-values
+    linked_parameters = []
+    for token in tokens:
+        edge = token.edge.lookup()
+        if isinstance(edge, uml.ObjectFlow):
+            source = edge.source.lookup()
+            parameter = self.node.lookup().pin_parameter(source.name)
+            linked_parameters.append(parameter)
+            parameter_value = uml.literal(token.value.get_value(), reference=True)
+            pv = paml.ParameterValue(parameter=parameter, value=parameter_value)
+            self.call.lookup().parameter_values += [pv]
+
+    # Assume that unlinked output pins to the parameter values of the call
+    unlinked_output_parameters = [
+        p for p in self.node.lookup().behavior.lookup().parameters
+        if p.property_value.direction == uml.PARAMETER_OUT and
+           p.property_value.name not in {lp.property_value.name for lp in linked_parameters}
+    ]
+    possible_output_parameter_values = [paml.ParameterValue(parameter=p,
+                                                                value=self.get_parameter_value(p, node_outputs=node_outputs))
+                                            for p in unlinked_output_parameters]
+    self.call.lookup().parameter_values.extend(possible_output_parameter_values)
+
+
+    ### Check that the same parameter names are sane:
+    # 1. unbounded parameters can appear 0+ times
+    # 2. unique parameters must not have duplicate values (unbounded, unique means no pair of values is the same)
+    # 3. required parameters are present
+
+    pin_sets = {}
+    for pv in self.call.lookup().parameter_values:
+        name = pv.parameter.lookup().property_value.name
+        value = pv.value.get_value() if pv.value else None
+        if name not in pin_sets:
+            pin_sets[name] = []
+        pin_sets[name].append(value)
+
+    for p in self.node.lookup().behavior.lookup().parameters:
+        param = p.property_value
+
+        if param.lower_value and param.lower_value.value > 0 and param.name not in pin_sets:
+            raise ValueError(f"Parameter '{param.name}' is required, but does not appear as a pin")
+
+        elif param.name in pin_sets:
+            count = len(pin_sets[param.name])
+            unique_count = len(set(pin_sets[param.name]))
+            if param.is_unique:
+                if count != unique_count:
+                    raise ValueError(f"{param.name} has {count} values, but only {unique_count} are unique")
+            if (param.lower_value and param.lower_value.value > count) or \
+            (param.upper_value and param.upper_value.value < count):
+                raise ValueError(f"{param.name} has {count} values, but expecting [{param.lower_bound}, {param.upper_bound}] values")
+
+paml.CallBehaviorExecution.check_next_tokens = call_behavior_execution_check_next_tokens
 
 def activity_node_next_tokens_callback(
     self: uml.ActivityNode,
@@ -405,6 +476,21 @@ def activity_node_next_tokens_callback(
         for edge in out_edges]
     return edge_tokens
 uml.ActivityNode.next_tokens_callback = activity_node_next_tokens_callback
+
+
+def activity_node_execution_get_parameter_value(
+    self : paml.ActivityNodeExecution,
+    parameter: uml.Parameter = None,
+    node_outputs: Callable = None
+):
+    if node_outputs:
+        value = node_outputs(self, parameter)
+    elif hasattr(self.node.lookup().behavior.lookup(), "compute_output"):
+        value = self.compute_output(parameter)
+    else:
+        value = f"{parameter.name}"
+    return value
+paml.ActivityNodeExecution.get_parameter_value = activity_node_execution_get_parameter_value
 
 def activity_node_execution_get_value(
     self : paml.ActivityNodeExecution,
@@ -430,12 +516,7 @@ def activity_node_execution_get_value(
             reference = True
         else:
             parameter = node.pin_parameter(edge.source.lookup().name).property_value
-            if node_outputs:
-                value = node_outputs(self, parameter)
-            elif hasattr(self.node.lookup().behavior.lookup(), "compute_output"):
-                value = self.compute_output(parameter)
-            else:
-                value = f"{parameter.name}"
+            value = self.get_parameter_value(parameter, node_outputs=node_outputs)
 
     value = uml.literal(value, reference=reference)
     return value
@@ -512,6 +593,50 @@ def final_node_execute_callback(
     return record
 uml.FinalNode.execute_callback = final_node_execute_callback
 
+def call_behavior_execution_complete_subprotocol(
+    self: paml.CallBehaviorExecution,
+    engine: ExecutionEngine,
+):
+    # Map of subprotocol output parameter name to token
+    subprotocol_output_tokens = {
+        t.token_source.lookup().node.lookup().parameter.lookup().property_value.name: t
+        for t in engine.tokens
+        if isinstance(t.token_source.lookup().node.lookup(), uml.ActivityParameterNode) and
+            self == t.token_source.lookup().get_calling_behavior_execution()}
+
+
+
+    # Out edges of calling behavior that need tokens corresponding to the
+    # subprotocol output tokens
+    calling_behavior_node = self.node.lookup()
+
+    calling_behavior_out_edges = [
+        e for e in calling_behavior_node.protocol().edges
+        if calling_behavior_node == e.source.lookup() or
+           calling_behavior_node == e.source.lookup().get_parent()
+    ]
+
+    new_tokens = [
+        paml.ActivityEdgeFlow(
+            token_source=(
+                subprotocol_output_tokens[e.source.lookup().name].token_source.lookup()
+                if isinstance(e, uml.ObjectFlow)
+                else self),
+            edge=e,
+            value=(
+                uml.literal(subprotocol_output_tokens[e.source.lookup().name].value, reference=True)
+                if isinstance(e, uml.ObjectFlow)
+                else uml.literal("uml.ControlFlow")))
+        for e in calling_behavior_out_edges
+    ]
+
+    # Remove output_tokens from tokens (consumed by return from subprotocol)
+    engine.tokens = [t for t in engine.tokens if t not in subprotocol_output_tokens.values()]
+    engine.blocked_nodes.remove(self)
+
+    return new_tokens
+paml.CallBehaviorExecution.complete_subprotocol = call_behavior_execution_complete_subprotocol
+
 def final_node_next_tokens_callback(
     self: uml.FinalNode,
     source: paml.ActivityNodeExecution,
@@ -521,42 +646,7 @@ def final_node_next_tokens_callback(
 ) -> List[paml.ActivityEdgeFlow]:
     calling_behavior_execution = source.get_calling_behavior_execution()
     if calling_behavior_execution:
-        # and \
-        # calling_behavior_execution in self.blocked_nodes:
-
-
-        # Map of subprotocol output parameter name to token
-        subprotocol_output_tokens = {
-            t.token_source.lookup().node.lookup().parameter.lookup().property_value.name: t
-            for t in engine.tokens
-            if isinstance(t.token_source.lookup().node.lookup(), uml.ActivityParameterNode) and
-               calling_behavior_execution == t.token_source.lookup().get_calling_behavior_execution()}
-
-        # Out edges of calling behavior that need tokens corresponding to the
-        # subprotocol output tokens
-        calling_behavior_node = calling_behavior_execution.node.lookup()
-        calling_behavior_out_edges = [
-            e for e in calling_behavior_node.protocol().edges
-                if calling_behavior_node == e.source.lookup() or
-                    calling_behavior_node == e.source.lookup().get_parent()]
-
-        new_tokens = [
-            paml.ActivityEdgeFlow(
-                token_source=(
-                    subprotocol_output_tokens[e.source.lookup().name].token_source.lookup()
-                    if isinstance(e, uml.ObjectFlow)
-                    else calling_behavior_execution),
-                edge=e,
-                value=(
-                    uml.literal(subprotocol_output_tokens[e.source.lookup().name].value, reference=True)
-                    if isinstance(e, uml.ObjectFlow)
-                    else uml.literal("uml.ControlFlow")))
-            for e in calling_behavior_out_edges
-        ]
-        # engine.ex.flows += new_tokens
-        # Remove output_tokens from tokens (consumed by return from subprotocol)
-        engine.tokens = [t for t in engine.tokens if t not in subprotocol_output_tokens.values()]
-        engine.blocked_nodes.remove(calling_behavior_execution)
+        new_tokens = calling_behavior_execution.complete_subprotocol(engine)
         return new_tokens
     else:
         return []
@@ -732,7 +822,7 @@ def activity_parameter_node_execute_callback(
 ) -> paml.ActivityNodeExecution:
     record = paml.ActivityNodeExecution(node=self, incoming_flows=inputs)
     if self.parameter.lookup().property_value.direction == uml.PARAMETER_OUT:
-        [value] = [i.value.value for i in inputs if isinstance(i.edge.lookup(), uml.ObjectFlow)]
+        [value] = [i.value.get_value() for i in inputs if isinstance(i.edge.lookup(), uml.ObjectFlow)]
         value = uml.literal(value, reference=True)
         engine.ex.parameter_values += [paml.ParameterValue(parameter=self.parameter.lookup(), value=value)]
     return record
@@ -785,7 +875,7 @@ def call_behavior_action_execute_callback(
     record = paml.CallBehaviorExecution(node=self, incoming_flows=inputs)
 
     # Get the parameter values from input tokens for input pins
-    input_pin_values = {token.token_source.lookup().node.lookup():
+    input_pin_values = {token.token_source.lookup().node.lookup().identity:
                                 uml.literal(token.value, reference=True)
                         for token in inputs if not token.edge}
     # Get Input value pins
@@ -799,19 +889,18 @@ def call_behavior_action_execute_callback(
             if pin.value is None:
                 raise ValueError(f'{self.behavior.lookup().display_id} Action has no ValueSpecification for Pin {pin.name}')
             value_pin_values[pin.identity] = pin.value
-    value_pin_values = {pin.identity: pin.value for pin in self.inputs if hasattr(pin, "value") and pin.value}
+        # Check that pin corresponds to an input parameter.  Will cause Exception if does not exist.
+        parameter = self.pin_parameter(pin.name)
+
 
     # Convert References
-    value_pin_values = {k: (uml.LiteralReference(value=engine.ex.document.find(v.value))
-                            if isinstance(v.value, sbol3.refobj_property.ReferencedURI) or
-                                isinstance(v, uml.LiteralReference)
-                            else  uml.LiteralReference(value=v))
+    value_pin_values = {k: uml.literal(value=v.get_value(), reference=True)
                         for k, v in value_pin_values.items()}
     pin_values = { **input_pin_values, **value_pin_values} # merge the dicts
 
     parameter_values = [paml.ParameterValue(parameter=self.pin_parameter(pin.name),
-                                            value=pin_values[pin])
-                        for pin in self.inputs if pin in pin_values]
+                                            value=pin_values[pin.identity])
+                        for pin in self.inputs if pin.identity in pin_values]
     parameter_values.sort(key=lambda x: engine.ex.document.find(x.parameter).index)
     call = paml.BehaviorExecution(f"execute_{engine.next_id()}",
                                     parameter_values=parameter_values,
@@ -880,6 +969,11 @@ def call_behavior_action_next_tokens_callback(
                                     **get_invocation_edge(source, init_node))
                         for init_node in init_nodes ]
             # engine.ex.flows += new_tokens
+
+            if len(new_tokens) == 0:
+                # Subprotocol does not have a body, so need to complete the CallBehaviorAction here, otherwise would have seen a FinalNode.
+                new_tokens = source.complete_subprotocol(engine)
+
         else: # is synchronous execution
             # Execute subprotocol
             self.execute(self.behavior.lookup(),
@@ -888,6 +982,7 @@ def call_behavior_action_next_tokens_callback(
                             parameter_values=[])
     else:
         new_tokens = uml.ActivityNode.next_tokens_callback(self, source, engine, out_edges, node_outputs=node_outputs)
+
     return new_tokens
 uml.CallBehaviorAction.next_tokens_callback = call_behavior_action_next_tokens_callback
 

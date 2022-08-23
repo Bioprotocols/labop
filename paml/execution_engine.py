@@ -17,7 +17,7 @@ import sbol3
 from IPython.display import display, HTML
 
 from paml_convert.behavior_specialization import BehaviorSpecialization, DefaultBehaviorSpecialization
-
+from paml.primitive_execution import initialize_primitive_compute_output
 
 
 l = logging.getLogger(__file__)
@@ -55,6 +55,7 @@ class ExecutionEngine(ABC):
         self.ex = None
         self.is_asynchronous = True
         self.failsafe = failsafe
+
 
     def next_id(self):
         next = self.exec_counter
@@ -103,6 +104,9 @@ class ExecutionEngine(ABC):
         # Record in the document containing the protocol
         doc = protocol.document
 
+        # Define the compute_output function for known primitives
+        initialize_primitive_compute_output(doc)
+
         # First, set up the record for the protocol and parameter values
         self.ex = paml.ProtocolExecution(id, protocol=protocol)
         doc.add(self.ex)
@@ -130,7 +134,7 @@ class ExecutionEngine(ABC):
 
         # End specializations
         for specialization in self.specializations:
-            specialization.on_end(ex)
+            specialization.on_end(self.ex)
 
     def execute(self,
                 protocol: paml.Protocol,

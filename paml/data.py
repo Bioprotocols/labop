@@ -33,15 +33,12 @@ def protocol_execution_get_data(self):
     """
     Gather paml.SampleData outputs from all CallBehaviorExecutions into a dataset
     """
-    def output_value(o):
-        return o.value.value.lookup() if isinstance(o.value, uml.LiteralReference) else o.value.value
-
     calls = [e for e in self.executions if isinstance(e, paml.CallBehaviorExecution)]
     datasets = [
-                    output_value(o).to_dataset()
+                    o.value.get_value().to_dataset()
                         for e in calls
                         for o in e.get_outputs()
-                        if isinstance(output_value(o), paml.SampleData)
+                        if isinstance(o.value.get_value(), paml.SampleData)
                 ]
     data = xr.merge(datasets)
 

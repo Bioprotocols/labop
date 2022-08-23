@@ -89,8 +89,8 @@ def input_parameter_map(inputs: List[paml.ParameterValue]):
     map = {}
     for input in inputs:
         i_parameter = input.parameter.lookup().property_value
-        value = input.value
-        map[i_parameter.name] = value.get_value()
+        value = input.value.get_value()
+        map[i_parameter.name] = value
     return map
 
 def empty_container_compute_output(self, inputs, parameter):
@@ -138,8 +138,12 @@ primitive_to_output_function = {
 
 def initialize_primitive_compute_output(doc: sbol3.Document):
     for k, v in primitive_to_output_function.items():
-        p = paml.get_primitive(doc, k)
-        p.compute_output = types.MethodType(v, p)
+        try:
+            p = paml.get_primitive(doc, k)
+            p.compute_output = types.MethodType(v, p)
+        except Exception as e:
+            l.warn(f"Could not set compute_output() for primitive {k}, did you import the correct library?")
+
 
 
 def primitive_compute_output(self, inputs, parameter):

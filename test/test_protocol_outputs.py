@@ -8,6 +8,7 @@ import paml
 from paml.execution_engine import ExecutionEngine
 from paml_convert.markdown.markdown_specialization import MarkdownSpecialization
 from paml_convert.behavior_specialization import DefaultBehaviorSpecialization
+from paml.primitive_execution import initialize_primitive_compute_output
 
 
 PARAMETER_IN = 'http://bioprotocols.org/uml#in'
@@ -24,18 +25,18 @@ class TestProtocolOutputs(unittest.TestCase):
         protocol = paml.Protocol('foo')
         doc.add(protocol)
 
-        plate = protocol.primitive_step('EmptyContainer', 
+        plate = protocol.primitive_step('EmptyContainer',
                                        specification=paml.ContainerSpec(name=f'my absorbance measurement plate',
-                                       queryString='cont:Plate96Well', 
+                                       queryString='cont:Plate96Well',
                                        prefixMap={'cont': 'https://sift.net/container-ontology/container-ontology#'}))
-        target_wells = protocol.primitive_step('PlateCoordinates', 
+        target_wells = protocol.primitive_step('PlateCoordinates',
                                                source=plate.output_pin('samples'),
-                                               coordinates=f'A1') 
+                                               coordinates=f'A1')
         measure_absorbance = protocol.primitive_step('MeasureAbsorbance',
                                                      samples=target_wells.output_pin('samples'),
                                                      wavelength=sbol3.Measure(600, tyto.OM.nanometer))
 
-        self.protocol = protocol        
+        self.protocol = protocol
         self.output = measure_absorbance.output_pin('measurements')
 
     #@unittest.expectedFailure
