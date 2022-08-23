@@ -7,6 +7,7 @@ PAML is an *open* specification for laboratory protocols, that solves common int
 ## Software Ecosystem
 
 PAML's rich representation underpins an ecosystem of several powerful software tools, including:
+
 - [pypaml](www.github.com/bioprotocols/paml): the Python PAML library, which supports:
   - *Programming* PAML protocols in Python,
   - *Serialization* of PAML protocols conforming to the PAML RDF specification,
@@ -18,3 +19,4 @@ PAML's rich representation underpins an ecosystem of several powerful software t
   - *Storing* protocols on the cloud,
   - *Exporting* protocol specializations for use in other execution frameworks,
   
+## [About the Bioprotocols Working Group](about.md)
