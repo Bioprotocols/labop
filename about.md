@@ -7,11 +7,20 @@ To join the Bioprotocols Working Group:
 - Join the community mailing list at: [https://groups.google.com/g/bioprotocols](https://groups.google.com/g/bioprotocols)
 - Join the `#collab-bioprotocols` channel on the [Bits in Bio](https://bitsinbio.org/) Slack.
 
-Help fund development at _link to appear soon_
+**Help fund development! Get in contact with community leadership about how to contribute.**
 
 # Leadership
 
-_To be officially announced August 24th, 2022_
+_Elected Term: August 24th, 2022 - August 23rd, 2023_
+
+**Chair:** [Dan Bryce (SIFT)](mailto:dbryce@sift.net)
+
+**Finance Committee:**
+
+- [Jeremy Cahill (Metamer Labs)](mailto:jeremy.cahill@metamerlabs.io)
+- [Mark Doerr (University of Greifswald)](mailto:mark.doerr@uni-greifswald.de)
+- [Tim Fallon (UCSD)](mailto:tfallon@ucsd.edu)
+
 
 # Governance
 _Approved by community vote on August 16th, 2022_
