@@ -335,7 +335,7 @@ def add_call_behavior_action(parent: Activity, behavior: Behavior, **input_pin_l
             # Now create pins for all the input values
             for value in values:
                 if isinstance(value, sbol3.TopLevel) and not value.document:
-                    raise ValueError(f'Input object {value.identity} must be added to the Document before it can be used')
+                    parent.document.add(value)
                 action.inputs.append(ValuePin(name=i.property_value.name, is_ordered=i.property_value.is_ordered,
                                               is_unique=i.property_value.is_unique, value=literal(value)))
 
