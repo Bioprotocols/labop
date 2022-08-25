@@ -146,7 +146,7 @@ paml:ContainerSpec a owl:Class ;
         [ a owl:Restriction ;
             owl:minCardinality "0"^^xsd:nonNegativeInteger ;
             owl:onProperty paml:prefixMap ],
-        sbol:Identified .
+        sbol:TopLevel .
 
 paml:Protocol a owl:Class ;
     rdfs:comment """A Protocol describes how to carry out some form of laboratory or research process.

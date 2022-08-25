@@ -80,6 +80,33 @@ p.add_input('image', 'http://bioprotocols.org/uml#ValueSpecification')
 p.add_input('caption', 'http://bioprotocols.org/uml#ValueSpecification')
 doc.add(p)
 
+p = paml.Primitive('EmptyRack')
+p.description = 'Allocate a sample array with size and type based on an empty container'
+p.add_input('specification', sbol3.SBOL_IDENTIFIED)
+p.add_input('sample_array', 'http://bioprotocols.org/paml#SampleArray', True)
+p.add_output('slots', 'http://bioprotocols.org/paml#SampleArray')
+doc.add(p)
+
+p = paml.Primitive('LoadContainerInRack')
+p.description = 'Insert containers into a rack'
+p.add_input('slots', 'http://bioprotocols.org/paml#SampleCollection')
+p.add_input('container', 'http://bioprotocols.org/paml#ContainerSpec')
+p.add_input('coordinates', 'http://bioprotocols.org/uml#ValueSpecification')
+p.add_output('samples', 'http://bioprotocols.org/paml#SampleMask')
+doc.add(p)
+
+p = paml.Primitive('LoadRackOnInstrument')
+p.description = 'Insert a tube rack, pipette tip rack, or microwell plate into an addressed location on a robotic platform'
+p.add_input('rack', 'http://bioprotocols.org/paml#ValueSpecification')
+p.add_input('coordinates', 'http://bioprotocols.org/uml#ValueSpecification', optional=True)
+doc.add(p)
+
+p = paml.Primitive('ConfigureInstrument')
+p.description = 'Specify an instrument configuration'
+p.add_input('instrument', 'http://www.w3.org/ns/prov#Agent')
+p.add_input('mount', 'http://bioprotocols.org/uml#ValueSpecification', optional=True)
+doc.add(p)
+
 print('Library construction complete')
 
 print('Validating library')
