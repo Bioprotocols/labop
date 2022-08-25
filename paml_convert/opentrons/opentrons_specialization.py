@@ -53,9 +53,10 @@ LABWARE_MAP = {
     'cont:Corning96WellPlate360uLFlat': 'corning_96_wellplate_360ul_flat',
 } 
 
+
 class OT2Specialization(BehaviorSpecialization):
 
-    PIPETTES = {
+    EQUIPMENT = {
         'p20_single_gen2': sbol3.Agent('p20_single_gen2', name='P20 Single GEN2'),
         'p300_single_gen2': sbol3.Agent('p300_single_gen2', name='P300 Single GEN2'),
         'p1000_single_gen2': sbol3.Agent('p1000_single_gen2', name='P1000 Single GEN2'),
@@ -67,7 +68,14 @@ class OT2Specialization(BehaviorSpecialization):
         'p50_multi': sbol3.Agent('p50_multi', name='P50 Multi'),
         'p300_single': sbol3.Agent('p300_single', name='P300 Single'),
         'p300_multi': sbol3.Agent('p300_multi', name='P300 Multi'),
-        'p1000_single': sbol3.Agent('p1000_single', name='P1000 Single')
+        'p1000_single': sbol3.Agent('p1000_single', name='P1000 Single'),
+        'temperature_module': sbol3.Agent('temperature_module', name='Temperature Module GEN1'),
+        'tempdeck': sbol3.Agent('temperature_module', name='Temperature Module GEN1'),
+        'temperature_module_gen2': sbol3.Agent('temperature_module_gen2', name='Temperature Module GEN2'),
+        'magnetic_module': sbol3.Agent('magdeck', name='Magnetic Module GEN1'),
+        'magnetic_module_gen2': sbol3.Agent('magnetic_module_gen2', name='Magnetic Module GEN2'),
+        'thermocycler_module': sbol3.Agent('thermocycler_module', name='Thermocycler Module'),
+        'thermocycler': sbol3.Agent('thermocycler_module', name='Thermocycler Module')
     }
 
     def __init__(self, filename, resolutions: Dict[sbol3.Identified,str] = None) -> None:
@@ -431,19 +439,24 @@ class OT2Specialization(BehaviorSpecialization):
         instrument = parameter_value_map['instrument']['value']
         mount = parameter_value_map['mount']['value']
 
-        if str(mount) not in ['left', 'right', '1', '2', '3', '4', '5', '6',
-                              '7', '8', '9', '10', '11', '12']:
+        allowed_mounts = ['left', 'right']
+        allowed_decks = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12']
+        if mount not in allowed_mounts and mount not in allowed_decks:
             raise Exception("ConfigureInstrument call failed: mount must be either 'left' or 'right' or a deck number from 1-12")
-        if instrument.display_id not in COMPATIBLE_TIPS:
-            raise Exception(f"ConfigureInstrument call failed: instrument must be one of {list(COMPATIBLE_TIPS.keys())}")
 
         self.configuration[mount] = instrument
 
-        self.script_steps += [f"{instrument.display_id} = protocol.load_instrument('{instrument.display_id}', '{mount}')"]
-        if mount=='left' or mount=='right':
+        if mount in allowed_mounts:
             self.markdown_steps += [f"Mount `{instrument.name}` in {mount} mount of the OT2 machine"]
+            self.script_steps += [f"{instrument.display_id} = protocol.load_instrument('{instrument.display_id}', '{mount}')"]
+            if instrument.display_id not in COMPATIBLE_TIPS:
+                raise Exception(f"ConfigureInstrument call failed: instrument must be one of {list(COMPATIBLE_TIPS.keys())}")
+            
         else:
             self.markdown_steps += [f"Load `{instrument.name}` in Deck {mount} of the OT2 machine"]
+            instrument_id = instrument.display_id.replace('_', ' ')  # OT2 api name uses spaces instead of underscores
+            self.script_steps += [f"{instrument_id} = protocol.load_module('{instrument.display_id}', '{mount}')"]
+
 
         # Check if a compatible tiprack has been loaded and configure the pipette
         # to use it 
