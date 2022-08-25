@@ -275,17 +275,6 @@ class OT2Specialization(BehaviorSpecialization):
         units = tyto.OM.get_term_by_uri(units)
         OT2Pipette="left"
 
-        # Trace the "destination" pin back to the EmptyContainer execution
-        # to retrieve the ContainerSpec for the destination container
-        upstream_execution = get_token_source('destination', record)
-        behavior_type = get_behavior_type(upstream_execution)
-        if behavior_type == 'PlateCoordinates':
-            upstream_execution = get_token_source('source', upstream_execution)  # EmptyContainer
-            parameter_value_map = upstream_execution.call.lookup().parameter_value_map()
-            source_container = parameter_value_map['specification']['value']
-        else:
-            raise Exception(f'Invalid input pin "destination" for Transfer.')
-
         # Trace the "source" pin back to the EmptyContainer to retrieve the 
         # ContainerSpec for the destination container
         upstream_execution = get_token_source('source', record)
@@ -293,7 +282,7 @@ class OT2Specialization(BehaviorSpecialization):
         if behavior_type == 'LoadContainerInRack':
             upstream_execution = get_token_source('slots', upstream_execution)  # EmptyRack
             parameter_value_map = upstream_execution.call.lookup().parameter_value_map()
-            destination_container = parameter_value_map['specification']['value']
+            source_container = parameter_value_map['specification']['value']
         else:
             raise Exception(f'Invalid input pin "source" for Transfer.')
 
@@ -306,6 +295,16 @@ class OT2Specialization(BehaviorSpecialization):
         if not source_name:
             raise Exception(f'{source_container} is not loaded.')
 
+        # Trace the "destination" pin back to the EmptyContainer execution
+        # to retrieve the ContainerSpec for the destination container
+        upstream_execution = get_token_source('destination', record)
+        behavior_type = get_behavior_type(upstream_execution)
+        if behavior_type == 'PlateCoordinates':
+            upstream_execution = get_token_source('source', upstream_execution)  # EmptyContainer
+            parameter_value_map = upstream_execution.call.lookup().parameter_value_map()
+            destination_container = parameter_value_map['specification']['value']
+        else:
+            raise Exception(f'Invalid input pin "destination" for Transfer.')
         destination_name = None
         for deck, labware in self.configuration.items():
             if labware == destination_container:
@@ -313,7 +312,6 @@ class OT2Specialization(BehaviorSpecialization):
                 break
         if not destination_name:
             raise Exception(f'{destination_container} is not loaded.')
-
 
         # TODO: automatically choose pipette based on transferred volume
         if not self.configuration:
