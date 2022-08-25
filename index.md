@@ -8,13 +8,13 @@ PAML is an *open* specification for laboratory protocols, that solves common int
 
 PAML's rich representation underpins an ecosystem of several powerful software tools, including:
 
-- [pypaml](www.github.com/bioprotocols/paml): the Python PAML library, which supports:
+- [pypaml](https://www.github.com/bioprotocols/paml): the Python PAML library, which supports:
   - *Programming* PAML protocols in Python,
   - *Serialization* of PAML protocols conforming to the PAML RDF specification,
   - *Execution* in the native PAML semantics (rooted in the UML activity model),
   - *Specialization* of protocols to 3rd-party protocol formats (including Autoprotocol, OpenTrons, and human readible formats), and
   - *Integration* with instruments (including OpenTrons OT2, Echo, and SiLA-based automation).
-- [pamled](www.github.com/bioprotocols/paml): the web-based PAML Editor, which supports:
+- [pamled](https://www.github.com/bioprotocols/paml): the web-based PAML Editor, which supports:
   - *Programming* PAML protocols quickly with low-code visual scripts,
   - *Storing* protocols on the cloud,
   - *Exporting* protocol specializations for use in other execution frameworks,
