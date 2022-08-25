@@ -109,7 +109,9 @@ class OT2Specialization(BehaviorSpecialization):
         apilevel = self.apilevel
         self.markdown += f"# {protocol.name}\n"
         self.script += "from opentrons import protocol_api\n\n" \
-                       "metadata = {'apiLevel': '"+apilevel+"'}\n\n" \
+                       f"metadata = {{'apiLevel': '{apilevel}',\n" \
+                       f"            'description': '{protocol.description}'\n" \
+                       f"            'protocolName': '{protocol.name}'}} \n\n" \
                        "def run(protocol: protocol_api.ProtocolContext):\n"
 
     def on_end(self, ex):
