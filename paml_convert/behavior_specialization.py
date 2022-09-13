@@ -4,6 +4,7 @@ from logging import error
 import logging
 
 import paml
+from paml.primitive_execution import input_parameter_map
 import uml
 import json
 
@@ -38,15 +39,11 @@ class BehaviorSpecialization(ABC):
     def _init_behavior_func_map(self) -> dict:
         return {}
 
-    @abstractmethod
     def on_begin(self, execution: paml.ProtocolExecution):
         self.data = []
-        pass
 
-    @abstractmethod
     def on_end(self, execution: paml.ProtocolExecution):
         self.data = json.dumps(self.data)
-        pass
 
     def process(self, record, execution: paml.ProtocolExecution):
         node = record.node.lookup()
@@ -60,16 +57,19 @@ class BehaviorSpecialization(ABC):
 
         # Individual Primitive specializations
         elif str(node.behavior) not in self._behavior_func_map:
-            raise BehaviorSpecializationException(f"Failed to find handler for behavior: {node.behavior}")
+            l.warning(f"Failed to find handler for behavior: {node.behavior}")
+            return self.handle(record)
         return self._behavior_func_map[str(node.behavior)](record, execution)
 
     def handle(self, record):
         # Save basic information about the execution record
         node = record.node.lookup()
+        params = input_parameter_map(record.call.lookup().parameter_values)
+        params = {p: str(v) for p, v in params.items()}
         node_data = {
             "identity": node.identity,
             "behavior": node.behavior,
-            "parameters" : node.input_parameter_values()
+            "parameters" : params
         }
         self.data.append(node_data)
 
@@ -89,16 +89,6 @@ class BehaviorSpecialization(ABC):
 
 class DefaultBehaviorSpecialization(BehaviorSpecialization):
 
-    def process(self, record):
-        node = record.node.lookup()
-        if not isinstance(node, uml.CallBehaviorAction):
-            return # raise BehaviorSpecializationException(f"Cannot handle node type: {type(node)}")
-        elif str(node.behavior) not in self._behavior_func_map:
-            # raise BehaviorSpecializationException(f"Failed to find handler for behavior: {node.behavior}")
-            l.warning(f"Failed to find handler for behavior: {node.behavior}")
-            return
-        return self._behavior_func_map[str(node.behavior)](record)
-
     def _init_behavior_func_map(self) -> dict:
         return {
             "https://bioprotocols.org/paml/primitives/sample_arrays/EmptyContainer" : self.handle,
@@ -107,12 +97,3 @@ class DefaultBehaviorSpecialization(BehaviorSpecialization):
             "https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureAbsorbance" : self.handle,
             "http://bioprotocols.org/paml#Protocol": self.handle
         }
-
-    def handle(self, record, ex):
-        pass
-
-    def on_begin(self, ex):
-        pass
-
-    def on_end(self, ex):
-        pass

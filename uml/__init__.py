@@ -4,6 +4,10 @@ from collections import Counter
 from typing import List, Set, Iterable
 from sbol_factory import SBOLFactory, UMLFactory
 import sbol3
+import logging
+
+l = logging.getLogger(__file__)
+l.setLevel(logging.WARN)
 
 # Load ontology and create uml submodule
 SBOLFactory('uml_submodule',
@@ -432,7 +436,10 @@ def activity_designate_output(self, name: str, param_type: str, source: Activity
     parameter = self.add_output(name=name, param_type=param_type)
     node = ActivityParameterNode(parameter=parameter)
     self.nodes.append(node)
-    self.use_value(source, node)
+    if source:
+        self.use_value(source, node)
+    else:
+        l.warn(f"Creating ActivityParameterNode in designate_output() that has no source.")
     return node
 Activity.designate_output = activity_designate_output  # Add to class via monkey patch
 

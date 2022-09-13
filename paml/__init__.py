@@ -166,18 +166,11 @@ def behavior_execution_parameter_value_map(self):
     parameter_value_map = {}
     for pv in self.parameter_values:
         name = pv.parameter.lookup().property_value.name
-        # Dereference pointers to get the actual values
         ref = pv.value
-        if isinstance(ref, uml.LiteralReference):
-            ref = ref.value.lookup()
-        if isinstance(ref, uml.LiteralReference):  # output token objects must be dereferenced twice, see compute_outputs and get_value
-            ref = ref.value.lookup()
-        if isinstance(ref, uml.LiteralIdentified):
-            ref = ref.value
 
         # Done dereferencing, now get the actual parameter values
         if isinstance(ref, uml.LiteralSpecification):
-            value = ref.value
+            value = ref.get_value()
         elif isinstance(ref, sbol3.Identified):
             value = ref
         else:
@@ -202,7 +195,10 @@ BehaviorExecution.parameter_value_map = behavior_execution_parameter_value_map
 
 def protocol_execution_get_ordered_executions(self):
     protocol = self.protocol.lookup()
-    [start_node] = [n for n in protocol.nodes if type(n) is uml.InitialNode]
+    try:
+        [start_node] = [n for n in protocol.nodes if type(n) is uml.InitialNode]
+    except Exception as e:
+        raise Exception(f"Protocol {protocol.identity} has no InitialNode")
     [execution_start_node] = [x for x in self.executions if x.node == start_node.identity]  #ActivityNodeExecution
     ordered_execution_nodes = []
     current_execution_node = execution_start_node
@@ -219,7 +215,7 @@ ProtocolExecution.get_ordered_executions = protocol_execution_get_ordered_execut
 def protocol_execution_get_subprotocol_executions(self):
     ordered_subprotocol_executions = []
     ordered_execution_nodes = self.get_ordered_executions()
-    ordered_behavior_nodes = [x.node.lookup().behavior.lookup() for x in ordered_execution_nodes]
+    ordered_behavior_nodes = [x.node.lookup().behavior.lookup() for x in ordered_execution_nodes if isinstance(x, CallBehaviorExecution)]
     ordered_subprotocols = [x.identity for x in ordered_behavior_nodes if isinstance(x, Protocol)]
     ordered_subprotocol_executions = [o for x in ordered_subprotocols for o in self.document.objects if type(o) is ProtocolExecution and o.protocol == x]
     return ordered_subprotocol_executions

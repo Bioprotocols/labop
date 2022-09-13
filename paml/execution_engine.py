@@ -35,7 +35,7 @@ class ExecutionEngine(ABC):
 
     def __init__(self,
                  specializations: List[BehaviorSpecialization] = [DefaultBehaviorSpecialization()],
-                 use_ordinal_time = False, failsafe=True):
+                 use_ordinal_time = False, failsafe=True, permissive=False):
         self.exec_counter = 0
         self.variable_counter = 0
         self.specializations = specializations
@@ -55,6 +55,7 @@ class ExecutionEngine(ABC):
         self.ex = None
         self.is_asynchronous = True
         self.failsafe = failsafe
+        self.permissive = permissive # Allow execution to follow control flow even if objects not present.
 
 
     def next_id(self):
@@ -141,8 +142,7 @@ class ExecutionEngine(ABC):
                 agent: sbol3.Agent,
                 parameter_values: List[paml.ParameterValue] = {},
                 id: str = uuid.uuid4(),
-                start_time: datetime.datetime = None,
-                permissive: bool = False
+                start_time: datetime.datetime = None
                 ) -> paml.ProtocolExecution:
         """Execute the given protocol against the provided parameters
 
@@ -153,7 +153,6 @@ class ExecutionEngine(ABC):
         parameter_values: List of all input parameter values (if any)
         id: display_id or URI to be used as the name of this execution; defaults to a UUID display_id
         start_time: Start time for the execution
-        permissive: If True, allow execution to proceed if not all CallBehaviorAction inputs are present.
 
         Returns
         -------
@@ -161,7 +160,7 @@ class ExecutionEngine(ABC):
         """
 
         self.initialize(protocol, agent, id, parameter_values)
-        self.run(protocol, start_time=start_time, permissive=permissive)
+        self.run(protocol, start_time=start_time)
         self.finalize(protocol)
 
         return self.ex
@@ -169,8 +168,7 @@ class ExecutionEngine(ABC):
     def run(
         self,
         protocol: paml.Protocol,
-        start_time: datetime.datetime = None,
-        permissive: bool = False
+        start_time: datetime.datetime = None
     ):
 
         self.init_time(start_time)
@@ -180,15 +178,18 @@ class ExecutionEngine(ABC):
 
         # Iteratively execute all unblocked activities until no more tokens can progress
         while ready:
-            ready = self.step(ready, permissive=permissive)
+            non_call_nodes = [node for node in ready if not isinstance(node, uml.CallBehaviorAction)]
+            if non_call_nodes:
+                ready = self.step(non_call_nodes)
+            else:
+                ready = self.step(ready)
         return ready
 
 
     def step(
         self,
         ready: List[uml.ActivityNode],
-        node_outputs: Dict[uml.ActivityNode, Callable] = {},
-        permissive: bool = False
+        node_outputs: Dict[uml.ActivityNode, Callable] = {}
     ):
         for node in ready:
             self.current_node = node
@@ -200,8 +201,7 @@ class ExecutionEngine(ABC):
         return self.executable_activity_nodes()
 
     def executable_activity_nodes(
-        self,
-        permissive: bool = False
+        self
     ) -> List[uml.ActivityNode]:
         """Find all of the activity nodes that are ready to be run given the current set of tokens
         Note that this will NOT identify activities with no in-flows: those are only set up as initiating nodes
@@ -218,7 +218,7 @@ class ExecutionEngine(ABC):
             target = t.get_target()
             candidate_clusters[target] = candidate_clusters.get(target,[])+[t]
         return [n for n,nt in candidate_clusters.items()
-                if n.enabled(self.ex, nt, permissive)]
+                if n.enabled(self, nt)]
 
 
 
@@ -228,21 +228,19 @@ class ManualExecutionEngine(ExecutionEngine):
     def run(
         self,
         protocol: paml.Protocol,
-        start_time: datetime.datetime = None,
-        permissive: bool = False
+        start_time: datetime.datetime = None
     ):
         self.init_time(start_time)
         self.ex.start_time = self.start_time # TODO: remove str wrapper after sbol_factory #22 fixed
         ready = protocol.initiating_nodes()
-        ready = self.advance(ready, permissive=permissive)
+        ready = self.advance(ready)
         choices = self.ready_message(ready)
         graph = self.ex.to_dot(ready=ready, done=self.ex.backtrace()[0])
         return ready, choices, graph
 
     def advance(
         self,
-        ready: List[uml.ActivityNode],
-        permissive: bool = False
+        ready: List[uml.ActivityNode]
     ):
         def auto_advance(r):
             # If Node is a CallBehavior action, then:
@@ -263,7 +261,7 @@ class ManualExecutionEngine(ExecutionEngine):
         auto_advance_nodes = [r for r in ready if auto_advance(r)]
 
         while len(auto_advance_nodes) > 0:
-            ready = self.step(auto_advance_nodes, permissive=permissive)
+            ready = self.step(auto_advance_nodes)
             auto_advance_nodes = [r for r in ready if auto_advance(r)]
 
         return self.executable_activity_nodes()
@@ -295,8 +293,7 @@ class ManualExecutionEngine(ExecutionEngine):
     def next(
         self,
         activity_node: uml.ActivityNode,
-        node_output: callable,
-        permissive: bool = False
+        node_output: callable
     ):
         """Execute a single ActivityNode using the node_output function to calculate its output pin values.
 
@@ -308,7 +305,7 @@ class ManualExecutionEngine(ExecutionEngine):
             _type_: _description_
         """
         successors = self.step([activity_node], node_outputs={activity_node: node_output})
-        ready = self.advance(successors, permissive=permissive)
+        ready = self.advance(successors)
         choices = self.ready_message(ready)
         graph = self.ex.to_dot(ready=ready, done=self.ex.backtrace()[0])
         return ready, choices, graph

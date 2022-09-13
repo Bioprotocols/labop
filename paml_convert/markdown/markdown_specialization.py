@@ -89,24 +89,28 @@ class MarkdownSpecialization(BehaviorSpecialization):
         header += ('No description given' if protocol.description is None else protocol.description) + '\n'
         return header
 
-    def _inputs_markdown(self, parameter_values, subprotocol_executions):
+    def _inputs_markdown(self, parameter_values, unbound_input_parameters, subprotocol_executions):
         markdown = '\n\n## Protocol Inputs:\n'
         markdown = ''
         for i in parameter_values:
             parameter = i.parameter.lookup()
             if parameter.property_value.direction == uml.PARAMETER_IN:
                 markdown += self._parameter_value_markdown(i)
+        for parameter in unbound_input_parameters:
+            markdown += self._parameter_markdown(parameter)
         for x in subprotocol_executions:
             markdown += x.inputs
         return markdown
 
-    def _outputs_markdown(self, parameter_values, subprotocol_executions):
+    def _outputs_markdown(self, parameter_values, unbound_output_parameters, subprotocol_executions):
         markdown = '\n\n## Protocol Outputs:\n'
         markdown = ''
         for i in parameter_values:
             parameter = i.parameter.lookup()
             if parameter.property_value.direction == uml.PARAMETER_OUT:
                 markdown += self._parameter_value_markdown(i, True)
+        for parameter in unbound_output_parameters:
+            markdown += self._parameter_markdown(parameter)
         for x in subprotocol_executions:
             markdown += x.outputs
         return markdown
@@ -175,6 +179,9 @@ class MarkdownSpecialization(BehaviorSpecialization):
         else:
             return f"* `{parameter.name}` = {value}"
 
+    def _parameter_markdown(self, p : uml.Parameter):
+        return f"* `{p.name}`\n"
+
     def _steps_markdown(self, execution: paml.ProtocolExecution, subprotocol_executions):
         markdown = '\n\n## Steps\n'
         markdown = ''
@@ -189,8 +196,10 @@ class MarkdownSpecialization(BehaviorSpecialization):
         protocol = execution.protocol.lookup()
         subprotocol_executions = execution.get_subprotocol_executions()
         execution.header += self._header_markdown(protocol)
-        execution.inputs += self._inputs_markdown(execution.parameter_values, subprotocol_executions)
-        execution.outputs += self._outputs_markdown(execution.parameter_values, subprotocol_executions)
+        unbound_input_parameters = execution.unbound_inputs()
+        execution.inputs += self._inputs_markdown(execution.parameter_values, unbound_input_parameters, subprotocol_executions)
+        unbound_output_parameters = execution.unbound_outputs()
+        execution.outputs += self._outputs_markdown(execution.parameter_values, unbound_output_parameters, subprotocol_executions)
         execution.body = self._steps_markdown(execution, subprotocol_executions)
         execution.markdown_steps += [self.reporting_step(execution)]
         execution.markdown += execution.header
@@ -220,8 +229,11 @@ class MarkdownSpecialization(BehaviorSpecialization):
         if hasattr(protocol, 'version'):
             execution.markdown += f'---\nProtocol version: {protocol.version}'
 
-        with open(self.out_path, "w") as f:
-            f.write(execution.markdown)
+        if self.out_path:
+            with open(self.out_path, "w") as f:
+                f.write(execution.markdown)
+
+        self.data = execution.markdown
 
     def reporting_step(self, execution: paml.ProtocolExecution):
         output_parameters = []
@@ -586,34 +598,51 @@ class MarkdownSpecialization(BehaviorSpecialization):
         if 'dispenseVelocity' in parameter_value_map:
             dispense_velocity = parameter_value_map['dispenseVelocity']['value']
         plan = parameter_value_map['plan']['value']
-        map = json.loads(unquote(plan.values))
+        if plan:
+            map = json.loads(unquote(plan.values))
 
-        source_container = record.document.find(source.container_type).value
+            # Propagate source details to destination
+            source_contents = read_sample_contents(source)
+            destination_contents = read_sample_contents(destination)
 
-        container_spec = record.document.find(destination.container_type).value
-        container_class = ContainerOntology.uri + '#' + container_spec.queryString.split(':')[-1]
-        container_str = ContainerOntology.get_term_by_uri(container_class)
+            try:
+                for k, v in source_contents.items():
+                    destination_contents[map[k]] = v
+            except:
+                print(source_contents)
+                raise KeyError()
+            destination.contents = quote(json.dumps(destination_contents))
+        else:
+            l.warn(f"Cannot instantiate a map for TransferByMap because plan is None")
 
-        # Propagate source details to destination
-        source_contents = read_sample_contents(source)
-        destination_contents = read_sample_contents(destination)
+        if source:
+            source_container = record.document.find(source.container_type).value
+            source_names = get_sample_names(source, error_msg='Transfer execution failed. All source Components must specify a name.')
+        else:
+            source_container = None
 
-        try:
-            for k, v in source_contents.items():
-                destination_contents[map[k]] = v
-        except:
-            print(source_contents)
-            raise KeyError()
-        destination.contents = quote(json.dumps(destination_contents))
-        source_names = get_sample_names(source, error_msg='Transfer execution failed. All source Components must specify a name.')
+        if destination:
+            container_spec = record.document.find(destination.container_type).value
+            container_class = ContainerOntology.uri + '#' + container_spec.queryString.split(':')[-1]
+            container_str = ContainerOntology.get_term_by_uri(container_class)
+        else:
+            container_str = None
+            container_spec = None
+
+
 
         # Add to markdown
-        text = f"Transfer {amount_scalar} {amount_units} of each `{source_container.name}` sample to {container_str} `{container_spec.name}` in the wells indicated in the plate layout.\n"
-        #text +=  '| Sample | Wells |\n'
-        #text +=  '| --- | --- |\n'
-        #for coordinates, uri in destination_contents.items():
-        #    name = record.document.find(uri).name
-        #    text += f'|{name}|{coordinates}|\n'
+        if amount_scalar and amount_units and source_container and container_str and container_spec:
+            text = f"Transfer {amount_scalar} {amount_units} of each `{source_container.name}` sample to {container_str} `{container_spec.name}` in the wells indicated in the plate layout.\n"
+            #text +=  '| Sample | Wells |\n'
+            #text +=  '| --- | --- |\n'
+            #for coordinates, uri in destination_contents.items():
+            #    name = record.document.find(uri).name
+            #    text += f'|{name}|{coordinates}|\n'
+        elif amount_scalar and amount_units:
+            text = f"Transfer {amount_scalar} {amount_units} of each *source* sample to *destination*.\n"
+        else:
+            text = f"TransferByMap (*could not specialize activity*).\n"
 
         if temperature:
             text += f' Maintain at {measurement_to_text(temperature)} during transfer.'

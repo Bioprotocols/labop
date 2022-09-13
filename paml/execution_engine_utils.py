@@ -14,9 +14,8 @@ l.setLevel(logging.ERROR)
 @abstractmethod
 def activity_node_enabled(
     self: uml.ActivityNode,
-    ex: paml.ProtocolExecution,
-    tokens: List[paml.ActivityEdgeFlow],
-    permissive: bool
+    engine: paml.ExecutionEngine,
+    tokens: List[paml.ActivityEdgeFlow]
 ):
     """Check whether all incoming edges have values defined by a token in tokens and that all value pin values are
         defined.
@@ -57,7 +56,7 @@ def activity_node_enabled(
         # satisfied_pins = set(list(pins_with_params) + list(pins_with_tokens))
         input_pins_satisfied = required_input_pins.issubset(pins_with_tokens)
         value_pins_assigned = all({i.value for i in required_value_pins})
-        if permissive:
+        if engine.permissive:
             return tokens_present
         else:
             return tokens_present and input_pins_satisfied and value_pins_assigned
@@ -87,9 +86,8 @@ uml.ActivityNode.protocol = activity_node_get_protocol
 
 def input_pin_enabled(
     self: uml.InputPin,
-    ex: paml.ProtocolExecution,
-    tokens: List[paml.ActivityEdgeFlow],
-    permissive: bool
+    engine: paml.ExecutionEngine,
+    tokens: List[paml.ActivityEdgeFlow]
 ):
     protocol = self.protocol()
     incoming_controls = {e for e in protocol.incoming_edges(self) if isinstance(e, uml.ControlFlow)}
@@ -101,14 +99,13 @@ def input_pin_enabled(
     # Need at least one incoming object token
     tokens_present = {t.edge.lookup() for t in tokens if t.edge}.issubset(incoming_objects)
 
-    return tokens_present or permissive
+    return tokens_present or engine.permissive
 uml.InputPin.enabled = input_pin_enabled
 
 def value_pin_enabled(
     self: uml.InputPin,
-    ex: paml.ProtocolExecution,
-    tokens: List[paml.ActivityEdgeFlow],
-    permissive: bool
+    engine: paml.ExecutionEngine,
+    tokens: List[paml.ActivityEdgeFlow]
 ):
     protocol = self.protocol()
     incoming_controls = {e for e in protocol.incoming_edges(self) if isinstance(e, uml.ControlFlow)}
@@ -116,14 +113,13 @@ def value_pin_enabled(
 
     assert(len(incoming_controls) == 0 and len(incoming_objects)==0) # ValuePins do not receive flow
 
-    return True or permissive
+    return True
 uml.ValuePin.enabled = value_pin_enabled
 
 def output_pin_enabled(
     self: uml.InputPin,
-    ex: paml.ProtocolExecution,
-    tokens: List[paml.ActivityEdgeFlow],
-    permissive: bool
+    engine: paml.ExecutionEngine,
+    tokens: List[paml.ActivityEdgeFlow]
 ):
     return False
 uml.OutputPin.enabled = output_pin_enabled
@@ -131,9 +127,8 @@ uml.OutputPin.enabled = output_pin_enabled
 
 def fork_node_enabled(
     self: uml.ForkNode,
-    ex: paml.ProtocolExecution,
-    tokens: List[paml.ActivityEdgeFlow],
-    permissive: bool
+    engine: paml.ExecutionEngine,
+    tokens: List[paml.ActivityEdgeFlow]
 ):
     protocol = self.protocol()
     incoming_controls = {e for e in protocol.incoming_edges(self) if isinstance(e, uml.ControlFlow)}
@@ -149,9 +144,8 @@ uml.ForkNode.enabled = fork_node_enabled
 
 def final_node_enabled(
     self: uml.FinalNode,
-    ex: paml.ProtocolExecution,
-    tokens: List[paml.ActivityEdgeFlow],
-    permissive: bool
+    engine: paml.ExecutionEngine,
+    tokens: List[paml.ActivityEdgeFlow]
 ):
     protocol = self.protocol()
     token_present = any({t.edge.lookup() for t in tokens if t.edge}.intersection(protocol.incoming_edges(self)))
@@ -160,27 +154,25 @@ uml.FinalNode.enabled = final_node_enabled
 
 def activity_parameter_node_enabled(
     self: uml.ActivityParameterNode,
-    ex: paml.ProtocolExecution,
-    tokens: List[paml.ActivityEdgeFlow],
-    permissive: bool
+    engine: paml.ExecutionEngine,
+    tokens: List[paml.ActivityEdgeFlow]
 ):
+    # FIXME update for permissive case where object token is not present
     return len(tokens) <= 2 and all([t.get_target() == self for t in tokens])
 uml.ActivityParameterNode.enabled = activity_parameter_node_enabled
 
 def initial_node_enabled(
     self: uml.InitialNode,
-    ex: paml.ProtocolExecution,
-    tokens: List[paml.ActivityEdgeFlow],
-    permissive: bool
+    engine: paml.ExecutionEngine,
+    tokens: List[paml.ActivityEdgeFlow]
 ):
     return len(tokens) == 1 and tokens[0].get_target() == self
 uml.InitialNode.enabled = initial_node_enabled
 
 def merge_node_enabled(
     self: uml.MergeNode,
-    ex: paml.ProtocolExecution,
-    tokens: List[paml.ActivityEdgeFlow],
-    permissive: bool
+    engine: paml.ExecutionEngine,
+    tokens: List[paml.ActivityEdgeFlow]
 ):
     protocol = self.protocol()
     return {t.edge.lookup() for t in tokens if t.edge}==protocol.incoming_edges(self)
@@ -188,9 +180,8 @@ uml.MergeNode.enabled = merge_node_enabled
 
 def decision_node_enabled(
     self: uml.DecisionNode,
-    ex: paml.ProtocolExecution,
-    tokens: List[paml.ActivityEdgeFlow],
-    permissive: bool
+    engine: paml.ExecutionEngine,
+    tokens: List[paml.ActivityEdgeFlow]
 ):
     # Cases:
     # - primary is control, input_flow, no decision_input
@@ -308,7 +299,25 @@ def protocol_execution_to_json(self):
     return json.dumps(p_json)
 paml.ProtocolExecution.to_json = protocol_execution_to_json
 
+def protocol_execution_unbound_inputs(self):
+    unbound_input_parameters = [
+            p.node.lookup().parameter.lookup().property_value for p in self.executions
+            if isinstance(p.node.lookup(), uml.ActivityParameterNode) and
+               p.node.lookup().parameter.lookup().property_value.direction == uml.PARAMETER_IN and
+               p.node.lookup().parameter.lookup().property_value not in [pv.parameter for pv in self.parameter_values ]
+        ]
+    return unbound_input_parameters
+paml.ProtocolExecution.unbound_inputs = protocol_execution_unbound_inputs
 
+def protocol_execution_unbound_outputs(self):
+    unbound_output_parameters = [
+            p.node.lookup().parameter.lookup().property_value for p in self.executions
+            if isinstance(p.node.lookup(), uml.ActivityParameterNode) and
+            p.node.lookup().parameter.lookup().property_value.direction == uml.PARAMETER_OUT and
+            p.node.lookup().parameter.lookup().property_value not in [pv.parameter for pv in self.parameter_values ]
+        ]
+    return unbound_output_parameters
+paml.ProtocolExecution.unbound_outputs = protocol_execution_unbound_outputs
 
 def activity_node_execute(
     self: uml.ActivityNode,
@@ -822,9 +831,16 @@ def activity_parameter_node_execute_callback(
 ) -> paml.ActivityNodeExecution:
     record = paml.ActivityNodeExecution(node=self, incoming_flows=inputs)
     if self.parameter.lookup().property_value.direction == uml.PARAMETER_OUT:
-        [value] = [i.value.get_value() for i in inputs if isinstance(i.edge.lookup(), uml.ObjectFlow)]
-        value = uml.literal(value, reference=True)
-        engine.ex.parameter_values += [paml.ParameterValue(parameter=self.parameter.lookup(), value=value)]
+        try:
+            values = [i.value.get_value() for i in inputs if isinstance(i.edge.lookup(), uml.ObjectFlow)]
+            if len(values) == 1:
+                value = uml.literal(values[0], reference=True)
+            elif len(values) == 0:
+                value = uml.literal(self.parameter.lookup().property_value.name)
+            engine.ex.parameter_values += [paml.ParameterValue(parameter=self.parameter.lookup(), value=value)]
+        except Exception as e:
+            if not engine.permissive:
+                raise ValueError(f"ActivityParameterNode execution for {self.identity} does not have an ObjectFlow token input present.")
     return record
 uml.ActivityParameterNode.execute_callback = activity_parameter_node_execute_callback
 
