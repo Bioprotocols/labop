@@ -97,7 +97,7 @@ doc.add(p)
 
 p = paml.Primitive('LoadRackOnInstrument')
 p.description = 'Insert a tube rack, pipette tip rack, or microwell plate into an addressed location on a robotic platform'
-p.add_input('rack', 'http://bioprotocols.org/paml#ValueSpecification')
+p.add_input('rack', 'http://bioprotocols.org/uml#ValueSpecification')
 p.add_input('coordinates', 'http://bioprotocols.org/uml#ValueSpecification', optional=True)
 doc.add(p)
 

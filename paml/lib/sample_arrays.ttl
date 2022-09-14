@@ -760,7 +760,7 @@
     ns1:isOrdered true ;
     ns1:isUnique true ;
     ns1:lowerValue <https://bioprotocols.org/paml/primitives/sample_arrays/LoadRackOnInstrument/OrderedPropertyValue1/Parameter1/LiteralInteger2> ;
-    ns1:type <http://bioprotocols.org/paml#ValueSpecification> ;
+    ns1:type ns1:ValueSpecification ;
     ns1:upperValue <https://bioprotocols.org/paml/primitives/sample_arrays/LoadRackOnInstrument/OrderedPropertyValue1/Parameter1/LiteralInteger1> ;
     sbol:displayId "Parameter1" ;
     sbol:name "rack" .
@@ -1206,4 +1206,3 @@
         sbol:Identified ;
     ns1:integerValue 1 ;
     sbol:displayId "LiteralInteger2" .
-
