@@ -1024,3 +1024,73 @@ def input_pin_next_tokens_callback(
     edge_tokens = [ paml.ActivityEdgeFlow(edge=None, token_source=source, value=pin_value) ]
     return edge_tokens
 uml.InputPin.next_tokens_callback = input_pin_next_tokens_callback
+
+def activity_node_execution_get_token_source(
+    self: paml.ActivityNodeExecution,
+    input_name : str,
+    target: paml.ActivityNodeExecution = None
+    ) -> paml.CallBehaviorExecution:
+    node = self.node.lookup()
+    main_target = target if target else self
+    return node.get_token_source(input_name, self, target=main_target)
+paml.ActivityNodeExecution.get_token_source = activity_node_execution_get_token_source
+
+def activity_node_get_token_source(
+    self: uml.ActivityNode,
+    input_name : str,
+    record: paml.ActivityNodeExecution,
+    target: paml.ActivityNodeExecution = None,
+    ) -> paml.CallBehaviorExecution:
+    raise Exception(f"Cannot get_token_source() for node of type {type(self)}")
+uml.ActivityNode.get_token_source = activity_node_get_token_source
+
+def call_behavior_action_get_token_source(
+    self: uml.ActivityNode,
+    input_name : str,
+    record: paml.ActivityNodeExecution,
+    target: paml.ActivityNodeExecution = None,
+    ) -> paml.CallBehaviorExecution:
+    input_pin = self.input_pin(input_name)
+    input_source = next(iter([f.lookup().token_source.lookup() for f in record.incoming_flows if f.lookup().token_source.lookup().node.lookup() == input_pin]))
+    return input_source.get_token_source(None, target=target)
+uml.CallBehaviorAction.get_token_source = call_behavior_action_get_token_source
+
+def input_pin_get_token_source(
+    self: uml.ActivityNode,
+    input_name : str,
+    record: paml.ActivityNodeExecution,
+    target: paml.ActivityNodeExecution = None,
+    ) -> paml.CallBehaviorExecution:
+    input_source = next(iter([f.lookup().token_source.lookup() for f in record.incoming_flows]))
+    return input_source.get_token_source(None, target=target)
+uml.InputPin.get_token_source = input_pin_get_token_source
+
+def fork_node_get_token_source(
+    self: uml.ActivityNode,
+    input_name : str,
+    record: paml.ActivityNodeExecution,
+    target: paml.ActivityNodeExecution = None,
+    ) -> paml.CallBehaviorExecution:
+    input_source = next(iter([f.lookup().token_source.lookup() for f in record.incoming_flows]))
+    return input_source.get_token_source(None, target=target)
+uml.ForkNode.get_token_source = fork_node_get_token_source
+
+def initial_node_get_token_source(
+    self: uml.ActivityNode,
+    input_name : str,
+    record: paml.ActivityNodeExecution,
+    target: paml.ActivityNodeExecution = None,
+    ) -> paml.CallBehaviorExecution:
+
+    return record
+uml.InitialNode.get_token_source = initial_node_get_token_source
+
+def activity_parameter_node_get_token_source(
+    self: uml.ActivityNode,
+    input_name : str,
+    record: paml.ActivityNodeExecution,
+    target: paml.ActivityNodeExecution = None,
+    ) -> paml.CallBehaviorExecution:
+
+    return record
+uml.ActivityParameterNode.get_token_source = activity_parameter_node_get_token_source

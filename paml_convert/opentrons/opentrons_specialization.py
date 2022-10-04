@@ -103,6 +103,7 @@ class OT2Specialization(BehaviorSpecialization):
             "https://bioprotocols.org/paml/primitives/sample_arrays/EmptyContainer" : self.define_container,
             "https://bioprotocols.org/paml/primitives/liquid_handling/Provision" : self.provision,
             "https://bioprotocols.org/paml/primitives/liquid_handling/Transfer" : self.transfer_to,
+            "https://bioprotocols.org/paml/primitives/liquid_handling/TransferByMap" : self.transfer_by_map,
             "https://bioprotocols.org/paml/primitives/sample_arrays/PlateCoordinates" : self.plate_coordinates,
             "https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureAbsorbance" : self.measure_absorbance,
             "https://bioprotocols.org/paml/primitives/sample_arrays/EmptyRack" : self.define_rack,
@@ -110,6 +111,10 @@ class OT2Specialization(BehaviorSpecialization):
             "https://bioprotocols.org/paml/primitives/sample_arrays/LoadRackOnInstrument" : self.load_racks,
             "https://bioprotocols.org/paml/primitives/sample_arrays/ConfigureInstrument" : self.configure_instrument,
         }
+
+    def handle_process_failure(self, record):
+        super().handle_process_failure(record)
+        self.script_steps.append(f"# Failure processing record: {record.identity}")
 
     def on_begin(self, ex: paml.ProtocolExecution):
 
@@ -125,11 +130,15 @@ class OT2Specialization(BehaviorSpecialization):
     def on_end(self, ex):
         self.script += self._compile_script()
         self.markdown += self._compile_markdown()
-        with open(self.filename + '.py', 'w') as f:
-            f.write(self.script)
-        with open(self.filename + '.md', 'w') as f:
-            f.write(self.markdown)
-        print(f"Successful execution. Script dumped to {self.filename}.")
+        if self.filename:
+            with open(self.filename + '.py', 'w') as f:
+                f.write(self.script)
+            with open(self.filename + '.md', 'w') as f:
+                f.write(self.markdown)
+            print(f"Successful execution. Script dumped to {self.filename}.")
+        else:
+            l.warn("Writing output of specialization to self.data because no filename specified.")
+            self.data = f"# OT2 Script\n ```python\n{self.script}```\n # Operator Script\n {self.markdown}"
 
     def _compile_script(self):
         script = ''
@@ -334,6 +343,69 @@ class OT2Specialization(BehaviorSpecialization):
             for c_destination in get_aliquot_list(destination.mask):
                 self.script_steps += [f"{pipette.display_id}.transfer({value}, {source_name}['{c_source}'], {destination_name}['{c_destination}'])"]
 
+
+    def transfer_by_map(self, record: paml.ActivityNodeExecution, ex: paml.ProtocolExecution):
+
+        results = {}
+        call = record.call.lookup()
+        parameter_value_map = call.parameter_value_map()
+        destination = parameter_value_map["destination"]["value"]
+        source = parameter_value_map["source"]["value"]
+        plan = parameter_value_map["plan"]["value"]
+        temperature = parameter_value_map["temperature"]["value"]
+        value = parameter_value_map["amount"]["value"].value
+        units = parameter_value_map["amount"]["value"].unit
+        units = tyto.OM.get_term_by_uri(units)
+        OT2Pipette="left"
+
+        # Trace the "source" pin back to the EmptyContainer to retrieve the
+        # ContainerSpec for the destination container
+        upstream_execution = record.get_token_source('source')
+        behavior_type = get_behavior_type(upstream_execution)
+        if behavior_type == 'LoadContainerInRack':
+            upstream_execution = upstream_execution.get_token_source('slots')  # EmptyRack
+            parameter_value_map = upstream_execution.call.lookup().parameter_value_map()
+            source_container = parameter_value_map['specification']['value']
+        else:
+            raise Exception(f'Invalid input pin "source" for Transfer.')
+
+        # Map the source container to a variable name in the OT2 api script
+        source_name = None
+        for deck, labware in self.configuration.items():
+            if labware == source_container:
+                source_name = f'labware{deck}'
+                break
+        if not source_name:
+            raise Exception(f'{source_container} is not loaded.')
+
+        # Trace the "destination" pin back to the EmptyContainer execution
+        # to retrieve the ContainerSpec for the destination container
+        upstream_execution = record.get_token_source('destination')
+        behavior_type = get_behavior_type(upstream_execution)
+        if behavior_type == 'PlateCoordinates':
+            upstream_execution = get_token_source('source', upstream_execution)  # EmptyContainer
+            parameter_value_map = upstream_execution.call.lookup().parameter_value_map()
+            destination_container = parameter_value_map['specification']['value']
+        else:
+            raise Exception(f'Invalid input pin "destination" for Transfer.')
+        destination_name = None
+        for deck, labware in self.configuration.items():
+            if labware == destination_container:
+                destination_name = f'labware{deck}'
+                break
+        if not destination_name:
+            raise Exception(f'{destination_container} is not loaded.')
+
+        # TODO: automatically choose pipette based on transferred volume
+        if not self.configuration:
+            raise Exception('Transfer call failed. Use ConfigureInstrument to configure a pipette')
+        pipette = self.configuration['left']
+
+        source_str = source.mask
+        destination_str = destination.mask
+        for c_source in get_aliquot_list(source.mask):
+            for c_destination in get_aliquot_list(destination.mask):
+                self.script_steps += [f"{pipette.display_id}.transfer({value}, {source_name}['{c_source}'], {destination_name}['{c_destination}'])"]
 
     def plate_coordinates(self, record: paml.ActivityNodeExecution, ex: paml.ProtocolExecution):
         call = record.call.lookup()

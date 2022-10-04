@@ -45,21 +45,29 @@ class BehaviorSpecialization(ABC):
     def on_end(self, execution: paml.ProtocolExecution):
         self.data = json.dumps(self.data)
 
+
     def process(self, record, execution: paml.ProtocolExecution):
-        node = record.node.lookup()
-        if not isinstance(node, uml.CallBehaviorAction):
-            return # raise BehaviorSpecializationException(f"Cannot handle node type: {type(node)}")
+        try:
+            node = record.node.lookup()
+            if not isinstance(node, uml.CallBehaviorAction):
+                return # raise BehaviorSpecializationException(f"Cannot handle node type: {type(node)}")
 
-        # Subprotocol specializations
-        behavior = node.behavior.lookup()
-        if isinstance(behavior, paml.Protocol):
-            return self._behavior_func_map[behavior.type_uri](record, execution)
+            # Subprotocol specializations
+            behavior = node.behavior.lookup()
+            if isinstance(behavior, paml.Protocol):
+                return self._behavior_func_map[behavior.type_uri](record, execution)
 
-        # Individual Primitive specializations
-        elif str(node.behavior) not in self._behavior_func_map:
-            l.warning(f"Failed to find handler for behavior: {node.behavior}")
-            return self.handle(record)
-        return self._behavior_func_map[str(node.behavior)](record, execution)
+            # Individual Primitive specializations
+            elif str(node.behavior) not in self._behavior_func_map:
+                l.warning(f"Failed to find handler for behavior: {node.behavior}")
+                return self.handle(record)
+            return self._behavior_func_map[str(node.behavior)](record, execution)
+        except Exception as e:
+            l.warn(f"{self.__class__} Could not process() ActivityNodeException: {record}: {e}")
+            self.handle_process_failure(record)
+
+    def handle_process_failure(self, record):
+        pass
 
     def handle(self, record):
         # Save basic information about the execution record
