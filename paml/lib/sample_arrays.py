@@ -95,14 +95,22 @@ p.add_input('coordinates', 'http://bioprotocols.org/uml#ValueSpecification')
 p.add_output('samples', 'http://bioprotocols.org/paml#SampleMask')
 doc.add(p)
 
+p = paml.Primitive('LoadContainerOnInstrument')
+p.description = 'Insert cont:Containers directly into an instrument, such as a PCR machine, heat block., etc.  If the instrument is not specified, it may be assumed to default to the Agent associated with a ProtocolExecution'
+p.add_input('instrument', 'http://www.w3.org/ns/prov#Agent', optional=True)
+p.add_input('container', 'http://bioprotocols.org/paml#ContainerSpec')
+p.add_input('coordinates', 'http://bioprotocols.org/uml#ValueSpecification')
+p.add_output('samples', 'http://bioprotocols.org/paml#SampleMask')
+doc.add(p)
+
 p = paml.Primitive('LoadRackOnInstrument')
 p.description = 'Insert a tube rack, pipette tip rack, or microwell plate into an addressed location on a robotic platform'
 p.add_input('rack', 'http://bioprotocols.org/uml#ValueSpecification')
 p.add_input('coordinates', 'http://bioprotocols.org/uml#ValueSpecification', optional=True)
 doc.add(p)
 
-p = paml.Primitive('ConfigureInstrument')
-p.description = 'Specify an instrument configuration'
+p = paml.Primitive('ConfigureRobot')
+p.description = 'Specify an instrument configuration consisting of optional instrument modules, such as pipettes, heat blocks, thermocyclers, etc, which are represented by Agents'
 p.add_input('instrument', 'http://www.w3.org/ns/prov#Agent')
 p.add_input('mount', 'http://bioprotocols.org/uml#ValueSpecification', optional=True)
 doc.add(p)

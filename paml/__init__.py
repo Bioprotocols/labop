@@ -152,6 +152,9 @@ def primitive_str(self):
     output_str = f"Output Parameters:\n\t{output_parameter_strs}" if len(output_parameter_strs) > 0 else ""
     return f"""
 Primitive: {self.identity}
+'''
+{self.description}
+'''
 {input_str}
 {output_str}
             """
