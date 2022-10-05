@@ -81,26 +81,34 @@ p.add_input('caption', 'http://bioprotocols.org/uml#ValueSpecification')
 doc.add(p)
 
 p = paml.Primitive('EmptyRack')
-p.description = 'Allocate a sample array with size and type based on an empty container'
+p.description = 'Allocate a sample array with dimensions based on a rack as specified by an instance of cont:Rack'
 p.add_input('specification', sbol3.SBOL_IDENTIFIED)
 p.add_input('sample_array', 'http://bioprotocols.org/paml#SampleArray', True)
 p.add_output('slots', 'http://bioprotocols.org/paml#SampleArray')
 doc.add(p)
 
+p = paml.Primitive('EmptyInstrument')
+p.description = 'Allocate a sample array with size and type based on the instrument configuration'
+p.add_input('instrument', 'http://www.w3.org/ns/prov#Agent')
+p.add_input('sample_array', 'http://bioprotocols.org/paml#SampleArray', True)
+p.add_output('slots', 'http://bioprotocols.org/paml#SampleArray')
+doc.add(p)
+
+
 p = paml.Primitive('LoadContainerInRack')
-p.description = 'Insert containers into a rack'
+p.description = 'Insert cont:Containers into a rack at the indicated rack coordinates. A call to this Primitive should be preceded by EmptyRack'
 p.add_input('slots', 'http://bioprotocols.org/paml#SampleCollection')
 p.add_input('container', 'http://bioprotocols.org/paml#ContainerSpec')
 p.add_input('coordinates', 'http://bioprotocols.org/uml#ValueSpecification')
-p.add_output('samples', 'http://bioprotocols.org/paml#SampleMask')
+p.add_output('samples', 'http://bioprotocols.org/paml#SampleArray')
 doc.add(p)
 
 p = paml.Primitive('LoadContainerOnInstrument')
-p.description = 'Insert cont:Containers directly into an instrument, such as a PCR machine, heat block., etc.  If the instrument is not specified, it may be assumed to default to the Agent associated with a ProtocolExecution'
-p.add_input('instrument', 'http://www.w3.org/ns/prov#Agent', optional=True)
-p.add_input('container', 'http://bioprotocols.org/paml#ContainerSpec')
-p.add_input('coordinates', 'http://bioprotocols.org/uml#ValueSpecification')
-p.add_output('samples', 'http://bioprotocols.org/paml#SampleMask')
+p.description = 'Insert cont:Containers directly into an instrument, such as a PCR machine, heat block, etc. at the specified slot cooordinates. A call to this Primitive should be preceded by EmptyInstrument'
+p.add_input('specification', 'http://bioprotocols.org/paml#ContainerSpec')
+p.add_input('slots', 'http://bioprotocols.org/uml#ValueSpecification')
+p.add_input('instrument', 'http://www.w3.org/ns/prov#Agent')
+p.add_output('samples', 'http://bioprotocols.org/paml#SampleArray')
 doc.add(p)
 
 p = paml.Primitive('LoadRackOnInstrument')
