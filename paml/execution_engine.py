@@ -4,7 +4,6 @@ from typing import Callable, Dict, List
 import uuid
 import datetime
 import logging
-import sys
 
 import pandas as pd
 import graphviz

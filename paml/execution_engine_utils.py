@@ -1,11 +1,13 @@
 from abc import abstractmethod
 from typing import Callable, List, Set, Tuple
 import uuid
+import sys
+import logging
+
 import paml
 from paml_convert.behavior_specialization import BehaviorSpecialization
 import uml
 import sbol3
-import logging
 from paml.execution_engine import ExecutionEngine
 
 l = logging.getLogger(__file__)

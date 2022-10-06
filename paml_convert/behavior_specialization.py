@@ -64,10 +64,10 @@ class BehaviorSpecialization(ABC):
             return self._behavior_func_map[str(node.behavior)](record, execution)
         except Exception as e:
             l.warn(f"{self.__class__} Could not process() ActivityNodeException: {record}: {e}")
-            self.handle_process_failure(record)
+            self.handle_process_failure(record, e)
 
-    def handle_process_failure(self, record):
-        pass
+    def handle_process_failure(self, record, e):
+        raise e
 
     def handle(self, record):
         # Save basic information about the execution record
