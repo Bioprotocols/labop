@@ -46,8 +46,9 @@ class TestProtocolOutputs(unittest.TestCase):
         with self.assertRaises(ValueError):
             ex = ee.execute(self.protocol, agent, id="test_execution", parameter_values=[])
 
-    def test_protocol_outputs(self):
-        # This test confirms generation of designated output objects
+    def test_specialized_compute_output(self):
+        # This test confirms generation of an output token from a Primitive
+        # with a specialized compute_output method
         self.protocol.designate_output('measurements', 'http://bioprotocols.org/paml#SampleData', source=self.output)
 
         agent = sbol3.Agent("test_agent")
@@ -57,6 +58,26 @@ class TestProtocolOutputs(unittest.TestCase):
         self.assertTrue(isinstance(ex.parameter_values[0].value, uml.LiteralReference))
         self.assertTrue(isinstance(ex.parameter_values[0].value.value.lookup(),
                                    paml.SampleData))
+
+    def test_default_compute_output(self):
+        # This test confirms generation of an output token using the default 
+        # compute_output method
+
+        p = paml.Primitive('Foo')
+        p.add_output('output', sbol3.SBOL_COMPONENT)
+        self.protocol.document.add(p)
+
+        p_step = self.protocol.primitive_step(p)
+        self.protocol.designate_output('protocol output', sbol3.SBOL_COMPONENT, source=p_step.output_pin('output'))
+        self.protocol.designate_output('measurements', 'http://bioprotocols.org/paml#SampleData', source=self.output)
+
+
+        ee = ExecutionEngine(failsafe=False)
+        ee.specializations[0]._behavior_func_map[p.identity] = lambda record: None
+        ex = ee.execute(self.protocol, sbol3.Agent('agent'), id="test_execution", parameter_values=[])
+
+        self.assertTrue(ex.parameter_values[1].value.value.lookup(),
+                        sbol3.Component)
 
 
 if __name__ == '__main__':
