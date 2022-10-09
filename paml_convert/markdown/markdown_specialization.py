@@ -138,7 +138,7 @@ class MarkdownSpecialization(BehaviorSpecialization):
                 pin = cba.input_pin('specification')
             except:
                 continue
-            container_type = pin.value.value.queryString
+            container_type = pin.value.value.lookup().queryString
 
             try:
                 pin = cba.input_pin('quantity')

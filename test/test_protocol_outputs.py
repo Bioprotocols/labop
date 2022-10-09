@@ -25,10 +25,12 @@ class TestProtocolOutputs(unittest.TestCase):
         protocol = paml.Protocol('foo')
         doc.add(protocol)
 
+        plate_spec = paml.ContainerSpec('my_absorbance_measurement_plate',
+                                        name='my absorbance measurement plate',
+                                        queryString='cont:Plate96Well',
+                                        prefixMap={'cont': 'https://sift.net/container-ontology/container-ontology#'})
         plate = protocol.primitive_step('EmptyContainer',
-                                       specification=paml.ContainerSpec(name=f'my absorbance measurement plate',
-                                       queryString='cont:Plate96Well',
-                                       prefixMap={'cont': 'https://sift.net/container-ontology/container-ontology#'}))
+                                       specification=plate_spec)
         target_wells = protocol.primitive_step('PlateCoordinates',
                                                source=plate.output_pin('samples'),
                                                coordinates=f'A1')
