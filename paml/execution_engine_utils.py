@@ -434,6 +434,16 @@ def call_behavior_execution_check_next_tokens(
         if p.property_value.direction == uml.PARAMETER_OUT and
            p.property_value.name not in {lp.property_value.name for lp in linked_parameters}
     ]
+
+    # Throw an error if there is an unused output pin, otherwise we get
+    # cryptic failures downstream
+    if len(unlinked_output_parameters):
+        primitive = self.node.lookup().behavior.split('/')[-1]
+        raise ValueError(f'Aborting "{primitive}" execution. Output pin ' \
+                         f'"{unlinked_output_parameters[0].property_value.name}" is not used')
+
+    # TODO: Instead of throwing an exception, assume that unlinked output pins are possible
+    # output parameters for the protocol and automatically designate them as protocol outputs
     possible_output_parameter_values = [paml.ParameterValue(parameter=p,
                                                                 value=self.get_parameter_value(p, node_outputs=node_outputs))
                                             for p in unlinked_output_parameters]

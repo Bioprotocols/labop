@@ -38,13 +38,13 @@ class TestProtocolOutputs(unittest.TestCase):
         self.protocol = protocol        
         self.output = measure_absorbance.output_pin('measurements')
 
-    @unittest.skip('Not implemented yet')
     def test_protocol_outputs_not_designated(self):
         # TODO: catch output parameters that aren't explicitly designated
         # rather than breaking cryptically
         agent = sbol3.Agent("test_agent")
         ee = ExecutionEngine(specializations=[MarkdownSpecialization("test_LUDOX_markdown.md")])
-        ex = ee.execute(self.protocol, agent, id="test_execution", parameter_values=[])
+        with self.assertRaises(ValueError):
+            ex = ee.execute(self.protocol, agent, id="test_execution", parameter_values=[])
 
     def test_protocol_outputs(self):
         # This test confirms generation of designated output objects
