@@ -24,7 +24,8 @@ setup(name='paml',
             "container-ontology @ https://github.com/rpgoldman/container-ontology/tarball/main",
             "ipython",
             "pre-commit",
-            "ipywidgets"
+            "ipywidgets",
+            "xarray"
       ],
       tests_require=test_deps,
       extras_require=extras,
