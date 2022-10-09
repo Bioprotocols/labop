@@ -61,7 +61,7 @@ class BehaviorSpecialization(ABC):
             elif str(node.behavior) not in self._behavior_func_map:
                 l.warning(f"Failed to find handler for behavior: {node.behavior}")
                 return self.handle(record)
-            return self._behavior_func_map[str(node.behavior)](record, execution)
+            return self._behavior_func_map[str(node.behavior)](record)
         except Exception as e:
             l.warn(f"{self.__class__} Could not process() ActivityNodeException: {record}: {e}")
             self.handle_process_failure(record, e)
