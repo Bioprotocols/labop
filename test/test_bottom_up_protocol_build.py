@@ -42,14 +42,17 @@ class ExampleProtocol(unittest.TestCase):
         protocol.edges.append(uml.ControlFlow(source=start_action, target=step1_action))
         protocol.edges.append(uml.ControlFlow(source=step1_action, target=step2_action))
 
-        step1_action.outputs.append(uml.OutputPin(name='samples',
-                                                  is_ordered=True,
-                                                  is_unique=True))
-        step2_action.inputs.append(uml.ValuePin(name='samples',
-                                                value=uml.LiteralString(value='foo'),
-                                                is_ordered=True,
-                                                is_unique=True))
+        output = uml.OutputPin(name='samples',
+                               is_ordered=True,
+                               is_unique=True)
+        step1_action.outputs.append(output)
 
+        input = uml.InputPin(name='samples',
+                             is_ordered=True,
+                             is_unique=True)
+        step2_action.inputs.append(input)
+        flow = uml.ObjectFlow(source=output, target=input)
+        protocol.edges.append(flow)
 
         agent = sbol3.Agent("test_agent")
         ee = ExecutionEngine()
