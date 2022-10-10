@@ -1,7 +1,6 @@
 from abc import abstractmethod
 from typing import Callable, List, Set, Tuple
 import uuid
-import sys
 import logging
 
 import paml
@@ -349,10 +348,9 @@ def activity_node_execute(
             try:
                 specialization.process(record, engine.ex)
             except Exception as e:
-                l.error(f"Could Not Process {record.name if record.name else record.identity}: {e}")
                 if not engine.failsafe:
-                    l.error('Aborting...')
-                    sys.exit(1)
+                    raise e
+                l.error(f"Could Not Process {record.name if record.name else record.identity}: {e}")
 
     # return updated token list
     return [t for t in engine.tokens if t not in inputs] + new_tokens
