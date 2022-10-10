@@ -69,7 +69,7 @@ class TestProtocolInputs(unittest.TestCase):
             samples = parameter_value_map['samples']['value']
 
         ee = ExecutionEngine()
-        ee.specializations[0]._behavior_func_map[p.identity] = lambda record: None
+        ee.specializations[0]._behavior_func_map[p.identity] = lambda record, ex: None
         ex = ee.execute(protocol, sbol3.Agent('test_agent'), id="test_execution1", parameter_values=[ ])
 
         # Check that execution has correct inputs

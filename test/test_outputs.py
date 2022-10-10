@@ -73,7 +73,7 @@ class TestProtocolOutputs(unittest.TestCase):
 
 
         ee = ExecutionEngine(failsafe=False)
-        ee.specializations[0]._behavior_func_map[p.identity] = lambda record: None
+        ee.specializations[0]._behavior_func_map[p.identity] = lambda record, execution: None
         ex = ee.execute(self.protocol, sbol3.Agent('agent'), id="test_execution", parameter_values=[])
 
         self.assertTrue(ex.parameter_values[1].value.value.lookup(),
