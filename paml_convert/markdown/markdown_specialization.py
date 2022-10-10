@@ -297,7 +297,7 @@ class MarkdownSpecialization(BehaviorSpecialization):
         samples = parameter_value_map["samples"]["value"]
         quantity = parameter_value_map["quantity"]["value"]
         replicates = parameter_value_map["replicates"]["value"] if "replicates" in parameter_value_map else 1
-        samples.container_type = containers.get_parent().identity
+        samples.container_type = containers.identity
         assert(type(containers) is paml.ContainerSpec)
         try:
 
@@ -428,7 +428,7 @@ class MarkdownSpecialization(BehaviorSpecialization):
             # Their source does not directly reference a SampleArray directly,
             # rather through a LiteralReference and LiteralIdentified
             samples = samples.source.lookup().value.lookup().value
-        samples_str = record.document.find(samples.container_type).value.name
+        samples_str = record.document.find(samples.container_type).name
 
         timepoints_str = ''
         if timepoints:
@@ -549,7 +549,7 @@ class MarkdownSpecialization(BehaviorSpecialization):
         #samples.contents = quote(json.dumps(destination_contents))
 
         # Get destination container type
-        container_spec = record.document.find(destination.container_type).value
+        container_spec = record.document.find(destination.container_type)
         container_class = ContainerOntology.uri + '#' + container_spec.queryString.split(':')[-1]
         container_str = ContainerOntology.get_term_by_uri(container_class)
         destination.name = container_spec.name
@@ -616,13 +616,13 @@ class MarkdownSpecialization(BehaviorSpecialization):
             l.warn(f"Cannot instantiate a map for TransferByMap because plan is None")
 
         if source:
-            source_container = record.document.find(source.container_type).value
+            source_container = record.document.find(source.container_type)
             source_names = get_sample_names(source, error_msg='Transfer execution failed. All source Components must specify a name.')
         else:
             source_container = None
 
         if destination:
-            container_spec = record.document.find(destination.container_type).value
+            container_spec = record.document.find(destination.container_type)
             container_class = ContainerOntology.uri + '#' + container_spec.queryString.split(':')[-1]
             container_str = ContainerOntology.get_term_by_uri(container_class)
         else:
@@ -668,7 +668,7 @@ class MarkdownSpecialization(BehaviorSpecialization):
         container = parameter_value_map['container']['value']
 
         # Generate markdown
-        container_str = record.document.find(container.container_type).value.name
+        container_str = record.document.find(container.container_type).name
         inocula_names = get_sample_names(inocula, error_msg='Culture execution failed. All input inoculum Components must specify a name.')
         #text = f'Inoculate `{inocula_names[0]}` into {volume_scalar} {volume_units} of {growth_medium.name} in {container_str} and grow for {measurement_to_text(duration)} at {measurement_to_text(temperature)} and {int(orbital_shake_speed.value)} rpm.'
         if duration_scalar > 14:
@@ -744,7 +744,7 @@ class MarkdownSpecialization(BehaviorSpecialization):
         destination.contents = source.contents
 
         # Get destination container type
-        container_spec = record.document.find(destination.container_type).value
+        container_spec = record.document.find(destination.container_type)
         container_class = ContainerOntology.uri + '#' + container_spec.queryString.split(':')[-1]
         container_str = ContainerOntology.get_term_by_uri(container_class)
 
@@ -774,7 +774,7 @@ class MarkdownSpecialization(BehaviorSpecialization):
         destination.contents = source.contents
 
         # Get destination container type
-        container_spec = record.document.find(destination.container_type).value
+        container_spec = record.document.find(destination.container_type)
         container_class = ContainerOntology.uri + '#' + container_spec.queryString.split(':')[-1]
         container_text = ContainerOntology.get_term_by_uri(container_class)
 
@@ -896,7 +896,7 @@ class MarkdownSpecialization(BehaviorSpecialization):
         specification = parameter_value_map['specification']['value']
 
         # Get destination container type
-        container_spec = record.document.find(location.container_type).value
+        container_spec = record.document.find(location.container_type)
         container_class = ContainerOntology.uri + '#' + container_spec.queryString.split(':')[-1]
         container_str = ContainerOntology.get_term_by_uri(container_class)
 
