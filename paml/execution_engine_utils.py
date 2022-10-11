@@ -305,7 +305,7 @@ def protocol_execution_unbound_inputs(self):
             p.node.lookup().parameter.lookup().property_value for p in self.executions
             if isinstance(p.node.lookup(), uml.ActivityParameterNode) and
                p.node.lookup().parameter.lookup().property_value.direction == uml.PARAMETER_IN and
-               p.node.lookup().parameter.lookup().property_value not in [pv.parameter for pv in self.parameter_values ]
+               p.node.lookup().parameter.lookup().property_value not in [pv.parameter.lookup().property_value for pv in self.parameter_values ]
         ]
     return unbound_input_parameters
 paml.ProtocolExecution.unbound_inputs = protocol_execution_unbound_inputs
@@ -315,7 +315,7 @@ def protocol_execution_unbound_outputs(self):
             p.node.lookup().parameter.lookup().property_value for p in self.executions
             if isinstance(p.node.lookup(), uml.ActivityParameterNode) and
             p.node.lookup().parameter.lookup().property_value.direction == uml.PARAMETER_OUT and
-            p.node.lookup().parameter.lookup().property_value not in [pv.parameter for pv in self.parameter_values ]
+            p.node.lookup().parameter.lookup().property_value not in [pv.parameter.lookup().property_value for pv in self.parameter_values ]
         ]
     return unbound_output_parameters
 paml.ProtocolExecution.unbound_outputs = protocol_execution_unbound_outputs
