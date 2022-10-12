@@ -43,8 +43,7 @@ class TestProtocolOutputs(unittest.TestCase):
         # rather than breaking cryptically
         agent = sbol3.Agent("test_agent")
         ee = ExecutionEngine(specializations=[MarkdownSpecialization("test_LUDOX_markdown.md")])
-        with self.assertRaises(ValueError):
-            ex = ee.execute(self.protocol, agent, id="test_execution", parameter_values=[])
+        ex = ee.execute(self.protocol, agent, id="test_execution", parameter_values=[])
 
     def test_specialized_compute_output(self):
         # This test confirms generation of an output token from a Primitive
