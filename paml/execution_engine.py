@@ -13,7 +13,6 @@ import paml
 import uml
 import sbol3
 
-from IPython.display import display, HTML
 
 from paml_convert.behavior_specialization import BehaviorSpecialization, DefaultBehaviorSpecialization
 from paml.primitive_execution import initialize_primitive_compute_output
