@@ -13,6 +13,13 @@ import paml
 from paml.execution_engine import ExecutionEngine
 import uml
 
+# Save testfiles as artifacts when running in CI environment,
+# else save them to a local temp directory
+if 'GH_TMPDIR' in os.environ:
+    TMPDIR = os.environ['GH_TMPDIR']
+else:
+    TMPDIR = tempfile.gettempdir()
+
 class TestProtocolEndToEnd(unittest.TestCase):
 
     def test_create_protocol(self):
@@ -54,7 +61,8 @@ class TestProtocolEndToEnd(unittest.TestCase):
         v = doc.validate()
         assert len(v) == 0, "".join(f'\n {e}' for e in v)
 
-        temp_name = os.path.join(tempfile.gettempdir(), 'decision_node_test.nt')
+
+        temp_name = os.path.join(TMPDIR, 'decision_node_test.nt')
         doc.write(temp_name, sbol3.SORTED_NTRIPLES)
         print(f'Wrote file as {temp_name}')
 
