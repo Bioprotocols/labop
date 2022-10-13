@@ -3,15 +3,13 @@ import logging
 import os
 import tempfile
 import unittest
-from importlib.machinery import SourceFileLoader
-from importlib.util import spec_from_loader, module_from_spec
-from typing import List, Tuple
 
 import sbol3
 
+import uml
 import paml
 from paml.execution_engine import ExecutionEngine
-import uml
+
 
 # Save testfiles as artifacts when running in CI environment,
 # else save them to a local temp directory

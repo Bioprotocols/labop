@@ -21,3 +21,5 @@ test/test_validation.py
 test_LUDOX_markdown.md
 cluster_http:/bbn.com/scratch/test_execution1.gv
 _root.gv
+test/test_decision_nodes.py
+cluster_https:/bbn.com/scratch/test_execution.gv

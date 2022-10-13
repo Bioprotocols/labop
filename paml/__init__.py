@@ -1,14 +1,10 @@
-import html
 import os
 import posixpath
-from typing import Dict, List, Tuple
 
-import graphviz
-import tyto
-from sbol_factory import SBOLFactory, UMLFactory
+from sbol_factory import SBOLFactory
 import sbol3
 
-import uml # Note: looks unused, but is used in SBOLFactory
+import uml
 
 # Load the ontology and create a Python module called paml_submodule
 SBOLFactory('paml_submodule',

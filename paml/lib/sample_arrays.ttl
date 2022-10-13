@@ -97,7 +97,7 @@
         sbol:TopLevel ;
     ns1:ownedParameter <https://bioprotocols.org/paml/primitives/sample_arrays/LoadRackOnInstrument/OrderedPropertyValue1>,
         <https://bioprotocols.org/paml/primitives/sample_arrays/LoadRackOnInstrument/OrderedPropertyValue2> ;
-    sbol:description "Insert a cont:Rack, i.e., tube rack, pipette tip rack, or microwell plate into an addressed location on a robotic platform" ;
+    sbol:description "Insert a tube rack, pipette tip rack, or microwell plate into an addressed location on a robotic platform" ;
     sbol:displayId "LoadRackOnInstrument" ;
     sbol:hasNamespace <https://bioprotocols.org/paml/primitives/sample_arrays> .
 
