@@ -4,6 +4,7 @@ import uml
 def protocol_template():
     """
     Create a template instantiation of a protocol.  Used for populating UI elements.
+
     :param
     :return: str
     """
@@ -13,6 +14,7 @@ Protocol.template = protocol_template
 def primitive_template(self):
     """
     Create a template instantiation of a primitive for writing a protocol.  Used for populating UI elements.
+
     :param self:
     :return: str
     """
@@ -25,6 +27,7 @@ Primitive.template = primitive_template
 def sample_array_str(self):
     """
     Create a human readable string for a SampleArray.
+
     :param self:
     :return: str
     """
@@ -34,6 +37,7 @@ SampleArray.__str__ = sample_array_str
 def sample_mask_str(self):
     """
     Create a human readable string for a SampleMask.
+
     :param self:
     :return: str
     """
@@ -43,6 +47,7 @@ SampleMask.__str__ = sample_mask_str
 def sample_data_str(self):
     """
     Create a human readable string for a SampleData.
+
     :param self:
     :return: str
     """

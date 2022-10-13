@@ -14,6 +14,7 @@ l.setLevel(logging.ERROR)
 def call_behavior_execution_compute_output(self, parameter):
     """
     Get parameter value from call behavior execution
+
     :param self:
     :param parameter: output parameter to define value
     :return: value
@@ -28,6 +29,7 @@ paml.CallBehaviorExecution.compute_output = call_behavior_execution_compute_outp
 def call_behavior_action_compute_output(self, inputs, parameter):
     """
     Get parameter value from call behavior action
+
     :param self:
     :param inputs: token values for object pins
     :param parameter: output parameter to define value
@@ -42,6 +44,7 @@ uml.CallBehaviorAction.compute_output = call_behavior_action_compute_output
 def call_behavior_action_input_parameter_values(self, inputs=None):
     """
     Get parameter values for all inputs
+
     :param self:
     :param parameter: output parameter to define value
     :return: value
@@ -77,6 +80,7 @@ uml.CallBehaviorAction.input_parameter_values = call_behavior_action_input_param
 def primitive_compute_output(self, inputs, parameter):
     """
     Compute the value for parameter given the inputs. This default function will be overridden for specific primitives.
+
     :param self:
     :param inputs: list of paml.ParameterValue
     :param parameter: Parameter needing value

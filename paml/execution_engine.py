@@ -24,7 +24,8 @@ failsafe = True  # When set to True, a protocol execution will proceed through t
 
 
 class ExecutionEngine(ABC):
-    """Base class for implementing and recording a PAML executions.
+    """
+    Base class for implementing and recording a PAML executions.
     This class can handle common UML activities and the propagation of tokens, but does not execute primitives.
     It needs to be extended with specific implementations that have that capability.
     """
@@ -90,18 +91,16 @@ class ExecutionEngine(ABC):
                 id: str = uuid.uuid4(),
                 start_time: datetime.datetime = None
                 ) -> paml.ProtocolExecution:
-        """Execute the given protocol against the provided parameters
+        """
+        Execute the given protocol against the provided parameters
 
-        Parameters
-        ----------
-        protocol: Protocol to execute
-        agent: Agent that is executing this protocol
-        parameter_values: List of all input parameter values (if any)
-        id: display_id or URI to be used as the name of this execution; defaults to a UUID display_id
+        :param protocol: Protocol to execute
+        :param agent: Agent that is executing this protocol
+        :param parameter_values:  List of all input parameter values (if any)
+        :param id: display_id or URI to be used as the name of this execution; defaults to a UUID display_id
+        :param start_time: FIXME
 
-        Returns
-        -------
-        ProtocolExecution containing a record of the execution
+        :return: ProtocolExecution containing a record of the execution
         """
 
         # Record in the document containing the protocol
@@ -153,17 +152,15 @@ class ExecutionEngine(ABC):
     def executable_activity_nodes(self, protocol: paml.Protocol, tokens: List[paml.ActivityEdgeFlow],
                                   parameter_values: List[paml.ParameterValue])\
             -> List[uml.ActivityNode]:
-        """Find all of the activity nodes that are ready to be run given the current set of tokens
+        """
+        Find all of the activity nodes that are ready to be run given the current set of tokens
         Note that this will NOT identify activities with no in-flows: those are only set up as initiating nodes
 
-        Parameters
-        ----------
-        protocol: paml.Protocol being executed
-        tokens: set of ActivityEdgeFlow records that have not yet been consumed
+        :param protocol: paml.Protocol being executed
+        :param tokens: set of ActivityEdgeFlow records that have not yet been consumed
+        :param parameter_values: FIXME
 
-        Returns
-        -------
-        List of ActivityNodes that are ready to be run
+        :return: List of ActivityNodes that are ready to be run
         """
         candidate_clusters = {}
         for t in tokens:
@@ -174,19 +171,16 @@ class ExecutionEngine(ABC):
 
     def enabled_activity_node(self,  protocol: paml.Protocol, node: uml.ActivityNode,
                               tokens: List[paml.ActivityEdgeFlow], parameter_values: List[paml.ParameterValue]):
-        """Check whether all incoming edges have values defined by a token in tokens and that all value pin values are
-           defined.
+        """
+        Check whether all incoming edges have values defined by a token in tokens and that all value pin values are defined.
 
-         Parameters
-         ----------
-         protocol: paml.Protocol being executed
-         node: node to be executed
-         tokens: current list of pending edge flows
+        :param protocol: paml.Protocol being executed
+        :param node: node to be executed
+        :param tokens: current list of pending edge flows
+        :param parameter_values: FIXME
 
-         Returns
-         -------
-         bool if node is enabled
-         """
+        :return: bool if node is enabled
+        """
         tokens_present = {node.document.find(t.edge) for t in tokens if t.edge}==protocol.incoming_edges(node)
         if hasattr(node, "inputs"):
             required_inputs = [p for i in node.behavior.lookup().get_required_inputs() for p in node.input_pins(i.property_value.name)]
@@ -212,17 +206,14 @@ class ExecutionEngine(ABC):
 
     def execute_activity_node(self, ex : paml.ProtocolExecution, node: uml.ActivityNode,
                               tokens: List[paml.ActivityEdgeFlow]) -> List[paml.ActivityEdgeFlow]:
-        """Execute a node in an activity, consuming the incoming flows and recording execution and outgoing flows
+        """
+        Execute a node in an activity, consuming the incoming flows and recording execution and outgoing flows
 
-        Parameters
-        ----------
-        ex: Current execution record
-        node: node to be executed
-        tokens: current list of pending edge flows
+        :param ex: Current execution record
+        :param node: Node to be executed
+        :param tokens: Current list of pending edge flows
 
-        Returns
-        -------
-        updated list of pending edge flows
+        :return: Updated list of pending edge flows
         """
         # Extract the relevant set of incoming flow values
         # TODO change to pointer lookup after pySBOL #237
@@ -433,16 +424,13 @@ class ExecutionEngine(ABC):
 # Helper utility functions
 
 def sum_measures(measure_list):
-    """Add a list of measures and return a fresh measure
+    """
+    Add a list of measures and return a fresh measure
     Note: requires that all have the same unit and types
 
-    Parameters
-    ----------
-    measure_list of SBOL Measure objects
+    :param measure_list: list of SBOL Measure objects
 
-    Returns
-    -------
-    New Measure object with the sum of input measure amounts
+    :return: New Measure object with the sum of input measure amounts
     """
     prototype = measure_list[0]
     if not all(m.types == prototype.types and m.unit == prototype.unit for m in measure_list):
@@ -452,11 +440,11 @@ def sum_measures(measure_list):
 
 
 def protocol_execution_aggregate_child_materials(self):
-    """Merge the consumed material from children, adding a fresh Material for each to this record.
+    """
+    Merge the consumed material from children, adding a fresh Material for each to this record.
 
-    Parameters
-    ----------
-    self: ProtocolExecution object
+    :param self: ProtocolExecution object
+    :return:
     """
     child_materials = [e.call.consumed_material for e in self.executions
                        if isinstance(e, paml.CallBehaviorExecution) and
@@ -470,6 +458,7 @@ paml.ProtocolExecution.aggregate_child_materials = protocol_execution_aggregate_
 def protocol_execution_to_dot(self):
     """
     Create a dot graph that illustrates edge values appearing the execution of the protocol.
+
     :param self:
     :return: graphviz.Digraph
     """
