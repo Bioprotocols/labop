@@ -270,7 +270,7 @@ class StringProtocolExecutionExtractor(ProtocolExecutionExtractor):
 def backtrace(
     self,
     stack=None,
-    extractor: ProtocolExecutionExtractor = None):
+    extractor: ProtocolExecutionExtractor = JSONProtocolExecutionExtractor()):
     stack = self.executions if stack is None else stack
     if len(stack) == 0:
         return set([]), []
@@ -416,15 +416,19 @@ def call_behavior_execution_check_next_tokens(
 
     # ## Add the output values to the call parameter-values
     linked_parameters = []
-    for token in tokens:
-        edge = token.edge.lookup()
-        if isinstance(edge, uml.ObjectFlow):
-            source = edge.source.lookup()
-            parameter = self.node.lookup().pin_parameter(source.name)
-            linked_parameters.append(parameter)
-            parameter_value = uml.literal(token.value.get_value(), reference=True)
-            pv = paml.ParameterValue(parameter=parameter, value=parameter_value)
-            self.call.lookup().parameter_values += [pv]
+    if not isinstance(self.node.lookup().behavior.lookup(), paml.Protocol):
+        # Protocol invocation's use output values for the linkage from
+        # protocol-input to subprotocol-input, so don't add as an output
+        # parameter-value
+        for token in tokens:
+            edge = token.edge.lookup()
+            if isinstance(edge, uml.ObjectFlow):
+                source = edge.source.lookup()
+                parameter = self.node.lookup().pin_parameter(source.name)
+                linked_parameters.append(parameter)
+                parameter_value = uml.literal(token.value.get_value(), reference=True)
+                pv = paml.ParameterValue(parameter=parameter, value=parameter_value)
+                self.call.lookup().parameter_values += [pv]
 
     # Assume that unlinked output pins to the parameter values of the call
     unlinked_output_parameters = [

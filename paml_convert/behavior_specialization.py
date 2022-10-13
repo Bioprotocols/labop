@@ -72,7 +72,10 @@ class BehaviorSpecialization(ABC):
     def handle(self, record, execution):
         # Save basic information about the execution record
         node = record.node.lookup()
-        params = input_parameter_map(record.call.lookup().parameter_values)
+        params = input_parameter_map([
+            pv for pv in record.call.lookup().parameter_values
+            if pv.parameter.lookup().property_value.direction == uml.PARAMETER_IN
+            ])
         params = {p: str(v) for p, v in params.items()}
         node_data = {
             "identity": node.identity,
