@@ -20,3 +20,4 @@ test/test_validation.py
 *.gv.pdf
 test_LUDOX_markdown.md
 cluster_http:/bbn.com/scratch/test_execution1.gv
+_root.gv
