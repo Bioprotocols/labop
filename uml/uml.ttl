@@ -783,7 +783,20 @@ uml:ActivityEdge a owl:Class ;
         [ a owl:Restriction ;
             owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
             owl:onProperty uml:target ],
+        [ a owl:Restriction ;
+            owl:allValuesFrom uml:ActivityNode ;
+            owl:onProperty uml:guard ],
+        [ a owl:Restriction ;
+            owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
+            owl:onProperty uml:guard ],
         sbol:Identified .
+
+uml:guard a owl:ObjectProperty ;
+    rdfs:label "guard" ;
+    rdfs:comment "A ValueSpecification that guards an ActivityEdge." ;
+    rdfs:domain uml:ActivityEdge ;
+    rdfs:range uml:ValueSpecification ;
+    rdfs:subPropertyOf sbol:directlyComprises .
 
 uml:Constraint a owl:Class ;
     rdfs:comment "A Constraint is a condition or restriction expressed in natural language text or in a machine readable language. See UML 2.5.1 specification section 7.6." ;

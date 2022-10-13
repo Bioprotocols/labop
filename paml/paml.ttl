@@ -146,7 +146,7 @@ paml:ContainerSpec a owl:Class ;
         [ a owl:Restriction ;
             owl:minCardinality "0"^^xsd:nonNegativeInteger ;
             owl:onProperty paml:prefixMap ],
-        sbol:Identified .
+        sbol:TopLevel .
 
 paml:Protocol a owl:Class ;
     rdfs:comment """A Protocol describes how to carry out some form of laboratory or research process.
@@ -196,10 +196,6 @@ paml:SampleArray a owl:Class ;
         [ a owl:Restriction ;
             rdfs:comment "N-dimensional array of URI for specification or nulls" ;
             owl:minCardinality "1"^^xsd:nonNegativeInteger ;
-            owl:onProperty paml:contents ],
-        [ a owl:Restriction ;
-            rdfs:comment "N-dimensional array of URI for specification or nulls" ;
-            owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
             owl:onProperty paml:contents ],
         [ a owl:Restriction ;
             rdfs:comment "N-dimensional array of URI for specification or nulls" ;
@@ -325,7 +321,17 @@ paml:ProtocolExecution a owl:Class ;
         [ a owl:Restriction ;
             owl:allValuesFrom paml:ActivityEdgeFlow ;
             owl:onProperty paml:flow ],
+        [ a owl:Restriction ;
+            owl:allValuesFrom paml:edge ;
+            owl:onProperty paml:activityCallEdge ],
         paml:BehaviorExecution .
+
+paml:activityCallEdge a owl:ObjectProperty ;
+    rdfs:label "activity_call_edge" ;
+    rdfs:comment """ActivityEdge list for CallBehaviorAction to Activity invocations""" ;
+    rdfs:domain paml:ProtocolExecution ;
+    rdfs:range paml:edge ;
+    rdfs:subPropertyOf sbol:directlyComprises .
 
 paml:amount a owl:ObjectProperty ;
     rdfs:label "amount" ;
@@ -391,7 +397,7 @@ paml:fromSamples a owl:ObjectProperty ;
 
 paml:node a owl:ObjectProperty ;
     rdfs:label "node" ;
-    rdfs:comment "This property is used to indicate the uml:ActivityNode that has been execcuted." ;
+    rdfs:comment "This property is used to indicate the uml:ActivityNode that has been executed." ;
     rdfs:domain paml:ActivityNodeExecution ;
     rdfs:range uml:ActivityNode .
 

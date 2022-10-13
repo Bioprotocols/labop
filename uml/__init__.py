@@ -4,6 +4,10 @@ from collections import Counter
 from typing import List, Set, Iterable
 from sbol_factory import SBOLFactory, UMLFactory
 import sbol3
+import logging
+
+l = logging.getLogger(__file__)
+l.setLevel(logging.WARN)
 
 # Load ontology and create uml submodule
 SBOLFactory('uml_submodule',
@@ -29,6 +33,7 @@ def id_sort(i: iter):
 # TODO: move constants into ontology after resolution of https://github.com/SynBioDex/sbol_factory/issues/14
 PARAMETER_IN = 'http://bioprotocols.org/uml#in'
 PARAMETER_OUT = 'http://bioprotocols.org/uml#out'
+DECISION_ELSE = 'http://bioprotocols.org/uml#else'
 
 
 def literal(value, reference: bool = False) -> LiteralSpecification:
@@ -45,16 +50,18 @@ def literal(value, reference: bool = False) -> LiteralSpecification:
     """
     if isinstance(value, LiteralReference):
         return literal(value.value.lookup(), reference) # if it's a reference, make co-reference
+    elif isinstance(value, LiteralNull):
+        return LiteralNull()
     elif isinstance(value, LiteralSpecification):
         return literal(value.value, reference) # if it's a literal, unwrap and rebuild
     elif value is None:
         return LiteralNull()
     elif isinstance(value, str):
         return LiteralString(value=value)
-    elif isinstance(value, int):
-        return LiteralInteger(value=value)
     elif isinstance(value, bool):
         return LiteralBoolean(value=value)
+    elif isinstance(value, int):
+        return LiteralInteger(value=value)
     elif isinstance(value, float):
         return LiteralReal(value=value)
     elif isinstance(value, sbol3.TopLevel) or (reference and isinstance(value, sbol3.Identified)):
@@ -64,6 +71,17 @@ def literal(value, reference: bool = False) -> LiteralSpecification:
     else:
         raise ValueError(f'Don\'t know how to make literal from {type(value)} "{value}"')
 
+def literal_value(self: LiteralSpecification):
+    return self.value
+LiteralSpecification.get_value = literal_value
+
+def literal_null_value(self: LiteralNull):
+    return None
+LiteralNull.get_value = literal_null_value
+
+def literal_reference_value(self: LiteralReference):
+    return self.value.lookup()
+LiteralReference.get_value = literal_reference_value
 
 ###########################################
 # Define extension methods for Behavior
@@ -335,7 +353,7 @@ def add_call_behavior_action(parent: Activity, behavior: Behavior, **input_pin_l
             # Now create pins for all the input values
             for value in values:
                 if isinstance(value, sbol3.TopLevel) and not value.document:
-                    raise ValueError(f'Input object {value.identity} must be added to the Document before it can be used')
+                    parent.document.add(value)
                 action.inputs.append(ValuePin(name=i.property_value.name, is_ordered=i.property_value.is_ordered,
                                               is_unique=i.property_value.is_unique, value=literal(value)))
 
@@ -379,7 +397,7 @@ def activity_final(self):
     """
     final = [a for a in self.nodes if isinstance(a, FinalNode)]
     if not final:
-        self.nodes.append(FlowFinalNode())
+        self.nodes.append(FinalNode())
         return self.final()
     elif len(final) == 1:
         return final[0]
@@ -418,7 +436,10 @@ def activity_designate_output(self, name: str, param_type: str, source: Activity
     parameter = self.add_output(name=name, param_type=param_type)
     node = ActivityParameterNode(parameter=parameter)
     self.nodes.append(node)
-    self.use_value(source, node)
+    if source:
+        self.use_value(source, node)
+    else:
+        l.warn(f"Creating ActivityParameterNode in designate_output() that has no source.")
     return node
 Activity.designate_output = activity_designate_output  # Add to class via monkey patch
 

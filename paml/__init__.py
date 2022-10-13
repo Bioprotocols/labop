@@ -1,14 +1,10 @@
-import html
 import os
 import posixpath
-from typing import Dict
 
-import graphviz
-import tyto
-from sbol_factory import SBOLFactory, UMLFactory
+from sbol_factory import SBOLFactory
 import sbol3
 
-import uml # Note: looks unused, but is used in SBOLFactory
+import uml
 
 # Load the ontology and create a Python module called paml_submodule
 SBOLFactory('paml_submodule',
@@ -22,6 +18,9 @@ from paml.ui import *
 from paml.data import *
 from paml.sample_maps import *
 from paml.primitive_execution import *
+from paml.decisions import *
+from paml.execution_engine import *
+from paml.execution_engine_utils import *
 
 
 #########################################
@@ -85,179 +84,12 @@ def protocol_primitive_step(self, primitive: Primitive, **input_pin_map):
     return pe
 Protocol.primitive_step = protocol_primitive_step  # Add to class via monkey patch
 
-#def protocol_add_sub_protocol(self, subprotocol: Protocol, **input_pin_map):
-#    self.
-
 ###############################################################################
 #
 # Protocol class: execution related functions
 #
 ###############################################################################
 
-def protocol_to_dot(self, legend=False):
-    def _gv_sanitize(id: str):
-        return html.escape(id.replace(":", "_"))
-
-    def _legend():
-        fontsize="10pt"
-        legend = graphviz.Digraph(name="cluster_Legend",
-                                  graph_attr={
-                                      "label" : "Legend",
-                                      "shape" : "rectangle",
-                                      "color" : "black",
-                                      "rank" : "TB",
-                                      "fontsize" : fontsize
-                                  })
-        legend.node("InitialNode_Legend", _attributes={'label': 'InitialNode', 'fontcolor' : "white", 'shape': 'circle', 'style': 'filled', 'fillcolor': 'black', "fontsize" : fontsize })
-        #legend.node("CallBehaviorAction_Legend", _attributes=_type_attrs(uml.CallBehaviorAction()))
-        legend.node("FinalNode_Legend", _attributes={'label': 'FinalNode', 'fontcolor' : "white", 'shape': 'doublecircle', 'style': 'filled', 'fillcolor': 'black', "fontsize" : fontsize})
-        legend.node("ForkNode_Legend", _attributes={'label': 'ForkNode', 'fontcolor' : "white", 'shape': 'rectangle', 'height': '0.02', 'style': 'filled', 'fillcolor': 'black', "fontsize" : fontsize})
-        legend.node("MergeNode_Legend", _attributes={'label': 'MergeNode', 'shape': 'diamond', "fontsize" : fontsize})
-        legend.node("ActivityParameterNode_Legend", _attributes={'label': "ActivityParameterNode", 'shape': 'rectangle', 'peripheries': '2', "fontsize" : fontsize})
-        legend.node("CallBehaviorAction_Legend", _attributes={
-            "label" : f'<<table border="0" cellspacing="0"><tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="InputPin1" border="1">InputPin</td><td> </td><td port="ValuePin1" border="1">ValuePin: Value</td><td> </td></tr></table></td></tr><tr><td port="node" border="1">CallBehaviorAction</td></tr><tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="OutputPin1" border="1">OutputPin</td><td> </td></tr></table></td></tr></table>>',
-            "shape" : "none",
-            "style": "rounded", "fontsize" : fontsize
-        })
-        legend.node("a", _attributes={"style": "invis"})
-        legend.node("b", _attributes={"style": "invis"})
-        legend.node("c", _attributes={"style": "invis"})
-        legend.node("d", _attributes={"style": "invis"})
-        legend.edge("a", "b", label="uml.ControlFlow", _attributes={"color" : "blue", "fontsize" : fontsize})
-        legend.edge("c", "d", label="uml.ObjectFlow", _attributes={"fontsize" : fontsize})
-        legend.edge("InitialNode_Legend", "FinalNode_Legend", _attributes={"style" : "invis"})
-        legend.edge("FinalNode_Legend", "ForkNode_Legend", _attributes={"style" : "invis"})
-        legend.edge("ForkNode_Legend", "MergeNode_Legend", _attributes={"style": "invis"})
-        legend.edge("MergeNode_Legend", "ActivityParameterNode_Legend", _attributes={"style": "invis"})
-        legend.edge("ActivityParameterNode_Legend", "CallBehaviorAction_Legend", _attributes={"style": "invis"})
-        legend.edge("CallBehaviorAction_Legend", "a", _attributes={"style": "invis"})
-        legend.edge("b", "c", _attributes={"style": "invis"})
-        return legend
-
-
-    def _label(object: sbol3.Identified):
-        truncated = _gv_sanitize(object.identity.replace(f'{self.identity}/', ''))
-        in_struct = truncated.replace('/',':')
-        return in_struct #_gv_sanitize(object.identity.replace(f'{self.identity}/', ''))
-
-    def _inpin_str(pin: uml.InputPin) -> str:
-        if isinstance(pin, uml.ValuePin):
-            if isinstance(pin.value, uml.LiteralReference):
-                literal = pin.value.value.lookup()
-            else:
-                literal = pin.value.value
-            if isinstance(literal, sbol3.Measure):
-                # TODO: replace kludge with something nicer
-                if literal.unit.startswith('http://www.ontology-of-units-of-measure.org'):
-                    unit = tyto.OM.get_term_by_uri(literal.unit)
-                else:
-                    unit = literal.unit.rsplit('/',maxsplit=1)[1]
-                val_str = f'{literal.value} {unit}'
-            elif isinstance(literal, sbol3.Identified):
-                val_str = literal.name or literal.display_id
-            elif isinstance(literal, str) or isinstance(literal, int) or isinstance(literal, flow) or isinstance(literal, bool):
-                # FIXME: For longer strings, it would be better to left-justify than to center, but I have
-                # no great ideas about how to tell when that applies.
-                val_str = html.escape(str(literal)).lstrip('\n').replace('\n', '<br/>')
-            else:
-                raise ValueError(f'Do not know how to render literal value {literal}')
-            return f'{pin.name}: {val_str}'
-        else:
-            return pin.name
-
-    def _type_attrs(object: uml.ActivityNode) -> Dict[str,str]:
-        """Get an appropriate set of properties for rendering a GraphViz node.
-        Note that while these try to stay close to UML, the limits of GraphViz make us deviate in some cases
-
-        :param object: object to be rendered
-        :return: dict of attribute/value pairs
-        """
-        if isinstance(object, uml.InitialNode):
-            return {'label': '', 'shape': 'circle', 'style': 'filled', 'fillcolor': 'black' }
-        elif isinstance(object, uml.FinalNode):
-            return {'label': '', 'shape': 'doublecircle', 'style': 'filled', 'fillcolor': 'black'}
-        elif isinstance(object, uml.ForkNode) or isinstance(object, uml.JoinNode):
-            return {'label': '', 'shape': 'rectangle', 'height': '0.02', 'style': 'filled', 'fillcolor': 'black'}
-        elif isinstance(object, uml.MergeNode) or isinstance(object, uml.DecisionNode):
-            return {'label': '', 'shape': 'diamond'}
-        elif isinstance(object, uml.ObjectNode):
-            if isinstance(object, uml.ActivityParameterNode):
-                label = object.parameter.lookup().property_value.name
-            else:
-                raise ValueError(f'Do not know what GraphViz label to use for {object}')
-            return {'label': label, 'shape': 'rectangle', 'peripheries': '2'}
-        elif isinstance(object, uml.ExecutableNode):
-            if isinstance(object, uml.CallBehaviorAction): # render as an HMTL table with pins above/below call
-                port_row = '  <tr><td><table border="0" cellspacing="-2"><tr><td> </td>{}<td> </td></tr></table></td></tr>\n'
-                used_inputs = [o for o in object.inputs if isinstance(o,uml.ValuePin) or self.incoming_edges(o)]
-                in_ports = '<td> </td>'.join(f'<td port="{i.display_id}" border="1">{_inpin_str(i)}</td>' for i in used_inputs)
-                in_row = port_row.format(in_ports) if in_ports else ''
-                out_ports = '<td> </td>'.join(f'<td port="{o.display_id}" border="1">{o.name}</td>' for o in object.outputs)
-                out_row = port_row.format(out_ports) if out_ports else ''
-
-                node_row = f'  <tr><td port="node" border="1">{object.behavior.lookup().display_id}</td></tr>\n'
-                table_template = '<<table border="0" cellspacing="0">\n{}{}{}</table>>'
-                label = table_template.format(in_row,node_row,out_row)
-                shape = 'none'
-            else:
-                raise ValueError(f'Do not know what GraphViz label to use for {object}')
-            return {'label': label, 'shape': shape, 'style': 'rounded'}
-        else:
-            raise ValueError(f'Do not know what GraphViz attributes to use for {object}')
-
-    try:
-        parent = graphviz.Digraph(name='_root')
-        parent.attr(compound='true')
-        dot = graphviz.Digraph(name=f'cluster_{_gv_sanitize(self.identity)}',
-                               graph_attr={
-                                   'label': self.name,
-                                   'shape': 'box'
-                               })
-        if legend:
-            dot.subgraph(_legend())
-
-        for edge in self.edges:
-            src_id = _label(edge.source.lookup()) #edge.source.replace(":", "_")
-            dest_id = _label(edge.target.lookup()) #edge.target.replace(":", "_")
-            edge_id = _label(edge) #edge.identity.replace(":", "_")
-            if isinstance(edge.target.lookup(), uml.CallBehaviorAction):
-                dest_id = f'{dest_id}:node'
-            if isinstance(edge.source.lookup(), uml.CallBehaviorAction):
-                src_id = f'{src_id}:node'
-
-            source = self.document.find(edge.source)
-            if isinstance(source, uml.Pin):
-                try:
-                    src_activity = source.get_parent()
-                    #dot.edge(_label(src_activity), src_id, label=f"{source.name}")
-                    #src_activity = source.identity.rsplit('/', 1)[0] # Assumes pin is owned by activity
-                    #dot.edge(src_activity.replace(":", "_"), src_id, label=f"{source.name}")
-                except Exception as e:
-                    print(f"Cannot find source activity for {source.identity}")
-            target = self.document.find(edge.target)
-            if isinstance(target, uml.Pin):
-                try:
-                    dest_activity = target.get_parent()
-                    #dot.edge(dest_id, _label(dest_activity), label=f"{target.name}")
-                    #dest_activity = target.identity.rsplit('/', 1)[0] # Assumes pin is owned by activity
-                    #dot.edge(dest_id, dest_activity.replace(":", "_"), label=f"{target.name}")
-                except Exception as e:
-                    print(f"Cannot find source activity for {source.identity}")
-
-            #dot.node(src_id, label=_name_to_label(src_id))
-            #dot.node(dest_id, label=_name_to_label(dest_id))
-            #dot.node(edge_id, label=edge_id)
-            color = 'blue' if isinstance(edge, uml.ControlFlow) else 'black'
-            dot.edge(src_id, dest_id, color=color)
-        for node in self.nodes:
-            node_id = _label(node)
-            dot.node(node_id, **_type_attrs(node))
-
-    except Exception as e:
-        print(f"Cannot translate to graphviz: {e}")
-    parent.subgraph(dot)
-    return parent
-Protocol.to_dot = protocol_to_dot
 
 def activity_edge_flow_get_target(self):
     '''Find the target node of an edge flow
@@ -269,10 +101,17 @@ def activity_edge_flow_get_target(self):
         -------
 
         '''
+    token_source_node = self.token_source.lookup().node.lookup()
     if self.edge:
-        target = self.document.find(self.document.find(self.edge).target)
-    else: # Tokens for pins do not have an edge connecting pin to activity
-        target = self.document.find(self.document.find(self.token_source).node).get_parent()
+        target = self.edge.lookup().target.lookup()
+    elif isinstance(token_source_node, uml.InputPin): # Tokens for pins do not have an edge connecting pin to activity
+        target = token_source_node.get_parent()
+    elif isinstance(token_source_node, uml.CallBehaviorAction) and \
+         isinstance(token_source_node.behavior.lookup(), paml.Protocol):
+         # If no edge (because cannot link to InitialNode), then if source is calling a subprotocol, use subprotocol initial node
+        target = token_source_node.behavior.lookup().initial()
+    else:
+        raise Exception(f"Cannot find the target node of edge flow: {self}")
     return target
 ActivityEdgeFlow.get_target = activity_edge_flow_get_target
 
@@ -309,11 +148,13 @@ def primitive_str(self):
     output_str = f"Output Parameters:\n\t{output_parameter_strs}" if len(output_parameter_strs) > 0 else ""
     return f"""
 Primitive: {self.identity}
+'''
+{self.description}
+'''
 {input_str}
 {output_str}
             """
 Primitive.__str__ = primitive_str
-
 
 def behavior_execution_parameter_value_map(self):
     """
@@ -324,18 +165,11 @@ def behavior_execution_parameter_value_map(self):
     parameter_value_map = {}
     for pv in self.parameter_values:
         name = pv.parameter.lookup().property_value.name
-        # Dereference pointers to get the actual values
         ref = pv.value
-        if isinstance(ref, uml.LiteralReference):
-            ref = ref.value.lookup()
-        if isinstance(ref, uml.LiteralReference):  # output token objects must be dereferenced twice, see compute_outputs and get_value
-            ref = ref.value.lookup()
-        if isinstance(ref, uml.LiteralIdentified):
-            ref = ref.value
 
         # Done dereferencing, now get the actual parameter values
         if isinstance(ref, uml.LiteralSpecification):
-            value = ref.value
+            value = ref.get_value()
         elif isinstance(ref, sbol3.Identified):
             value = ref
         else:
@@ -359,8 +193,11 @@ BehaviorExecution.parameter_value_map = behavior_execution_parameter_value_map
 
 
 def protocol_execution_get_ordered_executions(self):
-    protocol = self.protocol.lookup() 
-    [start_node] = [n for n in protocol.nodes if type(n) is uml.InitialNode]
+    protocol = self.protocol.lookup()
+    try:
+        [start_node] = [n for n in protocol.nodes if type(n) is uml.InitialNode]
+    except Exception as e:
+        raise Exception(f"Protocol {protocol.identity} has no InitialNode")
     [execution_start_node] = [x for x in self.executions if x.node == start_node.identity]  #ActivityNodeExecution
     ordered_execution_nodes = []
     current_execution_node = execution_start_node
@@ -377,7 +214,7 @@ ProtocolExecution.get_ordered_executions = protocol_execution_get_ordered_execut
 def protocol_execution_get_subprotocol_executions(self):
     ordered_subprotocol_executions = []
     ordered_execution_nodes = self.get_ordered_executions()
-    ordered_behavior_nodes = [x.node.lookup().behavior.lookup() for x in ordered_execution_nodes]
+    ordered_behavior_nodes = [x.node.lookup().behavior.lookup() for x in ordered_execution_nodes if isinstance(x, CallBehaviorExecution)]
     ordered_subprotocols = [x.identity for x in ordered_behavior_nodes if isinstance(x, Protocol)]
     ordered_subprotocol_executions = [o for x in ordered_subprotocols for o in self.document.objects if type(o) is ProtocolExecution and o.protocol == x]
     return ordered_subprotocol_executions
@@ -464,3 +301,18 @@ def __str__(self):
 for symbol in dir():
     if isinstance(symbol, sbol3.Identified):
         symbol.__str__ = __str__
+
+def primitive_inherit_parameters(self, parent_primitive):
+    """Add the parameters from parent_primitive to self parameters
+
+    :param parent_primitive: Primitive with parameters to inherit
+    """
+    for p in parent_primitive.parameters:
+        param = p.property_value
+        if param.direction == uml.PARAMETER_IN:
+            self.add_input(param.name, param.type, optional=(param.lower_value.value==0), default_value=param.default_value)
+        elif param.direction == uml.PARAMETER_OUT:
+            self.add_output(param.name, param.type)
+        else:
+            raise Exception(f"Cannot inherit parameter {param.name}")
+paml.Primitive.inherit_parameters = primitive_inherit_parameters

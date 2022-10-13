@@ -85,7 +85,8 @@ class TestProtocolEndToEnd(unittest.TestCase):
         print(f'Wrote file as {temp_name}')
 
         comparison_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'testfiles', 'igem_ludox_data_test.nt')
-        # doc.write(comparison_file, sbol3.SORTED_NTRIPLES)
+        # with open(comparison_file, 'w') as f:
+        #     f.write(doc.write_string(sbol3.SORTED_NTRIPLES).strip())
         print(f'Comparing against {comparison_file}')
         assert filecmp.cmp(temp_name, comparison_file), "Files are not identical"
         print('File identical with test file')

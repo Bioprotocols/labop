@@ -86,7 +86,10 @@ def create_plate(protocol: paml.Protocol):
     # graph.add((plate_spec_uri, CONT_NS.containerOntologyQuery, PLATE_SPECIFICATION))
     # plate_spec = sbol3.Identified(plate_spec_uri,
     #                               "foo", name="RequiredPlate")
-    spec = paml.ContainerSpec(queryString=PLATE_SPECIFICATION, prefixMap=PREFIX_MAP, name='plateRequirement')
+    spec = paml.ContainerSpec('plateRequirement',
+                              name='plateRequirement',
+                              queryString=PLATE_SPECIFICATION,
+                              prefixMap=PREFIX_MAP)
     plate = protocol.primitive_step('EmptyContainer',
                                     specification=spec)
     plate.name = 'calibration plate'

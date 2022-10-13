@@ -57,17 +57,17 @@ def coordinate_to_row_col(coord: str):
 
 
 def coordinate_rect_to_row_col_pairs(coords: str):
-    parts = coords.split(':')
-    if len(parts) == 1:
-        return coordinate_to_row_col(parts[0])
-    if len(parts) == 2:
+    num_separators = coords.count(":")
+    if num_separators == 0:
+        return [coordinate_to_row_col(coords)]
+    elif num_separators == 1:
+        parts = coords.split(':')
         frow, fcol = coordinate_to_row_col(parts[0])
         srow, scol = coordinate_to_row_col(parts[1])
-    
+
         indices = []
         for i in range(fcol, scol + 1):
             for j in range(frow, srow + 1):
                 indices.append((j, i))
         return indices
     raise Exception(f"Invalid coordinates: {coords}")
-

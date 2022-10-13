@@ -58,7 +58,7 @@ class TestValidationErrorChecking(unittest.TestCase):
         expected = [
             'https://bbn.com/scratch/broken/ActivityParameterNode1: Too few values for property parameter. Expected 1, found 0',
             'https://bbn.com/scratch/broken/InitialNode1: InitialNode must have no incoming edges, but has 1',
-            'https://bbn.com/scratch/broken/FlowFinalNode1: Node has no incoming edges, so cannot be executed'
+            'https://bbn.com/scratch/broken/FinalNode1: Node has no incoming edges, so cannot be executed'
             ]
         observed = [str(e) for e in v]
         assert observed == expected, f'Unexpected error content: {observed}'

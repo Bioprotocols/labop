@@ -19,7 +19,7 @@ paml.import_library('liquid_handling')
 class TestProtocolInputs(unittest.TestCase):
 
     def test_input_object_not_contained_in_document(self):
-        # Throw an exception when input objects are not associated with a Document. See #128
+        # Automatically add input objects to a Document #157
         doc = sbol3.Document()
         protocol = paml.Protocol('foo')
         doc.add(protocol)
@@ -27,24 +27,18 @@ class TestProtocolInputs(unittest.TestCase):
         # Create the input, but don't add it to the Document yet
         input = sbol3.Component('input', sbol3.SBO_DNA)
 
-        container = protocol.primitive_step('EmptyContainer', 
-                                       specification=paml.ContainerSpec(name=f'empty container',
-                                       queryString='cont:Plate96Well', 
-                                       prefixMap={'cont': 'https://sift.net/container-ontology/container-ontology#'}))
+        container = protocol.primitive_step('EmptyContainer',
+                                            specification=paml.ContainerSpec('empty_container',
+                                            name=f'empty container',
+                                            queryString='cont:Plate96Well',
+                                            prefixMap={'cont': 'https://sift.net/container-ontology/container-ontology#'}))
 
-        # Trying to use the input should throw an exception
-        with self.assertRaises(ValueError):
-            provision = protocol.primitive_step('Provision',
-                                                resource=input,
-                                                destination=container.output_pin('samples'),
-                                                amount=sbol3.Measure(0, None))
-
-        doc.add(input)
         provision = protocol.primitive_step('Provision',
                                             resource=input,
                                             destination=container.output_pin('samples'),
                                             amount=sbol3.Measure(0, None))
 
+        assert input in doc.objects
 
     def test_unbounded_inputs(self):
         doc = sbol3.Document()
@@ -75,11 +69,11 @@ class TestProtocolInputs(unittest.TestCase):
             samples = parameter_value_map['samples']['value']
 
         ee = ExecutionEngine()
-        ee.specializations[0]._behavior_func_map[p.identity] = lambda record: None
+        ee.specializations[0]._behavior_func_map[p.identity] = lambda record, ex: None
         ex = ee.execute(protocol, sbol3.Agent('test_agent'), id="test_execution1", parameter_values=[ ])
 
-        # Check that execution has correct inputs 
-        [container_execution] = [x for x in ex.executions if x.node == container_set.identity] 
+        # Check that execution has correct inputs
+        [container_execution] = [x for x in ex.executions if x.node == container_set.identity]
         call = container_execution.call.lookup()
         self.assertEqual(len(call.parameter_value_map()['inputs']['value']), 2)
 

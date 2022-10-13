@@ -1,0 +1,1 @@
+from paml_convert.autoprotocol.autoprotocol_specialization import AutoprotocolSpecialization

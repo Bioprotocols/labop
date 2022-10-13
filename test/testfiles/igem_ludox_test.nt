@@ -28,19 +28,13 @@
 <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/CallBehaviorAction1/OutputPin1> <http://sbols.org/v3#name> "samples" .
 <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/CallBehaviorAction1/OutputPin1> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://bioprotocols.org/uml#OutputPin> .
 <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/CallBehaviorAction1/OutputPin1> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://sbols.org/v3#Identified> .
-<https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/CallBehaviorAction1/ValuePin1/LiteralIdentified1/ContainerSpec1> <http://bioprotocols.org/paml#prefixMap> "{\"cont\": \"https://sift.net/container-ontology/container-ontology#\", \"om\": \"http://www.ontology-of-units-of-measure.org/resource/om-2/\"}" .
-<https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/CallBehaviorAction1/ValuePin1/LiteralIdentified1/ContainerSpec1> <http://bioprotocols.org/paml#queryString> "cont:ClearPlate and\n cont:SLAS-4-2004 and\n (cont:wellVolume some\n    ((om:hasUnit value om:microlitre) and\n     (om:hasNumericalValue only xsd:decimal[>= \"200\"^^xsd:decimal])))" .
-<https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/CallBehaviorAction1/ValuePin1/LiteralIdentified1/ContainerSpec1> <http://sbols.org/v3#displayId> "ContainerSpec1" .
-<https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/CallBehaviorAction1/ValuePin1/LiteralIdentified1/ContainerSpec1> <http://sbols.org/v3#name> "plateRequirement" .
-<https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/CallBehaviorAction1/ValuePin1/LiteralIdentified1/ContainerSpec1> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://bioprotocols.org/paml#ContainerSpec> .
-<https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/CallBehaviorAction1/ValuePin1/LiteralIdentified1/ContainerSpec1> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://sbols.org/v3#Identified> .
-<https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/CallBehaviorAction1/ValuePin1/LiteralIdentified1> <http://bioprotocols.org/uml#identifiedValue> <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/CallBehaviorAction1/ValuePin1/LiteralIdentified1/ContainerSpec1> .
-<https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/CallBehaviorAction1/ValuePin1/LiteralIdentified1> <http://sbols.org/v3#displayId> "LiteralIdentified1" .
-<https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/CallBehaviorAction1/ValuePin1/LiteralIdentified1> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://bioprotocols.org/uml#LiteralIdentified> .
-<https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/CallBehaviorAction1/ValuePin1/LiteralIdentified1> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://sbols.org/v3#Identified> .
+<https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/CallBehaviorAction1/ValuePin1/LiteralReference1> <http://bioprotocols.org/uml#referenceValue> <https://bbn.com/scratch/plateRequirement> .
+<https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/CallBehaviorAction1/ValuePin1/LiteralReference1> <http://sbols.org/v3#displayId> "LiteralReference1" .
+<https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/CallBehaviorAction1/ValuePin1/LiteralReference1> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://bioprotocols.org/uml#LiteralReference> .
+<https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/CallBehaviorAction1/ValuePin1/LiteralReference1> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://sbols.org/v3#Identified> .
 <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/CallBehaviorAction1/ValuePin1> <http://bioprotocols.org/uml#isOrdered> "true"^^<http://www.w3.org/2001/XMLSchema#boolean> .
 <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/CallBehaviorAction1/ValuePin1> <http://bioprotocols.org/uml#isUnique> "true"^^<http://www.w3.org/2001/XMLSchema#boolean> .
-<https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/CallBehaviorAction1/ValuePin1> <http://bioprotocols.org/uml#value> <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/CallBehaviorAction1/ValuePin1/LiteralIdentified1> .
+<https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/CallBehaviorAction1/ValuePin1> <http://bioprotocols.org/uml#value> <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/CallBehaviorAction1/ValuePin1/LiteralReference1> .
 <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/CallBehaviorAction1/ValuePin1> <http://sbols.org/v3#displayId> "ValuePin1" .
 <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/CallBehaviorAction1/ValuePin1> <http://sbols.org/v3#name> "specification" .
 <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/CallBehaviorAction1/ValuePin1> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://bioprotocols.org/uml#ValuePin> .
@@ -455,6 +449,13 @@
 <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018> <http://sbols.org/v3#name> "iGEM 2018 LUDOX OD calibration protocol" .
 <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://bioprotocols.org/paml#Protocol> .
 <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://sbols.org/v3#TopLevel> .
+<https://bbn.com/scratch/plateRequirement> <http://bioprotocols.org/paml#prefixMap> "{\"cont\": \"https://sift.net/container-ontology/container-ontology#\", \"om\": \"http://www.ontology-of-units-of-measure.org/resource/om-2/\"}" .
+<https://bbn.com/scratch/plateRequirement> <http://bioprotocols.org/paml#queryString> "cont:ClearPlate and\n cont:SLAS-4-2004 and\n (cont:wellVolume some\n    ((om:hasUnit value om:microlitre) and\n     (om:hasNumericalValue only xsd:decimal[>= \"200\"^^xsd:decimal])))" .
+<https://bbn.com/scratch/plateRequirement> <http://sbols.org/v3#displayId> "plateRequirement" .
+<https://bbn.com/scratch/plateRequirement> <http://sbols.org/v3#hasNamespace> <https://bbn.com/scratch/> .
+<https://bbn.com/scratch/plateRequirement> <http://sbols.org/v3#name> "plateRequirement" .
+<https://bbn.com/scratch/plateRequirement> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://bioprotocols.org/paml#ContainerSpec> .
+<https://bbn.com/scratch/plateRequirement> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://sbols.org/v3#TopLevel> .
 <https://bioprotocols.org/paml/primitives/liquid_handling/Provision/OrderedPropertyValue1/Parameter1/LiteralInteger1> <http://bioprotocols.org/uml#integerValue> "1"^^<http://www.w3.org/2001/XMLSchema#integer> .
 <https://bioprotocols.org/paml/primitives/liquid_handling/Provision/OrderedPropertyValue1/Parameter1/LiteralInteger1> <http://sbols.org/v3#displayId> "LiteralInteger1" .
 <https://bioprotocols.org/paml/primitives/liquid_handling/Provision/OrderedPropertyValue1/Parameter1/LiteralInteger1> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://bioprotocols.org/uml#LiteralInteger> .

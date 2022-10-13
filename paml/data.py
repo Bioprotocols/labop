@@ -12,6 +12,7 @@ import paml
 from paml_convert.plate_coordinates import coordinate_rect_to_row_col_pairs, coordinate_to_row_col
 from paml import SampleMask, SampleData, SampleArray
 import uml
+from typing import List, Dict
 
 import logging
 l = logging.getLogger(__file__)
@@ -33,15 +34,12 @@ def protocol_execution_get_data(self):
     """
     Gather paml.SampleData outputs from all CallBehaviorExecutions into a dataset
     """
-    def output_value(o):
-        return o.value.value.lookup() if isinstance(o.value, uml.LiteralReference) else o.value.value
-
     calls = [e for e in self.executions if isinstance(e, paml.CallBehaviorExecution)]
     datasets = [
-                    output_value(o).to_dataset()
+                    o.value.get_value().to_dataset()
                         for e in calls
                         for o in e.get_outputs()
-                        if isinstance(output_value(o), paml.SampleData)
+                        if isinstance(o.value.get_value(), paml.SampleData)
                 ]
     data = xr.merge(datasets)
 
@@ -109,6 +107,38 @@ def sample_data_to_dataset(self):
 
     return sample_data
 SampleData.to_dataset = sample_data_to_dataset
+
+def sample_data_from_table(self, table: List[List[Dict[str, str]]]):
+    """Convert from PAMLED table to SampleData
+
+    Args:
+        table (List[List[Dict]]): List of Rows.  Row is a List of attribute-value Dicts
+
+    Returns:
+        SampleData: paml.SampleData object encoded by table.
+    """
+    assert(len(table) > 1, "Cannot instantiate SampleData from table with fewer than 2 rows (need header and data).")
+
+
+    # First row has the column headers
+    col_headers = [x['value'] for x in table[0]]
+    assert(len(col_headers) > 0, "Cannot instantiate SampleData from table with fewer than 1 column (need some data).")
+    coord_cols = [i for i, x, in enumerate(col_headers) if x in ["Source", "Destination"]]
+
+    coords = { col_headers[i] : [] for i in coord_cols }
+    data = []
+    for row in table[1:]:
+        data.append([x['value'] for i, x in enumerate(row) if i not in coord_cols])
+        for i, x in enumerate(row):
+            if i in coord_cols:
+                coords[col_headers[i]].append(x['value'])
+        sample_data = xr.Dataset({
+            self.identity : xr.DataArray(data, coords)
+                            # [nan]*len(masked_array[Strings.ALIQUOT]),
+                            # [ (Strings.ALIQUOT, masked_array.coords[Strings.ALIQUOT].data) ]
+        })
+        return sample_data
+SampleData.from_table = sample_data_from_table
 
 def activity_node_execution_get_outputs(self):
     return []

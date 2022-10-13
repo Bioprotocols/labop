@@ -1,9 +1,15 @@
+import sys
 from abc import ABC, abstractmethod
 from logging import error
+import logging
 
 import paml
+from paml.primitive_execution import input_parameter_map
 import uml
+import json
 
+l = logging.getLogger(__file__)
+l.setLevel(logging.WARN)
 
 class BehaviorSpecializationException(Exception):
     pass
@@ -24,35 +30,59 @@ class BehaviorSpecialization(ABC):
         self.top_protocol = None
         self.execution = None
 
+        # This data field holds the results of the specialization
+        self.data = None
+
     def initialize_protocol(self, execution: paml.ProtocolExecution):
         self.execution = execution
 
-    @abstractmethod
     def _init_behavior_func_map(self) -> dict:
-        pass
+        return {}
 
-    @abstractmethod
     def on_begin(self, execution: paml.ProtocolExecution):
-        pass
+        self.data = []
 
-    @abstractmethod
     def on_end(self, execution: paml.ProtocolExecution):
-        pass
+        self.data = json.dumps(self.data)
+
 
     def process(self, record, execution: paml.ProtocolExecution):
-        node = record.node.lookup()
-        if not isinstance(node, uml.CallBehaviorAction):
-            return # raise BehaviorSpecializationException(f"Cannot handle node type: {type(node)}")
-        
-        # Subprotocol specializations
-        behavior = node.behavior.lookup()
-        if isinstance(behavior, paml.Protocol):
-            return self._behavior_func_map[behavior.type_uri](record, execution)
+        try:
+            node = record.node.lookup()
+            if not isinstance(node, uml.CallBehaviorAction):
+                return # raise BehaviorSpecializationException(f"Cannot handle node type: {type(node)}")
 
-        # Individual Primitive specializations
-        elif str(node.behavior) not in self._behavior_func_map:
-            raise BehaviorSpecializationException(f"Failed to find handler for behavior: {node.behavior}")
-        return self._behavior_func_map[str(node.behavior)](record, execution)
+            # Subprotocol specializations
+            behavior = node.behavior.lookup()
+            if isinstance(behavior, paml.Protocol):
+                return self._behavior_func_map[behavior.type_uri](record, execution)
+
+            # Individual Primitive specializations
+            elif str(node.behavior) not in self._behavior_func_map:
+                l.warning(f"Failed to find handler for behavior: {node.behavior}")
+                return self.handle(record, execution)
+            return self._behavior_func_map[str(node.behavior)](record, execution)
+        except Exception as e:
+            l.warn(f"{self.__class__} Could not process() ActivityNodeException: {record}: {e}")
+            self.handle_process_failure(record, e)
+
+    def handle_process_failure(self, record, e):
+        raise e
+
+    def handle(self, record, execution):
+        # Save basic information about the execution record
+        node = record.node.lookup()
+        params = input_parameter_map([
+            pv for pv in record.call.lookup().parameter_values
+            if pv.parameter.lookup().property_value.direction == uml.PARAMETER_IN
+            ])
+        params = {p: str(v) for p, v in params.items()}
+        node_data = {
+            "identity": node.identity,
+            "behavior": node.behavior,
+            "parameters" : params
+        }
+        self.data.append(node_data)
 
     def resolve_container_spec(self, spec, addl_conditions=None):
         try:
@@ -69,6 +99,7 @@ class BehaviorSpecialization(ABC):
         return possible_container_types
 
 class DefaultBehaviorSpecialization(BehaviorSpecialization):
+
     def _init_behavior_func_map(self) -> dict:
         return {
             "https://bioprotocols.org/paml/primitives/sample_arrays/EmptyContainer" : self.handle,
@@ -77,12 +108,3 @@ class DefaultBehaviorSpecialization(BehaviorSpecialization):
             "https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureAbsorbance" : self.handle,
             "http://bioprotocols.org/paml#Protocol": self.handle
         }
-
-    def handle(self, record, ex):
-        pass
-
-    def on_begin(self, ex):
-        pass
-
-    def on_end(self, ex):
-        pass
