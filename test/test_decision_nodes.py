@@ -49,7 +49,7 @@ class TestProtocolEndToEnd(unittest.TestCase):
             outgoing_targets = [ (uml.literal(True), final), (uml.literal(False), final) ])
 
         agent = sbol3.Agent("test_agent")
-        ee = ExecutionEngine(use_ordinal_time=True)
+        ee = ExecutionEngine(use_ordinal_time=True, use_defined_primitives=False)
         parameter_values = []
         execution = ee.execute(protocol, agent, id="test_execution", parameter_values=parameter_values)
 

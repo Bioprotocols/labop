@@ -35,7 +35,8 @@ class ExecutionEngine(ABC):
 
     def __init__(self,
                  specializations: List[BehaviorSpecialization] = [DefaultBehaviorSpecialization()],
-                 use_ordinal_time = False, failsafe=True, permissive=False):
+                 use_ordinal_time = False, failsafe=True, permissive=False,
+                 use_defined_primitives=True):
         self.exec_counter = 0
         self.variable_counter = 0
         self.specializations = specializations
@@ -56,6 +57,7 @@ class ExecutionEngine(ABC):
         self.is_asynchronous = True
         self.failsafe = failsafe
         self.permissive = permissive # Allow execution to follow control flow even if objects not present.
+        self.use_defined_primitives = use_defined_primitives # used the compute_output definitions to compute primitive outputs
 
 
     def next_id(self):
@@ -105,8 +107,9 @@ class ExecutionEngine(ABC):
         # Record in the document containing the protocol
         doc = protocol.document
 
-        # Define the compute_output function for known primitives
-        initialize_primitive_compute_output(doc)
+        if self.use_defined_primitives:
+            # Define the compute_output function for known primitives
+            initialize_primitive_compute_output(doc)
 
         # First, set up the record for the protocol and parameter values
         self.ex = paml.ProtocolExecution(id, protocol=protocol)
