@@ -3,15 +3,20 @@ import logging
 import os
 import tempfile
 import unittest
-from importlib.machinery import SourceFileLoader
-from importlib.util import spec_from_loader, module_from_spec
-from typing import List, Tuple
 
 import sbol3
 
+import uml
 import paml
 from paml.execution_engine import ExecutionEngine
-import uml
+
+
+# Save testfiles as artifacts when running in CI environment,
+# else save them to a local temp directory
+if 'GH_TMPDIR' in os.environ:
+    TMPDIR = os.environ['GH_TMPDIR']
+else:
+    TMPDIR = tempfile.gettempdir()
 
 class TestProtocolEndToEnd(unittest.TestCase):
 
@@ -44,7 +49,7 @@ class TestProtocolEndToEnd(unittest.TestCase):
             outgoing_targets = [ (uml.literal(True), final), (uml.literal(False), final) ])
 
         agent = sbol3.Agent("test_agent")
-        ee = ExecutionEngine()
+        ee = ExecutionEngine(use_ordinal_time=True, use_defined_primitives=False)
         parameter_values = []
         execution = ee.execute(protocol, agent, id="test_execution", parameter_values=parameter_values)
 
@@ -54,12 +59,13 @@ class TestProtocolEndToEnd(unittest.TestCase):
         v = doc.validate()
         assert len(v) == 0, "".join(f'\n {e}' for e in v)
 
-        temp_name = os.path.join(tempfile.gettempdir(), 'decision_node_test.nt')
+
+        temp_name = os.path.join(TMPDIR, 'decision_node_test.nt')
         doc.write(temp_name, sbol3.SORTED_NTRIPLES)
         print(f'Wrote file as {temp_name}')
 
         comparison_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'testfiles', 'decision_node_test.nt')
-        doc.write(comparison_file, sbol3.SORTED_NTRIPLES)
+        # doc.write(comparison_file, sbol3.SORTED_NTRIPLES)
         print(f'Comparing against {comparison_file}')
         assert filecmp.cmp(temp_name, comparison_file), "Files are not identical"
         print('File identical with test file')

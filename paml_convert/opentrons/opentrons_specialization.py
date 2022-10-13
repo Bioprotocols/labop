@@ -3,6 +3,8 @@ import json
 import logging
 from typing import Dict
 from paml_convert.plate_coordinates import get_aliquot_list
+import xarray as xr 
+
 
 import sbol3
 import tyto
@@ -51,7 +53,9 @@ LABWARE_MAP = {
     'cont:Opentrons96FilterTipRack1000uL': 'opentrons_96_filtertiprack_1000ul',
     'cont:Opentrons24TubeRackwithEppendorf1.5mLSafe-LockSnapcap': 'opentrons_24_tuberack_eppendorf_1.5ml_safelock_snapcap',
     'cont:Corning96WellPlate360uLFlat': 'corning_96_wellplate_360ul_flat',
-}
+    'cont:Biorad96WellPCRPlate': 'biorad_96_wellplate_200ul_pcr',
+
+} 
 
 
 class OT2Specialization(BehaviorSpecialization):
@@ -107,13 +111,15 @@ class OT2Specialization(BehaviorSpecialization):
             "https://bioprotocols.org/paml/primitives/sample_arrays/PlateCoordinates" : self.plate_coordinates,
             "https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureAbsorbance" : self.measure_absorbance,
             "https://bioprotocols.org/paml/primitives/sample_arrays/EmptyRack" : self.define_rack,
-            "https://bioprotocols.org/paml/primitives/sample_arrays/LoadContainerInRack" : self.load_containers,
+            "https://bioprotocols.org/paml/primitives/sample_arrays/LoadContainerInRack" : self.load_container_in_rack,
+            "https://bioprotocols.org/paml/primitives/sample_arrays/LoadContainerOnInstrument" : self.load_container_on_instrument,
             "https://bioprotocols.org/paml/primitives/sample_arrays/LoadRackOnInstrument" : self.load_racks,
-            "https://bioprotocols.org/paml/primitives/sample_arrays/ConfigureInstrument" : self.configure_instrument,
+            "https://bioprotocols.org/paml/primitives/sample_arrays/ConfigureRobot" : self.configure_robot,
+            "https://bioprotocols.org/paml/primitives/pcr/PCR" : self.pcr,
         }
 
-    def handle_process_failure(self, record):
-        super().handle_process_failure(record)
+    def handle_process_failure(self, record, exception):
+        super().handle_process_failure(record, exception)
         self.script_steps.append(f"# Failure processing record: {record.identity}")
 
     def on_begin(self, ex: paml.ProtocolExecution):
@@ -123,9 +129,10 @@ class OT2Specialization(BehaviorSpecialization):
         self.markdown += f"# {protocol.name}\n"
         self.script += "from opentrons import protocol_api\n\n" \
                        f"metadata = {{'apiLevel': '{apilevel}',\n" \
-                       f"            'description': '{protocol.description}'\n" \
+                       f"            'description': '{protocol.description}',\n" \
                        f"            'protocolName': '{protocol.name}'}} \n\n" \
                        "def run(protocol: protocol_api.ProtocolContext):\n"
+        self.data = []
 
     def on_end(self, ex):
         self.script += self._compile_script()
@@ -197,7 +204,7 @@ class OT2Specialization(BehaviorSpecialization):
                 container = cba.input_pin('specification').value.value.lookup()
             elif 'rack' in input_names:
                 container = cba.input_pin('rack').value.value.lookup()
-            elif 'container' in input_names:
+            elif 'container' in input_names and type(cba.input_pin('container')) is uml.ValuePin:
                 container = cba.input_pin('container').value.value.lookup()
             else:
                 continue
@@ -242,8 +249,7 @@ class OT2Specialization(BehaviorSpecialization):
 
         spec = parameter_value_map["specification"]['value']
         samples = parameter_value_map["samples"]['value']
-
-        #TODO: initialize sample contents
+        # SampleArray fields are initialized in primitive_execution.py
 
     def time_wait(self, record: paml.ActivityNodeExecution, ex: paml.ProtocolExecution):
         results = {}
@@ -269,17 +275,19 @@ class OT2Specialization(BehaviorSpecialization):
         coords = ''
         coords = destination.get_parent().get_parent().token_source.lookup().node.lookup().input_pin('coordinates').value.value
         upstream_execution = get_token_source('destination', record)
+        container = upstream_execution.call.lookup().parameter_value_map()['container']['value']
         behavior_type = get_behavior_type(upstream_execution)
         if behavior_type == 'LoadContainerInRack':
             coords = upstream_execution.call.lookup().parameter_value_map()['coordinates']['value']
             upstream_execution = get_token_source('slots', upstream_execution)
-            container = upstream_execution.call.lookup().parameter_value_map()['specification']['value']
+            rack = upstream_execution.call.lookup().parameter_value_map()['specification']['value']
         else:
             raise NotImplementedError(f'A "Provision" call cannot follow a "{behavior_type}" call')
-        container_str = f'`{container.name}`' if container.name else container.queryString
 
-        text = f'Load {amount} of {resource.name} in {coords} of {container_str}'
-        self.markdown_steps += [text]
+        container_str = f'`{container.name}`' if container.name else container.queryString
+        rack_str = f'`{rack.name}`' if rack.name else rack.queryString
+        text = f'Fill {amount} of {resource.name} into {container_str} located in {coords} of {rack_str}'
+        self.markdown_steps += [text] 
 
 
     def transfer_to(self, record: paml.ActivityNodeExecution, ex: paml.ProtocolExecution):
@@ -298,10 +306,21 @@ class OT2Specialization(BehaviorSpecialization):
         # ContainerSpec for the destination container
         upstream_execution = get_token_source('source', record)
         behavior_type = get_behavior_type(upstream_execution)
-        if behavior_type == 'LoadContainerInRack':
+        if behavior_type == 'PlateCoordinates':
+            coordinates = upstream_execution.call.lookup().parameter_value_map()['coordinates']['value']
+            upstream_execution = get_token_source('source', upstream_execution)  # EmptyContainer
+            parameter_value_map = upstream_execution.call.lookup().parameter_value_map()
+            source_container = parameter_value_map['specification']['value']
+        elif behavior_type == 'LoadContainerInRack':
             upstream_execution = get_token_source('slots', upstream_execution)  # EmptyRack
             parameter_value_map = upstream_execution.call.lookup().parameter_value_map()
             source_container = parameter_value_map['specification']['value']
+        elif behavior_type == 'LoadContainerOnInstrument':
+            coordinates = upstream_execution.call.lookup().parameter_value_map()['slots']['value']
+            upstream_execution = get_token_source('container', upstream_execution)  # EmptyContainer
+            parameter_value_map = upstream_execution.call.lookup().parameter_value_map()
+            source_container = parameter_value_map['specification']['value']
+
         else:
             raise Exception(f'Invalid input pin "source" for Transfer.')
 
@@ -319,13 +338,27 @@ class OT2Specialization(BehaviorSpecialization):
         upstream_execution = get_token_source('destination', record)
         behavior_type = get_behavior_type(upstream_execution)
         if behavior_type == 'PlateCoordinates':
+            coordinates = upstream_execution.call.lookup().parameter_value_map()['coordinates']['value']
             upstream_execution = get_token_source('source', upstream_execution)  # EmptyContainer
             parameter_value_map = upstream_execution.call.lookup().parameter_value_map()
             destination_container = parameter_value_map['specification']['value']
+
+        elif behavior_type == 'LoadContainerOnInstrument':
+            coordinates = upstream_execution.call.lookup().parameter_value_map()['slots']['value']
+            upstream_execution = get_token_source('container', upstream_execution)  # EmptyContainer
+            parameter_value_map = upstream_execution.call.lookup().parameter_value_map()
+            destination_container = parameter_value_map['specification']['value']
+
         else:
             raise Exception(f'Invalid input pin "destination" for Transfer.')
         destination_name = None
         for deck, labware in self.configuration.items():
+            if type(labware) is sbol3.Agent and hasattr(labware, 'configuration'):
+                # If labware is a hardware module (i.e. Agent), 
+                # then we need to look further to find out what conta
+                coordinate = get_aliquot_list(destination.mask)[0]
+                if coordinate in labware.configuration:
+                    labware = labware.configuration[coordinate]
             if labware == destination_container:
                 destination_name = f'labware{deck}'
                 break
@@ -337,11 +370,14 @@ class OT2Specialization(BehaviorSpecialization):
             raise Exception('Transfer call failed. Use ConfigureInstrument to configure a pipette')
         pipette = self.configuration['left']
 
+        comment = record.node.lookup().name
+        comment = '# ' + comment if comment else comment
+
         source_str = source.mask
         destination_str = destination.mask
         for c_source in get_aliquot_list(source.mask):
             for c_destination in get_aliquot_list(destination.mask):
-                self.script_steps += [f"{pipette.display_id}.transfer({value}, {source_name}['{c_source}'], {destination_name}['{c_destination}'])"]
+                self.script_steps += [f"{pipette.display_id}.transfer({value}, {source_name}['{c_source}'], {destination_name}['{c_destination}'])  {comment}"]
 
 
     def transfer_by_map(self, record: paml.ActivityNodeExecution, ex: paml.ProtocolExecution):
@@ -443,8 +479,8 @@ class OT2Specialization(BehaviorSpecialization):
 
         #OT2Props = json.loads(spec.OT2SpecificProps)
         #OT2Deck = OT2Props["deck"]
-
-    def load_containers(self, record: paml.ActivityNodeExecution, ex: paml.ProtocolExecution):
+        
+    def load_container_in_rack(self, record: paml.ActivityNodeExecution, ex: paml.ProtocolExecution):
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
         container: paml.ContainerSpec = parameter_value_map['container']['value']
@@ -467,10 +503,38 @@ class OT2Specialization(BehaviorSpecialization):
 
         aliquots = get_aliquot_list(coords)
         if len(aliquots) == 1:
-            self.markdown_steps += [f'Load {container_str} in slot {coords} in {rack_str}']
+            self.markdown_steps += [f'Load {container_str} in slot {coords} of {rack_str}']
         elif len(aliquots) > 1:
-            self.markdown_steps += [f'Load {container_str}s in slots {coords} in {rack_str}']
+            self.markdown_steps += [f'Load {container_str}s in slots {coords} of {rack_str}']
 
+
+    def load_container_on_instrument(self, record: paml.ActivityNodeExecution, ex: paml.ProtocolExecution):
+        call = record.call.lookup()
+        parameter_value_map = call.parameter_value_map()
+        container_spec: paml.ContainerSpec = parameter_value_map['specification']['value']
+        slots: str = parameter_value_map['slots']['value'] if 'slots' in parameter_value_map else 'A1'
+        instrument: sbol3.Agent = parameter_value_map['instrument']['value']
+        samples: paml.SampleArray = parameter_value_map['samples']['value']
+
+        # Assume 96 well plate
+        aliquots = get_aliquot_list(geometry="A1:H12")
+        samples.contents = json.dumps(xr.DataArray(aliquots, dims=("aliquot")).to_dict())
+
+        #upstream_ex = get_token_source('container', record)
+        #container_spec = upstream_ex.call.lookup().parameter_value_map()['specification']['value']
+        container_api_name = LABWARE_MAP[container_spec.queryString]
+        container_str = get_container_name(container_spec)
+
+        # TODO: need to specify instrument
+        deck = self.get_instrument_deck(instrument)
+        self.markdown_steps += [f'Load {container_str} in {slots} of Deck of OT2 instrument']
+        self.script_steps += [f"labware{deck} = {instrument.display_id}.load_labware('{container_api_name}')"]
+
+        # Keep track of instrument configuration
+        if not hasattr(instrument, 'configuration'):
+            instrument.configuration = {}
+            for c in get_aliquot_list(slots):
+                instrument.configuration[c] = container_spec
 
 
     def load_racks(self, record: paml.ActivityNodeExecution, ex: paml.ProtocolExecution):
@@ -503,9 +567,7 @@ class OT2Specialization(BehaviorSpecialization):
             if select_pipette:
                 self.script_steps += [f'{select_pipette}.tip_racks.append(labware{coords})']
 
-
-
-    def configure_instrument(self, record: paml.ActivityNodeExecution, ex: paml.ProtocolExecution):
+    def configure_robot(self, record: paml.ActivityNodeExecution, ex: paml.ProtocolExecution):
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
         instrument = parameter_value_map['instrument']['value']
@@ -519,16 +581,17 @@ class OT2Specialization(BehaviorSpecialization):
         self.configuration[mount] = instrument
 
         if mount in allowed_mounts:
-            self.markdown_steps += [f"Mount `{instrument.name}` in {mount} mount of the OT2 machine"]
+            self.markdown_steps += [f"Mount `{instrument.name}` in {mount} mount of the OT2 instrument"]
             self.script_steps += [f"{instrument.display_id} = protocol.load_instrument('{instrument.display_id}', '{mount}')"]
             if instrument.display_id not in COMPATIBLE_TIPS:
                 raise Exception(f"ConfigureInstrument call failed: instrument must be one of {list(COMPATIBLE_TIPS.keys())}")
 
         else:
-            self.markdown_steps += [f"Load `{instrument.name}` in Deck {mount} of the OT2 machine"]
+            self.markdown_steps += [f"Mount `{instrument.name}` in Deck {mount} of the OT2 instrument"]
             instrument_id = instrument.display_id.replace('_', ' ')  # OT2 api name uses spaces instead of underscores
-            self.script_steps += [f"{instrument_id} = protocol.load_module('{instrument.display_id}', '{mount}')"]
-
+            self.script_steps += [f"{instrument.display_id} = protocol.load_module('{instrument_id}', '{mount}')"]
+            if instrument.name == 'Thermocycler Module':
+                self.script_steps += [f'{instrument.display_id}.open_lid()']
 
         # Check if a compatible tiprack has been loaded and configure the pipette
         # to use it
@@ -542,6 +605,32 @@ class OT2Specialization(BehaviorSpecialization):
                 break
         if tiprack_selection:
             self.script_steps += [f'{instrument.display_id}.tip_racks.append(labware{deck})']
+
+    def pcr(self, record: paml.ActivityNodeExecution, execution: paml.ProtocolExecution):
+        call = record.call.lookup()
+        parameter_value_map = call.parameter_value_map()
+        cycles = parameter_value_map['cycles']['value']
+        annealing_temp = parameter_value_map['annealing_temp']['value']
+        extension_temp = parameter_value_map['extension_temp']['value']
+        denaturation_temp = parameter_value_map['denaturation_temp']['value']
+        annealing_time = parameter_value_map['annealing_time']['value']
+        extension_time = parameter_value_map['extension_time']['value']
+        denaturation_time = parameter_value_map['denaturation_time']['value']
+
+        self.script_steps += ['thermocycler_module.close_lid()']
+        profile = [{'temperature': denaturation_temp.value, 'hold_time_seconds': denaturation_time.value},
+                   {'temperature': annealing_temp.value, 'hold_time_seconds': annealing_temp.value},
+                   {'temperature': extension_temp.value, 'hold_time_seconds': extension_time.value}]
+        self.script_steps += [f'profile = {profile}']
+        self.script_steps += [f'thermocycler_module.execute_profile(steps=profile, repetitions={cycles})']
+        self.script_steps += ['thermocycler_module.set_block_temperature(4)']
+
+
+    def get_instrument_deck(self, instrument: sbol3.Agent) -> str:
+        for deck, agent in self.configuration.items():
+            if agent == instrument:
+                return deck
+        raise Exception(f'{instrument.display_id} is not currently configured for this robot')
 
 
 def get_container_name(container: paml.ContainerSpec):

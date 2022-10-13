@@ -60,19 +60,22 @@ class BehaviorSpecialization(ABC):
             # Individual Primitive specializations
             elif str(node.behavior) not in self._behavior_func_map:
                 l.warning(f"Failed to find handler for behavior: {node.behavior}")
-                return self.handle(record)
+                return self.handle(record, execution)
             return self._behavior_func_map[str(node.behavior)](record, execution)
         except Exception as e:
             l.warn(f"{self.__class__} Could not process() ActivityNodeException: {record}: {e}")
-            self.handle_process_failure(record)
+            self.handle_process_failure(record, e)
 
-    def handle_process_failure(self, record):
-        pass
+    def handle_process_failure(self, record, e):
+        raise e
 
-    def handle(self, record):
+    def handle(self, record, execution):
         # Save basic information about the execution record
         node = record.node.lookup()
-        params = input_parameter_map(record.call.lookup().parameter_values)
+        params = input_parameter_map([
+            pv for pv in record.call.lookup().parameter_values
+            if pv.parameter.lookup().property_value.direction == uml.PARAMETER_IN
+            ])
         params = {p: str(v) for p, v in params.items()}
         node_data = {
             "identity": node.identity,

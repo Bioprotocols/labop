@@ -1,10 +1,10 @@
 from abc import ABC, abstractmethod
+import html
 import re
 from typing import Callable, Dict, List
 import uuid
 import datetime
 import logging
-import sys
 
 import pandas as pd
 import graphviz
@@ -35,7 +35,8 @@ class ExecutionEngine(ABC):
 
     def __init__(self,
                  specializations: List[BehaviorSpecialization] = [DefaultBehaviorSpecialization()],
-                 use_ordinal_time = False, failsafe=True, permissive=False):
+                 use_ordinal_time = False, failsafe=True, permissive=False,
+                 use_defined_primitives=True):
         self.exec_counter = 0
         self.variable_counter = 0
         self.specializations = specializations
@@ -56,6 +57,7 @@ class ExecutionEngine(ABC):
         self.is_asynchronous = True
         self.failsafe = failsafe
         self.permissive = permissive # Allow execution to follow control flow even if objects not present.
+        self.use_defined_primitives = use_defined_primitives # used the compute_output definitions to compute primitive outputs
 
 
     def next_id(self):
@@ -105,8 +107,9 @@ class ExecutionEngine(ABC):
         # Record in the document containing the protocol
         doc = protocol.document
 
-        # Define the compute_output function for known primitives
-        initialize_primitive_compute_output(doc)
+        if self.use_defined_primitives:
+            # Define the compute_output function for known primitives
+            initialize_primitive_compute_output(doc)
 
         # First, set up the record for the protocol and parameter values
         self.ex = paml.ProtocolExecution(id, protocol=protocol)
@@ -285,9 +288,9 @@ class ManualExecutionEngine(ExecutionEngine):
         identities = [r.identity for r in ready]
         choices = pd.DataFrame({ "Activity": activities, "Behavior": behaviors, "Identity": identities })
         #ready_nodes = "\n".join([f"{idx}: {r.behavior}" for idx, r in enumerate(ready)])
-        return display(HTML("<div style='height: 200px; overflow: auto; width: fit-content'>" +
+        return HTML("<div style='height: 200px; overflow: auto; width: fit-content'>" +
              choices.to_html() +
-             "</div>"))
+             "</div>")
         #return choices #f"{msg}{ready_nodes}"
 
     def next(

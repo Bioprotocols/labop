@@ -59,7 +59,7 @@ def coordinate_to_row_col(coord: str):
 def coordinate_rect_to_row_col_pairs(coords: str):
     num_separators = coords.count(":")
     if num_separators == 0:
-        return coordinate_to_row_col(coords)
+        return [coordinate_to_row_col(coords)]
     elif num_separators == 1:
         parts = coords.split(':')
         frow, fcol = coordinate_to_row_col(parts[0])

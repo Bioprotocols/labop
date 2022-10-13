@@ -154,7 +154,31 @@ def primitive_compute_output(self, inputs, parameter):
     :param parameter: Parameter needing value
     :return: value
     """
-    pass
+    if hasattr(parameter, 'type') and parameter.type in sbol3.Document._uri_type_map:
+        # Generalized handler for output tokens, see #125
+        # TODO: This currently assumes the output token is an sbol3.TopLevel
+        # Still needs special handling for non-toplevel tokens
+    
+        builder_fxn = sbol3.Document._uri_type_map[parameter.type]
+    
+        # Construct object with a unique URI
+        instance_count = 0
+        successful = False
+        while not successful:
+            try:
+                token_id = f'{parameter.name}{instance_count}'
+                output_token = builder_fxn(token_id, type_uri=parameter.type)
+                if isinstance(output_token, sbol3.TopLevel):
+                    self.document.add(output_token)
+                else:
+                    output_token = builder_fxn(None, type_uri=parameter.type)
+                successful = True
+            except ValueError:
+                instance_count += 1
+        return output_token
+    else:
+        l.warning(f'No builder found for output Parameter of {parameter.name}. Returning a string literal by default.')
+        return f"{parameter.name}"
 paml.Primitive.compute_output = primitive_compute_output
 
 def empty_container_initialize_contents(self):

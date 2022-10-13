@@ -42,20 +42,23 @@ class ExampleProtocol(unittest.TestCase):
         protocol.edges.append(uml.ControlFlow(source=start_action, target=step1_action))
         protocol.edges.append(uml.ControlFlow(source=step1_action, target=step2_action))
 
-        step1_action.outputs.append(uml.OutputPin(name='samples',
-                                                  is_ordered=True,
-                                                  is_unique=True))
-        step2_action.inputs.append(uml.ValuePin(name='samples',
-                                                value=uml.LiteralString(value='foo'),
-                                                is_ordered=True,
-                                                is_unique=True))
+        output = uml.OutputPin(name='samples',
+                               is_ordered=True,
+                               is_unique=True)
+        step1_action.outputs.append(output)
 
+        input = uml.InputPin(name='samples',
+                             is_ordered=True,
+                             is_unique=True)
+        step2_action.inputs.append(input)
+        flow = uml.ObjectFlow(source=output, target=input)
+        protocol.edges.append(flow)
 
         agent = sbol3.Agent("test_agent")
         ee = ExecutionEngine()
 
-        ee.specializations[0]._behavior_func_map[step1.identity] = lambda record: None
-        ee.specializations[0]._behavior_func_map[step2.identity] = lambda record: None
+        ee.specializations[0]._behavior_func_map[step1.identity] = lambda record, ex: None
+        ee.specializations[0]._behavior_func_map[step2.identity] = lambda record, ex: None
 
         # execute protocol
         x = ee.execute(protocol, agent, id="test_execution", parameter_values=[])
@@ -168,7 +171,7 @@ class TestParameters(unittest.TestCase):
         # Execute without specifying InputPins, this should work fine, since the Parameters are optional
         agent = sbol3.Agent("test_agent")
         ee = ExecutionEngine()
-        ee.specializations[0]._behavior_func_map[step1.identity] = lambda record: None  # Register custom primitives in the execution engine
+        ee.specializations[0]._behavior_func_map[step1.identity] = lambda record, ex: None  # Register custom primitives in the execution engine
 
         x = ee.execute(protocol, agent, id="test_execution1", parameter_values=[])
 

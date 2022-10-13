@@ -75,8 +75,10 @@ class TestProtocolEndToEnd(unittest.TestCase):
         reagents = [reagent1, reagent2]
 
         # TODO ContainerSpec without parameters will refer to a logical container of unspecified size and geometry
-        source_spec = paml.ContainerSpec(name='abstractPlateRequirement1')
-        target_spec = paml.ContainerSpec(name='abstractPlateRequirement2')
+        source_spec = paml.ContainerSpec('abstractPlateRequirement1',
+                                         name='abstractPlateRequirement1')
+        target_spec = paml.ContainerSpec('abstractPlateRequirement2',
+                                         name='abstractPlateRequirement2')
 
         # Arbitrary volume to use in specifying the reagents in the container.
         default_volume = sbol3.Measure(600, tyto.OM.microliter)

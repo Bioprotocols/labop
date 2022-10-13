@@ -1,11 +1,12 @@
 from abc import abstractmethod
 from typing import Callable, List, Set, Tuple
 import uuid
+import logging
+
 import paml
 from paml_convert.behavior_specialization import BehaviorSpecialization
 import uml
 import sbol3
-import logging
 from paml.execution_engine import ExecutionEngine
 
 l = logging.getLogger(__file__)
@@ -269,7 +270,7 @@ class StringProtocolExecutionExtractor(ProtocolExecutionExtractor):
 def backtrace(
     self,
     stack=None,
-    extractor: ProtocolExecutionExtractor = None):
+    extractor: ProtocolExecutionExtractor = JSONProtocolExecutionExtractor()):
     stack = self.executions if stack is None else stack
     if len(stack) == 0:
         return set([]), []
@@ -304,7 +305,7 @@ def protocol_execution_unbound_inputs(self):
             p.node.lookup().parameter.lookup().property_value for p in self.executions
             if isinstance(p.node.lookup(), uml.ActivityParameterNode) and
                p.node.lookup().parameter.lookup().property_value.direction == uml.PARAMETER_IN and
-               p.node.lookup().parameter.lookup().property_value not in [pv.parameter for pv in self.parameter_values ]
+               p.node.lookup().parameter.lookup().property_value not in [pv.parameter.lookup().property_value for pv in self.parameter_values ]
         ]
     return unbound_input_parameters
 paml.ProtocolExecution.unbound_inputs = protocol_execution_unbound_inputs
@@ -314,7 +315,7 @@ def protocol_execution_unbound_outputs(self):
             p.node.lookup().parameter.lookup().property_value for p in self.executions
             if isinstance(p.node.lookup(), uml.ActivityParameterNode) and
             p.node.lookup().parameter.lookup().property_value.direction == uml.PARAMETER_OUT and
-            p.node.lookup().parameter.lookup().property_value not in [pv.parameter for pv in self.parameter_values ]
+            p.node.lookup().parameter.lookup().property_value not in [pv.parameter.lookup().property_value for pv in self.parameter_values ]
         ]
     return unbound_output_parameters
 paml.ProtocolExecution.unbound_outputs = protocol_execution_unbound_outputs
@@ -347,10 +348,9 @@ def activity_node_execute(
             try:
                 specialization.process(record, engine.ex)
             except Exception as e:
-                l.error(f"Could Not Process {record.name if record.name else record.identity}: {e}")
                 if not engine.failsafe:
-                    l.error('Aborting...')
-                    sys.exit(1)
+                    raise e
+                l.error(f"Could Not Process {record.name if record.name else record.identity}: {e}")
 
     # return updated token list
     return [t for t in engine.tokens if t not in inputs] + new_tokens
@@ -416,15 +416,19 @@ def call_behavior_execution_check_next_tokens(
 
     # ## Add the output values to the call parameter-values
     linked_parameters = []
-    for token in tokens:
-        edge = token.edge.lookup()
-        if isinstance(edge, uml.ObjectFlow):
-            source = edge.source.lookup()
-            parameter = self.node.lookup().pin_parameter(source.name)
-            linked_parameters.append(parameter)
-            parameter_value = uml.literal(token.value.get_value(), reference=True)
-            pv = paml.ParameterValue(parameter=parameter, value=parameter_value)
-            self.call.lookup().parameter_values += [pv]
+    if not isinstance(self.node.lookup().behavior.lookup(), paml.Protocol):
+        # Protocol invocation's use output values for the linkage from
+        # protocol-input to subprotocol-input, so don't add as an output
+        # parameter-value
+        for token in tokens:
+            edge = token.edge.lookup()
+            if isinstance(edge, uml.ObjectFlow):
+                source = edge.source.lookup()
+                parameter = self.node.lookup().pin_parameter(source.name)
+                linked_parameters.append(parameter)
+                parameter_value = uml.literal(token.value.get_value(), reference=True)
+                pv = paml.ParameterValue(parameter=parameter, value=parameter_value)
+                self.call.lookup().parameter_values += [pv]
 
     # Assume that unlinked output pins to the parameter values of the call
     unlinked_output_parameters = [
@@ -432,6 +436,8 @@ def call_behavior_execution_check_next_tokens(
         if p.property_value.direction == uml.PARAMETER_OUT and
            p.property_value.name not in {lp.property_value.name for lp in linked_parameters}
     ]
+
+    # Handle unlinked output pins by attaching them to the call
     possible_output_parameter_values = [paml.ParameterValue(parameter=p,
                                                                 value=self.get_parameter_value(p, node_outputs=node_outputs))
                                             for p in unlinked_output_parameters]
