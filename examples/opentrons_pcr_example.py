@@ -71,6 +71,8 @@ paml.import_library('spectrophotometry')
 print('... Imported spectrophotometry')
 paml.import_library('sample_arrays')
 print('... Imported sample arrays')
+paml.import_library('pcr')
+print('... Imported pcr')
 
 
 protocol = paml.Protocol('pcr_example')
@@ -175,9 +177,18 @@ for target_well, reaction in pcr_layout.items():
     transfer = protocol.primitive_step('Transfer', source=load_reagents.output_pin('samples'), destination=target_sample.output_pin('samples'), amount=sbol3.Measure(1, tyto.OM.microliter))
     transfer.name = 'Add polymerase'
 
+pcr = protocol.primitive_step('PCR', 
+                              denaturation_temp=sbol3.Measure(98.0, tyto.OM.degree_Celsius),
+                              denaturation_time=sbol3.Measure(10, tyto.OM.second),
+                              annealing_temp=sbol3.Measure(45.0, tyto.OM.degree_Celsius), 
+                              annealing_time=sbol3.Measure(5, tyto.OM.second),
+                              extension_temp=sbol3.Measure(65.0, tyto.OM.degree_Celsius),
+                              extension_time=sbol3.Measure(60, tyto.OM.second), 
+                              cycles=30)
+
 filename="ot2_pcr_paml"
 agent = sbol3.Agent("ot2_machine", name='OT2 machine')
-ee = ExecutionEngine(specializations=[OT2Specialization(filename)])
+ee = ExecutionEngine(specializations=[OT2Specialization(filename)], failsafe=False)
 parameter_values = []
 execution = ee.execute(protocol, agent, id="test_execution")
 
