@@ -115,7 +115,7 @@ class OT2Specialization(BehaviorSpecialization):
             "https://bioprotocols.org/paml/primitives/sample_arrays/LoadContainerOnInstrument" : self.load_container_on_instrument,
             "https://bioprotocols.org/paml/primitives/sample_arrays/LoadRackOnInstrument" : self.load_racks,
             "https://bioprotocols.org/paml/primitives/sample_arrays/ConfigureRobot" : self.configure_robot,
-            "https://bioprotocols.org/paml/primitives/sample_arrays/PCR" : self.pcr,
+            "https://bioprotocols.org/paml/primitives/pcr/PCR" : self.pcr,
         }
 
     def handle_process_failure(self, record, exception):
@@ -618,9 +618,9 @@ class OT2Specialization(BehaviorSpecialization):
         denaturation_time = parameter_value_map['denaturation_time']['value']
 
         self.script_steps += ['thermocycler_module.close_lid()']
-        profile = [{'temperature': denaturation_temp, 'hold_time_seconds': denaturation_time},
-                   {'temperature': annealing_temp, 'hold_time_seconds': annealing_temp},
-                   {'temperature': extension_temp, 'hold_time_seconds': extension_time}]
+        profile = [{'temperature': denaturation_temp.value, 'hold_time_seconds': denaturation_time.value},
+                   {'temperature': annealing_temp.value, 'hold_time_seconds': annealing_temp.value},
+                   {'temperature': extension_temp.value, 'hold_time_seconds': extension_time.value}]
         self.script_steps += [f'profile = {profile}']
         self.script_steps += [f'thermocycler_module.execute_profile(steps=profile, repetitions={cycles})']
         self.script_steps += ['thermocycler_module.set_block_temperature(4)']

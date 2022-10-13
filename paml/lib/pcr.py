@@ -14,7 +14,7 @@ print('Making primitives for '+LIBRARY_NAME)
 
 p = paml.Primitive('PCR')
 p.description = 'Specify PCR cycling parameters'
-p.add_input('cycles', sbol3.OM_MEASURE)
+p.add_input('cycles', 'http://www.w3.org/2001/XMLSchema#integer')
 p.add_input('denaturation_temp', sbol3.OM_MEASURE)
 p.add_input('denaturation_time', sbol3.OM_MEASURE)
 p.add_input('annealing_temp', sbol3.OM_MEASURE)
