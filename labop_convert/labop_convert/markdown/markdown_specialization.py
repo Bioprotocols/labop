@@ -1094,4 +1094,3 @@ def resolve_value(v):
                 return resolved.value
             else:
                 return resolved
-

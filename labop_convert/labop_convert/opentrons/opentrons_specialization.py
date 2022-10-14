@@ -3,7 +3,7 @@ import json
 import logging
 from typing import Dict
 from paml_convert.plate_coordinates import get_aliquot_list
-import xarray as xr 
+import xarray as xr
 
 
 import sbol3
@@ -55,7 +55,7 @@ LABWARE_MAP = {
     'cont:Corning96WellPlate360uLFlat': 'corning_96_wellplate_360ul_flat',
     'cont:Biorad96WellPCRPlate': 'biorad_96_wellplate_200ul_pcr',
 
-} 
+}
 
 
 class OT2Specialization(BehaviorSpecialization):
@@ -287,7 +287,7 @@ class OT2Specialization(BehaviorSpecialization):
         container_str = f'`{container.name}`' if container.name else container.queryString
         rack_str = f'`{rack.name}`' if rack.name else rack.queryString
         text = f'Fill {amount} of {resource.name} into {container_str} located in {coords} of {rack_str}'
-        self.markdown_steps += [text] 
+        self.markdown_steps += [text]
 
 
     def transfer_to(self, record: paml.ActivityNodeExecution, ex: paml.ProtocolExecution):
@@ -354,7 +354,7 @@ class OT2Specialization(BehaviorSpecialization):
         destination_name = None
         for deck, labware in self.configuration.items():
             if type(labware) is sbol3.Agent and hasattr(labware, 'configuration'):
-                # If labware is a hardware module (i.e. Agent), 
+                # If labware is a hardware module (i.e. Agent),
                 # then we need to look further to find out what conta
                 coordinate = get_aliquot_list(destination.mask)[0]
                 if coordinate in labware.configuration:
@@ -479,7 +479,7 @@ class OT2Specialization(BehaviorSpecialization):
 
         #OT2Props = json.loads(spec.OT2SpecificProps)
         #OT2Deck = OT2Props["deck"]
-        
+
     def load_container_in_rack(self, record: paml.ActivityNodeExecution, ex: paml.ProtocolExecution):
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()

@@ -158,9 +158,9 @@ def primitive_compute_output(self, inputs, parameter):
         # Generalized handler for output tokens, see #125
         # TODO: This currently assumes the output token is an sbol3.TopLevel
         # Still needs special handling for non-toplevel tokens
-    
+
         builder_fxn = sbol3.Document._uri_type_map[parameter.type]
-    
+
         # Construct object with a unique URI
         instance_count = 0
         successful = False

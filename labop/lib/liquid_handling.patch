@@ -15,7 +15,7 @@ index 1ecced1..3a31d07 100644
 @@ -63,13 +64,26 @@
      sbol:displayId "Provision" ;
      sbol:hasNamespace <https://bioprotocols.org/paml/primitives/liquid_handling> .
- 
+
 +<https://bioprotocols.org/paml/primitives/liquid_handling/SerialDilution> a <http://bioprotocols.org/paml#Primitive>,
 +        sbol:TopLevel ;
 +    ns1:ownedParameter <https://bioprotocols.org/paml/primitives/liquid_handling/SerialDilution/OrderedPropertyValue1>,
@@ -60,13 +60,13 @@ index 1ecced1..3a31d07 100644
      sbol:displayId "Parameter1" ;
 -    sbol:name "dilution_factor" .
 +    sbol:name "replicates" .
- 
+
  <https://bioprotocols.org/paml/primitives/liquid_handling/Dilute/OrderedPropertyValue5/Parameter1/LiteralInteger1> a ns1:LiteralInteger,
          sbol:Identified ;
 @@ -239,6 +254,33 @@
      ns1:integerValue 1 ;
      sbol:displayId "LiteralInteger2" .
- 
+
 +<https://bioprotocols.org/paml/primitives/liquid_handling/Dilute/OrderedPropertyValue6> a ns1:OrderedPropertyValue,
 +        sbol:Identified ;
 +    ns1:indexValue 5 ;
@@ -100,7 +100,7 @@ index 1ecced1..3a31d07 100644
 @@ -752,6 +794,168 @@
      ns1:integerValue 0 ;
      sbol:displayId "LiteralInteger2" .
- 
+
 +<https://bioprotocols.org/paml/primitives/liquid_handling/SerialDilution/OrderedPropertyValue1> a ns1:OrderedPropertyValue,
 +        sbol:Identified ;
 +    ns1:indexValue 0 ;
@@ -276,7 +276,7 @@ index 1ecced1..3a31d07 100644
      sbol:displayId "Parameter1" ;
 -    sbol:name "amount" .
 +    sbol:name "replicates" .
- 
+
  <https://bioprotocols.org/paml/primitives/liquid_handling/Transfer/OrderedPropertyValue4/Parameter1/LiteralInteger1> a ns1:LiteralInteger,
          sbol:Identified ;
 @@ -875,7 +1079,7 @@
@@ -285,11 +285,11 @@ index 1ecced1..3a31d07 100644
      sbol:displayId "Parameter1" ;
 -    sbol:name "dispenseVelocity" .
 +    sbol:name "amount" .
- 
+
  <https://bioprotocols.org/paml/primitives/liquid_handling/Transfer/OrderedPropertyValue5/Parameter1/LiteralInteger1> a ns1:LiteralInteger,
          sbol:Identified ;
 @@ -884,6 +1088,33 @@
- 
+
  <https://bioprotocols.org/paml/primitives/liquid_handling/Transfer/OrderedPropertyValue5/Parameter1/LiteralInteger2> a ns1:LiteralInteger,
          sbol:Identified ;
 +    ns1:integerValue 1 ;
@@ -321,11 +321,11 @@ index 1ecced1..3a31d07 100644
 +        sbol:Identified ;
      ns1:integerValue 0 ;
      sbol:displayId "LiteralInteger2" .
- 
+
 @@ -1211,3 +1442,30 @@
      ns1:integerValue 1 ;
      sbol:displayId "LiteralInteger2" .
- 
+
 +<https://bioprotocols.org/paml/primitives/liquid_handling/Vortex/OrderedPropertyValue3> a ns1:OrderedPropertyValue,
 +        sbol:Identified ;
 +    ns1:indexValue 2 ;
