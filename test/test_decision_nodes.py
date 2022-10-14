@@ -7,8 +7,8 @@ import unittest
 import sbol3
 
 import uml
-import paml
-from paml.execution_engine import ExecutionEngine
+import labop
+from labop.execution_engine import ExecutionEngine
 
 
 # Save testfiles as artifacts when running in CI environment,
@@ -21,19 +21,19 @@ else:
 class TestProtocolEndToEnd(unittest.TestCase):
 
     def test_create_protocol(self):
-        protocol: paml.Protocol
+        protocol: labop.Protocol
         doc: sbol3.Document
         logger = logging.getLogger("decision_protocol")
         logger.setLevel(logging.INFO)
         doc = sbol3.Document()
         sbol3.set_namespace('https://bbn.com/scratch/')
-        protocol = paml.Protocol("decision_node_test")
+        protocol = labop.Protocol("decision_node_test")
         doc.add(protocol)
 
         initial = protocol.initial()
         final = protocol.final()
 
-        pH_meter_calibrated = paml.Primitive('pHMeterCalibrated')
+        pH_meter_calibrated = labop.Primitive('pHMeterCalibrated')
         pH_meter_calibrated.description = 'Determine if the pH Meter is calibrated.'
         pH_meter_calibrated.add_output('return', 'http://www.w3.org/2001/XMLSchema#boolean')
         doc.add(pH_meter_calibrated)

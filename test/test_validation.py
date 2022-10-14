@@ -1,6 +1,6 @@
 import unittest
 import sbol3
-import paml
+import labop
 import uml
 
 
@@ -11,10 +11,10 @@ class TestValidationErrorChecking(unittest.TestCase):
         print('Setting up document')
         doc = sbol3.Document()
         sbol3.set_namespace('https://bbn.com/scratch/')
-        paml.import_library('sample_arrays')
+        labop.import_library('sample_arrays')
         # Create the protocol
         print('Creating protocol')
-        protocol = paml.Protocol('broken')
+        protocol = labop.Protocol('broken')
         doc.add(protocol)
         # get a plate
         plate = protocol.primitive_step('EmptyContainer', specification='placeholder')
@@ -43,7 +43,7 @@ class TestValidationErrorChecking(unittest.TestCase):
         sbol3.set_namespace('https://bbn.com/scratch/')
         # Create the protocol
         print('Creating protocol')
-        protocol = paml.Protocol('broken')
+        protocol = labop.Protocol('broken')
         doc.add(protocol)
         # call order backwards, to make an edge from the final to the initial
         protocol.order(protocol.final(), protocol.initial())
