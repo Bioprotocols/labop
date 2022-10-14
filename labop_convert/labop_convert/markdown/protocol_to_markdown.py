@@ -1,7 +1,7 @@
 import sbol3
-import paml
+import labop
 import uml
-import paml.type_inference
+import labop.type_inference
 import openpyxl
 import numpy
 from IPython.display import Markdown
@@ -58,7 +58,7 @@ def reduce_range_set(ranges):
 class MarkdownConverter():
     def __init__(self, document: sbol3.Document):
         self.document = document
-        #self.protocol_typing = paml.type_inference.ProtocolTyping()
+        #self.protocol_typing = labop.type_inference.ProtocolTyping()
 
     def markdown_header(self, protocol):
         header = '# ' + (protocol.display_id if (protocol.name is None) else protocol.name) + '\n'
@@ -70,8 +70,8 @@ class MarkdownConverter():
     # Entry-point for document conversion
     # TODO: allow us to control the name of the output
     def convert(self, execution, out=None):
-        # protocol argument can be either string, URI, or paml.Protocol
-        if not isinstance(execution, paml.ProtocolExecution):
+        # protocol argument can be either string, URI, or labop.Protocol
+        if not isinstance(execution, labop.ProtocolExecution):
             execution = self.document.find(execution)
 
         # print('Inferring flow values')
@@ -130,104 +130,104 @@ class MarkdownConverter():
 # sbol3.Component.to_markdown = component_to_markdown
 #
 #
-# def container_to_markdown(self: paml.Container, mdc: MarkdownConverter):
+# def container_to_markdown(self: labop.Container, mdc: MarkdownConverter):
 #     return '[' + (self.display_id if (self.name is None) else self.name) + ']('+self.type+')'
-# paml.Container.to_markdown = container_to_markdown
+# labop.Container.to_markdown = container_to_markdown
 #
 #
-# def containercoodinates_to_markdown(self: paml.ContainerCoordinates, mdc: MarkdownConverter):
+# def containercoodinates_to_markdown(self: labop.ContainerCoordinates, mdc: MarkdownConverter):
 #     return mdc.document.find(self.in_container).to_markdown(mdc) + ' ' + self.coordinates # TODO: figure out how to set document to enable changing doc.find to lookup
-# paml.ContainerCoordinates.to_markdown = containercoodinates_to_markdown
+# labop.ContainerCoordinates.to_markdown = containercoodinates_to_markdown
 #
 #
 #
 # # Helper function for reducing coordinates shown for LocatedSamples
 # def markdown_mergedlocations(location_list, mdc: MarkdownConverter):
-#     containers = [c for c in location_list if isinstance(c, paml.Container)]
-#     coords = {coord for coord in location_list if isinstance(coord, paml.ContainerCoordinates)}
+#     containers = [c for c in location_list if isinstance(c, labop.Container)]
+#     coords = {coord for coord in location_list if isinstance(coord, labop.ContainerCoordinates)}
 #     reduced = []
 #     for c in {coord.in_container.lookup() for coord in coords}:
 #         ranges = reduce_range_set({l.coordinates for l in coords if l.in_container.lookup()==c})
 #         for r in ranges:  # BUG: should be a list comprehension, but in_container argument can't be set in constructor
-#             cc = paml.ContainerCoordinates(coordinates=r)
+#             cc = labop.ContainerCoordinates(coordinates=r)
 #             cc.in_container = c
 #             reduced.append(cc)
 #     return list_to_markdown(containers+reduced, mdc)
 #
 #
-# def locateddata_to_markdown(self: paml.LocatedData, mdc: MarkdownConverter):
+# def locateddata_to_markdown(self: labop.LocatedData, mdc: MarkdownConverter):
 #     return self.from_samples.to_markdown(mdc)
-# paml.LocatedData.to_markdown = locateddata_to_markdown
+# labop.LocatedData.to_markdown = locateddata_to_markdown
 #
-# def locatedsamples_to_markdown(self: paml.ReplicateSamples, _: MarkdownConverter):
+# def locatedsamples_to_markdown(self: labop.ReplicateSamples, _: MarkdownConverter):
 #     return self.name  # TODO: can we do better than this kludge?
-# paml.LocatedSamples.to_markdown = locatedsamples_to_markdown
+# labop.LocatedSamples.to_markdown = locatedsamples_to_markdown
 #
 #
-# def replicatesamples_to_markdown(self: paml.ReplicateSamples, mdc: MarkdownConverter):
+# def replicatesamples_to_markdown(self: labop.ReplicateSamples, mdc: MarkdownConverter):
 #     return markdown_mergedlocations({mdc.document.find(x) for x in self.in_location}, mdc)
-# paml.ReplicateSamples.to_markdown = replicatesamples_to_markdown
+# labop.ReplicateSamples.to_markdown = replicatesamples_to_markdown
 #
 #
-# def heterogeneoussamples_to_markdown(self: paml.HeterogeneousSamples, mdc: MarkdownConverter):
+# def heterogeneoussamples_to_markdown(self: labop.HeterogeneousSamples, mdc: MarkdownConverter):
 #     return markdown_mergedlocations({mdc.document.find(loc) for rep in self.replicate_samples for loc in rep.in_location}, mdc)
-# paml.HeterogeneousSamples.to_markdown = heterogeneoussamples_to_markdown
+# labop.HeterogeneousSamples.to_markdown = heterogeneoussamples_to_markdown
 #
 #
-# def integerconstantpin_to_markdown(self: paml.IntegerConstantPin, mdc: MarkdownConverter):
+# def integerconstantpin_to_markdown(self: labop.IntegerConstantPin, mdc: MarkdownConverter):
 #     return str(self.value)
-# paml.IntegerConstantPin.to_markdown = integerconstantpin_to_markdown
+# labop.IntegerConstantPin.to_markdown = integerconstantpin_to_markdown
 #
-# def stringconstantpin_to_markdown(self: paml.StringConstantPin, mdc: MarkdownConverter):
+# def stringconstantpin_to_markdown(self: labop.StringConstantPin, mdc: MarkdownConverter):
 #     return str(self.value)
-# paml.StringConstantPin.to_markdown = stringconstantpin_to_markdown
+# labop.StringConstantPin.to_markdown = stringconstantpin_to_markdown
 #
 #
-# def localvaluepin_to_markdown(self: paml.LocalValuePin, mdc: MarkdownConverter):
+# def localvaluepin_to_markdown(self: labop.LocalValuePin, mdc: MarkdownConverter):
 #     return self.value.to_markdown(mdc)
-# paml.LocalValuePin.to_markdown = localvaluepin_to_markdown
+# labop.LocalValuePin.to_markdown = localvaluepin_to_markdown
 #
 #
-# def referencevaluepin_to_markdown(self: paml.ReferenceValuePin, mdc: MarkdownConverter):
+# def referencevaluepin_to_markdown(self: labop.ReferenceValuePin, mdc: MarkdownConverter):
 #     return self.value.lookup().to_markdown(mdc)
-# paml.ReferenceValuePin.to_markdown = referencevaluepin_to_markdown
+# labop.ReferenceValuePin.to_markdown = referencevaluepin_to_markdown
 #
 # # A non-constant pin needs to pull its value from the flow
-# def pin_to_markdown(self: paml.Pin, mdc: MarkdownConverter):
+# def pin_to_markdown(self: labop.Pin, mdc: MarkdownConverter):
 #     inflows = self.input_flows()
 #     assert len(inflows)==1, ValueError('Pin has more than one input flow: '+self.identity)
 #     value = mdc.protocol_typing.flow_values[inflows.pop()]
 #     return value.to_markdown(mdc)
-# paml.Pin.to_markdown = pin_to_markdown
+# labop.Pin.to_markdown = pin_to_markdown
 #
 # ###############################
 # # Base activities to markdown
 #
-# def primitiveexecutable_to_markdown(self: paml.PrimitiveExecutable, mdc: MarkdownConverter):
+# def primitiveexecutable_to_markdown(self: labop.PrimitiveExecutable, mdc: MarkdownConverter):
 #     stepwriter = primitive_to_markdown_functions[mdc.document.find(self.instance_of).identity]
 #     return stepwriter(self, mdc)
-# paml.PrimitiveExecutable.to_markdown = primitiveexecutable_to_markdown
+# labop.PrimitiveExecutable.to_markdown = primitiveexecutable_to_markdown
 #
 # def subcall_variable_to_markdown(pin,mdc):
 #     activity = pin.instance_of.lookup().activity.lookup()
 #     return pin.to_markdown(mdc) + " for " + (activity.description if activity.description else activity.name)
 #
-# def subprotocol_to_markdown(self: paml.SubProtocol, mdc: MarkdownConverter):
+# def subprotocol_to_markdown(self: labop.SubProtocol, mdc: MarkdownConverter):
 #     protocol = self.instance_of.lookup()
 #     pname = (protocol.display_id if (protocol.name is None) else protocol.name)
 #     input_string = strlist_to_markdown([subcall_variable_to_markdown(pin,mdc) for pin in self.input], mdc)
 #     return 'Run protocol "'+pname+'" with inputs: '+input_string
-# paml.SubProtocol.to_markdown = subprotocol_to_markdown
+# labop.SubProtocol.to_markdown = subprotocol_to_markdown
 #
 #
-# def value_to_markdown(self: paml.Value, mdc: MarkdownConverter):
+# def value_to_markdown(self: labop.Value, mdc: MarkdownConverter):
 #     if is_input_value(self):  # This is an input value, used as a variable
 #         value = mdc.protocol_typing.flow_values[self.output_flows().pop()]
 #         return 'Protocol input: ' + value.to_markdown(mdc)
 #     else:  # This is an output value, used for reporting
 #         value = mdc.protocol_typing.flow_values[self.input_flows().pop()]
 #         return 'Report values from ' + value.to_markdown(mdc) + '\n'
-# paml.Value.to_markdown = value_to_markdown
+# labop.Value.to_markdown = value_to_markdown
 #
 #
 #############################
@@ -260,22 +260,22 @@ def markdown_input(input : uml.Parameter, mdc: MarkdownConverter):
 # # Serialize order of steps
 #
 # def unpin_activity(protocol, activity):
-#     return activity.get_parent() if isinstance(activity, paml.Pin) else activity
+#     return activity.get_parent() if isinstance(activity, labop.Pin) else activity
 #
 # def is_input_value(x):
-#     return isinstance(x,paml.Value) and \
-#            not({f for f in x.input_flows() if not isinstance(f.source.lookup(), paml.Initial)})
+#     return isinstance(x,labop.Value) and \
+#            not({f for f in x.input_flows() if not isinstance(f.source.lookup(), labop.Initial)})
 #
-def serialize_activities(execution: paml.ProtocolExecution):
+def serialize_activities(execution: labop.ProtocolExecution):
     serialized_activities = []
 
     for execution in execution.executions:
-        if isinstance(execution, paml.CallBehaviorExecution):
+        if isinstance(execution, labop.CallBehaviorExecution):
             execution_node = execution.node.lookup()
             serialized_activities.append(execution_node)
 
-    # assert isinstance(serialized_activities[0], paml.Initial)
-    # assert isinstance(serialized_activities[-1], paml.Final)
+    # assert isinstance(serialized_activities[0], labop.Initial)
+    # assert isinstance(serialized_activities[-1], labop.Final)
 
     # filter out control flow statements
     serialized_noncontrol_activities = [x for x in serialized_activities if (not isinstance(x, uml.ControlNode)) and (not isinstance(x, uml.ObjectNode))]
@@ -285,7 +285,7 @@ def serialize_activities(execution: paml.ProtocolExecution):
 ##############################
 # Write to a markdown file
 
-def write_markdown_file(execution: paml.ProtocolExecution, serialized_noncontrol_activities, mdc: MarkdownConverter, out=None):
+def write_markdown_file(execution: labop.ProtocolExecution, serialized_noncontrol_activities, mdc: MarkdownConverter, out=None):
     protocol = execution.protocol.lookup()
     markdown = mdc.markdown_header(protocol)
 
@@ -299,7 +299,7 @@ def write_markdown_file(execution: paml.ProtocolExecution, serialized_noncontrol
     #     file.write(markdown_material(material.lookup(), mdc))
 
     markdown += '\n\n## Containers\n'
-    # for container in (x for x in protocol.locations if isinstance(x, paml.Container)):
+    # for container in (x for x in protocol.locations if isinstance(x, labop.Container)):
     #     file.write(markdown_container_toplevel(container, mdc))
 
     markdown += '\n\n## Steps\n'
@@ -360,15 +360,15 @@ def write_markdown_file(execution: paml.ProtocolExecution, serialized_noncontrol
 #             ws[coord].fill = copy(entry_style)
 #             ws[coord].alignment = openpyxl.styles.Alignment(horizontal="center")
 #             plate_coord = openpyxl.utils.cell.get_column_letter(block[0]+plate_row)+str(block[1]+plate_col)
-#             ws[coord].comment = openpyxl.comments.Comment(coordinates.in_container+"_"+plate_coord+" "+specification_URI, "PAML autogeneration, do not modify", height=24, width=1000)
+#             ws[coord].comment = openpyxl.comments.Comment(coordinates.in_container+"_"+plate_coord+" "+specification_URI, "LabOP autogeneration, do not modify", height=24, width=1000)
 #             ws[coord].protection = openpyxl.styles.Protection(locked=False)
 #
 #     return (height+2, width+1)
 #
 # def excel_write_location(ws, row_offset, col_offset, location, specification_URI):
-#     if isinstance(location, paml.ContainerCoordinates):
+#     if isinstance(location, labop.ContainerCoordinates):
 #         return excel_write_containercoodinates(ws, row_offset, col_offset, location, specification_URI)
-#     # elif isinstance(location, paml.Container):
+#     # elif isinstance(location, labop.Container):
 #     #     return excel_write_container(location)
 #     else:
 #         return str(location)
@@ -385,11 +385,11 @@ def write_markdown_file(execution: paml.ProtocolExecution, serialized_noncontrol
 #
 # # TODO: consolidate the Excel reporting squares, like we've already done for the protocol above
 # def excel_write_flow_value(document, value, ws, row_offset):
-#     if isinstance(value, paml.LocatedData):
+#     if isinstance(value, labop.LocatedData):
 #         value = value.from_samples  # unwrap value
-#     if isinstance(value, paml.ReplicateSamples):
+#     if isinstance(value, labop.ReplicateSamples):
 #         return excel_write_mergedlocations(ws, row_offset, {x.lookup():value.specification for x in value.in_location})
-#     elif isinstance(value, paml.HeterogeneousSamples):
+#     elif isinstance(value, labop.HeterogeneousSamples):
 #         return excel_write_mergedlocations(ws, row_offset, {document.find(loc):rep.specification for rep in value.replicate_samples for loc in rep.in_location})
 #     # if we fall through to here:
 #     return str(value)
@@ -404,7 +404,7 @@ def write_markdown_file(execution: paml.ProtocolExecution, serialized_noncontrol
 #     ws.title = "Data Reporting"
 #     ws.protection.enable()
 #     ws['D1'] = protocol.name
-#     ws['D1'].comment = openpyxl.comments.Comment(protocol.identity, "PAML autogeneration, do not modify", height=24,
+#     ws['D1'].comment = openpyxl.comments.Comment(protocol.identity, "LabOP autogeneration, do not modify", height=24,
 #                                                  width=1000)
 #     for row in ws['C2:C4']:
 #         for cell in row: cell.protection = openpyxl.styles.Protection(locked=False)  # unlock metadata locations
@@ -413,7 +413,7 @@ def write_markdown_file(execution: paml.ProtocolExecution, serialized_noncontrol
 #
 #     # write each value set, incrementing each time
 #     value_steps = (step for step in range(len(serialized_noncontrol_activities)) if
-#                    isinstance(serialized_noncontrol_activities[step], paml.Value))
+#                    isinstance(serialized_noncontrol_activities[step], labop.Value))
 #     for step in value_steps:
 #         coord = 'A' + str(row_offset)
 #         ws[coord] = 'Report from Step ' + str(step + 1)

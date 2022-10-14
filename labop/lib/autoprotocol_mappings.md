@@ -1,8 +1,8 @@
-# Mapping from PAML libraries to Autoprotocol instructions
+# Mapping from LabOP libraries to Autoprotocol instructions
 
 ## liquid_handling
 
-| autoprotocol | PAML |
+| autoprotocol | LabOP |
 | :--- | :--- |
 | `provision` | `Provision` |
 | `liquid_handle`, `mode=dispense` | `Dispense` |
@@ -15,14 +15,14 @@ Note: this assumes the internal Strateos operation `DISPENSE` is equivalent to `
 ## spectrophotometry
 This library handles plate readers and other spectrophotometers
 
-| autoprotocol | PAML |
+| autoprotocol | LabOP |
 | :--- | :--- |
 | `spectrophotometry`, `mode=absorbance` | `MeasureAbsorbance` |
 | `spectrophotometry`, `mode=fluorescence` | `MeasureFluorescence` |
 | `spectrophotometry`, new mode |`MeasureFluorescenceSpectrum` |
 
 ## plate_handling
-| autoprotocol | PAML |
+| autoprotocol | LabOP |
 | :--- | :--- |
 | `cover` | `Cover` |
 | `incubate` | `Incubate` |

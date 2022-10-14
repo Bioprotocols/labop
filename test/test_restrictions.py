@@ -8,7 +8,7 @@ import pytest
 class TestRestrictions(unittest.TestCase):
 
     def test_bad_restrictions(self):
-        ontology_file_name = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'paml-bad-restrictions.ttl')
+        ontology_file_name = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'labop-bad-restrictions.ttl')
         try:
             owl_rdf_utils.restrictions.main(action='check',
                                             infile=ontology_file_name,
@@ -18,7 +18,7 @@ class TestRestrictions(unittest.TestCase):
             self.assertEqual(exit_code, '1')
 
     def test_good_restrictions(self):
-        ontology_file_name = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', 'paml', 'paml.ttl')
+        ontology_file_name = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', 'labop', 'labop.ttl')
         try:
             owl_rdf_utils.restrictions.main(action='check',
                                             infile=ontology_file_name,
@@ -28,8 +28,8 @@ class TestRestrictions(unittest.TestCase):
             exit_code = str(e)
             self.assertEqual(exit_code, '0')
 
-    def test_paml_actual(self):
-        ontology_file_name = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', 'paml', 'paml.ttl')
+    def test_labop_actual(self):
+        ontology_file_name = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', 'labop', 'labop.ttl')
         try:
             owl_rdf_utils.restrictions.main(action='check',
                                             infile=ontology_file_name,
@@ -39,8 +39,8 @@ class TestRestrictions(unittest.TestCase):
             exit_code = str(e)
             self.assertEqual(exit_code, '0')
 
-    def test_paml_time_actual(self):
-        ontology_file_name = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', 'paml_time', 'paml_time.ttl')
+    def test_labop_time_actual(self):
+        ontology_file_name = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', 'labop_time', 'labop_time.ttl')
         try:
             owl_rdf_utils.restrictions.main(action='check',
                                             infile=ontology_file_name,

@@ -3,9 +3,9 @@ import tempfile
 import unittest
 import filecmp
 import sbol3
-import paml
+import labop
 import tyto
-from paml.execution_engine import ExecutionEngine
+from labop.execution_engine import ExecutionEngine
 
 import logging
 l = logging.getLogger(__file__)
@@ -45,12 +45,12 @@ class TestProtocolExecution(unittest.TestCase):
         agent = sbol3.Agent("test_agent")
 
         # print('Importing libraries')
-        # paml.import_library('liquid_handling')
+        # labop.import_library('liquid_handling')
         # print('... Imported liquid handling')
 
         ee = ExecutionEngine()
         parameter_values = [
-            paml.ParameterValue(parameter=protocol.get_input("wavelength"), value=sbol3.Measure(100, tyto.OM.nanometer))
+            labop.ParameterValue(parameter=protocol.get_input("wavelength"), value=sbol3.Measure(100, tyto.OM.nanometer))
         ]
         execution = ee.execute(protocol, agent, id="test_execution", parameter_values=parameter_values)
 

@@ -1,32 +1,32 @@
 """This module supports the pH_calibration.py script by defining several of the primitives and other related helpers, such as error handlers.
 """
 import sbol3
-import paml
+import labop
 import uml
 import tyto
-from paml.primitive_execution import declare_primitive, resolve_value
+from labop.primitive_execution import declare_primitive, resolve_value
 
 from typing import Tuple
 
 def get_ph_adjustment_protocol_inputs(
-    protocol: paml.Protocol,
+    protocol: labop.Protocol,
 ) -> Tuple[uml.ActivityParameterNode]:
     """Declare and return the inputs for the pH adjustment protocol.
 
     Args:
-        protocol (paml.Protocol): protocol receiving inputs
+        protocol (labop.Protocol): protocol receiving inputs
 
     Returns:
         Tuple[uml.ActivityParameterNode]: protocol inputs
     """
     reaction_vessel = protocol.input_value(
         "reaction_vessel",
-        paml.SampleArray,
+        labop.SampleArray,
     )
 
     naoh_container = protocol.input_value(
         "naoh_container",
-        paml.SampleArray,
+        labop.SampleArray,
     )
 
     measurement_delay = protocol.input_value(
@@ -50,8 +50,8 @@ def define_pH_adjustment_protocol_primitives(
         document,
         library,
         "MeasurePH",
-        inputs=[{"name": "samples", "type": paml.SampleArray}],
-        outputs=[{"name": "measurement", "type": paml.SampleData}],
+        inputs=[{"name": "samples", "type": labop.SampleArray}],
+        outputs=[{"name": "measurement", "type": labop.SampleData}],
         description="Measure pH of samples.",
     )
 
@@ -59,8 +59,8 @@ def define_pH_adjustment_protocol_primitives(
         document,
         library,
         "MeasureTemperature",
-        inputs=[{"name": "samples", "type": paml.SampleArray}],
-        outputs=[{"name": "measurement", "type": paml.SampleData}],
+        inputs=[{"name": "samples", "type": labop.SampleArray}],
+        outputs=[{"name": "measurement", "type": labop.SampleData}],
         description="Measure Temperature of samples.",
     )
 
@@ -68,7 +68,7 @@ def define_pH_adjustment_protocol_primitives(
         document,
         library,
         "AtTargetPH",
-        inputs=[{"name": "decision_input", "type": paml.SampleData}],
+        inputs=[{"name": "decision_input", "type": labop.SampleData}],
         outputs=[
             {
                 "name": "return",
@@ -102,7 +102,7 @@ def define_pH_adjustment_protocol_primitives(
             {"name": "resource", "type": sbol3.Component},
             {"name": "temperature", "type": "http://www.ontology-of-units-of-measure.org/resource/om-2/degreeCelsius"},
             {"name": "pH", "type": "http://www.w3.org/2001/XMLSchema#float"},
-            {"name": "reaction_vessel", "type": paml.SampleArray},
+            {"name": "reaction_vessel", "type": labop.SampleArray},
         ],
         outputs=[{"name": "return", "type": tyto.OM.milligram}],
         description="Calculate NaOH Addition",
@@ -187,12 +187,12 @@ def wrap_with_error_message(protocol, library, primitive, **kwargs):
 
     return wrapped_primitive_invocation, invocation_ok
 
-def get_ph_calibration_protocol_inputs(protocol: paml.Protocol,
+def get_ph_calibration_protocol_inputs(protocol: labop.Protocol,
 ) -> Tuple[uml.ActivityParameterNode]:
     """Declare and return the inputs for the pH calibration protocol.
 
     Args:
-        protocol (paml.Protocol): protocol receiving inputs
+        protocol (labop.Protocol): protocol receiving inputs
 
     Returns:
         Tuple[uml.ActivityParameterNode]: protocol inputs
@@ -245,7 +245,7 @@ def define_pH_calibration_protocol_primitives(
         document,
         library,
         "Mix",
-        inputs=[{"name": "samples", "type": paml.SampleArray},
+        inputs=[{"name": "samples", "type": labop.SampleArray},
         {"name": "rpm", "type": sbol3.Measure},],
         description="Start Mixing contents of container.",
     )
@@ -254,7 +254,7 @@ def define_pH_calibration_protocol_primitives(
         document,
         library,
         "StopMix",
-        inputs=[{"name": "samples", "type": paml.SampleArray},
+        inputs=[{"name": "samples", "type": labop.SampleArray},
         ],
         description="Stop Mixing contents of container.",
     )
@@ -337,12 +337,12 @@ def define_setup_protocol_materials(document):
         naoh
     )
 
-def get_setup_protocol_inputs(protocol: paml.Protocol,
+def get_setup_protocol_inputs(protocol: labop.Protocol,
 ) -> Tuple[uml.ActivityParameterNode]:
     """Declare and return the inputs for the pH calibration protocol.
 
     Args:
-        protocol (paml.Protocol): protocol receiving inputs
+        protocol (labop.Protocol): protocol receiving inputs
 
     Returns:
         Tuple[uml.ActivityParameterNode]: protocol inputs

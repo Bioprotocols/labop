@@ -1,6 +1,6 @@
-[submodule "paml-check"]
-	path = paml-check
-	url = https://github.com/SD2E/paml-check/
+[submodule "labop-check"]
+	path = labop-check
+	url = https://github.com/SD2E/labop-check/
 [submodule "container-ontology"]
 	path = container-ontology
 	url = https://github.com/rpgoldman/container-ontology

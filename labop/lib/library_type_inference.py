@@ -1,9 +1,9 @@
 # import sbol3
-# import paml
-# import paml.type_inference
+# import labop
+# import labop.type_inference
 #
 #
-# # Pre-declare the ProtocolTyping class to avoid circularity with paml.type_inference
+# # Pre-declare the ProtocolTyping class to avoid circularity with labop.type_inference
 # class ProtocolTyping:
 #     pass
 #
@@ -18,7 +18,7 @@
 # #############################################
 # # Liquid handling primitives
 #
-# LIQUID_HANDLING_PREFIX = 'https://bioprotocols.org/paml/primitives/liquid_handling/'
+# LIQUID_HANDLING_PREFIX = 'https://bioprotocols.org/labop/primitives/liquid_handling/'
 #
 # # TODO: add amount information into sample records
 #
@@ -26,7 +26,7 @@
 # def liquid_handling_provision_infer_typing(executable, typing: ProtocolTyping):
 #     resource = executable.input_pin('resource').input_type(typing)
 #     location = executable.input_pin('destination').input_type(typing)
-#     samples = paml.ReplicateSamples(specification=resource)
+#     samples = labop.ReplicateSamples(specification=resource)
 #     samples.in_location.append(location)
 #     executable.output_pin('samples').assert_output_type(typing, samples)
 # primitive_type_inference_functions[LIQUID_HANDLING_PREFIX+'Provision'] = liquid_handling_provision_infer_typing
@@ -34,9 +34,9 @@
 #
 # def liquid_handling_dispense_infer_typing(executable, typing: ProtocolTyping):
 #     source = executable.input_pin('source').input_type(typing)  # Assumed singular replicate
-#     assert isinstance(source, paml.ReplicateSamples), ValueError('Dispense must come from a homogeneous source, but found '+str(source))
+#     assert isinstance(source, labop.ReplicateSamples), ValueError('Dispense must come from a homogeneous source, but found '+str(source))
 #     location = executable.input_pin('destination').input_type(typing).lookup()
-#     samples = paml.ReplicateSamples(specification=source.specification) # TODO: Fix the kludge here
+#     samples = labop.ReplicateSamples(specification=source.specification) # TODO: Fix the kludge here
 #     samples.in_location.append(location)
 #     executable.output_pin('samples').assert_output_type(typing, samples)
 # primitive_type_inference_functions[LIQUID_HANDLING_PREFIX+'Dispense'] = liquid_handling_dispense_infer_typing
@@ -45,12 +45,12 @@
 # def liquid_handling_transfer_infer_typing(executable, typing: ProtocolTyping):
 #     source = executable.input_pin('source').input_type(typing)
 #     destination = executable.input_pin('destination').input_type(typing)
-#     if isinstance(source, paml.ReplicateSamples):
-#         relocated = paml.ReplicateSamples(specification=source.specification)
+#     if isinstance(source, labop.ReplicateSamples):
+#         relocated = labop.ReplicateSamples(specification=source.specification)
 #         relocated.in_location.append(destination)
-#     elif isinstance(source, paml.LocatedSamples):
-#         relocated = paml.HeterogeneousSamples()
-#         kludge = paml.ReplicateSamples() # TODO: put something real here instead
+#     elif isinstance(source, labop.LocatedSamples):
+#         relocated = labop.HeterogeneousSamples()
+#         kludge = labop.ReplicateSamples() # TODO: put something real here instead
 #         kludge.in_location.append(destination)
 #         relocated.replicate_samples.append(kludge)
 #     else:
@@ -62,14 +62,14 @@
 # def liquid_handling_transferinto_infer_typing(executable, typing: ProtocolTyping):
 #     source = executable.input_pin('source').input_type(typing)
 #     destination = executable.input_pin('destination').input_type(typing)
-#     if isinstance(source, paml.ReplicateSamples) and isinstance(destination, paml.ReplicateSamples):
+#     if isinstance(source, labop.ReplicateSamples) and isinstance(destination, labop.ReplicateSamples):
 #         contents = sbol3.Component(executable.display_id+'_contents', sbol3.SBO_FUNCTIONAL_ENTITY)  # generic mixture
-#         mixture = paml.ReplicateSamples(specification=contents)
+#         mixture = labop.ReplicateSamples(specification=contents)
 #         mixture.in_location.append(destination)
-#     elif isinstance(source, paml.LocatedSamples) and isinstance(destination, paml.LocatedSamples):
-#         mixture = paml.HeterogeneousSamples()
-#         kludge = paml.ReplicateSamples() # TODO: put something real here instead
-#         kludge_loc = (destination.in_location if isinstance(destination, paml.ReplicateSamples) else destination.replicate_samples[0].in_location)
+#     elif isinstance(source, labop.LocatedSamples) and isinstance(destination, labop.LocatedSamples):
+#         mixture = labop.HeterogeneousSamples()
+#         kludge = labop.ReplicateSamples() # TODO: put something real here instead
+#         kludge_loc = (destination.in_location if isinstance(destination, labop.ReplicateSamples) else destination.replicate_samples[0].in_location)
 #         kludge.in_location.append(kludge_loc[0])
 #         mixture.replicate_samples.append(kludge)
 #     else:
@@ -83,7 +83,7 @@
 # #############################################
 # # Plate handling primitives
 #
-# PLATE_HANDLING_PREFIX = 'https://bioprotocols.org/paml/primitives/plate_handling/'
+# PLATE_HANDLING_PREFIX = 'https://bioprotocols.org/labop/primitives/plate_handling/'
 #
 #
 # primitive_type_inference_functions[PLATE_HANDLING_PREFIX+'Cover'] = no_output_primitive_infer_typing
@@ -98,13 +98,13 @@
 # #############################################
 # # Spectrophotometry primitives
 #
-# SPECTROPHOTOMETRY = 'https://bioprotocols.org/paml/primitives/spectrophotometry/'
+# SPECTROPHOTOMETRY = 'https://bioprotocols.org/labop/primitives/spectrophotometry/'
 #
 #
 # def spectrophotometry_infer_typing(executable, typing: ProtocolTyping):
 #     samples = executable.input_pin('samples').input_type(typing)
 #     # TODO: figure out how to add appropriate metadata onto these
-#     data = paml.LocatedData()
+#     data = labop.LocatedData()
 #     data.from_samples = samples
 #     executable.output_pin('measurements').assert_output_type(typing, data)
 # primitive_type_inference_functions[SPECTROPHOTOMETRY+'MeasureAbsorbance'] = spectrophotometry_infer_typing

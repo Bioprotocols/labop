@@ -1,11 +1,11 @@
 import unittest
 
-import paml
+import labop
 import uml
 import sbol3
-from paml.execution_engine import ExecutionEngine
-from paml_convert.markdown.markdown_specialization import MarkdownSpecialization
-from paml_convert.behavior_specialization import DefaultBehaviorSpecialization
+from labop.execution_engine import ExecutionEngine
+from labop_convert.markdown.markdown_specialization import MarkdownSpecialization
+from labop_convert.behavior_specialization import DefaultBehaviorSpecialization
 
 
 class TestSubprotocols(unittest.TestCase):
@@ -14,11 +14,11 @@ class TestSubprotocols(unittest.TestCase):
         doc = sbol3.Document()
         sbol3.set_namespace('http://bbn.com/scratch/')
 
-        subprotocol1 = paml.Protocol('sub1')
-        subprotocol2 = paml.Protocol('sub2')
-        primitive1 = paml.Primitive('primitive1')
+        subprotocol1 = labop.Protocol('sub1')
+        subprotocol2 = labop.Protocol('sub2')
+        primitive1 = labop.Primitive('primitive1')
 
-        protocol = paml.Protocol('protocol')
+        protocol = labop.Protocol('protocol')
         doc.add(subprotocol1)
         doc.add(subprotocol2)
         doc.add(primitive1)

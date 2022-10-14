@@ -8,7 +8,7 @@ import sbol3
 import tyto
 from sbol3 import Document
 
-import paml
+import labop
 
 logger: logging.Logger = logging.Logger("LUDOX_protocol")
 
@@ -23,15 +23,15 @@ def prepare_document() -> Document:
     return doc
 
 
-def import_paml_libraries() -> None:
+def import_labop_libraries() -> None:
     logger.info('Importing libraries')
-    paml.import_library('liquid_handling')
+    labop.import_library('liquid_handling')
     logger.info('... Imported liquid handling')
-    paml.import_library('plate_handling')
+    labop.import_library('plate_handling')
     logger.info('... Imported plate handling')
-    paml.import_library('spectrophotometry')
+    labop.import_library('spectrophotometry')
     logger.info('... Imported spectrophotometry')
-    paml.import_library('sample_arrays')
+    labop.import_library('sample_arrays')
     logger.info('... Imported sample arrays')
 
 
@@ -49,9 +49,9 @@ is only weakly scattering and so will give a low absorbance value.
         '''
 
 
-def create_protocol() -> paml.Protocol:
+def create_protocol() -> labop.Protocol:
     logger.info('Creating protocol')
-    protocol: paml.Protocol = paml.Protocol('iGEM_LUDOX_OD_calibration_2018')
+    protocol: labop.Protocol = labop.Protocol('iGEM_LUDOX_OD_calibration_2018')
     protocol.name = "iGEM 2018 LUDOX OD calibration protocol"
     protocol.description = DOCSTRING
     return protocol
@@ -79,14 +79,14 @@ PLATE_SPECIFICATION = \
 PREFIX_MAP = json.dumps({"cont": CONT_NS, "om": OM_NS})
 
 
-def create_plate(protocol: paml.Protocol):
+def create_plate(protocol: labop.Protocol):
     # graph: rdfl.Graph = protocol._other_rdf
     # plate_spec_uri = \
     #     "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/container_requirement#RequiredPlate"
     # graph.add((plate_spec_uri, CONT_NS.containerOntologyQuery, PLATE_SPECIFICATION))
     # plate_spec = sbol3.Identified(plate_spec_uri,
     #                               "foo", name="RequiredPlate")
-    spec = paml.ContainerSpec('plateRequirement',
+    spec = labop.ContainerSpec('plateRequirement',
                               name='plateRequirement',
                               queryString=PLATE_SPECIFICATION,
                               prefixMap=PREFIX_MAP)
@@ -96,19 +96,19 @@ def create_plate(protocol: paml.Protocol):
     return plate
 
 
-def provision_h2o(protocol: paml.Protocol, plate, ddh2o) -> None:
+def provision_h2o(protocol: labop.Protocol, plate, ddh2o) -> None:
     c_ddh2o = protocol.primitive_step('PlateCoordinates', source=plate.output_pin('samples'), coordinates='A1:D1')
     protocol.primitive_step('Provision', resource=ddh2o, destination=c_ddh2o.output_pin('samples'),
                             amount=sbol3.Measure(100, tyto.OM.microliter))
 
 
-def provision_ludox(protocol: paml.Protocol, plate, ludox) -> None:
+def provision_ludox(protocol: labop.Protocol, plate, ludox) -> None:
     c_ludox = protocol.primitive_step('PlateCoordinates', source=plate.output_pin('samples'), coordinates='A2:D2')
     protocol.primitive_step('Provision', resource=ludox, destination=c_ludox.output_pin('samples'),
                             amount=sbol3.Measure(100, tyto.OM.microliter))
 
 
-def measure_absorbance(protocol: paml.Protocol, plate, wavelength_param):
+def measure_absorbance(protocol: labop.Protocol, plate, wavelength_param):
     c_measure = protocol.primitive_step('PlateCoordinates', source=plate.output_pin('samples'), coordinates='A1:D2')
     return protocol.primitive_step(
         'MeasureAbsorbance',
@@ -117,18 +117,18 @@ def measure_absorbance(protocol: paml.Protocol, plate, wavelength_param):
     )
 
 
-def ludox_protocol() -> Tuple[paml.Protocol, Document]:
+def ludox_protocol() -> Tuple[labop.Protocol, Document]:
     #############################################
     # set up the document
     doc: Document = prepare_document()
 
     #############################################
     # Import the primitive libraries
-    import_paml_libraries()
+    import_labop_libraries()
 
     #############################################
     # Create the protocol
-    protocol: paml.Protocol = create_protocol()
+    protocol: labop.Protocol = create_protocol()
     doc.add(protocol)
 
     # create the materials to be provisioned
@@ -160,7 +160,7 @@ def ludox_protocol() -> Tuple[paml.Protocol, Document]:
 
 
 if __name__ == '__main__':
-    new_protocol: paml.Protocol
+    new_protocol: labop.Protocol
     new_protocol, doc = ludox_protocol()
     print('Validating and writing protocol')
     v = doc.validate()

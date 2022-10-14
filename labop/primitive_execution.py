@@ -1,7 +1,7 @@
 import json
 import types
-import paml
-from paml_convert.plate_coordinates import coordinate_rect_to_row_col_pairs, get_aliquot_list, num2row
+import labop
+from labop_convert.plate_coordinates import coordinate_rect_to_row_col_pairs, get_aliquot_list, num2row
 import uml
 import xarray as xr
 import logging
@@ -12,7 +12,7 @@ from typing import List, Dict
 l = logging.getLogger(__file__)
 l.setLevel(logging.ERROR)
 
-PRIMITIVE_BASE_NAMESPACE = "https://bioprotocols.org/paml/primitives/"
+PRIMITIVE_BASE_NAMESPACE = "https://bioprotocols.org/labop/primitives/"
 
 def call_behavior_execution_compute_output(self, parameter):
     """
@@ -26,7 +26,7 @@ def call_behavior_execution_compute_output(self, parameter):
     inputs = [x for x in call.parameter_values if x.parameter.lookup().property_value.direction == uml.PARAMETER_IN]
     value = primitive.compute_output(inputs, parameter)
     return value
-paml.CallBehaviorExecution.compute_output = call_behavior_execution_compute_output
+labop.CallBehaviorExecution.compute_output = call_behavior_execution_compute_output
 
 def call_behavior_action_compute_output(self, inputs, parameter):
     """
@@ -69,7 +69,7 @@ def call_behavior_action_input_parameter_values(self, inputs=None):
                         for k, v in value_pin_values.items()}
     pin_values = { **input_pin_values, **value_pin_values} # merge the dicts
 
-    parameter_values = [paml.ParameterValue(parameter=self.pin_parameter(pin.name).property_value,
+    parameter_values = [labop.ParameterValue(parameter=self.pin_parameter(pin.name).property_value,
                                             value=pin_values[pin.identity])
                         for pin in self.inputs if pin.identity in pin_values]
     return parameter_values
@@ -85,7 +85,7 @@ def resolve_value(v):
             else:
                 return resolved
 
-def input_parameter_map(inputs: List[paml.ParameterValue]):
+def input_parameter_map(inputs: List[labop.ParameterValue]):
     map = {}
     for input in inputs:
         i_parameter = input.parameter.lookup().property_value
@@ -95,13 +95,13 @@ def input_parameter_map(inputs: List[paml.ParameterValue]):
 
 def empty_container_compute_output(self, inputs, parameter):
     if parameter.name == "samples" and \
-       parameter.type == 'http://bioprotocols.org/paml#SampleArray':
+       parameter.type == 'http://bioprotocols.org/labop#SampleArray':
         # Make a SampleArray
         input_map = input_parameter_map(inputs)
         spec = input_map["specification"]
         contents = self.initialize_contents()
         name = f"{parameter.name}"
-        sample_array = paml.SampleArray(name=name,
+        sample_array = labop.SampleArray(name=name,
                                    container_type=spec,
                                    contents=contents)
         return sample_array
@@ -110,7 +110,7 @@ def empty_container_compute_output(self, inputs, parameter):
 
 def plate_coordinates_compute_output(self, inputs, parameter):
     if parameter.name == "samples" and \
-    parameter.type == 'http://bioprotocols.org/paml#SampleCollection':
+    parameter.type == 'http://bioprotocols.org/labop#SampleCollection':
         input_map = input_parameter_map(inputs)
         source = input_map["source"]
         coordinates = input_map["coordinates"]
@@ -118,16 +118,16 @@ def plate_coordinates_compute_output(self, inputs, parameter):
         # 1. read source contents into array
         # 2. create parallel array for entries noted in coordinates
         mask_array = source.mask(coordinates)
-        mask = paml.SampleMask(source=source,
+        mask = labop.SampleMask(source=source,
                                 mask=mask_array)
         return mask
 
 def measure_absorbance_compute_output(self, inputs, parameter):
     if parameter.name == "measurements" and \
-       parameter.type == 'http://bioprotocols.org/paml#SampleData':
+       parameter.type == 'http://bioprotocols.org/labop#SampleData':
         input_map = input_parameter_map(inputs)
         samples = input_map["samples"]
-        sample_data = paml.SampleData(from_samples=samples)
+        sample_data = labop.SampleData(from_samples=samples)
         return sample_data
 
 primitive_to_output_function = {
@@ -139,7 +139,7 @@ primitive_to_output_function = {
 def initialize_primitive_compute_output(doc: sbol3.Document):
     for k, v in primitive_to_output_function.items():
         try:
-            p = paml.get_primitive(doc, k)
+            p = labop.get_primitive(doc, k)
             p.compute_output = types.MethodType(v, p)
         except Exception as e:
             l.warn(f"Could not set compute_output() for primitive {k}, did you import the correct library?")
@@ -150,7 +150,7 @@ def primitive_compute_output(self, inputs, parameter):
     """
     Compute the value for parameter given the inputs. This default function will be overridden for specific primitives.
     :param self:
-    :param inputs: list of paml.ParameterValue
+    :param inputs: list of labop.ParameterValue
     :param parameter: Parameter needing value
     :return: value
     """
@@ -179,10 +179,10 @@ def primitive_compute_output(self, inputs, parameter):
     else:
         l.warning(f'No builder found for output Parameter of {parameter.name}. Returning a string literal by default.')
         return f"{parameter.name}"
-paml.Primitive.compute_output = primitive_compute_output
+labop.Primitive.compute_output = primitive_compute_output
 
 def empty_container_initialize_contents(self):
-    if self.identity == 'https://bioprotocols.org/paml/primitives/sample_arrays/EmptyContainer':
+    if self.identity == 'https://bioprotocols.org/labop/primitives/sample_arrays/EmptyContainer':
         # FIXME need to find a definition of the container topology from the type
         # FIXME this assumes a 96 well plate
 
@@ -194,13 +194,13 @@ def empty_container_initialize_contents(self):
     else:
         raise Exception(f"Cannot initialize contents of: {self.identity}")
     return contents
-paml.Primitive.initialize_contents = empty_container_initialize_contents
+labop.Primitive.initialize_contents = empty_container_initialize_contents
 
 def declare_primitive(
     document: sbol3.Document,
     library: str,
     primitive_name: str,
-    template: paml.Primitive = None,
+    template: labop.Primitive = None,
     inputs: List[Dict] = {},
     outputs: List[Dict] = {},
     description: str = ""
@@ -208,13 +208,13 @@ def declare_primitive(
     old_ns = sbol3.get_namespace()
     sbol3.set_namespace(PRIMITIVE_BASE_NAMESPACE + library)
     try:
-        primitive = paml.get_primitive(
+        primitive = labop.get_primitive(
             name=primitive_name, doc=document
         )
         if not primitive:
             raise Exception("Need to create the primitive")
     except Exception as e:
-        primitive = paml.Primitive(primitive_name)
+        primitive = labop.Primitive(primitive_name)
         primitive.description = description
         if template:
             primitive.inherit_parameters(template)

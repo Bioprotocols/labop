@@ -44,7 +44,7 @@ public class AppTest {
         loader_config = loader_config.addIgnoredImport(IRI.create("http://sbols.org/v3#"));
         loader_config = loader_config.addIgnoredImport(IRI.create("http://bioprotocols.org/uml#"));
         loader_config = loader_config.addIgnoredImport(IRI.create("http://www.ontology-of-units-of-measure.org/resource/om-2/"));
-        boolean status = test_app.validateOntology("resources/paml-good.ttl", loader_config);
+        boolean status = test_app.validateOntology("resources/labop-good.ttl", loader_config);
         assertTrue(status);
     }
 
@@ -54,7 +54,7 @@ public class AppTest {
 //        loader_config = loader_config.addIgnoredImport(IRI.create("http://sbols.org/v3#"));
 //        loader_config = loader_config.addIgnoredImport(IRI.create("http://bioprotocols.org/uml#"));
 //        loader_config = loader_config.addIgnoredImport(IRI.create("http://www.ontology-of-units-of-measure.org/resource/om-2/"));
-//        boolean status = test_app.validateOntology("resources/paml-bad.ttl", loader_config);
+//        boolean status = test_app.validateOntology("resources/labop-bad.ttl", loader_config);
 //        assertFalse(status);
 //    }
 

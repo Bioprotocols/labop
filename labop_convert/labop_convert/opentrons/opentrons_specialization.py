@@ -2,16 +2,16 @@ import os
 import json
 import logging
 from typing import Dict
-from paml_convert.plate_coordinates import get_aliquot_list
+from labop_convert.plate_coordinates import get_aliquot_list
 import xarray as xr
 
 
 import sbol3
 import tyto
-import paml
+import labop
 import uml
 
-from paml_convert.behavior_specialization import BehaviorSpecialization
+from labop_convert.behavior_specialization import BehaviorSpecialization
 
 
 l = logging.getLogger(__file__)
@@ -104,25 +104,25 @@ class OT2Specialization(BehaviorSpecialization):
         defined below.  Adding additional mappings here is most likely required.
         """
         return {
-            "https://bioprotocols.org/paml/primitives/sample_arrays/EmptyContainer" : self.define_container,
-            "https://bioprotocols.org/paml/primitives/liquid_handling/Provision" : self.provision,
-            "https://bioprotocols.org/paml/primitives/liquid_handling/Transfer" : self.transfer_to,
-            "https://bioprotocols.org/paml/primitives/liquid_handling/TransferByMap" : self.transfer_by_map,
-            "https://bioprotocols.org/paml/primitives/sample_arrays/PlateCoordinates" : self.plate_coordinates,
-            "https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureAbsorbance" : self.measure_absorbance,
-            "https://bioprotocols.org/paml/primitives/sample_arrays/EmptyRack" : self.define_rack,
-            "https://bioprotocols.org/paml/primitives/sample_arrays/LoadContainerInRack" : self.load_container_in_rack,
-            "https://bioprotocols.org/paml/primitives/sample_arrays/LoadContainerOnInstrument" : self.load_container_on_instrument,
-            "https://bioprotocols.org/paml/primitives/sample_arrays/LoadRackOnInstrument" : self.load_racks,
-            "https://bioprotocols.org/paml/primitives/sample_arrays/ConfigureRobot" : self.configure_robot,
-            "https://bioprotocols.org/paml/primitives/pcr/PCR" : self.pcr,
+            "https://bioprotocols.org/labop/primitives/sample_arrays/EmptyContainer" : self.define_container,
+            "https://bioprotocols.org/labop/primitives/liquid_handling/Provision" : self.provision,
+            "https://bioprotocols.org/labop/primitives/liquid_handling/Transfer" : self.transfer_to,
+            "https://bioprotocols.org/labop/primitives/liquid_handling/TransferByMap" : self.transfer_by_map,
+            "https://bioprotocols.org/labop/primitives/sample_arrays/PlateCoordinates" : self.plate_coordinates,
+            "https://bioprotocols.org/labop/primitives/spectrophotometry/MeasureAbsorbance" : self.measure_absorbance,
+            "https://bioprotocols.org/labop/primitives/sample_arrays/EmptyRack" : self.define_rack,
+            "https://bioprotocols.org/labop/primitives/sample_arrays/LoadContainerInRack" : self.load_container_in_rack,
+            "https://bioprotocols.org/labop/primitives/sample_arrays/LoadContainerOnInstrument" : self.load_container_on_instrument,
+            "https://bioprotocols.org/labop/primitives/sample_arrays/LoadRackOnInstrument" : self.load_racks,
+            "https://bioprotocols.org/labop/primitives/sample_arrays/ConfigureRobot" : self.configure_robot,
+            "https://bioprotocols.org/labop/primitives/pcr/PCR" : self.pcr,
         }
 
     def handle_process_failure(self, record, exception):
         super().handle_process_failure(record, exception)
         self.script_steps.append(f"# Failure processing record: {record.identity}")
 
-    def on_begin(self, ex: paml.ProtocolExecution):
+    def on_begin(self, ex: labop.ProtocolExecution):
 
         protocol = self.execution.protocol.lookup()
         apilevel = self.apilevel
@@ -233,7 +233,7 @@ class OT2Specialization(BehaviorSpecialization):
 
         return markdown
 
-    def _parameter_value_markdown(self, pv : paml.ParameterValue, is_output=False):
+    def _parameter_value_markdown(self, pv : labop.ParameterValue, is_output=False):
         parameter = pv.parameter.lookup().property_value
         value = pv.value.lookup().value if isinstance(pv.value, uml.LiteralReference) else pv.value.value
         units = tyto.OM.get_term_by_uri(value.unit) if isinstance(value, sbol3.om_unit.Measure) else None
@@ -243,7 +243,7 @@ class OT2Specialization(BehaviorSpecialization):
         else:
             return f"* `{parameter.name}` = {value}"
 
-    def define_container(self, record: paml.ActivityNodeExecution, ex: paml.ProtocolExecution):
+    def define_container(self, record: labop.ActivityNodeExecution, ex: labop.ProtocolExecution):
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
 
@@ -251,7 +251,7 @@ class OT2Specialization(BehaviorSpecialization):
         samples = parameter_value_map["samples"]['value']
         # SampleArray fields are initialized in primitive_execution.py
 
-    def time_wait(self, record: paml.ActivityNodeExecution, ex: paml.ProtocolExecution):
+    def time_wait(self, record: labop.ActivityNodeExecution, ex: labop.ProtocolExecution):
         results = {}
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
@@ -260,7 +260,7 @@ class OT2Specialization(BehaviorSpecialization):
         self.script_steps += [f"time.sleep(value)"]
 
 
-    def provision(self, record: paml.ActivityNodeExecution, ex: paml.ProtocolExecution):
+    def provision(self, record: labop.ActivityNodeExecution, ex: labop.ProtocolExecution):
         results = {}
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
@@ -290,7 +290,7 @@ class OT2Specialization(BehaviorSpecialization):
         self.markdown_steps += [text]
 
 
-    def transfer_to(self, record: paml.ActivityNodeExecution, ex: paml.ProtocolExecution):
+    def transfer_to(self, record: labop.ActivityNodeExecution, ex: labop.ProtocolExecution):
 
         results = {}
         call = record.call.lookup()
@@ -380,7 +380,7 @@ class OT2Specialization(BehaviorSpecialization):
                 self.script_steps += [f"{pipette.display_id}.transfer({value}, {source_name}['{c_source}'], {destination_name}['{c_destination}'])  {comment}"]
 
 
-    def transfer_by_map(self, record: paml.ActivityNodeExecution, ex: paml.ProtocolExecution):
+    def transfer_by_map(self, record: labop.ActivityNodeExecution, ex: labop.ProtocolExecution):
 
         results = {}
         call = record.call.lookup()
@@ -443,7 +443,7 @@ class OT2Specialization(BehaviorSpecialization):
             for c_destination in get_aliquot_list(destination.mask):
                 self.script_steps += [f"{pipette.display_id}.transfer({value}, {source_name}['{c_source}'], {destination_name}['{c_destination}'])"]
 
-    def plate_coordinates(self, record: paml.ActivityNodeExecution, ex: paml.ProtocolExecution):
+    def plate_coordinates(self, record: labop.ActivityNodeExecution, ex: labop.ProtocolExecution):
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
         source = parameter_value_map["source"]["value"]
@@ -451,7 +451,7 @@ class OT2Specialization(BehaviorSpecialization):
         samples = parameter_value_map['samples']['value']
         samples.mask = coords
 
-    def measure_absorbance(self, record: paml.ActivityNodeExecution, ex: paml.ProtocolExecution):
+    def measure_absorbance(self, record: labop.ActivityNodeExecution, ex: labop.ProtocolExecution):
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
 
@@ -463,7 +463,7 @@ class OT2Specialization(BehaviorSpecialization):
         self.script_steps +=[f'protocol.comment(\'Make absorbance measurements (named `{measurements}`) of {samples_str} at {wl.value} {wl_units}.\')']
 
 
-    def define_rack(self, record: paml.ActivityNodeExecution, ex: paml.ProtocolExecution):
+    def define_rack(self, record: labop.ActivityNodeExecution, ex: labop.ProtocolExecution):
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
 
@@ -480,13 +480,13 @@ class OT2Specialization(BehaviorSpecialization):
         #OT2Props = json.loads(spec.OT2SpecificProps)
         #OT2Deck = OT2Props["deck"]
 
-    def load_container_in_rack(self, record: paml.ActivityNodeExecution, ex: paml.ProtocolExecution):
+    def load_container_in_rack(self, record: labop.ActivityNodeExecution, ex: labop.ProtocolExecution):
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
-        container: paml.ContainerSpec = parameter_value_map['container']['value']
+        container: labop.ContainerSpec = parameter_value_map['container']['value']
         coords: str = parameter_value_map['coordinates']['value'] if 'coordinates' in parameter_value_map else 'A1'
-        slots: paml.SampleCollection = parameter_value_map['slots']['value']
-        samples: paml.SampleMask = parameter_value_map['samples']['value']
+        slots: labop.SampleCollection = parameter_value_map['slots']['value']
+        samples: labop.SampleMask = parameter_value_map['samples']['value']
 
         # TODO: validate coordinates for the given container spec
         samples.source = slots
@@ -508,13 +508,13 @@ class OT2Specialization(BehaviorSpecialization):
             self.markdown_steps += [f'Load {container_str}s in slots {coords} of {rack_str}']
 
 
-    def load_container_on_instrument(self, record: paml.ActivityNodeExecution, ex: paml.ProtocolExecution):
+    def load_container_on_instrument(self, record: labop.ActivityNodeExecution, ex: labop.ProtocolExecution):
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
-        container_spec: paml.ContainerSpec = parameter_value_map['specification']['value']
+        container_spec: labop.ContainerSpec = parameter_value_map['specification']['value']
         slots: str = parameter_value_map['slots']['value'] if 'slots' in parameter_value_map else 'A1'
         instrument: sbol3.Agent = parameter_value_map['instrument']['value']
-        samples: paml.SampleArray = parameter_value_map['samples']['value']
+        samples: labop.SampleArray = parameter_value_map['samples']['value']
 
         # Assume 96 well plate
         aliquots = get_aliquot_list(geometry="A1:H12")
@@ -537,12 +537,12 @@ class OT2Specialization(BehaviorSpecialization):
                 instrument.configuration[c] = container_spec
 
 
-    def load_racks(self, record: paml.ActivityNodeExecution, ex: paml.ProtocolExecution):
+    def load_racks(self, record: labop.ActivityNodeExecution, ex: labop.ProtocolExecution):
         call = record.call.lookup()
         node = record.node.lookup()
         parameter_value_map = call.parameter_value_map()
         coords: str = parameter_value_map['coordinates']['value'] if 'coordinates' in parameter_value_map else '1'
-        rack: paml.ContainerSpec = parameter_value_map['rack']['value']
+        rack: labop.ContainerSpec = parameter_value_map['rack']['value']
 
         if rack.queryString not in LABWARE_MAP:
             raise Exception(f'Load failed. {rack.queryString} not a recognized rack type.')
@@ -567,7 +567,7 @@ class OT2Specialization(BehaviorSpecialization):
             if select_pipette:
                 self.script_steps += [f'{select_pipette}.tip_racks.append(labware{coords})']
 
-    def configure_robot(self, record: paml.ActivityNodeExecution, ex: paml.ProtocolExecution):
+    def configure_robot(self, record: labop.ActivityNodeExecution, ex: labop.ProtocolExecution):
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
         instrument = parameter_value_map['instrument']['value']
@@ -597,7 +597,7 @@ class OT2Specialization(BehaviorSpecialization):
         # to use it
         tiprack_selection = None
         for deck, rack in self.configuration.items():
-            if type(rack) is not paml.ContainerSpec:
+            if type(rack) is not labop.ContainerSpec:
                 continue
             api_name = LABWARE_MAP[rack.queryString]
             if api_name in COMPATIBLE_TIPS[instrument.display_id]:
@@ -606,7 +606,7 @@ class OT2Specialization(BehaviorSpecialization):
         if tiprack_selection:
             self.script_steps += [f'{instrument.display_id}.tip_racks.append(labware{deck})']
 
-    def pcr(self, record: paml.ActivityNodeExecution, execution: paml.ProtocolExecution):
+    def pcr(self, record: labop.ActivityNodeExecution, execution: labop.ProtocolExecution):
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
         cycles = parameter_value_map['cycles']['value']
@@ -633,7 +633,7 @@ class OT2Specialization(BehaviorSpecialization):
         raise Exception(f'{instrument.display_id} is not currently configured for this robot')
 
 
-def get_container_name(container: paml.ContainerSpec):
+def get_container_name(container: labop.ContainerSpec):
     if container.name:
         return f'`{container.name}`'
     try:
@@ -649,10 +649,10 @@ def measurement_to_text(measure: sbol3.Measure):
     return f'{measurement_scalar} {measurement_units}'
 
 
-def get_token_source(input_name: str, record: paml.CallBehaviorExecution) -> paml.CallBehaviorExecution:
+def get_token_source(input_name: str, record: labop.CallBehaviorExecution) -> labop.CallBehaviorExecution:
      # Find the target flow carrying the token for the specified input pin
-     input_flows = [flow.lookup() for flow in record.incoming_flows if type(flow.lookup().token_source.lookup()) is paml.ActivityNodeExecution]  # Input tokens flow between ActivityNodeExecutions and CallBehaviorExecutions
-     input_flows2 = [flow.lookup() for flow in record.incoming_flows if type(flow.lookup()) is paml.ActivityEdgeFlow]
+     input_flows = [flow.lookup() for flow in record.incoming_flows if type(flow.lookup().token_source.lookup()) is labop.ActivityNodeExecution]  # Input tokens flow between ActivityNodeExecutions and CallBehaviorExecutions
+     input_flows2 = [flow.lookup() for flow in record.incoming_flows if type(flow.lookup()) is labop.ActivityEdgeFlow]
      assert input_flows != input_flows2
      upstream_execution_nodes = [flow.token_source.lookup() for flow in input_flows]
      target_node = None
@@ -669,11 +669,11 @@ def get_token_source(input_name: str, record: paml.CallBehaviorExecution) -> pam
      if type(token_source.node.lookup()) is uml.ForkNode:
          # Go one more step upstream to get the source CallBehaviorExecution
          return token_source.incoming_flows[0].lookup().token_source.lookup()
-     assert type(token_source) is paml.CallBehaviorExecution, f"Handler for token source of {type(token_source)} is not implemented yet"
+     assert type(token_source) is labop.CallBehaviorExecution, f"Handler for token source of {type(token_source)} is not implemented yet"
      return token_source
 
 
-def get_behavior_type(ex: paml.CallBehaviorExecution) -> str:
+def get_behavior_type(ex: labop.CallBehaviorExecution) -> str:
     # Look up the type of Primitive that a CallBehaviorExecution
     # represents.  Strips the namespace out of the Primitive's URI
     # and returns just the local name, e.g., "PlateCoordinates"

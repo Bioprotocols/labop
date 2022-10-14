@@ -1,16 +1,16 @@
 """
 Functions related to data i/o in connection with a protocol execution trace.
 
-This file monkey-patches the imported paml classes with data handling functions.
+This file monkey-patches the imported labop classes with data handling functions.
 """
 
 from cmath import nan
 import xarray as xr
 import json
 
-import paml
-from paml_convert.plate_coordinates import coordinate_rect_to_row_col_pairs, coordinate_to_row_col
-from paml import SampleMask, SampleData, SampleArray
+import labop
+from labop_convert.plate_coordinates import coordinate_rect_to_row_col_pairs, coordinate_to_row_col
+from labop import SampleMask, SampleData, SampleArray
 import uml
 from typing import List, Dict
 
@@ -28,23 +28,23 @@ def protocol_execution_set_data(self, dataset):
     for k, v in dataset.items():
         sample_data = self.document.find(k)
         sample_data.values = json.dumps(v.to_dict())
-paml.ProtocolExecution.set_data = protocol_execution_set_data
+labop.ProtocolExecution.set_data = protocol_execution_set_data
 
 def protocol_execution_get_data(self):
     """
-    Gather paml.SampleData outputs from all CallBehaviorExecutions into a dataset
+    Gather labop.SampleData outputs from all CallBehaviorExecutions into a dataset
     """
-    calls = [e for e in self.executions if isinstance(e, paml.CallBehaviorExecution)]
+    calls = [e for e in self.executions if isinstance(e, labop.CallBehaviorExecution)]
     datasets = [
                     o.value.get_value().to_dataset()
                         for e in calls
                         for o in e.get_outputs()
-                        if isinstance(o.value.get_value(), paml.SampleData)
+                        if isinstance(o.value.get_value(), labop.SampleData)
                 ]
     data = xr.merge(datasets)
 
     return data
-paml.ProtocolExecution.get_data = protocol_execution_get_data
+labop.ProtocolExecution.get_data = protocol_execution_get_data
 
 
 def sample_array_to_data_array(self):
@@ -109,13 +109,13 @@ def sample_data_to_dataset(self):
 SampleData.to_dataset = sample_data_to_dataset
 
 def sample_data_from_table(self, table: List[List[Dict[str, str]]]):
-    """Convert from PAMLED table to SampleData
+    """Convert from LabOPED table to SampleData
 
     Args:
         table (List[List[Dict]]): List of Rows.  Row is a List of attribute-value Dicts
 
     Returns:
-        SampleData: paml.SampleData object encoded by table.
+        SampleData: labop.SampleData object encoded by table.
     """
     assert(len(table) > 1, "Cannot instantiate SampleData from table with fewer than 2 rows (need header and data).")
 
@@ -142,9 +142,9 @@ SampleData.from_table = sample_data_from_table
 
 def activity_node_execution_get_outputs(self):
     return []
-paml.ActivityNodeExecution.get_outputs = activity_node_execution_get_outputs
+labop.ActivityNodeExecution.get_outputs = activity_node_execution_get_outputs
 
 def call_behavior_execution_get_outputs(self):
     return [x for x in self.call.lookup().parameter_values
               if x.parameter.lookup().property_value.direction == uml.PARAMETER_OUT]
-paml.CallBehaviorExecution.get_outputs = call_behavior_execution_get_outputs
+labop.CallBehaviorExecution.get_outputs = call_behavior_execution_get_outputs

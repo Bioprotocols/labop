@@ -7,10 +7,10 @@ from urllib.parse import quote
 import sbol3
 from tyto import OM
 
-import paml
+import labop
 import uml
-from paml.execution_engine import ExecutionEngine
-from paml_convert.markdown.markdown_specialization import MarkdownSpecialization
+from labop.execution_engine import ExecutionEngine
+from labop_convert.markdown.markdown_specialization import MarkdownSpecialization
 
 
 doc = sbol3.Document()
@@ -19,29 +19,29 @@ sbol3.set_namespace('http://igem.org/engineering/')
 #############################################
 # Import the primitive libraries
 print('Importing libraries')
-paml.import_library('liquid_handling')
+labop.import_library('liquid_handling')
 print('... Imported liquid handling')
-paml.import_library('plate_handling')
+labop.import_library('plate_handling')
 # print('... Imported plate handling')
-paml.import_library('spectrophotometry')
+labop.import_library('spectrophotometry')
 print('... Imported spectrophotometry')
-paml.import_library('sample_arrays')
+labop.import_library('sample_arrays')
 print('... Imported sample arrays')
-paml.import_library('culturing')
+labop.import_library('culturing')
 #############################################
 
 
 # create the materials to be provisioned
 dh5alpha = sbol3.Component('dh5alpha', 'https://identifiers.org/pubchem.substance:24901740')
-dh5alpha.name = '_E. coli_ DH5 alpha'  
+dh5alpha.name = '_E. coli_ DH5 alpha'
 doc.add(dh5alpha)
 
 lb_cam = sbol3.Component('lb_cam', 'https://identifiers.org/pubchem.substance:24901740')
-lb_cam.name = 'LB Broth+chloramphenicol'  
+lb_cam.name = 'LB Broth+chloramphenicol'
 doc.add(lb_cam)
 
 chloramphenicol = sbol3.Component('chloramphenicol', 'https://identifiers.org/pubchem.substance:24901740')
-chloramphenicol.name = 'chloramphenicol'  
+chloramphenicol.name = 'chloramphenicol'
 doc.add(chloramphenicol)
 
 
@@ -87,7 +87,7 @@ doc.add(test_device5)
 doc.add(test_device6)
 
 
-protocol = paml.Protocol('interlab')
+protocol = labop.Protocol('interlab')
 protocol.name = 'Cell measurement protocol (Challenging)'
 protocol.description = '''
 This is a more challenging version of the cell calibration protocol for time-interval measurement. At each time point 0-hour, 2-hour, 4-hour and 6-hour, you will take a sample from each of the eight devices, two colonies per device, three falcon tubes per colony → total 48 tubes.'''
@@ -101,12 +101,12 @@ transformation = protocol.primitive_step(f'Transform',
                                           host=dh5alpha,
                                           dna=plasmids,
                                           selection_medium=lb_cam)
-    
+
 # Day 2: Pick colonies and culture overnight
-culture_container_day1 = protocol.primitive_step('ContainerSet', 
+culture_container_day1 = protocol.primitive_step('ContainerSet',
                                                  quantity=2*len(plasmids),
-                                                 specification=paml.ContainerSpec(name=f'culture (day 1)',
-                                                                                  queryString='cont:CultureTube', 
+                                                 specification=labop.ContainerSpec(name=f'culture (day 1)',
+                                                                                  queryString='cont:CultureTube',
                                                                                   prefixMap={'cont': 'https://sift.net/container-ontology/container-ontology#'}))
 
 overnight_culture = protocol.primitive_step('Culture',
@@ -121,9 +121,9 @@ overnight_culture = protocol.primitive_step('Culture',
 
 # Day 3 culture
 culture_container_day2 = protocol.primitive_step('ContainerSet',
-                                                  quantity=2*len(plasmids), 
-                                                  specification=paml.ContainerSpec(name=f'culture (day 2)',
-                                                                                   queryString='cont:CultureTube', 
+                                                  quantity=2*len(plasmids),
+                                                  specification=labop.ContainerSpec(name=f'culture (day 2)',
+                                                                                   queryString='cont:CultureTube',
                                                                                    prefixMap={'cont': 'https://sift.net/container-ontology/container-ontology#'}))
 
 
@@ -141,11 +141,11 @@ baseline_absorbance = protocol.primitive_step('MeasureAbsorbance',
                                               wavelength=sbol3.Measure(600, OM.nanometer))
 baseline_absorbance.name = 'baseline absorbance'
 
-parent_conical_tube = protocol.primitive_step('ContainerSet', 
+parent_conical_tube = protocol.primitive_step('ContainerSet',
                                               quantity=2*len(plasmids),
-                                              specification=paml.ContainerSpec(name=f'back-diluted culture',
+                                              specification=labop.ContainerSpec(name=f'back-diluted culture',
                                               queryString='cont:50mlConicalTube',
-                                              prefixMap={'cont': 'https://sift.net/container-ontology/container-ontology#'})) 
+                                              prefixMap={'cont': 'https://sift.net/container-ontology/container-ontology#'}))
 
 dilution = protocol.primitive_step('DiluteToTargetOD',
                                    source=culture_container_day2.output_pin('samples'),
@@ -156,12 +156,12 @@ dilution = protocol.primitive_step('DiluteToTargetOD',
 dilution.description = '(Reliability of the dilution upon Abs600 measurement: should stay between 0.1-0.9)'
 
 # Further subdivision into triplicates
-conical_tubes = protocol.primitive_step('ContainerSet', 
+conical_tubes = protocol.primitive_step('ContainerSet',
                                        quantity=2*len(plasmids),
                                        replicates=3,
-                                       specification=paml.ContainerSpec(name=f'replicate subcultures',
+                                       specification=labop.ContainerSpec(name=f'replicate subcultures',
                                        queryString='cont:50mlConicalTube',
-                                       prefixMap={'cont': 'https://sift.net/container-ontology/container-ontology#'})) 
+                                       prefixMap={'cont': 'https://sift.net/container-ontology/container-ontology#'}))
 conical_tubes.description = 'The conical tubes should be opaque, amber-colored, or covered with foil.'
 
 transfer = protocol.primitive_step('Transfer',
@@ -171,13 +171,13 @@ transfer = protocol.primitive_step('Transfer',
                                    amount=sbol3.Measure(12, OM.milliliter))
 
 embedded_image = protocol.primitive_step('EmbeddedImage',
-                                         image='/Users/bbartley/Dev/git/sd2/paml/fig3_cell_calibration.png')
+                                         image='/Users/bbartley/Dev/git/sd2/labop/fig3_cell_calibration.png')
 
 
 # Transfer cultures to a microplate baseline measurement and outgrowth
 timepoint_0hrs = protocol.primitive_step('ContainerSet',
-                                         quantity=2*len(plasmids)*3, 
-                                         specification=paml.ContainerSpec(name='cultures (0 hr timepoint)',
+                                         quantity=2*len(plasmids)*3,
+                                         specification=labop.ContainerSpec(name='cultures (0 hr timepoint)',
                                          queryString='cont:MicrofugeTube',
                                          prefixMap={'cont': 'https://sift.net/container-ontology/container-ontology#'}))
 # Hold on ice
@@ -193,15 +193,15 @@ transfer = protocol.primitive_step('Transfer',
 
 # Plate cultures
 plate1 = protocol.primitive_step('EmptyContainer',
-                                 specification=paml.ContainerSpec(name='plate 1',
+                                 specification=labop.ContainerSpec(name='plate 1',
                                  queryString='cont:Plate96Well',
                                  prefixMap={'cont': 'https://sift.net/container-ontology/container-ontology#'}))
 plate2 = protocol.primitive_step('EmptyContainer',
-                                 specification=paml.ContainerSpec(name='plate 2',
+                                 specification=labop.ContainerSpec(name='plate 2',
                                  queryString='cont:Plate96Well',
                                  prefixMap={'cont': 'https://sift.net/container-ontology/container-ontology#'}))
 plate3 = protocol.primitive_step('EmptyContainer',
-                                 specification=paml.ContainerSpec(name='plate 3',
+                                 specification=labop.ContainerSpec(name='plate 3',
                                  queryString='cont:Plate96Well',
                                  prefixMap={'cont': 'https://sift.net/container-ontology/container-ontology#'}))
 
@@ -269,7 +269,7 @@ transfer_map = quote(json.dumps({'1':  'A2:D2',
                                                 '48': 'E10:H10',}))
 
 
-plan = paml.SampleData(values=transfer_map)
+plan = labop.SampleData(values=transfer_map)
 transfer = protocol.primitive_step('TransferByMap',
                                     source=timepoint_0hrs.output_pin('samples'),
                                     destination=plate1.output_pin('samples'),
@@ -277,14 +277,14 @@ transfer = protocol.primitive_step('TransferByMap',
                                     plan=plan)
 transfer.description = 'See the plate layout below.'
 
-plan = paml.SampleData(values=transfer_map)
+plan = labop.SampleData(values=transfer_map)
 
 transfer = protocol.primitive_step('TransferByMap',
                                     source=timepoint_0hrs.output_pin('samples'),
                                     destination=plate2.output_pin('samples'),
                                     amount=sbol3.Measure(100, OM.microliter),
                                     plan=plan)
-plan = paml.SampleData(values=transfer_map)
+plan = labop.SampleData(values=transfer_map)
 
 transfer = protocol.primitive_step('TransferByMap',
                                     source=timepoint_0hrs.output_pin('samples'),
@@ -303,7 +303,7 @@ plate_blanks = protocol.primitive_step('Transfer',
 plate_blanks.description = 'These samples are blanks.'
 
 embedded_image = protocol.primitive_step('EmbeddedImage',
-                                         image='/Users/bbartley/Dev/git/sd2/paml/fig2_cell_calibration.png')
+                                         image='/Users/bbartley/Dev/git/sd2/labop/fig2_cell_calibration.png')
 
 
 
@@ -392,7 +392,7 @@ hold.description = 'This will inhibit cell growth during the subsequent pipettin
 # Transfer cultures to a microplate baseline measurement and outgrowth
 timepoint_2hrs = protocol.primitive_step('ContainerSet',
                                          quantity=2*len(plasmids)*3,
-                                         specification=paml.ContainerSpec(name='cultures (0 hr timepoint)',
+                                         specification=labop.ContainerSpec(name='cultures (0 hr timepoint)',
                                          queryString='cont:MicrofugeTube',
                                          prefixMap={'cont': 'https://sift.net/container-ontology/container-ontology#'}))
 
@@ -408,11 +408,11 @@ transfer = protocol.primitive_step('Transfer',
                                    amount=sbol3.Measure(1, OM.milliliter))
 
 plate4 = protocol.primitive_step('EmptyContainer',
-                                 specification=paml.ContainerSpec(name='plate 4',
+                                 specification=labop.ContainerSpec(name='plate 4',
                                  queryString='cont:Plate96Well',
                                  prefixMap={'cont': 'https://sift.net/container-ontology/container-ontology#'}))
 
-plan = paml.SampleData(values=transfer_map)
+plan = labop.SampleData(values=transfer_map)
 transfer = protocol.primitive_step('TransferByMap',
                                     source=timepoint_2hrs.output_pin('samples'),
                                     destination=plate4.output_pin('samples'),
@@ -472,28 +472,28 @@ fluorescence_2hrs_plate4.name = '2 hr fluorescence timepoint'
 #                                                       emissionWavelength=sbol3.Measure(530, OM.nanometer),
 #                                                       emissionBandpassWidth=sbol3.Measure(30, OM.nanometer))
 #
-protocol.designate_output('measurements', 'http://bioprotocols.org/paml#SampleData', source=baseline_absorbance.output_pin('measurements'))
-protocol.designate_output('measurements', 'http://bioprotocols.org/paml#SampleData', source=absorbance_0hrs_plate1.output_pin('measurements'))
-protocol.designate_output('measurements', 'http://bioprotocols.org/paml#SampleData', source=absorbance_0hrs_plate2.output_pin('measurements'))
-protocol.designate_output('measurements', 'http://bioprotocols.org/paml#SampleData', source=absorbance_0hrs_plate3.output_pin('measurements'))
-protocol.designate_output('measurements', 'http://bioprotocols.org/paml#SampleData', source=fluorescence_0hrs_plate1.output_pin('measurements'))
-protocol.designate_output('measurements', 'http://bioprotocols.org/paml#SampleData', source=fluorescence_0hrs_plate2.output_pin('measurements'))
-protocol.designate_output('measurements', 'http://bioprotocols.org/paml#SampleData', source=fluorescence_0hrs_plate3.output_pin('measurements'))
-protocol.designate_output('measurements', 'http://bioprotocols.org/paml#SampleData', source=absorbance_2hrs_plate1.output_pin('measurements'))
-protocol.designate_output('measurements', 'http://bioprotocols.org/paml#SampleData', source=absorbance_2hrs_plate4.output_pin('measurements'))
-protocol.designate_output('measurements', 'http://bioprotocols.org/paml#SampleData', source=fluorescence_2hrs_plate1.output_pin('measurements'))
-protocol.designate_output('measurements', 'http://bioprotocols.org/paml#SampleData', source=fluorescence_2hrs_plate4.output_pin('measurements'))
+protocol.designate_output('measurements', 'http://bioprotocols.org/labop#SampleData', source=baseline_absorbance.output_pin('measurements'))
+protocol.designate_output('measurements', 'http://bioprotocols.org/labop#SampleData', source=absorbance_0hrs_plate1.output_pin('measurements'))
+protocol.designate_output('measurements', 'http://bioprotocols.org/labop#SampleData', source=absorbance_0hrs_plate2.output_pin('measurements'))
+protocol.designate_output('measurements', 'http://bioprotocols.org/labop#SampleData', source=absorbance_0hrs_plate3.output_pin('measurements'))
+protocol.designate_output('measurements', 'http://bioprotocols.org/labop#SampleData', source=fluorescence_0hrs_plate1.output_pin('measurements'))
+protocol.designate_output('measurements', 'http://bioprotocols.org/labop#SampleData', source=fluorescence_0hrs_plate2.output_pin('measurements'))
+protocol.designate_output('measurements', 'http://bioprotocols.org/labop#SampleData', source=fluorescence_0hrs_plate3.output_pin('measurements'))
+protocol.designate_output('measurements', 'http://bioprotocols.org/labop#SampleData', source=absorbance_2hrs_plate1.output_pin('measurements'))
+protocol.designate_output('measurements', 'http://bioprotocols.org/labop#SampleData', source=absorbance_2hrs_plate4.output_pin('measurements'))
+protocol.designate_output('measurements', 'http://bioprotocols.org/labop#SampleData', source=fluorescence_2hrs_plate1.output_pin('measurements'))
+protocol.designate_output('measurements', 'http://bioprotocols.org/labop#SampleData', source=fluorescence_2hrs_plate4.output_pin('measurements'))
 
 
 
-#protocol.designate_output('measurements', 'http://bioprotocols.org/paml#SampleData', source=absorbance_plate1.output_pin('measurements'))
-#protocol.designate_output('measurements', 'http://bioprotocols.org/paml#SampleData', source=fluorescence_plate1.output_pin('measurements'))
+#protocol.designate_output('measurements', 'http://bioprotocols.org/labop#SampleData', source=absorbance_plate1.output_pin('measurements'))
+#protocol.designate_output('measurements', 'http://bioprotocols.org/labop#SampleData', source=fluorescence_plate1.output_pin('measurements'))
 #
-#protocol.designate_output('measurements', 'http://bioprotocols.org/paml#SampleData', source=endpoint_absorbance_plate1.output_pin('measurements'))
-#protocol.designate_output('measurements', 'http://bioprotocols.org/paml#SampleData', source=endpoint_fluorescence_plate1.output_pin('measurements'))
+#protocol.designate_output('measurements', 'http://bioprotocols.org/labop#SampleData', source=endpoint_absorbance_plate1.output_pin('measurements'))
+#protocol.designate_output('measurements', 'http://bioprotocols.org/labop#SampleData', source=endpoint_fluorescence_plate1.output_pin('measurements'))
 #
-#protocol.designate_output('measurements', 'http://bioprotocols.org/paml#SampleData', source=endpoint_absorbance_plate2.output_pin('measurements'))
-#protocol.designate_output('measurements', 'http://bioprotocols.org/paml#SampleData', source=endpoint_fluorescence_plate2.output_pin('measurements'))
+#protocol.designate_output('measurements', 'http://bioprotocols.org/labop#SampleData', source=endpoint_absorbance_plate2.output_pin('measurements'))
+#protocol.designate_output('measurements', 'http://bioprotocols.org/labop#SampleData', source=endpoint_fluorescence_plate2.output_pin('measurements'))
 #
 
 agent = sbol3.Agent("test_agent")

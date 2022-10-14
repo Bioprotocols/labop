@@ -3,762 +3,762 @@
 @prefix sbol: <http://sbols.org/v3#> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
-<https://bioprotocols.org/paml/primitives/plate_handling/AdhesiveSeal> a <http://bioprotocols.org/paml#Primitive>,
+<https://bioprotocols.org/labop/primitives/plate_handling/AdhesiveSeal> a <http://bioprotocols.org/labop#Primitive>,
         sbol:TopLevel ;
-    ns1:ownedParameter <https://bioprotocols.org/paml/primitives/plate_handling/AdhesiveSeal/OrderedPropertyValue1>,
-        <https://bioprotocols.org/paml/primitives/plate_handling/AdhesiveSeal/OrderedPropertyValue2> ;
+    ns1:ownedParameter <https://bioprotocols.org/labop/primitives/plate_handling/AdhesiveSeal/OrderedPropertyValue1>,
+        <https://bioprotocols.org/labop/primitives/plate_handling/AdhesiveSeal/OrderedPropertyValue2> ;
     sbol:description "Seal a collection of samples using adhesive to fix the seal, in order to guarantee isolation from the external environment" ;
     sbol:displayId "AdhesiveSeal" ;
-    sbol:hasNamespace <https://bioprotocols.org/paml/primitives/plate_handling> .
+    sbol:hasNamespace <https://bioprotocols.org/labop/primitives/plate_handling> .
 
-<https://bioprotocols.org/paml/primitives/plate_handling/Cover> a <http://bioprotocols.org/paml#Primitive>,
+<https://bioprotocols.org/labop/primitives/plate_handling/Cover> a <http://bioprotocols.org/labop#Primitive>,
         sbol:TopLevel ;
-    ns1:ownedParameter <https://bioprotocols.org/paml/primitives/plate_handling/Cover/OrderedPropertyValue1>,
-        <https://bioprotocols.org/paml/primitives/plate_handling/Cover/OrderedPropertyValue2> ;
+    ns1:ownedParameter <https://bioprotocols.org/labop/primitives/plate_handling/Cover/OrderedPropertyValue1>,
+        <https://bioprotocols.org/labop/primitives/plate_handling/Cover/OrderedPropertyValue2> ;
     sbol:description "Cover a set of samples to keep materials from entering or exiting" ;
     sbol:displayId "Cover" ;
-    sbol:hasNamespace <https://bioprotocols.org/paml/primitives/plate_handling> .
+    sbol:hasNamespace <https://bioprotocols.org/labop/primitives/plate_handling> .
 
-<https://bioprotocols.org/paml/primitives/plate_handling/EvaporativeSeal> a <http://bioprotocols.org/paml#Primitive>,
+<https://bioprotocols.org/labop/primitives/plate_handling/EvaporativeSeal> a <http://bioprotocols.org/labop#Primitive>,
         sbol:TopLevel ;
-    ns1:ownedParameter <https://bioprotocols.org/paml/primitives/plate_handling/EvaporativeSeal/OrderedPropertyValue1>,
-        <https://bioprotocols.org/paml/primitives/plate_handling/EvaporativeSeal/OrderedPropertyValue2> ;
+    ns1:ownedParameter <https://bioprotocols.org/labop/primitives/plate_handling/EvaporativeSeal/OrderedPropertyValue1>,
+        <https://bioprotocols.org/labop/primitives/plate_handling/EvaporativeSeal/OrderedPropertyValue2> ;
     sbol:description "Seal a collection of samples using a user-selected method in order to prevent evaporation" ;
     sbol:displayId "EvaporativeSeal" ;
-    sbol:hasNamespace <https://bioprotocols.org/paml/primitives/plate_handling> .
+    sbol:hasNamespace <https://bioprotocols.org/labop/primitives/plate_handling> .
 
-<https://bioprotocols.org/paml/primitives/plate_handling/Hold> a <http://bioprotocols.org/paml#Primitive>,
+<https://bioprotocols.org/labop/primitives/plate_handling/Hold> a <http://bioprotocols.org/labop#Primitive>,
         sbol:TopLevel ;
-    ns1:ownedParameter <https://bioprotocols.org/paml/primitives/plate_handling/Hold/OrderedPropertyValue1>,
-        <https://bioprotocols.org/paml/primitives/plate_handling/Hold/OrderedPropertyValue2> ;
+    ns1:ownedParameter <https://bioprotocols.org/labop/primitives/plate_handling/Hold/OrderedPropertyValue1>,
+        <https://bioprotocols.org/labop/primitives/plate_handling/Hold/OrderedPropertyValue2> ;
     sbol:description "Incubate, store, or hold a set of samples indefinitely at the specified temperature" ;
     sbol:displayId "Hold" ;
-    sbol:hasNamespace <https://bioprotocols.org/paml/primitives/plate_handling> .
+    sbol:hasNamespace <https://bioprotocols.org/labop/primitives/plate_handling> .
 
-<https://bioprotocols.org/paml/primitives/plate_handling/HoldOnIce> a <http://bioprotocols.org/paml#Primitive>,
+<https://bioprotocols.org/labop/primitives/plate_handling/HoldOnIce> a <http://bioprotocols.org/labop#Primitive>,
         sbol:TopLevel ;
-    ns1:ownedParameter <https://bioprotocols.org/paml/primitives/plate_handling/HoldOnIce/OrderedPropertyValue1> ;
+    ns1:ownedParameter <https://bioprotocols.org/labop/primitives/plate_handling/HoldOnIce/OrderedPropertyValue1> ;
     sbol:description "Incubate, store, or hold a set of samples indefinitely on ice" ;
     sbol:displayId "HoldOnIce" ;
-    sbol:hasNamespace <https://bioprotocols.org/paml/primitives/plate_handling> .
+    sbol:hasNamespace <https://bioprotocols.org/labop/primitives/plate_handling> .
 
-<https://bioprotocols.org/paml/primitives/plate_handling/Incubate> a <http://bioprotocols.org/paml#Primitive>,
+<https://bioprotocols.org/labop/primitives/plate_handling/Incubate> a <http://bioprotocols.org/labop#Primitive>,
         sbol:TopLevel ;
-    ns1:ownedParameter <https://bioprotocols.org/paml/primitives/plate_handling/Incubate/OrderedPropertyValue1>,
-        <https://bioprotocols.org/paml/primitives/plate_handling/Incubate/OrderedPropertyValue2>,
-        <https://bioprotocols.org/paml/primitives/plate_handling/Incubate/OrderedPropertyValue3>,
-        <https://bioprotocols.org/paml/primitives/plate_handling/Incubate/OrderedPropertyValue4> ;
+    ns1:ownedParameter <https://bioprotocols.org/labop/primitives/plate_handling/Incubate/OrderedPropertyValue1>,
+        <https://bioprotocols.org/labop/primitives/plate_handling/Incubate/OrderedPropertyValue2>,
+        <https://bioprotocols.org/labop/primitives/plate_handling/Incubate/OrderedPropertyValue3>,
+        <https://bioprotocols.org/labop/primitives/plate_handling/Incubate/OrderedPropertyValue4> ;
     sbol:description "Incubate a set of samples under specified conditions for a fixed period of time" ;
     sbol:displayId "Incubate" ;
-    sbol:hasNamespace <https://bioprotocols.org/paml/primitives/plate_handling> .
+    sbol:hasNamespace <https://bioprotocols.org/labop/primitives/plate_handling> .
 
-<https://bioprotocols.org/paml/primitives/plate_handling/QuickSpin> a <http://bioprotocols.org/paml#Primitive>,
+<https://bioprotocols.org/labop/primitives/plate_handling/QuickSpin> a <http://bioprotocols.org/labop#Primitive>,
         sbol:TopLevel ;
-    ns1:ownedParameter <https://bioprotocols.org/paml/primitives/plate_handling/QuickSpin/OrderedPropertyValue1> ;
+    ns1:ownedParameter <https://bioprotocols.org/labop/primitives/plate_handling/QuickSpin/OrderedPropertyValue1> ;
     sbol:description "Perform a brief centrifugation on a set of samples to pull down stray droplets or condensate into the bottom of the container" ;
     sbol:displayId "QuickSpin" ;
-    sbol:hasNamespace <https://bioprotocols.org/paml/primitives/plate_handling> .
+    sbol:hasNamespace <https://bioprotocols.org/labop/primitives/plate_handling> .
 
-<https://bioprotocols.org/paml/primitives/plate_handling/Seal> a <http://bioprotocols.org/paml#Primitive>,
+<https://bioprotocols.org/labop/primitives/plate_handling/Seal> a <http://bioprotocols.org/labop#Primitive>,
         sbol:TopLevel ;
-    ns1:ownedParameter <https://bioprotocols.org/paml/primitives/plate_handling/Seal/OrderedPropertyValue1>,
-        <https://bioprotocols.org/paml/primitives/plate_handling/Seal/OrderedPropertyValue2> ;
+    ns1:ownedParameter <https://bioprotocols.org/labop/primitives/plate_handling/Seal/OrderedPropertyValue1>,
+        <https://bioprotocols.org/labop/primitives/plate_handling/Seal/OrderedPropertyValue2> ;
     sbol:description "Seal a collection of samples fixing the seal using a user-selected method, in order to guarantee isolation from the external environment" ;
     sbol:displayId "Seal" ;
-    sbol:hasNamespace <https://bioprotocols.org/paml/primitives/plate_handling> .
+    sbol:hasNamespace <https://bioprotocols.org/labop/primitives/plate_handling> .
 
-<https://bioprotocols.org/paml/primitives/plate_handling/Spin> a <http://bioprotocols.org/paml#Primitive>,
+<https://bioprotocols.org/labop/primitives/plate_handling/Spin> a <http://bioprotocols.org/labop#Primitive>,
         sbol:TopLevel ;
-    ns1:ownedParameter <https://bioprotocols.org/paml/primitives/plate_handling/Spin/OrderedPropertyValue1>,
-        <https://bioprotocols.org/paml/primitives/plate_handling/Spin/OrderedPropertyValue2>,
-        <https://bioprotocols.org/paml/primitives/plate_handling/Spin/OrderedPropertyValue3> ;
+    ns1:ownedParameter <https://bioprotocols.org/labop/primitives/plate_handling/Spin/OrderedPropertyValue1>,
+        <https://bioprotocols.org/labop/primitives/plate_handling/Spin/OrderedPropertyValue2>,
+        <https://bioprotocols.org/labop/primitives/plate_handling/Spin/OrderedPropertyValue3> ;
     sbol:description "Centrifuge a set of samples at a given acceleration for a given period of time" ;
     sbol:displayId "Spin" ;
-    sbol:hasNamespace <https://bioprotocols.org/paml/primitives/plate_handling> .
+    sbol:hasNamespace <https://bioprotocols.org/labop/primitives/plate_handling> .
 
-<https://bioprotocols.org/paml/primitives/plate_handling/ThermalSeal> a <http://bioprotocols.org/paml#Primitive>,
+<https://bioprotocols.org/labop/primitives/plate_handling/ThermalSeal> a <http://bioprotocols.org/labop#Primitive>,
         sbol:TopLevel ;
-    ns1:ownedParameter <https://bioprotocols.org/paml/primitives/plate_handling/ThermalSeal/OrderedPropertyValue1>,
-        <https://bioprotocols.org/paml/primitives/plate_handling/ThermalSeal/OrderedPropertyValue2>,
-        <https://bioprotocols.org/paml/primitives/plate_handling/ThermalSeal/OrderedPropertyValue3>,
-        <https://bioprotocols.org/paml/primitives/plate_handling/ThermalSeal/OrderedPropertyValue4> ;
+    ns1:ownedParameter <https://bioprotocols.org/labop/primitives/plate_handling/ThermalSeal/OrderedPropertyValue1>,
+        <https://bioprotocols.org/labop/primitives/plate_handling/ThermalSeal/OrderedPropertyValue2>,
+        <https://bioprotocols.org/labop/primitives/plate_handling/ThermalSeal/OrderedPropertyValue3>,
+        <https://bioprotocols.org/labop/primitives/plate_handling/ThermalSeal/OrderedPropertyValue4> ;
     sbol:description "Seal a collection of samples using heat to fix the seal, in order to guarantee isolation from the external environment" ;
     sbol:displayId "ThermalSeal" ;
-    sbol:hasNamespace <https://bioprotocols.org/paml/primitives/plate_handling> .
+    sbol:hasNamespace <https://bioprotocols.org/labop/primitives/plate_handling> .
 
-<https://bioprotocols.org/paml/primitives/plate_handling/Uncover> a <http://bioprotocols.org/paml#Primitive>,
+<https://bioprotocols.org/labop/primitives/plate_handling/Uncover> a <http://bioprotocols.org/labop#Primitive>,
         sbol:TopLevel ;
-    ns1:ownedParameter <https://bioprotocols.org/paml/primitives/plate_handling/Uncover/OrderedPropertyValue1> ;
+    ns1:ownedParameter <https://bioprotocols.org/labop/primitives/plate_handling/Uncover/OrderedPropertyValue1> ;
     sbol:description "Uncover a collection of samples to allow materials to enter or exit" ;
     sbol:displayId "Uncover" ;
-    sbol:hasNamespace <https://bioprotocols.org/paml/primitives/plate_handling> .
+    sbol:hasNamespace <https://bioprotocols.org/labop/primitives/plate_handling> .
 
-<https://bioprotocols.org/paml/primitives/plate_handling/Unseal> a <http://bioprotocols.org/paml#Primitive>,
+<https://bioprotocols.org/labop/primitives/plate_handling/Unseal> a <http://bioprotocols.org/labop#Primitive>,
         sbol:TopLevel ;
-    ns1:ownedParameter <https://bioprotocols.org/paml/primitives/plate_handling/Unseal/OrderedPropertyValue1> ;
+    ns1:ownedParameter <https://bioprotocols.org/labop/primitives/plate_handling/Unseal/OrderedPropertyValue1> ;
     sbol:description "Unseal a sealed collection of samples to break their isolation from the external environment" ;
     sbol:displayId "Unseal" ;
-    sbol:hasNamespace <https://bioprotocols.org/paml/primitives/plate_handling> .
+    sbol:hasNamespace <https://bioprotocols.org/labop/primitives/plate_handling> .
 
-<https://bioprotocols.org/paml/primitives/plate_handling/AdhesiveSeal/OrderedPropertyValue1> a ns1:OrderedPropertyValue,
+<https://bioprotocols.org/labop/primitives/plate_handling/AdhesiveSeal/OrderedPropertyValue1> a ns1:OrderedPropertyValue,
         sbol:Identified ;
     ns1:indexValue 0 ;
-    ns1:propertyValue <https://bioprotocols.org/paml/primitives/plate_handling/AdhesiveSeal/OrderedPropertyValue1/Parameter1> ;
+    ns1:propertyValue <https://bioprotocols.org/labop/primitives/plate_handling/AdhesiveSeal/OrderedPropertyValue1/Parameter1> ;
     sbol:displayId "OrderedPropertyValue1" .
 
-<https://bioprotocols.org/paml/primitives/plate_handling/AdhesiveSeal/OrderedPropertyValue1/Parameter1> a ns1:Parameter,
+<https://bioprotocols.org/labop/primitives/plate_handling/AdhesiveSeal/OrderedPropertyValue1/Parameter1> a ns1:Parameter,
         sbol:Identified ;
     ns1:direction ns1:in ;
     ns1:isOrdered true ;
     ns1:isUnique true ;
-    ns1:lowerValue <https://bioprotocols.org/paml/primitives/plate_handling/AdhesiveSeal/OrderedPropertyValue1/Parameter1/LiteralInteger2> ;
-    ns1:type <http://bioprotocols.org/paml#SampleArray> ;
-    ns1:upperValue <https://bioprotocols.org/paml/primitives/plate_handling/AdhesiveSeal/OrderedPropertyValue1/Parameter1/LiteralInteger1> ;
+    ns1:lowerValue <https://bioprotocols.org/labop/primitives/plate_handling/AdhesiveSeal/OrderedPropertyValue1/Parameter1/LiteralInteger2> ;
+    ns1:type <http://bioprotocols.org/labop#SampleArray> ;
+    ns1:upperValue <https://bioprotocols.org/labop/primitives/plate_handling/AdhesiveSeal/OrderedPropertyValue1/Parameter1/LiteralInteger1> ;
     sbol:displayId "Parameter1" ;
     sbol:name "location" .
 
-<https://bioprotocols.org/paml/primitives/plate_handling/AdhesiveSeal/OrderedPropertyValue1/Parameter1/LiteralInteger1> a ns1:LiteralInteger,
+<https://bioprotocols.org/labop/primitives/plate_handling/AdhesiveSeal/OrderedPropertyValue1/Parameter1/LiteralInteger1> a ns1:LiteralInteger,
         sbol:Identified ;
     ns1:integerValue 1 ;
     sbol:displayId "LiteralInteger1" .
 
-<https://bioprotocols.org/paml/primitives/plate_handling/AdhesiveSeal/OrderedPropertyValue1/Parameter1/LiteralInteger2> a ns1:LiteralInteger,
+<https://bioprotocols.org/labop/primitives/plate_handling/AdhesiveSeal/OrderedPropertyValue1/Parameter1/LiteralInteger2> a ns1:LiteralInteger,
         sbol:Identified ;
     ns1:integerValue 1 ;
     sbol:displayId "LiteralInteger2" .
 
-<https://bioprotocols.org/paml/primitives/plate_handling/AdhesiveSeal/OrderedPropertyValue2> a ns1:OrderedPropertyValue,
+<https://bioprotocols.org/labop/primitives/plate_handling/AdhesiveSeal/OrderedPropertyValue2> a ns1:OrderedPropertyValue,
         sbol:Identified ;
     ns1:indexValue 1 ;
-    ns1:propertyValue <https://bioprotocols.org/paml/primitives/plate_handling/AdhesiveSeal/OrderedPropertyValue2/Parameter1> ;
+    ns1:propertyValue <https://bioprotocols.org/labop/primitives/plate_handling/AdhesiveSeal/OrderedPropertyValue2/Parameter1> ;
     sbol:displayId "OrderedPropertyValue2" .
 
-<https://bioprotocols.org/paml/primitives/plate_handling/AdhesiveSeal/OrderedPropertyValue2/Parameter1> a ns1:Parameter,
+<https://bioprotocols.org/labop/primitives/plate_handling/AdhesiveSeal/OrderedPropertyValue2/Parameter1> a ns1:Parameter,
         sbol:Identified ;
     ns1:direction ns1:in ;
     ns1:isOrdered true ;
     ns1:isUnique true ;
-    ns1:lowerValue <https://bioprotocols.org/paml/primitives/plate_handling/AdhesiveSeal/OrderedPropertyValue2/Parameter1/LiteralInteger2> ;
+    ns1:lowerValue <https://bioprotocols.org/labop/primitives/plate_handling/AdhesiveSeal/OrderedPropertyValue2/Parameter1/LiteralInteger2> ;
     ns1:type xsd:anyURI ;
-    ns1:upperValue <https://bioprotocols.org/paml/primitives/plate_handling/AdhesiveSeal/OrderedPropertyValue2/Parameter1/LiteralInteger1> ;
+    ns1:upperValue <https://bioprotocols.org/labop/primitives/plate_handling/AdhesiveSeal/OrderedPropertyValue2/Parameter1/LiteralInteger1> ;
     sbol:displayId "Parameter1" ;
     sbol:name "type" .
 
-<https://bioprotocols.org/paml/primitives/plate_handling/AdhesiveSeal/OrderedPropertyValue2/Parameter1/LiteralInteger1> a ns1:LiteralInteger,
+<https://bioprotocols.org/labop/primitives/plate_handling/AdhesiveSeal/OrderedPropertyValue2/Parameter1/LiteralInteger1> a ns1:LiteralInteger,
         sbol:Identified ;
     ns1:integerValue 1 ;
     sbol:displayId "LiteralInteger1" .
 
-<https://bioprotocols.org/paml/primitives/plate_handling/AdhesiveSeal/OrderedPropertyValue2/Parameter1/LiteralInteger2> a ns1:LiteralInteger,
+<https://bioprotocols.org/labop/primitives/plate_handling/AdhesiveSeal/OrderedPropertyValue2/Parameter1/LiteralInteger2> a ns1:LiteralInteger,
         sbol:Identified ;
     ns1:integerValue 1 ;
     sbol:displayId "LiteralInteger2" .
 
-<https://bioprotocols.org/paml/primitives/plate_handling/Cover/OrderedPropertyValue1> a ns1:OrderedPropertyValue,
+<https://bioprotocols.org/labop/primitives/plate_handling/Cover/OrderedPropertyValue1> a ns1:OrderedPropertyValue,
         sbol:Identified ;
     ns1:indexValue 0 ;
-    ns1:propertyValue <https://bioprotocols.org/paml/primitives/plate_handling/Cover/OrderedPropertyValue1/Parameter1> ;
+    ns1:propertyValue <https://bioprotocols.org/labop/primitives/plate_handling/Cover/OrderedPropertyValue1/Parameter1> ;
     sbol:displayId "OrderedPropertyValue1" .
 
-<https://bioprotocols.org/paml/primitives/plate_handling/Cover/OrderedPropertyValue1/Parameter1> a ns1:Parameter,
+<https://bioprotocols.org/labop/primitives/plate_handling/Cover/OrderedPropertyValue1/Parameter1> a ns1:Parameter,
         sbol:Identified ;
     ns1:direction ns1:in ;
     ns1:isOrdered true ;
     ns1:isUnique true ;
-    ns1:lowerValue <https://bioprotocols.org/paml/primitives/plate_handling/Cover/OrderedPropertyValue1/Parameter1/LiteralInteger2> ;
-    ns1:type <http://bioprotocols.org/paml#SampleArray> ;
-    ns1:upperValue <https://bioprotocols.org/paml/primitives/plate_handling/Cover/OrderedPropertyValue1/Parameter1/LiteralInteger1> ;
+    ns1:lowerValue <https://bioprotocols.org/labop/primitives/plate_handling/Cover/OrderedPropertyValue1/Parameter1/LiteralInteger2> ;
+    ns1:type <http://bioprotocols.org/labop#SampleArray> ;
+    ns1:upperValue <https://bioprotocols.org/labop/primitives/plate_handling/Cover/OrderedPropertyValue1/Parameter1/LiteralInteger1> ;
     sbol:displayId "Parameter1" ;
     sbol:name "location" .
 
-<https://bioprotocols.org/paml/primitives/plate_handling/Cover/OrderedPropertyValue1/Parameter1/LiteralInteger1> a ns1:LiteralInteger,
+<https://bioprotocols.org/labop/primitives/plate_handling/Cover/OrderedPropertyValue1/Parameter1/LiteralInteger1> a ns1:LiteralInteger,
         sbol:Identified ;
     ns1:integerValue 1 ;
     sbol:displayId "LiteralInteger1" .
 
-<https://bioprotocols.org/paml/primitives/plate_handling/Cover/OrderedPropertyValue1/Parameter1/LiteralInteger2> a ns1:LiteralInteger,
+<https://bioprotocols.org/labop/primitives/plate_handling/Cover/OrderedPropertyValue1/Parameter1/LiteralInteger2> a ns1:LiteralInteger,
         sbol:Identified ;
     ns1:integerValue 1 ;
     sbol:displayId "LiteralInteger2" .
 
-<https://bioprotocols.org/paml/primitives/plate_handling/Cover/OrderedPropertyValue2> a ns1:OrderedPropertyValue,
+<https://bioprotocols.org/labop/primitives/plate_handling/Cover/OrderedPropertyValue2> a ns1:OrderedPropertyValue,
         sbol:Identified ;
     ns1:indexValue 1 ;
-    ns1:propertyValue <https://bioprotocols.org/paml/primitives/plate_handling/Cover/OrderedPropertyValue2/Parameter1> ;
+    ns1:propertyValue <https://bioprotocols.org/labop/primitives/plate_handling/Cover/OrderedPropertyValue2/Parameter1> ;
     sbol:displayId "OrderedPropertyValue2" .
 
-<https://bioprotocols.org/paml/primitives/plate_handling/Cover/OrderedPropertyValue2/Parameter1> a ns1:Parameter,
+<https://bioprotocols.org/labop/primitives/plate_handling/Cover/OrderedPropertyValue2/Parameter1> a ns1:Parameter,
         sbol:Identified ;
     ns1:direction ns1:in ;
     ns1:isOrdered true ;
     ns1:isUnique true ;
-    ns1:lowerValue <https://bioprotocols.org/paml/primitives/plate_handling/Cover/OrderedPropertyValue2/Parameter1/LiteralInteger2> ;
+    ns1:lowerValue <https://bioprotocols.org/labop/primitives/plate_handling/Cover/OrderedPropertyValue2/Parameter1/LiteralInteger2> ;
     ns1:type xsd:anyURI ;
-    ns1:upperValue <https://bioprotocols.org/paml/primitives/plate_handling/Cover/OrderedPropertyValue2/Parameter1/LiteralInteger1> ;
+    ns1:upperValue <https://bioprotocols.org/labop/primitives/plate_handling/Cover/OrderedPropertyValue2/Parameter1/LiteralInteger1> ;
     sbol:displayId "Parameter1" ;
     sbol:name "type" .
 
-<https://bioprotocols.org/paml/primitives/plate_handling/Cover/OrderedPropertyValue2/Parameter1/LiteralInteger1> a ns1:LiteralInteger,
+<https://bioprotocols.org/labop/primitives/plate_handling/Cover/OrderedPropertyValue2/Parameter1/LiteralInteger1> a ns1:LiteralInteger,
         sbol:Identified ;
     ns1:integerValue 1 ;
     sbol:displayId "LiteralInteger1" .
 
-<https://bioprotocols.org/paml/primitives/plate_handling/Cover/OrderedPropertyValue2/Parameter1/LiteralInteger2> a ns1:LiteralInteger,
+<https://bioprotocols.org/labop/primitives/plate_handling/Cover/OrderedPropertyValue2/Parameter1/LiteralInteger2> a ns1:LiteralInteger,
         sbol:Identified ;
     ns1:integerValue 1 ;
     sbol:displayId "LiteralInteger2" .
 
-<https://bioprotocols.org/paml/primitives/plate_handling/EvaporativeSeal/OrderedPropertyValue1> a ns1:OrderedPropertyValue,
+<https://bioprotocols.org/labop/primitives/plate_handling/EvaporativeSeal/OrderedPropertyValue1> a ns1:OrderedPropertyValue,
         sbol:Identified ;
     ns1:indexValue 0 ;
-    ns1:propertyValue <https://bioprotocols.org/paml/primitives/plate_handling/EvaporativeSeal/OrderedPropertyValue1/Parameter1> ;
+    ns1:propertyValue <https://bioprotocols.org/labop/primitives/plate_handling/EvaporativeSeal/OrderedPropertyValue1/Parameter1> ;
     sbol:displayId "OrderedPropertyValue1" .
 
-<https://bioprotocols.org/paml/primitives/plate_handling/EvaporativeSeal/OrderedPropertyValue1/Parameter1> a ns1:Parameter,
+<https://bioprotocols.org/labop/primitives/plate_handling/EvaporativeSeal/OrderedPropertyValue1/Parameter1> a ns1:Parameter,
         sbol:Identified ;
     ns1:direction ns1:in ;
     ns1:isOrdered true ;
     ns1:isUnique true ;
-    ns1:lowerValue <https://bioprotocols.org/paml/primitives/plate_handling/EvaporativeSeal/OrderedPropertyValue1/Parameter1/LiteralInteger2> ;
-    ns1:type <http://bioprotocols.org/paml#SampleArray> ;
-    ns1:upperValue <https://bioprotocols.org/paml/primitives/plate_handling/EvaporativeSeal/OrderedPropertyValue1/Parameter1/LiteralInteger1> ;
+    ns1:lowerValue <https://bioprotocols.org/labop/primitives/plate_handling/EvaporativeSeal/OrderedPropertyValue1/Parameter1/LiteralInteger2> ;
+    ns1:type <http://bioprotocols.org/labop#SampleArray> ;
+    ns1:upperValue <https://bioprotocols.org/labop/primitives/plate_handling/EvaporativeSeal/OrderedPropertyValue1/Parameter1/LiteralInteger1> ;
     sbol:displayId "Parameter1" ;
     sbol:name "location" .
 
-<https://bioprotocols.org/paml/primitives/plate_handling/EvaporativeSeal/OrderedPropertyValue1/Parameter1/LiteralInteger1> a ns1:LiteralInteger,
+<https://bioprotocols.org/labop/primitives/plate_handling/EvaporativeSeal/OrderedPropertyValue1/Parameter1/LiteralInteger1> a ns1:LiteralInteger,
         sbol:Identified ;
     ns1:integerValue 1 ;
     sbol:displayId "LiteralInteger1" .
 
-<https://bioprotocols.org/paml/primitives/plate_handling/EvaporativeSeal/OrderedPropertyValue1/Parameter1/LiteralInteger2> a ns1:LiteralInteger,
+<https://bioprotocols.org/labop/primitives/plate_handling/EvaporativeSeal/OrderedPropertyValue1/Parameter1/LiteralInteger2> a ns1:LiteralInteger,
         sbol:Identified ;
     ns1:integerValue 1 ;
     sbol:displayId "LiteralInteger2" .
 
-<https://bioprotocols.org/paml/primitives/plate_handling/EvaporativeSeal/OrderedPropertyValue2> a ns1:OrderedPropertyValue,
+<https://bioprotocols.org/labop/primitives/plate_handling/EvaporativeSeal/OrderedPropertyValue2> a ns1:OrderedPropertyValue,
         sbol:Identified ;
     ns1:indexValue 1 ;
-    ns1:propertyValue <https://bioprotocols.org/paml/primitives/plate_handling/EvaporativeSeal/OrderedPropertyValue2/Parameter1> ;
+    ns1:propertyValue <https://bioprotocols.org/labop/primitives/plate_handling/EvaporativeSeal/OrderedPropertyValue2/Parameter1> ;
     sbol:displayId "OrderedPropertyValue2" .
 
-<https://bioprotocols.org/paml/primitives/plate_handling/EvaporativeSeal/OrderedPropertyValue2/Parameter1> a ns1:Parameter,
+<https://bioprotocols.org/labop/primitives/plate_handling/EvaporativeSeal/OrderedPropertyValue2/Parameter1> a ns1:Parameter,
         sbol:Identified ;
     ns1:direction ns1:in ;
     ns1:isOrdered true ;
     ns1:isUnique true ;
-    ns1:lowerValue <https://bioprotocols.org/paml/primitives/plate_handling/EvaporativeSeal/OrderedPropertyValue2/Parameter1/LiteralInteger2> ;
-    ns1:type <http://bioprotocols.org/paml#ContainerSpec> ;
-    ns1:upperValue <https://bioprotocols.org/paml/primitives/plate_handling/EvaporativeSeal/OrderedPropertyValue2/Parameter1/LiteralInteger1> ;
+    ns1:lowerValue <https://bioprotocols.org/labop/primitives/plate_handling/EvaporativeSeal/OrderedPropertyValue2/Parameter1/LiteralInteger2> ;
+    ns1:type <http://bioprotocols.org/labop#ContainerSpec> ;
+    ns1:upperValue <https://bioprotocols.org/labop/primitives/plate_handling/EvaporativeSeal/OrderedPropertyValue2/Parameter1/LiteralInteger1> ;
     sbol:displayId "Parameter1" ;
     sbol:name "specification" .
 
-<https://bioprotocols.org/paml/primitives/plate_handling/EvaporativeSeal/OrderedPropertyValue2/Parameter1/LiteralInteger1> a ns1:LiteralInteger,
+<https://bioprotocols.org/labop/primitives/plate_handling/EvaporativeSeal/OrderedPropertyValue2/Parameter1/LiteralInteger1> a ns1:LiteralInteger,
         sbol:Identified ;
     ns1:integerValue 1 ;
     sbol:displayId "LiteralInteger1" .
 
-<https://bioprotocols.org/paml/primitives/plate_handling/EvaporativeSeal/OrderedPropertyValue2/Parameter1/LiteralInteger2> a ns1:LiteralInteger,
+<https://bioprotocols.org/labop/primitives/plate_handling/EvaporativeSeal/OrderedPropertyValue2/Parameter1/LiteralInteger2> a ns1:LiteralInteger,
         sbol:Identified ;
     ns1:integerValue 1 ;
     sbol:displayId "LiteralInteger2" .
 
-<https://bioprotocols.org/paml/primitives/plate_handling/Hold/OrderedPropertyValue1> a ns1:OrderedPropertyValue,
+<https://bioprotocols.org/labop/primitives/plate_handling/Hold/OrderedPropertyValue1> a ns1:OrderedPropertyValue,
         sbol:Identified ;
     ns1:indexValue 0 ;
-    ns1:propertyValue <https://bioprotocols.org/paml/primitives/plate_handling/Hold/OrderedPropertyValue1/Parameter1> ;
+    ns1:propertyValue <https://bioprotocols.org/labop/primitives/plate_handling/Hold/OrderedPropertyValue1/Parameter1> ;
     sbol:displayId "OrderedPropertyValue1" .
 
-<https://bioprotocols.org/paml/primitives/plate_handling/Hold/OrderedPropertyValue1/Parameter1> a ns1:Parameter,
+<https://bioprotocols.org/labop/primitives/plate_handling/Hold/OrderedPropertyValue1/Parameter1> a ns1:Parameter,
         sbol:Identified ;
     ns1:direction ns1:in ;
     ns1:isOrdered true ;
     ns1:isUnique true ;
-    ns1:lowerValue <https://bioprotocols.org/paml/primitives/plate_handling/Hold/OrderedPropertyValue1/Parameter1/LiteralInteger1> ;
-    ns1:type <http://bioprotocols.org/paml#SampleArray> ;
+    ns1:lowerValue <https://bioprotocols.org/labop/primitives/plate_handling/Hold/OrderedPropertyValue1/Parameter1/LiteralInteger1> ;
+    ns1:type <http://bioprotocols.org/labop#SampleArray> ;
     sbol:displayId "Parameter1" ;
     sbol:name "location" .
 
-<https://bioprotocols.org/paml/primitives/plate_handling/Hold/OrderedPropertyValue1/Parameter1/LiteralInteger1> a ns1:LiteralInteger,
+<https://bioprotocols.org/labop/primitives/plate_handling/Hold/OrderedPropertyValue1/Parameter1/LiteralInteger1> a ns1:LiteralInteger,
         sbol:Identified ;
     ns1:integerValue 1 ;
     sbol:displayId "LiteralInteger1" .
 
-<https://bioprotocols.org/paml/primitives/plate_handling/Hold/OrderedPropertyValue2> a ns1:OrderedPropertyValue,
+<https://bioprotocols.org/labop/primitives/plate_handling/Hold/OrderedPropertyValue2> a ns1:OrderedPropertyValue,
         sbol:Identified ;
     ns1:indexValue 1 ;
-    ns1:propertyValue <https://bioprotocols.org/paml/primitives/plate_handling/Hold/OrderedPropertyValue2/Parameter1> ;
+    ns1:propertyValue <https://bioprotocols.org/labop/primitives/plate_handling/Hold/OrderedPropertyValue2/Parameter1> ;
     sbol:displayId "OrderedPropertyValue2" .
 
-<https://bioprotocols.org/paml/primitives/plate_handling/Hold/OrderedPropertyValue2/Parameter1> a ns1:Parameter,
+<https://bioprotocols.org/labop/primitives/plate_handling/Hold/OrderedPropertyValue2/Parameter1> a ns1:Parameter,
         sbol:Identified ;
     ns1:direction ns1:in ;
     ns1:isOrdered true ;
     ns1:isUnique true ;
-    ns1:lowerValue <https://bioprotocols.org/paml/primitives/plate_handling/Hold/OrderedPropertyValue2/Parameter1/LiteralInteger2> ;
+    ns1:lowerValue <https://bioprotocols.org/labop/primitives/plate_handling/Hold/OrderedPropertyValue2/Parameter1/LiteralInteger2> ;
     ns1:type om:Measure ;
-    ns1:upperValue <https://bioprotocols.org/paml/primitives/plate_handling/Hold/OrderedPropertyValue2/Parameter1/LiteralInteger1> ;
+    ns1:upperValue <https://bioprotocols.org/labop/primitives/plate_handling/Hold/OrderedPropertyValue2/Parameter1/LiteralInteger1> ;
     sbol:displayId "Parameter1" ;
     sbol:name "temperature" .
 
-<https://bioprotocols.org/paml/primitives/plate_handling/Hold/OrderedPropertyValue2/Parameter1/LiteralInteger1> a ns1:LiteralInteger,
+<https://bioprotocols.org/labop/primitives/plate_handling/Hold/OrderedPropertyValue2/Parameter1/LiteralInteger1> a ns1:LiteralInteger,
         sbol:Identified ;
     ns1:integerValue 1 ;
     sbol:displayId "LiteralInteger1" .
 
-<https://bioprotocols.org/paml/primitives/plate_handling/Hold/OrderedPropertyValue2/Parameter1/LiteralInteger2> a ns1:LiteralInteger,
+<https://bioprotocols.org/labop/primitives/plate_handling/Hold/OrderedPropertyValue2/Parameter1/LiteralInteger2> a ns1:LiteralInteger,
         sbol:Identified ;
     ns1:integerValue 1 ;
     sbol:displayId "LiteralInteger2" .
 
-<https://bioprotocols.org/paml/primitives/plate_handling/HoldOnIce/OrderedPropertyValue1> a ns1:OrderedPropertyValue,
+<https://bioprotocols.org/labop/primitives/plate_handling/HoldOnIce/OrderedPropertyValue1> a ns1:OrderedPropertyValue,
         sbol:Identified ;
     ns1:indexValue 0 ;
-    ns1:propertyValue <https://bioprotocols.org/paml/primitives/plate_handling/HoldOnIce/OrderedPropertyValue1/Parameter1> ;
+    ns1:propertyValue <https://bioprotocols.org/labop/primitives/plate_handling/HoldOnIce/OrderedPropertyValue1/Parameter1> ;
     sbol:displayId "OrderedPropertyValue1" .
 
-<https://bioprotocols.org/paml/primitives/plate_handling/HoldOnIce/OrderedPropertyValue1/Parameter1> a ns1:Parameter,
+<https://bioprotocols.org/labop/primitives/plate_handling/HoldOnIce/OrderedPropertyValue1/Parameter1> a ns1:Parameter,
         sbol:Identified ;
     ns1:direction ns1:in ;
     ns1:isOrdered true ;
     ns1:isUnique true ;
-    ns1:lowerValue <https://bioprotocols.org/paml/primitives/plate_handling/HoldOnIce/OrderedPropertyValue1/Parameter1/LiteralInteger1> ;
-    ns1:type <http://bioprotocols.org/paml#SampleArray> ;
+    ns1:lowerValue <https://bioprotocols.org/labop/primitives/plate_handling/HoldOnIce/OrderedPropertyValue1/Parameter1/LiteralInteger1> ;
+    ns1:type <http://bioprotocols.org/labop#SampleArray> ;
     sbol:displayId "Parameter1" ;
     sbol:name "location" .
 
-<https://bioprotocols.org/paml/primitives/plate_handling/HoldOnIce/OrderedPropertyValue1/Parameter1/LiteralInteger1> a ns1:LiteralInteger,
+<https://bioprotocols.org/labop/primitives/plate_handling/HoldOnIce/OrderedPropertyValue1/Parameter1/LiteralInteger1> a ns1:LiteralInteger,
         sbol:Identified ;
     ns1:integerValue 1 ;
     sbol:displayId "LiteralInteger1" .
 
-<https://bioprotocols.org/paml/primitives/plate_handling/Incubate/OrderedPropertyValue1> a ns1:OrderedPropertyValue,
+<https://bioprotocols.org/labop/primitives/plate_handling/Incubate/OrderedPropertyValue1> a ns1:OrderedPropertyValue,
         sbol:Identified ;
     ns1:indexValue 0 ;
-    ns1:propertyValue <https://bioprotocols.org/paml/primitives/plate_handling/Incubate/OrderedPropertyValue1/Parameter1> ;
+    ns1:propertyValue <https://bioprotocols.org/labop/primitives/plate_handling/Incubate/OrderedPropertyValue1/Parameter1> ;
     sbol:displayId "OrderedPropertyValue1" .
 
-<https://bioprotocols.org/paml/primitives/plate_handling/Incubate/OrderedPropertyValue1/Parameter1> a ns1:Parameter,
+<https://bioprotocols.org/labop/primitives/plate_handling/Incubate/OrderedPropertyValue1/Parameter1> a ns1:Parameter,
         sbol:Identified ;
     ns1:direction ns1:in ;
     ns1:isOrdered true ;
     ns1:isUnique true ;
-    ns1:lowerValue <https://bioprotocols.org/paml/primitives/plate_handling/Incubate/OrderedPropertyValue1/Parameter1/LiteralInteger2> ;
-    ns1:type <http://bioprotocols.org/paml#SampleArray> ;
-    ns1:upperValue <https://bioprotocols.org/paml/primitives/plate_handling/Incubate/OrderedPropertyValue1/Parameter1/LiteralInteger1> ;
+    ns1:lowerValue <https://bioprotocols.org/labop/primitives/plate_handling/Incubate/OrderedPropertyValue1/Parameter1/LiteralInteger2> ;
+    ns1:type <http://bioprotocols.org/labop#SampleArray> ;
+    ns1:upperValue <https://bioprotocols.org/labop/primitives/plate_handling/Incubate/OrderedPropertyValue1/Parameter1/LiteralInteger1> ;
     sbol:displayId "Parameter1" ;
     sbol:name "location" .
 
-<https://bioprotocols.org/paml/primitives/plate_handling/Incubate/OrderedPropertyValue1/Parameter1/LiteralInteger1> a ns1:LiteralInteger,
+<https://bioprotocols.org/labop/primitives/plate_handling/Incubate/OrderedPropertyValue1/Parameter1/LiteralInteger1> a ns1:LiteralInteger,
         sbol:Identified ;
     ns1:integerValue 1 ;
     sbol:displayId "LiteralInteger1" .
 
-<https://bioprotocols.org/paml/primitives/plate_handling/Incubate/OrderedPropertyValue1/Parameter1/LiteralInteger2> a ns1:LiteralInteger,
+<https://bioprotocols.org/labop/primitives/plate_handling/Incubate/OrderedPropertyValue1/Parameter1/LiteralInteger2> a ns1:LiteralInteger,
         sbol:Identified ;
     ns1:integerValue 1 ;
     sbol:displayId "LiteralInteger2" .
 
-<https://bioprotocols.org/paml/primitives/plate_handling/Incubate/OrderedPropertyValue2> a ns1:OrderedPropertyValue,
+<https://bioprotocols.org/labop/primitives/plate_handling/Incubate/OrderedPropertyValue2> a ns1:OrderedPropertyValue,
         sbol:Identified ;
     ns1:indexValue 1 ;
-    ns1:propertyValue <https://bioprotocols.org/paml/primitives/plate_handling/Incubate/OrderedPropertyValue2/Parameter1> ;
+    ns1:propertyValue <https://bioprotocols.org/labop/primitives/plate_handling/Incubate/OrderedPropertyValue2/Parameter1> ;
     sbol:displayId "OrderedPropertyValue2" .
 
-<https://bioprotocols.org/paml/primitives/plate_handling/Incubate/OrderedPropertyValue2/Parameter1> a ns1:Parameter,
+<https://bioprotocols.org/labop/primitives/plate_handling/Incubate/OrderedPropertyValue2/Parameter1> a ns1:Parameter,
         sbol:Identified ;
     ns1:direction ns1:in ;
     ns1:isOrdered true ;
     ns1:isUnique true ;
-    ns1:lowerValue <https://bioprotocols.org/paml/primitives/plate_handling/Incubate/OrderedPropertyValue2/Parameter1/LiteralInteger2> ;
+    ns1:lowerValue <https://bioprotocols.org/labop/primitives/plate_handling/Incubate/OrderedPropertyValue2/Parameter1/LiteralInteger2> ;
     ns1:type om:Measure ;
-    ns1:upperValue <https://bioprotocols.org/paml/primitives/plate_handling/Incubate/OrderedPropertyValue2/Parameter1/LiteralInteger1> ;
+    ns1:upperValue <https://bioprotocols.org/labop/primitives/plate_handling/Incubate/OrderedPropertyValue2/Parameter1/LiteralInteger1> ;
     sbol:displayId "Parameter1" ;
     sbol:name "duration" .
 
-<https://bioprotocols.org/paml/primitives/plate_handling/Incubate/OrderedPropertyValue2/Parameter1/LiteralInteger1> a ns1:LiteralInteger,
+<https://bioprotocols.org/labop/primitives/plate_handling/Incubate/OrderedPropertyValue2/Parameter1/LiteralInteger1> a ns1:LiteralInteger,
         sbol:Identified ;
     ns1:integerValue 1 ;
     sbol:displayId "LiteralInteger1" .
 
-<https://bioprotocols.org/paml/primitives/plate_handling/Incubate/OrderedPropertyValue2/Parameter1/LiteralInteger2> a ns1:LiteralInteger,
+<https://bioprotocols.org/labop/primitives/plate_handling/Incubate/OrderedPropertyValue2/Parameter1/LiteralInteger2> a ns1:LiteralInteger,
         sbol:Identified ;
     ns1:integerValue 1 ;
     sbol:displayId "LiteralInteger2" .
 
-<https://bioprotocols.org/paml/primitives/plate_handling/Incubate/OrderedPropertyValue3> a ns1:OrderedPropertyValue,
+<https://bioprotocols.org/labop/primitives/plate_handling/Incubate/OrderedPropertyValue3> a ns1:OrderedPropertyValue,
         sbol:Identified ;
     ns1:indexValue 2 ;
-    ns1:propertyValue <https://bioprotocols.org/paml/primitives/plate_handling/Incubate/OrderedPropertyValue3/Parameter1> ;
+    ns1:propertyValue <https://bioprotocols.org/labop/primitives/plate_handling/Incubate/OrderedPropertyValue3/Parameter1> ;
     sbol:displayId "OrderedPropertyValue3" .
 
-<https://bioprotocols.org/paml/primitives/plate_handling/Incubate/OrderedPropertyValue3/Parameter1> a ns1:Parameter,
+<https://bioprotocols.org/labop/primitives/plate_handling/Incubate/OrderedPropertyValue3/Parameter1> a ns1:Parameter,
         sbol:Identified ;
     ns1:direction ns1:in ;
     ns1:isOrdered true ;
     ns1:isUnique true ;
-    ns1:lowerValue <https://bioprotocols.org/paml/primitives/plate_handling/Incubate/OrderedPropertyValue3/Parameter1/LiteralInteger2> ;
+    ns1:lowerValue <https://bioprotocols.org/labop/primitives/plate_handling/Incubate/OrderedPropertyValue3/Parameter1/LiteralInteger2> ;
     ns1:type om:Measure ;
-    ns1:upperValue <https://bioprotocols.org/paml/primitives/plate_handling/Incubate/OrderedPropertyValue3/Parameter1/LiteralInteger1> ;
+    ns1:upperValue <https://bioprotocols.org/labop/primitives/plate_handling/Incubate/OrderedPropertyValue3/Parameter1/LiteralInteger1> ;
     sbol:displayId "Parameter1" ;
     sbol:name "temperature" .
 
-<https://bioprotocols.org/paml/primitives/plate_handling/Incubate/OrderedPropertyValue3/Parameter1/LiteralInteger1> a ns1:LiteralInteger,
+<https://bioprotocols.org/labop/primitives/plate_handling/Incubate/OrderedPropertyValue3/Parameter1/LiteralInteger1> a ns1:LiteralInteger,
         sbol:Identified ;
     ns1:integerValue 1 ;
     sbol:displayId "LiteralInteger1" .
 
-<https://bioprotocols.org/paml/primitives/plate_handling/Incubate/OrderedPropertyValue3/Parameter1/LiteralInteger2> a ns1:LiteralInteger,
+<https://bioprotocols.org/labop/primitives/plate_handling/Incubate/OrderedPropertyValue3/Parameter1/LiteralInteger2> a ns1:LiteralInteger,
         sbol:Identified ;
     ns1:integerValue 1 ;
     sbol:displayId "LiteralInteger2" .
 
-<https://bioprotocols.org/paml/primitives/plate_handling/Incubate/OrderedPropertyValue4> a ns1:OrderedPropertyValue,
+<https://bioprotocols.org/labop/primitives/plate_handling/Incubate/OrderedPropertyValue4> a ns1:OrderedPropertyValue,
         sbol:Identified ;
     ns1:indexValue 3 ;
-    ns1:propertyValue <https://bioprotocols.org/paml/primitives/plate_handling/Incubate/OrderedPropertyValue4/Parameter1> ;
+    ns1:propertyValue <https://bioprotocols.org/labop/primitives/plate_handling/Incubate/OrderedPropertyValue4/Parameter1> ;
     sbol:displayId "OrderedPropertyValue4" .
 
-<https://bioprotocols.org/paml/primitives/plate_handling/Incubate/OrderedPropertyValue4/Parameter1> a ns1:Parameter,
+<https://bioprotocols.org/labop/primitives/plate_handling/Incubate/OrderedPropertyValue4/Parameter1> a ns1:Parameter,
         sbol:Identified ;
     ns1:direction ns1:in ;
     ns1:isOrdered true ;
     ns1:isUnique true ;
-    ns1:lowerValue <https://bioprotocols.org/paml/primitives/plate_handling/Incubate/OrderedPropertyValue4/Parameter1/LiteralInteger2> ;
+    ns1:lowerValue <https://bioprotocols.org/labop/primitives/plate_handling/Incubate/OrderedPropertyValue4/Parameter1/LiteralInteger2> ;
     ns1:type om:Measure ;
-    ns1:upperValue <https://bioprotocols.org/paml/primitives/plate_handling/Incubate/OrderedPropertyValue4/Parameter1/LiteralInteger1> ;
+    ns1:upperValue <https://bioprotocols.org/labop/primitives/plate_handling/Incubate/OrderedPropertyValue4/Parameter1/LiteralInteger1> ;
     sbol:displayId "Parameter1" ;
     sbol:name "shakingFrequency" .
 
-<https://bioprotocols.org/paml/primitives/plate_handling/Incubate/OrderedPropertyValue4/Parameter1/LiteralInteger1> a ns1:LiteralInteger,
+<https://bioprotocols.org/labop/primitives/plate_handling/Incubate/OrderedPropertyValue4/Parameter1/LiteralInteger1> a ns1:LiteralInteger,
         sbol:Identified ;
     ns1:integerValue 1 ;
     sbol:displayId "LiteralInteger1" .
 
-<https://bioprotocols.org/paml/primitives/plate_handling/Incubate/OrderedPropertyValue4/Parameter1/LiteralInteger2> a ns1:LiteralInteger,
+<https://bioprotocols.org/labop/primitives/plate_handling/Incubate/OrderedPropertyValue4/Parameter1/LiteralInteger2> a ns1:LiteralInteger,
         sbol:Identified ;
     ns1:integerValue 0 ;
     sbol:displayId "LiteralInteger2" .
 
-<https://bioprotocols.org/paml/primitives/plate_handling/QuickSpin/OrderedPropertyValue1> a ns1:OrderedPropertyValue,
+<https://bioprotocols.org/labop/primitives/plate_handling/QuickSpin/OrderedPropertyValue1> a ns1:OrderedPropertyValue,
         sbol:Identified ;
     ns1:indexValue 0 ;
-    ns1:propertyValue <https://bioprotocols.org/paml/primitives/plate_handling/QuickSpin/OrderedPropertyValue1/Parameter1> ;
+    ns1:propertyValue <https://bioprotocols.org/labop/primitives/plate_handling/QuickSpin/OrderedPropertyValue1/Parameter1> ;
     sbol:displayId "OrderedPropertyValue1" .
 
-<https://bioprotocols.org/paml/primitives/plate_handling/QuickSpin/OrderedPropertyValue1/Parameter1> a ns1:Parameter,
+<https://bioprotocols.org/labop/primitives/plate_handling/QuickSpin/OrderedPropertyValue1/Parameter1> a ns1:Parameter,
         sbol:Identified ;
     ns1:direction ns1:in ;
     ns1:isOrdered true ;
     ns1:isUnique true ;
-    ns1:lowerValue <https://bioprotocols.org/paml/primitives/plate_handling/QuickSpin/OrderedPropertyValue1/Parameter1/LiteralInteger2> ;
-    ns1:type <http://bioprotocols.org/paml#SampleArray> ;
-    ns1:upperValue <https://bioprotocols.org/paml/primitives/plate_handling/QuickSpin/OrderedPropertyValue1/Parameter1/LiteralInteger1> ;
+    ns1:lowerValue <https://bioprotocols.org/labop/primitives/plate_handling/QuickSpin/OrderedPropertyValue1/Parameter1/LiteralInteger2> ;
+    ns1:type <http://bioprotocols.org/labop#SampleArray> ;
+    ns1:upperValue <https://bioprotocols.org/labop/primitives/plate_handling/QuickSpin/OrderedPropertyValue1/Parameter1/LiteralInteger1> ;
     sbol:displayId "Parameter1" ;
     sbol:name "location" .
 
-<https://bioprotocols.org/paml/primitives/plate_handling/QuickSpin/OrderedPropertyValue1/Parameter1/LiteralInteger1> a ns1:LiteralInteger,
+<https://bioprotocols.org/labop/primitives/plate_handling/QuickSpin/OrderedPropertyValue1/Parameter1/LiteralInteger1> a ns1:LiteralInteger,
         sbol:Identified ;
     ns1:integerValue 1 ;
     sbol:displayId "LiteralInteger1" .
 
-<https://bioprotocols.org/paml/primitives/plate_handling/QuickSpin/OrderedPropertyValue1/Parameter1/LiteralInteger2> a ns1:LiteralInteger,
+<https://bioprotocols.org/labop/primitives/plate_handling/QuickSpin/OrderedPropertyValue1/Parameter1/LiteralInteger2> a ns1:LiteralInteger,
         sbol:Identified ;
     ns1:integerValue 1 ;
     sbol:displayId "LiteralInteger2" .
 
-<https://bioprotocols.org/paml/primitives/plate_handling/Seal/OrderedPropertyValue1> a ns1:OrderedPropertyValue,
+<https://bioprotocols.org/labop/primitives/plate_handling/Seal/OrderedPropertyValue1> a ns1:OrderedPropertyValue,
         sbol:Identified ;
     ns1:indexValue 0 ;
-    ns1:propertyValue <https://bioprotocols.org/paml/primitives/plate_handling/Seal/OrderedPropertyValue1/Parameter1> ;
+    ns1:propertyValue <https://bioprotocols.org/labop/primitives/plate_handling/Seal/OrderedPropertyValue1/Parameter1> ;
     sbol:displayId "OrderedPropertyValue1" .
 
-<https://bioprotocols.org/paml/primitives/plate_handling/Seal/OrderedPropertyValue1/Parameter1> a ns1:Parameter,
+<https://bioprotocols.org/labop/primitives/plate_handling/Seal/OrderedPropertyValue1/Parameter1> a ns1:Parameter,
         sbol:Identified ;
     ns1:direction ns1:in ;
     ns1:isOrdered true ;
     ns1:isUnique true ;
-    ns1:lowerValue <https://bioprotocols.org/paml/primitives/plate_handling/Seal/OrderedPropertyValue1/Parameter1/LiteralInteger2> ;
-    ns1:type <http://bioprotocols.org/paml#SampleArray> ;
-    ns1:upperValue <https://bioprotocols.org/paml/primitives/plate_handling/Seal/OrderedPropertyValue1/Parameter1/LiteralInteger1> ;
+    ns1:lowerValue <https://bioprotocols.org/labop/primitives/plate_handling/Seal/OrderedPropertyValue1/Parameter1/LiteralInteger2> ;
+    ns1:type <http://bioprotocols.org/labop#SampleArray> ;
+    ns1:upperValue <https://bioprotocols.org/labop/primitives/plate_handling/Seal/OrderedPropertyValue1/Parameter1/LiteralInteger1> ;
     sbol:displayId "Parameter1" ;
     sbol:name "location" .
 
-<https://bioprotocols.org/paml/primitives/plate_handling/Seal/OrderedPropertyValue1/Parameter1/LiteralInteger1> a ns1:LiteralInteger,
+<https://bioprotocols.org/labop/primitives/plate_handling/Seal/OrderedPropertyValue1/Parameter1/LiteralInteger1> a ns1:LiteralInteger,
         sbol:Identified ;
     ns1:integerValue 1 ;
     sbol:displayId "LiteralInteger1" .
 
-<https://bioprotocols.org/paml/primitives/plate_handling/Seal/OrderedPropertyValue1/Parameter1/LiteralInteger2> a ns1:LiteralInteger,
+<https://bioprotocols.org/labop/primitives/plate_handling/Seal/OrderedPropertyValue1/Parameter1/LiteralInteger2> a ns1:LiteralInteger,
         sbol:Identified ;
     ns1:integerValue 1 ;
     sbol:displayId "LiteralInteger2" .
 
-<https://bioprotocols.org/paml/primitives/plate_handling/Seal/OrderedPropertyValue2> a ns1:OrderedPropertyValue,
+<https://bioprotocols.org/labop/primitives/plate_handling/Seal/OrderedPropertyValue2> a ns1:OrderedPropertyValue,
         sbol:Identified ;
     ns1:indexValue 1 ;
-    ns1:propertyValue <https://bioprotocols.org/paml/primitives/plate_handling/Seal/OrderedPropertyValue2/Parameter1> ;
+    ns1:propertyValue <https://bioprotocols.org/labop/primitives/plate_handling/Seal/OrderedPropertyValue2/Parameter1> ;
     sbol:displayId "OrderedPropertyValue2" .
 
-<https://bioprotocols.org/paml/primitives/plate_handling/Seal/OrderedPropertyValue2/Parameter1> a ns1:Parameter,
+<https://bioprotocols.org/labop/primitives/plate_handling/Seal/OrderedPropertyValue2/Parameter1> a ns1:Parameter,
         sbol:Identified ;
     ns1:direction ns1:in ;
     ns1:isOrdered true ;
     ns1:isUnique true ;
-    ns1:lowerValue <https://bioprotocols.org/paml/primitives/plate_handling/Seal/OrderedPropertyValue2/Parameter1/LiteralInteger2> ;
-    ns1:type <http://bioprotocols.org/paml#ContainerSpec> ;
-    ns1:upperValue <https://bioprotocols.org/paml/primitives/plate_handling/Seal/OrderedPropertyValue2/Parameter1/LiteralInteger1> ;
+    ns1:lowerValue <https://bioprotocols.org/labop/primitives/plate_handling/Seal/OrderedPropertyValue2/Parameter1/LiteralInteger2> ;
+    ns1:type <http://bioprotocols.org/labop#ContainerSpec> ;
+    ns1:upperValue <https://bioprotocols.org/labop/primitives/plate_handling/Seal/OrderedPropertyValue2/Parameter1/LiteralInteger1> ;
     sbol:displayId "Parameter1" ;
     sbol:name "specification" .
 
-<https://bioprotocols.org/paml/primitives/plate_handling/Seal/OrderedPropertyValue2/Parameter1/LiteralInteger1> a ns1:LiteralInteger,
+<https://bioprotocols.org/labop/primitives/plate_handling/Seal/OrderedPropertyValue2/Parameter1/LiteralInteger1> a ns1:LiteralInteger,
         sbol:Identified ;
     ns1:integerValue 1 ;
     sbol:displayId "LiteralInteger1" .
 
-<https://bioprotocols.org/paml/primitives/plate_handling/Seal/OrderedPropertyValue2/Parameter1/LiteralInteger2> a ns1:LiteralInteger,
+<https://bioprotocols.org/labop/primitives/plate_handling/Seal/OrderedPropertyValue2/Parameter1/LiteralInteger2> a ns1:LiteralInteger,
         sbol:Identified ;
     ns1:integerValue 1 ;
     sbol:displayId "LiteralInteger2" .
 
-<https://bioprotocols.org/paml/primitives/plate_handling/Spin/OrderedPropertyValue1> a ns1:OrderedPropertyValue,
+<https://bioprotocols.org/labop/primitives/plate_handling/Spin/OrderedPropertyValue1> a ns1:OrderedPropertyValue,
         sbol:Identified ;
     ns1:indexValue 0 ;
-    ns1:propertyValue <https://bioprotocols.org/paml/primitives/plate_handling/Spin/OrderedPropertyValue1/Parameter1> ;
+    ns1:propertyValue <https://bioprotocols.org/labop/primitives/plate_handling/Spin/OrderedPropertyValue1/Parameter1> ;
     sbol:displayId "OrderedPropertyValue1" .
 
-<https://bioprotocols.org/paml/primitives/plate_handling/Spin/OrderedPropertyValue1/Parameter1> a ns1:Parameter,
+<https://bioprotocols.org/labop/primitives/plate_handling/Spin/OrderedPropertyValue1/Parameter1> a ns1:Parameter,
         sbol:Identified ;
     ns1:direction ns1:in ;
     ns1:isOrdered true ;
     ns1:isUnique true ;
-    ns1:lowerValue <https://bioprotocols.org/paml/primitives/plate_handling/Spin/OrderedPropertyValue1/Parameter1/LiteralInteger2> ;
-    ns1:type <http://bioprotocols.org/paml#SampleArray> ;
-    ns1:upperValue <https://bioprotocols.org/paml/primitives/plate_handling/Spin/OrderedPropertyValue1/Parameter1/LiteralInteger1> ;
+    ns1:lowerValue <https://bioprotocols.org/labop/primitives/plate_handling/Spin/OrderedPropertyValue1/Parameter1/LiteralInteger2> ;
+    ns1:type <http://bioprotocols.org/labop#SampleArray> ;
+    ns1:upperValue <https://bioprotocols.org/labop/primitives/plate_handling/Spin/OrderedPropertyValue1/Parameter1/LiteralInteger1> ;
     sbol:displayId "Parameter1" ;
     sbol:name "location" .
 
-<https://bioprotocols.org/paml/primitives/plate_handling/Spin/OrderedPropertyValue1/Parameter1/LiteralInteger1> a ns1:LiteralInteger,
+<https://bioprotocols.org/labop/primitives/plate_handling/Spin/OrderedPropertyValue1/Parameter1/LiteralInteger1> a ns1:LiteralInteger,
         sbol:Identified ;
     ns1:integerValue 1 ;
     sbol:displayId "LiteralInteger1" .
 
-<https://bioprotocols.org/paml/primitives/plate_handling/Spin/OrderedPropertyValue1/Parameter1/LiteralInteger2> a ns1:LiteralInteger,
+<https://bioprotocols.org/labop/primitives/plate_handling/Spin/OrderedPropertyValue1/Parameter1/LiteralInteger2> a ns1:LiteralInteger,
         sbol:Identified ;
     ns1:integerValue 1 ;
     sbol:displayId "LiteralInteger2" .
 
-<https://bioprotocols.org/paml/primitives/plate_handling/Spin/OrderedPropertyValue2> a ns1:OrderedPropertyValue,
+<https://bioprotocols.org/labop/primitives/plate_handling/Spin/OrderedPropertyValue2> a ns1:OrderedPropertyValue,
         sbol:Identified ;
     ns1:indexValue 1 ;
-    ns1:propertyValue <https://bioprotocols.org/paml/primitives/plate_handling/Spin/OrderedPropertyValue2/Parameter1> ;
+    ns1:propertyValue <https://bioprotocols.org/labop/primitives/plate_handling/Spin/OrderedPropertyValue2/Parameter1> ;
     sbol:displayId "OrderedPropertyValue2" .
 
-<https://bioprotocols.org/paml/primitives/plate_handling/Spin/OrderedPropertyValue2/Parameter1> a ns1:Parameter,
+<https://bioprotocols.org/labop/primitives/plate_handling/Spin/OrderedPropertyValue2/Parameter1> a ns1:Parameter,
         sbol:Identified ;
     ns1:direction ns1:in ;
     ns1:isOrdered true ;
     ns1:isUnique true ;
-    ns1:lowerValue <https://bioprotocols.org/paml/primitives/plate_handling/Spin/OrderedPropertyValue2/Parameter1/LiteralInteger2> ;
+    ns1:lowerValue <https://bioprotocols.org/labop/primitives/plate_handling/Spin/OrderedPropertyValue2/Parameter1/LiteralInteger2> ;
     ns1:type om:Measure ;
-    ns1:upperValue <https://bioprotocols.org/paml/primitives/plate_handling/Spin/OrderedPropertyValue2/Parameter1/LiteralInteger1> ;
+    ns1:upperValue <https://bioprotocols.org/labop/primitives/plate_handling/Spin/OrderedPropertyValue2/Parameter1/LiteralInteger1> ;
     sbol:displayId "Parameter1" ;
     sbol:name "duration" .
 
-<https://bioprotocols.org/paml/primitives/plate_handling/Spin/OrderedPropertyValue2/Parameter1/LiteralInteger1> a ns1:LiteralInteger,
+<https://bioprotocols.org/labop/primitives/plate_handling/Spin/OrderedPropertyValue2/Parameter1/LiteralInteger1> a ns1:LiteralInteger,
         sbol:Identified ;
     ns1:integerValue 1 ;
     sbol:displayId "LiteralInteger1" .
 
-<https://bioprotocols.org/paml/primitives/plate_handling/Spin/OrderedPropertyValue2/Parameter1/LiteralInteger2> a ns1:LiteralInteger,
+<https://bioprotocols.org/labop/primitives/plate_handling/Spin/OrderedPropertyValue2/Parameter1/LiteralInteger2> a ns1:LiteralInteger,
         sbol:Identified ;
     ns1:integerValue 1 ;
     sbol:displayId "LiteralInteger2" .
 
-<https://bioprotocols.org/paml/primitives/plate_handling/Spin/OrderedPropertyValue3> a ns1:OrderedPropertyValue,
+<https://bioprotocols.org/labop/primitives/plate_handling/Spin/OrderedPropertyValue3> a ns1:OrderedPropertyValue,
         sbol:Identified ;
     ns1:indexValue 2 ;
-    ns1:propertyValue <https://bioprotocols.org/paml/primitives/plate_handling/Spin/OrderedPropertyValue3/Parameter1> ;
+    ns1:propertyValue <https://bioprotocols.org/labop/primitives/plate_handling/Spin/OrderedPropertyValue3/Parameter1> ;
     sbol:displayId "OrderedPropertyValue3" .
 
-<https://bioprotocols.org/paml/primitives/plate_handling/Spin/OrderedPropertyValue3/Parameter1> a ns1:Parameter,
+<https://bioprotocols.org/labop/primitives/plate_handling/Spin/OrderedPropertyValue3/Parameter1> a ns1:Parameter,
         sbol:Identified ;
     ns1:direction ns1:in ;
     ns1:isOrdered true ;
     ns1:isUnique true ;
-    ns1:lowerValue <https://bioprotocols.org/paml/primitives/plate_handling/Spin/OrderedPropertyValue3/Parameter1/LiteralInteger2> ;
+    ns1:lowerValue <https://bioprotocols.org/labop/primitives/plate_handling/Spin/OrderedPropertyValue3/Parameter1/LiteralInteger2> ;
     ns1:type om:Measure ;
-    ns1:upperValue <https://bioprotocols.org/paml/primitives/plate_handling/Spin/OrderedPropertyValue3/Parameter1/LiteralInteger1> ;
+    ns1:upperValue <https://bioprotocols.org/labop/primitives/plate_handling/Spin/OrderedPropertyValue3/Parameter1/LiteralInteger1> ;
     sbol:displayId "Parameter1" ;
     sbol:name "acceleration" .
 
-<https://bioprotocols.org/paml/primitives/plate_handling/Spin/OrderedPropertyValue3/Parameter1/LiteralInteger1> a ns1:LiteralInteger,
+<https://bioprotocols.org/labop/primitives/plate_handling/Spin/OrderedPropertyValue3/Parameter1/LiteralInteger1> a ns1:LiteralInteger,
         sbol:Identified ;
     ns1:integerValue 1 ;
     sbol:displayId "LiteralInteger1" .
 
-<https://bioprotocols.org/paml/primitives/plate_handling/Spin/OrderedPropertyValue3/Parameter1/LiteralInteger2> a ns1:LiteralInteger,
+<https://bioprotocols.org/labop/primitives/plate_handling/Spin/OrderedPropertyValue3/Parameter1/LiteralInteger2> a ns1:LiteralInteger,
         sbol:Identified ;
     ns1:integerValue 1 ;
     sbol:displayId "LiteralInteger2" .
 
-<https://bioprotocols.org/paml/primitives/plate_handling/ThermalSeal/OrderedPropertyValue1> a ns1:OrderedPropertyValue,
+<https://bioprotocols.org/labop/primitives/plate_handling/ThermalSeal/OrderedPropertyValue1> a ns1:OrderedPropertyValue,
         sbol:Identified ;
     ns1:indexValue 0 ;
-    ns1:propertyValue <https://bioprotocols.org/paml/primitives/plate_handling/ThermalSeal/OrderedPropertyValue1/Parameter1> ;
+    ns1:propertyValue <https://bioprotocols.org/labop/primitives/plate_handling/ThermalSeal/OrderedPropertyValue1/Parameter1> ;
     sbol:displayId "OrderedPropertyValue1" .
 
-<https://bioprotocols.org/paml/primitives/plate_handling/ThermalSeal/OrderedPropertyValue1/Parameter1> a ns1:Parameter,
+<https://bioprotocols.org/labop/primitives/plate_handling/ThermalSeal/OrderedPropertyValue1/Parameter1> a ns1:Parameter,
         sbol:Identified ;
     ns1:direction ns1:in ;
     ns1:isOrdered true ;
     ns1:isUnique true ;
-    ns1:lowerValue <https://bioprotocols.org/paml/primitives/plate_handling/ThermalSeal/OrderedPropertyValue1/Parameter1/LiteralInteger2> ;
-    ns1:type <http://bioprotocols.org/paml#SampleArray> ;
-    ns1:upperValue <https://bioprotocols.org/paml/primitives/plate_handling/ThermalSeal/OrderedPropertyValue1/Parameter1/LiteralInteger1> ;
+    ns1:lowerValue <https://bioprotocols.org/labop/primitives/plate_handling/ThermalSeal/OrderedPropertyValue1/Parameter1/LiteralInteger2> ;
+    ns1:type <http://bioprotocols.org/labop#SampleArray> ;
+    ns1:upperValue <https://bioprotocols.org/labop/primitives/plate_handling/ThermalSeal/OrderedPropertyValue1/Parameter1/LiteralInteger1> ;
     sbol:displayId "Parameter1" ;
     sbol:name "location" .
 
-<https://bioprotocols.org/paml/primitives/plate_handling/ThermalSeal/OrderedPropertyValue1/Parameter1/LiteralInteger1> a ns1:LiteralInteger,
+<https://bioprotocols.org/labop/primitives/plate_handling/ThermalSeal/OrderedPropertyValue1/Parameter1/LiteralInteger1> a ns1:LiteralInteger,
         sbol:Identified ;
     ns1:integerValue 1 ;
     sbol:displayId "LiteralInteger1" .
 
-<https://bioprotocols.org/paml/primitives/plate_handling/ThermalSeal/OrderedPropertyValue1/Parameter1/LiteralInteger2> a ns1:LiteralInteger,
+<https://bioprotocols.org/labop/primitives/plate_handling/ThermalSeal/OrderedPropertyValue1/Parameter1/LiteralInteger2> a ns1:LiteralInteger,
         sbol:Identified ;
     ns1:integerValue 1 ;
     sbol:displayId "LiteralInteger2" .
 
-<https://bioprotocols.org/paml/primitives/plate_handling/ThermalSeal/OrderedPropertyValue2> a ns1:OrderedPropertyValue,
+<https://bioprotocols.org/labop/primitives/plate_handling/ThermalSeal/OrderedPropertyValue2> a ns1:OrderedPropertyValue,
         sbol:Identified ;
     ns1:indexValue 1 ;
-    ns1:propertyValue <https://bioprotocols.org/paml/primitives/plate_handling/ThermalSeal/OrderedPropertyValue2/Parameter1> ;
+    ns1:propertyValue <https://bioprotocols.org/labop/primitives/plate_handling/ThermalSeal/OrderedPropertyValue2/Parameter1> ;
     sbol:displayId "OrderedPropertyValue2" .
 
-<https://bioprotocols.org/paml/primitives/plate_handling/ThermalSeal/OrderedPropertyValue2/Parameter1> a ns1:Parameter,
+<https://bioprotocols.org/labop/primitives/plate_handling/ThermalSeal/OrderedPropertyValue2/Parameter1> a ns1:Parameter,
         sbol:Identified ;
     ns1:direction ns1:in ;
     ns1:isOrdered true ;
     ns1:isUnique true ;
-    ns1:lowerValue <https://bioprotocols.org/paml/primitives/plate_handling/ThermalSeal/OrderedPropertyValue2/Parameter1/LiteralInteger2> ;
+    ns1:lowerValue <https://bioprotocols.org/labop/primitives/plate_handling/ThermalSeal/OrderedPropertyValue2/Parameter1/LiteralInteger2> ;
     ns1:type xsd:anyURI ;
-    ns1:upperValue <https://bioprotocols.org/paml/primitives/plate_handling/ThermalSeal/OrderedPropertyValue2/Parameter1/LiteralInteger1> ;
+    ns1:upperValue <https://bioprotocols.org/labop/primitives/plate_handling/ThermalSeal/OrderedPropertyValue2/Parameter1/LiteralInteger1> ;
     sbol:displayId "Parameter1" ;
     sbol:name "type" .
 
-<https://bioprotocols.org/paml/primitives/plate_handling/ThermalSeal/OrderedPropertyValue2/Parameter1/LiteralInteger1> a ns1:LiteralInteger,
+<https://bioprotocols.org/labop/primitives/plate_handling/ThermalSeal/OrderedPropertyValue2/Parameter1/LiteralInteger1> a ns1:LiteralInteger,
         sbol:Identified ;
     ns1:integerValue 1 ;
     sbol:displayId "LiteralInteger1" .
 
-<https://bioprotocols.org/paml/primitives/plate_handling/ThermalSeal/OrderedPropertyValue2/Parameter1/LiteralInteger2> a ns1:LiteralInteger,
+<https://bioprotocols.org/labop/primitives/plate_handling/ThermalSeal/OrderedPropertyValue2/Parameter1/LiteralInteger2> a ns1:LiteralInteger,
         sbol:Identified ;
     ns1:integerValue 1 ;
     sbol:displayId "LiteralInteger2" .
 
-<https://bioprotocols.org/paml/primitives/plate_handling/ThermalSeal/OrderedPropertyValue3> a ns1:OrderedPropertyValue,
+<https://bioprotocols.org/labop/primitives/plate_handling/ThermalSeal/OrderedPropertyValue3> a ns1:OrderedPropertyValue,
         sbol:Identified ;
     ns1:indexValue 2 ;
-    ns1:propertyValue <https://bioprotocols.org/paml/primitives/plate_handling/ThermalSeal/OrderedPropertyValue3/Parameter1> ;
+    ns1:propertyValue <https://bioprotocols.org/labop/primitives/plate_handling/ThermalSeal/OrderedPropertyValue3/Parameter1> ;
     sbol:displayId "OrderedPropertyValue3" .
 
-<https://bioprotocols.org/paml/primitives/plate_handling/ThermalSeal/OrderedPropertyValue3/Parameter1> a ns1:Parameter,
+<https://bioprotocols.org/labop/primitives/plate_handling/ThermalSeal/OrderedPropertyValue3/Parameter1> a ns1:Parameter,
         sbol:Identified ;
     ns1:direction ns1:in ;
     ns1:isOrdered true ;
     ns1:isUnique true ;
-    ns1:lowerValue <https://bioprotocols.org/paml/primitives/plate_handling/ThermalSeal/OrderedPropertyValue3/Parameter1/LiteralInteger2> ;
+    ns1:lowerValue <https://bioprotocols.org/labop/primitives/plate_handling/ThermalSeal/OrderedPropertyValue3/Parameter1/LiteralInteger2> ;
     ns1:type om:Measure ;
-    ns1:upperValue <https://bioprotocols.org/paml/primitives/plate_handling/ThermalSeal/OrderedPropertyValue3/Parameter1/LiteralInteger1> ;
+    ns1:upperValue <https://bioprotocols.org/labop/primitives/plate_handling/ThermalSeal/OrderedPropertyValue3/Parameter1/LiteralInteger1> ;
     sbol:displayId "Parameter1" ;
     sbol:name "temperature" .
 
-<https://bioprotocols.org/paml/primitives/plate_handling/ThermalSeal/OrderedPropertyValue3/Parameter1/LiteralInteger1> a ns1:LiteralInteger,
+<https://bioprotocols.org/labop/primitives/plate_handling/ThermalSeal/OrderedPropertyValue3/Parameter1/LiteralInteger1> a ns1:LiteralInteger,
         sbol:Identified ;
     ns1:integerValue 1 ;
     sbol:displayId "LiteralInteger1" .
 
-<https://bioprotocols.org/paml/primitives/plate_handling/ThermalSeal/OrderedPropertyValue3/Parameter1/LiteralInteger2> a ns1:LiteralInteger,
+<https://bioprotocols.org/labop/primitives/plate_handling/ThermalSeal/OrderedPropertyValue3/Parameter1/LiteralInteger2> a ns1:LiteralInteger,
         sbol:Identified ;
     ns1:integerValue 1 ;
     sbol:displayId "LiteralInteger2" .
 
-<https://bioprotocols.org/paml/primitives/plate_handling/ThermalSeal/OrderedPropertyValue4> a ns1:OrderedPropertyValue,
+<https://bioprotocols.org/labop/primitives/plate_handling/ThermalSeal/OrderedPropertyValue4> a ns1:OrderedPropertyValue,
         sbol:Identified ;
     ns1:indexValue 3 ;
-    ns1:propertyValue <https://bioprotocols.org/paml/primitives/plate_handling/ThermalSeal/OrderedPropertyValue4/Parameter1> ;
+    ns1:propertyValue <https://bioprotocols.org/labop/primitives/plate_handling/ThermalSeal/OrderedPropertyValue4/Parameter1> ;
     sbol:displayId "OrderedPropertyValue4" .
 
-<https://bioprotocols.org/paml/primitives/plate_handling/ThermalSeal/OrderedPropertyValue4/Parameter1> a ns1:Parameter,
+<https://bioprotocols.org/labop/primitives/plate_handling/ThermalSeal/OrderedPropertyValue4/Parameter1> a ns1:Parameter,
         sbol:Identified ;
     ns1:direction ns1:in ;
     ns1:isOrdered true ;
     ns1:isUnique true ;
-    ns1:lowerValue <https://bioprotocols.org/paml/primitives/plate_handling/ThermalSeal/OrderedPropertyValue4/Parameter1/LiteralInteger2> ;
+    ns1:lowerValue <https://bioprotocols.org/labop/primitives/plate_handling/ThermalSeal/OrderedPropertyValue4/Parameter1/LiteralInteger2> ;
     ns1:type om:Measure ;
-    ns1:upperValue <https://bioprotocols.org/paml/primitives/plate_handling/ThermalSeal/OrderedPropertyValue4/Parameter1/LiteralInteger1> ;
+    ns1:upperValue <https://bioprotocols.org/labop/primitives/plate_handling/ThermalSeal/OrderedPropertyValue4/Parameter1/LiteralInteger1> ;
     sbol:displayId "Parameter1" ;
     sbol:name "duration" .
 
-<https://bioprotocols.org/paml/primitives/plate_handling/ThermalSeal/OrderedPropertyValue4/Parameter1/LiteralInteger1> a ns1:LiteralInteger,
+<https://bioprotocols.org/labop/primitives/plate_handling/ThermalSeal/OrderedPropertyValue4/Parameter1/LiteralInteger1> a ns1:LiteralInteger,
         sbol:Identified ;
     ns1:integerValue 1 ;
     sbol:displayId "LiteralInteger1" .
 
-<https://bioprotocols.org/paml/primitives/plate_handling/ThermalSeal/OrderedPropertyValue4/Parameter1/LiteralInteger2> a ns1:LiteralInteger,
+<https://bioprotocols.org/labop/primitives/plate_handling/ThermalSeal/OrderedPropertyValue4/Parameter1/LiteralInteger2> a ns1:LiteralInteger,
         sbol:Identified ;
     ns1:integerValue 1 ;
     sbol:displayId "LiteralInteger2" .
 
-<https://bioprotocols.org/paml/primitives/plate_handling/Uncover/OrderedPropertyValue1> a ns1:OrderedPropertyValue,
+<https://bioprotocols.org/labop/primitives/plate_handling/Uncover/OrderedPropertyValue1> a ns1:OrderedPropertyValue,
         sbol:Identified ;
     ns1:indexValue 0 ;
-    ns1:propertyValue <https://bioprotocols.org/paml/primitives/plate_handling/Uncover/OrderedPropertyValue1/Parameter1> ;
+    ns1:propertyValue <https://bioprotocols.org/labop/primitives/plate_handling/Uncover/OrderedPropertyValue1/Parameter1> ;
     sbol:displayId "OrderedPropertyValue1" .
 
-<https://bioprotocols.org/paml/primitives/plate_handling/Uncover/OrderedPropertyValue1/Parameter1> a ns1:Parameter,
+<https://bioprotocols.org/labop/primitives/plate_handling/Uncover/OrderedPropertyValue1/Parameter1> a ns1:Parameter,
         sbol:Identified ;
     ns1:direction ns1:in ;
     ns1:isOrdered true ;
     ns1:isUnique true ;
-    ns1:lowerValue <https://bioprotocols.org/paml/primitives/plate_handling/Uncover/OrderedPropertyValue1/Parameter1/LiteralInteger2> ;
-    ns1:type <http://bioprotocols.org/paml#SampleArray> ;
-    ns1:upperValue <https://bioprotocols.org/paml/primitives/plate_handling/Uncover/OrderedPropertyValue1/Parameter1/LiteralInteger1> ;
+    ns1:lowerValue <https://bioprotocols.org/labop/primitives/plate_handling/Uncover/OrderedPropertyValue1/Parameter1/LiteralInteger2> ;
+    ns1:type <http://bioprotocols.org/labop#SampleArray> ;
+    ns1:upperValue <https://bioprotocols.org/labop/primitives/plate_handling/Uncover/OrderedPropertyValue1/Parameter1/LiteralInteger1> ;
     sbol:displayId "Parameter1" ;
     sbol:name "location" .
 
-<https://bioprotocols.org/paml/primitives/plate_handling/Uncover/OrderedPropertyValue1/Parameter1/LiteralInteger1> a ns1:LiteralInteger,
+<https://bioprotocols.org/labop/primitives/plate_handling/Uncover/OrderedPropertyValue1/Parameter1/LiteralInteger1> a ns1:LiteralInteger,
         sbol:Identified ;
     ns1:integerValue 1 ;
     sbol:displayId "LiteralInteger1" .
 
-<https://bioprotocols.org/paml/primitives/plate_handling/Uncover/OrderedPropertyValue1/Parameter1/LiteralInteger2> a ns1:LiteralInteger,
+<https://bioprotocols.org/labop/primitives/plate_handling/Uncover/OrderedPropertyValue1/Parameter1/LiteralInteger2> a ns1:LiteralInteger,
         sbol:Identified ;
     ns1:integerValue 1 ;
     sbol:displayId "LiteralInteger2" .
 
-<https://bioprotocols.org/paml/primitives/plate_handling/Unseal/OrderedPropertyValue1> a ns1:OrderedPropertyValue,
+<https://bioprotocols.org/labop/primitives/plate_handling/Unseal/OrderedPropertyValue1> a ns1:OrderedPropertyValue,
         sbol:Identified ;
     ns1:indexValue 0 ;
-    ns1:propertyValue <https://bioprotocols.org/paml/primitives/plate_handling/Unseal/OrderedPropertyValue1/Parameter1> ;
+    ns1:propertyValue <https://bioprotocols.org/labop/primitives/plate_handling/Unseal/OrderedPropertyValue1/Parameter1> ;
     sbol:displayId "OrderedPropertyValue1" .
 
-<https://bioprotocols.org/paml/primitives/plate_handling/Unseal/OrderedPropertyValue1/Parameter1> a ns1:Parameter,
+<https://bioprotocols.org/labop/primitives/plate_handling/Unseal/OrderedPropertyValue1/Parameter1> a ns1:Parameter,
         sbol:Identified ;
     ns1:direction ns1:in ;
     ns1:isOrdered true ;
     ns1:isUnique true ;
-    ns1:lowerValue <https://bioprotocols.org/paml/primitives/plate_handling/Unseal/OrderedPropertyValue1/Parameter1/LiteralInteger2> ;
-    ns1:type <http://bioprotocols.org/paml#SampleArray> ;
-    ns1:upperValue <https://bioprotocols.org/paml/primitives/plate_handling/Unseal/OrderedPropertyValue1/Parameter1/LiteralInteger1> ;
+    ns1:lowerValue <https://bioprotocols.org/labop/primitives/plate_handling/Unseal/OrderedPropertyValue1/Parameter1/LiteralInteger2> ;
+    ns1:type <http://bioprotocols.org/labop#SampleArray> ;
+    ns1:upperValue <https://bioprotocols.org/labop/primitives/plate_handling/Unseal/OrderedPropertyValue1/Parameter1/LiteralInteger1> ;
     sbol:displayId "Parameter1" ;
     sbol:name "location" .
 
-<https://bioprotocols.org/paml/primitives/plate_handling/Unseal/OrderedPropertyValue1/Parameter1/LiteralInteger1> a ns1:LiteralInteger,
+<https://bioprotocols.org/labop/primitives/plate_handling/Unseal/OrderedPropertyValue1/Parameter1/LiteralInteger1> a ns1:LiteralInteger,
         sbol:Identified ;
     ns1:integerValue 1 ;
     sbol:displayId "LiteralInteger1" .
 
-<https://bioprotocols.org/paml/primitives/plate_handling/Unseal/OrderedPropertyValue1/Parameter1/LiteralInteger2> a ns1:LiteralInteger,
+<https://bioprotocols.org/labop/primitives/plate_handling/Unseal/OrderedPropertyValue1/Parameter1/LiteralInteger2> a ns1:LiteralInteger,
         sbol:Identified ;
     ns1:integerValue 1 ;
     sbol:displayId "LiteralInteger2" .

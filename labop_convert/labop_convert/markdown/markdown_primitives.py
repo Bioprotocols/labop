@@ -9,7 +9,7 @@ primitive_to_markdown_functions = {}  # dictionary of identity : function for pr
 #############################################
 # Liquid handling primitives
 
-LIQUID_HANDLING_PREFIX = 'https://bioprotocols.org/paml/primitives/liquid_handling/'
+LIQUID_HANDLING_PREFIX = 'https://bioprotocols.org/labop/primitives/liquid_handling/'
 
 
 def liquid_handling_provision_to_markdown(executable, mdc: MarkdownConverter):
@@ -58,7 +58,7 @@ primitive_to_markdown_functions[LIQUID_HANDLING_PREFIX+'PipetteMix'] = liquid_ha
 #############################################
 # Plate handling primitives
 
-PLATE_HANDLING_PREFIX = 'https://bioprotocols.org/paml/primitives/plate_handling/'
+PLATE_HANDLING_PREFIX = 'https://bioprotocols.org/labop/primitives/plate_handling/'
 
 def plate_handling_cover_to_markdown(executable, mdc: MarkdownConverter):
     location = executable.input_pin('location').to_markdown(mdc)
@@ -104,7 +104,7 @@ primitive_to_markdown_functions[PLATE_HANDLING_PREFIX+'Incubate'] = plate_handli
 #############################################
 # Spectrophotometry primitives
 
-SPECTROPHOTOMETRY = 'https://bioprotocols.org/paml/primitives/spectrophotometry/'
+SPECTROPHOTOMETRY = 'https://bioprotocols.org/labop/primitives/spectrophotometry/'
 
 
 def spectrophotometry_absorbance_to_markdown(executable, mdc: MarkdownConverter):

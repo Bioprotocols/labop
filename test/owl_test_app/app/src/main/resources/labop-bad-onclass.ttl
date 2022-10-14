@@ -1,19 +1,19 @@
-@prefix : <http://bioprotocols.org/paml#> .
+@prefix : <http://bioprotocols.org/labop#> .
 @prefix om: <http://www.ontology-of-units-of-measure.org/resource/om-2/> .
 @prefix owl: <http://www.w3.org/2002/07/owl#> .
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix xml: <http://www.w3.org/XML/1998/namespace> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
-@prefix paml: <http://bioprotocols.org/paml#> .
+@prefix labop: <http://bioprotocols.org/labop#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix sbol: <http://sbols.org/v3#> .
 @prefix uml: <http://bioprotocols.org/uml#> .
 @prefix MathM: <http://www.w3.org/1998/Math/MathML> .
-@base <http://bioprotocols.org/paml#> .
+@base <http://bioprotocols.org/labop#> .
 
-<http://bioprotocols.org/paml> rdf:type owl:Ontology ;
+<http://bioprotocols.org/labop> rdf:type owl:Ontology ;
                               owl:imports uml:, sbol: , om: ;
-                              rdfs:comment "Protocol Activity Modeling Languge (PAML) ontology." ;
+                              rdfs:comment "Laboratory Open Procotol Language (LabOP) ontology." ;
                               owl:versionInfo "0.3" .
 
 #################################################################
@@ -37,12 +37,12 @@ xsd:anySimpleType rdf:type rdfs:Datatype .
 #    Protocol definitions, based on UML
 #################################################################
 
-paml:Protocol rdf:type owl:Class ;
+labop:Protocol rdf:type owl:Class ;
               rdfs:comment "A protocol is an activity in the laboratory" ;
         rdfs:subClassOf uml:Activity .
 
 
-paml:Primitive rdf:type owl:Class ;
+labop:Primitive rdf:type owl:Class ;
               rdfs:comment "A behavior that is a base-level library function" ;
         rdfs:subClassOf uml:Behavior .
 
@@ -51,7 +51,7 @@ paml:Primitive rdf:type owl:Class ;
 #    Execution record, bootstrapping from PROV-O
 #################################################################
 
-paml:Execution rdf:type owl:Class ;
+labop:Execution rdf:type owl:Class ;
         rdfs:comment "An execution is a record of the values produced by the operation of a protocol, real or simulated" ;
         rdfs:subClassOf sbol:TopLevel .
 
@@ -60,93 +60,93 @@ paml:Execution rdf:type owl:Class ;
 #    Sample collection data model
 #################################################################
 
-paml:SampleCollection rdf:type owl:Class ;
+labop:SampleCollection rdf:type owl:Class ;
         rdfs:comment "A sample collection is a group of samples" ;
         rdfs:subClassOf sbol:Identified .
 
 
-paml:SampleArray rdf:type owl:Class ;
+labop:SampleArray rdf:type owl:Class ;
         rdfs:comment "A sample array is an n-dimensional rectangular group of samples, either with specified contents or empty, all stored in the same type of container" ;
-        rdfs:subClassOf paml:SampleCollection ,
+        rdfs:subClassOf labop:SampleCollection ,
             [ rdf:type owl:Restriction ;
-              owl:onProperty paml:containerType ;
+              owl:onProperty labop:containerType ;
               owl:allValuesFrom xsd:anyURI ; # replace with container ontology, when available
               owl:minCardinality "1"^^xsd:nonNegativeInteger ;
               owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
               rdfs:comment "Type of container used for storing the samples. The size and dimension may not match that of the array: it is up to execution to lay out the array in one or more containers"
             ] ,
             [ rdf:type owl:Restriction ;
-              owl:onProperty paml:contents ;
+              owl:onProperty labop:contents ;
               owl:allValuesFrom xsd:string ; # need to replace this with an serializable array model
               owl:minCardinality "1"^^xsd:nonNegativeInteger ;
               owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
               rdfs:comment "N-dimensional array of URI for specification or nulls"
             ] .
 
-paml:containerType rdf:type owl:DatatypeProperty ;
-              rdfs:domain paml:SampleArray ;
+labop:containerType rdf:type owl:DatatypeProperty ;
+              rdfs:domain labop:SampleArray ;
               rdfs:range xsd:anyURI ;
               rdfs:label "container_type" .
 
-paml:contents rdf:type owl:DatatypeProperty ;
-              rdfs:domain paml:SampleArray ;
+labop:contents rdf:type owl:DatatypeProperty ;
+              rdfs:domain labop:SampleArray ;
               rdfs:range xsd:string ;
               rdfs:label "contents" .
 
-paml:SampleMask rdf:type owl:Class ;
+labop:SampleMask rdf:type owl:Class ;
         rdfs:comment "A sample mask is a subset of a SampleCollection, as defined by an array of boolean indiating whether each contents value is included or not" ;
-        rdfs:subClassOf paml:SampleCollection ,
+        rdfs:subClassOf labop:SampleCollection ,
             [ rdf:type owl:Restriction ;
-              owl:onProperty paml:source ;
-              owl:allValuesFrom paml:SampleCollection ;
+              owl:onProperty labop:source ;
+              owl:allValuesFrom labop:SampleCollection ;
               owl:minCardinality "1"^^xsd:nonNegativeInteger ;
               owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
               rdfs:comment "Collection being subsetted via mask"
             ] ,
             [ rdf:type owl:Restriction ;
-              owl:onProperty paml:mask ;
+              owl:onProperty labop:mask ;
               owl:allValuesFrom xsd:string ; # need to replace this with an serializable array model
               owl:minCardinality "1"^^xsd:nonNegativeInteger ;
               owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
               rdfs:comment "N-dimensional array of booleans indicating whether contents are included in mask or not"
             ] .
 
-paml:source rdf:type owl:ObjectProperty ;
-              rdfs:domain paml:SampleMask ;
-              rdfs:range paml:SampleCollection ;
+labop:source rdf:type owl:ObjectProperty ;
+              rdfs:domain labop:SampleMask ;
+              rdfs:range labop:SampleCollection ;
               rdfs:label "source" .
 
-paml:mask rdf:type owl:DatatypeProperty ;
-              rdfs:domain paml:mask ;
+labop:mask rdf:type owl:DatatypeProperty ;
+              rdfs:domain labop:mask ;
               rdfs:range xsd:string ;
               rdfs:label "mask" .
 
 
 
 
-paml:SampleData rdf:type owl:Class ;
+labop:SampleData rdf:type owl:Class ;
               rdfs:comment "Collection of samples with data at locations" ;
             rdfs:subClassOf sbol:Identified ,
                             [ rdf:type owl:Restriction ;
-                              owl:onProperty paml:sampleDataValues ;
+                              owl:onProperty labop:sampleDataValues ;
                               owl:allValuesFrom xsd:string ; # need to replace this with an serializable array model
                               owl:minCardinality "1"^^xsd:nonNegativeInteger ;
                               owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
                               ] ,
                             [ rdf:type owl:Restriction ;
-                              owl:onProperty paml:fromSamples ;
-                              owl:onClass paml:SampleCollection ;
+                              owl:onProperty labop:fromSamples ;
+                              owl:onClass labop:SampleCollection ;
                               owl:minCardinality "1"^^xsd:nonNegativeInteger ;
                               owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
                               ] .
 
-paml:sampleDataValues rdf:type owl:ObjectProperty ;
-              rdfs:domain paml:SampleData ;
+labop:sampleDataValues rdf:type owl:ObjectProperty ;
+              rdfs:domain labop:SampleData ;
               rdfs:range xsd:string ;
               rdfs:label "values" .
 
-paml:fromSamples rdf:type owl:ObjectProperty ;
+labop:fromSamples rdf:type owl:ObjectProperty ;
               rdfs:subPropertyOf sbol:directlyComprises ;
-              rdfs:domain paml:SampleData ;
-              rdfs:range paml:SampleCollection ;
+              rdfs:domain labop:SampleData ;
+              rdfs:range labop:SampleCollection ;
               rdfs:label "from_samples" .

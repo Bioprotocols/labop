@@ -1,5 +1,5 @@
 import sbol3
-import paml
+import labop
 import tyto
 
 #############################################
@@ -7,14 +7,14 @@ import tyto
 
 # set up the document
 doc = sbol3.Document()
-sbol3.set_namespace('https://sd2e.org/PAML/')
+sbol3.set_namespace('https://sd2e.org/LabOP/')
 
 #############################################
 # Import the primitive libraries
 print('Importing libraries')
-paml.import_library('liquid_handling')
-paml.import_library('plate_handling')
-paml.import_library('spectrophotometry')
+labop.import_library('liquid_handling')
+labop.import_library('plate_handling')
+labop.import_library('spectrophotometry')
 
 # this should really get pulled into a common library somewhere
 rpm = sbol3.UnitDivision('rpm',name='rpm', symbol='rpm',label='revolutions per minute',numerator=tyto.OM.revolution,denominator=tyto.OM.minute)
@@ -27,7 +27,7 @@ doc.add(rpm)
 print('Constructing measurement sub-protocols')
 # This will be used 10 times generating "OD_Plate_1" .. "OD_Plate_9"
 
-split_and_measure = paml.Protocol('SplitAndMeasure', name="Split samples, dilute, and measure")
+split_and_measure = labop.Protocol('SplitAndMeasure', name="Split samples, dilute, and measure")
 split_and_measure.description = '''
 Subprotocol to split a portion of each sample in a plate into another plate, diluting
 with PBS, then measure OD and fluorescence from that other plate
@@ -35,12 +35,12 @@ with PBS, then measure OD and fluorescence from that other plate
 doc.add(split_and_measure)
 
 # plate for split-and-measure subroutine
-od_plate = paml.Container(name='OD Plate', type=tyto.NCIT.Microplate, max_coordinate='H12')
+od_plate = labop.Container(name='OD Plate', type=tyto.NCIT.Microplate, max_coordinate='H12')
 split_and_measure.locations = {od_plate}
 
 # Inputs: collection of samples, pbs_source
-samples = split_and_measure.add_input(name='samples', description='Samples to measure', type='http://bioprotocols.org/paml#LocatedSamples')
-pbs_source = split_and_measure.add_input(name='pbs', description='Source for PBS', type='http://bioprotocols.org/paml#LocatedSamples')
+samples = split_and_measure.add_input(name='samples', description='Samples to measure', type='http://bioprotocols.org/labop#LocatedSamples')
+pbs_source = split_and_measure.add_input(name='pbs', description='Source for PBS', type='http://bioprotocols.org/labop#LocatedSamples')
 
 # subprotocol steps
 s_p = split_and_measure.execute_primitive('Dispense', source=pbs_source, destination=od_plate,
@@ -54,10 +54,10 @@ s_t = split_and_measure.execute_primitive('TransferInto', source=samples, destin
 split_and_measure.add_flow(s_u, s_t) # transfer can't happen until growth plate is unsealed
 
 # add the measurements, in parallel
-ready_to_measure = paml.Fork()
+ready_to_measure = labop.Fork()
 split_and_measure.activities.append(ready_to_measure)
 split_and_measure.add_flow(s_t.output_pin('samples'), ready_to_measure)
-measurement_complete = paml.Join()
+measurement_complete = labop.Join()
 split_and_measure.activities.append(measurement_complete)
 
 s_a = split_and_measure.execute_primitive('MeasureAbsorbance', samples=ready_to_measure,
@@ -89,18 +89,18 @@ print('Measurement sub-protocol construction complete')
 
 
 
-overnight_od_measure = paml.Protocol('OvernightODMeasure', name="Split samples and measure, without dilution")
+overnight_od_measure = labop.Protocol('OvernightODMeasure', name="Split samples and measure, without dilution")
 overnight_od_measure.description = '''
 Subprotocol to split a portion of each sample in an unsealed plate into another plate, then measure OD and fluorescence from that other plate
 '''
 doc.add(overnight_od_measure)
 
 # plate for split-and-measure subroutine
-od_plate = paml.Container(name='OD Plate', type=tyto.NCIT.Microplate, max_coordinate='H12')
+od_plate = labop.Container(name='OD Plate', type=tyto.NCIT.Microplate, max_coordinate='H12')
 overnight_od_measure.locations = {od_plate}
 
 # Input: collection of samples
-samples = overnight_od_measure.add_input(name='samples', description='Samples to measure', type='http://bioprotocols.org/paml#LocatedSamples')
+samples = overnight_od_measure.add_input(name='samples', description='Samples to measure', type='http://bioprotocols.org/labop#LocatedSamples')
 
 # subprotocol steps
 s_t = overnight_od_measure.execute_primitive('Transfer', source=samples, destination=od_plate,
@@ -108,10 +108,10 @@ s_t = overnight_od_measure.execute_primitive('Transfer', source=samples, destina
 overnight_od_measure.add_flow(overnight_od_measure.initial(), s_t) # first action
 
 # add the measurements, in parallel
-ready_to_measure = paml.Fork()
+ready_to_measure = labop.Fork()
 overnight_od_measure.activities.append(ready_to_measure)
 overnight_od_measure.add_flow(s_t.output_pin('samples'), ready_to_measure)
-measurement_complete = paml.Join()
+measurement_complete = labop.Join()
 overnight_od_measure.activities.append(measurement_complete)
 
 s_a = overnight_od_measure.execute_primitive('MeasureAbsorbance', samples=ready_to_measure,
@@ -142,7 +142,7 @@ print('Overnight measurement sub-protocol construction complete')
 
 print('Making protocol')
 
-protocol = paml.Protocol('GrowthCurve', name = "SD2 Yeast growth curve protocol")
+protocol = labop.Protocol('GrowthCurve', name = "SD2 Yeast growth curve protocol")
 protocol.description = '''
 Protocol from SD2 Yeast States working group for studying growth curves:
 Grow up cells and read with plate reader at n-hour intervals
@@ -162,19 +162,19 @@ protocol.material += {PBS, SC_media, SC_plus_dox}
 
 ## create the containers
 # provisioning sources
-pbs_source = paml.Container(name='PBS Source', type=tyto.NCIT.Bottle)
-sc_source = paml.Container(name='SC Media + 40nM Doxycycline Source', type=tyto.NCIT.Bottle)
-om_source = paml.Container(name='Overnight SC Media Source', type=tyto.NCIT.Bottle)
+pbs_source = labop.Container(name='PBS Source', type=tyto.NCIT.Bottle)
+sc_source = labop.Container(name='SC Media + 40nM Doxycycline Source', type=tyto.NCIT.Bottle)
+om_source = labop.Container(name='Overnight SC Media Source', type=tyto.NCIT.Bottle)
 # plates for the general protocol
-overnight_plate = paml.Container(name='Overnight Growth Plate', type=tyto.NCIT.Microplate, max_coordinate='H12')
-overnight_od_plate = paml.Container(name='Overnight Growth Plate', type=tyto.NCIT.Microplate, max_coordinate='H12')
-growth_plate = paml.Container(name='Growth Curve Plate', type=tyto.NCIT.Microplate, max_coordinate='H12')
+overnight_plate = labop.Container(name='Overnight Growth Plate', type=tyto.NCIT.Microplate, max_coordinate='H12')
+overnight_od_plate = labop.Container(name='Overnight Growth Plate', type=tyto.NCIT.Microplate, max_coordinate='H12')
+growth_plate = labop.Container(name='Growth Curve Plate', type=tyto.NCIT.Microplate, max_coordinate='H12')
 protocol.locations = {pbs_source, sc_source, om_source, overnight_plate, growth_plate}
 
 # One input: a microplate full of strains
 # TODO: change this to allow alternative places
-strain_plate = protocol.add_input(name='strain_plate', description='Plate of strains to grow', type='http://bioprotocols.org/paml#LocatedSamples')
-#input_plate = paml.Container(name='497943_4_UWBF_to_stratoes', type=tyto.NCIT.Microplate, max_coordinate='H12')
+strain_plate = protocol.add_input(name='strain_plate', description='Plate of strains to grow', type='http://bioprotocols.org/labop#LocatedSamples')
+#input_plate = labop.Container(name='497943_4_UWBF_to_stratoes', type=tyto.NCIT.Microplate, max_coordinate='H12')
 
 print('Constructing protocol steps')
 
@@ -256,7 +256,7 @@ print('Protocol construction complete')
 # Invocation of protocol on a plate:;
 
 # plate for invoking the protocol
-#input_plate = paml.Container(name='497943_4_UWBF_to_stratoes', type=tyto.NCIT.Microplate, max_coordinate='H12')
+#input_plate = labop.Container(name='497943_4_UWBF_to_stratoes', type=tyto.NCIT.Microplate, max_coordinate='H12')
 
 
 print('Validating document')

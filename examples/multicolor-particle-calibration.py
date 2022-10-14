@@ -3,11 +3,11 @@ http://2018.igem.org/wiki/images/0/09/2018_InterLab_Plate_Reader_Protocol.pdf
 '''
 import os
 
-import paml
+import labop
 import sbol3
 from tyto import OM
-from paml.execution_engine import ExecutionEngine
-from paml_convert.markdown.markdown_specialization import MarkdownSpecialization
+from labop.execution_engine import ExecutionEngine
+from labop_convert.markdown.markdown_specialization import MarkdownSpecialization
 
 
 doc = sbol3.Document()
@@ -16,13 +16,13 @@ sbol3.set_namespace('http://igem.org/engineering/')
 #############################################
 # Import the primitive libraries
 print('Importing libraries')
-paml.import_library('liquid_handling')
+labop.import_library('liquid_handling')
 print('... Imported liquid handling')
-paml.import_library('plate_handling')
+labop.import_library('plate_handling')
 print('... Imported plate handling')
-paml.import_library('spectrophotometry')
+labop.import_library('spectrophotometry')
 print('... Imported spectrophotometry')
-paml.import_library('sample_arrays')
+labop.import_library('sample_arrays')
 print('... Imported sample arrays')
 
 # vortex = protocol.primitive_step(
@@ -36,7 +36,7 @@ print('... Imported sample arrays')
 
 # create the materials to be provisioned
 ddh2o = sbol3.Component('ddH2O', 'https://identifiers.org/pubchem.substance:24901740')
-ddh2o.name = 'Water, sterile-filtered, BioReagent, suitable for cell culture'  
+ddh2o.name = 'Water, sterile-filtered, BioReagent, suitable for cell culture'
 
 silica_beads = sbol3.Component('silica_beads', 'https://nanocym.com/wp-content/uploads/2018/07/NanoCym-All-Datasheets-.pdf')
 silica_beads.name = 'NanoCym 950 nm monodisperse silica nanoparticles'
@@ -62,7 +62,7 @@ doc.add(cascade_blue)
 doc.add(sulforhodamine)
 
 
-protocol = paml.Protocol('interlab')
+protocol = labop.Protocol('interlab')
 protocol.name = 'Multicolor fluorescence per bacterial particle calibration'
 protocol.version = '1.1b'
 protocol.description = '''Plate readers report fluorescence values in arbitrary units that vary widely from instrument to instrument. Therefore absolute fluorescence values cannot be directly compared from one instrument to another. In order to compare fluorescence output of biological devices, it is necessary to create a standard fluorescence curve. This variant of the protocol uses two replicates of three colors of dye, plus beads.
@@ -72,27 +72,27 @@ doc.add(protocol)
 
 
 
-# Provision an empty Microfuge tube in which to mix the standard solution 
+# Provision an empty Microfuge tube in which to mix the standard solution
 
-fluorescein_standard_solution_container = protocol.primitive_step('EmptyContainer', 
-                                                                  specification=paml.ContainerSpec(name='Fluorescein calibrant',
-                                                                                                   queryString='cont:StockReagent', 
+fluorescein_standard_solution_container = protocol.primitive_step('EmptyContainer',
+                                                                  specification=labop.ContainerSpec(name='Fluorescein calibrant',
+                                                                                                   queryString='cont:StockReagent',
                                                                                                    prefixMap={'cont': 'https://sift.net/container-ontology/container-ontology#'}))
 
 
-sulforhodamine_standard_solution_container = protocol.primitive_step('EmptyContainer', 
-                                                                  specification=paml.ContainerSpec(name='Sulforhodamine 101 calibrant',
-                                                                                                   queryString='cont:StockReagent', 
+sulforhodamine_standard_solution_container = protocol.primitive_step('EmptyContainer',
+                                                                  specification=labop.ContainerSpec(name='Sulforhodamine 101 calibrant',
+                                                                                                   queryString='cont:StockReagent',
                                                                                                    prefixMap={'cont': 'https://sift.net/container-ontology/container-ontology#'}))
 
-cascade_blue_standard_solution_container = protocol.primitive_step('EmptyContainer', 
-                                                                  specification=paml.ContainerSpec(name='Cascade blue calibrant',
-                                                                                                   queryString='cont:StockReagent', 
+cascade_blue_standard_solution_container = protocol.primitive_step('EmptyContainer',
+                                                                  specification=labop.ContainerSpec(name='Cascade blue calibrant',
+                                                                                                   queryString='cont:StockReagent',
                                                                                                    prefixMap={'cont': 'https://sift.net/container-ontology/container-ontology#'}))
 
-microsphere_standard_solution_container = protocol.primitive_step('EmptyContainer', 
-                                                                  specification=paml.ContainerSpec(name='NanoCym 950 nm microspheres',
-                                                                                                   queryString='cont:StockReagent', 
+microsphere_standard_solution_container = protocol.primitive_step('EmptyContainer',
+                                                                  specification=labop.ContainerSpec(name='NanoCym 950 nm microspheres',
+                                                                                                   queryString='cont:StockReagent',
                                                                                                    prefixMap={'cont': 'https://sift.net/container-ontology/container-ontology#'}))
 
 
@@ -141,9 +141,9 @@ vortex_silica_beads= protocol.primitive_step('Vortex',
 
 
 # Transfer to plate
-calibration_plate = protocol.primitive_step('EmptyContainer', 
-                                                                  specification=paml.ContainerSpec(name='calibration plate',
-                                                                                                   queryString='cont:Plate96Well', 
+calibration_plate = protocol.primitive_step('EmptyContainer',
+                                                                  specification=labop.ContainerSpec(name='calibration plate',
+                                                                                                   queryString='cont:Plate96Well',
                                                                                                    prefixMap={'cont': 'https://sift.net/container-ontology/container-ontology#'}))
 
 
@@ -412,10 +412,10 @@ measure_absorbance = protocol.primitive_step('MeasureAbsorbance',
                                              samples=read_wells4.output_pin('samples'),
                                              wavelength=sbol3.Measure(600, OM.nanometer))
 
-protocol.designate_output('measurements', 'http://bioprotocols.org/paml#SampleData', source=measure_fluorescence1.output_pin('measurements'))
-protocol.designate_output('measurements', 'http://bioprotocols.org/paml#SampleData', source=measure_fluorescence2.output_pin('measurements'))
-protocol.designate_output('measurements', 'http://bioprotocols.org/paml#SampleData', source=measure_fluorescence3.output_pin('measurements'))
-protocol.designate_output('measurements', 'http://bioprotocols.org/paml#SampleData', source=measure_absorbance.output_pin('measurements'))
+protocol.designate_output('measurements', 'http://bioprotocols.org/labop#SampleData', source=measure_fluorescence1.output_pin('measurements'))
+protocol.designate_output('measurements', 'http://bioprotocols.org/labop#SampleData', source=measure_fluorescence2.output_pin('measurements'))
+protocol.designate_output('measurements', 'http://bioprotocols.org/labop#SampleData', source=measure_fluorescence3.output_pin('measurements'))
+protocol.designate_output('measurements', 'http://bioprotocols.org/labop#SampleData', source=measure_absorbance.output_pin('measurements'))
 
 
 

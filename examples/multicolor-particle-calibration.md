@@ -46,7 +46,7 @@ Adapted from [https://dx.doi.org/10.17504/protocols.io.bht7j6rn](https://dx.doi.
 23. Transfer 200.0 microliter of `NanoCym 950 nm microspheres` sample to wells H1 of  96 well microplate `calibration plate`.
 24. Perform a series of 10 2-fold dilutions on `Fluorescein calibrant` using `Phosphate Buffered Saline` as diluent to a final volume of 200.0 microliter in  wells A1:A11 of 96 well microplate `calibration plate`.  For each transfer, pipette up and down 3X to ensure the dilution is mixed homogeneously.
 
-![](/Users/bbartley/Dev/git/sd2/paml/examples/serial_dilution.png)
+![](/Users/bbartley/Dev/git/sd2/labop/examples/serial_dilution.png)
 
 
 25. Perform a series of 10 2-fold dilutions on `Fluorescein calibrant` using `Phosphate Buffered Saline` as diluent to a final volume of 200.0 microliter in  wells B1:B11 of 96 well microplate `calibration plate`.  For each transfer, pipette up and down 3X to ensure the dilution is mixed homogeneously.

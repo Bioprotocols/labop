@@ -3,7 +3,7 @@ import os
 import unittest
 import filecmp
 import sbol3
-import paml
+import labop
 
 
 # Save testfiles as artifacts when running in CI environment,
@@ -25,22 +25,22 @@ class TestLibraryBuilding(unittest.TestCase):
         # Create the primitives
         print('Making primitives for test library')
 
-        p = paml.Primitive('Provision')
+        p = labop.Primitive('Provision')
         p.description = 'Place a measured amount (mass or volume) of a specified component into a location.'
         p.add_input('resource', sbol3.SBOL_COMPONENT)
-        p.add_input('destination', 'http://bioprotocols.org/paml#Location')
+        p.add_input('destination', 'http://bioprotocols.org/labop#Location')
         p.add_input('amount', sbol3.OM_MEASURE)  # Can be mass or volume
         p.add_input('dispenseVelocity', sbol3.OM_MEASURE, True)
-        p.add_output('samples', 'http://bioprotocols.org/paml#LocatedSamples')
+        p.add_output('samples', 'http://bioprotocols.org/labop#LocatedSamples')
         doc.add(p)
 
-        p = paml.Primitive('Transfer')
+        p = labop.Primitive('Transfer')
         p.description = 'Move a measured volume taken from a collection of source samples to a location'
-        p.add_input('source', 'http://bioprotocols.org/paml#LocatedSamples')
-        p.add_input('destination', 'http://bioprotocols.org/paml#Location')
+        p.add_input('source', 'http://bioprotocols.org/labop#LocatedSamples')
+        p.add_input('destination', 'http://bioprotocols.org/labop#Location')
         p.add_input('amount', sbol3.OM_MEASURE)  # Must be volume
         p.add_input('dispenseVelocity', sbol3.OM_MEASURE, True)
-        p.add_output('samples', 'http://bioprotocols.org/paml#LocatedSamples')
+        p.add_output('samples', 'http://bioprotocols.org/labop#LocatedSamples')
         doc.add(p)
 
         print('Library construction complete')

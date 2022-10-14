@@ -8,74 +8,74 @@
   <rdf:Description rdf:about="http://www.w3.org/2002/07/owl#minCardinality">
     <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#AnnotationProperty"/>
   </rdf:Description>
-  <rdf:Description rdf:about="http://bioprotocols.org/paml#SampleArray">
+  <rdf:Description rdf:about="http://bioprotocols.org/labop#SampleArray">
     <rdfs:comment>A sample array is an n-dimensional rectangular group of samples, either with specified contents or empty, all stored in the same type of container</rdfs:comment>
     <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
     <rdfs:subClassOf rdf:nodeID="ub1bL71C13"/>
-    <rdfs:subClassOf rdf:resource="http://bioprotocols.org/paml#SampleCollection"/>
+    <rdfs:subClassOf rdf:resource="http://bioprotocols.org/labop#SampleCollection"/>
     <rdfs:subClassOf rdf:nodeID="ub1bL78C13"/>
   </rdf:Description>
-  <rdf:Description rdf:about="http://bioprotocols.org/paml#Execution">
+  <rdf:Description rdf:about="http://bioprotocols.org/labop#Execution">
     <rdfs:comment>An execution is a record of the values produced by the operation of a protocol, real or simulated</rdfs:comment>
     <rdfs:subClassOf rdf:resource="http://sbols.org/v3#TopLevel"/>
     <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
   </rdf:Description>
-  <rdf:Description rdf:about="http://bioprotocols.org/paml#fromSamples">
-    <rdfs:range rdf:resource="http://bioprotocols.org/paml#SampleCollection"/>
+  <rdf:Description rdf:about="http://bioprotocols.org/labop#fromSamples">
+    <rdfs:range rdf:resource="http://bioprotocols.org/labop#SampleCollection"/>
     <rdfs:subPropertyOf rdf:resource="http://sbols.org/v3#directlyComprises"/>
-    <rdfs:domain rdf:resource="http://bioprotocols.org/paml#SampleData"/>
+    <rdfs:domain rdf:resource="http://bioprotocols.org/labop#SampleData"/>
     <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
     <rdfs:label>from_samples</rdfs:label>
   </rdf:Description>
-  <rdf:Description rdf:about="http://bioprotocols.org/paml#sampleDataValues">
-    <rdfs:domain rdf:resource="http://bioprotocols.org/paml#SampleData"/>
+  <rdf:Description rdf:about="http://bioprotocols.org/labop#sampleDataValues">
+    <rdfs:domain rdf:resource="http://bioprotocols.org/labop#SampleData"/>
     <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
     <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
     <rdfs:label>values</rdfs:label>
   </rdf:Description>
-  <rdf:Description rdf:about="http://bioprotocols.org/paml#Primitive">
+  <rdf:Description rdf:about="http://bioprotocols.org/labop#Primitive">
     <rdfs:subClassOf rdf:resource="http://bioprotocols.org/uml#Behavior"/>
     <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
     <rdfs:comment>A behavior that is a base-level library function</rdfs:comment>
   </rdf:Description>
-  <rdf:Description rdf:about="http://bioprotocols.org/paml">
+  <rdf:Description rdf:about="http://bioprotocols.org/labop">
     <owl:imports rdf:resource="http://bioprotocols.org/uml#"/>
     <owl:versionInfo>0.3</owl:versionInfo>
     <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Ontology"/>
-    <rdfs:comment>Protocol Activity Modeling Languge (PAML) ontology.</rdfs:comment>
+    <rdfs:comment>Laboratory Open Procotol Language (LabOP) ontology.</rdfs:comment>
     <owl:imports rdf:resource="http://www.ontology-of-units-of-measure.org/resource/om-2/"/>
     <owl:imports rdf:resource="http://sbols.org/v3#"/>
   </rdf:Description>
-  <rdf:Description rdf:about="http://bioprotocols.org/paml#mask">
+  <rdf:Description rdf:about="http://bioprotocols.org/labop#mask">
     <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
-    <rdfs:domain rdf:resource="http://bioprotocols.org/paml#mask"/>
+    <rdfs:domain rdf:resource="http://bioprotocols.org/labop#mask"/>
     <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
     <rdfs:label>mask</rdfs:label>
   </rdf:Description>
-  <rdf:Description rdf:about="http://bioprotocols.org/paml#SampleData">
+  <rdf:Description rdf:about="http://bioprotocols.org/labop#SampleData">
     <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
     <rdfs:subClassOf rdf:resource="http://sbols.org/v3#Identified"/>
     <rdfs:subClassOf rdf:nodeID="ub1bL136C29"/>
     <rdfs:subClassOf rdf:nodeID="ub1bL130C29"/>
     <rdfs:comment>Collection of samples with data at locations</rdfs:comment>
   </rdf:Description>
-  <rdf:Description rdf:about="http://bioprotocols.org/paml#SampleMask">
-    <rdfs:subClassOf rdf:resource="http://bioprotocols.org/paml#SampleCollection"/>
+  <rdf:Description rdf:about="http://bioprotocols.org/labop#SampleMask">
+    <rdfs:subClassOf rdf:resource="http://bioprotocols.org/labop#SampleCollection"/>
     <rdfs:comment>A sample mask is a subset of a SampleCollection, as defined by an array of boolean indiating whether each contents value is included or not</rdfs:comment>
     <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
     <rdfs:subClassOf rdf:nodeID="ub1bL99C13"/>
     <rdfs:subClassOf rdf:nodeID="ub1bL106C13"/>
   </rdf:Description>
-  <rdf:Description rdf:about="http://bioprotocols.org/paml#source">
-    <rdfs:domain rdf:resource="http://bioprotocols.org/paml#SampleMask"/>
-    <rdfs:range rdf:resource="http://bioprotocols.org/paml#SampleCollection"/>
+  <rdf:Description rdf:about="http://bioprotocols.org/labop#source">
+    <rdfs:domain rdf:resource="http://bioprotocols.org/labop#SampleMask"/>
+    <rdfs:range rdf:resource="http://bioprotocols.org/labop#SampleCollection"/>
     <rdfs:label>source</rdfs:label>
     <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
   </rdf:Description>
   <rdf:Description rdf:nodeID="ub1bL78C13">
     <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
     <owl:maxCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:maxCardinality>
-    <owl:onProperty rdf:resource="http://bioprotocols.org/paml#contents"/>
+    <owl:onProperty rdf:resource="http://bioprotocols.org/labop#contents"/>
     <owl:allValuesFrom rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
     <owl:minCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:minCardinality>
     <rdfs:comment>N-dimensional array of URI for specification or nulls</rdfs:comment>
@@ -84,23 +84,23 @@
     <owl:allValuesFrom rdf:resource="http://www.w3.org/2001/XMLSchema#anyURI"/>
     <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
     <owl:minCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:minCardinality>
-    <owl:onProperty rdf:resource="http://bioprotocols.org/paml#containerType"/>
+    <owl:onProperty rdf:resource="http://bioprotocols.org/labop#containerType"/>
     <rdfs:comment>Type of container used for storing the samples. The size and dimension may not match that of the array: it is up to execution to lay out the array in one or more containers</rdfs:comment>
     <owl:maxCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:maxCardinality>
   </rdf:Description>
-  <rdf:Description rdf:about="http://bioprotocols.org/paml#Protocol">
+  <rdf:Description rdf:about="http://bioprotocols.org/labop#Protocol">
     <rdfs:comment>A protocol is an activity in the laboratory</rdfs:comment>
     <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
     <rdfs:subClassOf rdf:resource="http://bioprotocols.org/uml#Activity"/>
   </rdf:Description>
-  <rdf:Description rdf:about="http://bioprotocols.org/paml#contents">
+  <rdf:Description rdf:about="http://bioprotocols.org/labop#contents">
     <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
-    <rdfs:domain rdf:resource="http://bioprotocols.org/paml#SampleArray"/>
+    <rdfs:domain rdf:resource="http://bioprotocols.org/labop#SampleArray"/>
     <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
     <rdfs:label>contents</rdfs:label>
   </rdf:Description>
-  <rdf:Description rdf:about="http://bioprotocols.org/paml#containerType">
-    <rdfs:domain rdf:resource="http://bioprotocols.org/paml#SampleArray"/>
+  <rdf:Description rdf:about="http://bioprotocols.org/labop#containerType">
+    <rdfs:domain rdf:resource="http://bioprotocols.org/labop#SampleArray"/>
     <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
     <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#anyURI"/>
     <rdfs:label>container_type</rdfs:label>
@@ -108,12 +108,12 @@
   <rdf:Description rdf:nodeID="ub1bL99C13">
     <rdfs:comment>Collection being subsetted via mask</rdfs:comment>
     <owl:maxCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:maxCardinality>
-    <owl:allValuesFrom rdf:resource="http://bioprotocols.org/paml#SampleCollection"/>
+    <owl:allValuesFrom rdf:resource="http://bioprotocols.org/labop#SampleCollection"/>
     <owl:minCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:minCardinality>
-    <owl:onProperty rdf:resource="http://bioprotocols.org/paml#source"/>
+    <owl:onProperty rdf:resource="http://bioprotocols.org/labop#source"/>
     <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
   </rdf:Description>
-  <rdf:Description rdf:about="http://bioprotocols.org/paml#SampleCollection">
+  <rdf:Description rdf:about="http://bioprotocols.org/labop#SampleCollection">
     <rdfs:subClassOf rdf:resource="http://sbols.org/v3#Identified"/>
     <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
     <rdfs:comment>A sample collection is a group of samples</rdfs:comment>
@@ -124,7 +124,7 @@
     <owl:allValuesFrom rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
     <owl:minCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:minCardinality>
     <rdfs:comment>N-dimensional array of booleans indicating whether contents are included in mask or not</rdfs:comment>
-    <owl:onProperty rdf:resource="http://bioprotocols.org/paml#mask"/>
+    <owl:onProperty rdf:resource="http://bioprotocols.org/labop#mask"/>
   </rdf:Description>
   <rdf:Description rdf:about="http://www.w3.org/2001/XMLSchema#anySimpleType">
     <rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Datatype"/>
@@ -132,15 +132,15 @@
   <rdf:Description rdf:nodeID="ub1bL130C29">
     <owl:maxCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:maxCardinality>
     <owl:allValuesFrom rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
-    <owl:onProperty rdf:resource="http://bioprotocols.org/paml#sampleDataValues"/>
+    <owl:onProperty rdf:resource="http://bioprotocols.org/labop#sampleDataValues"/>
     <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
     <owl:minCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:minCardinality>
   </rdf:Description>
   <rdf:Description rdf:nodeID="ub1bL136C29">
     <owl:minCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:minCardinality>
     <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
-    <owl:onProperty rdf:resource="http://bioprotocols.org/paml#fromSamples"/>
-    <owl:allValuesFrom rdf:resource="http://bioprotocols.org/paml#SampleCollection"/>
+    <owl:onProperty rdf:resource="http://bioprotocols.org/labop#fromSamples"/>
+    <owl:allValuesFrom rdf:resource="http://bioprotocols.org/labop#SampleCollection"/>
     <owl:maxCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:maxCardinality>
   </rdf:Description>
   <rdf:Description rdf:about="http://www.w3.org/2002/07/owl#maxCardinality">

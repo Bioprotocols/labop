@@ -3,11 +3,11 @@ import tempfile
 import unittest
 import filecmp
 import sbol3
-import paml
+import labop
 import tyto
 
 
-# import paml_md
+# import labop_md
 import uml
 
 #############################################
@@ -19,19 +19,19 @@ sbol3.set_namespace('https://bbn.com/scratch/')
 #############################################
 # Import the primitive libraries
 print('Importing libraries')
-paml.import_library('liquid_handling')
+labop.import_library('liquid_handling')
 print('... Imported liquid handling')
-paml.import_library('plate_handling')
+labop.import_library('plate_handling')
 print('... Imported plate handling')
-paml.import_library('spectrophotometry')
+labop.import_library('spectrophotometry')
 print('... Imported spectrophotometry')
-paml.import_library('sample_arrays')
+labop.import_library('sample_arrays')
 print('... Imported sample arrays')
 
 #############################################
 # Create the protocol
 print('Creating protocol')
-protocol = paml.Protocol('GoldenGate_assembly')
+protocol = labop.Protocol('GoldenGate_assembly')
 protocol.name = "Golden Gate Assembly"
 protocol.description = '''
 This protocol is for Golden Gate Assembly of pairs of DNA fragments into plasmids using the New England Biolabs
@@ -57,9 +57,9 @@ gg_mix.derived_from.append('https://www.neb.com/products/e1601-neb-golden-gate-a
 doc.add(gg_mix)
 
 # add an parameters for specifying the layout of the DNA source plate and build plate
-dna_sources = protocol.input_value('source_samples', 'http://bioprotocols.org/paml#SampleCollection')
+dna_sources = protocol.input_value('source_samples', 'http://bioprotocols.org/labop#SampleCollection')
 # TODO: add_input should be returning a usable ActivityNode!
-dna_build_layout = protocol.input_value('build_layout', 'http://bioprotocols.org/paml#SampleData')
+dna_build_layout = protocol.input_value('build_layout', 'http://bioprotocols.org/labop#SampleData')
 
 # actual steps of the protocol
 # get a plate space for building
@@ -91,7 +91,7 @@ protocol.primitive_step('Incubate', location=build_wells.output_pin('samples'),
                         temperature=sbol3.Measure(60, tyto.OM.get_uri_by_term('degree Celsius')))  # TODO: replace after resolution of https://github.com/SynBioDex/tyto/issues/29
 
 
-output = protocol.designate_output('constructs', 'http://bioprotocols.org/paml#SampleCollection', build_wells.output_pin('samples'))
+output = protocol.designate_output('constructs', 'http://bioprotocols.org/labop#SampleCollection', build_wells.output_pin('samples'))
 protocol.order(protocol.get_last_step(), output)  # don't return until all else is complete
 
 

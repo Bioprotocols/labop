@@ -1,7 +1,7 @@
 import os
 import tempfile
 import sbol3
-import paml
+import labop
 import tyto
 import uml
 import json
@@ -9,8 +9,8 @@ import rdflib as rdfl
 from typing import Dict
 
 
-from paml.execution_engine import ExecutionEngine
-from paml_convert.opentrons.opentrons_specialization import OT2Specialization
+from labop.execution_engine import ExecutionEngine
+from labop_convert.opentrons.opentrons_specialization import OT2Specialization
 
 # Dev Note: This is a test of the initial version of the OT2 specialization. Any specs shown here can be changed in the future. Use at your own risk. Here be dragons.
 
@@ -24,21 +24,21 @@ sbol3.set_namespace('https://bbn.com/scratch/')
 #############################################
 # Import the primitive libraries
 print('Importing libraries')
-paml.import_library('liquid_handling')
+labop.import_library('liquid_handling')
 print('... Imported liquid handling')
-paml.import_library('plate_handling')
+labop.import_library('plate_handling')
 print('... Imported plate handling')
-paml.import_library('spectrophotometry')
+labop.import_library('spectrophotometry')
 print('... Imported spectrophotometry')
-paml.import_library('sample_arrays')
+labop.import_library('sample_arrays')
 print('... Imported sample arrays')
 
 
 # Example of how to generate a template for a new protocol step
 
-#print(primitives["https://bioprotocols.org/paml/primitives/liquid_handling/Dispense"].template())
+#print(primitives["https://bioprotocols.org/labop/primitives/liquid_handling/Dispense"].template())
 
-protocol = paml.Protocol('iGEM_LUDOX_OD_calibration_2018')
+protocol = labop.Protocol('iGEM_LUDOX_OD_calibration_2018')
 protocol.name = "iGEM 2018 LUDOX OD calibration protocol for OT2"
 protocol.description = '''
 Test Execution
@@ -65,11 +65,11 @@ doc.add(p300)
 load = protocol.primitive_step('ConfigureInstrument', instrument=p300, mount='left')
 
 # Define labware
-spec_rack = paml.ContainerSpec('working_reagents_rack', name='rack for reagent aliquots', queryString="cont:Opentrons24TubeRackwithEppendorf1.5mLSafe-LockSnapcap", prefixMap=PREFIX_MAP)
-spec_ludox_container = paml.ContainerSpec('ludox_working_solution', name='tube for ludox working solution', queryString='cont:MicrofugeTube', prefixMap=PREFIX_MAP)
-spec_water_container = paml.ContainerSpec('water_stock', name='tube for water aliquot', queryString='cont:MicrofugeTube', prefixMap=PREFIX_MAP)
-spec_plate = paml.ContainerSpec('calibration_plate', name='calibration plate', queryString='cont:Corning96WellPlate360uLFlat', prefixMap=PREFIX_MAP)
-spec_tiprack = paml.ContainerSpec('tiprack', queryString='cont:Opentrons96TipRack300uL', prefixMap=PREFIX_MAP)
+spec_rack = labop.ContainerSpec('working_reagents_rack', name='rack for reagent aliquots', queryString="cont:Opentrons24TubeRackwithEppendorf1.5mLSafe-LockSnapcap", prefixMap=PREFIX_MAP)
+spec_ludox_container = labop.ContainerSpec('ludox_working_solution', name='tube for ludox working solution', queryString='cont:MicrofugeTube', prefixMap=PREFIX_MAP)
+spec_water_container = labop.ContainerSpec('water_stock', name='tube for water aliquot', queryString='cont:MicrofugeTube', prefixMap=PREFIX_MAP)
+spec_plate = labop.ContainerSpec('calibration_plate', name='calibration plate', queryString='cont:Corning96WellPlate360uLFlat', prefixMap=PREFIX_MAP)
+spec_tiprack = labop.ContainerSpec('tiprack', queryString='cont:Opentrons96TipRack300uL', prefixMap=PREFIX_MAP)
 doc.add(spec_rack)
 doc.add(spec_ludox_container)
 doc.add(spec_water_container)
@@ -102,7 +102,7 @@ transfer = protocol.primitive_step('Transfer', source=load_rack1.output_pin('sam
 transfer = protocol.primitive_step('Transfer', source=load_rack1.output_pin('samples'), destination=ludox_samples.output_pin('samples'),amount=sbol3.Measure(100, tyto.OM.microliter))
 
 
-filename="ot2_ludox_paml"
+filename="ot2_ludox_labop"
 agent = sbol3.Agent("ot2_machine", name='OT2 machine')
 ee = ExecutionEngine(specializations=[OT2Specialization(filename)])
 parameter_values = []

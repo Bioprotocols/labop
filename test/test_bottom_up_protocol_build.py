@@ -1,10 +1,10 @@
 import unittest
 
-import paml
+import labop
 import uml
-from paml.execution_engine import ExecutionEngine
-from paml_convert.markdown.markdown_specialization import MarkdownSpecialization
-from paml_convert.behavior_specialization import DefaultBehaviorSpecialization
+from labop.execution_engine import ExecutionEngine
+from labop_convert.markdown.markdown_specialization import MarkdownSpecialization
+from labop_convert.behavior_specialization import DefaultBehaviorSpecialization
 import sbol3
 
 
@@ -18,11 +18,11 @@ class ExampleProtocol(unittest.TestCase):
         # Provides a minimal, working example of a Protocol built from
         # the bottom-up without using any of the library's convenience methods
         doc = sbol3.Document()
-        protocol = paml.Protocol('foo')
+        protocol = labop.Protocol('foo')
         doc.add(protocol)
 
-        step1 = paml.Primitive('step1')
-        step2 = paml.Primitive('step2')
+        step1 = labop.Primitive('step1')
+        step2 = labop.Primitive('step2')
 
         step1_output = uml.OrderedPropertyValue(index=1, property_value=uml.Parameter(name='samples', type=sbol3.SBOL_COMPONENT, direction=PARAMETER_OUT, is_ordered=True, is_unique=True))
         step2_input = uml.OrderedPropertyValue(index=1, property_value=uml.Parameter(name='samples', type=sbol3.SBOL_COMPONENT, direction=PARAMETER_IN, is_ordered=True, is_unique=True))
@@ -69,11 +69,11 @@ class TestParameters(unittest.TestCase):
     def test_parameters_not_found(self):
         # Verify exception-handling when user specifies a Pin that doesn't match expected Parameter names
         doc = sbol3.Document()
-        protocol = paml.Protocol('foo')
+        protocol = labop.Protocol('foo')
         doc.add(protocol)
 
-        step1 = paml.Primitive('step1')
-        step2 = paml.Primitive('step2')
+        step1 = labop.Primitive('step1')
+        step2 = labop.Primitive('step2')
         step1_output = uml.OrderedPropertyValue(index=1, property_value=uml.Parameter(name='samples', type=sbol3.SBOL_COMPONENT, direction=PARAMETER_OUT, is_ordered=True, is_unique=True))
         step2_input = uml.OrderedPropertyValue(index=1, property_value=uml.Parameter(name='samples', type=sbol3.SBOL_COMPONENT, direction=PARAMETER_IN, is_ordered=True, is_unique=True))
         step1.parameters.append(step1_output)
@@ -108,11 +108,11 @@ class TestParameters(unittest.TestCase):
     def test_duplicate_parameters(self):
         # Verify exception-handling for name collisions between Parameters
         doc = sbol3.Document()
-        protocol = paml.Protocol('foo')
+        protocol = labop.Protocol('foo')
         doc.add(protocol)
 
-        step1 = paml.Primitive('step1')
-        step2 = paml.Primitive('step2')
+        step1 = labop.Primitive('step1')
+        step2 = labop.Primitive('step2')
 
         # create duplicate Parameters for the step1 Primitive, resulting in a failure mode
         step1_output = uml.OrderedPropertyValue(index=1, property_value=uml.Parameter(name='samples', type=sbol3.SBOL_COMPONENT, direction=PARAMETER_OUT, is_ordered=True, is_unique=True))
@@ -145,13 +145,13 @@ class TestParameters(unittest.TestCase):
 
     def test_optional_and_required_parameters(self):
         doc = sbol3.Document()
-        protocol = paml.Protocol('foo')
+        protocol = labop.Protocol('foo')
         doc.add(protocol)
 
         input_component = sbol3.Component('input_component', sbol3.SBO_DNA)
         doc.add(input_component)
 
-        step1 = paml.Primitive('step1')
+        step1 = labop.Primitive('step1')
 
         # create optional parameter
         step1_optional_input1 = uml.OrderedPropertyValue(index=1, property_value=uml.Parameter(name='step1_optional_input1', type=sbol3.SBOL_COMPONENT, direction=PARAMETER_IN, is_ordered=True, is_unique=True))

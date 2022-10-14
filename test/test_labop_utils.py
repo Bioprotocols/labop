@@ -1,11 +1,11 @@
 import pytest
 import unittest
-import paml
-from paml_convert.markdown.protocol_to_markdown import reduce_range_set
+import labop
+from labop_convert.markdown.protocol_to_markdown import reduce_range_set
 
 
 class TestLocationUtilities(unittest.TestCase):
-#  @pytest.mark.skip(reason="module 'paml_convert' has no submodule 'markdown'")
+#  @pytest.mark.skip(reason="module 'labop_convert' has no submodule 'markdown'")
     def test_range_reduction(self):
         assert reduce_range_set({'A1'}) == {'A1'}
         assert reduce_range_set({'A1', 'A2'}) == {'A1:A2'}

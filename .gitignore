@@ -1,12 +1,12 @@
 /secrets/strateos_secrets.json
 /.pytest_cache/
 /env/
-/paml.egg-info/
+/labop.egg-info/
 /notebooks/.ipynb_checkpoints/*
 **/__pycache__
 notebooks/cluster*
 notebooks/*md
-pypaml.egg-info*
+pylabop.egg-info*
 notebooks/out
 notebooks/.*
 test/.*

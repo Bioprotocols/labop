@@ -43,7 +43,7 @@ For all of these cell measurements, you must use the same plates and volumes tha
 7. Provision 16 x 50 ml conical tubes to contain `back-diluted culture` The conical tube should be opaque, amber-colored, or covered with foil.
 8. Back-dilute each of 16 `culture (day 2)` samples to a target OD of 0.02 using LB Broth+chloramphenicol as diluent to a final volume of 12.0 milliliter. Maintain at 4.0 degree Celsius while performing dilutions.
 
-![](/Users/bbartley/Dev/git/sd2/paml/fig1_cell_calibration.png)
+![](/Users/bbartley/Dev/git/sd2/labop/fig1_cell_calibration.png)
 
 
 9. Provision 16 x 1.5 mL microfuge tubes to contain `cultures (0 hr timepoint)`
@@ -55,7 +55,7 @@ For all of these cell measurements, you must use the same plates and volumes tha
  Maintain at 4.0 degree Celsius during transfer.
 15. Transfer 100.0 microliter of `LB Broth+chloramphenicol` sample to wells A1:H1, A10:H10, A12:H12 of  96 well microplate `plate 1`. Maintain at 4.0 degree Celsius during transfer. These samples are blanks.
 
-![](/Users/bbartley/Dev/git/sd2/paml/fig2_cell_calibration.png)
+![](/Users/bbartley/Dev/git/sd2/labop/fig2_cell_calibration.png)
 
 
 16. Measure 0 hr absorbance timepoint of `plate 1` at 600.0 nanometer.

@@ -8,7 +8,7 @@ from importlib.util import spec_from_loader, module_from_spec
 
 import sbol3
 
-import paml
+import labop
 
 
 # Save testfiles as artifacts when running in CI environment,
@@ -17,7 +17,7 @@ if 'GH_TMPDIR' in os.environ:
     TMPDIR = os.environ['GH_TMPDIR']
 else:
     TMPDIR = tempfile.gettempdir()
- 
+
 
 protocol_def_file = os.path.join(os.path.dirname(__file__), '../examples/LUDOX_protocol.py')
 
@@ -35,7 +35,7 @@ protocol_def = load_ludox_protocol(protocol_def_file)
 
 class TestProtocolEndToEnd(unittest.TestCase):
     def test_create_protocol(self):
-        protocol: paml.Protocol
+        protocol: labop.Protocol
         doc: sbol3.Document
         logger = logging.getLogger("LUDOX_protocol")
         logger.setLevel(logging.INFO)

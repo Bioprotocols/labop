@@ -4,15 +4,15 @@ import tempfile
 import unittest
 
 
-import paml
+import labop
 import sbol3
 import tyto
 import uml
 
-from paml.execution_engine import ExecutionEngine
-from paml_convert.autoprotocol.autoprotocol_specialization import AutoprotocolSpecialization
-from paml_convert.autoprotocol.strateos_api import StrateosAPI, StrateosConfig
-from paml_convert.markdown.markdown_specialization import MarkdownSpecialization
+from labop.execution_engine import ExecutionEngine
+from labop_convert.autoprotocol.autoprotocol_specialization import AutoprotocolSpecialization
+from labop_convert.autoprotocol.strateos_api import StrateosAPI, StrateosConfig
+from labop_convert.markdown.markdown_specialization import MarkdownSpecialization
 
 class TestConvert(unittest.TestCase):
 
@@ -26,7 +26,7 @@ class TestConvert(unittest.TestCase):
         ee = ExecutionEngine(specializations=specializations)
         agent = sbol3.Agent("test_agent")
         parameter_values = [
-            paml.ParameterValue(parameter=protocol.get_input("wavelength"),
+            labop.ParameterValue(parameter=protocol.get_input("wavelength"),
                                 value=uml.LiteralIdentified(value=sbol3.Measure(100, tyto.OM.nanometer)))
         ]
 
@@ -65,7 +65,7 @@ class TestConvert(unittest.TestCase):
         ee = ExecutionEngine(specializations=[autoprotocol_specialization])
         agent = sbol3.Agent("test_agent")
         parameter_values = [
-            paml.ParameterValue(parameter=protocol.get_input("wavelength"),
+            labop.ParameterValue(parameter=protocol.get_input("wavelength"),
                                 value=uml.LiteralIdentified(value=sbol3.Measure(100, tyto.OM.nanometer)))
         ]
 
@@ -147,7 +147,7 @@ class TestConvert(unittest.TestCase):
         ee = ExecutionEngine(specializations=[opentrons_specialization])
         agent = sbol3.Agent("test_agent")
         parameter_values = [
-            paml.ParameterValue(parameter=protocol.get_input("wavelength"),
+            labop.ParameterValue(parameter=protocol.get_input("wavelength"),
                                 value=uml.LiteralIdentified(value=sbol3.Measure(100, tyto.OM.nanometer)))
         ]
 

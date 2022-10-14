@@ -1,9 +1,9 @@
-import paml
+import labop
 import uml
 from typing import Dict, List, Tuple
 
 def protocol_make_decision_node(
-    self: paml.Protocol,
+    self: labop.Protocol,
     primary_incoming_node: uml.ActivityNode,
     decision_input_behavior: uml.Behavior = None,
     decision_input_source: uml.ActivityNode = None,
@@ -67,14 +67,14 @@ def protocol_make_decision_node(
 
 
     return decision
-paml.Protocol.make_decision_node = protocol_make_decision_node  # Add to class via monkey patch
+labop.Protocol.make_decision_node = protocol_make_decision_node  # Add to class via monkey patch
 
 
 def decision_node_add_decision_output(self, protocol, guard, target):
     """Attach a guarded edge between DecisionNode and target.
 
     Args:
-        protocol (paml.Protocol): The protocol with the self DecisionNode.
+        protocol (labop.Protocol): The protocol with the self DecisionNode.
         guard (primitive type): edge guard
         target (uml.ActivityNode): edge target
     """

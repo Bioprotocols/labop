@@ -73,7 +73,7 @@ Protocol summary: You will transform the eight devices listed in Table 1 into E.
 12. Obtain 16 x 50 ml conical tubes to contain `back-diluted culture` The conical tube should be opaque, amber-colored, or covered with foil.
 13. Back-dilute each of 16 `culture (day 2)` samples to a target OD of 0.02 using LB Broth + Chloramphenicol (34 ug/mL) as diluent to a final volume of 12.0 mL. Maintain at 4.0°C while performing dilutions.
 
-![](C:\Users\Ale\Documents\paml_local\examples\fig1_standard_protocol.png)
+![](C:\Users\Ale\Documents\labop_local\examples\fig1_standard_protocol.png)
 <p align="center">Fig 1: Visual representation of protocol</p>
 
 14. Obtain 16 x 1.5 mL microfuge tubes to contain `back-diluted culture aliquots`
@@ -85,7 +85,7 @@ Protocol summary: You will transform the eight devices listed in Table 1 into E.
  Maintain at 4.0°C during transfer.
 20. Transfer 200.0 microliter of `LB Broth + Chloramphenicol (34 ug/mL)` sample to wells A1:H1, A10:H10, A12:H12 of  96 well microplate `plate 1`. Maintain at 4.0°C during transfer. These samples are blanks.
 
-![](C:\Users\Ale\Documents\paml_local\examples\fig2_cell_calibration.png)
+![](C:\Users\Ale\Documents\labop_local\examples\fig2_cell_calibration.png)
 <p align="center">Fig 2: Plate layout</p>
 
 21. Measure 0 hr absorbance timepoint of `plate 1` at 600.0 nanometer.

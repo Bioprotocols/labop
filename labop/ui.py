@@ -1,4 +1,4 @@
-from paml import Protocol, Primitive, SampleArray, SampleMask, SampleData
+from labop import Protocol, Primitive, SampleArray, SampleMask, SampleData
 import uml
 
 def protocol_template():
@@ -7,7 +7,7 @@ def protocol_template():
     :param
     :return: str
     """
-    return f"protocol = paml.Protocol(\n\t\"Identity\",\n\tname=\"Name\",\n\tdescription=\"Description\")"
+    return f"protocol = labop.Protocol(\n\t\"Identity\",\n\tname=\"Name\",\n\tdescription=\"Description\")"
 Protocol.template = protocol_template
 
 def primitive_template(self):

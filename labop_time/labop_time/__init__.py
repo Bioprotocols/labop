@@ -3,16 +3,16 @@ import posixpath
 from sbol_factory import SBOLFactory, UMLFactory
 import sbol3
 import uml # Note: looks unused, but is used in SBOLFactory
-import paml_time as pamlt
+import labop_time as labopt
 import tyto
 
 # Import ontology
-SBOLFactory("paml_time_submodule",
-            posixpath.join(os.path.dirname(os.path.realpath(__file__)), 'paml_time.ttl'),
-            'http://bioprotocols.org/paml-time#')
+SBOLFactory("labop_time_submodule",
+            posixpath.join(os.path.dirname(os.path.realpath(__file__)), 'labop_time.ttl'),
+            'http://bioprotocols.org/labop-time#')
 
 # Import submodule symbols into top-level  module
-from paml_time_submodule import *
+from labop_time_submodule import *
 
 
 # Helper functions
@@ -38,8 +38,8 @@ def _getUMLInterval(interval, intervalType, units=tyto.OM.second):
         raise MalformedInterval(f"Cannot constrain time point with interval: {interval}")
 
     uml_interval = intervalType(
-        min=uml.TimeExpression(expr=pamlt.TimeMeasure(expr=sbol3.Measure(min, units))),
-        max=uml.TimeExpression(expr=pamlt.TimeMeasure(expr=sbol3.Measure(max, units)))
+        min=uml.TimeExpression(expr=labopt.TimeMeasure(expr=sbol3.Measure(min, units))),
+        max=uml.TimeExpression(expr=labopt.TimeMeasure(expr=sbol3.Measure(max, units)))
     )
     return uml_interval
 
@@ -92,7 +92,7 @@ def _orderedPropertyValue(i : int, value):
     return uml.OrderedPropertyValue(index=i, property_value=value)
 
 def _referencedOrderedPropertyValue(i : int, value):
-    return pamlt.ReferencedOrderedPropertyValue(index=i, property_value=value)
+    return labopt.ReferencedOrderedPropertyValue(index=i, property_value=value)
 
 ## Logical constraints
 

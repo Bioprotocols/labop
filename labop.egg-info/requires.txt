@@ -1,0 +1,24 @@
+sbol3
+sparqlwrapper
+python-dateutil
+sbol-factory
+requests
+graphviz
+tyto
+numpy
+openpyxl
+autoprotocol
+transcriptic
+requests_html
+container-ontology@ https://github.com/rpgoldman/container-ontology/tarball/main
+xarray
+
+[notebook]
+ipython
+ipywidgets
+
+[test]
+nbmake
+pytest-xdist
+pre-commit
+nbstripout

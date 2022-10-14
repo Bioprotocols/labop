@@ -10,14 +10,14 @@ import pandas as pd
 import graphviz
 import sbol3
 
-import paml
+import labop
 import uml
 import sbol3
 
 from IPython.display import display, HTML
 
-from paml_convert.behavior_specialization import BehaviorSpecialization, DefaultBehaviorSpecialization
-from paml.primitive_execution import initialize_primitive_compute_output
+from labop_convert.behavior_specialization import BehaviorSpecialization, DefaultBehaviorSpecialization
+from labop.primitive_execution import initialize_primitive_compute_output
 
 
 l = logging.getLogger(__file__)
@@ -28,7 +28,7 @@ failsafe = True  # When set to True, a protocol execution will proceed through t
 
 
 class ExecutionEngine(ABC):
-    """Base class for implementing and recording a PAML executions.
+    """Base class for implementing and recording a LabOP executions.
     This class can handle common UML activities and the propagation of tokens, but does not execute primitives.
     It needs to be extended with specific implementations that have that capability.
     """
@@ -99,10 +99,10 @@ class ExecutionEngine(ABC):
 
     def initialize(
         self,
-        protocol: paml.Protocol,
+        protocol: labop.Protocol,
         agent: sbol3.Agent,
         id: str = uuid.uuid4(),
-        parameter_values: List[paml.ParameterValue] = {},
+        parameter_values: List[labop.ParameterValue] = {},
     ):
         # Record in the document containing the protocol
         doc = protocol.document
@@ -112,7 +112,7 @@ class ExecutionEngine(ABC):
             initialize_primitive_compute_output(doc)
 
         # First, set up the record for the protocol and parameter values
-        self.ex = paml.ProtocolExecution(id, protocol=protocol)
+        self.ex = labop.ProtocolExecution(id, protocol=protocol)
         doc.add(self.ex)
 
         self.ex.association.append(sbol3.Association(agent=agent, plan=protocol))
@@ -125,7 +125,7 @@ class ExecutionEngine(ABC):
 
     def finalize(
         self,
-        protocol: paml.Protocol,
+        protocol: labop.Protocol,
     ):
         self.ex.end_time = self.get_current_time()
 
@@ -141,12 +141,12 @@ class ExecutionEngine(ABC):
             specialization.on_end(self.ex)
 
     def execute(self,
-                protocol: paml.Protocol,
+                protocol: labop.Protocol,
                 agent: sbol3.Agent,
-                parameter_values: List[paml.ParameterValue] = {},
+                parameter_values: List[labop.ParameterValue] = {},
                 id: str = uuid.uuid4(),
                 start_time: datetime.datetime = None
-                ) -> paml.ProtocolExecution:
+                ) -> labop.ProtocolExecution:
         """Execute the given protocol against the provided parameters
 
         Parameters
@@ -170,7 +170,7 @@ class ExecutionEngine(ABC):
 
     def run(
         self,
-        protocol: paml.Protocol,
+        protocol: labop.Protocol,
         start_time: datetime.datetime = None
     ):
 
@@ -230,7 +230,7 @@ class ExecutionEngine(ABC):
 class ManualExecutionEngine(ExecutionEngine):
     def run(
         self,
-        protocol: paml.Protocol,
+        protocol: labop.Protocol,
         start_time: datetime.datetime = None
     ):
         self.init_time(start_time)
@@ -251,12 +251,12 @@ class ManualExecutionEngine(ExecutionEngine):
                 behavior = r.behavior.lookup()
                 return ( \
                     # It is a subprotocol
-                    isinstance(behavior, paml.Protocol) or \
+                    isinstance(behavior, labop.Protocol) or \
                     # Has no output pins
                     (len(list(behavior.get_outputs())) == 0) or \
                     # Overrides the (empty) default implementation of compute_output()
                     (not hasattr(behavior.compute_output, "__func__") or
-                        behavior.compute_output.__func__ != paml.primitive_execution.primitive_compute_output)
+                        behavior.compute_output.__func__ != labop.primitive_execution.primitive_compute_output)
                 )
             else:
                 return True
@@ -346,12 +346,12 @@ def protocol_execution_aggregate_child_materials(self):
     self: ProtocolExecution object
     """
     child_materials = [e.call.consumed_material for e in self.executions
-                       if isinstance(e, paml.CallBehaviorExecution) and
+                       if isinstance(e, labop.CallBehaviorExecution) and
                           hasattr(e.call, "consumed_material")]
     specifications = {m.specification for m in child_materials}
-    self.consumed_material = (paml.Material(s,sum_measures([m.amount for m in child_materials if m.specification==s]))
+    self.consumed_material = (labop.Material(s,sum_measures([m.amount for m in child_materials if m.specification==s]))
                               for s in specifications)
-paml.ProtocolExecution.aggregate_child_materials = protocol_execution_aggregate_child_materials
+labop.ProtocolExecution.aggregate_child_materials = protocol_execution_aggregate_child_materials
 
 
 def protocol_execution_to_dot(self, execution_engine=None, ready: List[uml.ActivityNode] = [], done=set([])):
@@ -422,7 +422,7 @@ def protocol_execution_to_dot(self, execution_engine=None, ready: List[uml.Activ
         execution_label = ""
 
         # Make a self loop that includes the and start and end time.
-        if isinstance(execution, paml.CallBehaviorExecution):
+        if isinstance(execution, labop.CallBehaviorExecution):
             execution_label += f"[{execution.call.lookup().start_time},\n  {execution.call.lookup().end_time}]"
             target_id = exec_target.dot_label(parent_identity=self.protocol)
             target_id = f'{target_id}:node'
@@ -454,4 +454,4 @@ def protocol_execution_to_dot(self, execution_engine=None, ready: List[uml.Activ
                 _make_object_edge(dot, incoming_flow, exec_target)
 
     return dot
-paml.ProtocolExecution.to_dot = protocol_execution_to_dot
+labop.ProtocolExecution.to_dot = protocol_execution_to_dot

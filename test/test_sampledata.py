@@ -8,8 +8,8 @@ from importlib.machinery import SourceFileLoader
 from importlib.util import spec_from_loader, module_from_spec
 
 import sbol3
-import paml
-from paml.execution_engine import ExecutionEngine
+import labop
+from labop.execution_engine import ExecutionEngine
 import uml
 import tyto
 
@@ -37,7 +37,7 @@ protocol_def = load_ludox_protocol(protocol_def_file)
 
 class TestProtocolEndToEnd(unittest.TestCase):
     def test_create_protocol(self):
-        protocol: paml.Protocol
+        protocol: labop.Protocol
         doc: sbol3.Document
         logger = logging.getLogger("LUDOX_protocol")
         logger.setLevel(logging.INFO)
@@ -54,7 +54,7 @@ class TestProtocolEndToEnd(unittest.TestCase):
         # where each timepoint is one second after the previous time point
         ee = ExecutionEngine(use_ordinal_time=True)
         parameter_values = [
-            paml.ParameterValue(parameter=protocol.get_input("wavelength"),
+            labop.ParameterValue(parameter=protocol.get_input("wavelength"),
                                 value=uml.LiteralIdentified(value=sbol3.Measure(100, tyto.OM.nanometer)))
         ]
         execution = ee.execute(protocol, agent, id="test_execution", parameter_values=parameter_values)

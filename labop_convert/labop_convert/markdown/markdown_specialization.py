@@ -11,10 +11,10 @@ from collections.abc import Iterable
 import sbol3
 import tyto
 
-import paml
+import labop
 import uml
-from paml_convert.behavior_specialization import BehaviorSpecialization
-from paml_convert.markdown import MarkdownConverter
+from labop_convert.behavior_specialization import BehaviorSpecialization
+from labop_convert.markdown import MarkdownConverter
 
 
 l = logging.getLogger(__file__)
@@ -32,7 +32,7 @@ class MarkdownSpecialization(BehaviorSpecialization):
         self.markdown_converter = None
         self.doc = None
 
-    def initialize_protocol(self, execution: paml.ProtocolExecution):
+    def initialize_protocol(self, execution: labop.ProtocolExecution):
         super().initialize_protocol(execution)
         print(f'Initializing execution {execution.display_id}')
         # Defines sections of the markdown document
@@ -48,32 +48,32 @@ class MarkdownSpecialization(BehaviorSpecialization):
 
     def _init_behavior_func_map(self) -> dict:
         return {
-            "https://bioprotocols.org/paml/primitives/sample_arrays/EmptyContainer": self.define_container,
-            "https://bioprotocols.org/paml/primitives/liquid_handling/Provision": self.provision_container,
-            "https://bioprotocols.org/paml/primitives/sample_arrays/PlateCoordinates": self.plate_coordinates,
-            "https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureAbsorbance": self.measure_absorbance,
-            "https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureFluorescence": self.measure_fluorescence,
-            "https://bioprotocols.org/paml/primitives/liquid_handling/Vortex": self.vortex,
-            "https://bioprotocols.org/paml/primitives/liquid_handling/Discard": self.discard,
-            "https://bioprotocols.org/paml/primitives/liquid_handling/Transfer": self.transfer,
-            "https://bioprotocols.org/paml/primitives/liquid_handling/TransferByMap": self.transfer_by_map,
-            "https://bioprotocols.org/paml/primitives/culturing/Transform": self.transform,
-            "https://bioprotocols.org/paml/primitives/culturing/Culture": self.culture,
-            "https://bioprotocols.org/paml/primitives/plate_handling/Incubate": self.incubate,
-            "https://bioprotocols.org/paml/primitives/plate_handling/Hold": self.hold,
-            "https://bioprotocols.org/paml/primitives/plate_handling/HoldOnIce": self.hold_on_ice,
-            "https://bioprotocols.org/paml/primitives/plate_handling/EvaporativeSeal": self.evaporative_seal,
-            "https://bioprotocols.org/paml/primitives/liquid_handling/Dilute": self.dilute,
-            "https://bioprotocols.org/paml/primitives/liquid_handling/DiluteToTargetOD": self.dilute_to_target_od,
-            "https://bioprotocols.org/paml/primitives/sample_arrays/ContainerSet": self.define_containers,
-            "https://bioprotocols.org/paml/primitives/liquid_handling/SerialDilution": self.serial_dilution,
-            "https://bioprotocols.org/paml/primitives/sample_arrays/PoolSamples": self.pool_samples,
-            "https://bioprotocols.org/paml/primitives/plate_handling/QuickSpin": self.quick_spin,
-            "https://bioprotocols.org/paml/primitives/plate_handling/Unseal": self.unseal,
-            "https://bioprotocols.org/paml/primitives/sample_arrays/EmbeddedImage": self.embedded_image,
-            "http://bioprotocols.org/paml#Protocol": self.subprotocol_specialization,
-            "https://bioprotocols.org/paml/primitives/culturing/CulturePlates": self.culture_plates,
-            "https://bioprotocols.org/paml/primitives/culturing/PickColonies": self.pick_colonies,
+            "https://bioprotocols.org/labop/primitives/sample_arrays/EmptyContainer": self.define_container,
+            "https://bioprotocols.org/labop/primitives/liquid_handling/Provision": self.provision_container,
+            "https://bioprotocols.org/labop/primitives/sample_arrays/PlateCoordinates": self.plate_coordinates,
+            "https://bioprotocols.org/labop/primitives/spectrophotometry/MeasureAbsorbance": self.measure_absorbance,
+            "https://bioprotocols.org/labop/primitives/spectrophotometry/MeasureFluorescence": self.measure_fluorescence,
+            "https://bioprotocols.org/labop/primitives/liquid_handling/Vortex": self.vortex,
+            "https://bioprotocols.org/labop/primitives/liquid_handling/Discard": self.discard,
+            "https://bioprotocols.org/labop/primitives/liquid_handling/Transfer": self.transfer,
+            "https://bioprotocols.org/labop/primitives/liquid_handling/TransferByMap": self.transfer_by_map,
+            "https://bioprotocols.org/labop/primitives/culturing/Transform": self.transform,
+            "https://bioprotocols.org/labop/primitives/culturing/Culture": self.culture,
+            "https://bioprotocols.org/labop/primitives/plate_handling/Incubate": self.incubate,
+            "https://bioprotocols.org/labop/primitives/plate_handling/Hold": self.hold,
+            "https://bioprotocols.org/labop/primitives/plate_handling/HoldOnIce": self.hold_on_ice,
+            "https://bioprotocols.org/labop/primitives/plate_handling/EvaporativeSeal": self.evaporative_seal,
+            "https://bioprotocols.org/labop/primitives/liquid_handling/Dilute": self.dilute,
+            "https://bioprotocols.org/labop/primitives/liquid_handling/DiluteToTargetOD": self.dilute_to_target_od,
+            "https://bioprotocols.org/labop/primitives/sample_arrays/ContainerSet": self.define_containers,
+            "https://bioprotocols.org/labop/primitives/liquid_handling/SerialDilution": self.serial_dilution,
+            "https://bioprotocols.org/labop/primitives/sample_arrays/PoolSamples": self.pool_samples,
+            "https://bioprotocols.org/labop/primitives/plate_handling/QuickSpin": self.quick_spin,
+            "https://bioprotocols.org/labop/primitives/plate_handling/Unseal": self.unseal,
+            "https://bioprotocols.org/labop/primitives/sample_arrays/EmbeddedImage": self.embedded_image,
+            "http://bioprotocols.org/labop#Protocol": self.subprotocol_specialization,
+            "https://bioprotocols.org/labop/primitives/culturing/CulturePlates": self.culture_plates,
+            "https://bioprotocols.org/labop/primitives/culturing/PickColonies": self.pick_colonies,
         }
 
     def on_begin(self, execution):
@@ -167,7 +167,7 @@ class MarkdownSpecialization(BehaviorSpecialization):
             markdown += x.materials
         return markdown
 
-    def _parameter_value_markdown(self, pv : paml.ParameterValue, is_output=False):
+    def _parameter_value_markdown(self, pv : labop.ParameterValue, is_output=False):
         parameter = pv.parameter.lookup().property_value
         value = resolve_value(pv.value)
         if isinstance(value, sbol3.Measure):
@@ -182,7 +182,7 @@ class MarkdownSpecialization(BehaviorSpecialization):
     def _parameter_markdown(self, p : uml.Parameter):
         return f"* `{p.name}`\n"
 
-    def _steps_markdown(self, execution: paml.ProtocolExecution, subprotocol_executions):
+    def _steps_markdown(self, execution: labop.ProtocolExecution, subprotocol_executions):
         markdown = '\n\n## Steps\n'
         markdown = ''
         for x in subprotocol_executions:
@@ -192,7 +192,7 @@ class MarkdownSpecialization(BehaviorSpecialization):
             markdown += str(i + 1) + '. ' + step + '\n'
         return markdown
 
-    def on_end(self, execution: paml.ProtocolExecution):
+    def on_end(self, execution: labop.ProtocolExecution):
         protocol = execution.protocol.lookup()
         subprotocol_executions = execution.get_subprotocol_executions()
         execution.header += self._header_markdown(protocol)
@@ -223,7 +223,7 @@ class MarkdownSpecialization(BehaviorSpecialization):
         execution.markdown += f'---\nTimestamp: {datetime.fromtimestamp(ts)}'
 
         # Print document version
-        # This is a little bit kludgey, because version is not an official PAML property
+        # This is a little bit kludgey, because version is not an official LabOP property
         # of Protocol
         protocol = execution.protocol.lookup()
         if hasattr(protocol, 'version'):
@@ -235,7 +235,7 @@ class MarkdownSpecialization(BehaviorSpecialization):
 
         self.data = execution.markdown
 
-    def reporting_step(self, execution: paml.ProtocolExecution):
+    def reporting_step(self, execution: labop.ProtocolExecution):
         output_parameters = []
         for i in execution.parameter_values:
             parameter = i.parameter.lookup()
@@ -245,7 +245,7 @@ class MarkdownSpecialization(BehaviorSpecialization):
         output_parameters = ", ".join(output_parameters)
         return f"Import data for {output_parameters} into provided Excel file."
 
-    def define_container(self, record: paml.ActivityNodeExecution, execution: paml.ProtocolExecution):
+    def define_container(self, record: labop.ActivityNodeExecution, execution: labop.ProtocolExecution):
         results = {}
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
@@ -287,7 +287,7 @@ class MarkdownSpecialization(BehaviorSpecialization):
         execution.markdown_steps += [text]
         return results
 
-    def define_containers(self, record: paml.ActivityNodeExecution, execution: paml.ProtocolExecution):
+    def define_containers(self, record: labop.ActivityNodeExecution, execution: labop.ProtocolExecution):
         results = {}
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
@@ -297,7 +297,7 @@ class MarkdownSpecialization(BehaviorSpecialization):
         quantity = parameter_value_map["quantity"]["value"]
         replicates = parameter_value_map["replicates"]["value"] if "replicates" in parameter_value_map else 1
         samples.container_type = containers.identity
-        assert(type(containers) is paml.ContainerSpec)
+        assert(type(containers) is labop.ContainerSpec)
         try:
 
             # Assume that a simple container class is specified, rather
@@ -322,7 +322,7 @@ class MarkdownSpecialization(BehaviorSpecialization):
             execution.markdown_steps += [f"Obtain a container named `{containers.name}` meeting specification: {containers.queryString}."]
 
 
-    def provision_container(self, record: paml.ActivityNodeExecution, execution: paml.ProtocolExecution):
+    def provision_container(self, record: labop.ActivityNodeExecution, execution: labop.ProtocolExecution):
         results = {}
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
@@ -339,7 +339,7 @@ class MarkdownSpecialization(BehaviorSpecialization):
 
         resource_str = f"[{resource.name}]({resource.types[0]})"
         destination_coordinates = ''
-        if type(destination) == paml.SampleMask:
+        if type(destination) == labop.SampleMask:
             destination_coordinates = f'({destination.mask})'
             destination = destination.source.lookup()
         destination_str = f"`{destination.name} {destination_coordinates}`"
@@ -348,7 +348,7 @@ class MarkdownSpecialization(BehaviorSpecialization):
 
         return results
 
-    def plate_coordinates(self, record: paml.ActivityNodeExecution, execution: paml.ProtocolExecution):
+    def plate_coordinates(self, record: labop.ActivityNodeExecution, execution: labop.ProtocolExecution):
         results = {}
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
@@ -367,7 +367,7 @@ class MarkdownSpecialization(BehaviorSpecialization):
 
         return results
 
-    def measure_absorbance(self, record: paml.ActivityNodeExecution, execution: paml.ProtocolExecution):
+    def measure_absorbance(self, record: labop.ActivityNodeExecution, execution: labop.ProtocolExecution):
         results = {}
         call = record.call.lookup()
         #print(record.node.lookup().name)
@@ -386,7 +386,7 @@ class MarkdownSpecialization(BehaviorSpecialization):
 
         # Lookup sample container to get the container name, and use that
         # as the sample label
-        if isinstance(samples, paml.SampleMask):
+        if isinstance(samples, labop.SampleMask):
             # SampleMasks are generated by the PlateCoordinates primitive
             # and we have to dereference the source to get the actual
             # SampleArray
@@ -409,7 +409,7 @@ class MarkdownSpecialization(BehaviorSpecialization):
         text = add_description(record, text)
         execution.markdown_steps += [text]
 
-    def measure_fluorescence(self, record: paml.ActivityNodeExecution, execution: paml.ProtocolExecution):
+    def measure_fluorescence(self, record: labop.ActivityNodeExecution, execution: labop.ProtocolExecution):
         results = {}
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
@@ -423,7 +423,7 @@ class MarkdownSpecialization(BehaviorSpecialization):
 
         # Lookup sample container to get the container name, and use that
         # as the sample label
-        if isinstance(samples, paml.SampleMask):
+        if isinstance(samples, labop.SampleMask):
             # SampleMasks are generated by the PlateCoordinates primitive
             # Their source does not directly reference a SampleArray directly,
             # rather through a LiteralReference and LiteralIdentified
@@ -449,7 +449,7 @@ class MarkdownSpecialization(BehaviorSpecialization):
         execution.markdown_steps += [text]
 
 
-    def vortex(self, record: paml.ActivityNodeExecution, execution: paml.ProtocolExecution):
+    def vortex(self, record: labop.ActivityNodeExecution, execution: labop.ProtocolExecution):
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
         duration = None
@@ -467,7 +467,7 @@ class MarkdownSpecialization(BehaviorSpecialization):
             text += f' for {duration_scalar} {duration_units}'
         execution.markdown_steps += [text]
 
-    def discard(self, record: paml.ActivityNodeExecution, execution: paml.ProtocolExecution):
+    def discard(self, record: labop.ActivityNodeExecution, execution: labop.ProtocolExecution):
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
 
@@ -476,7 +476,7 @@ class MarkdownSpecialization(BehaviorSpecialization):
 
         # Get coordinates if this is a plate
         coordinates = ''
-        if isinstance(samples, paml.SampleMask):
+        if isinstance(samples, labop.SampleMask):
             coordinates = f'wells {samples.mask} of '
             # SampleMasks are generated by the PlateCoordinates primitive
             # Their source does not directly reference a SampleArray directly,
@@ -493,7 +493,7 @@ class MarkdownSpecialization(BehaviorSpecialization):
         text = add_description(record, text)
         execution.markdown_steps += [text]
 
-    def transfer(self, record: paml.ActivityNodeExecution, execution: paml.ProtocolExecution):
+    def transfer(self, record: labop.ActivityNodeExecution, execution: labop.ProtocolExecution):
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
 
@@ -510,7 +510,7 @@ class MarkdownSpecialization(BehaviorSpecialization):
             dispense_velocity = parameter_value_map['dispenseVelocity']['value']
 
         source_coordinates = ''
-        if isinstance(source, paml.SampleMask):
+        if isinstance(source, labop.SampleMask):
             source_coordinates = source.mask
             # Get the corresponding SampleArray. The source property does not directly reference a SampleArray,
             # rather through a LiteralReference and LiteralIdentified
@@ -520,7 +520,7 @@ class MarkdownSpecialization(BehaviorSpecialization):
         if source_coordinates:
             source_contents = {source_coordinates: source_contents[source_coordinates]}
 
-        if isinstance(destination, paml.SampleMask):
+        if isinstance(destination, labop.SampleMask):
             # Currently SampleMasks are generated by the PlateCoordinates primitive
             destination_coordinates = destination.mask
             ## Since we are dealing with PlateCoordinates, try to get the wells
@@ -555,8 +555,8 @@ class MarkdownSpecialization(BehaviorSpecialization):
         destination.name = container_spec.name
 
         ## Propagate source details to destination
-        if isinstance(destination, paml.SampleArray):
-            if isinstance(source, paml.SampleArray):
+        if isinstance(destination, labop.SampleArray):
+            if isinstance(source, labop.SampleArray):
                 # Do a complete transfer of all source contents
                 destination.contents = write_sample_contents(source,
                                                              replicates=replicates)
@@ -585,7 +585,7 @@ class MarkdownSpecialization(BehaviorSpecialization):
         text = add_description(record, text)
         execution.markdown_steps += [text]
 
-    def transfer_by_map(self, record: paml.ActivityNodeExecution, execution: paml.ProtocolExecution):
+    def transfer_by_map(self, record: labop.ActivityNodeExecution, execution: labop.ProtocolExecution):
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
 
@@ -649,7 +649,7 @@ class MarkdownSpecialization(BehaviorSpecialization):
 
         execution.markdown_steps += [text]
 
-    def culture(self, record: paml.ActivityNodeExecution, execution: paml.ProtocolExecution):
+    def culture(self, record: labop.ActivityNodeExecution, execution: labop.ProtocolExecution):
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
         inocula = parameter_value_map['inoculum']['value']
@@ -687,7 +687,7 @@ class MarkdownSpecialization(BehaviorSpecialization):
         container.contents = write_sample_contents(inocula, replicates)
         execution.markdown_steps += [text]
 
-    def incubate(self, record: paml.ActivityNodeExecution, execution: paml.ProtocolExecution):
+    def incubate(self, record: labop.ActivityNodeExecution, execution: labop.ProtocolExecution):
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
 
@@ -704,7 +704,7 @@ class MarkdownSpecialization(BehaviorSpecialization):
 
         execution.markdown_steps += [text]
 
-    def hold(self, record: paml.ActivityNodeExecution, execution: paml.ProtocolExecution):
+    def hold(self, record: labop.ActivityNodeExecution, execution: labop.ProtocolExecution):
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
 
@@ -718,7 +718,7 @@ class MarkdownSpecialization(BehaviorSpecialization):
         text = add_description(record, text)
         execution.markdown_steps += [text]
 
-    def hold_on_ice(self, record: paml.ActivityNodeExecution, execution: paml.ProtocolExecution):
+    def hold_on_ice(self, record: labop.ActivityNodeExecution, execution: labop.ProtocolExecution):
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
 
@@ -731,7 +731,7 @@ class MarkdownSpecialization(BehaviorSpecialization):
         text = add_description(record, text)
         execution.markdown_steps += [text]
 
-    def dilute_to_target_od(self, record: paml.ActivityNodeExecution, execution: paml.ProtocolExecution):
+    def dilute_to_target_od(self, record: labop.ActivityNodeExecution, execution: labop.ProtocolExecution):
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
 
@@ -759,7 +759,7 @@ class MarkdownSpecialization(BehaviorSpecialization):
             text += f' Maintain at {measurement_to_text(temperature)} while performing dilutions.'
         execution.markdown_steps += [text]
 
-    def dilute(self, record: paml.ActivityNodeExecution, execution: paml.ProtocolExecution):
+    def dilute(self, record: labop.ActivityNodeExecution, execution: labop.ProtocolExecution):
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
 
@@ -793,7 +793,7 @@ class MarkdownSpecialization(BehaviorSpecialization):
         text = add_description(record, text)
         execution.markdown_steps += [text]
 
-    def transform(self, record: paml.ActivityNodeExecution, execution: paml.ProtocolExecution):
+    def transform(self, record: labop.ActivityNodeExecution, execution: labop.ProtocolExecution):
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
         host = parameter_value_map['host']['value']
@@ -844,7 +844,7 @@ class MarkdownSpecialization(BehaviorSpecialization):
         text = add_description(record, text)
         execution.markdown_steps += [text]
 
-    def serial_dilution(self, record: paml.ActivityNodeExecution, execution: paml.ProtocolExecution):
+    def serial_dilution(self, record: labop.ActivityNodeExecution, execution: labop.ProtocolExecution):
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
 
@@ -857,14 +857,14 @@ class MarkdownSpecialization(BehaviorSpecialization):
 
 
         destination_coordinates = ''
-        if isinstance(destination, paml.SampleMask):
+        if isinstance(destination, labop.SampleMask):
             # SampleMasks are generated by the PlateCoordinates primitive
             # Their source does not directly reference a SampleArray directly,
             # rather through a LiteralReference and LiteralIdentified
             destination_coordinates = f' wells {destination.mask} of'
             destination = destination.source.lookup().value.lookup().value
         source_coordinates = ''
-        if isinstance(source, paml.SampleMask):
+        if isinstance(source, labop.SampleMask):
             # SampleMasks are generated by the PlateCoordinates primitive
             # Their source does not directly reference a SampleArray directly,
             # rather through a LiteralReference and LiteralIdentified
@@ -888,7 +888,7 @@ class MarkdownSpecialization(BehaviorSpecialization):
         text = add_description(record, text)
         execution.markdown_steps += [text]
 
-    def evaporative_seal(self, record: paml.ActivityNodeExecution, execution: paml.ProtocolExecution):
+    def evaporative_seal(self, record: labop.ActivityNodeExecution, execution: labop.ProtocolExecution):
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
 
@@ -903,7 +903,7 @@ class MarkdownSpecialization(BehaviorSpecialization):
         text = f'Cover `{location.name}` samples in {container_str} with your choice of material to prevent evaporation.'
         execution.markdown_steps += [text]
 
-    def unseal(self, record: paml.ActivityNodeExecution, execution: paml.ProtocolExecution):
+    def unseal(self, record: labop.ActivityNodeExecution, execution: labop.ProtocolExecution):
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
 
@@ -917,7 +917,7 @@ class MarkdownSpecialization(BehaviorSpecialization):
         text = f'Remove the seal from {container_str} containing `{location.name}` samples.'
         execution.markdown_steps += [text]
 
-    def pool_samples(self, record: paml.ActivityNodeExecution, execution: paml.ProtocolExecution):
+    def pool_samples(self, record: labop.ActivityNodeExecution, execution: labop.ProtocolExecution):
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
 
@@ -944,7 +944,7 @@ class MarkdownSpecialization(BehaviorSpecialization):
         text = f'Pool {measurement_to_text(volume)} from each of {n_replicates} replicate `{source.name}` samples into {container_str} `{container_spec.name}`.'
         execution.markdown_steps += [text]
 
-    def quick_spin(self, record: paml.ActivityNodeExecution, execution: paml.ProtocolExecution):
+    def quick_spin(self, record: labop.ActivityNodeExecution, execution: labop.ProtocolExecution):
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
 
@@ -959,10 +959,10 @@ class MarkdownSpecialization(BehaviorSpecialization):
         text = add_description(record, text)
         execution.markdown_steps += [text]
 
-    def subprotocol_specialization(self, record: paml.ActivityNodeExecution, execution: paml.ProtocolExecution):
+    def subprotocol_specialization(self, record: labop.ActivityNodeExecution, execution: labop.ProtocolExecution):
         pass
 
-    def embedded_image(self, record: paml.ActivityNodeExecution, execution: paml.ProtocolExecution):
+    def embedded_image(self, record: labop.ActivityNodeExecution, execution: labop.ProtocolExecution):
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
 
@@ -973,7 +973,7 @@ class MarkdownSpecialization(BehaviorSpecialization):
 
         execution.markdown_steps[-1] += text
 
-    def culture_plates(self, record: paml.ActivityNodeExecution, execution: paml.ProtocolExecution):
+    def culture_plates(self, record: labop.ActivityNodeExecution, execution: labop.ProtocolExecution):
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
         container = parameter_value_map['specification']['value']
@@ -988,7 +988,7 @@ class MarkdownSpecialization(BehaviorSpecialization):
 
         execution.markdown_steps += [f'Obtain {quantity} x {container_str} containing {growth_medium.name} growth medium for culturing `{samples.name}`']
 
-    def pick_colonies(self, record: paml.ActivityNodeExecution, execution: paml.ProtocolExecution):
+    def pick_colonies(self, record: labop.ActivityNodeExecution, execution: labop.ProtocolExecution):
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
         colonies = parameter_value_map['colonies']['value']
@@ -1008,11 +1008,11 @@ def measurement_to_text(measure: sbol3.Measure):
     return f'{measurement_scalar} {measurement_units}'
 
 
-def get_sample_names(inputs: Union[paml.SampleArray, sbol3.Component], error_msg, coordinates=None) -> List[str]:
+def get_sample_names(inputs: Union[labop.SampleArray, sbol3.Component], error_msg, coordinates=None) -> List[str]:
     # Since some behavior inputs may be specified as either a SampleArray or directly as a list
     # of Components, this provides a convenient way to unpack a list of sample names
     input_names = []
-    if isinstance(inputs, paml.SampleArray):
+    if isinstance(inputs, labop.SampleArray):
         if inputs.contents:
             contents = read_sample_contents(inputs)
             if coordinates:
@@ -1042,10 +1042,10 @@ def repeat_for_remaining_samples(names: List[str], repeat_msg: str):
         return f' {repeat_msg} {remaining}.'
 
 
-def get_sample_label(sample: paml.SampleCollection) -> str:
+def get_sample_label(sample: labop.SampleCollection) -> str:
     # Lookup sample container to get the container name, and use that
     # as the sample label
-    if isinstance(sample, paml.SampleMask):
+    if isinstance(sample, labop.SampleMask):
         # SampleMasks are generated by the PlateCoordinates primitive
         # Their source does not directly reference a SampleArray directly,
         # rather through a LiteralReference and LiteralIdentified
@@ -1054,7 +1054,7 @@ def get_sample_label(sample: paml.SampleCollection) -> str:
 
 
 def write_sample_contents(sample_array: Union[dict, List[sbol3.Component]], replicates=1) -> str:
-    if isinstance(sample_array, paml.SampleArray):
+    if isinstance(sample_array, labop.SampleArray):
         old_contents = read_sample_contents(sample_array)
         contents = []
         for r in range(replicates):
@@ -1067,8 +1067,8 @@ def write_sample_contents(sample_array: Union[dict, List[sbol3.Component]], repl
     return quote(json.dumps(contents))
 
 
-def read_sample_contents(sample_array: paml.SampleArray) -> dict:
-    if not isinstance(sample_array, paml.SampleArray):
+def read_sample_contents(sample_array: labop.SampleArray) -> dict:
+    if not isinstance(sample_array, labop.SampleArray):
         return {'1': sample_array.identity}
     if sample_array.contents == 'https://github.com/synbiodex/pysbol3#missing':
         return {}

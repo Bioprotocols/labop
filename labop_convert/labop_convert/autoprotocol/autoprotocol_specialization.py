@@ -4,17 +4,17 @@ from typing import Dict
 import sbol3
 import transcriptic
 
-import paml_convert.autoprotocol.plate_coordinates as pc
+import labop_convert.autoprotocol.plate_coordinates as pc
 import tyto
-import paml
+import labop
 
 from autoprotocol.container import WellGroup
 from autoprotocol.instruction import Provision, Spectrophotometry
 from autoprotocol.protocol import Protocol
 from autoprotocol.unit import Unit
 from autoprotocol import container_type as ctype
-from paml_convert.behavior_specialization import BehaviorSpecialization
-from paml_convert.autoprotocol.strateos_api import StrateosAPI
+from labop_convert.behavior_specialization import BehaviorSpecialization
+from labop_convert.autoprotocol.strateos_api import StrateosAPI
 
 from container_api.client_api import matching_containers, strateos_id
 
@@ -36,10 +36,10 @@ class AutoprotocolSpecialization(BehaviorSpecialization):
 
     def _init_behavior_func_map(self) -> dict:
         return {
-            "https://bioprotocols.org/paml/primitives/sample_arrays/EmptyContainer" : self.define_container,
-            "https://bioprotocols.org/paml/primitives/liquid_handling/Provision" : self.provision_container,
-            "https://bioprotocols.org/paml/primitives/sample_arrays/PlateCoordinates" : self.plate_coordinates,
-            "https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureAbsorbance" : self.measure_absorbance,
+            "https://bioprotocols.org/labop/primitives/sample_arrays/EmptyContainer" : self.define_container,
+            "https://bioprotocols.org/labop/primitives/liquid_handling/Provision" : self.provision_container,
+            "https://bioprotocols.org/labop/primitives/sample_arrays/PlateCoordinates" : self.plate_coordinates,
+            "https://bioprotocols.org/labop/primitives/spectrophotometry/MeasureAbsorbance" : self.measure_absorbance,
         }
 
     def on_begin(self):
@@ -50,7 +50,7 @@ class AutoprotocolSpecialization(BehaviorSpecialization):
         with open(self.out_path, "w") as f:
             json.dump(self.protocol.as_dict(), f, indent=2)
 
-    def define_container(self, record: paml.ActivityNodeExecution):
+    def define_container(self, record: labop.ActivityNodeExecution):
         results = {}
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
@@ -127,7 +127,7 @@ class AutoprotocolSpecialization(BehaviorSpecialization):
         return container_id
 
     # def provision_container(self, wells: WellGroup, amounts = None, volumes = None, informatics = None) -> Provision:
-    def provision_container(self, record: paml.ActivityNodeExecution) -> Provision:
+    def provision_container(self, record: labop.ActivityNodeExecution) -> Provision:
         results = {}
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
@@ -152,7 +152,7 @@ class AutoprotocolSpecialization(BehaviorSpecialization):
         #self.unresolved_terms.append(resource_term)
         return results
 
-    def plate_coordinates(self, record: paml.ActivityNodeExecution) -> WellGroup:
+    def plate_coordinates(self, record: labop.ActivityNodeExecution) -> WellGroup:
         results = {}
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
@@ -169,7 +169,7 @@ class AutoprotocolSpecialization(BehaviorSpecialization):
         #results[outputs['samples']] = ('samples', pc.coordinate_rect_to_well_group(source, coords))
         return results
 
-    def measure_absorbance(self, record: paml.ActivityNodeExecution):
+    def measure_absorbance(self, record: labop.ActivityNodeExecution):
         results = {}
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()

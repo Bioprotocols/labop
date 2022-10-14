@@ -1,5 +1,5 @@
 import sbol3
-import paml
+import labop
 import openpyxl
 import tyto
 import uuid
@@ -10,7 +10,7 @@ import warnings
 # Set up for conversion
 print('Beginning conversion of Excel to SBOL')
 
-doc = paml.Document()
+doc = labop.Document()
 
 wb = openpyxl.load_workbook(filename ='../../../test/testfiles/BBN_LUDOX_OD_calibration_2021-3.xlsx')
 ws = wb['Data Reporting']

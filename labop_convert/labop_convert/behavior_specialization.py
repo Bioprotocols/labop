@@ -3,8 +3,8 @@ from abc import ABC, abstractmethod
 from logging import error
 import logging
 
-import paml
-from paml.primitive_execution import input_parameter_map
+import labop
+from labop.primitive_execution import input_parameter_map
 import uml
 import json
 
@@ -20,7 +20,7 @@ class ContainerAPIException(Exception):
 
 class BehaviorSpecialization(ABC):
     """
-    This abstract class defines an API for different conversions from PAML
+    This abstract class defines an API for different conversions from LabOP
     to other formats, such as Markdown or Autoprotocol.
     """
 
@@ -33,20 +33,20 @@ class BehaviorSpecialization(ABC):
         # This data field holds the results of the specialization
         self.data = None
 
-    def initialize_protocol(self, execution: paml.ProtocolExecution):
+    def initialize_protocol(self, execution: labop.ProtocolExecution):
         self.execution = execution
 
     def _init_behavior_func_map(self) -> dict:
         return {}
 
-    def on_begin(self, execution: paml.ProtocolExecution):
+    def on_begin(self, execution: labop.ProtocolExecution):
         self.data = []
 
-    def on_end(self, execution: paml.ProtocolExecution):
+    def on_end(self, execution: labop.ProtocolExecution):
         self.data = json.dumps(self.data)
 
 
-    def process(self, record, execution: paml.ProtocolExecution):
+    def process(self, record, execution: labop.ProtocolExecution):
         try:
             node = record.node.lookup()
             if not isinstance(node, uml.CallBehaviorAction):
@@ -54,7 +54,7 @@ class BehaviorSpecialization(ABC):
 
             # Subprotocol specializations
             behavior = node.behavior.lookup()
-            if isinstance(behavior, paml.Protocol):
+            if isinstance(behavior, labop.Protocol):
                 return self._behavior_func_map[behavior.type_uri](record, execution)
 
             # Individual Primitive specializations
@@ -102,9 +102,9 @@ class DefaultBehaviorSpecialization(BehaviorSpecialization):
 
     def _init_behavior_func_map(self) -> dict:
         return {
-            "https://bioprotocols.org/paml/primitives/sample_arrays/EmptyContainer" : self.handle,
-            "https://bioprotocols.org/paml/primitives/liquid_handling/Provision" : self.handle,
-            "https://bioprotocols.org/paml/primitives/sample_arrays/PlateCoordinates" : self.handle,
-            "https://bioprotocols.org/paml/primitives/spectrophotometry/MeasureAbsorbance" : self.handle,
-            "http://bioprotocols.org/paml#Protocol": self.handle
+            "https://bioprotocols.org/labop/primitives/sample_arrays/EmptyContainer" : self.handle,
+            "https://bioprotocols.org/labop/primitives/liquid_handling/Provision" : self.handle,
+            "https://bioprotocols.org/labop/primitives/sample_arrays/PlateCoordinates" : self.handle,
+            "https://bioprotocols.org/labop/primitives/spectrophotometry/MeasureAbsorbance" : self.handle,
+            "http://bioprotocols.org/labop#Protocol": self.handle
         }

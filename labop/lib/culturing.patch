@@ -1,9 +1,9 @@
-diff --git a/paml/lib/culturing.py b/paml/lib/culturing.py
+diff --git a/labop/lib/culturing.py b/labop/lib/culturing.py
 index ecdfd78..30b5d4c 100644
---- a/paml/lib/culturing.py
-+++ b/paml/lib/culturing.py
+--- a/labop/lib/culturing.py
++++ b/labop/lib/culturing.py
 @@ -24,6 +24,7 @@ doc.add(p)
- p = paml.Primitive('Culture')
+ p = labop.Primitive('Culture')
  p.description = 'Inoculate and grow cells in a growth medium.'
  p.add_input('inoculum', sbol3.SBOL_COMPONENT, unbounded=True)
 +p.add_input('replicates', 'http://bioprotocols.org/uml#ValueSpecification', optional=True)

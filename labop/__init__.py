@@ -6,21 +6,21 @@ import sbol3
 
 import uml
 
-# Load the ontology and create a Python module called paml_submodule
-SBOLFactory('paml_submodule',
+# Load the ontology and create a Python module called labop_submodule
+SBOLFactory('labop_submodule',
             posixpath.join(os.path.dirname(os.path.realpath(__file__)),
-            'paml.ttl'),
-            'http://bioprotocols.org/paml#')
+            'labop.ttl'),
+            'http://bioprotocols.org/labop#')
 
-# Import symbols into the top-level paml module
-from paml_submodule import *
-from paml.ui import *
-from paml.data import *
-from paml.sample_maps import *
-from paml.primitive_execution import *
-from paml.decisions import *
-from paml.execution_engine import *
-from paml.execution_engine_utils import *
+# Import symbols into the top-level labop module
+from labop_submodule import *
+from labop.ui import *
+from labop.data import *
+from labop.sample_maps import *
+from labop.primitive_execution import *
+from labop.decisions import *
+from labop.execution_engine import *
+from labop.execution_engine_utils import *
 
 
 #########################################
@@ -107,7 +107,7 @@ def activity_edge_flow_get_target(self):
     elif isinstance(token_source_node, uml.InputPin): # Tokens for pins do not have an edge connecting pin to activity
         target = token_source_node.get_parent()
     elif isinstance(token_source_node, uml.CallBehaviorAction) and \
-         isinstance(token_source_node.behavior.lookup(), paml.Protocol):
+         isinstance(token_source_node.behavior.lookup(), labop.Protocol):
          # If no edge (because cannot link to InitialNode), then if source is calling a subprotocol, use subprotocol initial node
         target = token_source_node.behavior.lookup().initial()
     else:
@@ -266,14 +266,14 @@ def show_library(library_name: str):
     dashes = "-" * 80
     print(dashes)
     print(f"library: {library_name}")
-    doc = paml.loaded_libraries[library_name]
+    doc = labop.loaded_libraries[library_name]
     for primitive in doc.objects:
         print(primitive)
     print(dashes)
 
 def show_libraries():
     primitives = {}
-    for lib in paml.loaded_libraries.keys():
+    for lib in labop.loaded_libraries.keys():
         show_library(lib)
 
 def get_primitive(doc: sbol3.Document, name: str):
@@ -315,4 +315,4 @@ def primitive_inherit_parameters(self, parent_primitive):
             self.add_output(param.name, param.type)
         else:
             raise Exception(f"Cannot inherit parameter {param.name}")
-paml.Primitive.inherit_parameters = primitive_inherit_parameters
+labop.Primitive.inherit_parameters = primitive_inherit_parameters

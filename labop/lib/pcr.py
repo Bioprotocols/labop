@@ -1,18 +1,18 @@
 import sbol3
-import paml
+import labop
 
 #############################################
 # Set up the document
 doc = sbol3.Document()
 LIBRARY_NAME = 'pcr'
-sbol3.set_namespace('https://bioprotocols.org/paml/primitives/'+LIBRARY_NAME)
+sbol3.set_namespace('https://bioprotocols.org/labop/primitives/'+LIBRARY_NAME)
 
 
 #############################################
 # Create the primitives
 print('Making primitives for '+LIBRARY_NAME)
 
-p = paml.Primitive('PCR')
+p = labop.Primitive('PCR')
 p.description = 'Specify PCR cycling parameters'
 p.add_input('cycles', 'http://www.w3.org/2001/XMLSchema#integer')
 p.add_input('denaturation_temp', sbol3.OM_MEASURE)

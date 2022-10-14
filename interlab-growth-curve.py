@@ -7,10 +7,10 @@ from urllib.parse import quote
 import sbol3
 from tyto import OM
 
-import paml
+import labop
 import uml
-from paml.execution_engine import ExecutionEngine
-from paml_convert.markdown.markdown_specialization import MarkdownSpecialization
+from labop.execution_engine import ExecutionEngine
+from labop_convert.markdown.markdown_specialization import MarkdownSpecialization
 
 
 doc = sbol3.Document()
@@ -19,29 +19,29 @@ sbol3.set_namespace('http://igem.org/engineering/')
 #############################################
 # Import the primitive libraries
 print('Importing libraries')
-paml.import_library('liquid_handling')
+labop.import_library('liquid_handling')
 print('... Imported liquid handling')
-paml.import_library('plate_handling')
+labop.import_library('plate_handling')
 # print('... Imported plate handling')
-paml.import_library('spectrophotometry')
+labop.import_library('spectrophotometry')
 print('... Imported spectrophotometry')
-paml.import_library('sample_arrays')
+labop.import_library('sample_arrays')
 print('... Imported sample arrays')
-paml.import_library('culturing')
+labop.import_library('culturing')
 #############################################
 
 
 # create the materials to be provisioned
 dh5alpha = sbol3.Component('dh5alpha', 'https://identifiers.org/pubchem.substance:24901740')
-dh5alpha.name = '_E. coli_ DH5 alpha'  
+dh5alpha.name = '_E. coli_ DH5 alpha'
 doc.add(dh5alpha)
 
 lb_cam = sbol3.Component('lb_cam', 'https://identifiers.org/pubchem.substance:24901740')
-lb_cam.name = 'LB Broth+chloramphenicol'  
+lb_cam.name = 'LB Broth+chloramphenicol'
 doc.add(lb_cam)
 
 chloramphenicol = sbol3.Component('chloramphenicol', 'https://identifiers.org/pubchem.substance:24901740')
-chloramphenicol.name = 'chloramphenicol'  
+chloramphenicol.name = 'chloramphenicol'
 doc.add(chloramphenicol)
 
 
@@ -87,7 +87,7 @@ doc.add(test_device5)
 doc.add(test_device6)
 
 
-protocol = paml.Protocol('interlab')
+protocol = labop.Protocol('interlab')
 protocol.name = 'Cell measurement protocol'
 protocol.description = '''Prior to performing the cell measurements you should perform all three of the calibration measurements. Please do not proceed unless you have completed the three calibration protocols. Completion of the calibrations will ensure that you understand the measurement process and that you can take the cell measurements under the same conditions. For the sake of consistency and reproducibility, we are requiring all teams to use E. coli K-12 DH5-alpha. If you do not have access to this strain, you can request streaks of the transformed devices from another team near you, and this can count as a collaboration as long as it is appropriately documented on both teams' wikis. If you are absolutely unable to obtain the DH5-alpha strain, you may still participate in the InterLab study by contacting the Measurement Committee (measurement at igem dot org) to discuss your situation.
 
@@ -101,14 +101,14 @@ transformation = protocol.primitive_step(f'Transform',
                                           host=dh5alpha,
                                           dna=plasmids,
                                           selection_medium=lb_cam)
-    
+
 # Day 2: Pick colonies and culture overnight
-culture_container_day1 = protocol.primitive_step('ContainerSet', 
+culture_container_day1 = protocol.primitive_step('ContainerSet',
                                                  quantity=uml.LiteralInteger(value=len(plasmids)),
-                                                 specification=paml.ContainerSpec(name=f'culture (day 1)',
-                                                                                  queryString='cont:CultureTube', 
+                                                 specification=labop.ContainerSpec(name=f'culture (day 1)',
+                                                                                  queryString='cont:CultureTube',
                                                                                   prefixMap={'cont': 'https://sift.net/container-ontology/container-ontology#'}))
-            
+
 overnight_culture = protocol.primitive_step('Culture',
                                             inoculum=transformation.output_pin('transformants'),
                                             growth_medium=lb_cam,
@@ -120,9 +120,9 @@ overnight_culture = protocol.primitive_step('Culture',
 
 # Day 3 culture
 culture_container_day2 = protocol.primitive_step('ContainerSet',
-                                                  quantity=uml.LiteralInteger(value=len(plasmids)), 
-                                                  specification=paml.ContainerSpec(name=f'culture (day 2)',
-                                                                                   queryString='cont:CultureTube', 
+                                                  quantity=uml.LiteralInteger(value=len(plasmids)),
+                                                  specification=labop.ContainerSpec(name=f'culture (day 2)',
+                                                                                   queryString='cont:CultureTube',
                                                                                    prefixMap={'cont': 'https://sift.net/container-ontology/container-ontology#'}))
 
 
@@ -138,10 +138,10 @@ baseline_absorbance = protocol.primitive_step('MeasureAbsorbance',
                                              samples=culture_container_day2.output_pin('samples'),
                                              wavelength=sbol3.Measure(600, OM.nanometer))
 
-conical_tube = protocol.primitive_step('ContainerSet', 
+conical_tube = protocol.primitive_step('ContainerSet',
                                        quantity=uml.LiteralInteger(value=len(plasmids)),
-                                       specification=paml.ContainerSpec(name=f'culture (day 2), backdiluted',
-                                       queryString='cont:ConicalTube', 
+                                       specification=labop.ContainerSpec(name=f'culture (day 2), backdiluted',
+                                       queryString='cont:ConicalTube',
                                        prefixMap={'cont': 'https://sift.net/container-ontology/container-ontology#'}))  # Should be opaque
 
 dilution = protocol.primitive_step('DiluteToTargetOD',
@@ -152,9 +152,9 @@ dilution = protocol.primitive_step('DiluteToTargetOD',
                                    target_od=sbol3.Measure(0.2, None))  # Dilute to a target OD of 0.2, opaque container
 
 microfuge_tube_0hrs = protocol.primitive_step('ContainerSet',
-                                              quantity=uml.LiteralInteger(value=len(plasmids)), 
-                                              specification=paml.ContainerSpec(name='absorbance timepoint (0 hrs)',
-                                              queryString='cont:MicrofugeTube', 
+                                              quantity=uml.LiteralInteger(value=len(plasmids)),
+                                              specification=labop.ContainerSpec(name='absorbance timepoint (0 hrs)',
+                                              queryString='cont:MicrofugeTube',
                                               prefixMap={'cont': 'https://sift.net/container-ontology/container-ontology#'}))
 
 transfer = protocol.primitive_step('Transfer',
@@ -174,27 +174,27 @@ incubate = protocol.primitive_step('Incubate',
 
 microfuge_tube_6hrs = protocol.primitive_step('ContainerSet',
                                               quantity=uml.LiteralInteger(value=len(plasmids)),
-                                              specification=paml.ContainerSpec(name=f'absorbance timepoint (6 hrs)',
-                                              queryString='cont:MicrofugeTube', 
+                                              specification=labop.ContainerSpec(name=f'absorbance timepoint (6 hrs)',
+                                              queryString='cont:MicrofugeTube',
                                               prefixMap={'cont': 'https://sift.net/container-ontology/container-ontology#'}))
-       
-        
+
+
 transfer = protocol.primitive_step('Transfer',
                                    source=conical_tube.output_pin('samples'),
                                    destination=microfuge_tube_6hrs.output_pin('samples'),
-                                   amount=sbol3.Measure(0.5, OM.milliliter))        
+                                   amount=sbol3.Measure(0.5, OM.milliliter))
 
 hold = protocol.primitive_step('Hold',
                                location=microfuge_tube_6hrs.output_pin('samples'),
                                temperature=sbol3.Measure(4, OM.degree_Celsius))
 
 # Transfer to Plate
-plate = protocol.primitive_step('EmptyContainer', 
-                                specification=paml.ContainerSpec(name=f'measurement plate',
-                                                                 queryString='cont:Plate96Well', 
+plate = protocol.primitive_step('EmptyContainer',
+                                specification=labop.ContainerSpec(name=f'measurement plate',
+                                                                 queryString='cont:Plate96Well',
                                                                  prefixMap={'cont': 'https://sift.net/container-ontology/container-ontology#'}))
 
-plan = paml.SampleData(values=quote(json.dumps({1: 'A1:D1',
+plan = labop.SampleData(values=quote(json.dumps({1: 'A1:D1',
                                                 2: 'A2:D2',
                                                 3: 'A3:D3',
                                                 4: 'A4:D4',
@@ -223,9 +223,9 @@ measure_fluorescence = protocol.primitive_step('MeasureFluorescence',
                                                emissionWavelength=sbol3.Measure(530, OM.nanometer),
                                                emissionBandpassWidth=sbol3.Measure(30, OM.nanometer))
 
-protocol.designate_output('measurements', 'http://bioprotocols.org/paml#SampleData', source=baseline_absorbance.output_pin('measurements'))
-protocol.designate_output('measurements', 'http://bioprotocols.org/paml#SampleData', source=measure_absorbance.output_pin('measurements'))
-protocol.designate_output('measurements', 'http://bioprotocols.org/paml#SampleData', source=measure_fluorescence.output_pin('measurements'))
+protocol.designate_output('measurements', 'http://bioprotocols.org/labop#SampleData', source=baseline_absorbance.output_pin('measurements'))
+protocol.designate_output('measurements', 'http://bioprotocols.org/labop#SampleData', source=measure_absorbance.output_pin('measurements'))
+protocol.designate_output('measurements', 'http://bioprotocols.org/labop#SampleData', source=measure_fluorescence.output_pin('measurements'))
 
 
 agent = sbol3.Agent("test_agent")

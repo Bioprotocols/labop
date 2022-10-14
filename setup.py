@@ -7,8 +7,8 @@ extras = {
     "notebook": notebook_deps
 }
 
-setup(name='paml',
-      description='Protocol Activity Modeling Language',
+setup(name='labop',
+      description='Laboratory Open Procotol Language',
       version='1.0a1',
       install_requires=[
             'sbol3',
@@ -28,11 +28,11 @@ setup(name='paml',
       ],
       tests_require=test_deps,
       extras_require=extras,
-      packages=['paml', 'paml_convert', 'paml_convert.autoprotocol', 'paml_convert.markdown', 'paml_convert.opentrons', 'paml.lib', 'paml_time', 'uml', 'examples', 'owl_rdf_utils'],
-      package_data={'paml': ['paml.ttl', 'lib/*.ttl'],
-                    'paml_convert': ['markdown/template.xlsx'],
+      packages=['labop', 'labop_convert', 'labop_convert.autoprotocol', 'labop_convert.markdown', 'labop_convert.opentrons', 'labop.lib', 'labop_time', 'uml', 'examples', 'owl_rdf_utils'],
+      package_data={'labop': ['labop.ttl', 'lib/*.ttl'],
+                    'labop_convert': ['markdown/template.xlsx'],
                     'uml': ['uml.ttl'],
-                    'paml_time': ['paml_time.ttl']},
+                    'labop_time': ['labop_time.ttl']},
 
       include_package_data=True
 )

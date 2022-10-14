@@ -1,34 +1,34 @@
 import unittest
 
 import tyto
-import paml
+import labop
 import uml
 import sbol3
-import paml
-from paml.execution_engine import ExecutionEngine
-from paml_convert.markdown.markdown_specialization import MarkdownSpecialization
-from paml_convert.behavior_specialization import DefaultBehaviorSpecialization
+import labop
+from labop.execution_engine import ExecutionEngine
+from labop_convert.markdown.markdown_specialization import MarkdownSpecialization
+from labop_convert.behavior_specialization import DefaultBehaviorSpecialization
 
 
 PARAMETER_IN = 'http://bioprotocols.org/uml#in'
 PARAMETER_OUT = 'http://bioprotocols.org/uml#out'
 
-paml.import_library('sample_arrays')
-paml.import_library('liquid_handling')
+labop.import_library('sample_arrays')
+labop.import_library('liquid_handling')
 
 class TestProtocolInputs(unittest.TestCase):
 
     def test_input_object_not_contained_in_document(self):
         # Automatically add input objects to a Document #157
         doc = sbol3.Document()
-        protocol = paml.Protocol('foo')
+        protocol = labop.Protocol('foo')
         doc.add(protocol)
 
         # Create the input, but don't add it to the Document yet
         input = sbol3.Component('input', sbol3.SBO_DNA)
 
         container = protocol.primitive_step('EmptyContainer',
-                                            specification=paml.ContainerSpec('empty_container',
+                                            specification=labop.ContainerSpec('empty_container',
                                             name=f'empty container',
                                             queryString='cont:Plate96Well',
                                             prefixMap={'cont': 'https://sift.net/container-ontology/container-ontology#'}))
@@ -43,12 +43,12 @@ class TestProtocolInputs(unittest.TestCase):
     def test_unbounded_inputs(self):
         doc = sbol3.Document()
 
-        p = paml.Primitive('ContainerSet')
+        p = labop.Primitive('ContainerSet')
         p.add_input('inputs', sbol3.SBOL_COMPONENT, unbounded=True)
         self.assertIsNone(p.parameters[0].property_value.upper_value)
         doc.add(p)
 
-        protocol = paml.Protocol('foo')
+        protocol = labop.Protocol('foo')
         doc.add(protocol)
 
         input1 = sbol3.Component('input1', sbol3.SBO_DNA, name='input1')

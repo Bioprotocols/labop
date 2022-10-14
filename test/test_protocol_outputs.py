@@ -1,31 +1,31 @@
 import unittest
 
 import tyto
-import paml
+import labop
 import uml
 import sbol3
-import paml
-from paml.execution_engine import ExecutionEngine
-from paml_convert.markdown.markdown_specialization import MarkdownSpecialization
-from paml_convert.behavior_specialization import DefaultBehaviorSpecialization
-from paml.primitive_execution import initialize_primitive_compute_output
+import labop
+from labop.execution_engine import ExecutionEngine
+from labop_convert.markdown.markdown_specialization import MarkdownSpecialization
+from labop_convert.behavior_specialization import DefaultBehaviorSpecialization
+from labop.primitive_execution import initialize_primitive_compute_output
 
 
 PARAMETER_IN = 'http://bioprotocols.org/uml#in'
 PARAMETER_OUT = 'http://bioprotocols.org/uml#out'
 
-paml.import_library('sample_arrays')
-paml.import_library('plate_handling')
-paml.import_library('spectrophotometry')
+labop.import_library('sample_arrays')
+labop.import_library('plate_handling')
+labop.import_library('spectrophotometry')
 
 class TestProtocolOutputs(unittest.TestCase):
 
     def setUp(self):
         doc = sbol3.Document()
-        protocol = paml.Protocol('foo')
+        protocol = labop.Protocol('foo')
         doc.add(protocol)
 
-        plate_spec = paml.ContainerSpec('my_absorbance_measurement_plate',
+        plate_spec = labop.ContainerSpec('my_absorbance_measurement_plate',
                                         name='my absorbance measurement plate',
                                         queryString='cont:Plate96Well',
                                         prefixMap={'cont': 'https://sift.net/container-ontology/container-ontology#'})
@@ -51,7 +51,7 @@ class TestProtocolOutputs(unittest.TestCase):
 
     def test_protocol_outputs(self):
         # This test confirms generation of designated output objects
-        self.protocol.designate_output('measurements', 'http://bioprotocols.org/paml#SampleData', source=self.output)
+        self.protocol.designate_output('measurements', 'http://bioprotocols.org/labop#SampleData', source=self.output)
 
         agent = sbol3.Agent("test_agent")
         ee = ExecutionEngine(specializations=[MarkdownSpecialization("test_LUDOX_markdown.md")])
@@ -59,7 +59,7 @@ class TestProtocolOutputs(unittest.TestCase):
 
         self.assertTrue(isinstance(ex.parameter_values[0].value, uml.LiteralReference))
         self.assertTrue(isinstance(ex.parameter_values[0].value.value.lookup(),
-                                   paml.SampleData))
+                                   labop.SampleData))
 
 
 if __name__ == '__main__':

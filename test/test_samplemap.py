@@ -10,9 +10,9 @@ import xarray as xr
 import json
 
 import sbol3
-import paml
-from paml.execution_engine import ExecutionEngine
-from paml_convert.plate_coordinates import get_aliquot_list, coordinate_rect_to_row_col_pairs, coordinate_to_row_col
+import labop
+from labop.execution_engine import ExecutionEngine
+from labop_convert.plate_coordinates import get_aliquot_list, coordinate_rect_to_row_col_pairs, coordinate_to_row_col
 import uml
 import tyto
 from sbol3 import Document
@@ -25,27 +25,27 @@ def prepare_document() -> Document:
     sbol3.set_namespace('https://bbn.com/scratch/')
     return doc
 
-def create_protocol() -> paml.Protocol:
+def create_protocol() -> labop.Protocol:
     logger.info('Creating protocol')
-    protocol: paml.Protocol = paml.Protocol('samplemap_demo_protocol')
+    protocol: labop.Protocol = labop.Protocol('samplemap_demo_protocol')
     protocol.name = "Protocol with a SampleMap Primitive"
     protocol.description = protocol.name
     return protocol
 
-def initialize_protocol() -> Tuple[paml.Protocol, Document]:
+def initialize_protocol() -> Tuple[labop.Protocol, Document]:
     #############################################
     # set up the document
     doc: Document = prepare_document()
 
     #############################################
     # Import the primitive libraries
-    paml.import_library('liquid_handling')
-    paml.import_library('sample_arrays')
-    paml.import_library('spectrophotometry')
+    labop.import_library('liquid_handling')
+    labop.import_library('sample_arrays')
+    labop.import_library('spectrophotometry')
 
     #############################################
     # Create the protocol
-    protocol: paml.Protocol = create_protocol()
+    protocol: labop.Protocol = create_protocol()
     doc.add(protocol)
     return protocol, doc
 
@@ -59,7 +59,7 @@ def initialize_protocol() -> Tuple[paml.Protocol, Document]:
 
 class TestProtocolEndToEnd(unittest.TestCase):
     def test_create_protocol(self):
-        protocol: paml.Protocol
+        protocol: labop.Protocol
         doc: sbol3.Document
         logger = logging.getLogger("transfer_map_protocol")
         logger.setLevel(logging.INFO)
@@ -75,9 +75,9 @@ class TestProtocolEndToEnd(unittest.TestCase):
         reagents = [reagent1, reagent2]
 
         # TODO ContainerSpec without parameters will refer to a logical container of unspecified size and geometry
-        source_spec = paml.ContainerSpec('abstractPlateRequirement1',
+        source_spec = labop.ContainerSpec('abstractPlateRequirement1',
                                          name='abstractPlateRequirement1')
-        target_spec = paml.ContainerSpec('abstractPlateRequirement2',
+        target_spec = labop.ContainerSpec('abstractPlateRequirement2',
                                          name='abstractPlateRequirement2')
 
         # Arbitrary volume to use in specifying the reagents in the container.
@@ -111,7 +111,7 @@ class TestProtocolEndToEnd(unittest.TestCase):
         # Coordinates:
         #   * aliquot   (aliquot) int64 0 1 2 3
         #   * contents  (contents) <U30 'https://bbn.com/scratch/ddH2Oa' 'https://bbn.c...
-        source_array = paml.SampleArray(
+        source_array = labop.SampleArray(
             name="source",
             container_type=source_spec,
             contents=json.dumps(xr.DataArray([[default_volume.value
@@ -135,7 +135,7 @@ class TestProtocolEndToEnd(unittest.TestCase):
         create_target = protocol.primitive_step('EmptyContainer', specification=target_spec)
 
         # 2.
-        target_array = paml.SampleArray(
+        target_array = labop.SampleArray(
             name="target",
             container_type=target_spec,
             contents=json.dumps(xr.DataArray([[0.0
@@ -190,7 +190,7 @@ class TestProtocolEndToEnd(unittest.TestCase):
 
 
         # The SampleMap specifies the sources and targets, along with the mappings.
-        plan = paml.SampleMap(
+        plan = labop.SampleMap(
                             sources=[source_array],
                             targets=[target_array],
                             values=plan_mapping)
@@ -218,7 +218,7 @@ class TestProtocolEndToEnd(unittest.TestCase):
         # where each timepoint is one second after the previous time point
         ee = ExecutionEngine(use_ordinal_time=True)
         parameter_values = [
-            # paml.ParameterValue(parameter=protocol.get_input("wavelength"),
+            # labop.ParameterValue(parameter=protocol.get_input("wavelength"),
             #                     value=uml.LiteralIdentified(value=sbol3.Measure(100, tyto.OM.nanometer)))
         ]
         execution = ee.execute(protocol, agent, id="test_execution", parameter_values=parameter_values)

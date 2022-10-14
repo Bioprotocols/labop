@@ -8,12 +8,12 @@ import logging
 import os
 from os.path import basename
 from typing import Tuple
-from paml.execution_engine import ExecutionEngine
+from labop.execution_engine import ExecutionEngine
 
 import examples.pH_calibration.ph_calibration_utils as util
 
-import paml
-# import paml_time as pamlt
+import labop
+# import labop_time as labopt
 import rdflib as rdfl
 import sbol3
 import tyto
@@ -43,29 +43,29 @@ def prepare_document() -> Document:
     return doc
 
 
-def import_paml_libraries() -> None:
+def import_labop_libraries() -> None:
     logger.info("Importing libraries")
-    paml.import_library("liquid_handling")
+    labop.import_library("liquid_handling")
     logger.info("... Imported liquid handling")
-    paml.import_library("plate_handling")
+    labop.import_library("plate_handling")
     logger.info("... Imported plate handling")
-    paml.import_library("spectrophotometry")
+    labop.import_library("spectrophotometry")
     logger.info("... Imported spectrophotometry")
-    paml.import_library("sample_arrays")
+    labop.import_library("sample_arrays")
     logger.info("... Imported sample arrays")
 
 
-def create_protocol() -> paml.Protocol:
+def create_protocol() -> labop.Protocol:
     logger.info("Creating protocol")
-    protocol: paml.Protocol = paml.Protocol("pH_calibration_protocol")
+    protocol: labop.Protocol = labop.Protocol("pH_calibration_protocol")
     protocol.name = "pH calibration protocol"
     protocol.description = DOCSTRING
     return protocol
 
 
-def create_subprotocol(doc) -> paml.Protocol:
+def create_subprotocol(doc) -> labop.Protocol:
     logger.info("Creating subprotocol")
-    protocol: paml.Protocol = paml.Protocol("pH_adjustment_protocol")
+    protocol: labop.Protocol = labop.Protocol("pH_adjustment_protocol")
     protocol.name = "pH adjustment protocol"
     protocol.description = "pH adjustment protocol"
     doc.add(protocol)
@@ -119,9 +119,9 @@ def create_subprotocol(doc) -> paml.Protocol:
 
     # Delay measurement
     # FIXME measurement_delay is an input parameter, but temporal constraints are instantiated at author time, rather than runtime.
-    # wait_pH = pamlt.precedes(transfer, measurement_delay, measure_pH, units=measurement_delay.unit)
+    # wait_pH = labopt.precedes(transfer, measurement_delay, measure_pH, units=measurement_delay.unit)
     protocol.order(transfer, measure_pH)
-    # wait_temp = pamlt.precedes(transfer, measurement_delay.value, measure_temp, units=measurement_delay.unit)
+    # wait_temp = labopt.precedes(transfer, measurement_delay.value, measure_temp, units=measurement_delay.unit)
     protocol.order(transfer, measure_temp)
 
     join_node = uml.JoinNode()
@@ -171,8 +171,8 @@ def create_subprotocol(doc) -> paml.Protocol:
         uml.ControlFlow(source=at_target_error, target=protocol.final())
     )
 
-    # time_constraints = pamlt.TimeConstraints("pH Adjustment Timing",
-    #                                             constraints=pamlt.And([wait_pH, wait_temp]),
+    # time_constraints = labopt.TimeConstraints("pH Adjustment Timing",
+    #                                             constraints=labopt.And([wait_pH, wait_temp]),
     #                                             protocols=[protocol])
     # doc.add(time_constraints)
 
@@ -181,7 +181,7 @@ def create_subprotocol(doc) -> paml.Protocol:
 
 def create_setup_subprotocol(doc):
     logger.info("Creating setup_subprotocol")
-    protocol: paml.Protocol = paml.Protocol("pH_adjustment_setup_protocol")
+    protocol: labop.Protocol = labop.Protocol("pH_adjustment_setup_protocol")
     protocol.name = "pH adjustment setup protocol"
     protocol.description = "pH adjustment setup protocol"
     doc.add(protocol)
@@ -240,7 +240,7 @@ def create_setup_subprotocol(doc):
     ) = util.wrap_with_error_message(
         protocol,
         LIBRARY_NAME,
-        paml.loaded_libraries["liquid_handling"].find("Provision"),
+        labop.loaded_libraries["liquid_handling"].find("Provision"),
         resource=h3po4,
         destination=reaction_vessel.output_pin("samples"),
         amount=volume_phosphoric_acid.output_pin("volume"),
@@ -256,7 +256,7 @@ def create_setup_subprotocol(doc):
     (provision_h2o, provision_h2o_error_handler) = util.wrap_with_error_message(
         protocol,
         LIBRARY_NAME,
-        paml.loaded_libraries["liquid_handling"].find("Provision"),
+        labop.loaded_libraries["liquid_handling"].find("Provision"),
         resource=ddh2o,
         destination=reaction_vessel.output_pin("samples"),
         amount=volume_h2o.output_pin("volume"),
@@ -276,12 +276,12 @@ def create_setup_subprotocol(doc):
 
     protocol.designate_output(
         "naoh_container",
-        paml.SampleArray,
+        labop.SampleArray,
         naoh_container.output_pin("samples"),
     )
     rv_output = protocol.designate_output(
         "reaction_vessel",
-        paml.SampleArray,
+        labop.SampleArray,
         reaction_vessel.output_pin("samples"),
     )
     protocol.order(rv_output, protocol.final())
@@ -296,18 +296,18 @@ def create_setup_subprotocol(doc):
     return protocol
 
 
-def pH_calibration_protocol() -> Tuple[paml.Protocol, Document]:
+def pH_calibration_protocol() -> Tuple[labop.Protocol, Document]:
     #############################################
     # set up the document
     doc: Document = prepare_document()
 
     #############################################
     # Import the primitive libraries
-    import_paml_libraries()
+    import_labop_libraries()
 
     #############################################
     # Create the protocol
-    protocol: paml.Protocol = create_protocol()
+    protocol: labop.Protocol = create_protocol()
     doc.add(protocol)
 
     ############################################################################
@@ -355,7 +355,7 @@ def pH_calibration_protocol() -> Tuple[paml.Protocol, Document]:
 
 
     # 3. Setup Reagents and Labware subprotocol
-    setup_subprotocol: paml.Protocol = create_setup_subprotocol(doc)
+    setup_subprotocol: labop.Protocol = create_setup_subprotocol(doc)
     setup_subprotocol_invocation = protocol.execute_primitive(
         setup_subprotocol,
         reaction_volume=reaction_volume,
@@ -404,7 +404,7 @@ def pH_calibration_protocol() -> Tuple[paml.Protocol, Document]:
     protocol.order(ready_to_adjust2, mix_vessel)
 
     # 7. Adjustment subprotocol
-    adjust_subprotocol: paml.Protocol = create_subprotocol(doc)
+    adjust_subprotocol: labop.Protocol = create_subprotocol(doc)
 
     adjust_subprotocol_invocation = protocol.execute_primitive(
         adjust_subprotocol,
@@ -457,13 +457,13 @@ def reload():
 
 
 def main():
-    new_protocol: paml.Protocol
+    new_protocol: labop.Protocol
     new_protocol, doc = pH_calibration_protocol()
 
     agent = sbol3.Agent("test_agent")
     ee = ExecutionEngine()
     parameter_values = [
-        paml.ParameterValue(parameter=new_protocol.get_input("reaction_volume"), value=sbol3.Measure(10, tyto.OM.milliliter)),
+        labop.ParameterValue(parameter=new_protocol.get_input("reaction_volume"), value=sbol3.Measure(10, tyto.OM.milliliter)),
     ]
     try:
         execution = ee.execute(new_protocol, agent, id="test_execution", parameter_values=parameter_values)

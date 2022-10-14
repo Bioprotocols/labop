@@ -5,10 +5,10 @@ import tempfile
 import sbol3
 import unittest
 import tyto
-import paml_time as pamlt
-import paml
+import labop_time as labopt
+import labop
 import uml
-# from paml_check.paml_check import check_doc, get_minimum_duration
+# from labop_check.labop_check import check_doc, get_minimum_duration
 
 
 class TestTime(unittest.TestCase):
@@ -24,18 +24,18 @@ class TestTime(unittest.TestCase):
         # Create the behavior and constraints
         print('Creating Constraints')
 
-        a = paml.Primitive("a")
+        a = labop.Primitive("a")
         # Constrain start time of a to [0, 10]
-        start_a = pamlt.startTime(a, [0, 10], units=tyto.OM.hour)
+        start_a = labopt.startTime(a, [0, 10], units=tyto.OM.hour)
 
         # Constrain end time of a to [10, 15]
-        end_a = pamlt.endTime(a, [10, 15], units=tyto.OM.hour)
+        end_a = labopt.endTime(a, [10, 15], units=tyto.OM.hour)
 
         # Constrain duration of a to [1, 5]
-        duration_a = pamlt.duration(a, [1, 5], units=tyto.OM.hour)
+        duration_a = labopt.duration(a, [1, 5], units=tyto.OM.hour)
 
-        constraint = pamlt.And([start_a, end_a, duration_a])
-        time_constraints = pamlt.TimeConstraints("small_protocol_constraints", constraints=[constraint])
+        constraint = labopt.And([start_a, end_a, duration_a])
+        time_constraints = labopt.TimeConstraints("small_protocol_constraints", constraints=[constraint])
 
 
         doc.add(a)
@@ -61,11 +61,11 @@ class TestTime(unittest.TestCase):
         # Create the behavior and constraints
         print('Creating Constraints')
 
-        a = paml.Primitive("a")
-        b = paml.Primitive("b")
+        a = labop.Primitive("a")
+        b = labop.Primitive("b")
 
         # Constrain start of b to follow end of a by [10, 15]
-        follows_constraint = pamlt.precedes(a, [10, 15], b, units=tyto.OM.hour)
+        follows_constraint = labopt.precedes(a, [10, 15], b, units=tyto.OM.hour)
 
         doc.add(a)
         # doc.add(follows_constraint)
@@ -89,16 +89,16 @@ class TestTime(unittest.TestCase):
         #############################################
         # Create the Protocol
         print('Creating Protocol')
-        protocol = paml.Protocol('test_protocol')
+        protocol = labop.Protocol('test_protocol')
 
         # Protocol starts at time zero
-        start = pamlt.startTime(protocol, 0, units=tyto.OM.hour)
+        start = labopt.startTime(protocol, 0, units=tyto.OM.hour)
 
         # Protocol lasts 10 - 15 hours
-        duration = pamlt.duration(protocol, [10, 15], units=tyto.OM.hour)
+        duration = labopt.duration(protocol, [10, 15], units=tyto.OM.hour)
 
-        time_constraints = pamlt.TimeConstraints("small_protocol_constraints",
-                                                 constraints=pamlt.And([start, duration]),
+        time_constraints = labopt.TimeConstraints("small_protocol_constraints",
+                                                 constraints=labopt.And([start, duration]),
                                                  protocols=[protocol])
         doc.add(protocol)
         doc.add(time_constraints)
@@ -124,19 +124,19 @@ class TestTime(unittest.TestCase):
         #############################################
         # Import the primitive libraries
         print('Importing libraries')
-        paml.import_library('liquid_handling')
+        labop.import_library('liquid_handling')
         print('... Imported liquid handling')
-        paml.import_library('plate_handling')
+        labop.import_library('plate_handling')
         print('... Imported plate handling')
-        paml.import_library('spectrophotometry')
+        labop.import_library('spectrophotometry')
         print('... Imported spectrophotometry')
-        paml.import_library('sample_arrays')
+        labop.import_library('sample_arrays')
         print('... Imported sample arrays')
 
         #############################################
         # Create the protocol
         print('Creating protocol')
-        protocol = paml.Protocol('iGEM_LUDOX_OD_calibration_2018')
+        protocol = labop.Protocol('iGEM_LUDOX_OD_calibration_2018')
         protocol.name = "iGEM 2018 LUDOX OD calibration protocol"
         protocol.description = '''
         With this protocol you will use LUDOX CL-X (a 45% colloidal silica suspension) as a single point reference to
@@ -183,14 +183,14 @@ class TestTime(unittest.TestCase):
         # Set protocol timepoints
 
         # protocol starts at time 0
-        protocol_start_time = pamlt.startTime(protocol, 0, units=tyto.OM.hour)
-        provision_ludox_duration = pamlt.duration(provision_ludox, 60, units=tyto.OM.second)
-        provision_ddh2o_duration = pamlt.duration(provision_ddh2o, 60, units=tyto.OM.second)
-        execute_measurement_duration = pamlt.duration(measure, 60, units=tyto.OM.minute)
-        ludox_before_ddh2o_constraint = pamlt.precedes(provision_ludox, [10, 15], provision_ddh2o, units=tyto.OM.hour)
+        protocol_start_time = labopt.startTime(protocol, 0, units=tyto.OM.hour)
+        provision_ludox_duration = labopt.duration(provision_ludox, 60, units=tyto.OM.second)
+        provision_ddh2o_duration = labopt.duration(provision_ddh2o, 60, units=tyto.OM.second)
+        execute_measurement_duration = labopt.duration(measure, 60, units=tyto.OM.minute)
+        ludox_before_ddh2o_constraint = labopt.precedes(provision_ludox, [10, 15], provision_ddh2o, units=tyto.OM.hour)
 
-        time_constraints = pamlt.TimeConstraints("ludox_protocol_constraints",
-            constraints=[pamlt.And([
+        time_constraints = labopt.TimeConstraints("ludox_protocol_constraints",
+            constraints=[labopt.And([
                 protocol_start_time,
                 provision_ludox_duration,
                 provision_ddh2o_duration,
@@ -235,20 +235,20 @@ class TestTime(unittest.TestCase):
         print('Creating Protocol')
 
         # expression e1: 60s * duration(a1)
-        a1 = paml.Primitive("a1")
+        a1 = labop.Primitive("a1")
         d1 = uml.Duration(observation=uml.DurationObservation(event=[a1]))
-        m1 = pamlt.TimeMeasure(expr=sbol3.Measure(60, tyto.OM.second))
+        m1 = labopt.TimeMeasure(expr=sbol3.Measure(60, tyto.OM.second))
         e1 = uml.Expression(symbol="*", is_ordered=False, operand=[m1, d1])
         #doc.add(e1)
 
 
         # expression lt1: e1 < e2
-        e2 = pamlt.TimeMeasure(expr=sbol3.Measure(120, tyto.OM.second))
+        e2 = labopt.TimeMeasure(expr=sbol3.Measure(120, tyto.OM.second))
         lt1 = uml.Expression(symbol="<", is_ordered=True, operand=[e1, e2])
         #doc.add(lt1)
 
         # c1: Not(lt1)
-        c1 = pamlt.Not(constrained_elements=lt1)
+        c1 = labopt.Not(constrained_elements=lt1)
         #  doc.add(c1)
 
         ########################################

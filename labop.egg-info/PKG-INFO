@@ -1,0 +1,7 @@
+Metadata-Version: 2.1
+Name: labop
+Version: 1.0a1
+Summary: Laboratory Open Procotol Language
+Provides-Extra: test
+Provides-Extra: notebook
+License-File: LICENSE.txt

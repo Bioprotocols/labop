@@ -5,7 +5,7 @@ import os
 from shutil import copy
 from pathlib import Path
 
-print('Warning: this script is fragile and assumes that PAML and PAML-specification are sibling directories on Mac or Unix.')
+print('Warning: this script is fragile and assumes that LabOP and LabOP-specification are sibling directories on Mac or Unix.')
 
 dirname = os.path.dirname(__file__)
 
@@ -13,12 +13,12 @@ dirname = os.path.dirname(__file__)
 UML_TTL = os.path.join(dirname, '../uml/uml.ttl')
 UML_NAMESPACE = 'http://bioprotocols.org/uml#'
 
-# PAML Spec
-PAML_TTL = os.path.join(dirname, '../paml/paml.ttl')
-PAML_NAMESPACE = 'http://bioprotocols.org/paml#'
+# LabOP Spec
+LabOP_TTL = os.path.join(dirname, '../labop/labop.ttl')
+LabOP_NAMESPACE = 'http://bioprotocols.org/labop#'
 
 # Output location
-SPEC_OUT = os.path.join(dirname, "../PAML-specification")
+SPEC_OUT = os.path.join(dirname, "../LabOP-specification")
 
 
 def generate_spec(spec_file,
@@ -44,7 +44,7 @@ def generate_spec(spec_file,
 
 def generate_specs():
     generate_spec(UML_TTL, "uml", UML_NAMESPACE)
-    generate_spec(PAML_TTL, "paml", PAML_NAMESPACE)
+    generate_spec(LabOP_TTL, "labop", LabOP_NAMESPACE)
     print('Update complete')
 
 if __name__ == '__main__':
