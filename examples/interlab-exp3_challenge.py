@@ -12,7 +12,6 @@ import labop
 import uml
 from labop.execution_engine import ExecutionEngine
 from labop_convert.markdown.markdown_specialization import MarkdownSpecialization
-from kit_coordinates import render_kit_coordinates_table
 
 
 def render_kit_coordinates_table(ex: labop.ProtocolExecution):
@@ -283,9 +282,6 @@ timepoint_subculture2.description = 'The conical tubes should be opaque, amber-c
 
 timepoint_subculture3 = protocol.primitive_step('ContainerSet',
                                            quantity=2*len(plasmids),
-<<<<<<< Updated upstream
-                                           specification=labop.ContainerSpec(name=f'Tube 3',
-=======
                                            specification=labop.ContainerSpec('tube3',
                                            name=f'Tube 3',
                                            queryString='cont:50mlConicalTube',

@@ -11,7 +11,6 @@ import labop
 import uml
 from labop.execution_engine import ExecutionEngine
 from labop_convert.markdown.markdown_specialization import MarkdownSpecialization
-from kit_coordinates import render_kit_coordinates_table
 
 
 def render_kit_coordinates_table(ex: labop.ProtocolExecution):
@@ -329,7 +328,7 @@ hold.description = 'This will inhibit cell growth during the subsequent pipettin
 # Take a 6hr timepoint measurement
 timepoint_6hrs = protocol.primitive_step('ContainerSet',
                                          quantity=len(plasmids)*2,
-                                         specification=labop.ContainerSpec('6hr_timepoint',
+                                         specification=labop.ContainerSpec('timepoint_6hr',
                                                                           name=f'6hr timepoint',
                                                                           queryString='cont:MicrofugeTube', 
                                                                           prefixMap={'cont': 'https://sift.net/container-ontology/container-ontology#'}))

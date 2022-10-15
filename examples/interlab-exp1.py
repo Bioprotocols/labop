@@ -11,7 +11,6 @@ import labop
 import uml
 from labop.execution_engine import ExecutionEngine
 from labop_convert.markdown.markdown_specialization import MarkdownSpecialization
-from kit_coordinates import render_kit_coordinates_table
 
 
 def render_kit_coordinates_table(ex: labop.ProtocolExecution):
