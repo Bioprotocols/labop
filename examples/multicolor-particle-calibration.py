@@ -25,14 +25,6 @@ print('... Imported spectrophotometry')
 labop.import_library('sample_arrays')
 print('... Imported sample arrays')
 
-# vortex = protocol.primitive_step(
-# 	'Vortex',
-# 	amount='',
-# 	destination='',
-# 	source='',
-# 	dispenseVelocity=''
-# 	)
-
 
 # create the materials to be provisioned
 ddh2o = sbol3.Component('ddH2O', 'https://identifiers.org/pubchem.substance:24901740')
@@ -74,25 +66,29 @@ doc.add(protocol)
 
 # Provision an empty Microfuge tube in which to mix the standard solution
 
-fluorescein_standard_solution_container = protocol.primitive_step('EmptyContainer',
-                                                                  specification=labop.ContainerSpec(name='Fluorescein calibrant',
-                                                                                                   queryString='cont:StockReagent',
+fluorescein_standard_solution_container = protocol.primitive_step('EmptyContainer', 
+                                                                  specification=labop.ContainerSpec('fluroscein_calibrant',
+            name='Fluorescein calibrant',
+                                                                                                   queryString='cont:StockReagent', 
                                                                                                    prefixMap={'cont': 'https://sift.net/container-ontology/container-ontology#'}))
 
 
-sulforhodamine_standard_solution_container = protocol.primitive_step('EmptyContainer',
-                                                                  specification=labop.ContainerSpec(name='Sulforhodamine 101 calibrant',
-                                                                                                   queryString='cont:StockReagent',
+sulforhodamine_standard_solution_container = protocol.primitive_step('EmptyContainer', 
+                                                                  specification=labop.ContainerSpec('sulforhodamine_calibrant',
+            name='Sulforhodamine 101 calibrant',
+                                                                                                   queryString='cont:StockReagent', 
                                                                                                    prefixMap={'cont': 'https://sift.net/container-ontology/container-ontology#'}))
 
-cascade_blue_standard_solution_container = protocol.primitive_step('EmptyContainer',
-                                                                  specification=labop.ContainerSpec(name='Cascade blue calibrant',
-                                                                                                   queryString='cont:StockReagent',
+cascade_blue_standard_solution_container = protocol.primitive_step('EmptyContainer', 
+                                                                  specification=labop.ContainerSpec('cascade_blue_calibrant',
+            name='Cascade blue calibrant',
+                                                                                                   queryString='cont:StockReagent', 
                                                                                                    prefixMap={'cont': 'https://sift.net/container-ontology/container-ontology#'}))
 
-microsphere_standard_solution_container = protocol.primitive_step('EmptyContainer',
-                                                                  specification=labop.ContainerSpec(name='NanoCym 950 nm microspheres',
-                                                                                                   queryString='cont:StockReagent',
+microsphere_standard_solution_container = protocol.primitive_step('EmptyContainer', 
+                                                                  specification=labop.ContainerSpec('microspheres',
+            name='NanoCym 950 nm microspheres',
+                                                                                                   queryString='cont:StockReagent', 
                                                                                                    prefixMap={'cont': 'https://sift.net/container-ontology/container-ontology#'}))
 
 
@@ -141,9 +137,10 @@ vortex_silica_beads= protocol.primitive_step('Vortex',
 
 
 # Transfer to plate
-calibration_plate = protocol.primitive_step('EmptyContainer',
-                                                                  specification=labop.ContainerSpec(name='calibration plate',
-                                                                                                   queryString='cont:Plate96Well',
+calibration_plate = protocol.primitive_step('EmptyContainer', 
+                                                                  specification=labop.ContainerSpec('calibration_plate',
+            name='calibration plate',
+                                                                                                   queryString='cont:Plate96Well', 
                                                                                                    prefixMap={'cont': 'https://sift.net/container-ontology/container-ontology#'}))
 
 
@@ -419,7 +416,7 @@ protocol.designate_output('measurements', 'http://bioprotocols.org/labop#SampleD
 
 
 
-ee = ExecutionEngine(specializations=[MarkdownSpecialization(__file__.split('.')[0] + '.md')])
+ee = ExecutionEngine(specializations=[MarkdownSpecialization(__file__.split('.')[0] + '.md')], failsafe=False)
 execution = ee.execute(protocol, sbol3.Agent('test_agent'), id="test_execution", parameter_values=[])
 print(execution.markdown)
 
