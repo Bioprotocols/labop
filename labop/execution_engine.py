@@ -35,8 +35,11 @@ class ExecutionEngine(ABC):
 
     def __init__(self,
                  specializations: List[BehaviorSpecialization] = [DefaultBehaviorSpecialization()],
-                 use_ordinal_time = False, failsafe=True, permissive=False,
-                 use_defined_primitives=True):
+                 use_ordinal_time = False,
+                 failsafe=True,
+                 permissive=False,
+                 use_defined_primitives=True,
+                 sample_format='xarray'):
         self.exec_counter = 0
         self.variable_counter = 0
         self.specializations = specializations
@@ -58,7 +61,7 @@ class ExecutionEngine(ABC):
         self.failsafe = failsafe
         self.permissive = permissive # Allow execution to follow control flow even if objects not present.
         self.use_defined_primitives = use_defined_primitives # used the compute_output definitions to compute primitive outputs
-
+        self.sample_format = sample_format
 
     def next_id(self):
         next = self.exec_counter

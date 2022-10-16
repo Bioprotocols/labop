@@ -17,7 +17,7 @@ l.setLevel(logging.ERROR)
 
 PRIMITIVE_BASE_NAMESPACE = "https://bioprotocols.org/labop/primitives/"
 
-def call_behavior_execution_compute_output(self, parameter):
+def call_behavior_execution_compute_output(self, parameter, sample_format):
     """
     Get parameter value from call behavior execution
     :param self:
@@ -27,11 +27,11 @@ def call_behavior_execution_compute_output(self, parameter):
     primitive = self.node.lookup().behavior.lookup()
     call = self.call.lookup()
     inputs = [x for x in call.parameter_values if x.parameter.lookup().property_value.direction == uml.PARAMETER_IN]
-    value = primitive.compute_output(inputs, parameter)
+    value = primitive.compute_output(inputs, parameter, sample_format)
     return value
 labop.CallBehaviorExecution.compute_output = call_behavior_execution_compute_output
 
-def call_behavior_action_compute_output(self, inputs, parameter):
+def call_behavior_action_compute_output(self, inputs, parameter, sample_format):
     """
     Get parameter value from call behavior action
     :param self:
@@ -41,7 +41,7 @@ def call_behavior_action_compute_output(self, inputs, parameter):
     """
     primitive = self.behavior.lookup()
     inputs = self.input_parameter_values(inputs=inputs)
-    value = primitive.compute_output(inputs, parameter)
+    value = primitive.compute_output(inputs, parameter, sample_format)
     return value
 uml.CallBehaviorAction.compute_output = call_behavior_action_compute_output
 
@@ -96,7 +96,7 @@ def input_parameter_map(inputs: List[labop.ParameterValue]):
         map[i_parameter.name] = value
     return map
 
-def empty_container_compute_output(self, inputs, parameter):
+def empty_container_compute_output(self, inputs, parameter, sample_format):
     if parameter.name == "samples" and \
        parameter.type == 'http://bioprotocols.org/labop#SampleArray':
         # Make a SampleArray
@@ -111,7 +111,7 @@ def empty_container_compute_output(self, inputs, parameter):
     else:
         return None
 
-def plate_coordinates_compute_output(self, inputs, parameter):
+def plate_coordinates_compute_output(self, inputs, parameter, sample_format):
     if parameter.name == "samples" and \
     parameter.type == 'http://bioprotocols.org/labop#SampleCollection':
         input_map = input_parameter_map(inputs)
@@ -125,7 +125,7 @@ def plate_coordinates_compute_output(self, inputs, parameter):
                                 mask=mask_array)
         return mask
 
-def measure_absorbance_compute_output(self, inputs, parameter):
+def measure_absorbance_compute_output(self, inputs, parameter, sample_format):
     if parameter.name == "measurements" and \
        parameter.type == 'http://bioprotocols.org/labop#SampleData':
         input_map = input_parameter_map(inputs)
@@ -149,7 +149,7 @@ def initialize_primitive_compute_output(doc: sbol3.Document):
 
 
 
-def primitive_compute_output(self, inputs, parameter):
+def primitive_compute_output(self, inputs, parameter, sample_format):
     """
     Compute the value for parameter given the inputs. This default function will be overridden for specific primitives.
     :param self:
