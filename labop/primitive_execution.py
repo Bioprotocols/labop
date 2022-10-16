@@ -102,11 +102,13 @@ def empty_container_compute_output(self, inputs, parameter, sample_format):
         # Make a SampleArray
         input_map = input_parameter_map(inputs)
         spec = input_map["specification"]
-        contents = self.initialize_contents()
+        contents = self.initialize_contents(sample_format)
         name = f"{parameter.name}"
         sample_array = labop.SampleArray(name=name,
                                    container_type=spec,
                                    contents=contents)
+        # This attribute isn't formally specified in the ontology yet, but supports handling of different sample formats by BehaviorSpecialiations
+        sample_array.format = sample_format
         return sample_array
     else:
         return None
@@ -184,7 +186,7 @@ def primitive_compute_output(self, inputs, parameter, sample_format):
         return f"{parameter.name}"
 labop.Primitive.compute_output = primitive_compute_output
 
-def empty_container_initialize_contents(self):
+def empty_container_initialize_contents(self, sample_format):
     if self.identity == 'https://bioprotocols.org/labop/primitives/sample_arrays/EmptyContainer':
         # FIXME need to find a definition of the container topology from the type
         # FIXME this assumes a 96 well plate
@@ -193,7 +195,10 @@ def empty_container_initialize_contents(self):
         aliquots = get_aliquot_list(geometry="A1:H12")
         #contents = json.dumps(xr.DataArray(dims=("aliquot", "contents"),
         #                                   coords={"aliquot": aliquots}).to_dict())
-        contents = json.dumps(xr.DataArray(aliquots, dims=("aliquot")).to_dict())
+        if sample_format == 'xarray':
+            contents = json.dumps(xr.DataArray(aliquots, dims=("aliquot")).to_dict())
+        elif sample_format == 'json':
+            contents = quote(json.dumps({}))
     else:
         raise Exception(f"Cannot initialize contents of: {self.identity}")
     return contents
