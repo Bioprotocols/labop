@@ -240,6 +240,7 @@ class MarkdownSpecialization(BehaviorSpecialization):
         for i in execution.parameter_values:
             parameter = i.parameter.lookup()
             value = resolve_value(i.value)
+            value = value.name if value.name else value
             if parameter.property_value.direction == uml.PARAMETER_OUT:
                 output_parameters.append(f'`{value}`')
         output_parameters = ", ".join(output_parameters)
