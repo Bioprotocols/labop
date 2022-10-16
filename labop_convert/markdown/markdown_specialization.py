@@ -297,6 +297,11 @@ class MarkdownSpecialization(BehaviorSpecialization):
         quantity = parameter_value_map["quantity"]["value"]
         replicates = parameter_value_map["replicates"]["value"] if "replicates" in parameter_value_map else 1
         samples.container_type = containers.identity
+
+        # TODO: sample contents should be initialized by predefined handlers in
+        # primitive_execution.py
+        samples.contents = quote(json.dumps({}))
+        samples.format = 'json'
         assert(type(containers) is labop.ContainerSpec)
         try:
 
@@ -781,6 +786,7 @@ class MarkdownSpecialization(BehaviorSpecialization):
         dna = parameter_value_map['dna']['value']
         medium = parameter_value_map['selection_medium']['value']
         destination = parameter_value_map['destination']['value']
+        transformants = parameter_value_map['transformants']['value']
         if 'amount' in parameter_value_map:
             amount_measure = parameter_value_map['amount']['value']
             amount_scalar = amount_measure.value
@@ -788,9 +794,11 @@ class MarkdownSpecialization(BehaviorSpecialization):
 
         dna_names = get_sample_names(dna, error_msg='Transform execution failed. All input DNA Components must specify a name.')
 
+        # TODO: move this initialization to predefined primitives 
+        transformants.format = 'json'
+
         # Instantiate Components to represent transformants and populate
         # these into the output SampleArray
-        transformants = parameter_value_map['transformants']['value']
         i_transformant = 1
         contents = {}
         for i_dna, dna_name in enumerate(dna_names):
@@ -814,11 +822,6 @@ class MarkdownSpecialization(BehaviorSpecialization):
         transformants.name = destination.name
 
         # Add to markdown
-        # text = f"Transform `{dna_names[0]}` DNA into `{host.name}` and plate transformants on {medium.name}."
-        # text += repeat_for_remaining_samples(dna_names, repeat_msg='Repeat for the remaining transformant DNA: ')
-        # text += f' Plate transformants on `{destination.name}` plates.'
-        # text = add_description(record, text)
-        # execution.markdown_steps += [text]
         text = f"Transform `{dna_names[0]}` DNA into `{host.name}`."
         text += repeat_for_remaining_samples(dna_names, repeat_msg='Repeat for the remaining transformant DNA: ')
         text += f' Plate transformants on {medium.name} `{destination.name}` plates.'
@@ -970,8 +973,12 @@ class MarkdownSpecialization(BehaviorSpecialization):
         quantity = parameter_value_map['quantity']['value']
         replicates = parameter_value_map['replicates']['value']
         samples = parameter_value_map['samples']['value']
+
+        # Copy input SampleArray properties to output
+        # TODO: maybe this should be abstracted out into a convenience method
         samples.contents = colonies.contents
         samples.name = colonies.name
+        samples.format = colonies.format
         execution.markdown_steps += [f'Pick {replicates} colonies from each `{colonies.name}` plate.']
 
 
