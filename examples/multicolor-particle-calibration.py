@@ -416,7 +416,7 @@ protocol.designate_output('measurements', 'http://bioprotocols.org/labop#SampleD
 
 
 
-ee = ExecutionEngine(specializations=[MarkdownSpecialization(__file__.split('.')[0] + '.md')], failsafe=False)
+ee = ExecutionEngine(specializations=[MarkdownSpecialization(__file__.split('.')[0] + '.md')], failsafe=False, sample_format='json')
 execution = ee.execute(protocol, sbol3.Agent('test_agent'), id="test_execution", parameter_values=[])
 print(execution.markdown)
 

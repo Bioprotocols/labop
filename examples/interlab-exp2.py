@@ -434,7 +434,7 @@ protocol.designate_output('measurements', 'http://bioprotocols.org/labop#SampleD
 protocol.designate_output('measurements', 'http://bioprotocols.org/labop#SampleData', source=endpoint_fluorescence_red_plate2.output_pin('measurements'))
 
 agent = sbol3.Agent("test_agent")
-ee = ExecutionEngine(specializations=[MarkdownSpecialization("test_LUDOX_markdown.md")], failsafe=False)
+ee = ExecutionEngine(specializations=[MarkdownSpecialization("test_LUDOX_markdown.md")], failsafe=False, sample_format='json')
 execution = ee.execute(protocol, agent, id="test_execution", parameter_values=[])
 
 # Post-process the markdown to add a table that shows where each

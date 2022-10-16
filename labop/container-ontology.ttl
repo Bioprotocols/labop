@@ -1,0 +1,1455 @@
+@prefix : <https://sift.net/container-ontology/container-ontology#> .
+@prefix om: <http://www.ontology-of-units-of-measure.org/resource/om-2/> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xml: <http://www.w3.org/XML/1998/namespace> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix cont: <https://sift.net/container-ontology/container-ontology#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix sbol: <http://sbols.org/v3#> .
+@base <https://sift.net/container-ontology/container-ontology> .
+
+<https://sift.net/container-ontology/container-ontology> rdf:type owl:Ontology ;
+                                                          owl:imports <http://sbols.org/v3> ,
+                                                                      <https://sift.net/container-ontology/om-subset> ;
+                                                          om:abbreviation "cont:" ;
+                                                          rdfs:label "Container Ontology"@en .
+
+#################################################################
+#    Annotation properties
+#################################################################
+
+###  http://www.ontology-of-units-of-measure.org/resource/om-2/abbreviation
+om:abbreviation rdf:type owl:AnnotationProperty .
+
+
+#################################################################
+#    Object Properties
+#################################################################
+
+###  http://www.ontology-of-units-of-measure.org/resource/om-2/hasQuantity
+om:hasQuantity rdf:type owl:ObjectProperty .
+
+
+###  https://sift.net/container-ontology/container-ontology#availableAt
+cont:availableAt rdf:type owl:ObjectProperty ;
+                 rdfs:domain cont:LabEquipment ;
+                 rdfs:range cont:Lab .
+
+
+###  https://sift.net/container-ontology/container-ontology#catalogEntryOf
+cont:catalogEntryOf rdf:type owl:ObjectProperty ;
+                    owl:inverseOf cont:hasCatalogEntry ;
+                    rdfs:domain cont:CatalogEntry ;
+                    rdfs:range cont:LabEquipment .
+
+
+###  https://sift.net/container-ontology/container-ontology#centrifugeResistance
+cont:centrifugeResistance rdf:type owl:ObjectProperty ;
+                          rdfs:domain cont:Container ;
+                          rdfs:range [ owl:intersectionOf ( om:Measure
+                                                            [ rdf:type owl:Restriction ;
+                                                              owl:onProperty cont:measureType ;
+                                                              owl:allValuesFrom om:Force
+                                                            ]
+                                                          ) ;
+                                       rdf:type owl:Class
+                                     ] ;
+                          rdfs:comment "What is the maximum force the container can (or must) resist (for the assay/protocol if this is defined there)."^^xsd:string ;
+                          rdfs:label "centrifugeResistance" .
+
+
+###  https://sift.net/container-ontology/container-ontology#clearanceToPlateBottom
+cont:clearanceToPlateBottom rdf:type owl:ObjectProperty ;
+                            rdfs:subPropertyOf cont:height ;
+                            rdfs:comment "The minimum clearance from the resting plane to the plane of the bottom external surface of the wells."@en ;
+                            rdfs:label "clearanceToPlateBottom" .
+
+
+###  https://sift.net/container-ontology/container-ontology#coating
+cont:coating rdf:type owl:ObjectProperty ;
+             rdfs:subPropertyOf owl:topObjectProperty ;
+             rdfs:domain cont:Container ;
+             rdfs:range cont:CoatingMaterial ;
+             rdfs:label "coating" .
+
+
+###  https://sift.net/container-ontology/container-ontology#columnLabels
+cont:columnLabels rdf:type owl:ObjectProperty ,
+                           owl:FunctionalProperty ;
+                  rdfs:domain cont:Plate ;
+                  rdfs:comment "A sequence listing the labels assigned to the wells in each column."@en ;
+                  rdfs:label "column labels"@en .
+
+
+###  https://sift.net/container-ontology/container-ontology#compatibleCentrifuges
+cont:compatibleCentrifuges rdf:type owl:ObjectProperty ;
+                           rdfs:subPropertyOf cont:compatibleLabEquipment ;
+                           rdfs:domain cont:Container ;
+                           rdfs:comment "Centrifuge TYPES with which this container is compatible."^^xsd:string ;
+                           rdfs:label "compatibleCentrifuges" .
+
+
+###  https://sift.net/container-ontology/container-ontology#compatibleContainer
+cont:compatibleContainer rdf:type owl:ObjectProperty ;
+                         rdfs:subPropertyOf cont:compatibleLabEquipment ;
+                         rdfs:domain cont:Rack ;
+                         rdfs:range cont:Container .
+
+
+###  https://sift.net/container-ontology/container-ontology#compatibleLabEquipment
+cont:compatibleLabEquipment rdf:type owl:ObjectProperty ;
+                            rdfs:label "compatibleLabEquipment" .
+
+
+###  https://sift.net/container-ontology/container-ontology#compatiblePlateReaders
+cont:compatiblePlateReaders rdf:type owl:ObjectProperty ;
+                            rdfs:subPropertyOf cont:compatibleLabEquipment ;
+                            rdfs:label "compatiblePlateReaders" .
+
+
+###  https://sift.net/container-ontology/container-ontology#cornerRadius
+cont:cornerRadius rdf:type owl:ObjectProperty ;
+                  rdfs:subPropertyOf cont:geometricProperty ;
+                  rdfs:label "cornerRadius" .
+
+
+###  https://sift.net/container-ontology/container-ontology#diameter
+cont:diameter rdf:type owl:ObjectProperty ;
+              rdfs:subPropertyOf cont:geometricProperty ;
+              rdfs:range om:Measure ,
+                         [ rdf:type owl:Restriction ;
+                           owl:onProperty om:hasQuantity ;
+                           owl:allValuesFrom om:Diameter
+                         ] ;
+              rdfs:label "diameter" .
+
+
+###  https://sift.net/container-ontology/container-ontology#equipmentVendor
+cont:equipmentVendor rdf:type owl:ObjectProperty ;
+                     rdfs:domain cont:LabEquipment ;
+                     rdfs:range cont:VendorFirm .
+
+
+###  https://sift.net/container-ontology/container-ontology#geometricProperty
+cont:geometricProperty rdf:type owl:ObjectProperty ;
+                       rdfs:domain cont:Container ;
+                       rdfs:range om:Measure ;
+                       rdfs:label "geometricProperty" .
+
+
+###  https://sift.net/container-ontology/container-ontology#hasCatalogEntry
+cont:hasCatalogEntry rdf:type owl:ObjectProperty ;
+                     rdfs:subPropertyOf owl:topObjectProperty ;
+                     rdfs:domain cont:LabEquipment ;
+                     rdfs:range cont:CatalogEntry ;
+                     rdfs:label "hasCatalogEntry" .
+
+
+###  https://sift.net/container-ontology/container-ontology#hasColor
+cont:hasColor rdf:type owl:ObjectProperty ;
+              rdfs:subPropertyOf cont:qualitativeProperty ;
+              rdfs:range cont:Color .
+
+
+###  https://sift.net/container-ontology/container-ontology#hasVendorFirm
+cont:hasVendorFirm rdf:type owl:ObjectProperty ;
+                   rdfs:subPropertyOf owl:topObjectProperty ;
+                   rdfs:domain cont:CatalogEntry ;
+                   rdfs:range cont:VendorFirm ;
+                   rdfs:label "hasVendorFirm" .
+
+
+###  https://sift.net/container-ontology/container-ontology#hasWellBottomShape
+cont:hasWellBottomShape rdf:type owl:ObjectProperty ;
+                        rdfs:subPropertyOf cont:qualitativeProperty ;
+                        rdf:type owl:FunctionalProperty ;
+                        rdfs:label "hasWellBottomShape"^^xsd:string .
+
+
+###  https://sift.net/container-ontology/container-ontology#height
+cont:height rdf:type owl:ObjectProperty ;
+            rdfs:subPropertyOf cont:geometricProperty ;
+            rdfs:range [ owl:intersectionOf ( om:Measure
+                                              [ rdf:type owl:Restriction ;
+                                                owl:onProperty cont:measureType ;
+                                                owl:allValuesFrom om:Height
+                                              ]
+                                            ) ;
+                         rdf:type owl:Class
+                       ] ;
+            rdfs:label "height" .
+
+
+###  https://sift.net/container-ontology/container-ontology#length
+cont:length rdf:type owl:ObjectProperty ;
+            rdfs:subPropertyOf cont:geometricProperty ;
+            rdfs:label "length" .
+
+
+###  https://sift.net/container-ontology/container-ontology#lengthAtEdge
+cont:lengthAtEdge rdf:type owl:ObjectProperty ;
+                  rdfs:subPropertyOf cont:length ;
+                  rdfs:comment """ANSI SLAS spec 1.2004 (plate footprint spec) specifies different tolerances for the length within 12.7mm of the edge and in general, the former being tighter than the latter.
+
+This property is for the length within 12.7 mm of the edge; the other property is lengthOverall.""" ;
+                  rdfs:label "lengthAtEdge" .
+
+
+###  https://sift.net/container-ontology/container-ontology#lengthOverall
+cont:lengthOverall rdf:type owl:ObjectProperty ;
+                   rdfs:subPropertyOf cont:length ;
+                   rdfs:comment """ANSI SLAS spec 1.2004 (plate footprint spec) specifies different tolerances for the length within 12.7mm of the edge and in general, the former being tighter than the latter.
+
+This property is for the length anywhere on the plate (the more permissive constraint); the other property is lengthAtEdge."""@en ;
+                   rdfs:label "lengthOverall" .
+
+
+###  https://sift.net/container-ontology/container-ontology#measureType
+cont:measureType rdf:type owl:ObjectProperty ;
+                 rdfs:domain om:Measure ;
+                 rdfs:range om:Quantity ;
+                 rdfs:label "measureType" .
+
+
+###  https://sift.net/container-ontology/container-ontology#overallPlateHeight
+cont:overallPlateHeight rdf:type owl:ObjectProperty ;
+                        rdfs:subPropertyOf cont:height ;
+                        owl:propertyDisjointWith cont:plateHeight ;
+                        rdfs:comment "The overall plate height, measured from ... the resting plane ... to the maximum protrusion of the plate."@en ;
+                        rdfs:label "overallPlateHeight" .
+
+
+###  https://sift.net/container-ontology/container-ontology#plateHeight
+cont:plateHeight rdf:type owl:ObjectProperty ;
+                 rdfs:subPropertyOf cont:height ;
+                 rdfs:domain cont:Plate ;
+                 rdfs:comment "The plate height measured from ... the resting plane... to the maximum protrusion of the perimeter wells."@en ;
+                 rdfs:label "plateHeight" .
+
+
+###  https://sift.net/container-ontology/container-ontology#qualitativeProperty
+cont:qualitativeProperty rdf:type owl:ObjectProperty ;
+                         rdfs:domain cont:Container .
+
+
+###  https://sift.net/container-ontology/container-ontology#rowLabels
+cont:rowLabels rdf:type owl:ObjectProperty ,
+                        owl:FunctionalProperty ;
+               rdfs:domain cont:Plate ;
+               rdfs:comment "A sequence listing the labels assigned to the wells in each row."@en ;
+               rdfs:label "row labels"@en .
+
+
+###  https://sift.net/container-ontology/container-ontology#wellDepth
+cont:wellDepth rdf:type owl:ObjectProperty ;
+               rdfs:subPropertyOf cont:geometricProperty ;
+               rdf:type owl:FunctionalProperty ;
+               rdfs:domain cont:Container ;
+               rdfs:range [ owl:intersectionOf ( om:Measure
+                                                 [ rdf:type owl:Restriction ;
+                                                   owl:onProperty cont:measureType ;
+                                                   owl:hasValue om:Depth
+                                                 ]
+                                               ) ;
+                            rdf:type owl:Class
+                          ] ;
+               rdfs:label "wellDepth" .
+
+
+###  https://sift.net/container-ontology/container-ontology#wellVolume
+cont:wellVolume rdf:type owl:ObjectProperty ;
+                rdfs:subPropertyOf cont:geometricProperty ;
+                rdfs:label "wellVolume" .
+
+
+###  https://sift.net/container-ontology/container-ontology#width
+cont:width rdf:type owl:ObjectProperty ;
+           rdfs:subPropertyOf cont:geometricProperty ;
+           rdfs:label "width" .
+
+
+#################################################################
+#    Data properties
+#################################################################
+
+###  http://www.ontology-of-units-of-measure.org/resource/om-2/hasNumericalValue
+om:hasNumericalValue rdfs:range xsd:decimal .
+
+
+###  https://sift.net/container-ontology/container-ontology#catalogNumber
+cont:catalogNumber rdf:type owl:DatatypeProperty ;
+                   rdfs:subPropertyOf owl:topDataProperty ;
+                   rdfs:domain cont:CatalogEntry ;
+                   rdfs:range xsd:string ;
+                   rdfs:label "catalogNumber" .
+
+
+###  https://sift.net/container-ontology/container-ontology#colorName
+cont:colorName rdf:type owl:DatatypeProperty ;
+               rdfs:domain cont:Color ;
+               rdfs:range xsd:string .
+
+
+###  https://sift.net/container-ontology/container-ontology#columnCount
+cont:columnCount rdf:type owl:DatatypeProperty ;
+                 rdfs:subPropertyOf cont:containerDataProperty ;
+                 rdf:type owl:FunctionalProperty ;
+                 rdfs:domain cont:Plate ;
+                 rdfs:range xsd:positiveInteger ;
+                 rdfs:label "columnCount" .
+
+
+###  https://sift.net/container-ontology/container-ontology#containerDataProperty
+cont:containerDataProperty rdf:type owl:DatatypeProperty ;
+                           rdfs:domain cont:Container ;
+                           rdfs:label "containerDataProperty" .
+
+
+###  https://sift.net/container-ontology/container-ontology#isOpticallyTransparent
+cont:isOpticallyTransparent rdf:type owl:DatatypeProperty ;
+                            rdfs:subPropertyOf cont:containerDataProperty ;
+                            rdfs:domain cont:Container ;
+                            rdfs:range xsd:boolean ;
+                            rdfs:label "isOpticallyTransparent" .
+
+
+###  https://sift.net/container-ontology/container-ontology#isSLAS1-2004compliant
+cont:isSLAS1-2004compliant rdf:type owl:DatatypeProperty ;
+                           rdfs:subPropertyOf cont:containerDataProperty ;
+                           rdfs:range xsd:boolean ;
+                           rdfs:label "isSLAS1-2004compliant" .
+
+
+###  https://sift.net/container-ontology/container-ontology#isStackable
+cont:isStackable rdf:type owl:DatatypeProperty ;
+                 rdfs:subPropertyOf cont:containerDataProperty ;
+                 rdfs:range xsd:boolean .
+
+
+###  https://sift.net/container-ontology/container-ontology#labName
+cont:labName rdf:type owl:DatatypeProperty ,
+                      owl:FunctionalProperty ;
+             rdfs:domain cont:Lab ;
+             rdfs:range xsd:string .
+
+
+###  https://sift.net/container-ontology/container-ontology#rowCount
+cont:rowCount rdf:type owl:DatatypeProperty ;
+              rdfs:subPropertyOf cont:containerDataProperty ;
+              rdf:type owl:FunctionalProperty ;
+              rdfs:domain cont:Plate ;
+              rdfs:range xsd:positiveInteger .
+
+
+###  https://sift.net/container-ontology/container-ontology#vendorName
+cont:vendorName rdf:type owl:DatatypeProperty ;
+                rdfs:domain [ rdf:type owl:Class ;
+                              owl:unionOf ( cont:LabEquipment
+                                            cont:VendorFirm
+                                          )
+                            ] ;
+                rdfs:range xsd:string .
+
+
+###  https://sift.net/container-ontology/container-ontology#wellCount
+cont:wellCount rdf:type owl:DatatypeProperty ;
+               rdfs:subPropertyOf cont:containerDataProperty ;
+               rdf:type owl:FunctionalProperty ;
+               rdfs:domain cont:Plate ;
+               rdfs:range xsd:positiveInteger .
+
+
+#################################################################
+#    Classes
+#################################################################
+
+###  http://purl.obolibrary.org/obo/NCIT_C96142
+<http://purl.obolibrary.org/obo/NCIT_C96142> rdf:type owl:Class ;
+                                             owl:equivalentClass cont:Plate ;
+                                             rdfs:subClassOf <https://identifiers.org/http://purl.obolibrary.org/obo/http://purl.obolibrary.org/obo/NCIT_C43377> ;
+                                             rdfs:comment """Microwell plate.
+
+A flat dish type device with multiple wells for testing cellular material.
+
+Small volume multi-chambered plate (e.g. 96 well).""" ;
+                                             rdfs:label "Microwell plate" .
+
+
+###  http://www.ontology-of-units-of-measure.org/resource/om-2/Force
+om:Force rdf:type owl:Class .
+
+
+###  http://www.ontology-of-units-of-measure.org/resource/om-2/Measure
+om:Measure rdfs:subClassOf [ owl:intersectionOf ( [ rdf:type owl:Restriction ;
+                                                    owl:onProperty om:hasDimension ;
+                                                    owl:minCardinality "1"^^xsd:nonNegativeInteger
+                                                  ]
+                                                  [ rdf:type owl:Restriction ;
+                                                    owl:onProperty om:hasDimension ;
+                                                    owl:maxCardinality "1"^^xsd:nonNegativeInteger
+                                                  ]
+                                                ) ;
+                             rdf:type owl:Class
+                           ] ,
+                           [ rdf:type owl:Restriction ;
+                             owl:onProperty om:hasNumericalValue ;
+                             owl:minCardinality "1"^^xsd:nonNegativeInteger
+                           ] ,
+                           [ rdf:type owl:Restriction ;
+                             owl:onProperty om:hasNumericalValue ;
+                             owl:maxCardinality "1"^^xsd:nonNegativeInteger
+                           ] .
+
+
+###  https://identifiers.org/http://purl.obolibrary.org/obo/http://purl.obolibrary.org/obo/NCIT_C43377
+<https://identifiers.org/http://purl.obolibrary.org/obo/http://purl.obolibrary.org/obo/NCIT_C43377> rdf:type owl:Class .
+
+
+###  https://sift.net/container-ontology/container-ontology#CatalogEntry
+cont:CatalogEntry rdf:type owl:Class ;
+                  rdfs:subClassOf cont:ContainerRoot ;
+                  rdfs:label "CatalogEntry" .
+
+
+###  https://sift.net/container-ontology/container-ontology#Centrifuge
+cont:Centrifuge rdf:type owl:Class ;
+                rdfs:subClassOf cont:LabMachinery .
+
+
+###  https://sift.net/container-ontology/container-ontology#Clear
+cont:Clear rdf:type owl:Class ;
+           rdfs:subClassOf cont:Color .
+
+
+###  https://sift.net/container-ontology/container-ontology#ClearPlate
+cont:ClearPlate rdf:type owl:Class ;
+                owl:equivalentClass [ owl:intersectionOf ( cont:Plate
+                                                           [ rdf:type owl:Restriction ;
+                                                             owl:onProperty cont:hasColor ;
+                                                             owl:someValuesFrom cont:Clear
+                                                           ]
+                                                         ) ;
+                                      rdf:type owl:Class
+                                    ] ;
+                rdfs:subClassOf cont:Plate .
+
+
+###  https://sift.net/container-ontology/container-ontology#CoatingMaterial
+cont:CoatingMaterial rdf:type owl:Class ;
+                     rdfs:subClassOf cont:ContainerRoot ;
+                     rdfs:label "CoatingMaterial" .
+
+
+###  https://sift.net/container-ontology/container-ontology#Color
+cont:Color rdf:type owl:Class ;
+           rdfs:subClassOf cont:ContainerRoot ;
+           rdfs:comment "Enumeration class of optical properties for well plates." ;
+           rdfs:label "OpticalProperty" .
+
+
+###  https://sift.net/container-ontology/container-ontology#ConicalTube
+cont:ConicalTube rdf:type owl:Class ;
+                 rdfs:subClassOf cont:Container ;
+                 rdfs:label "conical tube" .
+
+
+###  https://sift.net/container-ontology/container-ontology#Container
+cont:Container rdf:type owl:Class ;
+               rdfs:subClassOf cont:LabEquipment ;
+               rdfs:label "Container" .
+
+
+###  https://sift.net/container-ontology/container-ontology#ContainerRoot
+cont:ContainerRoot rdf:type owl:Class ;
+                   rdfs:subClassOf sbol:Identified ;
+                   rdfs:comment "This is the root class for the classes defined in the Container Ontology. It is introduced to be the bridge between the container ontology and the SBOL Ontology. In turn, this connects to the sbol:Identified class, in order to make it possible for the container ontology classes to be translated into Python classes by the SBOL factory." ;
+                   rdfs:label "ContainerRoot" .
+
+
+###  https://sift.net/container-ontology/container-ontology#CultureTube
+cont:CultureTube rdf:type owl:Class ;
+                 rdfs:subClassOf cont:Container ;
+                 rdfs:label "culture tube" .
+
+
+###  https://sift.net/container-ontology/container-ontology#Lab
+cont:Lab rdf:type owl:Class ;
+         rdfs:subClassOf cont:ContainerRoot ,
+                         [ rdf:type owl:Restriction ;
+                           owl:onProperty cont:labName ;
+                           owl:minCardinality "1"^^xsd:nonNegativeInteger
+                         ] ;
+         rdfs:comment "This Class is intended to capture a location that has containers, so that one will often be asking for a container that meets some requirements and is available at a particular Lab (or possibly a Lab that has some container meeting a requirement)."@en ;
+         rdfs:label "Lab" .
+
+
+###  https://sift.net/container-ontology/container-ontology#LabEquipment
+cont:LabEquipment rdf:type owl:Class ;
+                  rdfs:subClassOf cont:ContainerRoot ;
+                  rdfs:label "LabEquipment" .
+
+
+###  https://sift.net/container-ontology/container-ontology#LabMachinery
+cont:LabMachinery rdf:type owl:Class ;
+                  rdfs:subClassOf cont:LabEquipment ;
+                  rdfs:comment "This is likely a poor name, but it is intended to refer to items of equipment that act upon containers and/or their contents." ;
+                  rdfs:label "LabMachinery" .
+
+
+###  https://sift.net/container-ontology/container-ontology#MicrofugeTube
+cont:MicrofugeTube rdf:type owl:Class ;
+                   rdfs:subClassOf cont:Container ;
+                   rdfs:label "1.5 mL microfuge tube" .
+
+
+###  https://sift.net/container-ontology/container-ontology#MicrofugeTubeRack
+cont:MicrofugeTubeRack rdf:type owl:Class ;
+                       rdfs:subClassOf cont:Rack .
+
+
+###  https://sift.net/container-ontology/container-ontology#MicroplateAdhesiveSealingFilm
+cont:MicroplateAdhesiveSealingFilm rdf:type owl:Class ;
+                                   rdfs:label "microplate adhesive sealing film" .
+
+
+###  https://sift.net/container-ontology/container-ontology#NotFlatWellBottom
+cont:NotFlatWellBottom rdf:type owl:Class ;
+                       owl:equivalentClass [ rdf:type owl:Class ;
+                                             owl:oneOf ( cont:roundBottom
+                                                         cont:uBottom
+                                                         cont:veeBottom
+                                                       )
+                                           ] ;
+                       rdfs:subClassOf cont:ContainerRoot ;
+                       rdfs:comment "For certain operations, it's nice to have a well whose bottom does not have corners." .
+
+
+###  https://sift.net/container-ontology/container-ontology#Opaque
+cont:Opaque rdf:type owl:Class ;
+            rdfs:subClassOf cont:Color .
+
+
+###  https://sift.net/container-ontology/container-ontology#OpaquePlate
+cont:OpaquePlate rdf:type owl:Class ;
+                 owl:equivalentClass [ owl:intersectionOf ( cont:Plate
+                                                            [ rdf:type owl:Restriction ;
+                                                              owl:onProperty cont:hasColor ;
+                                                              owl:someValuesFrom cont:Opaque
+                                                            ]
+                                                          ) ;
+                                       rdf:type owl:Class
+                                     ] ;
+                 rdfs:subClassOf cont:Plate .
+
+
+###  https://sift.net/container-ontology/container-ontology#PCRTube
+cont:PCRTube rdf:type owl:Class ;
+             rdfs:subClassOf cont:Container .
+
+
+###  https://sift.net/container-ontology/container-ontology#PetriDish
+cont:PetriDish rdf:type owl:Class ;
+               rdfs:subClassOf cont:Container ;
+               rdfs:label "Petri dish" .
+
+
+###  https://sift.net/container-ontology/container-ontology#Plate
+cont:Plate rdf:type owl:Class ;
+           rdfs:subClassOf cont:Container ;
+           owl:disjointWith cont:Well ;
+           rdfs:label "Plate" .
+
+
+###  https://sift.net/container-ontology/container-ontology#Plate1536Well
+cont:Plate1536Well rdf:type owl:Class ;
+                   owl:equivalentClass [ owl:intersectionOf ( cont:Plate
+                                                              [ rdf:type owl:Restriction ;
+                                                                owl:onProperty cont:wellCount ;
+                                                                owl:hasValue 1536
+                                                              ]
+                                                            ) ;
+                                         rdf:type owl:Class
+                                       ] ;
+                   rdfs:subClassOf cont:Plate .
+
+
+###  https://sift.net/container-ontology/container-ontology#Plate384Well
+cont:Plate384Well rdf:type owl:Class ;
+                  owl:equivalentClass [ owl:intersectionOf ( cont:Plate
+                                                             [ rdf:type owl:Restriction ;
+                                                               owl:onProperty cont:wellCount ;
+                                                               owl:hasValue 384
+                                                             ]
+                                                           ) ;
+                                        rdf:type owl:Class
+                                      ] ;
+                  rdfs:subClassOf cont:Plate .
+
+
+###  https://sift.net/container-ontology/container-ontology#Plate96Well
+cont:Plate96Well rdf:type owl:Class ;
+                 owl:equivalentClass [ owl:intersectionOf ( cont:Plate
+                                                            [ rdf:type owl:Restriction ;
+                                                              owl:onProperty cont:wellCount ;
+                                                              owl:hasValue 96
+                                                            ]
+                                                          ) ;
+                                       rdf:type owl:Class
+                                     ] ;
+                 rdfs:subClassOf cont:Plate ;
+                 rdfs:label "96 well microplate" .
+
+
+###  https://sift.net/container-ontology/container-ontology#PlateReader
+cont:PlateReader rdf:type owl:Class ;
+                 rdfs:subClassOf cont:LabMachinery .
+
+
+###  https://sift.net/container-ontology/container-ontology#Rack
+cont:Rack rdf:type owl:Class ;
+          rdfs:subClassOf cont:LabEquipment .
+
+
+###  https://sift.net/container-ontology/container-ontology#SLAS-1-2004
+cont:SLAS-1-2004 rdf:type owl:Class ;
+                 owl:equivalentClass [ owl:intersectionOf ( [ rdf:type owl:Restriction ;
+                                                              owl:onProperty cont:cornerRadius ;
+                                                              owl:someValuesFrom [ owl:intersectionOf ( om:Measure
+                                                                                                        [ rdf:type owl:Restriction ;
+                                                                                                          owl:onProperty om:hasUnit ;
+                                                                                                          owl:hasValue om:millimetre
+                                                                                                        ]
+                                                                                                        [ rdf:type owl:Restriction ;
+                                                                                                          owl:onProperty om:hasNumericalValue ;
+                                                                                                          owl:allValuesFrom [ rdf:type rdfs:Datatype ;
+                                                                                                                              owl:onDatatype xsd:decimal ;
+                                                                                                                              owl:withRestrictions ( [ xsd:minInclusive 1.58
+                                                                                                                                                     ]
+                                                                                                                                                     [ xsd:maxInclusive 4.78
+                                                                                                                                                     ]
+                                                                                                                                                   )
+                                                                                                                            ]
+                                                                                                        ]
+                                                                                                      ) ;
+                                                                                   rdf:type owl:Class
+                                                                                 ]
+                                                            ]
+                                                            [ rdf:type owl:Restriction ;
+                                                              owl:onProperty cont:length ;
+                                                              owl:someValuesFrom [ owl:intersectionOf ( om:Measure
+                                                                                                        [ rdf:type owl:Restriction ;
+                                                                                                          owl:onProperty om:hasUnit ;
+                                                                                                          owl:hasValue om:millimetre
+                                                                                                        ]
+                                                                                                        [ rdf:type owl:Restriction ;
+                                                                                                          owl:onProperty om:hasNumericalValue ;
+                                                                                                          owl:allValuesFrom [ rdf:type rdfs:Datatype ;
+                                                                                                                              owl:onDatatype xsd:decimal ;
+                                                                                                                              owl:withRestrictions ( [ xsd:minInclusive 127.51
+                                                                                                                                                     ]
+                                                                                                                                                     [ xsd:maxInclusive 128.01
+                                                                                                                                                     ]
+                                                                                                                                                   )
+                                                                                                                            ]
+                                                                                                        ]
+                                                                                                      ) ;
+                                                                                   rdf:type owl:Class
+                                                                                 ]
+                                                            ]
+                                                            [ rdf:type owl:Restriction ;
+                                                              owl:onProperty cont:width ;
+                                                              owl:someValuesFrom [ owl:intersectionOf ( om:Measure
+                                                                                                        [ rdf:type owl:Restriction ;
+                                                                                                          owl:onProperty om:hasUnit ;
+                                                                                                          owl:hasValue om:millimetre
+                                                                                                        ]
+                                                                                                        [ rdf:type owl:Restriction ;
+                                                                                                          owl:onProperty om:hasNumericalValue ;
+                                                                                                          owl:allValuesFrom [ rdf:type rdfs:Datatype ;
+                                                                                                                              owl:onDatatype xsd:decimal ;
+                                                                                                                              owl:withRestrictions ( [ xsd:minInclusive 85.23
+                                                                                                                                                     ]
+                                                                                                                                                     [ xsd:maxInclusive 85.73
+                                                                                                                                                     ]
+                                                                                                                                                   )
+                                                                                                                            ]
+                                                                                                        ]
+                                                                                                      ) ;
+                                                                                   rdf:type owl:Class
+                                                                                 ]
+                                                            ]
+                                                          ) ;
+                                       rdf:type owl:Class
+                                     ] ;
+                 rdfs:subClassOf cont:Plate ;
+                 rdfs:comment "SLAS 1-2004 specifies the microplate footprint standard"^^xsd:string ;
+                 rdfs:label "SLAS-1-2004" .
+
+
+###  https://sift.net/container-ontology/container-ontology#SLAS-2-2004-4
+cont:SLAS-2-2004-4 rdf:type owl:Class ;
+                   owl:equivalentClass [ owl:intersectionOf ( cont:SLAS-2-2004-4-1
+                                                              cont:SLAS-2-2004-4-2
+                                                            ) ;
+                                         rdf:type owl:Class
+                                       ] ;
+                   rdfs:subClassOf cont:Plate .
+
+
+###  https://sift.net/container-ontology/container-ontology#SLAS-2-2004-4-1
+cont:SLAS-2-2004-4-1 rdf:type owl:Class ;
+                     owl:equivalentClass [ owl:intersectionOf ( cont:SLAS-2-2004-4-2
+                                                                [ rdf:type owl:Restriction ;
+                                                                  owl:onProperty cont:clearanceToPlateBottom ;
+                                                                  owl:someValuesFrom [ owl:intersectionOf ( om:Measure
+                                                                                                            [ rdf:type owl:Restriction ;
+                                                                                                              owl:onProperty om:hasUnit ;
+                                                                                                              owl:hasValue om:millimetre
+                                                                                                            ]
+                                                                                                            [ rdf:type owl:Restriction ;
+                                                                                                              owl:onProperty om:hasNumericalValue ;
+                                                                                                              owl:allValuesFrom [ rdf:type rdfs:Datatype ;
+                                                                                                                                  owl:onDatatype xsd:decimal ;
+                                                                                                                                  owl:withRestrictions ( [ xsd:maxInclusive 1.0
+                                                                                                                                                         ]
+                                                                                                                                                       )
+                                                                                                                                ]
+                                                                                                            ]
+                                                                                                          ) ;
+                                                                                       rdf:type owl:Class
+                                                                                     ]
+                                                                ]
+                                                              ) ;
+                                           rdf:type owl:Class
+                                         ] ;
+                     rdfs:subClassOf cont:Plate ;
+                     rdfs:comment "Specification of Microplates meeting the specification of ANSI SLAS-2-2004, R2012, based on section 4.1, \"Typical Height with Clearance.\""^^xsd:string ;
+                     rdfs:label "SLAS 2-2004 Typical Height with Clearance"^^xsd:string .
+
+
+###  https://sift.net/container-ontology/container-ontology#SLAS-2-2004-4-2
+cont:SLAS-2-2004-4-2 rdf:type owl:Class ;
+                     owl:equivalentClass [ owl:intersectionOf ( cont:Plate
+                                                                [ rdf:type owl:Class ;
+                                                                  owl:unionOf ( [ rdf:type owl:Restriction ;
+                                                                                  owl:onProperty cont:wellCount ;
+                                                                                  owl:hasValue 1536
+                                                                                ]
+                                                                                [ rdf:type owl:Restriction ;
+                                                                                  owl:onProperty cont:wellCount ;
+                                                                                  owl:hasValue 384
+                                                                                ]
+                                                                                [ rdf:type owl:Restriction ;
+                                                                                  owl:onProperty cont:wellCount ;
+                                                                                  owl:hasValue 96
+                                                                                ]
+                                                                              )
+                                                                ]
+                                                                [ rdf:type owl:Restriction ;
+                                                                  owl:onProperty cont:overallPlateHeight ;
+                                                                  owl:someValuesFrom [ owl:intersectionOf ( om:Measure
+                                                                                                            [ rdf:type owl:Restriction ;
+                                                                                                              owl:onProperty om:hasUnit ;
+                                                                                                              owl:hasValue om:millimetre
+                                                                                                            ]
+                                                                                                            [ rdf:type owl:Restriction ;
+                                                                                                              owl:onProperty om:hasNumericalValue ;
+                                                                                                              owl:allValuesFrom [ rdf:type rdfs:Datatype ;
+                                                                                                                                  owl:onDatatype xsd:decimal ;
+                                                                                                                                  owl:withRestrictions ( [ xsd:minInclusive 13.59
+                                                                                                                                                         ]
+                                                                                                                                                         [ xsd:maxInclusive 15.11
+                                                                                                                                                         ]
+                                                                                                                                                       )
+                                                                                                                                ]
+                                                                                                            ]
+                                                                                                          ) ;
+                                                                                       rdf:type owl:Class
+                                                                                     ]
+                                                                ]
+                                                                [ rdf:type owl:Restriction ;
+                                                                  owl:onProperty cont:plateHeight ;
+                                                                  owl:someValuesFrom [ owl:intersectionOf ( om:Measure
+                                                                                                            [ rdf:type owl:Restriction ;
+                                                                                                              owl:onProperty om:hasUnit ;
+                                                                                                              owl:hasValue om:millimetre
+                                                                                                            ]
+                                                                                                            [ rdf:type owl:Restriction ;
+                                                                                                              owl:onProperty om:hasNumericalValue ;
+                                                                                                              owl:allValuesFrom [ rdf:type rdfs:Datatype ;
+                                                                                                                                  owl:onDatatype xsd:decimal ;
+                                                                                                                                  owl:withRestrictions ( [ xsd:minInclusive 14.1
+                                                                                                                                                         ]
+                                                                                                                                                         [ xsd:maxInclusive 14.6
+                                                                                                                                                         ]
+                                                                                                                                                       )
+                                                                                                                                ]
+                                                                                                            ]
+                                                                                                          ) ;
+                                                                                       rdf:type owl:Class
+                                                                                     ]
+                                                                ]
+                                                              ) ;
+                                           rdf:type owl:Class
+                                         ] ;
+                     rdfs:subClassOf cont:Plate ;
+                     rdfs:comment "Specification of Microplates meeting the specification of ANSI SLAS-2-2004, R2012, based on section 4.2, \"Typical Height.\""^^xsd:string ;
+                     rdfs:label "SLAS 2-2004 Typical Height with Clearance"^^xsd:string .
+
+
+###  https://sift.net/container-ontology/container-ontology#SLAS-4-2004
+cont:SLAS-4-2004 rdf:type owl:Class ;
+                 rdfs:subClassOf cont:Plate ;
+                 owl:disjointUnionOf ( cont:SLAS_4-2004_1536_Well_Plate
+                                       cont:SLAS_4-2004_384_Well_Plate
+                                       cont:SLAS_4-2004_96_Well_Plate
+                                     ) ;
+                 rdfs:comment "We do not model the well placement in detail, simply specifying whether or not it complies with 4-2004."^^xsd:string ;
+                 rdfs:label "SLAS 4-2004 Well Placement standard"^^xsd:string .
+
+
+###  https://sift.net/container-ontology/container-ontology#SLAS_4-2004_1536_Well_Plate
+cont:SLAS_4-2004_1536_Well_Plate rdf:type owl:Class ;
+                                 owl:equivalentClass cont:Standard1536WellPlate ,
+                                                     [ owl:intersectionOf ( [ rdf:type owl:Restriction ;
+                                                                              owl:onProperty cont:columnCount ;
+                                                                              owl:hasValue 48
+                                                                            ]
+                                                                            [ rdf:type owl:Restriction ;
+                                                                              owl:onProperty cont:rowCount ;
+                                                                              owl:hasValue 32
+                                                                            ]
+                                                                            [ rdf:type owl:Restriction ;
+                                                                              owl:onProperty cont:wellCount ;
+                                                                              owl:hasValue 1536
+                                                                            ]
+                                                                          ) ;
+                                                       rdf:type owl:Class
+                                                     ] ;
+                                 rdfs:subClassOf cont:SLAS-4-2004 .
+
+
+###  https://sift.net/container-ontology/container-ontology#SLAS_4-2004_384_Well_Plate
+cont:SLAS_4-2004_384_Well_Plate rdf:type owl:Class ;
+                                owl:equivalentClass cont:Standard384WellPlate ,
+                                                    [ owl:intersectionOf ( [ rdf:type owl:Restriction ;
+                                                                             owl:onProperty cont:columnCount ;
+                                                                             owl:hasValue 24
+                                                                           ]
+                                                                           [ rdf:type owl:Restriction ;
+                                                                             owl:onProperty cont:rowCount ;
+                                                                             owl:hasValue 16
+                                                                           ]
+                                                                           [ rdf:type owl:Restriction ;
+                                                                             owl:onProperty cont:wellCount ;
+                                                                             owl:hasValue 384
+                                                                           ]
+                                                                         ) ;
+                                                      rdf:type owl:Class
+                                                    ] ;
+                                rdfs:subClassOf cont:SLAS-4-2004 .
+
+
+###  https://sift.net/container-ontology/container-ontology#SLAS_4-2004_96_Well_Plate
+cont:SLAS_4-2004_96_Well_Plate rdf:type owl:Class ;
+                               owl:equivalentClass [ owl:intersectionOf ( cont:Plate
+                                                                          [ rdf:type owl:Restriction ;
+                                                                            owl:onProperty cont:columnCount ;
+                                                                            owl:hasValue 12
+                                                                          ]
+                                                                          [ rdf:type owl:Restriction ;
+                                                                            owl:onProperty cont:rowCount ;
+                                                                            owl:hasValue 8
+                                                                          ]
+                                                                          [ rdf:type owl:Restriction ;
+                                                                            owl:onProperty cont:wellCount ;
+                                                                            owl:hasValue 96
+                                                                          ]
+                                                                        ) ;
+                                                     rdf:type owl:Class
+                                                   ] ;
+                               rdfs:subClassOf cont:SLAS-4-2004 .
+
+
+###  https://sift.net/container-ontology/container-ontology#Standard1536WellPlate
+cont:Standard1536WellPlate rdf:type owl:Class ;
+                           rdfs:subClassOf cont:SLAS-4-2004 .
+
+
+###  https://sift.net/container-ontology/container-ontology#Standard384WellPlate
+cont:Standard384WellPlate rdf:type owl:Class ;
+                          rdfs:subClassOf cont:SLAS-4-2004 .
+
+
+###  https://sift.net/container-ontology/container-ontology#Standard96WellPlate
+cont:Standard96WellPlate rdf:type owl:Class ;
+                         owl:equivalentClass [ owl:intersectionOf ( cont:Plate
+                                                                    cont:SLAS_4-2004_96_Well_Plate
+                                                                    [ rdf:type owl:Restriction ;
+                                                                      owl:onProperty cont:height ;
+                                                                      owl:someValuesFrom [ owl:intersectionOf ( [ rdf:type owl:Restriction ;
+                                                                                                                  owl:onProperty om:hasDimension ;
+                                                                                                                  owl:hasValue om:millimetre
+                                                                                                                ]
+                                                                                                                [ rdf:type owl:Restriction ;
+                                                                                                                  owl:onProperty om:hasNumericalValue ;
+                                                                                                                  owl:someValuesFrom [ rdf:type rdfs:Datatype ;
+                                                                                                                                       owl:onDatatype xsd:decimal ;
+                                                                                                                                       owl:withRestrictions ( [ xsd:minInclusive 13.5
+                                                                                                                                                              ]
+                                                                                                                                                              [ xsd:maxInclusive 15.25
+                                                                                                                                                              ]
+                                                                                                                                                            )
+                                                                                                                                     ]
+                                                                                                                ]
+                                                                                                              ) ;
+                                                                                           rdf:type owl:Class
+                                                                                         ]
+                                                                    ]
+                                                                  ) ;
+                                               rdf:type owl:Class
+                                             ] ;
+                         rdfs:comment "This is meant to capture the intuitive notion of a standard (i.e., not deep) 96 well plate." ;
+                         rdfs:label "Standard 96 Well Plate" .
+
+
+###  https://sift.net/container-ontology/container-ontology#StockReagent
+cont:StockReagent rdf:type owl:Class ;
+                  rdfs:subClassOf cont:Container ;
+                  rdfs:label "stock reagent container" .
+
+
+###  https://sift.net/container-ontology/container-ontology#ThermoFisherCatalogEntry
+cont:ThermoFisherCatalogEntry rdf:type owl:Class ;
+                              owl:equivalentClass [ owl:intersectionOf ( cont:CatalogEntry
+                                                                         [ rdf:type owl:Restriction ;
+                                                                           owl:onProperty cont:hasVendorFirm ;
+                                                                           owl:hasValue cont:ThermoFisher
+                                                                         ]
+                                                                       ) ;
+                                                    rdf:type owl:Class
+                                                  ] ;
+                              rdfs:subClassOf cont:CatalogEntry .
+
+
+###  https://sift.net/container-ontology/container-ontology#ThermoFisher_EnduraPlate_96Well
+cont:ThermoFisher_EnduraPlate_96Well rdf:type owl:Class ;
+                                     rdfs:subClassOf cont:Plate ,
+                                                     cont:SLAS_4-2004_96_Well_Plate ,
+                                                     [ owl:intersectionOf ( [ rdf:type owl:Restriction ;
+                                                                              owl:onProperty cont:columnCount ;
+                                                                              owl:hasValue 12
+                                                                            ]
+                                                                            [ rdf:type owl:Restriction ;
+                                                                              owl:onProperty cont:rowCount ;
+                                                                              owl:hasValue 8
+                                                                            ]
+                                                                          ) ;
+                                                       rdf:type owl:Class
+                                                     ] ,
+                                                     [ rdf:type owl:Restriction ;
+                                                       owl:onProperty cont:cornerRadius ;
+                                                       owl:someValuesFrom [ owl:intersectionOf ( om:Measure
+                                                                                                 [ rdf:type owl:Restriction ;
+                                                                                                   owl:onProperty om:hasUnit ;
+                                                                                                   owl:hasValue om:millimetre
+                                                                                                 ]
+                                                                                                 [ rdf:type owl:Restriction ;
+                                                                                                   owl:onProperty om:hasNumericalValue ;
+                                                                                                   owl:hasValue 4.0
+                                                                                                 ]
+                                                                                               ) ;
+                                                                            rdf:type owl:Class
+                                                                          ]
+                                                     ] ,
+                                                     [ rdf:type owl:Restriction ;
+                                                       owl:onProperty cont:height ;
+                                                       owl:someValuesFrom [ owl:intersectionOf ( om:Measure
+                                                                                                 [ rdf:type owl:Restriction ;
+                                                                                                   owl:onProperty om:hasUnit ;
+                                                                                                   owl:hasValue om:millimetre
+                                                                                                 ]
+                                                                                                 [ rdf:type owl:Restriction ;
+                                                                                                   owl:onProperty om:hasNumericalValue ;
+                                                                                                   owl:hasValue 20.1
+                                                                                                 ]
+                                                                                               ) ;
+                                                                            rdf:type owl:Class
+                                                                          ]
+                                                     ] ,
+                                                     [ rdf:type owl:Restriction ;
+                                                       owl:onProperty cont:length ;
+                                                       owl:someValuesFrom [ owl:intersectionOf ( om:Measure
+                                                                                                 [ rdf:type owl:Restriction ;
+                                                                                                   owl:onProperty om:hasUnit ;
+                                                                                                   owl:hasValue om:millimetre
+                                                                                                 ]
+                                                                                                 [ rdf:type owl:Restriction ;
+                                                                                                   owl:onProperty om:hasNumericalValue ;
+                                                                                                   owl:someValuesFrom [ rdf:type rdfs:Datatype ;
+                                                                                                                        owl:onDatatype xsd:decimal ;
+                                                                                                                        owl:withRestrictions ( [ xsd:minInclusive 127.26
+                                                                                                                                               ]
+                                                                                                                                               [ xsd:maxInclusive 128.26
+                                                                                                                                               ]
+                                                                                                                                             )
+                                                                                                                      ]
+                                                                                                 ]
+                                                                                               ) ;
+                                                                            rdf:type owl:Class
+                                                                          ]
+                                                     ] ,
+                                                     [ rdf:type owl:Restriction ;
+                                                       owl:onProperty cont:plateHeight ;
+                                                       owl:someValuesFrom [ owl:intersectionOf ( om:Measure
+                                                                                                 [ rdf:type owl:Restriction ;
+                                                                                                   owl:onProperty om:hasUnit ;
+                                                                                                   owl:hasValue om:millimetre
+                                                                                                 ]
+                                                                                                 [ rdf:type owl:Restriction ;
+                                                                                                   owl:onProperty om:hasNumericalValue ;
+                                                                                                   owl:hasValue 7.50
+                                                                                                 ]
+                                                                                               ) ;
+                                                                            rdf:type owl:Class
+                                                                          ]
+                                                     ] ,
+                                                     [ rdf:type owl:Restriction ;
+                                                       owl:onProperty cont:wellDepth ;
+                                                       owl:someValuesFrom [ owl:intersectionOf ( om:Measure
+                                                                                                 [ rdf:type owl:Restriction ;
+                                                                                                   owl:onProperty om:hasUnit ;
+                                                                                                   owl:hasValue om:millimetre
+                                                                                                 ]
+                                                                                                 [ rdf:type owl:Restriction ;
+                                                                                                   owl:onProperty cont:measureType ;
+                                                                                                   owl:hasValue om:Depth
+                                                                                                 ]
+                                                                                                 [ rdf:type owl:Restriction ;
+                                                                                                   owl:onProperty om:hasNumericalValue ;
+                                                                                                   owl:hasValue 20.1
+                                                                                                 ]
+                                                                                               ) ;
+                                                                            rdf:type owl:Class
+                                                                          ]
+                                                     ] ,
+                                                     [ rdf:type owl:Restriction ;
+                                                       owl:onProperty cont:width ;
+                                                       owl:someValuesFrom [ owl:intersectionOf ( om:Measure
+                                                                                                 [ rdf:type owl:Restriction ;
+                                                                                                   owl:onProperty om:hasUnit ;
+                                                                                                   owl:hasValue om:millimetre
+                                                                                                 ]
+                                                                                                 [ rdf:type owl:Restriction ;
+                                                                                                   owl:onProperty om:hasNumericalValue ;
+                                                                                                   owl:someValuesFrom [ rdf:type rdfs:Datatype ;
+                                                                                                                        owl:onDatatype xsd:decimal ;
+                                                                                                                        owl:withRestrictions ( [ xsd:minInclusive 84.98
+                                                                                                                                               ]
+                                                                                                                                               [ xsd:maxInclusive 85.98
+                                                                                                                                               ]
+                                                                                                                                             )
+                                                                                                                      ]
+                                                                                                 ]
+                                                                                               ) ;
+                                                                            rdf:type owl:Class
+                                                                          ]
+                                                     ] ,
+                                                     [ rdf:type owl:Restriction ;
+                                                       owl:onProperty cont:equipmentVendor ;
+                                                       owl:hasValue cont:ThermoFisher
+                                                     ] ,
+                                                     [ rdf:type owl:Restriction ;
+                                                       owl:onProperty cont:hasWellBottomShape ;
+                                                       owl:hasValue cont:veeBottom
+                                                     ] ,
+                                                     [ rdf:type owl:Restriction ;
+                                                       owl:onProperty cont:equipmentVendor ;
+                                                       owl:qualifiedCardinality "1"^^xsd:nonNegativeInteger ;
+                                                       owl:onClass cont:VendorFirm
+                                                     ] ,
+                                                     [ rdf:type owl:Restriction ;
+                                                       owl:onProperty cont:wellCount ;
+                                                       owl:hasValue 96
+                                                     ] .
+
+
+###  https://sift.net/container-ontology/container-ontology#Thermocycler
+cont:Thermocycler rdf:type owl:Class ;
+                  rdfs:subClassOf cont:LabMachinery ;
+                  rdfs:label "Thermocycler" .
+
+
+###  https://sift.net/container-ontology/container-ontology#TipRack
+cont:TipRack rdf:type owl:Class ;
+             rdfs:subClassOf cont:Rack .
+
+
+###  https://sift.net/container-ontology/container-ontology#VWRCentrifugePCRPlateSpec
+cont:VWRCentrifugePCRPlateSpec rdf:type owl:Class ;
+                               owl:equivalentClass [ rdf:type owl:Restriction ;
+                                                     owl:onProperty cont:wellDepth ;
+                                                     owl:someValuesFrom [ owl:intersectionOf ( om:Measure
+                                                                                               [ rdf:type owl:Restriction ;
+                                                                                                 owl:onProperty om:hasUnit ;
+                                                                                                 owl:hasValue om:millimetre
+                                                                                               ]
+                                                                                               [ rdf:type owl:Restriction ;
+                                                                                                 owl:onProperty cont:measureType ;
+                                                                                                 owl:hasValue om:Depth
+                                                                                               ]
+                                                                                               [ rdf:type owl:Restriction ;
+                                                                                                 owl:onProperty om:hasNumericalValue ;
+                                                                                                 owl:hasValue 20.1
+                                                                                               ]
+                                                                                             ) ;
+                                                                          rdf:type owl:Class
+                                                                        ]
+                                                   ] ;
+                               rdfs:label "VWRCentrifugePCRPlateSpec" .
+
+
+###  https://sift.net/container-ontology/container-ontology#VendorFirm
+cont:VendorFirm rdf:type owl:Class ;
+                rdfs:subClassOf cont:ContainerRoot ,
+                                [ rdf:type owl:Restriction ;
+                                  owl:onProperty cont:vendorName ;
+                                  owl:minCardinality "1"^^xsd:nonNegativeInteger
+                                ] ;
+                rdfs:label "VendorFirm" .
+
+
+###  https://sift.net/container-ontology/container-ontology#Well
+cont:Well rdf:type owl:Class ;
+          rdfs:subClassOf cont:Container ;
+          rdfs:label "Well" .
+
+
+###  https://sift.net/container-ontology/container-ontology#WellShape
+cont:WellShape rdf:type owl:Class ;
+               owl:equivalentClass [ rdf:type owl:Class ;
+                                     owl:oneOf ( cont:flatBottom
+                                                 cont:roundBottom
+                                                 cont:uBottom
+                                                 cont:veeBottom
+                                               )
+                                   ] ;
+               rdfs:subClassOf cont:ContainerRoot ;
+               rdfs:comment "An enumeration class of different qualitative shapes of well bottoms. Note that this construct is not especially elaboration tolerant: users will not be able to add their own well shapes easily." ;
+               rdfs:label "WellShape" .
+
+
+###  https://sift.net/container-ontology/container-ontology#15mlConicalTube
+<https://sift.net/container-ontology/container-ontology#15mlConicalTube> rdf:type owl:Class ;
+                                                                         rdfs:subClassOf cont:ConicalTube ;
+                                                                         rdfs:label "15 ml conical tube" .
+
+
+###  https://sift.net/container-ontology/container-ontology#50mlConicalTube
+<https://sift.net/container-ontology/container-ontology#50mlConicalTube> rdf:type owl:Class ;
+                                                                         rdfs:subClassOf cont:ConicalTube ;
+                                                                         rdfs:label "50 ml conical tube" .
+
+
+###  https://sift.net/container-ontology/container-ontology#96WellPCRPlate
+<https://sift.net/container-ontology/container-ontology#96WellPCRPlate> rdf:type owl:Class ;
+                                                                        rdfs:subClassOf cont:Plate .
+
+
+#################################################################
+#    Individuals
+#################################################################
+
+###  http://www.ontology-of-units-of-measure.org/resource/om-2/Depth
+om:Depth rdf:type owl:NamedIndividual .
+
+
+###  https://sift.net/container-ontology/container-ontology#BeckmanCoulter
+cont:BeckmanCoulter rdf:type owl:NamedIndividual ,
+                             cont:VendorFirm .
+
+
+###  https://sift.net/container-ontology/container-ontology#Biorad96WellPCRPlate
+cont:Biorad96WellPCRPlate rdf:type owl:NamedIndividual ,
+                                   <https://sift.net/container-ontology/container-ontology#96WellPCRPlate> ;
+                          rdfs:label "Bio-Rad 96 Well Plate 200 µL PCR" .
+
+
+###  https://sift.net/container-ontology/container-ontology#Centrifuge
+cont:Centrifuge rdf:type owl:NamedIndividual .
+
+
+###  https://sift.net/container-ontology/container-ontology#Corning96WellPlate360uLFlat
+cont:Corning96WellPlate360uLFlat rdf:type owl:NamedIndividual ,
+                                          cont:Plate96Well ;
+                                 rdfs:label "Corning 96 Well Plate 360 uL Flat" .
+
+
+###  https://sift.net/container-ontology/container-ontology#EnduraPlate_96Well_Blue
+cont:EnduraPlate_96Well_Blue rdf:type owl:NamedIndividual ,
+                                      cont:OpaquePlate ,
+                                      cont:ThermoFisher_EnduraPlate_96Well ;
+                             cont:hasCatalogEntry cont:tf4483343 ;
+                             cont:hasColor cont:blue .
+
+
+###  https://sift.net/container-ontology/container-ontology#EnduraPlate_96Well_Clear
+cont:EnduraPlate_96Well_Clear rdf:type owl:NamedIndividual ,
+                                       cont:ClearPlate ,
+                                       cont:ThermoFisher_EnduraPlate_96Well ;
+                              cont:hasCatalogEntry cont:tf4483352 ,
+                                                   cont:tf4483354 ;
+                              cont:hasColor cont:clear .
+
+
+###  https://sift.net/container-ontology/container-ontology#EnduraPlate_96Well_Multicolor
+cont:EnduraPlate_96Well_Multicolor rdf:type owl:NamedIndividual ,
+                                            cont:OpaquePlate ,
+                                            cont:ThermoFisher_EnduraPlate_96Well ;
+                                   cont:hasCatalogEntry cont:tf4483355 ,
+                                                        cont:tf4483356 ;
+                                   cont:hasColor cont:multicolor .
+
+
+###  https://sift.net/container-ontology/container-ontology#EnduraPlate_96Well_Red
+cont:EnduraPlate_96Well_Red rdf:type owl:NamedIndividual ,
+                                     cont:OpaquePlate ,
+                                     cont:ThermoFisher_EnduraPlate_96Well ;
+                            cont:hasCatalogEntry cont:tf4483350 ;
+                            cont:hasColor cont:red .
+
+
+###  https://sift.net/container-ontology/container-ontology#EnduraPlate_96Well_Yellow
+cont:EnduraPlate_96Well_Yellow rdf:type owl:NamedIndividual ,
+                                        cont:OpaquePlate ,
+                                        cont:ThermoFisher_EnduraPlate_96Well ;
+                               cont:hasCatalogEntry cont:tf4483395 ;
+                               cont:hasColor cont:yellow .
+
+
+###  https://sift.net/container-ontology/container-ontology#Opentrons24TubeRackwithEppendorf1.5mLSafe-LockSnapcap
+cont:Opentrons24TubeRackwithEppendorf1.5mLSafe-LockSnapcap rdf:type owl:NamedIndividual ,
+                                                                    cont:MicrofugeTubeRack ;
+                                                           rdfs:label "Opentrons 24 Tube Rack with Eppendorf 1.5 mL Safe-Lock Snapcap" .
+
+
+###  https://sift.net/container-ontology/container-ontology#Opentrons96FilterTipRack1000uL
+cont:Opentrons96FilterTipRack1000uL rdf:type owl:NamedIndividual ,
+                                             cont:TipRack ;
+                                    rdfs:label "Opentrons 96 Filter Tip Rack 1000 µL" .
+
+
+###  https://sift.net/container-ontology/container-ontology#Opentrons96FilterTipRack10uL
+cont:Opentrons96FilterTipRack10uL rdf:type owl:NamedIndividual ,
+                                           cont:TipRack ;
+                                  rdfs:label "Opentrons 96 Filter Tip Rack 10 µL" .
+
+
+###  https://sift.net/container-ontology/container-ontology#Opentrons96FilterTipRack200uL
+cont:Opentrons96FilterTipRack200uL rdf:type owl:NamedIndividual ,
+                                            cont:TipRack ;
+                                   rdfs:label "Opentrons 96 Filter Tip Rack 200 µL" .
+
+
+###  https://sift.net/container-ontology/container-ontology#Opentrons96TipRack1000uL
+cont:Opentrons96TipRack1000uL rdf:type owl:NamedIndividual ,
+                                       cont:TipRack ;
+                              rdfs:label "Opentrons 96 Tip Rack 1000 µL" .
+
+
+###  https://sift.net/container-ontology/container-ontology#Opentrons96TipRack10uL
+cont:Opentrons96TipRack10uL rdf:type owl:NamedIndividual ,
+                                     cont:TipRack ;
+                            rdfs:label "Opentrons 96 Tip Rack 10 µL" .
+
+
+###  https://sift.net/container-ontology/container-ontology#Opentrons96TipRack300uL
+cont:Opentrons96TipRack300uL rdf:type owl:NamedIndividual ,
+                                      cont:TipRack ;
+                             rdfs:label "Opentrons 96 Tip Rack 300 µL" .
+
+
+###  https://sift.net/container-ontology/container-ontology#PlateReader
+cont:PlateReader rdf:type owl:NamedIndividual .
+
+
+###  https://sift.net/container-ontology/container-ontology#TFEPWD
+cont:TFEPWD rdf:type owl:NamedIndividual ,
+                     om:Measure ;
+            om:hasUnit om:millimetre ;
+            cont:measureType om:Depth ;
+            om:hasNumericalValue 20.1 ;
+            rdfs:comment "The measure corresponding to the well height of the ThermoFisher EnduraPlate 96 well" .
+
+
+###  https://sift.net/container-ontology/container-ontology#ThermoFisher
+cont:ThermoFisher rdf:type owl:NamedIndividual ,
+                           cont:VendorFirm ;
+                  cont:vendorName "ThermoFisher"^^xsd:string .
+
+
+###  https://sift.net/container-ontology/container-ontology#black
+cont:black rdf:type owl:NamedIndividual ,
+                    cont:Color ,
+                    cont:Opaque ;
+           cont:colorName "black" .
+
+
+###  https://sift.net/container-ontology/container-ontology#blue
+cont:blue rdf:type owl:NamedIndividual ,
+                   cont:Opaque ;
+          cont:colorName "blue" .
+
+
+###  https://sift.net/container-ontology/container-ontology#clear
+cont:clear rdf:type owl:NamedIndividual ,
+                    cont:Clear ,
+                    cont:Color ;
+           cont:colorName "clear" .
+
+
+###  https://sift.net/container-ontology/container-ontology#flatBottom
+cont:flatBottom rdf:type owl:NamedIndividual ,
+                         cont:WellShape .
+
+
+###  https://sift.net/container-ontology/container-ontology#green
+cont:green rdf:type owl:NamedIndividual ,
+                    cont:Opaque ;
+           cont:colorName "green" .
+
+
+###  https://sift.net/container-ontology/container-ontology#multicolor
+cont:multicolor rdf:type owl:NamedIndividual ,
+                         cont:Opaque ;
+                cont:colorName "multicolor" .
+
+
+###  https://sift.net/container-ontology/container-ontology#red
+cont:red rdf:type owl:NamedIndividual ,
+                  cont:Opaque ;
+         cont:colorName "red" .
+
+
+###  https://sift.net/container-ontology/container-ontology#roundBottom
+cont:roundBottom rdf:type owl:NamedIndividual ,
+                          cont:WellShape .
+
+
+###  https://sift.net/container-ontology/container-ontology#tf4483343
+cont:tf4483343 rdf:type owl:NamedIndividual ,
+                        cont:CatalogEntry ;
+               cont:hasVendorFirm cont:ThermoFisher ;
+               cont:catalogNumber "tf4483343" .
+
+
+###  https://sift.net/container-ontology/container-ontology#tf4483350
+cont:tf4483350 rdf:type owl:NamedIndividual ,
+                        cont:CatalogEntry ;
+               cont:hasVendorFirm cont:ThermoFisher ;
+               cont:catalogNumber "tf4483350" .
+
+
+###  https://sift.net/container-ontology/container-ontology#tf4483352
+cont:tf4483352 rdf:type owl:NamedIndividual ,
+                        cont:CatalogEntry ;
+               cont:hasVendorFirm cont:ThermoFisher ;
+               cont:catalogNumber "tf4483352" .
+
+
+###  https://sift.net/container-ontology/container-ontology#tf4483354
+cont:tf4483354 rdf:type owl:NamedIndividual ,
+                        cont:CatalogEntry ;
+               cont:hasVendorFirm cont:ThermoFisher ;
+               cont:catalogNumber "tf4483354" .
+
+
+###  https://sift.net/container-ontology/container-ontology#tf4483355
+cont:tf4483355 rdf:type owl:NamedIndividual ,
+                        cont:CatalogEntry ;
+               cont:hasVendorFirm cont:ThermoFisher ;
+               cont:catalogNumber "tf4483355" .
+
+
+###  https://sift.net/container-ontology/container-ontology#tf4483356
+cont:tf4483356 rdf:type owl:NamedIndividual ,
+                        cont:CatalogEntry ;
+               cont:hasVendorFirm cont:ThermoFisher ;
+               cont:catalogNumber "tf4483356" .
+
+
+###  https://sift.net/container-ontology/container-ontology#tf4483395
+cont:tf4483395 rdf:type owl:NamedIndividual ,
+                        cont:CatalogEntry ;
+               cont:hasVendorFirm cont:ThermoFisher ;
+               cont:catalogNumber "tf4483395" .
+
+
+###  https://sift.net/container-ontology/container-ontology#uBottom
+cont:uBottom rdf:type owl:NamedIndividual ,
+                      cont:WellShape .
+
+
+###  https://sift.net/container-ontology/container-ontology#veeBottom
+cont:veeBottom rdf:type owl:NamedIndividual ,
+                        cont:WellShape .
+
+
+###  https://sift.net/container-ontology/container-ontology#white
+cont:white rdf:type owl:NamedIndividual ,
+                    cont:Color ,
+                    cont:Opaque ;
+           cont:colorName "white" .
+
+
+###  https://sift.net/container-ontology/container-ontology#yellow
+cont:yellow rdf:type owl:NamedIndividual ,
+                     cont:Opaque ;
+            cont:colorName "yellow" .
+
+
+#################################################################
+#    Annotations
+#################################################################
+
+cont:Centrifuge rdfs:label "Centrifuge" ;
+                rdfs:comment "Likely this should actually be imported from another ontology of lab equipment, if one is available." .
+
+
+cont:PlateReader rdfs:comment "Likely this should actually be imported from another ontology of lab equipment, if one is available." ;
+                 rdfs:label "PlateReader" .
+
+
+#################################################################
+#    General axioms
+#################################################################
+
+[ rdf:type owl:AllDisjointClasses ;
+  owl:members ( cont:CatalogEntry
+                cont:CoatingMaterial
+                cont:Color
+                cont:LabEquipment
+                cont:VendorFirm
+                cont:WellShape
+              )
+] .
+
+
+[ rdf:type owl:AllDisjointClasses ;
+  owl:members ( cont:CatalogEntry
+                cont:Color
+                cont:LabEquipment
+              )
+] .
+
+
+[ rdf:type owl:AllDisjointProperties ;
+  owl:members ( cont:clearanceToPlateBottom
+                cont:overallPlateHeight
+                cont:plateHeight
+              )
+] .
+
+
+###  Generated by the OWL API (version 4.5.9.2019-02-01T07:24:44Z) https://github.com/owlcs/owlapi

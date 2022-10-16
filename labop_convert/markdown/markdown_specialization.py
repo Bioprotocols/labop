@@ -20,7 +20,8 @@ from labop_convert.markdown import MarkdownConverter
 l = logging.getLogger(__file__)
 l.setLevel(logging.ERROR)
 
-container_ontology_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), '../../container-ontology/owl/container-ontology.ttl')
+container_ontology_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), '../../labop/container-ontology.ttl')  # CI path
+
 ContainerOntology = tyto.Ontology(path=container_ontology_path, uri='https://sift.net/container-ontology/container-ontology')
 
 

@@ -29,10 +29,10 @@ setup(name='labop',
       tests_require=test_deps,
       extras_require=extras,
       packages=['labop', 'labop_convert', 'labop_convert.autoprotocol', 'labop_convert.markdown', 'labop_convert.opentrons', 'labop.lib', 'labop_time', 'uml', 'examples', 'owl_rdf_utils'],
-      package_data={'labop': ['labop.ttl', 'lib/*.ttl'],
+      package_data={'labop': ['labop.ttl', 'lib/*.ttl', 'container-ontology.ttl'],
                     'labop_convert': ['markdown/template.xlsx'],
                     'uml': ['uml.ttl'],
-                    'labop_time': ['labop_time.ttl']},
-
+                    'labop_time': ['labop_time.ttl'],
+                   },
       include_package_data=True
 )
