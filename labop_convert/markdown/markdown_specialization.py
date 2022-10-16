@@ -20,7 +20,11 @@ from labop_convert.markdown import MarkdownConverter
 l = logging.getLogger(__file__)
 l.setLevel(logging.ERROR)
 
-container_ontology_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), '../../labop/container-ontology.ttl')  # CI path
+try:
+    container_ontology_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), '../../labop/container-ontology.ttl')  # CI path
+except:
+    container_ontology_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), '../../container-ontology/owl/container-ontology.ttl')
+
 
 ContainerOntology = tyto.Ontology(path=container_ontology_path, uri='https://sift.net/container-ontology/container-ontology')
 
@@ -241,7 +245,8 @@ class MarkdownSpecialization(BehaviorSpecialization):
         for i in execution.parameter_values:
             parameter = i.parameter.lookup()
             value = resolve_value(i.value)
-            value = value.name if value.name else value
+            if isinstance(value, sbol3.Identified) and value.name:
+                value = value.name
             if parameter.property_value.direction == uml.PARAMETER_OUT:
                 output_parameters.append(f'`{value}`')
         output_parameters = ", ".join(output_parameters)
