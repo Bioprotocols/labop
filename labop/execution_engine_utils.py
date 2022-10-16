@@ -663,7 +663,8 @@ def final_node_next_tokens_callback(
     source: labop.ActivityNodeExecution,
     engine: ExecutionEngine,
     out_edges: List[uml.ActivityEdge],
-    node_outputs: Callable = None
+    node_outputs: Callable,
+    sample_format: str
 ) -> List[labop.ActivityEdgeFlow]:
     calling_behavior_execution = source.get_calling_behavior_execution()
     if calling_behavior_execution:
