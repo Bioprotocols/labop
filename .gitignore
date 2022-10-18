@@ -1,0 +1,8 @@
+.vscode/**
+*pdf
+**/__pycache__
+build
+**/.DS_Store
+notebooks/*md
+secrets
+*.md
