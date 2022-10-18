@@ -1,3 +1,8 @@
+---
+layout: default
+title: LabOP
+permalink: /
+---
 # The Laboratory Open Protocol Language (LabOP)
 
 ## What is LabOP?
