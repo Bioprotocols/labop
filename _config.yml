@@ -22,8 +22,8 @@ title: The Laboratory Open Protocol Language (LabOP)
 email: danbryce.bioprotocols@gmail.com
 description: >- # this means to ignore newlines until "baseurl:"
   LabOP is the open way to develop and share transparent laboratory protocols.
-baseurl: "" # the subpath of your site, e.g. /blog
-url: "https://bioprotocols.github.io/labop" # the base hostname & protocol for your site, e.g. http://example.com
+baseurl: "/labop/" # the subpath of your site, e.g. /blog
+url: "https://bioprotocols.github.io" # the base hostname & protocol for your site, e.g. http://example.com
 twitter_username: jekyllrb
 github_username: danbryce
 author:
