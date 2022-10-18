@@ -6,3 +6,10 @@ build
 notebooks/*md
 secrets
 *.md
+examples
+labop_convert
+labop_time
+notebooks
+owl_rdf_utils
+uml
+uml_classes
