@@ -32,9 +32,33 @@ import labop, uml, sbol3
 
 4. Initialize an SBOL document to hold the protocol and referenced objects:
 ```bash
+sbol3.set_namespace('http://example.org/synbio/')
 doc = sbol3.Document()
 ```
 and (optionally) read a previously saved document:
 ```bash
 doc.read('test/testfiles/igem_ludox_test.nt')
+```
+
+# Create a Simple Protocol
+
+1. Define a protocol object:
+```bash
+protocol = labop.Protocol('MyNewProtocol')
+doc.add(protocol)
+```
+
+2. Import a primitive library:
+```bash
+labop.import_library('sample_arrays')
+```
+
+3. Create a primitive activity:
+```bash
+plate = protocol.primitive_step('EmptyContainer', specification="MyPlate")
+```
+
+4. Visualize the protocol with GraphViz:
+```bash
+protocol.to_dot().view()
 ```
