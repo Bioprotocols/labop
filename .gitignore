@@ -24,3 +24,5 @@ test/test_decision_nodes.py
 cluster_https:/bbn.com/scratch/test_execution.gv
 /labop.egg-info/*
 assets/
+container-ontology
+test/out

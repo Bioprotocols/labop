@@ -18,7 +18,7 @@ l = logging.getLogger(__file__)
 l.setLevel(logging.ERROR)
 
 
-container_ontology_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), '../../container-ontology/owl/container-ontology.ttl')
+container_ontology_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), '../../labop/container-ontology.ttl')
 ContO = tyto.Ontology(path=container_ontology_path, uri='https://sift.net/container-ontology/container-ontology')
 
 # Map OT2 pipette names to compatible tipracks
@@ -371,7 +371,7 @@ class OT2Specialization(BehaviorSpecialization):
         pipette = self.configuration['left']
 
         comment = record.node.lookup().name
-        comment = '# ' + comment if comment else comment
+        comment = '# ' + comment if comment else "# Transfer ActivityNode name is not defined."
 
         source_str = source.mask
         destination_str = destination.mask

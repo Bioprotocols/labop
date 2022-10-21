@@ -1,11 +1,14 @@
 import json
 import types
+from urllib.parse import quote, unquote
+import logging
+
+import xarray as xr
+import sbol3
+
 import labop
 from labop_convert.plate_coordinates import coordinate_rect_to_row_col_pairs, get_aliquot_list, num2row
 import uml
-import xarray as xr
-import logging
-import sbol3
 
 from typing import List, Dict
 
@@ -14,7 +17,7 @@ l.setLevel(logging.ERROR)
 
 PRIMITIVE_BASE_NAMESPACE = "https://bioprotocols.org/labop/primitives/"
 
-def call_behavior_execution_compute_output(self, parameter):
+def call_behavior_execution_compute_output(self, parameter, sample_format):
     """
     Get parameter value from call behavior execution
     :param self:
@@ -24,11 +27,11 @@ def call_behavior_execution_compute_output(self, parameter):
     primitive = self.node.lookup().behavior.lookup()
     call = self.call.lookup()
     inputs = [x for x in call.parameter_values if x.parameter.lookup().property_value.direction == uml.PARAMETER_IN]
-    value = primitive.compute_output(inputs, parameter)
+    value = primitive.compute_output(inputs, parameter, sample_format)
     return value
 labop.CallBehaviorExecution.compute_output = call_behavior_execution_compute_output
 
-def call_behavior_action_compute_output(self, inputs, parameter):
+def call_behavior_action_compute_output(self, inputs, parameter, sample_format):
     """
     Get parameter value from call behavior action
     :param self:
@@ -38,7 +41,7 @@ def call_behavior_action_compute_output(self, inputs, parameter):
     """
     primitive = self.behavior.lookup()
     inputs = self.input_parameter_values(inputs=inputs)
-    value = primitive.compute_output(inputs, parameter)
+    value = primitive.compute_output(inputs, parameter, sample_format)
     return value
 uml.CallBehaviorAction.compute_output = call_behavior_action_compute_output
 
@@ -93,22 +96,24 @@ def input_parameter_map(inputs: List[labop.ParameterValue]):
         map[i_parameter.name] = value
     return map
 
-def empty_container_compute_output(self, inputs, parameter):
+def empty_container_compute_output(self, inputs, parameter, sample_format):
     if parameter.name == "samples" and \
        parameter.type == 'http://bioprotocols.org/labop#SampleArray':
         # Make a SampleArray
         input_map = input_parameter_map(inputs)
         spec = input_map["specification"]
-        contents = self.initialize_contents()
+        contents = self.initialize_contents(sample_format)
         name = f"{parameter.name}"
         sample_array = labop.SampleArray(name=name,
                                    container_type=spec,
                                    contents=contents)
+        # This attribute isn't formally specified in the ontology yet, but supports handling of different sample formats by BehaviorSpecialiations
+        sample_array.format = sample_format
         return sample_array
     else:
         return None
 
-def plate_coordinates_compute_output(self, inputs, parameter):
+def plate_coordinates_compute_output(self, inputs, parameter, sample_format):
     if parameter.name == "samples" and \
     parameter.type == 'http://bioprotocols.org/labop#SampleCollection':
         input_map = input_parameter_map(inputs)
@@ -122,7 +127,7 @@ def plate_coordinates_compute_output(self, inputs, parameter):
                                 mask=mask_array)
         return mask
 
-def measure_absorbance_compute_output(self, inputs, parameter):
+def measure_absorbance_compute_output(self, inputs, parameter, sample_format):
     if parameter.name == "measurements" and \
        parameter.type == 'http://bioprotocols.org/labop#SampleData':
         input_map = input_parameter_map(inputs)
@@ -146,7 +151,7 @@ def initialize_primitive_compute_output(doc: sbol3.Document):
 
 
 
-def primitive_compute_output(self, inputs, parameter):
+def primitive_compute_output(self, inputs, parameter, sample_format):
     """
     Compute the value for parameter given the inputs. This default function will be overridden for specific primitives.
     :param self:
@@ -181,7 +186,7 @@ def primitive_compute_output(self, inputs, parameter):
         return f"{parameter.name}"
 labop.Primitive.compute_output = primitive_compute_output
 
-def empty_container_initialize_contents(self):
+def empty_container_initialize_contents(self, sample_format):
     if self.identity == 'https://bioprotocols.org/labop/primitives/sample_arrays/EmptyContainer':
         # FIXME need to find a definition of the container topology from the type
         # FIXME this assumes a 96 well plate
@@ -190,7 +195,10 @@ def empty_container_initialize_contents(self):
         aliquots = get_aliquot_list(geometry="A1:H12")
         #contents = json.dumps(xr.DataArray(dims=("aliquot", "contents"),
         #                                   coords={"aliquot": aliquots}).to_dict())
-        contents = json.dumps(xr.DataArray(aliquots, dims=("aliquot")).to_dict())
+        if sample_format == 'xarray':
+            contents = json.dumps(xr.DataArray(aliquots, dims=("aliquot")).to_dict())
+        elif sample_format == 'json':
+            contents = quote(json.dumps({}))
     else:
         raise Exception(f"Cannot initialize contents of: {self.identity}")
     return contents

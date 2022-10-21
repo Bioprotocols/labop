@@ -12,8 +12,31 @@ import labop
 import uml
 from labop.execution_engine import ExecutionEngine
 from labop_convert.markdown.markdown_specialization import MarkdownSpecialization
-from kit_coordinates import render_kit_coordinates_table
 
+
+def render_kit_coordinates_table(ex: labop.ProtocolExecution):
+    # Get iGEM parts from Document
+    components = [c for c in ex.document.objects
+                  if type(c) is sbol3.Component and
+                  'igem' in c.types[0]]
+
+    # Extract kit coordinates from description, assuming description has the following
+    # format: 'BBa_I20270 Kit Plate 1 Well 1A'
+    components = [(c.description.split(' ')[0],            # Part ID
+                  ' '.join(c.description.split(' ')[1:]))  # Kit coordinates
+                  for c in components]   
+
+    # Format markdown table
+    table = '#### Table 1: Part Locations in Distribution Kit\n' \
+            '| Part | Coordinate |\n' \
+            '| ---- | -------------- |\n'
+    for part, coordinate in components:
+        table += f'|{part}|{coordinate}|\n'
+    table += '\n\n'
+
+    # Insert into markdown document immediately before the Protocol Steps section
+    insert_index = ex.markdown.find('## Protocol Steps')
+    ex.markdown = ex.markdown[:insert_index] + table + ex.markdown[insert_index:]
 
 
 doc = sbol3.Document()
@@ -131,7 +154,8 @@ plasmids = [neg_control_plasmid, pos_control_plasmid, test_device1, test_device2
 # Day 1: Transformation
 culture_plates = protocol.primitive_step('CulturePlates',
                                          quantity=len(plasmids),
-                                         specification=labop.ContainerSpec(name=f'transformant strains',
+                                         specification=labop.ContainerSpec('transformant_strains',
+                                                                          name=f'transformant strains',
                                                                           queryString='cont:PetriDish',
                                                                           prefixMap={'cont': 'https://sift.net/container-ontology/container-ontology#'}),
                                          growth_medium=lb_agar_cam)
@@ -146,8 +170,9 @@ transformation.description = 'Incubate overnight (for 16 hour) at 37.0 degree Ce
 # Day 2: Pick colonies and culture overnight
 culture_container_day1 = protocol.primitive_step('ContainerSet',
                                                  quantity=2*len(plasmids),
-                                                 specification=labop.ContainerSpec(name=f'culture (day 1)',
-                                                                                  queryString='cont:CultureTube',
+                                                 specification=labop.ContainerSpec('culture_day_1',
+                                                                                  name=f'culture (day 1)',
+                                                                                  queryString='cont:CultureTube', 
                                                                                   prefixMap={'cont': 'https://sift.net/container-ontology/container-ontology#'}))
 
 pick_colonies = protocol.primitive_step('PickColonies',
@@ -168,8 +193,9 @@ overnight_culture = protocol.primitive_step('Culture',
 # Day 3 culture
 culture_container_day2 = protocol.primitive_step('ContainerSet',
                                                   quantity=2*len(plasmids),
-                                                  specification=labop.ContainerSpec(name=f'culture (day 2)',
-                                                                                   queryString='cont:CultureTube',
+                                                  specification=labop.ContainerSpec('culture_day_2',
+                                                                                   name=f'culture (day 2)',
+                                                                                   queryString='cont:CultureTube', 
                                                                                    prefixMap={'cont': 'https://sift.net/container-ontology/container-ontology#'}))
 
 
@@ -187,8 +213,9 @@ back_dilution.description = '(This can be also performed on ice).'
 
 # Transfer cultures to a microplate baseline measurement and outgrowth
 timepoint_0hrs = protocol.primitive_step('ContainerSet',
-                                         quantity=2*len(plasmids),
-                                         specification=labop.ContainerSpec(name='cultures (0 hr timepoint)',
+                                         quantity=2*len(plasmids), 
+                                         specification=labop.ContainerSpec('culture_0_hr_timepoint',
+                                         name='cultures (0 hr timepoint)',
                                          queryString='cont:MicrofugeTube',
                                          prefixMap={'cont': 'https://sift.net/container-ontology/container-ontology#'}))
 
@@ -213,7 +240,8 @@ baseline_absorbance.name = 'baseline absorbance of culture (day 2)'
 
 conical_tube = protocol.primitive_step('ContainerSet',
                                        quantity=2*len(plasmids),
-                                       specification=labop.ContainerSpec(name=f'back-diluted culture',
+                                       specification=labop.ContainerSpec('back_diluted_culture',
+                                       name=f'back-diluted culture',
                                        queryString='cont:50mlConicalTube',
                                        prefixMap={'cont': 'https://sift.net/container-ontology/container-ontology#'}))
 conical_tube.description = 'The conical tube should be opaque, amber-colored, or covered with foil.'
@@ -233,10 +261,11 @@ embedded_image = protocol.primitive_step('EmbeddedImage',
 
 
 temporary = protocol.primitive_step('ContainerSet',
-                                         quantity=2*len(plasmids),
-                                         specification=labop.ContainerSpec(name='back-diluted culture aliquots',
-                                         queryString='cont:MicrofugeTube',
-                                         prefixMap={'cont': 'https://sift.net/container-ontology/container-ontology#'}))
+                                    quantity=2*len(plasmids), 
+                                    specification=labop.ContainerSpec('back_diluted_culture_aliquots',
+                                    name='back-diluted culture aliquots',
+                                    queryString='cont:MicrofugeTube',
+                                    prefixMap={'cont': 'https://sift.net/container-ontology/container-ontology#'}))
 
 hold = protocol.primitive_step('HoldOnIce',
                                location=temporary.output_pin('samples'))
@@ -250,7 +279,8 @@ transfer = protocol.primitive_step('Transfer',
 transfer.description = '(This can be also performed on Ice).'
 
 plate1 = protocol.primitive_step('EmptyContainer',
-                                 specification=labop.ContainerSpec(name='plate 1',
+                                 specification=labop.ContainerSpec('plate_1',
+                                 name='plate 1',
                                  queryString='cont:Plate96Well',
                                  prefixMap={'cont': 'https://sift.net/container-ontology/container-ontology#'}))
 
@@ -313,8 +343,9 @@ fluorescence_plate1.name = '0 hr fluorescence timepoint'
 # Cover plate
 seal = protocol.primitive_step('EvaporativeSeal',
                                location=plate1.output_pin('samples'),
-                               specification=labop.ContainerSpec(queryString='cont:MicroplateAdhesiveSealingFilm',
-                                             prefixMap={'cont': 'https://sift.net/container-ontology/container-ontology#'}))
+                               specification=labop.ContainerSpec('seal',
+                                   queryString='cont:MicroplateAdhesiveSealingFilm',
+                                   prefixMap={'cont': 'https://sift.net/container-ontology/container-ontology#'}))
 
 # Begin outgrowth
 incubate = protocol.primitive_step('Incubate',
@@ -342,7 +373,8 @@ hold.description = 'This will inhibit cell growth during the subsequent pipettin
 # Take a 6hr timepoint measurement
 
 plate2 = protocol.primitive_step('EmptyContainer',
-                                 specification=labop.ContainerSpec(name='plate 2',
+                                 specification=labop.ContainerSpec('plate_2',
+                                 name='plate 2',
                                  queryString='cont:Plate96Well',
                                  prefixMap={'cont': 'https://sift.net/container-ontology/container-ontology#'}))
 
@@ -388,13 +420,6 @@ plate_blanks = protocol.primitive_step('Transfer',
 plate_blanks.description = 'These are the blanks.'
 
 
-#quick_spin = protocol.primitive_step('QuickSpin',
-#                                     location=plate1.output_pin('samples'))
-#quick_spin.description = 'This will prevent cross-contamination when removing the seal.'
-#
-#remove_seal = protocol.primitive_step('Unseal',
-#                                      location=plate1.output_pin('samples'))
-
 endpoint_absorbance_plate1 = protocol.primitive_step('MeasureAbsorbance',
                                                      samples=plate1.output_pin('samples'),
                                                      wavelength=sbol3.Measure(600, OM.nanometer))
@@ -431,7 +456,7 @@ protocol.designate_output('measurements', 'http://bioprotocols.org/labop#SampleD
 
 
 agent = sbol3.Agent("test_agent")
-ee = ExecutionEngine(specializations=[MarkdownSpecialization("test_LUDOX_markdown.md")])
+ee = ExecutionEngine(specializations=[MarkdownSpecialization("test_LUDOX_markdown.md")], failsafe=False, sample_format='json')
 execution = ee.execute(protocol, agent, id="test_execution", parameter_values=[])
 render_kit_coordinates_table(execution)
 print(execution.markdown)
