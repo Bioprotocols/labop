@@ -341,7 +341,7 @@ def activity_node_execute(
 
     record = self.execute_callback(engine, inputs)
     engine.ex.executions.append(record)
-    new_tokens = record.next_tokens(engine, node_outputs=node_outputs)
+    new_tokens = record.next_tokens(engine, node_outputs, engine.sample_format)
 
     if record:
         for specialization in engine.specializations:
@@ -369,7 +369,8 @@ uml.ActivityNode.execute_callback = activity_node_execute_callback
 def activity_node_execution_next_tokens(
     self: labop.ActivityNodeExecution,
     engine: ExecutionEngine,
-    node_outputs: Callable = None
+    node_outputs: Callable,
+    sample_format: str
 ) -> List[labop.ActivityEdgeFlow]:
     node = self.node.lookup()
     protocol = node.protocol()
@@ -379,7 +380,7 @@ def activity_node_execution_next_tokens(
            self.node == e.source.lookup().get_parent().identity
         ]
 
-    edge_tokens = node.next_tokens_callback(self, engine, out_edges, node_outputs=node_outputs)
+    edge_tokens = node.next_tokens_callback(self, engine, out_edges, node_outputs, sample_format)
 
     if edge_tokens:
         # Save tokens in the protocol execution
@@ -387,7 +388,7 @@ def activity_node_execution_next_tokens(
     else:
         pass
 
-    self.check_next_tokens(edge_tokens, node_outputs=node_outputs)
+    self.check_next_tokens(edge_tokens, node_outputs, sample_format)
 
     # # Assume that unlinked output pins are possible output parameters for the protocol
     # if isinstance(self, labop.CallBehaviorExecution):
@@ -403,7 +404,8 @@ labop.ActivityNodeExecution.next_tokens = activity_node_execution_next_tokens
 def activity_node_execution_check_next_tokens(
     self: labop.ActivityNodeExecution,
     tokens: List[labop.ActivityEdgeFlow],
-    node_outputs: Callable = None
+    node_outputs: Callable,
+    ssample_format: str
 ):
     pass
 labop.ActivityNodeExecution.check_next_tokens = activity_node_execution_check_next_tokens
@@ -411,7 +413,8 @@ labop.ActivityNodeExecution.check_next_tokens = activity_node_execution_check_ne
 def call_behavior_execution_check_next_tokens(
     self: labop.CallBehaviorExecution,
     tokens: List[labop.ActivityEdgeFlow],
-    node_outputs: Callable = None
+    node_outputs: Callable,
+    sample_format: str
 ):
 
     # ## Add the output values to the call parameter-values
@@ -439,7 +442,7 @@ def call_behavior_execution_check_next_tokens(
 
     # Handle unlinked output pins by attaching them to the call
     possible_output_parameter_values = [labop.ParameterValue(parameter=p,
-                                                                value=self.get_parameter_value(p, node_outputs=node_outputs))
+                                                                value=self.get_parameter_value(p, node_outputs, sample_format))
                                             for p in unlinked_output_parameters]
     self.call.lookup().parameter_values.extend(possible_output_parameter_values)
 
@@ -480,13 +483,14 @@ def activity_node_next_tokens_callback(
     source: labop.ActivityNodeExecution,
     engine: ExecutionEngine,
     out_edges: List[uml.ActivityEdge],
-    node_outputs: Callable = None
+    node_outputs: Callable,
+    sample_format: str
 ) -> List[labop.ActivityEdgeFlow]:
     edge_tokens = [
         labop.ActivityEdgeFlow(
             edge=edge,
             token_source=source,
-            value=source.get_value(edge=edge, node_outputs=node_outputs)
+            value=source.get_value(edge, node_outputs, sample_format)
             )
         for edge in out_edges]
     return edge_tokens
@@ -495,13 +499,14 @@ uml.ActivityNode.next_tokens_callback = activity_node_next_tokens_callback
 
 def activity_node_execution_get_parameter_value(
     self : labop.ActivityNodeExecution,
-    parameter: uml.Parameter = None,
-    node_outputs: Callable = None
+    parameter: uml.Parameter,
+    node_outputs: Callable,
+    sample_format: str
 ):
     if node_outputs:
         value = node_outputs(self, parameter)
     elif hasattr(self.node.lookup().behavior.lookup(), "compute_output"):
-        value = self.compute_output(parameter)
+        value = self.compute_output(parameter, sample_format)
     else:
         value = f"{parameter.name}"
     return value
@@ -509,8 +514,9 @@ labop.ActivityNodeExecution.get_parameter_value = activity_node_execution_get_pa
 
 def activity_node_execution_get_value(
     self : labop.ActivityNodeExecution,
-    edge: uml.ActivityEdge = None,
-    node_outputs: Callable = None
+    edge: uml.ActivityEdge,
+    node_outputs: Callable,
+    sample_format: str,
 ):
     value = ""
     node = self.node.lookup()
@@ -531,7 +537,7 @@ def activity_node_execution_get_value(
             reference = True
         else:
             parameter = node.pin_parameter(edge.source.lookup().name).property_value
-            value = self.get_parameter_value(parameter, node_outputs=node_outputs)
+            value = self.get_parameter_value(parameter, node_outputs, sample_format)
 
     value = uml.literal(value, reference=reference)
     return value
@@ -657,7 +663,8 @@ def final_node_next_tokens_callback(
     source: labop.ActivityNodeExecution,
     engine: ExecutionEngine,
     out_edges: List[uml.ActivityEdge],
-    node_outputs: Callable = None
+    node_outputs: Callable,
+    sample_format: str
 ) -> List[labop.ActivityEdgeFlow]:
     calling_behavior_execution = source.get_calling_behavior_execution()
     if calling_behavior_execution:
@@ -684,7 +691,8 @@ def fork_node_next_tokens_callback(
     source: labop.ActivityNodeExecution,
     engine: ExecutionEngine,
     out_edges: List[uml.ActivityEdge],
-    node_outputs: Callable = None
+    node_outputs: Callable,
+    sample_format
 ) -> List[labop.ActivityEdgeFlow]:
     [incoming_flow] = source.incoming_flows
     incoming_value = incoming_flow.lookup().value
@@ -724,7 +732,8 @@ def decision_node_next_tokens_callback(
     source: labop.ActivityNodeExecution,
     engine: ExecutionEngine,
     out_edges: List[uml.ActivityEdge],
-    node_outputs: Callable = None
+    node_outputs: Callable,
+    sample_format: str
 ) -> List[labop.ActivityEdgeFlow]:
     try:
         decision_input_flow_token = next(t for t in source.incoming_flows if t.lookup().edge == self.decision_input_flow).lookup()
@@ -855,7 +864,8 @@ def activity_parameter_node_next_tokens_callback(
     source: labop.ActivityNodeExecution,
     engine: ExecutionEngine,
     out_edges: List[uml.ActivityEdge],
-    node_outputs: Callable = None
+    node_outputs: Callable,
+    sample_format: str
 ) -> List[labop.ActivityEdgeFlow]:
     if self.parameter.lookup().property_value.direction == uml.PARAMETER_IN:
         try:
@@ -942,7 +952,8 @@ def call_behavior_action_next_tokens_callback(
     source: labop.ActivityNodeExecution,
     engine: ExecutionEngine,
     out_edges: List[uml.ActivityEdge],
-    node_outputs: Callable = None
+    node_outputs: Callable,
+    sample_format: str
 ) -> List[labop.ActivityEdgeFlow]:
     if isinstance(self.behavior.lookup(), labop.Protocol):
         if engine.is_asynchronous:
@@ -1003,7 +1014,7 @@ def call_behavior_action_next_tokens_callback(
                             id=f'{engine.display_id}{uuid.uuid4()}'.replace('-', '_'),
                             parameter_values=[])
     else:
-        new_tokens = uml.ActivityNode.next_tokens_callback(self, source, engine, out_edges, node_outputs=node_outputs)
+        new_tokens = uml.ActivityNode.next_tokens_callback(self, source, engine, out_edges, node_outputs, sample_format)
 
     return new_tokens
 uml.CallBehaviorAction.next_tokens_callback = call_behavior_action_next_tokens_callback
@@ -1022,7 +1033,8 @@ def input_pin_next_tokens_callback(
     source: labop.ActivityNodeExecution,
     engine: ExecutionEngine,
     out_edges: List[uml.ActivityEdge],
-    node_outputs: Callable = None
+    node_outputs: Callable,
+    sample_format: str
     ) -> List[labop.ActivityEdgeFlow]:
     assert len(source.incoming_flows) == 1 # One input per pin
     incoming_flow = source.incoming_flows[0].lookup()

@@ -58,6 +58,10 @@ def sample_array_mask(self, mask):
     def is_in_mask(entry, row_col_pairs):
         return entry in row_col_pairs
 
+    if self.format == 'json':
+        return mask
+    elif self.format != 'xarray':
+        raise Exception(f'Sample format {self.format} is not currently supported by the mask method')
     contents_array = xr.DataArray.from_dict(json.loads(self.contents))
     row_col_pairs = coordinate_rect_to_row_col_pairs(mask)
     mask_array = xr.DataArray(

@@ -38,7 +38,7 @@ class TestProtocolEndToEnd(unittest.TestCase):
         pH_meter_calibrated.add_output('return', 'http://www.w3.org/2001/XMLSchema#boolean')
         doc.add(pH_meter_calibrated)
 
-        def pH_meter_calibrated_compute_output(inputs, parameter):
+        def pH_meter_calibrated_compute_output(inputs, parameter, sample_format):
             return uml.literal(True)
         pH_meter_calibrated.compute_output = pH_meter_calibrated_compute_output
 
