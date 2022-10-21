@@ -27,12 +27,15 @@ def load_protocol(protocol_def_fn, protocol_filename):
     loader.exec_module(module)
     return module
 
-
+CWD=os.path.split(os.path.realpath(__file__))[0]
 protocol_def_file = os.path.join(
-    os.path.dirname(__file__), "../examples/opentrons_toy_protocol.py"
+    CWD, "../examples/opentrons_toy_protocol.py"
 )
 protocol_def = load_protocol("opentrons_toy_protocol", protocol_def_file)
 
+out_dir = os.path.join(CWD, "out")
+if not os.path.exists(out_dir):
+    os.mkdir(out_dir)
 
 class TestProtocolEndToEnd(unittest.TestCase):
     def test_create_protocol(self):
@@ -43,7 +46,7 @@ class TestProtocolEndToEnd(unittest.TestCase):
         protocol, doc = protocol_def.opentrons_toy_protocol()
 
 
-        protocol.to_dot().render(filename=protocol.display_name, format="png")
+        protocol.to_dot().render(filename=os.path.join(out_dir, protocol.display_name), format="png")
 
 
         agent = sbol3.Agent("ot2_machine", name="OT2 machine")
@@ -53,7 +56,7 @@ class TestProtocolEndToEnd(unittest.TestCase):
         # where each timepoint is one second after the previous time point
         ee = ExecutionEngine(
             use_ordinal_time=True,
-            specializations=[OT2Specialization("opentrons_toy")],
+            specializations=[OT2Specialization(os.path.join(out_dir, "opentrons_toy"))],
         )
         parameter_values = []
         execution = ee.execute(

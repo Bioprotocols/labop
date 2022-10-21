@@ -25,3 +25,4 @@ cluster_https:/bbn.com/scratch/test_execution.gv
 /labop.egg-info/*
 assets/
 container-ontology
+test/out
