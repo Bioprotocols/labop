@@ -20,8 +20,8 @@ else:
     TMPDIR = tempfile.gettempdir()
 
 
-def load_protocol(protocol_name, protocol_filename):
-    loader = SourceFileLoader(protocol_name, protocol_filename)
+def load_protocol(protocol_def_fn, protocol_filename):
+    loader = SourceFileLoader(protocol_def_fn, protocol_filename)
     spec = spec_from_loader(loader.name, loader)
     module = module_from_spec(spec)
     loader.exec_module(module)
@@ -31,7 +31,7 @@ def load_protocol(protocol_name, protocol_filename):
 protocol_def_file = os.path.join(
     os.path.dirname(__file__), "../examples/opentrons_toy_protocol.py"
 )
-protocol_def = load_protocol("OT2_demo", protocol_def_file)
+protocol_def = load_protocol("opentrons_toy_protocol", protocol_def_file)
 
 
 class TestProtocolEndToEnd(unittest.TestCase):
@@ -40,10 +40,11 @@ class TestProtocolEndToEnd(unittest.TestCase):
         doc: sbol3.Document
         logger = logging.getLogger("LUDOX_protocol")
         logger.setLevel(logging.INFO)
-        protocol, doc = protocol_def.ludox_protocol()
+        protocol, doc = protocol_def.opentrons_toy_protocol()
 
-        ########################################
-        # Validate and write the document
+
+        protocol.to_dot().render(filename=protocol.display_name, format="png")
+
 
         agent = sbol3.Agent("ot2_machine", name="OT2 machine")
 
@@ -61,6 +62,9 @@ class TestProtocolEndToEnd(unittest.TestCase):
             id="test_execution_1",
             parameter_values=parameter_values,
         )
+
+        ########################################
+        # Validate and write the document
 
         print("Validating and writing protocol")
         v = doc.validate()
