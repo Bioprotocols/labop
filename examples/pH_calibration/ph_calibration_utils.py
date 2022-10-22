@@ -78,7 +78,7 @@ def define_pH_adjustment_protocol_primitives(
         description="Determine if pH meets target pH",
     )
 
-    def at_target_compute_output(inputs, parameter):
+    def at_target_compute_output(inputs, parameter, sample_format):
         # X% weight/volume (g/mL) = (total_volume / 100) * X
         # return total_volume * percentage/100
         for input in inputs:
@@ -108,7 +108,7 @@ def define_pH_adjustment_protocol_primitives(
         description="Calculate NaOH Addition",
     )
 
-    def calculate_naoh_addition_output(inputs, parameter):
+    def calculate_naoh_addition_output(inputs, parameter, sample_format):
         # X% weight/volume (g/mL) = (total_volume / 100) * X
         # return total_volume * percentage/100
         # for input in inputs:
@@ -161,7 +161,7 @@ def wrap_with_error_message(protocol, library, primitive, **kwargs):
                 description=f"Extends {primitive} with an error output pin",
             )
 
-    def wrapped_primitive_compute_output(inputs, parameter):
+    def wrapped_primitive_compute_output(inputs, parameter, sample_format):
         return uml.literal(None)
     wrapped_primitive.compute_output = (
         wrapped_primitive_compute_output
@@ -227,7 +227,7 @@ def define_pH_calibration_protocol_primitives(
         description="Decide whether to calibrate pH meter.",
     )
 
-    def pH_meter_calibrated_compute_output(inputs, parameter):
+    def pH_meter_calibrated_compute_output(inputs, parameter, sample_format):
         return uml.literal(True)
     pH_meter_calibrated_primitive.compute_output = (
         pH_meter_calibrated_compute_output
@@ -265,7 +265,7 @@ def define_pH_calibration_protocol_primitives(
         "CleanElectrode",
         description="Clean the pH meter electrode",
     )
-    def clean_electrode_primitive_compute_output(inputs, parameter):
+    def clean_electrode_primitive_compute_output(inputs, parameter, sample_format):
         return None
     clean_electrode_primitive.compute_output = (
         clean_electrode_primitive_compute_output
@@ -294,7 +294,7 @@ def define_setup_protocol_primitives(
         outputs=[{"name": "volume", "type": tyto.OM.milliliter}],
         description="Decide whether to calibrate pH meter.",
     )
-    def calculate_volume_compute_output(inputs, parameter):
+    def calculate_volume_compute_output(inputs, parameter, sample_format):
         # X% weight/volume (g/mL) = (total_volume / 100) * X
         # return total_volume * percentage/100
         for input in inputs:

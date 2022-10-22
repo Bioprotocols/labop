@@ -890,7 +890,7 @@ def activity_parameter_node_next_tokens_callback(
                 labop.ActivityEdgeFlow(
                     edge=return_edge,
                     token_source=source,
-                    value=source.get_value(edge=return_edge)
+                    value=source.get_value(return_edge, node_outputs, sample_format)
                     #uml.literal(source.incoming_flows[0].lookup().value)
                     )
             ]
