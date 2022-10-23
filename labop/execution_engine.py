@@ -14,8 +14,6 @@ import labop
 import uml
 import sbol3
 
-from IPython.display import display, HTML
-
 from labop_convert.behavior_specialization import BehaviorSpecialization, DefaultBehaviorSpecialization
 from labop.primitive_execution import initialize_primitive_compute_output
 
@@ -291,9 +289,9 @@ class ManualExecutionEngine(ExecutionEngine):
         identities = [r.identity for r in ready]
         choices = pd.DataFrame({ "Activity": activities, "Behavior": behaviors, "Identity": identities })
         #ready_nodes = "\n".join([f"{idx}: {r.behavior}" for idx, r in enumerate(ready)])
-        return HTML("<div style='height: 200px; overflow: auto; width: fit-content'>" +
+        return "<div style='height: 200px; overflow: auto; width: fit-content'>" +
              choices.to_html() +
-             "</div>")
+             "</div>"
         #return choices #f"{msg}{ready_nodes}"
 
     def next(
