@@ -119,8 +119,8 @@ SampleArray.get_coordinates = sample_mask_get_coordinates
 
 
 def sample_data_to_dataset(self):
-    if self.format == 'json':
-        raise NotImplementedError('Conversion from json sample contents not supported yet')
+    if hasattr(self, 'format') and self.format == 'json':
+        raise NotImplementedError()
     if not hasattr(self, "values") or \
        not self.values:
         from_samples = self.from_samples.lookup()
