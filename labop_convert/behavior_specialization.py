@@ -31,7 +31,7 @@ class BehaviorSpecialization(ABC):
         self.execution = None
 
         # This data field holds the results of the specialization
-        self.data = None
+        self.data = []
 
     def initialize_protocol(self, execution: labop.ProtocolExecution):
         self.execution = execution

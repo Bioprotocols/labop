@@ -565,8 +565,11 @@ class MarkdownSpecialization(BehaviorSpecialization):
             destination_coordinates = f'wells {destination_coordinates} of '
 
         source_names = get_sample_names(source, error_msg='Transfer execution failed. All source Components must specify a name.')
-        if len(source_names) == 1:
-            text = f"Transfer {amount_scalar} {amount_units} of `{source_names[0]}` sample to {destination_coordinates} {container_str} `{container_spec.name}`."
+        if len(source_names) == 0:
+            text = f"transfer {amount_scalar} {amount_units} of `{source.name}` sample to {destination_coordinates} {container_str} `{container_spec.name}`."
+
+        elif len(source_names) == 1:
+            text = f"transfer {amount_scalar} {amount_units} of `{source_names[0]}` sample to {destination_coordinates} {container_str} `{container_spec.name}`."
         elif len(source_names) > 1:
             n_source = len(read_sample_contents(source))
             n_destination = n_source * replicates
@@ -1007,7 +1010,7 @@ def get_sample_names(inputs: Union[labop.SampleArray, sbol3.Component], error_ms
             if coordinates:
                 input_names = {inputs.document.find(contents[coordinates]).name}
             else:
-                input_names = {inputs.document.find(c).name for c in contents.values()}
+                input_names = {inputs.document.find(c).name for c in contents.values() if c is not None}
     elif isinstance(inputs, Iterable):
         input_names = {i.name for i in inputs}
     else:

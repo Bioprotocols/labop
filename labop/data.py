@@ -7,6 +7,7 @@ This file monkey-patches the imported labop classes with data handling functions
 from cmath import nan
 import xarray as xr
 import json
+from urllib.parse import quote, unquote
 
 import labop
 from labop_convert.plate_coordinates import coordinate_rect_to_row_col_pairs, coordinate_to_row_col
@@ -51,6 +52,7 @@ def sample_array_to_data_array(self):
     return xr.DataArray.from_dict(json.loads(self.contents))
 SampleArray.to_data_array = sample_array_to_data_array
 
+
 def sample_array_mask(self, mask):
     """
     Create a mask array out of SampleArray and mask.
@@ -75,6 +77,26 @@ def sample_array_mask(self, mask):
 SampleArray.mask = sample_array_mask
 
 
+def sample_array_from_dict(self, contents: dict):
+    if self.format != 'json':
+        raise Exception('Failed to write contents. The SampleArray contents are not configured for json format')
+    self.contents = quote(json.dumps(contents))
+    return self.contents
+SampleArray.from_dict = sample_array_from_dict
+
+
+def sample_array_to_dict(self) -> dict:
+    if self.format != 'json':
+        raise Exception('Failed to dump contents to dict. The SampleArray contents do not appear to be json format')
+    if not self.contents:
+        return {}
+    if self.contents == 'https://github.com/synbiodex/pysbol3#missing':
+        return {}
+    # De-serialize the contents field of a SampleArray
+    return json.loads(unquote(self.contents))
+SampleArray.to_dict = sample_array_to_dict
+
+
 def sample_mask_to_data_array(self):
     return xr.DataArray.from_dict(json.loads(self.mask))
 SampleMask.to_data_array = sample_mask_to_data_array
@@ -87,12 +109,18 @@ SampleMask.get_coordinates = sample_mask_get_coordinates
 
 
 def sample_array_get_coordinates(self):
-    contents = self.to_data_array()
-    return [c for c in contents.aliquot.data]
+    if self.format == 'json':
+        return self.to_dict().values()
+    elif self.format == 'xarray':
+        contents = self.to_data_array()
+        return [c for c in contents.aliquot.data]
+    raise ValueError(f'Unsupported sample format: {self.format}')
 SampleArray.get_coordinates = sample_mask_get_coordinates
 
 
 def sample_data_to_dataset(self):
+    if hasattr(self, 'format') and self.format == 'json':
+        raise NotImplementedError()
     if not hasattr(self, "values") or \
        not self.values:
         from_samples = self.from_samples.lookup()

@@ -113,6 +113,67 @@ def empty_container_compute_output(self, inputs, parameter, sample_format):
     else:
         return None
 
+def empty_rack_compute_output(self, inputs, parameter, sample_format):
+    if parameter.name == "slots" and \
+       parameter.type == 'http://bioprotocols.org/labop#SampleArray':
+        # Make a SampleArray
+        input_map = input_parameter_map(inputs)
+        spec = input_map["specification"]
+        if spec.queryString == 'cont:Opentrons24TubeRackwithEppendorf1.5mLSafe-LockSnapcap':
+            geometry = 'A1:C8'
+        else:
+            geometry = 'A1:H12'
+        contents = self.initialize_contents(sample_format, geometry)
+        name = f"{parameter.name}"
+        sample_array = labop.SampleArray(name=name,
+                                   container_type=spec,
+                                   contents=contents)
+        # This attribute isn't formally specified in the ontology yet, but supports handling of different sample formats by BehaviorSpecialiations
+        sample_array.format = sample_format
+        return sample_array
+    else:
+        return None
+
+def empty_rack_compute_output(self, inputs, parameter, sample_format):
+    if parameter.name == "slots" and \
+       parameter.type == 'http://bioprotocols.org/labop#SampleArray':
+        # Make a SampleArray
+        input_map = input_parameter_map(inputs)
+        spec = input_map["specification"]
+        if spec.queryString == 'cont:Opentrons24TubeRackwithEppendorf1.5mLSafe-LockSnapcap':
+            geometry = 'A1:C8'
+        else:
+            geometry = 'A1:H12'
+        contents = self.initialize_contents(sample_format, geometry)
+        name = f"{parameter.name}"
+        sample_array = labop.SampleArray(name=name,
+                                   container_type=spec,
+                                   contents=contents)
+        # This attribute isn't formally specified in the ontology yet, but supports handling of different sample formats by BehaviorSpecialiations
+        sample_array.format = sample_format
+        return sample_array
+    else:
+        return None
+
+def load_container_on_instrument_compute_output(self, inputs, parameter, sample_format):
+    if parameter.name == "samples" and \
+       parameter.type == 'http://bioprotocols.org/labop#SampleArray':
+        # Make a SampleArray
+        input_map = input_parameter_map(inputs)
+        spec = input_map["specification"]
+        # TODO: handle different containers, e.g. 8-tube strips, 12-tube strips
+        contents = self.initialize_contents(sample_format)
+        name = f"{parameter.name}"
+        sample_array = labop.SampleArray(name=name,
+                                   container_type=spec,
+                                   contents=contents)
+        # This attribute isn't formally specified in the ontology yet, but supports handling of different sample formats by BehaviorSpecialiations
+        sample_array.format = sample_format
+        return sample_array
+    else:
+        return None
+
+
 def plate_coordinates_compute_output(self, inputs, parameter, sample_format):
     if parameter.name == "samples" and \
     parameter.type == 'http://bioprotocols.org/labop#SampleCollection':
@@ -138,7 +199,10 @@ def measure_absorbance_compute_output(self, inputs, parameter, sample_format):
 primitive_to_output_function = {
     "EmptyContainer" : empty_container_compute_output,
     "PlateCoordinates" : plate_coordinates_compute_output,
-    "MeasureAbsorbance": measure_absorbance_compute_output
+    "MeasureAbsorbance": measure_absorbance_compute_output,
+    "EmptyInstrument": empty_rack_compute_output,
+    "EmptyRack": empty_rack_compute_output,
+    "LoadContainerOnInstrument": load_container_on_instrument_compute_output,
 }
 
 def initialize_primitive_compute_output(doc: sbol3.Document):
@@ -186,19 +250,19 @@ def primitive_compute_output(self, inputs, parameter, sample_format):
         return f"{parameter.name}"
 labop.Primitive.compute_output = primitive_compute_output
 
-def empty_container_initialize_contents(self, sample_format):
-    if self.identity == 'https://bioprotocols.org/labop/primitives/sample_arrays/EmptyContainer':
-        # FIXME need to find a definition of the container topology from the type
-        # FIXME this assumes a 96 well plate
+def empty_container_initialize_contents(self, sample_format, geometry='A1:H12'):
+    #if self.identity == 'https://bioprotocols.org/labop/primitives/sample_arrays/EmptyContainer':
+    # FIXME need to find a definition of the container topology from the type
+    # FIXME this assumes a 96 well plate
 
-        l.warn("Warning: Assuming that the SampleArray is a 96 well microplate!")
-        aliquots = get_aliquot_list(geometry="A1:H12")
-        #contents = json.dumps(xr.DataArray(dims=("aliquot", "contents"),
-        #                                   coords={"aliquot": aliquots}).to_dict())
-        if sample_format == 'xarray':
-            contents = json.dumps(xr.DataArray(aliquots, dims=("aliquot")).to_dict())
-        elif sample_format == 'json':
-            contents = quote(json.dumps({}))
+    l.warn("Warning: Assuming that the SampleArray is a 96 well microplate!")
+    aliquots = get_aliquot_list(geometry)
+    #contents = json.dumps(xr.DataArray(dims=("aliquot", "contents"),
+    #                                   coords={"aliquot": aliquots}).to_dict())
+    if sample_format == 'xarray':
+        contents = json.dumps(xr.DataArray(aliquots, dims=("aliquot")).to_dict())
+    elif sample_format == 'json':
+        contents = quote(json.dumps({c: None for c in aliquots}))
     else:
         raise Exception(f"Cannot initialize contents of: {self.identity}")
     return contents
