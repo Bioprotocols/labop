@@ -3,8 +3,9 @@ import opentrons.simulate as simulate
 from opentrons.protocols import bundle
 import sys
 
+
 def run_ot2_sim(filename):
-    sys.argv=[]
+    sys.argv = []
     """Run the simulation"""
     # parser = argparse.ArgumentParser(
     #     prog="opentrons_simulate", description="Simulate an OT-2 protocol"
@@ -14,7 +15,7 @@ def run_ot2_sim(filename):
     # args = parser.parse_args()
     # Try to migrate api v1 containers if needed
 
-    #duration_estimator = DurationEstimator() if args.estimate_duration else None  # type: ignore[no-untyped-call]
+    # duration_estimator = DurationEstimator() if args.estimate_duration else None  # type: ignore[no-untyped-call]
     duration_estimator = None
 
     with open(filename, "r") as protocol:
@@ -29,11 +30,11 @@ def run_ot2_sim(filename):
         )
 
     if maybe_bundle:
-        bundle_name = "bundle" # getattr(args, "bundle", None)
+        bundle_name = "bundle"  # getattr(args, "bundle", None)
         # if bundle_name == args.protocol.name:
         #     raise RuntimeError("Bundle path and input path must be different")
         bundle_dest = simulate._get_bundle_dest(
-            bundle_name, "PROTOCOL.ot2.zip", "my_protocol" #args.protocol.name
+            bundle_name, "PROTOCOL.ot2.zip", "my_protocol"  # args.protocol.name
         )
         if bundle_dest:
             bundle.create_bundle(maybe_bundle, bundle_dest)
@@ -48,15 +49,17 @@ def run_ot2_sim(filename):
         print("--------------------------------------------------------------")
         print(f"Estimated protocol duration: {hours}h:{minutes}m")
         print("--------------------------------------------------------------")
-        print("WARNING: Protocol duration estimation is an experimental feature")
+        print(
+            "WARNING: Protocol duration estimation is an experimental feature"
+        )
 
     return runlog
+
 
 def make_demo_script(filename):
     protocol = io.StringIO()
 
-    script = \
-"""
+    script = """
 from opentrons import protocol_api
 
 # metadata

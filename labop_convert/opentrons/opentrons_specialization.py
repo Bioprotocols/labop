@@ -57,6 +57,7 @@ LABWARE_MAP = {
 
 }
 
+REVERSE_LABWARE_MAP = LABWARE_MAP.__class__(map(reversed, LABWARE_MAP.items()))
 
 class OT2Specialization(BehaviorSpecialization):
 

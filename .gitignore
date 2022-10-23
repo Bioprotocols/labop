@@ -26,3 +26,4 @@ cluster_https:/bbn.com/scratch/test_execution.gv
 assets/
 container-ontology
 test/out
+.env
