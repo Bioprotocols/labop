@@ -227,7 +227,7 @@ class TestProtocolEndToEnd(unittest.TestCase):
         v = doc.validate()
         assert len(v) == 0, "".join(f'\n {e}' for e in v)
 
-        temp_name = os.path.join(tempfile.gettempdir(), 'igem_ludox_data_test.nt')
+        temp_name = os.path.join(tempfile.gettempdir(), 'sample_map_test.nt')
         doc.write(temp_name, sbol3.SORTED_NTRIPLES)
         print(f'Wrote file as {temp_name}')
 

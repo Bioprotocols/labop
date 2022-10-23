@@ -12,6 +12,7 @@ from typing import Dict
 
 from labop.execution_engine import ExecutionEngine
 from labop_convert.opentrons.opentrons_specialization import OT2Specialization
+from labop_convert.markdown.markdown_specialization import MarkdownSpecialization
 
 # Dev Note: This is a test of the initial version of the OT2 specialization. Any specs shown here can be changed in the future. Use at your own risk. Here be dragons.
 
@@ -23,34 +24,67 @@ def sanitize_display_id(display_id) -> str:
     return display_id
 
 
-def load_primer_layout(fname: str):
-    '''Load layout of primer plate'''
+def load_primer_layout(fname: str, doc: sbol3.Document):
+    '''Load layout of primer plate into a SampleArray'''
+    contents = {}
     with open(fname, 'r') as f:
         reader = csv.DictReader(f)
-        layout = {}
         for row in reader:
             primer = row['Primer']
             coordinate = row['Coordinates']
-            layout[primer] = coordinate
-    return layout
+            primer = sbol3.Component(sanitize_display_id(primer),
+                                     name=primer,
+                                     types=sbol3.SBO_DNA,
+                                     roles=[tyto.SO.primer])
+            doc.add(primer)
+            contents[coordinate] = primer.identity
+    sample_array = labop.SampleArray()
+    sample_array.format = 'json'
+    sample_array.from_dict(contents)    
+    return sample_array
 
 
-def load_pcr_layout(fname: str):
-    '''Load layout of primer plate'''
+def load_templates(fname: str, doc: sbol3.Document):
+    '''Load templates into a SampleArray'''
     with open(fname, 'r') as f:
         reader = csv.DictReader(f)
-        layout = {}
+        templates = set()
+        for row in reader:
+            template = row['Template']
+            templates.add(template)
+    if len(templates) > 8:
+        raise ValueError(f'This protocol only supports up to 8 templates {len(templates)} provided.')
+
+    # Make SBOL Components
+    templates = [sbol3.Component('Component/' + sanitize_display_id(template),
+                                 name=template,
+                                 types=sbol3.SBO_DNA,
+                                 roles=[tyto.SO.plasmid])
+                 for template in templates]
+    doc.add(templates)
+
+    # Make SampleArray of Components
+    sample_array = labop.SampleArray()
+    sample_array.format = 'json'
+    contents = {}
+    for i, x in enumerate(templates):
+        contents[f'C{i+1}'] = x.identity  # Assume that templates will go in row C
+    sample_array.from_dict(contents)
+    return sample_array
+
+
+def load_pcr_plan(fname: str, doc: sbol3.Document):
+    '''Load planned PCR reactions'''
+    with open(fname, 'r') as f:
+        reader = csv.DictReader(f)
+        plan = {}
         for row in reader:
             f_primer = row['Forward']
             r_primer = row['Reverse']
             template = row['Template']
             coordinate = row['Coordinates']
-            layout[coordinate] = dict(row)
-    return layout
-
-
-primer_layout = load_primer_layout('primer_layout.csv')
-pcr_layout = load_pcr_layout('pcr_layout.csv')
+            plan[coordinate] = dict(row)
+    return plan
 
 
 
@@ -73,6 +107,12 @@ labop.import_library('sample_arrays')
 print('... Imported sample arrays')
 labop.import_library('pcr')
 print('... Imported pcr')
+
+############################3
+# load pcr setup
+primer_layout = load_primer_layout('primer_layout.csv', doc)
+templates = load_templates('pcr_plan.csv', doc)
+pcr_plan = load_pcr_plan('pcr_plan.csv', doc)
 
 
 protocol = labop.Protocol('pcr_example')
@@ -125,32 +165,31 @@ load_water = protocol.primitive_step('LoadContainerInRack', slots=rack.output_pi
 provision_water = protocol.primitive_step('Provision', resource=ddh2o, destination=load_water.output_pin('samples'), amount=sbol3.Measure(500, tyto.OM.microliter))
 
 
-# Set up template
-templates = list({reaction['Template'] for reaction in pcr_layout.values()})
-templates.sort()
-rack_coordinates = [f'C{i}' for i in range(1, len(templates) + 1)]
-if len(templates) > 8:
-    raise Exception('Too many templates')
 
-# Automatically assign a layout for the template samples in the reagent rack
+# Template DNA samples are assumed to be in microfuge tubes 
+# which will be added to a tube rack
 template_layout = {}
-for template, coordinate in zip(templates, rack_coordinates):
-    c_template = sbol3.Component('Component/' + sanitize_display_id(template), name=template, types=sbol3.SBO_DNA)
-    doc.add(c_template)
-    template_container = labop.ContainerSpec(sanitize_display_id(template), name='container of ' + template, queryString='cont:MicrofugeTube', prefixMap=PREFIX_MAP)
+for coordinate, template in templates.to_dict().items():
+    template = doc.find(template)
+    template_container = labop.ContainerSpec(template.display_id + '_container',
+                                             name='container of ' + template.name,
+                                             queryString='cont:MicrofugeTube',
+                                             prefixMap=PREFIX_MAP)
     load_template = protocol.primitive_step('LoadContainerInRack', slots=rack.output_pin('slots'), container=template_container, coordinates=coordinate)
-    template_layout[template] = load_template.output_pin('samples')
+    template_layout[template.name] = load_template.output_pin('samples')
 
 # Set up PCR machine
 pcr_plate = labop.ContainerSpec('pcr_plate', name='PCR plate', queryString='cont:Biorad96WellPCRPlate', prefixMap=PREFIX_MAP)
 load_pcr_plate_on_thermocycler = protocol.primitive_step('LoadContainerOnInstrument', specification=pcr_plate, instrument=OT2Specialization.EQUIPMENT['thermocycler'], slots='A1:H12')
 
 # Pipette PCR reactions
-for target_well, reaction in pcr_layout.items():
+for target_well, reaction in pcr_plan.items():
     f_primer = reaction['Forward']
-    f_primer_coordinates = primer_layout[f_primer]
+    [f_primer_coordinates] = [c for c, p in primer_layout.to_dict().items()
+                              if doc.find(p).name == f_primer]
     r_primer = reaction['Reverse']
-    r_primer_coordinates = primer_layout[r_primer]
+    [r_primer_coordinates] = [c for c, p in primer_layout.to_dict().items()
+                              if doc.find(p).name == r_primer]
     template = template_layout[reaction['Template']]
 
     target_sample = protocol.primitive_step('PlateCoordinates', source=load_pcr_plate_on_thermocycler.output_pin('samples'), coordinates=target_well)
@@ -192,12 +231,9 @@ ee = ExecutionEngine(specializations=[OT2Specialization(filename)], failsafe=Fal
 parameter_values = []
 execution = ee.execute(protocol, agent, id="test_execution")
 
-#v = doc.validate()
-#assert len(v) == 0, "".join(f'\n {e}' for e in v)
+#ee = ExecutionEngine(specializations=[MarkdownSpecialization(filename + '.md')], failsafe=False, sample_format='json')
+#parameter_values = []
+#execution = ee.execute(protocol, agent, id="test_execution")
 
-doc.write('foo.ttl', file_format='ttl')
 
- #render and view the dot
-#dot = protocol.to_dot()
-#dot.render(f'{protocol.name}.gv')
-#dot.view()
+
