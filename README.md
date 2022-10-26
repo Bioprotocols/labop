@@ -6,7 +6,7 @@ Laboratory Open Procotol Language (LabOP) is a representation designed to simpli
 The LabOP package is available by PyPI:
 
 ```
-pip3 install pylabop
+pip3 install labop
 ```
 
 The LabOP repo also includes git submodules containing the optional utility `labop-check` for checking consistency of protocol representations and a demo version of the `container-ontology` which provides standardized descriptions for laboratory containers.  These are currently not available as packages.  If you wish to use these you will have to clone the LabOP repo and install each of these separately:
