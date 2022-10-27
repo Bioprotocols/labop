@@ -9,7 +9,7 @@ extras = {
 
 setup(name='labop',
       description='Laboratory Open Procotol Language',
-      version='1.0a1',
+      version='1.0a2',
       install_requires=[
             'sbol3',
             'sparqlwrapper',
