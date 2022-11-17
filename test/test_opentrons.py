@@ -5,9 +5,13 @@ import logging
 import os
 import tempfile
 import unittest
-import sbol3
-import labop
 
+import sbol3
+import tyto
+from opentrons.protocols.execution.errors import ExceptionInProtocolError
+
+import labop
+import labop.utils.opentrons
 from labop.execution_engine import ExecutionEngine
 from labop_convert.opentrons.opentrons_specialization import OT2Specialization
 
@@ -35,6 +39,11 @@ protocol_def = load_protocol("opentrons_toy_protocol", protocol_def_file)
 out_dir = os.path.join(CWD, "out")
 if not os.path.exists(out_dir):
     os.mkdir(out_dir)
+
+labop.import_library("liquid_handling")
+labop.import_library("plate_handling")
+labop.import_library("spectrophotometry")
+labop.import_library("sample_arrays")
 
 
 class TestProtocolEndToEnd(unittest.TestCase):
@@ -97,6 +106,69 @@ class TestProtocolEndToEnd(unittest.TestCase):
             temp_name, comparison_file
         ), "Files are not identical"
         print("File identical with test file")
+
+
+class TestRobotConfiguration(unittest.TestCase):
+
+    def test_out_of_tips(self):
+        # Protocol should fail because the pipette is not configured with tips
+        doc = sbol3.Document()
+        protocol = labop.Protocol('foo')
+        doc.add(protocol)
+        protocol.primitive_step('ConfigureRobot', instrument=OT2Specialization.EQUIPMENT['p300_single'], mount='left')
+        plate = labop.ContainerSpec('calibration_plate', name='calibration plate', queryString='cont:Corning96WellPlate360uLFlat')
+        load = protocol.primitive_step('LoadRackOnInstrument', rack=plate, coordinates='2')
+        plate = protocol.primitive_step('EmptyContainer', specification=plate)
+        source = protocol.primitive_step('PlateCoordinates', source=plate.output_pin('samples'), coordinates='A1')
+        destination = protocol.primitive_step('PlateCoordinates', source=plate.output_pin('samples'), coordinates='B1')
+        transfer = protocol.primitive_step('Transfer', source=source.output_pin('samples'), destination=destination.output_pin('samples'), amount=sbol3.Measure(100, tyto.OM.microliter))
+
+        ee = ExecutionEngine(
+            specializations=[
+                OT2Specialization(os.path.join(out_dir, "foo"))
+            ],
+            failsafe=False
+        )
+        execution = ee.execute(
+            protocol,
+            sbol3.Agent('ot2_machine'),
+            id="test_execution_1",
+            parameter_values=[],
+        )
+        with self.assertRaises(ExceptionInProtocolError) as e:
+            # OutOfTips error
+            labop.utils.opentrons.run_ot2_sim(os.path.join(out_dir, 'foo.py'))
+
+    def test_configure_pipette_tips(self):
+        # Pipette tips should be automatically configured
+        doc = sbol3.Document()
+        protocol = labop.Protocol('foo')
+        doc.add(protocol)
+        protocol.primitive_step('ConfigureRobot', instrument=OT2Specialization.EQUIPMENT['p300_single'], mount='left')
+        plate = labop.ContainerSpec('calibration_plate', name='calibration plate', queryString='cont:Corning96WellPlate360uLFlat')
+        load = protocol.primitive_step('LoadRackOnInstrument', rack=plate, coordinates='2')
+        plate = protocol.primitive_step('EmptyContainer', specification=plate)
+        source = protocol.primitive_step('PlateCoordinates', source=plate.output_pin('samples'), coordinates='A1')
+        destination = protocol.primitive_step('PlateCoordinates', source=plate.output_pin('samples'), coordinates='B1')
+
+        # Load tiprack and then execute. OT2 simulation should succeed
+        # because the pipette has been configured with the tips
+        tiprack = labop.ContainerSpec('tiprack', queryString='cont:Opentrons96TipRack300uL', name='tiprack')
+        protocol.primitive_step('LoadRackOnInstrument', rack=tiprack, coordinates='1')
+        transfer = protocol.primitive_step('Transfer', source=source.output_pin('samples'), destination=destination.output_pin('samples'), amount=sbol3.Measure(100, tyto.OM.microliter))
+
+        ee = ExecutionEngine(
+            specializations=[
+                OT2Specialization(os.path.join(out_dir, "foo"))
+            ],
+            failsafe=False
+        )
+        execution = ee.execute(
+            protocol,
+            sbol3.Agent('ot2_machine'),
+            id="test_execution_1",
+            parameter_values=[],
+        )
 
 
 if __name__ == "__main__":
