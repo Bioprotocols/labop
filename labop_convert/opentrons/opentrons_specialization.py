@@ -528,6 +528,7 @@ class OT2Specialization(BehaviorSpecialization):
         parameter_value_map = call.parameter_value_map()
         coords: str = parameter_value_map['coordinates']['value'] if 'coordinates' in parameter_value_map else '1'
         rack: labop.ContainerSpec = parameter_value_map['rack']['value']
+        rack_str = get_container_name(rack)
 
         if rack.queryString not in LABWARE_MAP:
             raise Exception(f'Load failed. {rack.queryString} not a recognized rack type.')
@@ -538,7 +539,6 @@ class OT2Specialization(BehaviorSpecialization):
 
         api_name = LABWARE_MAP[rack.queryString]
         self.script_steps += [f"labware{coords} = protocol.load_labware('{api_name}', '{coords}')"]
-        rack_str = get_container_name(rack)
         self.markdown_steps += [f'Load {rack_str} in Deck {coords} of OT2 instrument']
 
         # If the loaded labware is a tiprack, check if any compatible pipettes
