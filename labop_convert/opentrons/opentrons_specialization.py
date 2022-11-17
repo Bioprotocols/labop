@@ -3,6 +3,7 @@ import json
 import logging
 from typing import Dict
 from labop_convert.plate_coordinates import get_aliquot_list
+import labop_convert.opentrons.opentrons_equipment
 import xarray as xr
 
 
@@ -61,27 +62,7 @@ REVERSE_LABWARE_MAP = LABWARE_MAP.__class__(map(reversed, LABWARE_MAP.items()))
 
 class OT2Specialization(BehaviorSpecialization):
 
-    EQUIPMENT = {
-        'p20_single_gen2': sbol3.Agent('p20_single_gen2', name='P20 Single GEN2'),
-        'p300_single_gen2': sbol3.Agent('p300_single_gen2', name='P300 Single GEN2'),
-        'p1000_single_gen2': sbol3.Agent('p1000_single_gen2', name='P1000 Single GEN2'),
-        'p300_multi_gen2': sbol3.Agent('p300_multi_gen2', name='P300 Multi GEN2'),
-        'p20_multi_gen2': sbol3.Agent('p20_multi_gen2', name='P20 Multi GEN2'),
-        'p10_single': sbol3.Agent('p10_single', name='P10 Single'),
-        'p10_multi': sbol3.Agent('p10_multi', name='P10 Multi'),
-        'p50_single': sbol3.Agent('p50_single', name='P50 Single'),
-        'p50_multi': sbol3.Agent('p50_multi', name='P50 Multi'),
-        'p300_single': sbol3.Agent('p300_single', name='P300 Single'),
-        'p300_multi': sbol3.Agent('p300_multi', name='P300 Multi'),
-        'p1000_single': sbol3.Agent('p1000_single', name='P1000 Single'),
-        'temperature_module': sbol3.Agent('temperature_module', name='Temperature Module GEN1'),
-        'tempdeck': sbol3.Agent('temperature_module', name='Temperature Module GEN1'),
-        'temperature_module_gen2': sbol3.Agent('temperature_module_gen2', name='Temperature Module GEN2'),
-        'magnetic_module': sbol3.Agent('magdeck', name='Magnetic Module GEN1'),
-        'magnetic_module_gen2': sbol3.Agent('magnetic_module_gen2', name='Magnetic Module GEN2'),
-        'thermocycler_module': sbol3.Agent('thermocycler_module', name='Thermocycler Module'),
-        'thermocycler': sbol3.Agent('thermocycler_module', name='Thermocycler Module')
-    }
+    EQUIPMENT = labop_convert.opentrons.opentrons_equipment.EQUIPMENT
 
     def __init__(self, filename, resolutions: Dict[sbol3.Identified,str] = None) -> None:
         super().__init__()

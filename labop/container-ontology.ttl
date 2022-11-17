@@ -1234,10 +1234,10 @@ cont:Opentrons24TubeRackwithEppendorf1.5mLSafe-LockSnapcap rdf:type owl:NamedInd
                                                            rdfs:label "Opentrons 24 Tube Rack with Eppendorf 1.5 mL Safe-Lock Snapcap" .
 
 
-###  https://sift.net/container-ontology/container-ontology#Opentrons96FilterTipRack1000uL
-cont:Opentrons96FilterTipRack1000uL rdf:type owl:NamedIndividual ,
-                                             cont:TipRack ;
-                                    rdfs:label "Opentrons 96 Filter Tip Rack 1000 µL" .
+###  https://sift.net/container-ontology/container-ontology#Opentrons96TipRack10uL
+cont:Opentrons96TipRack10uL rdf:type owl:NamedIndividual ,
+                                     cont:TipRack ;
+                            rdfs:label "Opentrons 96 Tip Rack 10 µL" .
 
 
 ###  https://sift.net/container-ontology/container-ontology#Opentrons96FilterTipRack10uL
@@ -1246,10 +1246,41 @@ cont:Opentrons96FilterTipRack10uL rdf:type owl:NamedIndividual ,
                                   rdfs:label "Opentrons 96 Filter Tip Rack 10 µL" .
 
 
+###  https://sift.net/container-ontology/container-ontology#Opentrons96TipRack20uL
+cont:Opentrons96TipRack20uL rdf:type owl:NamedIndividual ,
+                                     cont:TipRack ;
+                            rdfs:label "Opentrons 96 Tip Rack 20 µL" .
+
+
+###  https://sift.net/container-ontology/container-ontology#Opentrons96FilterTipRack20uL
+cont:Opentrons96FilterTipRack20uL rdf:type owl:NamedIndividual ,
+                                            cont:TipRack ;
+                                   rdfs:label "Opentrons 96 Filter Tip Rack 20 µL" .
+
+
+###  https://sift.net/container-ontology/container-ontology#Opentrons96TipRack200uL
+cont:Opentrons96TipRack200uL rdf:type owl:NamedIndividual ,
+                                     cont:TipRack ;
+                            rdfs:label "Opentrons 96 Tip Rack 200 µL" .
+
+
 ###  https://sift.net/container-ontology/container-ontology#Opentrons96FilterTipRack200uL
 cont:Opentrons96FilterTipRack200uL rdf:type owl:NamedIndividual ,
                                             cont:TipRack ;
                                    rdfs:label "Opentrons 96 Filter Tip Rack 200 µL" .
+
+
+
+###  https://sift.net/container-ontology/container-ontology#Opentrons96TipRack300uL
+cont:Opentrons96TipRack300uL rdf:type owl:NamedIndividual ,
+                                      cont:TipRack ;
+                             rdfs:label "Opentrons 96 Tip Rack 300 µL" .
+
+
+###  https://sift.net/container-ontology/container-ontology#Opentrons96FilterTipRack300uL
+cont:Opentrons96FilterTipRack300uL rdf:type owl:NamedIndividual ,
+                                            cont:TipRack ;
+                                   rdfs:label "Opentrons 96 Filter Tip Rack 300 µL" .
 
 
 ###  https://sift.net/container-ontology/container-ontology#Opentrons96TipRack1000uL
@@ -1258,16 +1289,12 @@ cont:Opentrons96TipRack1000uL rdf:type owl:NamedIndividual ,
                               rdfs:label "Opentrons 96 Tip Rack 1000 µL" .
 
 
-###  https://sift.net/container-ontology/container-ontology#Opentrons96TipRack10uL
-cont:Opentrons96TipRack10uL rdf:type owl:NamedIndividual ,
-                                     cont:TipRack ;
-                            rdfs:label "Opentrons 96 Tip Rack 10 µL" .
+###  https://sift.net/container-ontology/container-ontology#Opentrons96FilterTipRack1000uL
+cont:Opentrons96FilterTipRack1000uL rdf:type owl:NamedIndividual ,
+                                             cont:TipRack ;
+                                    rdfs:label "Opentrons 96 Filter Tip Rack 1000 µL" .
 
 
-###  https://sift.net/container-ontology/container-ontology#Opentrons96TipRack300uL
-cont:Opentrons96TipRack300uL rdf:type owl:NamedIndividual ,
-                                      cont:TipRack ;
-                             rdfs:label "Opentrons 96 Tip Rack 300 µL" .
 
 
 ###  https://sift.net/container-ontology/container-ontology#PlateReader
