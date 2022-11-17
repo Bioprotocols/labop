@@ -352,8 +352,12 @@ def add_call_behavior_action(parent: Activity, behavior: Behavior, **input_pin_l
 
             # Now create pins for all the input values
             for value in values:
-                if isinstance(value, sbol3.TopLevel) and not value.document:
-                    parent.document.add(value)
+                if isinstance(value, sbol3.TopLevel):
+                    if not value.document:
+                        parent.document.add(value)
+                    elif value.document != parent.document:
+                        # This facilitates re-use of Agents in the Opentrons specialization
+                        value.copy(target_doc=parent.document)                 
                 action.inputs.append(ValuePin(name=i.property_value.name, is_ordered=i.property_value.is_ordered,
                                               is_unique=i.property_value.is_unique, value=literal(value)))
 
