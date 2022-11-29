@@ -33,14 +33,19 @@ class OT2Pipette(OT2Instrument, sbol3.CustomTopLevel):
     def __init__(self,
                  identity: str,
                  compatible_tips: list[str],
-                 max_volume: sbol3.Measure,
-                 type_uri=f'{labop_ns}OT2Pipette',
+                 min_volume,
+                 max_volume,
+                 type_uri=f'{labop_ns}http://bioprotocols.org/labop#OT2Pipette',
                  **kwargs):
-        super().__init__(identity=identity, type_uri=type_uri, **kwargs)
+        super().__init__(identity=identity, type_uri=f'{labop_ns}OT2Pipette', **kwargs)
         self.compatible_tips = sbol3.URIProperty(self, 
                                                  f'{labop_ns}isCompatibleWith',
                                                  1, inf,
                                                  initial_value=compatible_tips)
+        self.min_volume = sbol3.OwnedObject(self,
+                                            f'{labop_ns}minVolume',
+                                            1, 1,
+                                            initial_value=min_volume)
         self.max_volume = sbol3.OwnedObject(self,
                                             f'{labop_ns}maxVolume',
                                             1, 1,
@@ -71,7 +76,10 @@ def build_ot2_pipette(*, identity, type_uri):
     obj = OT2Pipette(identity,
                      [sbol3.PYSBOL3_MISSING],
                      sbol3.Measure(0, sbol3.PYSBOL3_MISSING),
+                     sbol3.Measure(0, sbol3.PYSBOL3_MISSING),
                      type_uri=type_uri)
+    obj.clear_property(f'{labop_ns}minVolume')
+    obj.clear_property(f'{labop_ns}maxVolume')
     return obj
 
 
@@ -90,58 +98,70 @@ sbol3.Document.register_builder(f'{labop_ns}OT2Pipette',
 
 p10_single = OT2Pipette('p10_single',
            [ContO.Opentrons_96_Tip_Rack_10_µL, ContO.Opentrons_96_Filter_Tip_Rack_10_µL],
+           sbol3.Measure(1, tyto.OM.microliter),
+
            sbol3.Measure(10, tyto.OM.microliter),
            name='P10 Single')
 p10_multi = OT2Pipette('p10_multi',
            [ContO.Opentrons_96_Tip_Rack_10_µL, ContO.Opentrons_96_Filter_Tip_Rack_10_µL],
+           sbol3.Measure(1, tyto.OM.microliter),
            sbol3.Measure(10, tyto.OM.microliter),
            name='P10 Multi')
 p20_single_gen2 = OT2Pipette('p20_single_gen2',
            [ContO.Opentrons_96_Tip_Rack_20_µL, ContO.Opentrons_96_Filter_Tip_Rack_20_µL],
+           sbol3.Measure(1, tyto.OM.microliter),
            sbol3.Measure(20, tyto.OM.microliter), 
            name='P20 Single GEN2')
 p20_multi_gen2 = OT2Pipette('p20_multi_gen2',
            [ContO.Opentrons_96_Tip_Rack_20_µL, ContO.Opentrons_96_Filter_Tip_Rack_20_µL],
+           sbol3.Measure(1, tyto.OM.microliter),
            sbol3.Measure(20, tyto.OM.microliter),
            name='P20 Multi GEN2')
 p50_single = OT2Pipette('p50_single',
            [ContO.Opentrons_96_Tip_Rack_200_µL, ContO.Opentrons_96_Filter_Tip_Rack_200_µL],
+           sbol3.Measure(5, tyto.OM.microliter),
            sbol3.Measure(50, tyto.OM.microliter),
            name='P50 Single')
 p50_multi = OT2Pipette('p50_multi',
            [ContO.Opentrons_96_Tip_Rack_300_µL, ContO.Opentrons_96_Filter_Tip_Rack_300_µL],
+           sbol3.Measure(5, tyto.OM.microliter),
            sbol3.Measure(50, tyto.OM.microliter),
            name='P50 Multi')
 p300_single = OT2Pipette('p300_single',
            [ContO.Opentrons_96_Tip_Rack_300_µL, ContO.Opentrons_96_Filter_Tip_Rack_300_µL],
+           sbol3.Measure(30, tyto.OM.microliter),
            sbol3.Measure(300, tyto.OM.microliter),
            name='P300 Single')
 p300_single_gen2 = OT2Pipette('p300_single_gen2',
            [ContO.Opentrons_96_Tip_Rack_300_µL, ContO.Opentrons_96_Filter_Tip_Rack_300_µL],
+           sbol3.Measure(30, tyto.OM.microliter),
            sbol3.Measure(300, tyto.OM.microliter),
            name='P300 Single GEN2')
 p300_multi = OT2Pipette('p300_multi',
            [ContO.Opentrons_96_Tip_Rack_300_µL, ContO.Opentrons_96_Filter_Tip_Rack_300_µL],
+           sbol3.Measure(30, tyto.OM.microliter),
            sbol3.Measure(300, tyto.OM.microliter),
            name='P300 Multi')
 p300_multi_gen2 = OT2Pipette('p300_multi_gen2',
            [ContO.Opentrons_96_Tip_Rack_300_µL, ContO.Opentrons_96_Filter_Tip_Rack_300_µL],
+           sbol3.Measure(30, tyto.OM.microliter),
            sbol3.Measure(300, tyto.OM.microliter),
            name='P300 Multi GEN2')
 p1000_single = OT2Pipette('p1000_single',
            [ContO.Opentrons_96_Tip_Rack_1000_µL, ContO.Opentrons_96_Filter_Tip_Rack_1000_µL],
+           sbol3.Measure(100, tyto.OM.microliter),
            sbol3.Measure(1000, tyto.OM.microliter),
            name='P1000 Single')
 p1000_single_gen2 = OT2Pipette('p1000_single_gen2',
            [ContO.Opentrons_96_Tip_Rack_1000_µL, ContO.Opentrons_96_Filter_Tip_Rack_1000_µL],
+           sbol3.Measure(100, tyto.OM.microliter),
            sbol3.Measure(1000, tyto.OM.microliter),
            name='P1000 Single GEN2')
-temperature_module = OT2Instrument('temperature_module', name='Temperature Module GEN1'),
-temperature_module_gen2 = OT2Instrument('temperature_module_gen2', name='Temperature Module GEN2'),
-magdeck = OT2Instrument('magdeck', name='Magnetic Module GEN1'),
-magnetic_module_gen2 = OT2Instrument('magnetic_module_gen2', name='Magnetic Module GEN2'),
-thermocycler_module = OT2Instrument('thermocycler_module', name='Thermocycler Module'),
-
+temperature_module = OT2Instrument('temperature_module', name='Temperature Module GEN1')
+temperature_module_gen2 = OT2Instrument('temperature_module_gen2', name='Temperature Module GEN2')
+magdeck = OT2Instrument('magdeck', name='Magnetic Module GEN1')
+magnetic_module_gen2 = OT2Instrument('magnetic_module_gen2', name='Magnetic Module GEN2')
+thermocycler_module = OT2Instrument('thermocycler_module', name='Thermocycler Module')
 
 ## Map terms in the Container ontology to OT2 API names
 LABWARE_MAP = {
@@ -184,4 +204,5 @@ EQUIPMENT = {
 # will be forced to use copies of these Agent objects
 doc = sbol3.Document()
 for eq in EQUIPMENT.values():
-    doc.add(eq)
+    if eq not in doc.objects:
+        doc.add(eq)

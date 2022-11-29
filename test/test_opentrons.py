@@ -170,6 +170,44 @@ class TestRobotConfiguration(unittest.TestCase):
             parameter_values=[],
         )
 
+    def test_max_volume_exceeded(self):
+        # When the max volume of a pipette is exceeded, the specialization
+        # should attempt to decompose it into multiple transfers
+        doc = sbol3.Document()
+        protocol = labop.Protocol('foo')
+        doc.add(protocol)
+
+        # Mount a 300 ul pipette
+        protocol.primitive_step('ConfigureRobot', instrument=OT2Specialization.EQUIPMENT['p300_single'], mount='left')
+        plate = labop.ContainerSpec('calibration_plate', name='calibration plate', queryString='cont:Corning96WellPlate360uLFlat')
+        load = protocol.primitive_step('LoadRackOnInstrument', rack=plate, coordinates='2')
+        plate = protocol.primitive_step('EmptyContainer', specification=plate)
+        source = protocol.primitive_step('PlateCoordinates', source=plate.output_pin('samples'), coordinates='A1')
+        destination = protocol.primitive_step('PlateCoordinates', source=plate.output_pin('samples'), coordinates='B1')
+        tiprack = labop.ContainerSpec('tiprack', queryString='cont:Opentrons96TipRack300uL', name='tiprack')
+        protocol.primitive_step('LoadRackOnInstrument', rack=tiprack, coordinates='1')
+
+        # Transfer volume exceeds max capacity of pipette
+        transfer = protocol.primitive_step('Transfer', source=source.output_pin('samples'), destination=destination.output_pin('samples'), amount=sbol3.Measure(900, tyto.OM.microliter))
+
+        ee = ExecutionEngine(
+            specializations=[
+                OT2Specialization(os.path.join(out_dir, "foo"))
+            ],
+            failsafe=False
+        )
+        execution = ee.execute(
+            protocol,
+            sbol3.Agent('ot2_machine'),
+            id="test_execution_1",
+            parameter_values=[],
+        )
+        print(ee.specializations[0].script)
+
+        # Transfer should be decomposed into 3 transfers
+        self.assertEqual(3, ee.specializations[0].script.count(
+                         "p300_single.transfer(300.0, labware2['A1'], labware2['B1'])"))
+
 
 if __name__ == "__main__":
     unittest.main()

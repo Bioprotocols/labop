@@ -110,10 +110,8 @@ def opentrons_toy_protocol() -> Tuple[labop.Protocol, Document]:
 
     # left_pipette = protocol.load_instrument(
     #          'p300_single', mount='left', tip_racks=[tiprack])
-    p300 = sbol3.Agent("p300_single", name="P300 Single")
-    doc.add(p300)
     left_pipette = protocol.primitive_step(
-        "ConfigureRobot", instrument=p300, mount="left"
+        "ConfigureRobot", instrument=OT2Specialization.EQUIPMENT['p300_single'], mount="left"
     )
 
     # left_pipette.pick_up_tip()

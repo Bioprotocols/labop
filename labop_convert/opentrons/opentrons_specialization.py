@@ -350,10 +350,42 @@ class OT2Specialization(BehaviorSpecialization):
         if not destination_name:
             raise Exception(f'{destination_container} is not loaded.')
 
-        # TODO: automatically choose pipette based on transferred volume
-        if not self.configuration:
-            raise Exception('Transfer call failed. Use ConfigureInstrument to configure a pipette')
-        pipette = self.configuration['left']
+        # Automatically choose pipette based on transferred volume
+        # TODO: Provide a parameter that allows the user to explicitly specify
+        # which pipette to use
+        selected_pipette = None
+        if not selected_pipette:
+            # If no instrument is specified by the user, choose the
+            # pipette whose max volume is closest to the transfer volume
+            l_pipette = self.configuration['left'] if 'left' in self.configuration else None
+            r_pipette = self.configuration['right'] if 'right' in self.configuration else None
+
+            if not l_pipette and not r_pipette:
+                raise Exception('Transfer failed because no pipette has been mounted. Call ConfigureRobot to configure a pipette')
+            if l_pipette and r_pipette: 
+                # Choose the pipette whose max volume is closest to the transfer volume
+                # TODO: check dimensional units
+                if abs(abs(l_pipette.max_volume.value - value)/value - 1.0) < \
+                   abs(abs(r_pipette.max_volume.value - value)/value - 1.0):
+                    selected_pipette = l_pipette
+                else:
+                    selected_pipette = r_pipette
+            elif l_pipette:
+                selected_pipette = l_pipette
+            elif r_pipette:
+                selected_pipette = r_pipette
+
+        transfers = [value]
+        if value > selected_pipette.max_volume.value:
+            divisor = None
+            for i in range(1, int(selected_pipette.max_volume.value)+1):
+                if value % i == 0 and (value / i) <= selected_pipette.max_volume.value:
+                    divisor = i
+                    break
+            if not divisor:
+                raise Exception('Invalid Transfer volume specified. The Transfer volume exceeds the maximum of the mounted pipettes and cannot be divided evenly into multiple transfers')
+            transfers = [value / divisor] * divisor
+                    
 
         comment = record.node.lookup().name
         comment = '# ' + comment if comment else "# Transfer ActivityNode name is not defined."
@@ -362,7 +394,8 @@ class OT2Specialization(BehaviorSpecialization):
         destination_str = destination.mask
         for c_source in get_aliquot_list(source.mask):
             for c_destination in get_aliquot_list(destination.mask):
-                self.script_steps += [f"{pipette.display_id}.transfer({value}, {source_name}['{c_source}'], {destination_name}['{c_destination}'])  {comment}"]
+                for v_i in transfers:
+                    self.script_steps += [f"{selected_pipette.display_id}.transfer({v_i}, {source_name}['{c_source}'], {destination_name}['{c_destination}'])  {comment}"]
 
 
     def transfer_by_map(self, record: labop.ActivityNodeExecution, ex: labop.ProtocolExecution):
@@ -663,3 +696,12 @@ def get_behavior_type(ex: labop.CallBehaviorExecution) -> str:
     # represents.  Strips the namespace out of the Primitive's URI
     # and returns just the local name, e.g., "PlateCoordinates"
     return ex.node.lookup().behavior.split('/')[-1]
+
+
+def configure_tiprack(rack: labop.ContainerSpec, config: dict):
+    select_pipette = None
+    for pipette in config.values():
+        if pipette.display_id in COMPATIBLE_TIPS and api_name in COMPATIBLE_TIPS[pipette.display_id]:
+            select_pipette = pipette.display_id
+            break
+

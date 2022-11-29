@@ -1,6 +1,6 @@
 from setuptools import setup
 
-test_deps = ["nbmake", "pytest-xdist", "pre-commit", "nbstripout"]
+test_deps = ["nbmake", "pytest-xdist", "pre-commit", "nbstripout", "opentrons"]
 notebook_deps = ["ipython", "ipywidgets"]
 extras = {
     "test": test_deps,
