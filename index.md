@@ -19,7 +19,7 @@ LabOP's rich representation underpins an ecosystem of several powerful software 
   - *Execution* in the native LabOP semantics (rooted in the UML activity model),
   - *Specialization* of protocols to 3rd-party protocol formats (including Autoprotocol, OpenTrons, and human readible formats), and
   - *Integration* with instruments (including OpenTrons OT2, Echo, and SiLA-based automation).
-- [pamled](https://www.github.com/bioprotocols/pamled): the web-based LabOP Editor, which supports:
+- [laboped](https://www.github.com/bioprotocols/laboped): the web-based LabOP Editor, which supports:
   - *Programming* LabOP protocols quickly with low-code visual scripts,
   - *Storing* protocols on the cloud,
   - *Exporting* protocol specializations for use in other execution frameworks,
