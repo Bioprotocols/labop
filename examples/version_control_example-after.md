@@ -37,5 +37,5 @@ is only weakly scattering and so will give a low absorbance value.
 4. Measure absorbance of `plateRequirement` at 600.0 nanometer.
 5. Import data for `absorbance measurements of plateRequirement` into provided Excel file.
 ---
-Timestamp: 2022-12-19 10:56:16.139217
-Protocol version: v1.0a2-1-g9f27697
+Timestamp: 2022-12-19 13:36:34.364128
+Protocol version: v1.0a2-3-g5f38c11

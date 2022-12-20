@@ -90,7 +90,7 @@ def create_plate(protocol: labop.Protocol):
     # plate_spec = sbol3.Identified(plate_spec_uri,
     #                               "foo", name="RequiredPlate")
     spec = labop.ContainerSpec('plateRequirement',
-                              name='plateRequirement',
+                              name='calibration plate',
                               queryString=PLATE_SPECIFICATION,
                               prefixMap=PREFIX_MAP)
     plate = protocol.primitive_step('EmptyContainer',
@@ -126,7 +126,8 @@ def measure_fluorescence(protocol: labop.Protocol, plate, excitation, emission, 
         samples=c_measure.output_pin('samples'),
         excitationWavelength=sbol3.Measure(excitation, tyto.OM.nanometer),
         emissionWavelength=sbol3.Measure(emission, tyto.OM.nanometer),
-        emissionBandpassWidth=sbol3.Measure(bandpass, tyto.OM.nanometer)
+        emissionBandpassWidth=sbol3.Measure(bandpass, tyto.OM.nanometer),
+        gain=5000
     )
 
 def ludox_protocol() -> Tuple[labop.Protocol, Document]:
@@ -176,10 +177,11 @@ def ludox_protocol() -> Tuple[labop.Protocol, Document]:
 
     # measure the absorbance
     measure = measure_absorbance(protocol, plate, wavelength_param)
-    measure_fl = measure_fluorescence(protocol, plate, 488, 507, 20)
 
     output = protocol.designate_output('absorbance', sbol3.OM_MEASURE,
                                        measure.output_pin('measurements'))
+
+    measure_fl = measure_fluorescence(protocol, plate, 488, 507, 15)
     output = protocol.designate_output('fluorescence', sbol3.OM_MEASURE,
                                        measure_fl.output_pin('measurements'))
     protocol.order(protocol.get_last_step(), output)
