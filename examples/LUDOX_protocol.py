@@ -78,7 +78,7 @@ PLATE_SPECIFICATION = \
  (cont:wellVolume some
     ((om:hasUnit value om:microlitre) and
      (om:hasNumericalValue only xsd:decimal[>= "200"^^xsd:decimal])))"""
-
+PLATE_SPECIFICATION = "cont:Plate96Well"
 PREFIX_MAP = json.dumps({"cont": CONT_NS, "om": OM_NS})
 
 
@@ -181,9 +181,10 @@ def ludox_protocol() -> Tuple[labop.Protocol, Document]:
     output = protocol.designate_output('absorbance', sbol3.OM_MEASURE,
                                        measure.output_pin('measurements'))
 
-    measure_fl = measure_fluorescence(protocol, plate, 488, 507, 15)
-    output = protocol.designate_output('fluorescence', sbol3.OM_MEASURE,
-                                       measure_fl.output_pin('measurements'))
+    #measure_fl = measure_fluorescence(protocol, plate, 488, 507, 15)
+    #output = protocol.designate_output('fluorescence', sbol3.OM_MEASURE,
+    #                                   measure_fl.output_pin('measurements'))
+
     protocol.order(protocol.get_last_step(), output)
     return protocol, doc
 

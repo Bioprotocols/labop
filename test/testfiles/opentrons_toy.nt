@@ -1434,7 +1434,7 @@
 <https://labop.io/scratch/p300_single> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://sbols.org/v3#TopLevel> .
 <https://labop.io/scratch/p300_single> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/prov#Agent> .
 <https://labop.io/scratch/sample_plate> <http://bioprotocols.org/labop#prefixMap> "{\"cont\": \"https://sift.net/container-ontology/container-ontology#\", \"om\": \"http://www.ontology-of-units-of-measure.org/resource/om-2/\"}" .
-<https://labop.io/scratch/sample_plate> <http://bioprotocols.org/labop#queryString> "cont:Corning96WellPlate360uLFlat" .
+<https://labop.io/scratch/sample_plate> <http://bioprotocols.org/labop#queryString> "https://sift.net/container-ontology/container-ontology#Corning96WellPlate360uLFlat" .
 <https://labop.io/scratch/sample_plate> <http://sbols.org/v3#displayId> "sample_plate" .
 <https://labop.io/scratch/sample_plate> <http://sbols.org/v3#hasNamespace> <https://labop.io/scratch/> .
 <https://labop.io/scratch/sample_plate> <http://sbols.org/v3#name> "sample plate" .
@@ -1766,7 +1766,7 @@
 <https://labop.io/scratch/test_execution_1> <http://www.w3.org/ns/prov#qualifiedAssociation> <https://labop.io/scratch/test_execution_1/Association1> .
 <https://labop.io/scratch/test_execution_1> <http://www.w3.org/ns/prov#startedAtTime> "2000-01-01T00:00:00"^^<http://www.w3.org/2001/XMLSchema#dateTime> .
 <https://labop.io/scratch/tiprack> <http://bioprotocols.org/labop#prefixMap> "{\"cont\": \"https://sift.net/container-ontology/container-ontology#\", \"om\": \"http://www.ontology-of-units-of-measure.org/resource/om-2/\"}" .
-<https://labop.io/scratch/tiprack> <http://bioprotocols.org/labop#queryString> "cont:Opentrons96TipRack300uL" .
+<https://labop.io/scratch/tiprack> <http://bioprotocols.org/labop#queryString> "https://sift.net/container-ontology/container-ontology#Opentrons96TipRack300uL" .
 <https://labop.io/scratch/tiprack> <http://sbols.org/v3#displayId> "tiprack" .
 <https://labop.io/scratch/tiprack> <http://sbols.org/v3#hasNamespace> <https://labop.io/scratch/> .
 <https://labop.io/scratch/tiprack> <http://sbols.org/v3#name> "tiprack" .
