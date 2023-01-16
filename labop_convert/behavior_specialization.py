@@ -11,8 +11,10 @@ import json
 l = logging.getLogger(__file__)
 l.setLevel(logging.WARN)
 
+
 class BehaviorSpecializationException(Exception):
     pass
+
 
 class ContainerAPIException(Exception):
     pass
@@ -29,6 +31,7 @@ class BehaviorSpecialization(ABC):
         self._behavior_func_map = self._init_behavior_func_map()
         self.top_protocol = None
         self.execution = None
+        self.issues = []
 
         # This data field holds the results of the specialization
         self.data = []
@@ -47,70 +50,91 @@ class BehaviorSpecialization(ABC):
             dot_graph = execution.to_dot()
             self.data.append(str(dot_graph.source))
         except Exception as e:
-            l.warn("Could not render dot graph for execution in DefaultBehaviorSpecialization")
+            msg = "Could not render dot graph for execution in DefaultBehaviorSpecialization"
+            l.warn(msg)
+            self.issues.append(msg)
 
         self.data = json.dumps(self.data)
-
 
     def process(self, record, execution: labop.ProtocolExecution):
         try:
             node = record.node.lookup()
             if not isinstance(node, uml.CallBehaviorAction):
-                return # raise BehaviorSpecializationException(f"Cannot handle node type: {type(node)}")
+                return  # raise BehaviorSpecializationException(f"Cannot handle node type: {type(node)}")
 
             # Subprotocol specializations
             behavior = node.behavior.lookup()
             if isinstance(behavior, labop.Protocol):
-                return self._behavior_func_map[behavior.type_uri](record, execution)
+                return self._behavior_func_map[behavior.type_uri](
+                    record, execution
+                )
 
             # Individual Primitive specializations
             elif str(node.behavior) not in self._behavior_func_map:
-                l.warning(f"Failed to find handler for behavior: {node.behavior}")
+                l.warning(
+                    f"Failed to find handler for behavior: {node.behavior}"
+                )
                 return self.handle(record, execution)
-            return self._behavior_func_map[str(node.behavior)](record, execution)
+            return self._behavior_func_map[str(node.behavior)](
+                record, execution
+            )
         except Exception as e:
-            l.warn(f"{self.__class__} Could not process() ActivityNodeException: {record}: {e}")
+            l.warn(
+                f"{self.__class__} Could not process() ActivityNodeException: {record}: {e}"
+            )
             self.handle_process_failure(record, e)
 
     def handle_process_failure(self, record, e):
+        self.issues.append(e)
         raise e
 
     def handle(self, record, execution):
         # Save basic information about the execution record
         node = record.node.lookup()
-        params = input_parameter_map([
-            pv for pv in record.call.lookup().parameter_values
-            if pv.parameter.lookup().property_value.direction == uml.PARAMETER_IN
-            ])
+        params = input_parameter_map(
+            [
+                pv
+                for pv in record.call.lookup().parameter_values
+                if pv.parameter.lookup().property_value.direction
+                == uml.PARAMETER_IN
+            ]
+        )
         params = {p: str(v) for p, v in params.items()}
         node_data = {
             "identity": node.identity,
             "behavior": node.behavior,
-            "parameters" : params
+            "parameters": params,
         }
         self.data.append(node_data)
 
     def resolve_container_spec(self, spec, addl_conditions=None):
         try:
             from container_api import matching_containers
+
             if "container_api" not in sys.modules:
-                raise Exception("Could not import container_api, is it installed?")
+                raise Exception(
+                    "Could not import container_api, is it installed?"
+                )
 
             if addl_conditions:
-                possible_container_types = matching_containers(spec, addl_conditions=addl_conditions)
+                possible_container_types = matching_containers(
+                    spec, addl_conditions=addl_conditions
+                )
             else:
                 possible_container_types = matching_containers(spec)
         except:
-            raise ContainerAPIException(f"Cannot resolve specification {spec} with container ontology.  Is the container server running and accessible?")
+            raise ContainerAPIException(
+                f"Cannot resolve specification {spec} with container ontology.  Is the container server running and accessible?"
+            )
         return possible_container_types
 
-class DefaultBehaviorSpecialization(BehaviorSpecialization):
 
+class DefaultBehaviorSpecialization(BehaviorSpecialization):
     def _init_behavior_func_map(self) -> dict:
         return {
-            "https://bioprotocols.org/labop/primitives/sample_arrays/EmptyContainer" : self.handle,
-            "https://bioprotocols.org/labop/primitives/liquid_handling/Provision" : self.handle,
-            "https://bioprotocols.org/labop/primitives/sample_arrays/PlateCoordinates" : self.handle,
-            "https://bioprotocols.org/labop/primitives/spectrophotometry/MeasureAbsorbance" : self.handle,
-            "http://bioprotocols.org/labop#Protocol": self.handle
+            "https://bioprotocols.org/labop/primitives/sample_arrays/EmptyContainer": self.handle,
+            "https://bioprotocols.org/labop/primitives/liquid_handling/Provision": self.handle,
+            "https://bioprotocols.org/labop/primitives/sample_arrays/PlateCoordinates": self.handle,
+            "https://bioprotocols.org/labop/primitives/spectrophotometry/MeasureAbsorbance": self.handle,
+            "http://bioprotocols.org/labop#Protocol": self.handle,
         }
