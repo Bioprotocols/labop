@@ -121,7 +121,7 @@ class TestProtocolEndToEnd(unittest.TestCase):
         measurment_is_nominal.description = (
             "Determine if the measurments are acceptable."
         )
-        measurment_is_nominal.add_input("decision_input", labop.SampleData)
+        measurment_is_nominal.add_input("primary_input", labop.SampleData)
         measurment_is_nominal.add_output(
             "return", "http://www.w3.org/2001/XMLSchema#boolean"
         )
@@ -193,7 +193,7 @@ class TestProtocolEndToEnd(unittest.TestCase):
             measure2.output_pin("measurements"),
         )
         decision = protocol.make_decision_node(
-            measure,  # primary_incoming
+            measure.output_pin("measurements"),  # primary_incoming
             decision_input_behavior=measurment_is_nominal,
             decision_input_source=measure.output_pin("measurements"),
             outgoing_targets=[
