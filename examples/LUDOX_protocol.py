@@ -83,12 +83,6 @@ PREFIX_MAP = json.dumps({"cont": CONT_NS, "om": OM_NS})
 
 
 def create_plate(protocol: labop.Protocol):
-    # graph: rdfl.Graph = protocol._other_rdf
-    # plate_spec_uri = \
-    #     "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/container_requirement#RequiredPlate"
-    # graph.add((plate_spec_uri, CONT_NS.containerOntologyQuery, PLATE_SPECIFICATION))
-    # plate_spec = sbol3.Identified(plate_spec_uri,
-    #                               "foo", name="RequiredPlate")
     spec = labop.ContainerSpec('plateRequirement',
                               name='calibration plate',
                               queryString=PLATE_SPECIFICATION,
@@ -151,18 +145,6 @@ def ludox_protocol() -> Tuple[labop.Protocol, Document]:
     ludox = create_ludox()
     doc.add(ludox)
 
-    #ludox_container = protocol.primitive_step('EmptyContainer',
-    #                                          specification=labop.ContainerSpec('ludox_calibrant',
-    #                                             name='ludox calibrant',
-
-    #                                             queryString='cont:StockReagent',
-
-    #                                             prefixMap={'cont': 'https://sift.net/container-ontology/container-ontology#'}))
-    #vortex = protocol.primitive_step('Vortex',
-    #                                 samples=ludox_container.output_pin('samples'),
-    #                                 duration=sbol3.Measure(10, tyto.OM.second))
-
-
     # add an optional parameter for specifying the wavelength
     wavelength_param = protocol.input_value('wavelength', sbol3.OM_MEASURE, optional=True,
                                             default_value=sbol3.Measure(600, tyto.OM.nanometer))
@@ -180,10 +162,6 @@ def ludox_protocol() -> Tuple[labop.Protocol, Document]:
 
     output = protocol.designate_output('absorbance', sbol3.OM_MEASURE,
                                        measure.output_pin('measurements'))
-
-    #measure_fl = measure_fluorescence(protocol, plate, 488, 507, 15)
-    #output = protocol.designate_output('fluorescence', sbol3.OM_MEASURE,
-    #                                   measure_fl.output_pin('measurements'))
 
     protocol.order(protocol.get_last_step(), output)
     return protocol, doc
