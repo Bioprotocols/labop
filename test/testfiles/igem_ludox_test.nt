@@ -450,10 +450,10 @@
 <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://bioprotocols.org/labop#Protocol> .
 <https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://sbols.org/v3#TopLevel> .
 <https://bbn.com/scratch/plateRequirement> <http://bioprotocols.org/labop#prefixMap> "{\"cont\": \"https://sift.net/container-ontology/container-ontology#\", \"om\": \"http://www.ontology-of-units-of-measure.org/resource/om-2/\"}" .
-<https://bbn.com/scratch/plateRequirement> <http://bioprotocols.org/labop#queryString> "cont:Plate96Well" .
+<https://bbn.com/scratch/plateRequirement> <http://bioprotocols.org/labop#queryString> "cont:ClearPlate and\n cont:SLAS-4-2004 and\n (cont:wellVolume some\n    ((om:hasUnit value om:microlitre) and\n     (om:hasNumericalValue only xsd:decimal[>= \"200\"^^xsd:decimal])))" .
 <https://bbn.com/scratch/plateRequirement> <http://sbols.org/v3#displayId> "plateRequirement" .
 <https://bbn.com/scratch/plateRequirement> <http://sbols.org/v3#hasNamespace> <https://bbn.com/scratch/> .
-<https://bbn.com/scratch/plateRequirement> <http://sbols.org/v3#name> "calibration plate" .
+<https://bbn.com/scratch/plateRequirement> <http://sbols.org/v3#name> "plateRequirement" .
 <https://bbn.com/scratch/plateRequirement> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://bioprotocols.org/labop#ContainerSpec> .
 <https://bbn.com/scratch/plateRequirement> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://sbols.org/v3#TopLevel> .
 <https://bioprotocols.org/labop/primitives/liquid_handling/Provision/OrderedPropertyValue1/Parameter1/LiteralInteger1> <http://bioprotocols.org/uml#integerValue> "1"^^<http://www.w3.org/2001/XMLSchema#integer> .
