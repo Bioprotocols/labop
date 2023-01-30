@@ -9,6 +9,9 @@ import tyto
 from sbol3 import Document
 
 import labop
+from labop.execution_engine import ExecutionEngine
+from labop_convert.markdown.markdown_specialization import MarkdownSpecialization
+
 
 logger: logging.Logger = logging.Logger("LUDOX_protocol")
 
@@ -75,19 +78,13 @@ PLATE_SPECIFICATION = \
  (cont:wellVolume some
     ((om:hasUnit value om:microlitre) and
      (om:hasNumericalValue only xsd:decimal[>= "200"^^xsd:decimal])))"""
-
+PLATE_SPECIFICATION = "cont:Plate96Well"
 PREFIX_MAP = json.dumps({"cont": CONT_NS, "om": OM_NS})
 
 
 def create_plate(protocol: labop.Protocol):
-    # graph: rdfl.Graph = protocol._other_rdf
-    # plate_spec_uri = \
-    #     "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/container_requirement#RequiredPlate"
-    # graph.add((plate_spec_uri, CONT_NS.containerOntologyQuery, PLATE_SPECIFICATION))
-    # plate_spec = sbol3.Identified(plate_spec_uri,
-    #                               "foo", name="RequiredPlate")
     spec = labop.ContainerSpec('plateRequirement',
-                              name='plateRequirement',
+                              name='calibration plate',
                               queryString=PLATE_SPECIFICATION,
                               prefixMap=PREFIX_MAP)
     plate = protocol.primitive_step('EmptyContainer',
@@ -116,6 +113,16 @@ def measure_absorbance(protocol: labop.Protocol, plate, wavelength_param):
         wavelength=wavelength_param,
     )
 
+def measure_fluorescence(protocol: labop.Protocol, plate, excitation, emission, bandpass):
+    c_measure = protocol.primitive_step('PlateCoordinates', source=plate.output_pin('samples'), coordinates='A1:D2')
+    return protocol.primitive_step(
+        'MeasureFluorescence',
+        samples=c_measure.output_pin('samples'),
+        excitationWavelength=sbol3.Measure(excitation, tyto.OM.nanometer),
+        emissionWavelength=sbol3.Measure(emission, tyto.OM.nanometer),
+        emissionBandpassWidth=sbol3.Measure(bandpass, tyto.OM.nanometer),
+        gain=5000
+    )
 
 def ludox_protocol() -> Tuple[labop.Protocol, Document]:
     #############################################
@@ -155,6 +162,7 @@ def ludox_protocol() -> Tuple[labop.Protocol, Document]:
 
     output = protocol.designate_output('absorbance', sbol3.OM_MEASURE,
                                        measure.output_pin('measurements'))
+
     protocol.order(protocol.get_last_step(), output)
     return protocol, doc
 
@@ -174,3 +182,8 @@ if __name__ == '__main__':
     dot = new_protocol.to_dot()
     dot.render(f'{new_protocol.name}.gv')
     dot.view()
+
+    agent = sbol3.Agent("test_agent")
+    ee = ExecutionEngine(specializations=[MarkdownSpecialization("test_LUDOX_markdown.md")])
+    x = ee.execute(new_protocol, agent, id="test_execution", parameter_values=[])
+
