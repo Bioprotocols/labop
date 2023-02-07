@@ -13,6 +13,18 @@ l = logging.getLogger(__file__)
 l.setLevel(logging.ERROR)
 
 
+class ExecutionIssue(object):
+    pass
+
+
+class ExecutionWarning(ExecutionIssue):
+    pass
+
+
+class ExecutionError(ExecutionIssue):
+    pass
+
+
 @abstractmethod
 def activity_node_enabled(
     self: uml.ActivityNode,
@@ -48,7 +60,9 @@ def activity_node_enabled(
     if len(incoming_controls) == 0:
         tokens_present = True
     else:
-        tokens_present = len(control_tokens.intersection(incoming_controls)) == len(incoming_controls)
+        tokens_present = len(
+            control_tokens.intersection(incoming_controls)
+        ) == len(incoming_controls)
 
     if hasattr(self, "inputs"):
         required_inputs = [
@@ -678,14 +692,21 @@ def activity_node_next_tokens_callback(
     node_outputs: Callable,
     sample_format: str,
 ) -> List[labop.ActivityEdgeFlow]:
-    edge_tokens = [
+    edge_tokens = []
+    for edge in out_edges:
+        try:
+            edge_value = source.get_value(edge, node_outputs, sample_format)
+        except Exception as e:
+            if engine.permissive:
+                edge_value = uml.literal(str(e))
+            else:
+                raise e
+
         labop.ActivityEdgeFlow(
             edge=edge,
             token_source=source,
-            value=source.get_value(edge, node_outputs, sample_format),
+            value=edge_value,
         )
-        for edge in out_edges
-    ]
     return edge_tokens
 
 
@@ -1234,9 +1255,11 @@ def activity_parameter_node_next_tokens_callback(
                 labop.ActivityEdgeFlow(
                     edge=return_edge,
                     token_source=source,
-                    value=source.get_value(return_edge, node_outputs, sample_format)
-                    #uml.literal(source.incoming_flows[0].lookup().value)
+                    value=source.get_value(
+                        return_edge, node_outputs, sample_format
                     )
+                    # uml.literal(source.incoming_flows[0].lookup().value)
+                )
             ]
         else:
             edge_tokens = []
@@ -1467,21 +1490,27 @@ def activity_node_execution_get_token_source(
 
     node = self.node.lookup()
     print(self.identity + " " + node.identity + " param = " + str(parameter))
-    if isinstance(node, uml.InputPin) or \
-        isinstance(node, uml.ForkNode) or \
-        isinstance(node, uml.CallBehaviorAction):
+    if (
+        isinstance(node, uml.InputPin)
+        or isinstance(node, uml.ForkNode)
+        or isinstance(node, uml.CallBehaviorAction)
+    ):
         main_target = target if target else self
         for flow in self.incoming_flows:
-            source = flow.lookup().get_token_source(parameter, target=main_target)
+            source = flow.lookup().get_token_source(
+                parameter, target=main_target
+            )
             if source:
                 return source
         return None
     else:
         return self
 
+
 labop.ActivityNodeExecution.get_token_source = (
     activity_node_execution_get_token_source
 )
+
 
 def call_behavior_execution_get_token_source(
     self: labop.CallBehaviorExecution,
@@ -1491,12 +1520,16 @@ def call_behavior_execution_get_token_source(
     node = self.node.lookup()
     print(self.identity + " " + node.identity + " param = " + str(parameter))
     if parameter:
-        return labop.ActivityNodeExecution.get_token_source(self, parameter, target=target)
+        return labop.ActivityNodeExecution.get_token_source(
+            self, parameter, target=target
+        )
     else:
         return self
 
 
-labop.CallBehaviorExecution.get_token_source = call_behavior_execution_get_token_source
+labop.CallBehaviorExecution.get_token_source = (
+    call_behavior_execution_get_token_source
+)
 
 
 def activity_edge_flow_get_token_source(
@@ -1505,10 +1538,14 @@ def activity_edge_flow_get_token_source(
     target: labop.ActivityNodeExecution = None,
 ) -> labop.CallBehaviorExecution:
     node = self.token_source.lookup().node.lookup()
-    print(self.identity + " src = " + node.identity + " param = " + str(parameter))
+    print(
+        self.identity + " src = " + node.identity + " param = " + str(parameter)
+    )
     if parameter and isinstance(node, uml.InputPin):
         if node == target.node.lookup().input_pin(parameter.name):
-            return self.token_source.lookup().get_token_source(None, target=target)
+            return self.token_source.lookup().get_token_source(
+                None, target=target
+            )
         else:
             return None
     elif not parameter:
@@ -1516,9 +1553,8 @@ def activity_edge_flow_get_token_source(
     else:
         return None
 
-labop.ActivityEdgeFlow.get_token_source = (
-    activity_edge_flow_get_token_source
-)
+
+labop.ActivityEdgeFlow.get_token_source = activity_edge_flow_get_token_source
 
 # def activity_node_get_token_source(
 #     self: uml.ActivityNode,
