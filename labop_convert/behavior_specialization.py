@@ -51,6 +51,12 @@ class BehaviorSpecialization(ABC):
         self.data = []
 
     def on_end(self, execution: labop.ProtocolExecution):
+        try:
+            dot_graph = execution.to_dot()
+            self.data.append(str(dot_graph.source))
+        except Exception as e:
+            l.warn("Could not render dot graph for execution in DefaultBehaviorSpecialization")
+
         self.data = json.dumps(self.data)
 
 
