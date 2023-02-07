@@ -30,6 +30,14 @@ l.setLevel(logging.ERROR)
 failsafe = True  # When set to True, a protocol execution will proceed through to the end, even if a CallBehaviorAction raises an exception.  Set to False for debugging
 
 
+class ExecutionError(Exception):
+    pass
+
+
+class ExecutionWarning(Exception):
+    pass
+
+
 class ExecutionEngine(ABC):
     """Base class for implementing and recording a LabOP executions.
     This class can handle common UML activities and the propagation of tokens, but does not execute primitives.
@@ -219,12 +227,52 @@ class ExecutionEngine(ABC):
     ):
         for node in ready:
             self.current_node = node
-            self.tokens = node.execute(
-                self,
-                node_outputs=(
-                    node_outputs[node] if node in node_outputs else None
-                ),
-            )
+            try:
+                self.tokens = node.execute(
+                    self,
+                    node_outputs=(
+                        node_outputs[node] if node in node_outputs else None
+                    ),
+                )
+            except Exception as e:
+                # Consume the tokens used by the node that caused the exception
+                # Produce control tokens
+                incoming_flows = [
+                    t for t in self.tokens if node == t.get_target()
+                ]
+                exec = labop.CallBehaviorExecution(
+                    node=node, incoming_flows=incoming_flows
+                )
+                self.ex.document.add(exec)
+                self.ex.executions.append(exec)
+                control_edges = [
+                    edge
+                    for edge in self.ex.protocol.lookup().edges
+                    if (
+                        node.identity == edge.source
+                        or node.identity
+                        == edge.source.lookup().get_parent().identity
+                    )
+                    and (isinstance(edge, uml.ControlFlow))
+                ]
+
+                self.tokens = [
+                    t for t in self.tokens if t.get_target() != node
+                ] + [
+                    labop.ActivityEdgeFlow(
+                        token_source=exec,
+                        edge=edge,
+                        value=uml.literal("uml.ControlFlow"),
+                    )
+                    for edge in control_edges
+                ]
+                if self.permissive:
+                    self.issues[self.ex.display_id].append(ExecutionWarning(e))
+                    pass
+                else:
+                    self.issues[self.ex.display_id].append(ExecutionError(e))
+                    raise (e)
+
         return self.executable_activity_nodes()
 
     def executable_activity_nodes(self) -> List[uml.ActivityNode]:
