@@ -15,9 +15,9 @@ class TestLocationUtilities(unittest.TestCase):
         assert reduce_range_set({'A1:C3', 'D1:F3', 'A4:C7', 'D4:D7'}) == {'A1:F3', 'A4:D7'}
         assert reduce_range_set({'A1:C3', 'A4:C7'}) == {'A1:C7'}
         assert reduce_range_set({'A1:C3', 'D4:F7'}) == {'A1:C3', 'D4:F7'}
-        with unittest.raises(AssertionError):
+        with self.assertRaises(AssertionError):
             reduce_range_set({'A1:C3', 'B3:F7'}) # overlapping ranges not allowed
-        with unittest.raises(AssertionError):
+        with self.assertRaises(AssertionError):
             reduce_range_set({}) # must have at least one range
 
 if __name__ == '__main__':
