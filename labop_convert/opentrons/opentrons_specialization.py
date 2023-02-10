@@ -11,7 +11,6 @@ import sbol3
 import tyto
 import labop
 import uml
-
 from labop_convert.behavior_specialization import BehaviorSpecialization
 
 

@@ -62,17 +62,17 @@ class TestProtocolEndToEnd(unittest.TestCase):
         def pH_meter_calibrated_compute_output(
             inputs, parameter, sample_format
         ):
-            return uml.literal(True)
+            return True
 
         pH_meter_calibrated.compute_output = pH_meter_calibrated_compute_output
 
         decision = protocol.make_decision_node(
             initial,  # primary_incoming
             decision_input_behavior=pH_meter_calibrated,
-            decision_input_source=None,
+            # decision_input_source=pH_meter_calibrated.get_output("return"),
             outgoing_targets=[
-                (uml.literal(True), final),
-                (uml.literal(False), final),
+                (True, final),
+                (False, final),
             ],
         )
 
@@ -121,7 +121,7 @@ class TestProtocolEndToEnd(unittest.TestCase):
         measurment_is_nominal.description = (
             "Determine if the measurments are acceptable."
         )
-        measurment_is_nominal.add_input("primary_input", labop.SampleData)
+        measurment_is_nominal.add_input("decision_input", labop.SampleData)
         measurment_is_nominal.add_output(
             "return", "http://www.w3.org/2001/XMLSchema#boolean"
         )
@@ -130,7 +130,7 @@ class TestProtocolEndToEnd(unittest.TestCase):
         def measurement_is_nominal_compute_output(
             inputs, parameter, sample_format
         ):
-            return uml.literal(True)
+            return True
 
         measurment_is_nominal.compute_output = (
             measurement_is_nominal_compute_output
@@ -193,12 +193,12 @@ class TestProtocolEndToEnd(unittest.TestCase):
             measure2.output_pin("measurements"),
         )
         decision = protocol.make_decision_node(
-            measure.output_pin("measurements"),  # primary_incoming
+            measure, #.output_pin("measurements"),  # primary_incoming
             decision_input_behavior=measurment_is_nominal,
             decision_input_source=measure.output_pin("measurements"),
             outgoing_targets=[
-                (uml.literal(True), protocol.final()),
-                (uml.literal(False), measure2),
+                (True, protocol.final()),
+                (False, measure2),
             ],
         )
         protocol.to_dot().view()

@@ -148,8 +148,6 @@ class BehaviorSpecialization(ABC):
 
 
 class DefaultBehaviorSpecialization(BehaviorSpecialization):
-
-class DefaultBehaviorSpecialization(BehaviorSpecialization):
     def _init_behavior_func_map(self) -> dict:
         return {
             "https://bioprotocols.org/labop/primitives/sample_arrays/EmptyContainer": self.handle,
@@ -179,6 +177,3 @@ def validate_spec_query(query: str) -> "tyto.URI":
         return tyto.URI(query.replace('cont:', ContO.uri + '#'), ContO)
 
     raise ValueError(f"Cannot resolve container specification '{query}'. Is the query malformed?")
-
-
-

@@ -233,10 +233,27 @@ def final_node_enabled(
     engine: labop.ExecutionEngine,
     tokens: List[labop.ActivityEdgeFlow],
 ):
+    """
+    Check whether there exists at least one token on an incoming edge.
+
+    Parameters
+    ----------
+    self : uml.FinalNode
+        Node to execute
+    engine : labop.ExecutionEngine
+        the engine executing the node
+    tokens : List[labop.ActivityEdgeFlow]
+        tokens offered to node
+
+    Returns
+    -------
+    bool
+        is the node enabled
+    """
     protocol = self.protocol()
-    token_present = {t.edge.lookup() for t in tokens if t.edge}.intersection(
+    token_present = len({t.edge.lookup() for t in tokens if t.edge}.intersection(
         protocol.incoming_edges(self)
-    ) == protocol.incoming_edges(self)
+    )) > 0
     return token_present
 
 
@@ -1297,9 +1314,9 @@ def call_behavior_action_execute_callback(
         for i in self.behavior.lookup().get_required_inputs()
         for p in self.input_pins(i.property_value.name)
     ]
-    for pin in self.inputs:
+    for pin in [i for i in self.inputs if i.identity not in input_pin_values]:
         value = pin.value if hasattr(pin, "value") else None
-        if pin.value is None:
+        if value is None:
             if pin in required_inputs:
                 completed_normally = False
                 if engine.permissive:
@@ -1321,6 +1338,7 @@ def call_behavior_action_execute_callback(
     value_pin_values = {
         k: uml.literal(value=v.get_value(), reference=True)
         for k, v in value_pin_values.items()
+        if v is not None
     }
     pin_values = {**input_pin_values, **value_pin_values}  # merge the dicts
 
