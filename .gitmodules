@@ -1,6 +1,6 @@
 [submodule "labop-check"]
 	path = labop-check
-	url = https://github.com/SD2E/labop-check/
+	url = https://github.com/Bioprotocols/labop-check.git
 [submodule "container-ontology"]
 	path = container-ontology
 	url = https://github.com/rpgoldman/container-ontology
