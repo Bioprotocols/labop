@@ -8,4 +8,5 @@ repos:
     hooks:
       - id: check-yaml
       - id: end-of-file-fixer
+        exclude: ^.*.nt
       - id: trailing-whitespace

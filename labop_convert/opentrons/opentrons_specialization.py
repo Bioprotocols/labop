@@ -1,7 +1,6 @@
 import os
 import json
 import logging
-import abc
 from typing import Dict
 from labop_convert.plate_coordinates import get_aliquot_list
 import xarray as xr
@@ -45,16 +44,16 @@ COMPATIBLE_TIPS = {
 
 # Map terms in the Container ontology to OT2 API names
 LABWARE_MAP = {
-    ContO['Opentrons 96 Tip Rack 10 µL']: 'opentrons_96_tiprack_10ul',
-    ContO['Opentrons 96 Tip Rack 300 µL']: 'opentrons_96_tiprack_300ul',
-    ContO['Opentrons 96 Tip Rack 1000 µL']: 'opentrons_96_tiprack_1000ul',
-    ContO['Opentrons 96 Filter Tip Rack 10 µL']: 'opentrons_96_filtertiprack_10ul',
-    ContO['Opentrons 96 Filter Tip Rack 200 µL']: 'opentrons_96_filtertiprack_200ul',
-    ContO['Opentrons 96 Filter Tip Rack 1000 µL']: 'opentrons_96_filtertiprack_1000ul',
-    ContO['Opentrons 24 Tube Rack with Eppendorf 1.5 mL Safe-Lock Snapcap']: 'opentrons_24_tuberack_eppendorf_1.5ml_safelock_snapcap',
-    ContO['Corning 96 Well Plate']: 'corning_96_wellplate_360ul_flat',
-    ContO['Bio-Rad 96 Well PCR Plate']: 'biorad_96_wellplate_200ul_pcr',
-    ContO['NEST 96 Well Plate']: 'nest_96_wellplate_200ul_flat',
+    'cont:Opentrons96TipRack10uL': 'opentrons_96_tiprack_10ul',
+    'cont:Opentrons96TipRack300uL': 'opentrons_96_tiprack_300ul',
+    'cont:Opentrons96TipRack1000uL': 'opentrons_96_tiprack_1000ul',
+    'cont:Opentrons96FilterTipRack10uL': 'opentrons_96_filtertiprack_10ul',
+    'cont:Opentrons96FilterTipRack200uL': 'opentrons_96_filtertiprack_200ul',
+    'cont:Opentrons96FilterTipRack1000uL': 'opentrons_96_filtertiprack_1000ul',
+    'cont:Opentrons24TubeRackwithEppendorf1.5mLSafe-LockSnapcap': 'opentrons_24_tuberack_eppendorf_1.5ml_safelock_snapcap',
+    'cont:Corning96WellPlate360uLFlat': 'corning_96_wellplate_360ul_flat',
+    'cont:Biorad96WellPCRPlate': 'biorad_96_wellplate_200ul_pcr',
+
 }
 
 REVERSE_LABWARE_MAP = LABWARE_MAP.__class__(map(reversed, LABWARE_MAP.items()))
@@ -219,7 +218,8 @@ class OT2Specialization(BehaviorSpecialization):
 
         for container_type, container_name_map in containers.items():
             for container_name, qty in container_name_map.items():
-                container_str = ContO.get_term_by_uri(container_type)
+                container_class = ContO.uri + '#' + container_type.split(':')[-1]
+                container_str = ContO.get_term_by_uri(container_class)
                 if 'TipRack' in container_type:
                     text = f'* {container_str}'
                 elif container_name == 'unnamed':
@@ -271,11 +271,11 @@ class OT2Specialization(BehaviorSpecialization):
         resource = parameter_value_map["resource"]["value"]
         amount = parameter_value_map["amount"]["value"]
         amount = measurement_to_text(amount)
+
         coords = ''
         coords = destination.get_parent().get_parent().token_source.lookup().node.lookup().input_pin('coordinates').value.value
         upstream_execution = get_token_source('destination', record)
         container = upstream_execution.call.lookup().parameter_value_map()['container']['value']
-
         behavior_type = get_behavior_type(upstream_execution)
         if behavior_type == 'LoadContainerInRack':
             coords = upstream_execution.call.lookup().parameter_value_map()['coordinates']['value']
@@ -527,10 +527,7 @@ class OT2Specialization(BehaviorSpecialization):
 
         #upstream_ex = get_token_source('container', record)
         #container_spec = upstream_ex.call.lookup().parameter_value_map()['specification']['value']
-
-        container_types = self.resolve_container_spec(container_spec)
-        selected_container_type = self.check_lims_inventory(container_types)
-        container_api_name = LABWARE_MAP[selected_container_type]
+        container_api_name = LABWARE_MAP[container_spec.queryString]
         container_str = get_container_name(container_spec)
 
         # TODO: need to specify instrument
@@ -552,16 +549,14 @@ class OT2Specialization(BehaviorSpecialization):
         coords: str = parameter_value_map['coordinates']['value'] if 'coordinates' in parameter_value_map else '1'
         rack: labop.ContainerSpec = parameter_value_map['rack']['value']
 
-        container_types = self.resolve_container_spec(rack)
-        selected_container_type = self.check_lims_inventory(container_types)
-        if selected_container_type not in LABWARE_MAP:
-            raise Exception(f'Load failed. {selected_container_type} is not recognized as compatible labware for OT2 machine.')
+        if rack.queryString not in LABWARE_MAP:
+            raise Exception(f'Load failed. {rack.queryString} not a recognized rack type.')
 
         if coords in self.configuration:
             raise Exception(f'Failed to load {rack_str} in Deck {coords}. The Deck is already occupied by {self.configuration[coords]}')
         self.configuration[coords] = rack
 
-        api_name = LABWARE_MAP[selected_container_type]
+        api_name = LABWARE_MAP[rack.queryString]
         self.script_steps += [f"labware{coords} = protocol.load_labware('{api_name}', '{coords}')"]
         rack_str = get_container_name(rack)
         self.markdown_steps += [f'Load {rack_str} in Deck {coords} of OT2 instrument']
@@ -603,16 +598,13 @@ class OT2Specialization(BehaviorSpecialization):
             if instrument.name == 'Thermocycler Module':
                 self.script_steps += [f'{instrument.display_id}.open_lid()']
 
-
         # Check if a compatible tiprack has been loaded and configure the pipette
         # to use it
         tiprack_selection = None
         for deck, rack in self.configuration.items():
             if type(rack) is not labop.ContainerSpec:
                 continue
-            container_types = self.resolve_container_spec(rack)
-            selected_container_type = self.check_lims_inventory(container_types)
-            api_name = LABWARE_MAP[selected_container_type]
+            api_name = LABWARE_MAP[rack.queryString]
             if api_name in COMPATIBLE_TIPS[instrument.display_id]:
                 tiprack_selection = rack
                 break
