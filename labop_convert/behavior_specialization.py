@@ -11,6 +11,7 @@ import json
 l = logging.getLogger(__file__)
 l.setLevel(logging.WARN)
 
+
 class BehaviorSpecializationException(Exception):
     pass
 
@@ -78,7 +79,9 @@ class BehaviorSpecialization(ABC):
                 record, execution
             )
         except Exception as e:
-            l.warn(f"{self.__class__} Could not process() ActivityNodeException: {record}: {e}")
+            l.warn(
+                f"{self.__class__} Could not process() ActivityNodeException: {record}: {e}"
+            )
             self.handle_process_failure(record, e)
 
     def handle_process_failure(self, record, e):
@@ -107,15 +110,22 @@ class BehaviorSpecialization(ABC):
     def resolve_container_spec(self, spec, addl_conditions=None):
         try:
             from container_api import matching_containers
+
             if "container_api" not in sys.modules:
-                raise Exception("Could not import container_api, is it installed?")
+                raise Exception(
+                    "Could not import container_api, is it installed?"
+                )
 
             if addl_conditions:
-                possible_container_types = matching_containers(spec, addl_conditions=addl_conditions)
+                possible_container_types = matching_containers(
+                    spec, addl_conditions=addl_conditions
+                )
             else:
                 possible_container_types = matching_containers(spec)
         except:
-            raise ContainerAPIException(f"Cannot resolve specification {spec} with container ontology.  Is the container server running and accessible?")
+            raise ContainerAPIException(
+                f"Cannot resolve specification {spec} with container ontology.  Is the container server running and accessible?"
+            )
         return possible_container_types
 
 class DefaultBehaviorSpecialization(BehaviorSpecialization):
