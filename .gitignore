@@ -27,3 +27,9 @@ owl_rdf_utils/
 secrets/
 test/
 uml/
+_root.gv
+.env
+general.log
+*.md
+**/*.gv
+*.egg-info
