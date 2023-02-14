@@ -8,6 +8,12 @@ import unittest
 import numpy as np
 import xarray as xr
 import json
+import cf_xarray.units  # must be imported before pint_xarray
+import pint_xarray
+from pint_xarray import unit_registry as ureg
+from random import random
+from helpers import file_diff
+xr.set_options(display_expand_data=False)
 
 import sbol3
 import labop
@@ -111,14 +117,18 @@ class TestProtocolEndToEnd(unittest.TestCase):
         # Coordinates:
         #   * aliquot   (aliquot) int64 0 1 2 3
         #   * contents  (contents) <U30 'https://bbn.com/scratch/ddH2Oa' 'https://bbn.c...
+
+
         source_array = labop.SampleArray(
             name="source",
             container_type=source_spec,
-            contents=json.dumps(xr.DataArray([[default_volume.value
+            contents=json.dumps(xr.DataArray([[[default_volume.value
                                                 for reagent in reagents]
-                                                for id in aliquot_ids],
-                                             dims=("aliquot", "contents"),
-                                             coords={"aliquot": aliquot_ids,
+                                                for id in aliquot_ids]],
+                                             dims=("array", "aliquot", "contents"),
+                                             attrs={"units": "uL"},
+                                             coords={"array": ["source"],
+                                                     "aliquot": aliquot_ids,
                                                      "contents": [r.identity for r in reagents]}).to_dict()))
         # 3.
         sample_array_parameter = create_source.pin_parameter("sample_array")
@@ -138,12 +148,15 @@ class TestProtocolEndToEnd(unittest.TestCase):
         target_array = labop.SampleArray(
             name="target",
             container_type=target_spec,
-            contents=json.dumps(xr.DataArray([[0.0
+            contents=json.dumps(xr.DataArray([[[0.0
                                                 for reagent in reagents]
-                                                for id in aliquot_ids],
-                                             dims=("aliquot", "contents"),
-                                             coords={"aliquot": aliquot_ids,
+                                                for id in aliquot_ids]],
+                                             dims=("array", "aliquot", "contents"),
+                                             attrs={"units": "uL"},
+                                             coords={"array": ["target"],
+                                                     "aliquot": aliquot_ids,
                                                      "contents": [r.identity for r in reagents]}).to_dict()))
+
 
         # 3.
         sample_array_parameter = create_target.pin_parameter("sample_array")
@@ -175,12 +188,16 @@ class TestProtocolEndToEnd(unittest.TestCase):
         #   * target_array    (target_array) <U6 'target'
         #   * target_aliquot  (target_aliquot) int64 0 1 2 3
 
-        plan_mapping = json.dumps(xr.DataArray([[[[10.0
+        plan_mapping = json.dumps(xr.DataArray([[[[
+            # f"{source_array}:{source_aliquot}->{target_array}:{target_aliquot}"
+                                                # rand(0.0, 10.0)
+                                                10.0
                                                 for target_aliquot in aliquot_ids]
                                                 for target_array in [target_array.name]]
                                                 for source_aliquot in aliquot_ids]
                                                 for source_array in [source_array.name]],
                                            dims=("source_array", "source_aliquot", "target_array", "target_aliquot",),
+                                           attrs={"units": "uL"},
                                            coords={"source_array": [source_array.name],
                                                    "source_aliquot": aliquot_ids,
                                                    "target_array": [target_array.name],
@@ -202,10 +219,12 @@ class TestProtocolEndToEnd(unittest.TestCase):
                             'TransferByMap',
                             source=create_source.output_pin('samples'),
                             destination=create_target.output_pin('samples'),
-                            plan=plan)
+                            plan=plan,
+                            amount=sbol3.Measure(0, tyto.OM.milliliter),
+                            temperature=sbol3.Measure(30, tyto.OM.degree_Celsius))
 
-
-
+        transfer_result =  protocol.designate_output('result', labop.SampleArray,
+                                       transfer_by_map.output_pin('destinationResult'))
 
         ########################################
         # Validate and write the document
@@ -217,11 +236,10 @@ class TestProtocolEndToEnd(unittest.TestCase):
         # In order to get repeatable timings, we use ordinal time in the test
         # where each timepoint is one second after the previous time point
         ee = ExecutionEngine(use_ordinal_time=True)
-        parameter_values = [
-            # labop.ParameterValue(parameter=protocol.get_input("wavelength"),
-            #                     value=uml.LiteralIdentified(value=sbol3.Measure(100, tyto.OM.nanometer)))
-        ]
-        execution = ee.execute(protocol, agent, id="test_execution", parameter_values=parameter_values)
+
+        execution = ee.execute(protocol, agent, id="test_execution", parameter_values=[])
+
+        result = xr.DataArray.from_dict(json.loads(execution.parameter_values[0].value.value.lookup().contents))
 
         print('Validating and writing protocol')
         v = doc.validate()
@@ -234,6 +252,9 @@ class TestProtocolEndToEnd(unittest.TestCase):
         comparison_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'testfiles', 'sample_map_test.nt')
         # doc.write(comparison_file, sbol3.SORTED_NTRIPLES)
         print(f'Comparing against {comparison_file}')
+        diff = "\n".join(file_diff(comparison_file, temp_name))
+        print(f"Difference:\n{diff}")
+
         assert filecmp.cmp(temp_name, comparison_file), "Files are not identical"
         print('File identical with test file')
 

@@ -1,4 +1,4 @@
-from labop import Protocol, Primitive, SampleArray, SampleMask, SampleData
+from labop import Protocol, Primitive, SampleArray, SampleMask, SampleData, SampleMap
 import uml
 
 def protocol_template():
@@ -48,3 +48,18 @@ def sample_data_str(self):
     """
     return f"SampleData(name={self.name}, from_samples={self.from_samples}, values={self.values})"
 SampleData.__str__ = sample_data_str
+
+def sample_map_plot(self):
+    """
+    Render the sample map using a matplotlib plot
+    """
+    self.plot()
+
+SampleMap.plot = sample_map_plot
+
+def sample_array_plot(self):
+    """
+    Render the sample array using a matplotlib plot
+    """
+    self.plot()
+SampleArray.plot = sample_array_plot
