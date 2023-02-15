@@ -1,17 +1,11 @@
-import datetime
 import filecmp
 import logging
 import os
 import tempfile
 from typing import Tuple
 import unittest
-import numpy as np
 import xarray as xr
 import json
-import cf_xarray.units  # must be imported before pint_xarray
-import pint_xarray
-from pint_xarray import unit_registry as ureg
-from random import random
 from helpers import file_diff, OUT_DIR
 from labop_convert.markdown.markdown_specialization import MarkdownSpecialization
 
