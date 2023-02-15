@@ -14,7 +14,7 @@ from labop_convert.plate_coordinates import coordinate_rect_to_row_col_pairs, co
 from labop import SampleMask, SampleData, SampleArray
 import uml
 from typing import List, Dict
-import matplotlib.pyplot as plt
+
 
 import logging
 l = logging.getLogger(__file__)
@@ -187,6 +187,7 @@ def call_behavior_execution_get_outputs(self):
 labop.CallBehaviorExecution.get_outputs = call_behavior_execution_get_outputs
 
 def sample_array_to_dot(self, dot, out_dir="out"):
+    import matplotlib.pyplot as plt
     sa = self.to_data_array()
     # p = sa.plot.scatter(col="aliquot", x="contents")
     p = sa.plot()
