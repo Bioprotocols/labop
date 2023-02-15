@@ -196,7 +196,15 @@ def measure_absorbance_compute_output(self, inputs, parameter, sample_format):
        parameter.type == 'http://bioprotocols.org/labop#SampleData':
         input_map = input_parameter_map(inputs)
         samples = input_map["samples"]
-        sample_data = labop.SampleData(from_samples=samples)
+
+        if sample_format == 'xarray':
+            data = json.dumps(samples.initialize_dataset("absorbance").to_dict())
+        elif sample_format == 'json':
+            raise NotImplementedError(f"Cannot initialize JSON contents of: {self.identity}")
+        else:
+            raise Exception(f"Cannot initialize contents of: {self.identity}")
+
+        sample_data = labop.SampleData(from_samples=samples, values=data)
         return sample_data
 
 def transfer_by_map_compute_output(self, inputs, parameter, sample_format):
@@ -240,7 +248,7 @@ primitive_to_output_function = {
 def initialize_primitive_compute_output(doc: sbol3.Document):
     for k, v in primitive_to_output_function.items():
         try:
-            p = labop.get_primitive(doc, k)
+            p = labop.get_primitive(doc, k, copy_to_doc=False)
             p.compute_output = types.MethodType(v, p)
         except Exception as e:
             l.warn(f"Could not set compute_output() for primitive {k}, did you import the correct library?")

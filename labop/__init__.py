@@ -276,7 +276,7 @@ def show_libraries():
     for lib in labop.loaded_libraries.keys():
         show_library(lib)
 
-def get_primitive(doc: sbol3.Document, name: str):
+def get_primitive(doc: sbol3.Document, name: str, copy_to_doc: bool = True):
     """Get a Primitive for use in the protocol, either already in the document or imported from a linked library
 
     :param doc: Working document
@@ -290,7 +290,9 @@ def get_primitive(doc: sbol3.Document, name: str):
             raise ValueError(f'Ambiguous primitive: found "{name}" in multiple libraries: {found.keys()}')
         if len(found) == 0:
             raise ValueError(f'Could not find primitive "{name}" in any library')
-        found = next(iter(found.values())).copy(doc)
+        found = next(iter(found.values()))
+        if copy_to_doc:
+            found = found.copy(doc)
     if not isinstance(found, Primitive):
         raise ValueError(f'"{name}" should be a Primitive, but it resolves to a {type(found).__name__}')
     return found

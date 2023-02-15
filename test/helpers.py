@@ -1,6 +1,13 @@
 
 import difflib
+import os
 
+
+OUT_DIR = os.path.join(
+    os.path.dirname(__file__), "out"
+)
+if not os.path.exists(OUT_DIR):
+    os.mkdir(OUT_DIR)
 
 
 def file_diff(comparison_file, temp_name):

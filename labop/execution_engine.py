@@ -52,6 +52,7 @@ class ExecutionEngine(ABC):
         permissive=False,
         use_defined_primitives=True,
         sample_format="xarray",
+        out_dir = "out",
     ):
         self.exec_counter = 0
         self.variable_counter = 0
@@ -78,6 +79,7 @@ class ExecutionEngine(ABC):
         self.issues: Dict[
             id, List[Union[ExecutionWarning, ExecutionError]]
         ] = {}  # List of Warnings and Errors
+        self.out_dir = out_dir
 
     def next_id(self):
         next = self.exec_counter
@@ -306,7 +308,7 @@ class ManualExecutionEngine(ExecutionEngine):
         ready = protocol.initiating_nodes()
         ready = self.advance(ready)
         choices = self.ready_message(ready)
-        graph = self.ex.to_dot(ready=ready, done=self.ex.backtrace()[0])
+        graph = self.ex.to_dot(ready=ready, done=self.ex.backtrace()[0], out_dir=self.out_dir)
         return ready, choices, graph
 
     def advance(self, ready: List[uml.ActivityNode]):
@@ -455,6 +457,7 @@ def protocol_execution_to_dot(
     execution_engine=None,
     ready: List[uml.ActivityNode] = [],
     done=set([]),
+    out_dir="out"
 ):
     """
     Create a dot graph that illustrates edge values appearing the execution of the protocol.
@@ -472,6 +475,7 @@ def protocol_execution_to_dot(
         flow_source = incoming_flow.lookup().token_source.lookup()
         source = incoming_flow.lookup().edge.lookup().source.lookup()
         value = incoming_flow.lookup().value.get_value()
+        is_ref = isinstance(incoming_flow.lookup().value, uml.LiteralReference)
         # value = value.value.lookup() if isinstance(value, uml.LiteralReference) else value.value
 
         if isinstance(source, uml.Pin):
@@ -495,6 +499,11 @@ def protocol_execution_to_dot(
             edge_label = value.display_id  # value.identity
         else:
             edge_label = f"{value}"
+
+        if hasattr(value, "to_dot") and not is_ref:
+            # Make node for value and connect to source
+            value_node_id = value.to_dot(dot, out_dir=out_dir)
+            dot.edge(source_id, value_node_id)
 
         edge_index = incoming_flow.split("ActivityEdgeFlow")[-1]
 

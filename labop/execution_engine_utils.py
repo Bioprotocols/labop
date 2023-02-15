@@ -644,7 +644,7 @@ def call_behavior_execution_check_next_tokens(
     possible_output_parameter_values = []
     for p in unlinked_output_parameters:
         value = self.get_parameter_value(p.property_value, node_outputs, sample_format)
-        reference = value.document is not None
+        reference = hasattr(value, "document") and value.document is not None
         possible_output_parameter_values.append(labop.ParameterValue(
             parameter=p,
             value=uml.literal(value, reference=reference),
@@ -784,7 +784,7 @@ def activity_node_execution_get_value(
             value = self.get_parameter_value(
                 parameter, node_outputs, sample_format
             )
-            reference = value.document is not None
+            reference = hasattr(value, "document") and value.document is not None
 
     value = uml.literal(value, reference=reference)
     return value

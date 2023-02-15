@@ -12,7 +12,7 @@ import labop
 from labop.execution_engine import ExecutionEngine
 import uml
 import tyto
-
+from helpers import file_diff
 
 # Save testfiles as artifacts when running in CI environment,
 # else save them to a local temp directory
@@ -85,6 +85,9 @@ class TestProtocolEndToEnd(unittest.TestCase):
         print(f'Wrote file as {temp_name}')
 
         comparison_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'testfiles', 'igem_ludox_data_test.nt')
+
+        diff = "".join(file_diff(comparison_file, temp_name))
+        print(f"Difference: {diff}")
         # with open(comparison_file, 'w') as f:
         #     f.write(doc.write_string(sbol3.SORTED_NTRIPLES).strip())
         print(f'Comparing against {comparison_file}')
