@@ -30,15 +30,15 @@ ContainerOntology = tyto.Ontology(path=container_ontology_path, uri='https://sif
 
 
 class MarkdownSpecialization(BehaviorSpecialization):
-    def __init__(self, out_path=None) -> None:
+    def __init__(self, out_file) -> None:
         super().__init__()
-        self.out_path = out_path
+        self.out_file = out_file
         self.var_to_entity = {}
         self.markdown_converter = None
         self.doc = None
 
-    def initialize_protocol(self, execution: labop.ProtocolExecution):
-        super().initialize_protocol(execution)
+    def initialize_protocol(self, execution: labop.ProtocolExecution, out_dir=None):
+        super().initialize_protocol(execution, out_dir=out_dir)
         print(f'Initializing execution {execution.display_id}')
         # Defines sections of the markdown document
         execution.header = ''
@@ -234,8 +234,10 @@ class MarkdownSpecialization(BehaviorSpecialization):
         if hasattr(protocol, 'version'):
             execution.markdown += f'---\nProtocol version: {protocol.version}'
 
-        if self.out_path:
-            with open(self.out_path, "w") as f:
+        if self.out_file:
+            if not os.path.exists(self.out_dir):
+                os.mkdir(self.out_dir)
+            with open(os.path.join(self.out_dir, self.out_file), "w") as f:
                 f.write(execution.markdown)
 
         self.data = execution.markdown
@@ -804,7 +806,7 @@ class MarkdownSpecialization(BehaviorSpecialization):
 
         dna_names = get_sample_names(dna, error_msg='Transform execution failed. All input DNA Components must specify a name.')
 
-        # TODO: move this initialization to predefined primitives 
+        # TODO: move this initialization to predefined primitives
         transformants.format = 'json'
 
         # Instantiate Components to represent transformants and populate

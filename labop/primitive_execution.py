@@ -200,7 +200,7 @@ def measure_absorbance_compute_output(self, inputs, parameter, sample_format):
         if sample_format == 'xarray':
             data = json.dumps(samples.initialize_dataset("absorbance").to_dict())
         elif sample_format == 'json':
-            raise NotImplementedError(f"Cannot initialize JSON contents of: {self.identity}")
+            data = quote(json.dumps({k: None for k, v in json.loads(unquote(input_map["samples"].contents)).items()}))
         else:
             raise Exception(f"Cannot initialize contents of: {self.identity}")
 

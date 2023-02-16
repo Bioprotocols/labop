@@ -1,4 +1,5 @@
 import sys
+import os
 from abc import ABC, abstractmethod
 from logging import error
 import logging
@@ -32,12 +33,15 @@ class BehaviorSpecialization(ABC):
         self.top_protocol = None
         self.execution = None
         self.issues = []
+        self.out_dir = None
+        self.objects = {}
 
         # This data field holds the results of the specialization
         self.data = []
 
-    def initialize_protocol(self, execution: labop.ProtocolExecution):
+    def initialize_protocol(self, execution: labop.ProtocolExecution, out_dir=None):
         self.execution = execution
+        self.out_dir = out_dir
 
     def _init_behavior_func_map(self) -> dict:
         return {}
@@ -55,6 +59,9 @@ class BehaviorSpecialization(ABC):
             self.issues.append(msg)
 
         self.data = json.dumps(self.data)
+        if self.out_dir:
+            with open(os.path.join(self.out_dir, f"{self.__class__.__name__}.json"), "w") as f:
+                f.write(self.data)
 
     def process(self, record, execution: labop.ProtocolExecution):
         try:
@@ -105,7 +112,19 @@ class BehaviorSpecialization(ABC):
             "behavior": node.behavior,
             "parameters": params,
         }
+        self.update_objects(record)
         self.data.append(node_data)
+
+    def update_objects(self, record: labop.ActivityNodeExecution):
+        """
+        Update the objects processed by the record.
+
+        Parameters
+        ----------
+        record : labop.ActivityNodeExecution
+            A step that modifies objects.
+        """
+        pass
 
     def resolve_container_spec(self, spec, addl_conditions=None):
         try:
@@ -135,5 +154,6 @@ class DefaultBehaviorSpecialization(BehaviorSpecialization):
             "https://bioprotocols.org/labop/primitives/liquid_handling/Provision": self.handle,
             "https://bioprotocols.org/labop/primitives/sample_arrays/PlateCoordinates": self.handle,
             "https://bioprotocols.org/labop/primitives/spectrophotometry/MeasureAbsorbance": self.handle,
+            "https://bioprotocols.org/labop/primitives/liquid_handling/TransferByMap": self.handle,
             "http://bioprotocols.org/labop#Protocol": self.handle,
         }

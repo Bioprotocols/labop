@@ -144,7 +144,7 @@ class ExecutionEngine(ABC):
 
         # Initialize specializations
         for specialization in self.specializations:
-            specialization.initialize_protocol(self.ex)
+            specialization.initialize_protocol(self.ex, out_dir=self.out_dir)
             specialization.on_begin(self.ex)
 
     def finalize(

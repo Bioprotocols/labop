@@ -174,13 +174,17 @@ class TestProtocolEndToEnd(unittest.TestCase):
         # Execute the protocol
         # In order to get repeatable timings, we use ordinal time in the test
         # where each timepoint is one second after the previous time point
-        ee = ExecutionEngine(use_ordinal_time=True, out_dir=OUT_DIR, specializations=[DefaultBehaviorSpecialization(), MarkdownSpecialization(out_path=os.path.join(OUT_DIR, "samplemap.md"))])
+        ee = ExecutionEngine(use_ordinal_time=True, out_dir=OUT_DIR,
+                             specializations=[
+                                DefaultBehaviorSpecialization(),
+                                #MarkdownSpecialization("samplemap.md")
+                                ])
 
         execution = ee.execute(protocol, agent, id="test_execution", parameter_values=[])
 
         # result = xr.DataArray.from_dict(json.loads(execution.parameter_values[0].value.value.lookup().contents))
 
-        # execution.to_dot().view()
+        execution.to_dot().render(os.path.join(OUT_DIR, "samplemap.pdf"))
         print('Validating and writing protocol')
         v = doc.validate()
         assert len(v) == 0, "".join(f'\n {e}' for e in v)
