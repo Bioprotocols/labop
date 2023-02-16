@@ -6,7 +6,7 @@ from labop.execution_engine import ExecutionEngine
 from labop_convert.markdown.markdown_specialization import MarkdownSpecialization
 from labop_convert.behavior_specialization import DefaultBehaviorSpecialization
 import sbol3
-
+from helpers import OUT_DIR
 
 PARAMETER_IN = 'http://bioprotocols.org/uml#in'
 PARAMETER_OUT = 'http://bioprotocols.org/uml#out'
@@ -55,7 +55,7 @@ class ExampleProtocol(unittest.TestCase):
         protocol.edges.append(flow)
 
         agent = sbol3.Agent("test_agent")
-        ee = ExecutionEngine()
+        ee = ExecutionEngine(out_dir=OUT_DIR)
 
         ee.specializations[0]._behavior_func_map[step1.identity] = lambda record, ex: None
         ee.specializations[0]._behavior_func_map[step2.identity] = lambda record, ex: None
@@ -97,7 +97,7 @@ class TestParameters(unittest.TestCase):
         step2_action.inputs.append(uml.InputPin(name='input', is_ordered=True, is_unique=True))
 
         agent = sbol3.Agent("test_agent")
-        ee = ExecutionEngine(specializations=[MarkdownSpecialization("test_LUDOX_markdown.md")])
+        ee = ExecutionEngine(out_dir = OUT_DIR, specializations=[MarkdownSpecialization("test_LUDOX_markdown.md")])
         parameter_values = [
         ]
 

@@ -12,7 +12,7 @@ import labop
 from labop.execution_engine import ExecutionEngine
 import uml
 import tyto
-from helpers import file_diff
+from helpers import file_diff, OUT_DIR
 
 # Save testfiles as artifacts when running in CI environment,
 # else save them to a local temp directory
@@ -52,7 +52,7 @@ class TestProtocolEndToEnd(unittest.TestCase):
         # Execute the protocol
         # In order to get repeatable timings, we use ordinal time in the test
         # where each timepoint is one second after the previous time point
-        ee = ExecutionEngine(use_ordinal_time=True)
+        ee = ExecutionEngine(out_dir=OUT_DIR, use_ordinal_time=True)
         parameter_values = [
             labop.ParameterValue(parameter=protocol.get_input("wavelength"),
                                 value=uml.LiteralIdentified(value=sbol3.Measure(100, tyto.OM.nanometer)))
@@ -63,10 +63,11 @@ class TestProtocolEndToEnd(unittest.TestCase):
         # get_data() returns a dict of output parameter ids to SampleData objects
         dataset = execution.get_data()
 
-        for k, v in dataset.data_vars.items():
-            for dimension in v.dims:
-                new_data = [8]*len(dataset[k].data)
-                dataset.update({k : (dimension, new_data)})
+        for id, ds in dataset.items():
+            for k, v in ds.data_vars.items():
+                for dimension in v.dims:
+                    new_data = [8]*len(ds[k].data)
+                    ds.update({k : (dimension, new_data)})
 
         execution.set_data(dataset)
 

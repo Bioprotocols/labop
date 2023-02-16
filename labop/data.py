@@ -37,15 +37,14 @@ def protocol_execution_get_data(self):
     Gather labop.SampleData outputs from all CallBehaviorExecutions into a dataset
     """
     calls = [e for e in self.executions if isinstance(e, labop.CallBehaviorExecution)]
-    datasets = [
+    datasets = { o.value.get_value().identity:
                     o.value.get_value().to_dataset()
                         for e in calls
                         for o in e.get_outputs()
                         if isinstance(o.value.get_value(), labop.SampleData)
-                ]
-    data = xr.merge(datasets)
+    }
 
-    return data
+    return datasets
 labop.ProtocolExecution.get_data = protocol_execution_get_data
 
 
@@ -130,6 +129,19 @@ def sample_collection_initialize_dataset(self, name: str):
     return sample_data
 SampleCollection.initialize_dataset = sample_collection_initialize_dataset
 
+def sample_mask_initialize_dataset(self, name: str):
+    sample_array = self.to_data_array()
+    sample_array = sample_array.where(sample_array, drop=True) # Apply mask
+
+    sample_data = xr.Dataset({
+                                name : xr.DataArray(
+                                                [None]*len(sample_array[Strings.ALIQUOT]),
+                                                [ (Strings.ALIQUOT, sample_array.coords[Strings.ALIQUOT].data) ]
+                                            )})
+    return sample_data
+SampleMask.initialize_dataset = sample_mask_initialize_dataset
+
+
 def sample_data_to_dataset(self):
     if hasattr(self, 'format') and self.format == 'json':
         raise NotImplementedError()
@@ -183,15 +195,28 @@ def call_behavior_execution_get_outputs(self):
               if x.parameter.lookup().property_value.direction == uml.PARAMETER_OUT]
 labop.CallBehaviorExecution.get_outputs = call_behavior_execution_get_outputs
 
+def sample_array_plot(self, out_dir="out"):
+    try:
+        import matplotlib.pyplot as plt
+        sa = self.to_data_array()
+        # p = sa.plot.scatter(col="aliquot", x="contents")
+        p = sa.plot()
+        plt.savefig(f"{os.path.join(out_dir, self.name)}.pdf")
+        return p
+    except Exception as e:
+        l.warning("Could not import matplotlib.  Install matplotlib to plot SampleArray objects.")
+        return None
+labop.SampleArray.plot = sample_array_plot
+
 def sample_array_to_dot(self, dot, out_dir="out"):
-    import matplotlib.pyplot as plt
-    sa = self.to_data_array()
-    # p = sa.plot.scatter(col="aliquot", x="contents")
-    p = sa.plot()
-    p.fig.savefig(f"{os.path.join(out_dir, self.name)}.pdf")
-    dot.node(self.name,
+    if self.plot(out_dir=out_dir):
+        dot.node(self.name,
              _attributes={
                    "label" : f"<<table><tr><td><img src=\"{self.name}.pdf\"></img></td></tr></table>>"
                 })
-    return self.name
+        return self.name
+    else:
+        dot.node(self.name)
+        return self.name
+
 labop.SampleArray.to_dot = sample_array_to_dot

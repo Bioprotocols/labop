@@ -11,6 +11,7 @@ import labop
 from labop.execution_engine import ExecutionEngine
 from importlib.machinery import SourceFileLoader
 from importlib.util import spec_from_loader, module_from_spec
+from helpers import OUT_DIR
 
 # Save testfiles as artifacts when running in CI environment,
 # else save them to a local temp directory
@@ -78,6 +79,7 @@ class TestProtocolEndToEnd(unittest.TestCase):
 
         agent = sbol3.Agent("test_agent")
         ee = ExecutionEngine(
+            out_dir=OUT_DIR,
             use_ordinal_time=True, use_defined_primitives=False
         )
         parameter_values = []
