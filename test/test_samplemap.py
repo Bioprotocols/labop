@@ -101,25 +101,25 @@ class TestProtocolEndToEnd(unittest.TestCase):
         # The aliquot dimension uses aliquot_ids (specified above) as coordinates.
         # The reagent dimension uses reagents (specified above) as coordinates.
         #
-        # Results in the DataArray representing contents:
+        # Results in the DataArray representing initial contents:
         #
-        # <xarray.DataArray (aliquot: 4, contents: 2)>
+        # <xarray.DataArray (aliquot: 4, initial_contents: 2)>
         # array([[600., 600.],
         #        [600., 600.],
         #        [600., 600.],
         #        [600., 600.]])
         # Coordinates:
         #   * aliquot   (aliquot) int64 0 1 2 3
-        #   * contents  (contents) <U30 'https://bbn.com/scratch/ddH2Oa' 'https://bbn.c...
+        #   * initial_contents  (initial_contents) <U30 'https://bbn.com/scratch/ddH2Oa' 'https://bbn.c...
         source_array = labop.SampleArray(
             name="source",
             container_type=source_spec,
-            contents=json.dumps(xr.DataArray([[default_volume.value
+            initial_contents=json.dumps(xr.DataArray([[default_volume.value
                                                 for reagent in reagents]
                                                 for id in aliquot_ids],
-                                             dims=("aliquot", "contents"),
+                                             dims=("aliquot", "initial_contents"),
                                              coords={"aliquot": aliquot_ids,
-                                                     "contents": [r.identity for r in reagents]}).to_dict()))
+                                                     "initial_contents": [r.identity for r in reagents]}).to_dict()))
         # 3.
         sample_array_parameter = create_source.pin_parameter("sample_array")
         [old_input] = [x for x in create_source.inputs if x.name == "sample_array"]
@@ -138,12 +138,12 @@ class TestProtocolEndToEnd(unittest.TestCase):
         target_array = labop.SampleArray(
             name="target",
             container_type=target_spec,
-            contents=json.dumps(xr.DataArray([[0.0
+            initial_contents=json.dumps(xr.DataArray([[0.0
                                                 for reagent in reagents]
                                                 for id in aliquot_ids],
-                                             dims=("aliquot", "contents"),
+                                             dims=("aliquot", "initial_contents"),
                                              coords={"aliquot": aliquot_ids,
-                                                     "contents": [r.identity for r in reagents]}).to_dict()))
+                                                     "initial_contents": [r.identity for r in reagents]}).to_dict()))
 
         # 3.
         sample_array_parameter = create_target.pin_parameter("sample_array")

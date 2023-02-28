@@ -49,7 +49,7 @@ labop.ProtocolExecution.get_data = protocol_execution_get_data
 
 
 def sample_array_to_data_array(self):
-    return xr.DataArray.from_dict(json.loads(self.contents))
+    return xr.DataArray.from_dict(json.loads(self.initial_contents))
 SampleArray.to_data_array = sample_array_to_data_array
 
 
@@ -64,36 +64,36 @@ def sample_array_mask(self, mask):
         return mask
     elif self.format != 'xarray':
         raise Exception(f'Sample format {self.format} is not currently supported by the mask method')
-    contents_array = xr.DataArray.from_dict(json.loads(self.contents))
+    initial_contents_array = xr.DataArray.from_dict(json.loads(self.initial_contents))
     row_col_pairs = coordinate_rect_to_row_col_pairs(mask)
     mask_array = xr.DataArray(
                         [
                             is_in_mask(coordinate_to_row_col(x), row_col_pairs)
-                            for x in contents_array.data
+                            for x in initial_contents_array.data
                         ],
-                        coords={Strings.ALIQUOT: contents_array}
+                        coords={Strings.ALIQUOT: initial_contents_array}
                     )
     return json.dumps(mask_array.to_dict())
 SampleArray.mask = sample_array_mask
 
 
-def sample_array_from_dict(self, contents: dict):
+def sample_array_from_dict(self, initial_contents: dict):
     if self.format != 'json':
-        raise Exception('Failed to write contents. The SampleArray contents are not configured for json format')
-    self.contents = quote(json.dumps(contents))
-    return self.contents
+        raise Exception('Failed to write initial contents. The SampleArray initial contents are not configured for json format')
+    self.initial_contents = quote(json.dumps(initial_contents))
+    return self.initial_contents
 SampleArray.from_dict = sample_array_from_dict
 
 
 def sample_array_to_dict(self) -> dict:
     if self.format != 'json':
-        raise Exception('Failed to dump contents to dict. The SampleArray contents do not appear to be json format')
-    if not self.contents:
+        raise Exception('Failed to dump initial contents to dict. The SampleArray initial contents do not appear to be json format')
+    if not self.initial_contents:
         return {}
-    if self.contents == 'https://github.com/synbiodex/pysbol3#missing':
+    if self.initial_contents == 'https://github.com/synbiodex/pysbol3#missing':
         return {}
-    # De-serialize the contents field of a SampleArray
-    return json.loads(unquote(self.contents))
+    # De-serialize the initial_contents field of a SampleArray
+    return json.loads(unquote(self.initial_contents))
 SampleArray.to_dict = sample_array_to_dict
 
 
@@ -112,8 +112,8 @@ def sample_array_get_coordinates(self):
     if self.format == 'json':
         return self.to_dict().values()
     elif self.format == 'xarray':
-        contents = self.to_data_array()
-        return [c for c in contents.aliquot.data]
+        initial_contents = self.to_data_array()
+        return [c for c in initial_contents.aliquot.data]
     raise ValueError(f'Unsupported sample format: {self.format}')
 SampleArray.get_coordinates = sample_mask_get_coordinates
 

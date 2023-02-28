@@ -55,7 +55,7 @@ doc.add(p)
 
 p = labop.Primitive('StockReagent')
 p.description = 'Allocate a SampleArray object representing a stock reagent'
-p.add_input('contents', sbol3.SBOL_IDENTIFIED)
+p.add_input('initial_contents', sbol3.SBOL_IDENTIFIED)
 p.add_output('reagent', 'http://bioprotocols.org/labop#SampleArray')
 doc.add(p)
 
