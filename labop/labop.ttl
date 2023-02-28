@@ -160,8 +160,8 @@ labop:SampleArray a owl:Class ;
         type of container. For example, a SampleCollection might describe a set of 10 cell cultures growing in
         96-well plate cells, or a set of 6 streaked agar plates, or a single 500 mL flask filled with media.
 
-        Wells may be full, in which case the contents property should contain a URI to a description of the sample,
-        or empty, in which case the contents should be null.
+        Wells may start with material in them, in which case the initial_contents property should contain a URI to a
+        description of the sample, or empty, in which case the initial_contents should be null.
 
         Note that this is a logical array, and does not necessarily indicate the actual layout of the samples in space.
         For example, a 2x4 array of samples in 96-well plate wells might end up being laid out as a 2x4 array in wells
@@ -174,13 +174,13 @@ labop:SampleArray a owl:Class ;
         laid out over two plates.
 
         TODO: the format of the data values needs to be compatible with the array format chosen for the
-        SampleArray contents property. In this case, however, we also need to consider how we want to support
+        SampleArray initial_contents property. In this case, however, we also need to consider how we want to support
         multiple values for each sample (e.g., measurement of both fluorescence and absorbance in a plate reader),
         as well as links to more complex data (e.g., results of flow cytometry or omics for each sample)""" ;
     rdfs:subClassOf [ a owl:Restriction ;
             rdfs:comment "N-dimensional array of URI for specification or nulls" ;
             owl:allValuesFrom xsd:string ;
-            owl:onProperty labop:contents ],
+            owl:onProperty labop:initial_contents ],
         [ a owl:Restriction ;
             rdfs:comment "Type of container used for storing the samples. The size and dimension may not match that of the array: it is up to execution to lay out the array in one or more containers" ;
             owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
@@ -196,11 +196,11 @@ labop:SampleArray a owl:Class ;
         [ a owl:Restriction ;
             rdfs:comment "N-dimensional array of URI for specification or nulls" ;
             owl:minCardinality "1"^^xsd:nonNegativeInteger ;
-            owl:onProperty labop:contents ],
+            owl:onProperty labop:initial_contents ],
         [ a owl:Restriction ;
             rdfs:comment "N-dimensional array of URI for specification or nulls" ;
             owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
-            owl:onProperty labop:contents ],
+            owl:onProperty labop:initial_contents ],
         labop:SampleCollection .
 
 labop:SampleData a owl:Class ;
@@ -212,7 +212,7 @@ labop:SampleData a owl:Class ;
         The dimensions of the sampleDataValues MUST equal the dimensions of the SampleCollection linked with fromSamples.
 
         TODO: the format of the data values needs to be compatible with the array format chosen for the
-        SampleArray contents property. In this case, however, we also need to consider how we want to support
+        SampleArray initial_contents property. In this case, however, we also need to consider how we want to support
         multiple values for each sample (e.g., measurement of both fluorescence and absorbance in a plate reader),
         as well as links to more complex data (e.g., results of flow cytometry or omics for each sample)""" ;
     rdfs:subClassOf [ a owl:Restriction ;
@@ -233,6 +233,62 @@ labop:SampleData a owl:Class ;
         [ a owl:Restriction ;
             owl:allValuesFrom labop:SampleCollection ;
             owl:onProperty labop:fromSamples ],
+        sbol:Identified .
+
+labop:SampleMetadata a owl:Class ;
+    rdfs:comment """The SampleMetadata class is used to associate a set of descriptions with a collection of samples.
+        This is typically used to capture a model of the important properties of each sample, e.g., the media, cells,
+        and inducers that are transferred into each well of a plate at the beginning of the experiment. These
+        descriptions are then associated with the data values in a SampleData to make a Dataset ready for analysis.
+
+        The dimensions of the sampleDescriptions MUST equal the dimensions of the SampleCollection linked with forSamples.
+
+        TODO: the format of the data values needs to be compatible with the array format chosen for the
+        SampleArray initial_contents property.""" ;
+    rdfs:subClassOf [ a owl:Restriction ;
+            owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
+            owl:onProperty labop:forSamples ],
+        [ a owl:Restriction ;
+            owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
+            owl:onProperty labop:sampleDescriptions ],
+        [ a owl:Restriction ;
+            owl:allValuesFrom xsd:string ;
+            owl:onProperty labop:sampleDescriptions ],
+        [ a owl:Restriction ;
+            owl:minCardinality "1"^^xsd:nonNegativeInteger ;
+            owl:onProperty labop:sampleDescriptions ],
+        [ a owl:Restriction ;
+            owl:minCardinality "1"^^xsd:nonNegativeInteger ;
+            owl:onProperty labop:forSamples ],
+        [ a owl:Restriction ;
+            owl:allValuesFrom labop:SampleCollection ;
+            owl:onProperty labop:forSamples ],
+        sbol:Identified .
+
+labop:Dataset a owl:Class ;
+    rdfs:comment """The Dataset class is used to associate a set of data and metadata for a collection of samples,
+        thereby producing a collection of data and attributes ready for analysis.
+
+        The fromSamples property of the data and the forSamples property of the labels must be the same SampleCollection
+        """ ;
+    rdfs:subClassOf [ a owl:Restriction ;
+            owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
+            owl:onProperty labop:data ],
+        [ a owl:Restriction ;
+            owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
+            owl:onProperty labop:labels ],
+        [ a owl:Restriction ;
+            owl:allValuesFrom labop:SampleMetadata  ;
+            owl:onProperty labop:labels ],
+        [ a owl:Restriction ;
+            owl:minCardinality "1"^^xsd:nonNegativeInteger ;
+            owl:onProperty labop:labels ],
+        [ a owl:Restriction ;
+            owl:minCardinality "1"^^xsd:nonNegativeInteger ;
+            owl:onProperty labop:data ],
+        [ a owl:Restriction ;
+            owl:allValuesFrom labop:SampleData ;
+            owl:onProperty labop:data ],
         sbol:Identified .
 
 labop:SampleMap a owl:Class ;
@@ -361,9 +417,9 @@ labop:containerType a owl:ObjectProperty ;
     rdfs:domain labop:SampleArray ;
     rdfs:range labop:ContainerSpec .
 
-labop:contents a owl:DatatypeProperty ;
-    rdfs:label "contents" ;
-    rdfs:comment """Description of the contents.
+labop:initial_contents a owl:DatatypeProperty ;
+    rdfs:label "initial_contents" ;
+    rdfs:comment """Description of the initial contents of a SampleArray.
         TODO: need to decide whether this is a multi-valued property with associated array coordinates or a
         single-valued property with an array value.
         Currently set to string as a "dummy" value that can serialize anything.""" ;
@@ -394,6 +450,32 @@ labop:fromSamples a owl:ObjectProperty ;
     rdfs:comment """The fromSamples property indicates the SampleCollection from which the data were collected.""" ;
     rdfs:domain labop:SampleData ;
     rdfs:range labop:SampleCollection .
+
+labop:sampleDescriptions a owl:DatatypeProperty ;
+        rdfs:comment """The sampleDescriptions are an array of SBOL Implementations, one for each sample, array format to be determined.""";
+              rdfs:domain labop:SampleMetadata ;
+              rdfs:range xsd:string ; # TODO: consider https://github.com/SynBioDex/sbol_factory/issues/7
+              rdfs:label "descriptions" .
+
+labop:forSamples a owl:ObjectProperty ;
+    rdfs:label "for_samples" ;
+    rdfs:comment """The forSamples property indicates the SampleCollection that are described by a SampleMetadata.""" ;
+    rdfs:domain labop:SampleMetadata ;
+    rdfs:range labop:SampleCollection .
+
+labop:data a owl:ObjectProperty ;
+    rdfs:label "data" ;
+    rdfs:comment """The data property indicates the SampleData used in a Dataset.""" ;
+    rdfs:domain labop:Dataset  ;
+    rdfs:range labop:SampleData  .
+
+
+labop:labels a owl:ObjectProperty ;
+    rdfs:label "labels" ;
+    rdfs:comment """The labels property indicates the SampleMetadata used in a Dataset.""" ;
+    rdfs:domain labop:Dataset  ;
+    rdfs:range labop:SampleMetadata  .
+
 
 labop:node a owl:ObjectProperty ;
     rdfs:label "node" ;
@@ -506,7 +588,7 @@ labop:mask a owl:DatatypeProperty ;
     rdfs:comment """The mask is an N-dimensional array of Booleans values, where each Boolean indicates whether the
         sample at the corresponding location in the source is included in the subset.
 
-        TODO: format of mask array needs to match the array format chosen for the SampleArray contents property""" ;
+        TODO: format of mask array needs to match the array format chosen for the SampleArray initial_contents property""" ;
     rdfs:domain labop:mask ;
     rdfs:range xsd:string .
 
@@ -626,7 +708,7 @@ labop:mask a owl:DatatypeProperty ;
         rdfs:comment """The mask is an N-dimensional array of Booleans values, where each Boolean indicates whether the
         sample at the corresponding location in the source is included in the subset.
 
-        TODO: format of mask array needs to match the array format chosen for the SampleArray contents property""" ;
+        TODO: format of mask array needs to match the array format chosen for the SampleArray initial_contents property""" ;
               rdfs:domain labop:mask ;
               rdfs:range xsd:string ;
               rdfs:label "mask" .
