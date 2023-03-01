@@ -420,7 +420,7 @@ meta2 = protocol.primitive_step("AttachMetadata",
 protocol.designate_output('dataset', 'http://bioprotocols.org/labop#Dataset', source=meta2.output_pin('dataset'))
 
 meta3 = protocol.primitive_step("AttachMetadata",
-                              data=measure_absorbance.output_pin('measurements'),
+                              data=measure_fluorescence3.output_pin('measurements'),
                               metadata=labop.SampleMetadata(for_samples=read_wells3.output_pin('samples'), descriptions=""))
 protocol.designate_output('dataset', 'http://bioprotocols.org/labop#Dataset', source=meta3.output_pin('dataset'))
 
