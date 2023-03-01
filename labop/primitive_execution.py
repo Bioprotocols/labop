@@ -196,6 +196,15 @@ def measure_absorbance_compute_output(self, inputs, parameter, sample_format):
         sample_data = labop.SampleData(from_samples=samples)
         return sample_data
 
+def attach_metadata_compute_output(self, inputs, parameter, sample_format):
+    if parameter.name == "dataset" and \
+       parameter.type == 'http://bioprotocols.org/labop#Dataset':
+        input_map = input_parameter_map(inputs)
+        data = input_map["data"]
+        metadata = input_map["metadata"]
+        dataset = labop.Dataset(data=data, metadata=metadata)
+        return dataset
+
 primitive_to_output_function = {
     "EmptyContainer" : empty_container_compute_output,
     "PlateCoordinates" : plate_coordinates_compute_output,
@@ -203,6 +212,7 @@ primitive_to_output_function = {
     "EmptyInstrument": empty_rack_compute_output,
     "EmptyRack": empty_rack_compute_output,
     "LoadContainerOnInstrument": load_container_on_instrument_compute_output,
+    "AttachMetadata": attach_metadata_compute_output
 }
 
 def initialize_primitive_compute_output(doc: sbol3.Document):

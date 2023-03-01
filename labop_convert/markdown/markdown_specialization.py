@@ -178,6 +178,8 @@ class MarkdownSpecialization(BehaviorSpecialization):
         value = resolve_value(pv.value)
         if isinstance(value, sbol3.Measure):
             value = measurement_to_text(value)
+        elif isinstance(value, labop.Dataset):
+            value = dataset_to_text(value)
         elif isinstance(value, sbol3.Identified):
             value = parameter.name
         if is_output:
@@ -810,7 +812,7 @@ class MarkdownSpecialization(BehaviorSpecialization):
 
         dna_names = get_sample_names(dna, error_msg='Transform execution failed. All input DNA Components must specify a name.')
 
-        # TODO: move this initialization to predefined primitives 
+        # TODO: move this initialization to predefined primitives
         transformants.format = 'json'
 
         # Instantiate Components to represent transformants and populate
@@ -1005,6 +1007,9 @@ def measurement_to_text(measure: sbol3.Measure):
     measurement_units = tyto.OM.get_term_by_uri(measure.unit)
     return f'{measurement_scalar} {measurement_units}'
 
+
+def dataset_to_text(dataset: labop.Dataset):
+    return f'{dataset.display_name}'
 
 def get_sample_names(inputs: Union[labop.SampleArray, sbol3.Component], error_msg, coordinates=None) -> List[str]:
     # Since some behavior inputs may be specified as either a SampleArray or directly as a list

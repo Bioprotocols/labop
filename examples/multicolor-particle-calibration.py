@@ -411,23 +411,23 @@ measure_absorbance = protocol.primitive_step('MeasureAbsorbance',
 
 meta1 = protocol.primitive_step("AttachMetadata",
                               data=measure_fluorescence1.output_pin('measurements'),
-                              metadata=labop.SampleMetadata("meta1", for_samples=read_wells1.output_pin('samples'), descriptions=""))
+                              metadata=labop.SampleMetadata(for_samples=read_wells1.output_pin('samples'), descriptions=""))
 protocol.designate_output('dataset', 'http://bioprotocols.org/labop#Dataset', source=meta1.output_pin('dataset'))
 
 meta2 = protocol.primitive_step("AttachMetadata",
                               data=measure_fluorescence2.output_pin('measurements'),
-                              metadata=labop.SampleMetadata("meta2", for_samples=read_wells2.output_pin('samples'), descriptions=""))
+                              metadata=labop.SampleMetadata(for_samples=read_wells2.output_pin('samples'), descriptions=""))
 protocol.designate_output('dataset', 'http://bioprotocols.org/labop#Dataset', source=meta2.output_pin('dataset'))
 
 meta3 = protocol.primitive_step("AttachMetadata",
                               data=measure_absorbance.output_pin('measurements'),
-                              metadata=labop.SampleMetadata("meta3", for_samples=read_wells3.output_pin('samples'), descriptions=""))
+                              metadata=labop.SampleMetadata(for_samples=read_wells3.output_pin('samples'), descriptions=""))
 protocol.designate_output('dataset', 'http://bioprotocols.org/labop#Dataset', source=meta3.output_pin('dataset'))
 
 
 meta4 = protocol.primitive_step("AttachMetadata",
                               data=measure_absorbance.output_pin('measurements'),
-                              metadata=labop.SampleMetadata("meta4", for_samples=read_wells4.output_pin('samples'), descriptions=""))
+                              metadata=labop.SampleMetadata(for_samples=read_wells4.output_pin('samples'), descriptions=""))
 protocol.designate_output('dataset', 'http://bioprotocols.org/labop#Dataset', source=meta4.output_pin('dataset'))
 
 
