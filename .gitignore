@@ -27,3 +27,4 @@ assets/
 container-ontology
 test/out
 .env
+out/DefaultBehaviorSpecialization.json
