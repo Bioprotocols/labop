@@ -270,7 +270,8 @@ serial_dilution1 = protocol.primitive_step('SerialDilution',
 serial_dilution1.description = ' For each transfer, pipette up and down 3X to ensure the dilution is mixed homogeneously.'
 
 embedded_image = protocol.primitive_step('EmbeddedImage',
-                                         image=os.path.join(os.path.dirname(os.path.realpath(__file__)), 'serial_dilution.png'))
+                                         image=os.path.join(os.path.dirname(os.path.realpath(__file__)), 'serial_dilution.png'),
+                                         caption="Serial Dilution")
 
 serial_dilution2 = protocol.primitive_step('SerialDilution',
                                           source=fluorescein_wells_B1.output_pin('samples'),
