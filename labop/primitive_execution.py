@@ -102,11 +102,11 @@ def empty_container_compute_output(self, inputs, parameter, sample_format):
         # Make a SampleArray
         input_map = input_parameter_map(inputs)
         spec = input_map["specification"]
-        contents = self.initialize_contents(sample_format)
+        initial_contents = self.initialize_contents(sample_format)
         name = f"{parameter.name}"
         sample_array = labop.SampleArray(name=name,
                                    container_type=spec,
-                                   contents=contents)
+                                   initial_contents=initial_contents)
         # This attribute isn't formally specified in the ontology yet, but supports handling of different sample formats by BehaviorSpecialiations
         sample_array.format = sample_format
         return sample_array
@@ -123,11 +123,11 @@ def empty_rack_compute_output(self, inputs, parameter, sample_format):
             geometry = 'A1:C8'
         else:
             geometry = 'A1:H12'
-        contents = self.initialize_contents(sample_format, geometry)
+        initial_contents = self.initialize_contents(sample_format, geometry)
         name = f"{parameter.name}"
         sample_array = labop.SampleArray(name=name,
                                    container_type=spec,
-                                   contents=contents)
+                                   initial_contents=initial_contents)
         # This attribute isn't formally specified in the ontology yet, but supports handling of different sample formats by BehaviorSpecialiations
         sample_array.format = sample_format
         return sample_array
@@ -144,11 +144,11 @@ def empty_rack_compute_output(self, inputs, parameter, sample_format):
             geometry = 'A1:C8'
         else:
             geometry = 'A1:H12'
-        contents = self.initialize_contents(sample_format, geometry)
+        initial_contents = self.initialize_contents(sample_format, geometry)
         name = f"{parameter.name}"
         sample_array = labop.SampleArray(name=name,
                                    container_type=spec,
-                                   contents=contents)
+                                   initial_contents=initial_contents)
         # This attribute isn't formally specified in the ontology yet, but supports handling of different sample formats by BehaviorSpecialiations
         sample_array.format = sample_format
         return sample_array
@@ -162,11 +162,11 @@ def load_container_on_instrument_compute_output(self, inputs, parameter, sample_
         input_map = input_parameter_map(inputs)
         spec = input_map["specification"]
         # TODO: handle different containers, e.g. 8-tube strips, 12-tube strips
-        contents = self.initialize_contents(sample_format)
+        initial_contents = self.initialize_contents(sample_format)
         name = f"{parameter.name}"
         sample_array = labop.SampleArray(name=name,
                                    container_type=spec,
-                                   contents=contents)
+                                   initial_contents=initial_contents)
         # This attribute isn't formally specified in the ontology yet, but supports handling of different sample formats by BehaviorSpecialiations
         sample_array.format = sample_format
         return sample_array
@@ -257,15 +257,15 @@ def empty_container_initialize_contents(self, sample_format, geometry='A1:H12'):
 
     l.warn("Warning: Assuming that the SampleArray is a 96 well microplate!")
     aliquots = get_aliquot_list(geometry)
-    #contents = json.dumps(xr.DataArray(dims=("aliquot", "contents"),
+    #initial_contents = json.dumps(xr.DataArray(dims=("aliquot", "initial_contents"),
     #                                   coords={"aliquot": aliquots}).to_dict())
     if sample_format == 'xarray':
-        contents = json.dumps(xr.DataArray(aliquots, dims=("aliquot")).to_dict())
+        initial_contents = json.dumps(xr.DataArray(aliquots, dims=("aliquot")).to_dict())
     elif sample_format == 'json':
-        contents = quote(json.dumps({c: None for c in aliquots}))
+        initial_contents = quote(json.dumps({c: None for c in aliquots}))
     else:
         raise Exception(f"Cannot initialize contents of: {self.identity}")
-    return contents
+    return initial_contents
 labop.Primitive.initialize_contents = empty_container_initialize_contents
 
 def declare_primitive(

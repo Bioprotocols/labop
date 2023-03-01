@@ -519,7 +519,7 @@ class OT2Specialization(BehaviorSpecialization):
 
         # Assume 96 well plate
         aliquots = get_aliquot_list(geometry="A1:H12")
-        samples.contents = json.dumps(xr.DataArray(aliquots, dims=("aliquot")).to_dict())
+        samples.initial_contents = json.dumps(xr.DataArray(aliquots, dims=("aliquot")).to_dict())
 
         #upstream_ex = get_token_source('container', record)
         #container_spec = upstream_ex.call.lookup().parameter_value_map()['specification']['value']

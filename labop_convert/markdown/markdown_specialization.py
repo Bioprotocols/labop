@@ -314,7 +314,7 @@ class MarkdownSpecialization(BehaviorSpecialization):
 
         # TODO: sample contents should be initialized by predefined handlers in
         # primitive_execution.py
-        samples.contents = quote(json.dumps({}))
+        samples.initial_contents = quote(json.dumps({}))
         samples.format = 'json'
         assert(type(containers) is labop.ContainerSpec)
         try:
@@ -377,7 +377,7 @@ class MarkdownSpecialization(BehaviorSpecialization):
         coords = parameter_value_map["coordinates"]["value"]
         samples = parameter_value_map['samples']['value']
         samples.name = source.name
-        samples.contents = source.contents
+        samples.initial_contents = source.initial_contents
 
         self.var_to_entity[parameter_value_map['samples']["value"]] = coords
         l.debug(f"plate_coordinates:")
@@ -546,7 +546,7 @@ class MarkdownSpecialization(BehaviorSpecialization):
         #else:
         #    destination_contents = source_contents
         #print('Final destination contents: ', destination_contents)
-        #samples.contents = quote(json.dumps(destination_contents))
+        #samples.initial_contents = quote(json.dumps(destination_contents))
 
         # Get destination container type
         container_spec = record.document.find(destination.container_type)
@@ -558,14 +558,13 @@ class MarkdownSpecialization(BehaviorSpecialization):
         if isinstance(destination, labop.SampleArray):
             if isinstance(source, labop.SampleArray):
                 # Do a complete transfer of all source contents
-                destination.contents = write_sample_contents(source,
-                                                             replicates=replicates)
+                destination.initial_contents = write_sample_contents(source, replicates=replicates)
             elif destination_coordinates:
                 # Add more samples to a plate that already has contents
-                contents = read_sample_contents(destination)
-                contents[destination_coordinates] = source.identity
-                destination.contents = quote(json.dumps(contents))
-                #destination.contents = write_sample_contents(contents, replicates)
+                initial_contents = read_sample_contents(destination)
+                initial_contents[destination_coordinates] = source.identity
+                destination.initial_contents = quote(json.dumps(initial_contents))
+                #destination.initial_contents = write_sample_contents(initial_contents, replicates)
 
         # Add to markdown
         if destination_coordinates:
@@ -614,7 +613,7 @@ class MarkdownSpecialization(BehaviorSpecialization):
             except:
                 print(source_contents)
                 raise KeyError()
-            destination.contents = quote(json.dumps(destination_contents))
+            destination.initial_contents = quote(json.dumps(destination_contents))
         else:
             l.warn(f"Cannot instantiate a map for TransferByMap because plan is None")
 
@@ -687,7 +686,7 @@ class MarkdownSpecialization(BehaviorSpecialization):
 
 
         # Populate output SampleArray
-        container.contents = write_sample_contents(inocula, replicates)
+        container.initial_contents = write_sample_contents(inocula, replicates)
         execution.markdown_steps += [text]
 
     def incubate(self, record: labop.ActivityNodeExecution, execution: labop.ProtocolExecution):
@@ -744,7 +743,7 @@ class MarkdownSpecialization(BehaviorSpecialization):
         amount = parameter_value_map['amount']['value']
         target_od = parameter_value_map['target_od']['value']
         temperature = parameter_value_map['temperature']['value'] if 'temperature' in parameter_value_map else None
-        destination.contents = source.contents
+        destination.initial_contents = source.initial_contents
 
         # Get destination container type
         container_spec = record.document.find(destination.container_type)
@@ -774,7 +773,7 @@ class MarkdownSpecialization(BehaviorSpecialization):
         dilution_factor = parameter_value_map['dilution_factor']['value']
         temperature = parameter_value_map['temperature']['value'] if 'temperature' in parameter_value_map else None
 
-        destination.contents = source.contents
+        destination.initial_contents = source.initial_contents
 
         # Get destination container type
         container_spec = record.document.find(destination.container_type)
@@ -817,7 +816,7 @@ class MarkdownSpecialization(BehaviorSpecialization):
         # Instantiate Components to represent transformants and populate
         # these into the output SampleArray
         i_transformant = 1
-        contents = {}
+        initial_contents = {}
         for i_dna, dna_name in enumerate(dna_names):
 
             # Use a while loop to mint a unique URI for new Components
@@ -830,12 +829,12 @@ class MarkdownSpecialization(BehaviorSpecialization):
                     record.document.add(strain)
 
                     # Populate the output SampleArray with the new strain instances
-                    contents[i_dna+1] = strain.identity
+                    initial_contents[i_dna+1] = strain.identity
                     UNIQUE_URI = True
                 except:
                     i_transformant += 1
             i_transformant += 1
-        transformants.contents = quote(json.dumps(contents))
+        transformants.initial_contents = quote(json.dumps(initial_contents))
         transformants.name = destination.name
 
         # Add to markdown
@@ -872,7 +871,7 @@ class MarkdownSpecialization(BehaviorSpecialization):
         container_str = ContainerOntology.get_term_by_uri(container_class)
 
         # Update destination contents
-        destination.contents = source.contents
+        destination.initial_contents = source.initial_contents
 
         # Get sample names
         sample_names = get_sample_names(source, error_msg='Dilute execution failed. All source Components must specify a name.', coordinates=source_coordinates)
@@ -933,7 +932,7 @@ class MarkdownSpecialization(BehaviorSpecialization):
 
         source_contents += source_contents  # This is a kludge to support the iGEM protocol, necessary because we don't have a good way to track replicates
         n_replicates = int(n_samples / len(source_contents))
-        samples.contents = write_sample_contents(source_contents)
+        samples.initial_contents = write_sample_contents(source_contents)
         samples.name = source.name
 
         text = f'Pool {measurement_to_text(volume)} from each of {n_replicates} replicate `{source.name}` samples into {container_str} `{container_spec.name}`.'
@@ -993,7 +992,7 @@ class MarkdownSpecialization(BehaviorSpecialization):
 
         # Copy input SampleArray properties to output
         # TODO: maybe this should be abstracted out into a convenience method
-        samples.contents = colonies.contents
+        samples.initial_contents = colonies.initial_contents
         samples.name = colonies.name
         samples.format = colonies.format
         execution.markdown_steps += [f'Pick {replicates} colonies from each `{colonies.name}` plate.']
@@ -1012,12 +1011,12 @@ def get_sample_names(inputs: Union[labop.SampleArray, sbol3.Component], error_ms
     # of Components, this provides a convenient way to unpack a list of sample names
     input_names = []
     if isinstance(inputs, labop.SampleArray):
-        if inputs.contents:
-            contents = read_sample_contents(inputs)
+        if inputs.initial_contents:
+            initial_contents = read_sample_contents(inputs)
             if coordinates:
-                input_names = {inputs.document.find(contents[coordinates]).name}
+                input_names = {inputs.document.find(initial_contents[coordinates]).name}
             else:
-                input_names = {inputs.document.find(c).name for c in contents.values() if c is not None}
+                input_names = {inputs.document.find(c).name for c in initial_contents.values() if c is not None}
     elif isinstance(inputs, Iterable):
         input_names = {i.name for i in inputs}
     else:
@@ -1052,26 +1051,26 @@ def get_sample_label(sample: labop.SampleCollection) -> str:
 def write_sample_contents(sample_array: Union[dict, List[sbol3.Component]], replicates=1) -> str:
     if isinstance(sample_array, labop.SampleArray):
         old_contents = read_sample_contents(sample_array)
-        contents = []
+        initial_contents = []
         for r in range(replicates):
             for c in old_contents.values():
-                contents.append(c)
+                initial_contents.append(c)
                 #sample_array.document.find(c).name += f' replicate {r}'
-        contents = {i+1: c for i, c in enumerate(contents)}
+        initial_contents = {i+1: c for i, c in enumerate(initial_contents)}
     else:
-        contents = {i+1: c for i, c in enumerate(sample_array) for r in range(replicates)}
-    return quote(json.dumps(contents))
+        initial_contents = {i+1: c for i, c in enumerate(sample_array) for r in range(replicates)}
+    return quote(json.dumps(initial_contents))
 
 
 def read_sample_contents(sample_array: labop.SampleArray) -> dict:
     if not isinstance(sample_array, labop.SampleArray):
         return {'1': sample_array.identity}
-    if sample_array.contents == 'https://github.com/synbiodex/pysbol3#missing':
+    if sample_array.initial_contents == 'https://github.com/synbiodex/pysbol3#missing':
         return {}
-    if not sample_array.contents:
+    if not sample_array.initial_contents:
         return {}
-    # De-serialize the contents field of a SampleArray
-    return json.loads(unquote(sample_array.contents))
+    # De-serialize the initial_contents field of a SampleArray
+    return json.loads(unquote(sample_array.initial_contents))
 
 
 def add_description(record, text):

@@ -221,20 +221,19 @@ def protocol_execution_get_subprotocol_executions(self):
 ProtocolExecution.get_subprotocol_executions = protocol_execution_get_subprotocol_executions
 
 
-
-def sample_array_get_sample_names(self):
-    sample_dict = json.loads(self.contents)
+def sample_array_get_sample_names(self: SampleArray):
+    sample_dict = json.loads(self.initial_contents)
     return [self.document.find(s).name for s in sample_dict.keys()]
 SampleArray.get_sample_names = sample_array_get_sample_names
 
 
-def sample_array_get_sample(self, sample_name):
-    sample_dict = json.loads(self.contents)
+def sample_array_get_sample(self: SampleArray, sample_name):
+    sample_dict = json.loads(self.initial_contents)
     samples = [self.document.find(s) for s in sample_dict.keys()]
     for s in samples:
         if s.name == sample_name:
             return self.document.find(s)
-    raise LookupError(f'SampleArray does not contain contents named {sample_name}')
+    raise LookupError(f'SampleArray does not contain initial contents named {sample_name}')
 SampleArray.get_sample = sample_array_get_sample
 
 #########################################

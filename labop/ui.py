@@ -28,7 +28,7 @@ def sample_array_str(self):
     :param self:
     :return: str
     """
-    return f"SampleArray(name={self.name}, container_type={self.container_type}, contents={self.contents})"
+    return f"SampleArray(name={self.name}, container_type={self.container_type}, initial_contents={self.initial_contents})"
 SampleArray.__str__ = sample_array_str
 
 def sample_mask_str(self):
