@@ -269,20 +269,20 @@ labop:Dataset a owl:Class ;
     rdfs:comment """The Dataset class is used to associate a set of data and metadata for a collection of samples,
         thereby producing a collection of data and attributes ready for analysis.
 
-        The fromSamples property of the data and the forSamples property of the labels must be the same SampleCollection
+        The fromSamples property of the data and the forSamples property of the metadata must be the same SampleCollection
         """ ;
     rdfs:subClassOf [ a owl:Restriction ;
             owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
             owl:onProperty labop:data ],
         [ a owl:Restriction ;
             owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
-            owl:onProperty labop:labels ],
+            owl:onProperty labop:metadata ],
         [ a owl:Restriction ;
             owl:allValuesFrom labop:SampleMetadata  ;
-            owl:onProperty labop:labels ],
+            owl:onProperty labop:metadata ],
         [ a owl:Restriction ;
             owl:minCardinality "1"^^xsd:nonNegativeInteger ;
-            owl:onProperty labop:labels ],
+            owl:onProperty labop:metadata ],
         [ a owl:Restriction ;
             owl:minCardinality "1"^^xsd:nonNegativeInteger ;
             owl:onProperty labop:data ],
@@ -470,9 +470,9 @@ labop:data a owl:ObjectProperty ;
     rdfs:range labop:SampleData  .
 
 
-labop:labels a owl:ObjectProperty ;
-    rdfs:label "labels" ;
-    rdfs:comment """The labels property indicates the SampleMetadata used in a Dataset.""" ;
+labop:metadata a owl:ObjectProperty ;
+    rdfs:label "metadata" ;
+    rdfs:comment """The metadata property indicates the SampleMetadata used in a Dataset.""" ;
     rdfs:domain labop:Dataset  ;
     rdfs:range labop:SampleMetadata  .
 
