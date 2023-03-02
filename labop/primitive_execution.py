@@ -190,10 +190,12 @@ def plate_coordinates_compute_output(self, inputs, parameter, sample_format):
 
 def measure_absorbance_compute_output(self, inputs, parameter, sample_format):
     if parameter.name == "measurements" and \
-       parameter.type == 'http://bioprotocols.org/labop#SampleData':
+       parameter.type == 'http://bioprotocols.org/labop#Dataset':
         input_map = input_parameter_map(inputs)
         samples = input_map["samples"]
-        sample_data = labop.SampleData(from_samples=samples)
+
+        # FIXME Bryan create the metadata.descriptions below from the input pins
+        sample_data = labop.Dataset(data=labop.SampleData(from_samples=samples), metadata=labop.SampleMetadata(descriptions="", for_samples=samples))
         return sample_data
 
 def attach_metadata_compute_output(self, inputs, parameter, sample_format):
@@ -208,6 +210,9 @@ def attach_metadata_compute_output(self, inputs, parameter, sample_format):
 primitive_to_output_function = {
     "EmptyContainer" : empty_container_compute_output,
     "PlateCoordinates" : plate_coordinates_compute_output,
+
+    # FIXME Bryan we need a version of what is here for MeasureAbsorbance for MeasureFluourescence
+
     "MeasureAbsorbance": measure_absorbance_compute_output,
     "EmptyInstrument": empty_rack_compute_output,
     "EmptyRack": empty_rack_compute_output,

@@ -275,13 +275,7 @@ labop:Dataset a owl:Class ;
             owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
             owl:onProperty labop:data ],
         [ a owl:Restriction ;
-            owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
-            owl:onProperty labop:metadata ],
-        [ a owl:Restriction ;
             owl:allValuesFrom labop:SampleMetadata  ;
-            owl:onProperty labop:metadata ],
-        [ a owl:Restriction ;
-            owl:minCardinality "1"^^xsd:nonNegativeInteger ;
             owl:onProperty labop:metadata ],
         [ a owl:Restriction ;
             owl:minCardinality "1"^^xsd:nonNegativeInteger ;

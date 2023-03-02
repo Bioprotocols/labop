@@ -180,3 +180,7 @@ def call_behavior_execution_get_outputs(self):
     return [x for x in self.call.lookup().parameter_values
               if x.parameter.lookup().property_value.direction == uml.PARAMETER_OUT]
 labop.CallBehaviorExecution.get_outputs = call_behavior_execution_get_outputs
+
+def sample_metadata_to_dataarray(self: labop.SampleMetadata):
+    return xr.DataArray.from_dict(json.loads(self.descriptions))
+labop.SampleMetadata.to_dataarray = sample_metadata_to_dataarray

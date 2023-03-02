@@ -154,7 +154,7 @@
     ns1:isOrdered true ;
     ns1:isUnique true ;
     ns1:lowerValue <https://bioprotocols.org/labop/primitives/spectrophotometry/MeasureAbsorbance/OrderedPropertyValue5/Parameter1/LiteralInteger2> ;
-    ns1:type <http://bioprotocols.org/labop#SampleData> ;
+    ns1:type <http://bioprotocols.org/labop#Dataset> ;
     ns1:upperValue <https://bioprotocols.org/labop/primitives/spectrophotometry/MeasureAbsorbance/OrderedPropertyValue5/Parameter1/LiteralInteger1> ;
     sbol:displayId "Parameter1" ;
     sbol:name "measurements" .
@@ -391,7 +391,7 @@
     ns1:isOrdered true ;
     ns1:isUnique true ;
     ns1:lowerValue <https://bioprotocols.org/labop/primitives/spectrophotometry/MeasureFluorescence/OrderedPropertyValue9/Parameter1/LiteralInteger2> ;
-    ns1:type <http://bioprotocols.org/labop#SampleData> ;
+    ns1:type <http://bioprotocols.org/labop#Dataset> ;
     ns1:upperValue <https://bioprotocols.org/labop/primitives/spectrophotometry/MeasureFluorescence/OrderedPropertyValue9/Parameter1/LiteralInteger1> ;
     sbol:displayId "Parameter1" ;
     sbol:name "measurements" .
@@ -526,7 +526,7 @@
     ns1:isOrdered true ;
     ns1:isUnique true ;
     ns1:lowerValue <https://bioprotocols.org/labop/primitives/spectrophotometry/MeasureFluorescenceSpectrum/OrderedPropertyValue5/Parameter1/LiteralInteger2> ;
-    ns1:type <http://bioprotocols.org/labop#SampleData> ;
+    ns1:type <http://bioprotocols.org/labop#Dataset> ;
     ns1:upperValue <https://bioprotocols.org/labop/primitives/spectrophotometry/MeasureFluorescenceSpectrum/OrderedPropertyValue5/Parameter1/LiteralInteger1> ;
     sbol:displayId "Parameter1" ;
     sbol:name "measurements" .
