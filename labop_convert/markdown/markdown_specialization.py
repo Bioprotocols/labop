@@ -1009,6 +1009,7 @@ def measurement_to_text(measure: sbol3.Measure):
 
 
 def dataset_to_text(dataset: labop.Dataset):
+    # TODO improve string description of dataset to include filename of xlsx file generated.
     return f'{dataset.display_name}'
 
 def get_sample_names(inputs: Union[labop.SampleArray, sbol3.Component], error_msg, coordinates=None) -> List[str]:

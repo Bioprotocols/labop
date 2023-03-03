@@ -11,7 +11,7 @@ from tyto import OM
 from labop.execution_engine import ExecutionEngine
 from labop_convert.markdown.markdown_specialization import MarkdownSpecialization
 
-from labop_convert.plate_coordinates import get_aliquot_list
+from labop_convert.plate_coordinates import get_sample_list
 
 
 doc = sbol3.Document()
@@ -419,9 +419,9 @@ measure_absorbance = protocol.primitive_step('MeasureAbsorbance',
 # Change the format of the xarray to use dimensions, coordinates, and values as they appear in the xlsx.
 read_wells1_meta = json.dumps(xr.DataArray(
     [[f"sample_{x}", measure_fluorescence1.name]
-     for x in get_aliquot_list(geometry="A1:B12")],
+     for x in get_sample_list(geometry="A1:B12")],
     dims=("aliquot", "metadata"),
-    coords={"aliquot": get_aliquot_list(geometry="A1:B12"),
+    coords={"aliquot": get_sample_list(geometry="A1:B12"),
             "metadata": ["sample_id", "measurement_type"]}).to_dict())
 
 meta1 = protocol.primitive_step("JoinMetadata",

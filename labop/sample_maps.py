@@ -9,7 +9,7 @@ import xarray as xr
 import json
 
 import labop
-from labop_convert.plate_coordinates import coordinate_rect_to_row_col_pairs, coordinate_to_row_col, get_aliquot_list
+from labop_convert.plate_coordinates import coordinate_rect_to_row_col_pairs, coordinate_to_row_col, get_sample_list
 from labop import SampleMask, SampleData, SampleArray
 import uml
 
@@ -40,7 +40,7 @@ def many_to_one_sample_map_get_map(self):
         sources = [source.lookup() for source in self.sources]
         target = self.targets.lookup()
 
-        aliquots = get_aliquot_list(geometry="A1:H12") # FIXME need to use the spec for each source and target
+        aliquots = get_sample_list(geometry="A1:H12") # FIXME need to use the spec for each source and target
         source_to_target_arrays = {
             source.identity : xr.DataArray([""]*len(aliquots),
                                             dims=(target.identity),
@@ -64,7 +64,7 @@ def one_to_many_sample_map_get_map(self):
         source = self.sources
         targets = self.targets
 
-        aliquots = get_aliquot_list(geometry="A1:H12") # FIXME need to use the spec for each source and target
+        aliquots = get_sample_list(geometry="A1:H12") # FIXME need to use the spec for each source and target
         source_to_target_arrays = {
             target.identity : xr.DataArray([""]*len(aliquots),
                                             dims=(source.identity),
