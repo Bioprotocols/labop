@@ -16,38 +16,11 @@ from labop_convert.plate_coordinates import get_aliquot_list, coordinate_rect_to
 import uml
 import tyto
 from sbol3 import Document
+from common import initialize_protocol
 
 logger: logging.Logger = logging.Logger("samplemap_protocol")
+logger.setLevel(logging.INFO)
 
-def prepare_document() -> Document:
-    logger.info('Setting up document')
-    doc = sbol3.Document()
-    sbol3.set_namespace('https://bbn.com/scratch/')
-    return doc
-
-def create_protocol() -> labop.Protocol:
-    logger.info('Creating protocol')
-    protocol: labop.Protocol = labop.Protocol('samplemap_demo_protocol')
-    protocol.name = "Protocol with a SampleMap Primitive"
-    protocol.description = protocol.name
-    return protocol
-
-def initialize_protocol() -> Tuple[labop.Protocol, Document]:
-    #############################################
-    # set up the document
-    doc: Document = prepare_document()
-
-    #############################################
-    # Import the primitive libraries
-    labop.import_library('liquid_handling')
-    labop.import_library('sample_arrays')
-    labop.import_library('spectrophotometry')
-
-    #############################################
-    # Create the protocol
-    protocol: labop.Protocol = create_protocol()
-    doc.add(protocol)
-    return protocol, doc
 
 
 # Need logical to physical mapping
@@ -59,11 +32,8 @@ def initialize_protocol() -> Tuple[labop.Protocol, Document]:
 
 class TestProtocolEndToEnd(unittest.TestCase):
     def test_create_protocol(self):
-        protocol: labop.Protocol
-        doc: sbol3.Document
-        logger = logging.getLogger("transfer_map_protocol")
-        logger.setLevel(logging.INFO)
-        protocol, doc = initialize_protocol()
+
+        protocol: labop.Protocol, doc: sbol3.Document = initialize_protocol()
 
         # The aliquots will be the coordinates of the SampleArray and SampleMap objects
         num_aliquots = 4

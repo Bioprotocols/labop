@@ -6,13 +6,18 @@ import tempfile
 import unittest
 from importlib.machinery import SourceFileLoader
 from importlib.util import spec_from_loader, module_from_spec
+import xarray as xr
 
 import sbol3
 import labop
 from labop.execution_engine import ExecutionEngine
 import uml
 import tyto
+import json
+from tyto import OM
 
+from labop_convert.plate_coordinates import get_aliquot_list
+from common import initialize_protocol
 
 # Save testfiles as artifacts when running in CI environment,
 # else save them to a local temp directory
@@ -24,18 +29,80 @@ else:
 protocol_def_file = os.path.join(os.path.dirname(__file__), '../examples/LUDOX_protocol.py')
 
 
-def load_ludox_protocol(protocol_filename):
-    loader = SourceFileLoader('ludox_protocol', protocol_filename)
-    spec = spec_from_loader(loader.name, loader)
-    module = module_from_spec(spec)
-    loader.exec_module(module)
-    return module
+# def load_ludox_protocol(protocol_filename):
+#     loader = SourceFileLoader('ludox_protocol', protocol_filename)
+#     spec = spec_from_loader(loader.name, loader)
+#     module = module_from_spec(spec)
+#     loader.exec_module(module)
+#     return module
 
 
-protocol_def = load_ludox_protocol(protocol_def_file)
+# protocol_def = load_ludox_protocol(protocol_def_file)
 
 
 class TestProtocolEndToEnd(unittest.TestCase):
+    def test_dataset_to_dataframe(self):
+        protocol, doc = initialize_protocol()
+
+        reagents = ["fluorescene", "sulforhodamine101",	"cascadeBlue",	"nanocym",	"water",	"pbs"]
+        samples = get_aliquot_list(geometry="A1:B12")
+
+        def volume_in_sample(reagent, sample):
+            if "A" in sample:
+                if reagent == "fluorescene" or reagent == "water":
+                    return 1.0
+            elif "B" in sample:
+                if reagent == "cascadeBlue" or reagent == "pbs":
+                    return 1.0
+            return 0.0
+
+        sample_metadata = xr.DataArray(
+            [[[volume_in_sample(reagent, sample) for reagent in reagents] for sample in samples]],
+            dims=( "measurement", "sample", "contents"),
+            coords={"sample": samples,
+                    "contents": reagents,
+                    "measurement": ["ABS600"]}
+            )
+        # sample_data = xr.DataArray(
+        #     [10.0 for sample in samples],
+        #     dims=("sample"),
+        #     coords={"sample": samples}
+        #     )
+
+        sample_array = labop.SampleArray(container_type=labop.ContainerSpec("dummy_spec"),
+                                         initial_contents=json.dumps(xr.DataArray(samples, dims=("sample")).to_dict()))
+
+
+        container_spec = labop.ContainerSpec('abstractPlateRequirement1',
+                                         name='abstractPlateRequirement1')
+        create_source = protocol.primitive_step('EmptyContainer', specification=container_spec, sample_array=sample_array)
+
+        measure_absorbance = protocol.primitive_step('MeasureAbsorbance',
+                                             samples=create_source.output_pin('samples'),
+                                             wavelength=sbol3.Measure(600, OM.nanometer))
+
+        smd = labop.SampleMetadata(for_samples=sample_array, descriptions=json.dumps(sample_metadata.to_dict()))
+        meta4 = protocol.primitive_step("JoinMetadata",
+                              data=measure_absorbance.output_pin('measurements'),
+                              metadata=smd)
+        protocol.designate_output('dataset', 'http://bioprotocols.org/labop#Dataset', source=meta4.output_pin('dataset'))
+
+        # sd = labop.SampleData(identity="dummy_data", values=json.dumps(sample_data.to_dict()),
+        #                         from_samples=sample_array)
+
+        # dataset = labop.Dataset(
+        #     data=sd,
+        #     metadata=[smd])
+
+
+        ee = ExecutionEngine( failsafe=False, sample_format='xarray')
+        execution = ee.execute(protocol, sbol3.Agent('test_agent'), id="test_execution", parameter_values=[])
+
+
+        dataset = execution.parameter_values[0].value
+        xr_dataset = dataset.to_dataset()
+
+    @unittest.skip(reason="tmp remove for dev")
     def test_create_protocol(self):
         protocol: labop.Protocol
         doc: sbol3.Document
