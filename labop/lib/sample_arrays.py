@@ -137,6 +137,13 @@ p.add_input('dataset', 'http://bioprotocols.org/labop#Dataset', unbounded=True),
 p.add_output('joint_dataset', 'http://bioprotocols.org/labop#Dataset')
 doc.add(p)
 
+p = labop.Primitive('ExcelMetadata')
+p.description = 'Parse sample descriptions and metadata from an Excel file'
+p.add_input('filename', 'http://bioprotocols.org/uml#ValueSpecification')
+p.add_input('for_samples', 'https://bioprotocols.org/labop#SampleArray')
+p.add_output('metadata', 'http://bioprotocols.org/labop#SampleMetadata')
+doc.add(p)
+
 print('Library construction complete')
 
 print('Validating library')
