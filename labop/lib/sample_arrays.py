@@ -124,7 +124,7 @@ p.add_input('mount', 'http://bioprotocols.org/uml#ValueSpecification', optional=
 doc.add(p)
 
 p = labop.Primitive('JoinMetadata')
-p.description = 'Associate a labop:SampleMetadata with a labop.Dataset to create a labop.Dataset'
+p.description = 'Associate a labop:SampleMetadata with a labop.Dataset to create a labop.Dataset that also includes the new metadata'
 p.add_input('metadata', 'http://bioprotocols.org/labop#SampleMetadata')
 p.add_input('data', 'http://bioprotocols.org/labop#Dataset'),
 p.add_output('dataset', 'http://bioprotocols.org/labop#Dataset')
