@@ -195,16 +195,18 @@ def measure_absorbance_compute_output(self, inputs, parameter, sample_format):
         samples = input_map["samples"]
 
         # FIXME Bryan create the metadata.descriptions below from the input pins
-        sample_data = labop.Dataset(data=labop.SampleData(from_samples=samples), metadata=labop.SampleMetadata(descriptions="", for_samples=samples))
-        return sample_data
+        sample_data = labop.SampleData(from_samples=samples)
+        sample_metadata =labop.SampleMetadata(descriptions="", for_samples=samples)
+        sample_dataset = labop.Dataset(data=sample_data, metadata=[sample_metadata])
+        return sample_dataset
 
-def attach_metadata_compute_output(self, inputs, parameter, sample_format):
+def join_metadata_compute_output(self, inputs, parameter, sample_format):
     if parameter.name == "dataset" and \
        parameter.type == 'http://bioprotocols.org/labop#Dataset':
         input_map = input_parameter_map(inputs)
         data = input_map["data"]
         metadata = input_map["metadata"]
-        dataset = labop.Dataset(data=data, metadata=metadata)
+        dataset = labop.Dataset(dataset=data, linked_metadata=[metadata])
         return dataset
 
 primitive_to_output_function = {
@@ -217,7 +219,7 @@ primitive_to_output_function = {
     "EmptyInstrument": empty_rack_compute_output,
     "EmptyRack": empty_rack_compute_output,
     "LoadContainerOnInstrument": load_container_on_instrument_compute_output,
-    "AttachMetadata": attach_metadata_compute_output
+    "JoinMetadata": join_metadata_compute_output
 }
 
 def initialize_primitive_compute_output(doc: sbol3.Document):
@@ -226,7 +228,7 @@ def initialize_primitive_compute_output(doc: sbol3.Document):
             p = labop.get_primitive(doc, k)
             p.compute_output = types.MethodType(v, p)
         except Exception as e:
-            l.warn(f"Could not set compute_output() for primitive {k}, did you import the correct library?")
+            l.warning(f"Could not set compute_output() for primitive {k}, did you import the correct library?")
 
 
 
@@ -270,7 +272,7 @@ def empty_container_initialize_contents(self, sample_format, geometry='A1:H12'):
     # FIXME need to find a definition of the container topology from the type
     # FIXME this assumes a 96 well plate
 
-    l.warn("Warning: Assuming that the SampleArray is a 96 well microplate!")
+    l.warning("Warning: Assuming that the SampleArray is a 96 well microplate!")
     aliquots = get_sample_list(geometry)
     #initial_contents = json.dumps(xr.DataArray(dims=("aliquot", "initial_contents"),
     #                                   coords={"aliquot": aliquots}).to_dict())
