@@ -7,6 +7,12 @@ from typing import Tuple
 logger = logging.getLogger(__file__)
 logger.setLevel(logging.INFO)
 
+import os
+
+OUT_DIR = os.path.join(os.path.dirname(__file__), "out")
+if not os.path.exists(OUT_DIR):
+    os.mkdir(OUT_DIR)
+
 def prepare_document(namespace='https://bioprotocols.org/demo/') -> sbol3.Document:
     logger.info('Setting up document')
     doc = sbol3.Document()

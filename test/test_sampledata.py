@@ -15,9 +15,11 @@ import uml
 import tyto
 import json
 from tyto import OM
+from numpy import nan
 
 from labop_convert.plate_coordinates import get_sample_list
-from common import initialize_protocol
+from common import initialize_protocol, OUT_DIR
+
 
 # Save testfiles as artifacts when running in CI environment,
 # else save them to a local temp directory
@@ -45,7 +47,7 @@ class TestProtocolEndToEnd(unittest.TestCase):
         protocol, doc = initialize_protocol()
 
         reagents = ["fluorescene", "sulforhodamine101",	"cascadeBlue",	"nanocym",	"water",	"pbs"]
-        samples = get_sample_list(geometry="A1:B12")
+        samples = get_sample_list(geometry="A1:H12")
 
         def volume_in_sample(reagent, sample):
             if "A" in sample:
@@ -54,38 +56,56 @@ class TestProtocolEndToEnd(unittest.TestCase):
             elif "B" in sample:
                 if reagent == "cascadeBlue" or reagent == "pbs":
                     return 1.0
-            return 0.0
+            return nan
 
-        sample_metadata = xr.DataArray(
-            [[[volume_in_sample(reagent, sample) for reagent in reagents] for sample in samples]],
-            dims=( "measurement", "sample", "contents"),
-            coords={"sample": samples,
-                    "contents": reagents,
-                    "measurement": ["ABS600"]}
-            )
+
         # sample_data = xr.DataArray(
         #     [10.0 for sample in samples],
         #     dims=("sample"),
         #     coords={"sample": samples}
         #     )
-
+        initial_contents = xr.DataArray(samples,
+                                        dims=(labop.Strings.SAMPLE),
+                                        coords={labop.Strings.SAMPLE: samples})
         sample_array = labop.SampleArray(container_type=labop.ContainerSpec("dummy_spec"),
-                                         initial_contents=json.dumps(xr.DataArray(samples, dims=("sample")).to_dict()))
-
+                                         initial_contents=labop.serialize_sample_format(initial_contents))
 
         container_spec = labop.ContainerSpec('abstractPlateRequirement1',
                                          name='abstractPlateRequirement1')
         create_source = protocol.primitive_step('EmptyContainer', specification=container_spec, sample_array=sample_array)
 
+        create_coordinates = protocol.primitive_step('PlateCoordinates', source=create_source.output_pin('samples'), coordinates="A1:B12")
+
         measure_absorbance = protocol.primitive_step('MeasureAbsorbance',
-                                             samples=create_source.output_pin('samples'),
+                                             samples=create_coordinates.output_pin('samples'),
                                              wavelength=sbol3.Measure(600, OM.nanometer))
 
-        smd = labop.SampleMetadata(for_samples=sample_array, descriptions=json.dumps(sample_metadata.to_dict()))
+
+        smd = labop.SampleMetadata(for_samples=sample_array)
         meta4 = protocol.primitive_step("JoinMetadata",
                               data=measure_absorbance.output_pin('measurements'),
                               metadata=smd)
         protocol.designate_output('dataset', 'http://bioprotocols.org/labop#Dataset', source=meta4.output_pin('dataset'))
+
+
+        sample_metadata = xr.DataArray(
+            #[
+            [[volume_in_sample(reagent, sample) for reagent in reagents] for sample in samples]
+            #]
+            ,
+            name=smd.identity,
+            dims=(  #labop.Strings.MEASUREMENT,
+                    labop.Strings.SAMPLE,
+                    labop.Strings.CONTENTS),
+            coords={labop.Strings.SAMPLE: samples,
+                    labop.Strings.CONTENTS: reagents,
+                    # labop.Strings.MEASUREMENT: [measure_absorbance.identity]
+                    }
+            )
+        smd.descriptions=labop.serialize_sample_format(sample_metadata)
+
+
+
 
         # sd = labop.SampleData(identity="dummy_data", values=json.dumps(sample_data.to_dict()),
         #                         from_samples=sample_array)
@@ -98,9 +118,12 @@ class TestProtocolEndToEnd(unittest.TestCase):
         ee = ExecutionEngine( failsafe=False, sample_format='xarray')
         execution = ee.execute(protocol, sbol3.Agent('test_agent'), id="test_execution", parameter_values=[])
 
-
-        dataset = execution.parameter_values[0].value
+        dataset = execution.parameter_values[0].value.get_value()
         xr_dataset = dataset.to_dataset()
+        df = xr_dataset.to_dataframe()
+        with open(os.path.join(OUT_DIR, "dataset.csv"), "w")as f:
+            f.write(df.to_csv())
+
 
     @unittest.skip(reason="tmp remove for dev")
     def test_create_protocol(self):

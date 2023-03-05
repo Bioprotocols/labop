@@ -1,15 +1,8 @@
-import json
 import types
-from urllib.parse import quote, unquote
 import logging
-
-import xarray as xr
 import sbol3
-
 import labop
-from labop_convert.plate_coordinates import coordinate_rect_to_row_col_pairs, get_sample_list, num2row
 import uml
-
 from typing import List, Dict
 
 l = logging.getLogger(__file__)
@@ -102,13 +95,15 @@ def empty_container_compute_output(self, inputs, parameter, sample_format):
         # Make a SampleArray
         input_map = input_parameter_map(inputs)
         spec = input_map["specification"]
-        initial_contents = self.initialize_contents(sample_format)
-        name = f"{parameter.name}"
-        sample_array = labop.SampleArray(name=name,
-                                   container_type=spec,
-                                   initial_contents=initial_contents)
+        sample_array = input_map["sample_array"] if "sample_array" in input_map else None
+
+        if not sample_array:
+            name = f"{parameter.name}"
+            sample_array = labop.SampleArray(name=name,
+                                    container_type=spec,
+                                    initial_contents=None)
         # This attribute isn't formally specified in the ontology yet, but supports handling of different sample formats by BehaviorSpecialiations
-        sample_array.format = sample_format
+        # sample_array.format = sample_format
         return sample_array
     else:
         return None
@@ -168,7 +163,7 @@ def load_container_on_instrument_compute_output(self, inputs, parameter, sample_
                                    container_type=spec,
                                    initial_contents=initial_contents)
         # This attribute isn't formally specified in the ontology yet, but supports handling of different sample formats by BehaviorSpecialiations
-        sample_array.format = sample_format
+        # sample_array.format = sample_format
         return sample_array
     else:
         return None
@@ -183,9 +178,8 @@ def plate_coordinates_compute_output(self, inputs, parameter, sample_format):
         # convert coordinates into a boolean sample mask array
         # 1. read source contents into array
         # 2. create parallel array for entries noted in coordinates
-        mask_array = source.mask(coordinates)
-        mask = labop.SampleMask(source=source,
-                                mask=mask_array)
+        mask = labop.SampleMask.from_coordinates(source, coordinates)
+
         return mask
 
 def measure_absorbance_compute_output(self, inputs, parameter, sample_format):
@@ -196,7 +190,7 @@ def measure_absorbance_compute_output(self, inputs, parameter, sample_format):
 
         # FIXME Bryan create the metadata.descriptions below from the input pins
         sample_data = labop.SampleData(from_samples=samples)
-        sample_metadata =labop.SampleMetadata(descriptions="", for_samples=samples)
+        sample_metadata =labop.SampleMetadata(descriptions=None, for_samples=samples)
         sample_dataset = labop.Dataset(data=sample_data, metadata=[sample_metadata])
         return sample_dataset
 
@@ -206,7 +200,7 @@ def join_metadata_compute_output(self, inputs, parameter, sample_format):
         input_map = input_parameter_map(inputs)
         data = input_map["data"]
         metadata = input_map["metadata"]
-        dataset = labop.Dataset(dataset=data, linked_metadata=[metadata])
+        dataset = labop.Dataset(dataset=[data], linked_metadata=[metadata])
         return dataset
 
 primitive_to_output_function = {
@@ -266,24 +260,6 @@ def primitive_compute_output(self, inputs, parameter, sample_format):
         l.warning(f'No builder found for output Parameter of {parameter.name}. Returning a string literal by default.')
         return f"{parameter.name}"
 labop.Primitive.compute_output = primitive_compute_output
-
-def empty_container_initialize_contents(self, sample_format, geometry='A1:H12'):
-    #if self.identity == 'https://bioprotocols.org/labop/primitives/sample_arrays/EmptyContainer':
-    # FIXME need to find a definition of the container topology from the type
-    # FIXME this assumes a 96 well plate
-
-    l.warning("Warning: Assuming that the SampleArray is a 96 well microplate!")
-    aliquots = get_sample_list(geometry)
-    #initial_contents = json.dumps(xr.DataArray(dims=("aliquot", "initial_contents"),
-    #                                   coords={"aliquot": aliquots}).to_dict())
-    if sample_format == 'xarray':
-        initial_contents = json.dumps(xr.DataArray(aliquots, dims=("aliquot")).to_dict())
-    elif sample_format == 'json':
-        initial_contents = quote(json.dumps({c: None for c in aliquots}))
-    else:
-        raise Exception(f"Cannot initialize contents of: {self.identity}")
-    return initial_contents
-labop.Primitive.initialize_contents = empty_container_initialize_contents
 
 def declare_primitive(
     document: sbol3.Document,
