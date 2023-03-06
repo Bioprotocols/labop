@@ -1,11 +1,9 @@
-import datetime
 import filecmp
 import logging
 import os
 import tempfile
 from typing import Tuple
 import unittest
-import numpy as np
 import xarray as xr
 import json
 import cf_xarray.units  # must be imported before pint_xarray
