@@ -235,35 +235,35 @@ class ExecutionEngine(ABC):
             except Exception as e:
                 # Consume the tokens used by the node that caused the exception
                 # Produce control tokens
-                incoming_flows = [
-                    t for t in self.tokens if node == t.get_target()
-                ]
-                exec = labop.CallBehaviorExecution(
-                    node=node, incoming_flows=incoming_flows
-                )
-                self.ex.document.add(exec)
-                self.ex.executions.append(exec)
-                control_edges = [
-                    edge
-                    for edge in self.ex.protocol.lookup().edges
-                    if (
-                        node.identity == edge.source
-                        or node.identity
-                        == edge.source.lookup().get_parent().identity
-                    )
-                    and (isinstance(edge, uml.ControlFlow))
-                ]
+                # incoming_flows = [
+                #     t for t in self.tokens if node == t.get_target()
+                # ]
+                # exec = labop.CallBehaviorExecution(
+                #     node=node, incoming_flows=incoming_flows
+                # )
+                # self.ex.document.add(exec)
+                # self.ex.executions.append(exec)
+                # control_edges = [
+                #     edge
+                #     for edge in self.ex.protocol.lookup().edges
+                #     if (
+                #         node.identity == edge.source
+                #         or node.identity
+                #         == edge.source.lookup().get_parent().identity
+                #     )
+                #     and (isinstance(edge, uml.ControlFlow))
+                # ]
 
-                self.tokens = [
-                    t for t in self.tokens if t.get_target() != node
-                ] + [
-                    labop.ActivityEdgeFlow(
-                        token_source=exec,
-                        edge=edge,
-                        value=uml.literal("uml.ControlFlow"),
-                    )
-                    for edge in control_edges
-                ]
+                # self.tokens = [
+                #     t for t in self.tokens if t.get_target() != node
+                # ] + [
+                #     labop.ActivityEdgeFlow(
+                #         token_source=exec,
+                #         edge=edge,
+                #         value=uml.literal("uml.ControlFlow"),
+                #     )
+                #     for edge in control_edges
+                # ]
                 if self.permissive:
                     self.issues[self.ex.display_id].append(ExecutionWarning(e))
                     pass
