@@ -176,7 +176,7 @@ class TestParameters(unittest.TestCase):
 
         # Execute without specifying InputPins, this should work fine, since the Parameters are optional
         agent = sbol3.Agent("test_agent")
-        ee = ExecutionEngine()
+        ee = ExecutionEngine(out_dir=OUT_DIR)
         ee.specializations[0]._behavior_func_map[step1.identity] = lambda record, ex: None  # Register custom primitives in the execution engine
 
         x = ee.execute(protocol, agent, id="test_execution1", parameter_values=[])

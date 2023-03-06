@@ -521,7 +521,6 @@
 <https://bbn.com/scratch/test_execution/ActivityEdgeFlow12/LiteralIdentified1/SampleData1> <http://bioprotocols.org/labop#fromSamples> <https://bbn.com/scratch/samplemap_demo_protocol/CallBehaviorAction2/ValuePin2/LiteralIdentified1/SampleArray1> .
 <https://bbn.com/scratch/test_execution/ActivityEdgeFlow12/LiteralIdentified1/SampleData1> <http://bioprotocols.org/labop#sampleDataValues> "{\"coords\": {\"aliquot\": {\"dims\": [\"aliquot\"], \"attrs\": {}, \"data\": [0, 1, 2, 3]}}, \"attrs\": {}, \"dims\": {\"aliquot\": 4}, \"data_vars\": {\"absorbance\": {\"dims\": [\"aliquot\"], \"attrs\": {}, \"data\": [null, null, null, null]}}}" .
 <https://bbn.com/scratch/test_execution/ActivityEdgeFlow12/LiteralIdentified1/SampleData1> <http://sbols.org/v3#displayId> "SampleData1" .
-<https://bbn.com/scratch/test_execution/ActivityEdgeFlow12/LiteralIdentified1/SampleData1> <http://sbols.org/v3#name> "absorbance measurements of abstractPlateRequirement2" .
 <https://bbn.com/scratch/test_execution/ActivityEdgeFlow12/LiteralIdentified1/SampleData1> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://bioprotocols.org/labop#SampleData> .
 <https://bbn.com/scratch/test_execution/ActivityEdgeFlow12/LiteralIdentified1/SampleData1> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://sbols.org/v3#Identified> .
 <https://bbn.com/scratch/test_execution/ActivityEdgeFlow12/LiteralIdentified1> <http://bioprotocols.org/uml#identifiedValue> <https://bbn.com/scratch/test_execution/ActivityEdgeFlow12/LiteralIdentified1/SampleData1> .
