@@ -2,7 +2,6 @@ import logging
 import json
 import os
 import json
-import subprocess
 from datetime import datetime
 from urllib.parse import quote, unquote
 from typing import Union, List
@@ -233,13 +232,7 @@ class MarkdownSpecialization(BehaviorSpecialization):
         # of Protocol
         protocol = execution.protocol.lookup()
         if hasattr(protocol, 'version'):
-            execution.markdown += f'\nProtocol version: {protocol.version}'
-        else:
-            try:
-                tag = subprocess.check_output(['git', 'describe', '--tags']).decode('utf-8')
-                execution.markdown += f'\nProtocol version: {tag}'
-            except:
-                pass
+            execution.markdown += f'---\nProtocol version: {protocol.version}'
 
         if self.out_path:
             with open(self.out_path, "w") as f:

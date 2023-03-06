@@ -86,13 +86,19 @@ PLATE_SPECIFICATION = """cont:ClearPlate and
  (cont:wellVolume some
     ((om:hasUnit value om:microlitre) and
      (om:hasNumericalValue only xsd:decimal[>= "200"^^xsd:decimal])))"""
-PLATE_SPECIFICATION = "cont:Plate96Well"
+
 PREFIX_MAP = json.dumps({"cont": CONT_NS, "om": OM_NS})
 
 
 def create_plate(protocol: labop.Protocol):
+    # graph: rdfl.Graph = protocol._other_rdf
+    # plate_spec_uri = \
+    #     "https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018/container_requirement#RequiredPlate"
+    # graph.add((plate_spec_uri, CONT_NS.containerOntologyQuery, PLATE_SPECIFICATION))
+    # plate_spec = sbol3.Identified(plate_spec_uri,
+    #                               "foo", name="RequiredPlate")
     spec = labop.ContainerSpec('plateRequirement',
-                              name='calibration plate',
+                              name='plateRequirement',
                               queryString=PLATE_SPECIFICATION,
                               prefixMap=PREFIX_MAP)
     plate = protocol.primitive_step('EmptyContainer',

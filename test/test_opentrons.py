@@ -61,7 +61,6 @@ class TestProtocolEndToEnd(unittest.TestCase):
             specializations=[
                 OT2Specialization(os.path.join(out_dir, "opentrons_toy"))
             ],
-            failsafe=False
         )
         parameter_values = []
         execution = ee.execute(
