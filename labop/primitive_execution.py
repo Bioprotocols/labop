@@ -207,33 +207,14 @@ def measure_absorbance_compute_output(self, inputs, parameter, sample_format):
         sample_data = labop.SampleData(from_samples=samples, values=data)
         return sample_data
 
-def transfer_by_map_compute_output(self, inputs, parameter, sample_format):
-    if parameter.name == "sourceResult" and \
-       parameter.type == 'http://bioprotocols.org/labop#SampleCollection':
+def attach_metadata_compute_output(self, inputs, parameter, sample_format):
+    if parameter.name == "dataset" and \
+       parameter.type == 'http://bioprotocols.org/labop#Dataset':
         input_map = input_parameter_map(inputs)
-        source = input_map["source"]
-        target = input_map["destination"]
-        plan  = input_map["plan"]
-        spec = source.container_type
-        initial_contents = self.transfer_out(source, target, plan, sample_format)
-        name = f"{parameter.name}"
-        result = labop.SampleArray(name=name,
-                                   container_type=spec,
-                                   initial_contents=initial_contents)
-    elif parameter.name == "destinationResult" and \
-         parameter.type == 'http://bioprotocols.org/labop#SampleCollection':
-        input_map = input_parameter_map(inputs)
-        source = input_map["source"]
-        target = input_map["destination"]
-        plan  = input_map["plan"]
-        spec = source.container_type
-        initial_contents = self.transfer_in(source, target, plan, sample_format)
-        name = f"{parameter.name}"
-        result = labop.SampleArray(name=name,
-                                   container_type=spec,
-                                   initial_contents=initial_contents)
-    return result
-
+        data = input_map["data"]
+        metadata = input_map["metadata"]
+        dataset = labop.Dataset(data=data, metadata=metadata)
+        return dataset
 
 primitive_to_output_function = {
     "EmptyContainer" : empty_container_compute_output,
@@ -242,7 +223,7 @@ primitive_to_output_function = {
     "EmptyInstrument": empty_rack_compute_output,
     "EmptyRack": empty_rack_compute_output,
     "LoadContainerOnInstrument": load_container_on_instrument_compute_output,
-    "TransferByMap": transfer_by_map_compute_output,
+    "AttachMetadata": attach_metadata_compute_output
 }
 
 def initialize_primitive_compute_output(doc: sbol3.Document):
