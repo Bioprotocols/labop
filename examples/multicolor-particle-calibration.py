@@ -66,29 +66,29 @@ doc.add(protocol)
 
 # Provision an empty Microfuge tube in which to mix the standard solution
 
-fluorescein_standard_solution_container = protocol.primitive_step('EmptyContainer', 
+fluorescein_standard_solution_container = protocol.primitive_step('EmptyContainer',
                                                                   specification=labop.ContainerSpec('fluroscein_calibrant',
             name='Fluorescein calibrant',
-                                                                                                   queryString='cont:StockReagent', 
+                                                                                                   queryString='cont:StockReagent',
                                                                                                    prefixMap={'cont': 'https://sift.net/container-ontology/container-ontology#'}))
 
 
-sulforhodamine_standard_solution_container = protocol.primitive_step('EmptyContainer', 
+sulforhodamine_standard_solution_container = protocol.primitive_step('EmptyContainer',
                                                                   specification=labop.ContainerSpec('sulforhodamine_calibrant',
             name='Sulforhodamine 101 calibrant',
-                                                                                                   queryString='cont:StockReagent', 
+                                                                                                   queryString='cont:StockReagent',
                                                                                                    prefixMap={'cont': 'https://sift.net/container-ontology/container-ontology#'}))
 
-cascade_blue_standard_solution_container = protocol.primitive_step('EmptyContainer', 
+cascade_blue_standard_solution_container = protocol.primitive_step('EmptyContainer',
                                                                   specification=labop.ContainerSpec('cascade_blue_calibrant',
             name='Cascade blue calibrant',
-                                                                                                   queryString='cont:StockReagent', 
+                                                                                                   queryString='cont:StockReagent',
                                                                                                    prefixMap={'cont': 'https://sift.net/container-ontology/container-ontology#'}))
 
-microsphere_standard_solution_container = protocol.primitive_step('EmptyContainer', 
+microsphere_standard_solution_container = protocol.primitive_step('EmptyContainer',
                                                                   specification=labop.ContainerSpec('microspheres',
             name='NanoCym 950 nm microspheres',
-                                                                                                   queryString='cont:StockReagent', 
+                                                                                                   queryString='cont:StockReagent',
                                                                                                    prefixMap={'cont': 'https://sift.net/container-ontology/container-ontology#'}))
 
 
@@ -137,10 +137,10 @@ vortex_silica_beads= protocol.primitive_step('Vortex',
 
 
 # Transfer to plate
-calibration_plate = protocol.primitive_step('EmptyContainer', 
+calibration_plate = protocol.primitive_step('EmptyContainer',
                                                                   specification=labop.ContainerSpec('calibration_plate',
             name='calibration plate',
-                                                                                                   queryString='cont:Plate96Well', 
+                                                                                                   queryString='cont:Plate96Well',
                                                                                                    prefixMap={'cont': 'https://sift.net/container-ontology/container-ontology#'}))
 
 
@@ -409,10 +409,26 @@ measure_absorbance = protocol.primitive_step('MeasureAbsorbance',
                                              samples=read_wells4.output_pin('samples'),
                                              wavelength=sbol3.Measure(600, OM.nanometer))
 
-protocol.designate_output('measurements', 'http://bioprotocols.org/labop#SampleData', source=measure_fluorescence1.output_pin('measurements'))
-protocol.designate_output('measurements', 'http://bioprotocols.org/labop#SampleData', source=measure_fluorescence2.output_pin('measurements'))
-protocol.designate_output('measurements', 'http://bioprotocols.org/labop#SampleData', source=measure_fluorescence3.output_pin('measurements'))
-protocol.designate_output('measurements', 'http://bioprotocols.org/labop#SampleData', source=measure_absorbance.output_pin('measurements'))
+meta1 = protocol.primitive_step("AttachMetadata",
+                              data=measure_fluorescence1.output_pin('measurements'),
+                              metadata=labop.SampleMetadata("meta1", for_samples=read_wells1.output_pin('samples'), descriptions=""))
+protocol.designate_output('dataset', 'http://bioprotocols.org/labop#Dataset', source=meta1.output_pin('dataset'))
+
+meta2 = protocol.primitive_step("AttachMetadata",
+                              data=measure_fluorescence2.output_pin('measurements'),
+                              metadata=labop.SampleMetadata("meta2", for_samples=read_wells2.output_pin('samples'), descriptions=""))
+protocol.designate_output('dataset', 'http://bioprotocols.org/labop#Dataset', source=meta2.output_pin('dataset'))
+
+meta3 = protocol.primitive_step("AttachMetadata",
+                              data=measure_absorbance.output_pin('measurements'),
+                              metadata=labop.SampleMetadata("meta3", for_samples=read_wells3.output_pin('samples'), descriptions=""))
+protocol.designate_output('dataset', 'http://bioprotocols.org/labop#Dataset', source=meta3.output_pin('dataset'))
+
+
+meta4 = protocol.primitive_step("AttachMetadata",
+                              data=measure_absorbance.output_pin('measurements'),
+                              metadata=labop.SampleMetadata("meta4", for_samples=read_wells4.output_pin('samples'), descriptions=""))
+protocol.designate_output('dataset', 'http://bioprotocols.org/labop#Dataset', source=meta4.output_pin('dataset'))
 
 
 

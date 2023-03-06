@@ -124,6 +124,13 @@ p.add_input('instrument', 'http://www.w3.org/ns/prov#Agent')
 p.add_input('mount', 'http://bioprotocols.org/uml#ValueSpecification', optional=True)
 doc.add(p)
 
+p = labop.Primitive('AttachMetadata')
+p.description = 'Associate a labop:SampleMetadata with a labop.SampleData to create a labop.Dataset'
+p.add_input('metadata', 'http://bioprotocols.org/labop#SampleMetadata')
+p.add_input('data', 'http://bioprotocols.org/labop#SampleData'),
+p.add_output('dataset', 'http://bioprotocols.org/labop#Dataset')
+doc.add(p)
+
 print('Library construction complete')
 
 print('Validating library')
