@@ -14,11 +14,6 @@ l = logging.getLogger(__file__)
 l.setLevel(logging.WARN)
 
 
-container_ontology_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), '../labop/container-ontology.ttl')
-ContO = tyto.Ontology(path=container_ontology_path, uri='https://sift.net/container-ontology/container-ontology')
-
-
-
 class BehaviorSpecializationException(Exception):
     pass
 
@@ -86,7 +81,9 @@ class BehaviorSpecialization(ABC):
                 record, execution
             )
         except Exception as e:
-            l.warning(f"{self.__class__} Could not process() ActivityNodeException: {record}: {e}")
+            l.warn(
+                f"{self.__class__} Could not process() ActivityNodeException: {record}: {e}"
+            )
             self.handle_process_failure(record, e)
 
     def handle_process_failure(self, record, e):
@@ -117,25 +114,22 @@ class BehaviorSpecialization(ABC):
         # server, otherwise use tyto to look it up from a local copy of the ontology
         try:
             from container_api import matching_containers
-        except:
-            l.warning('Could not import container_api, is it installed?')
-        else:
-            try:
-                if addl_conditions:
-                    possible_container_types = matching_containers(spec, addl_conditions=addl_conditions)
-                else:
-                    possible_container_types = matching_containers(spec)
-                return possible_container_types
-            except Exception as e:
-                l.warning(e)
 
-        # This fallback only works when the spec query is a simple container class/instance formatted in Manchester owl as cont:<container_uri>. Other container constraints / query criteria are not supported
-        l.warning(f'Cannot resolve container specification using remote ontology server. Defaulting to static ontology copy')
-        container_uri = validate_spec_query(spec.queryString)
-        if container_uri.is_instance():
-            possible_container_types = [container_uri]
-        else:
-            possible_container_types = container_uri.get_instances()
+            if "container_api" not in sys.modules:
+                raise Exception(
+                    "Could not import container_api, is it installed?"
+                )
+
+            if addl_conditions:
+                possible_container_types = matching_containers(
+                    spec, addl_conditions=addl_conditions
+                )
+            else:
+                possible_container_types = matching_containers(spec)
+        except:
+            raise ContainerAPIException(
+                f"Cannot resolve specification {spec} with container ontology.  Is the container server running and accessible?"
+            )
         return possible_container_types
 
     def get_container_typename(self, container_uri: str) -> str:
