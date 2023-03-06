@@ -1,6 +1,5 @@
 import uml
 import sbol3
-import pytest
 import unittest
 import tyto
 

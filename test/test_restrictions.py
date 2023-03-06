@@ -2,7 +2,6 @@ import unittest
 import subprocess
 import owl_rdf_utils.restrictions
 import os
-import pytest
 
 
 class TestRestrictions(unittest.TestCase):
