@@ -1,4 +1,5 @@
 import unittest
+import os
 
 import tyto
 import labop
@@ -8,7 +9,7 @@ import labop
 from labop.execution_engine import ExecutionEngine
 from labop_convert.markdown.markdown_specialization import MarkdownSpecialization
 from labop_convert.behavior_specialization import DefaultBehaviorSpecialization
-
+from helpers import OUT_DIR
 
 PARAMETER_IN = 'http://bioprotocols.org/uml#in'
 PARAMETER_OUT = 'http://bioprotocols.org/uml#out'
@@ -42,7 +43,7 @@ class TestProtocolOutputs(unittest.TestCase):
         # TODO: catch output parameters that aren't explicitly designated
         # rather than breaking cryptically
         agent = sbol3.Agent("test_agent")
-        ee = ExecutionEngine(specializations=[MarkdownSpecialization("test_LUDOX_markdown.md")])
+        ee = ExecutionEngine(out_dir=OUT_DIR, specializations=[MarkdownSpecialization("test_LUDOX_markdown.md")])
         ex = ee.execute(self.protocol, agent, id="test_execution", parameter_values=[])
 
     def test_specialized_compute_output(self):
@@ -51,7 +52,7 @@ class TestProtocolOutputs(unittest.TestCase):
         self.protocol.designate_output('measurements', 'http://bioprotocols.org/labop#SampleData', source=self.output)
 
         agent = sbol3.Agent("test_agent")
-        ee = ExecutionEngine(specializations=[MarkdownSpecialization("test_LUDOX_markdown.md")])
+        ee = ExecutionEngine(out_dir=OUT_DIR, specializations=[MarkdownSpecialization("test_LUDOX_markdown.md")])
         ex = ee.execute(self.protocol, agent, id="test_execution", parameter_values=[])
 
         self.assertTrue(isinstance(ex.parameter_values[0].value, uml.LiteralReference))
@@ -71,7 +72,7 @@ class TestProtocolOutputs(unittest.TestCase):
         self.protocol.designate_output('measurements', 'http://bioprotocols.org/labop#SampleData', source=self.output)
 
 
-        ee = ExecutionEngine(failsafe=False)
+        ee = ExecutionEngine(out_dir=OUT_DIR, failsafe=False)
         ee.specializations[0]._behavior_func_map[p.identity] = lambda record, execution: None
         ex = ee.execute(self.protocol, sbol3.Agent('agent'), id="test_execution", parameter_values=[])
 

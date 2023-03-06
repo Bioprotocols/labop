@@ -11,7 +11,7 @@ from urllib.parse import quote, unquote
 
 import labop
 from labop_convert.plate_coordinates import coordinate_rect_to_row_col_pairs, coordinate_to_row_col
-from labop import SampleMask, SampleData, SampleArray
+from labop import SampleMask, SampleData, SampleArray, SampleCollection
 import uml
 from typing import List, Dict
 
@@ -119,19 +119,16 @@ def sample_array_get_coordinates(self):
 SampleArray.get_coordinates = sample_mask_get_coordinates
 
 
-def initialize_dataset_from_sample_array(self, name: str):
+def sample_collection_initialize_dataset(self, name: str):
     sample_array = self.to_data_array()
 
-
-    # Each dataset maps uses self.identity to write back any
-    # new values to self.
     sample_data = xr.Dataset({
                                 name : xr.DataArray(
                                                 [None]*len(sample_array[Strings.ALIQUOT]),
                                                 [ (Strings.ALIQUOT, sample_array.coords[Strings.ALIQUOT].data) ]
                                             )})
     return sample_data
-SampleArray.initialize_dataset = initialize_dataset_from_sample_array
+SampleCollection.initialize_dataset = sample_collection_initialize_dataset
 
 def sample_data_to_dataset(self):
     if hasattr(self, 'format') and self.format == 'json':
