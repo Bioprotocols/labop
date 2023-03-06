@@ -43,12 +43,12 @@ def activity_node_enabled(
         if isinstance(e, uml.ObjectFlow)
     }
 
-    # Need at least one incoming control token
+    # Need all incoming control tokens
     control_tokens = {t.edge.lookup() for t in tokens if t.edge}
     if len(incoming_controls) == 0:
         tokens_present = True
     else:
-        tokens_present = len(control_tokens.intersection(incoming_controls)) > 0
+        tokens_present = len(control_tokens.intersection(incoming_controls)) == len(incoming_controls)
 
     if hasattr(self, "inputs"):
         required_inputs = [
@@ -220,7 +220,7 @@ def final_node_enabled(
     tokens: List[labop.ActivityEdgeFlow],
 ):
     protocol = self.protocol()
-    token_present = any(
+    token_present = all(
         {t.edge.lookup() for t in tokens if t.edge}.intersection(
             protocol.incoming_edges(self)
         )
