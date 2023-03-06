@@ -15,8 +15,7 @@ OUT_DIR = os.path.join(
 if not os.path.exists(OUT_DIR):
     os.mkdir(OUT_DIR)
 
-
-def prepare_document(namespace='https://bioprotocols.org/demo') -> sbol3.Document:
+def prepare_document(namespace='https://bioprotocols.org/demo/') -> sbol3.Document:
     logger.info('Setting up document')
     doc = sbol3.Document()
     sbol3.set_namespace(namespace)
@@ -29,7 +28,7 @@ def create_protocol(display_id="demo_protocol", name="DemonstrationProtocol") ->
     protocol.description = protocol.name
     return protocol
 
-def initialize_protocol(display_id="demo_protocool", name="DemonstrationProtocol", namespace='https://bioprotocols.org/demo') -> Tuple[labop.Protocol, sbol3.Document]:
+def initialize_protocol(display_id="demo_protocool", name="DemonstrationProtocol", namespace='https://bioprotocols.org/demo/') -> Tuple[labop.Protocol, sbol3.Document]:
     #############################################
     # set up the document
     doc: sbol3.Document = prepare_document(namespace=namespace)

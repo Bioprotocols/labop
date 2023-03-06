@@ -163,12 +163,12 @@ def sample_data_from_table(self, table: List[List[Dict[str, str]]]):
     Returns:
         SampleData: labop.SampleData object encoded by table.
     """
-    assert(len(table) > 1, "Cannot instantiate SampleData from table with fewer than 2 rows (need header and data).")
+    assert len(table) > 1, "Cannot instantiate SampleData from table with fewer than 2 rows (need header and data)."
 
 
     # First row has the column headers
     col_headers = [x['value'] for x in table[0]]
-    assert(len(col_headers) > 0, "Cannot instantiate SampleData from table with fewer than 1 column (need some data).")
+    assert len(col_headers) > 0, "Cannot instantiate SampleData from table with fewer than 1 column (need some data)."
     coord_cols = [i for i, x, in enumerate(col_headers) if x in ["Source", "Destination"]]
 
     coords = { col_headers[i] : [] for i in coord_cols }
