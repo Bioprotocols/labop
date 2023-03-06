@@ -576,10 +576,10 @@ class MarkdownSpecialization(BehaviorSpecialization):
 
         source_names = get_sample_names(source, error_msg='Transfer execution failed. All source Components must specify a name.')
         if len(source_names) == 0:
-            text = f"transfer {amount_scalar} {amount_units} of `{source.name}` sample to {destination_coordinates} {container_str} `{container_spec.name}`."
+            text = f"Transfer {amount_scalar} {amount_units} of `{source.name}` sample to {destination_coordinates} {container_str} `{container_spec.name}`."
 
         elif len(source_names) == 1:
-            text = f"transfer {amount_scalar} {amount_units} of `{source_names[0]}` sample to {destination_coordinates} {container_str} `{container_spec.name}`."
+            text = f"Transfer {amount_scalar} {amount_units} of `{source_names[0]}` sample to {destination_coordinates} {container_str} `{container_spec.name}`."
         elif len(source_names) > 1:
             n_source = len(read_sample_contents(source))
             n_destination = n_source * replicates

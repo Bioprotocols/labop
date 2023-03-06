@@ -5,9 +5,13 @@ import os
 
 import labop
 import sbol3
+import json
+import xarray as xr
 from tyto import OM
 from labop.execution_engine import ExecutionEngine
 from labop_convert.markdown.markdown_specialization import MarkdownSpecialization
+
+from labop_convert.plate_coordinates import get_aliquot_list
 
 
 doc = sbol3.Document()
@@ -410,23 +414,33 @@ measure_absorbance = protocol.primitive_step('MeasureAbsorbance',
                                              samples=read_wells4.output_pin('samples'),
                                              wavelength=sbol3.Measure(600, OM.nanometer))
 
-meta1 = protocol.primitive_step("AttachMetadata",
+# FIXME Bryan derive this from the excel file via new primitive ExcelMetadata(file="measure_fluourescence1.xslx") and link its
+# output pin to meta1.metadata.descriptions
+# Change the format of the xarray to use dimensions, coordinates, and values as they appear in the xlsx.
+read_wells1_meta = json.dumps(xr.DataArray(
+    [[f"sample_{x}", measure_fluorescence1.name]
+     for x in get_aliquot_list(geometry="A1:B12")],
+    dims=("aliquot", "metadata"),
+    coords={"aliquot": get_aliquot_list(geometry="A1:B12"),
+            "metadata": ["sample_id", "measurement_type"]}).to_dict())
+
+meta1 = protocol.primitive_step("JoinMetadata",
                               data=measure_fluorescence1.output_pin('measurements'),
-                              metadata=labop.SampleMetadata(for_samples=read_wells1.output_pin('samples'), descriptions=""))
+                              metadata=labop.SampleMetadata(for_samples=read_wells1.output_pin('samples'), descriptions=read_wells1_meta))
 protocol.designate_output('dataset', 'http://bioprotocols.org/labop#Dataset', source=meta1.output_pin('dataset'))
 
-meta2 = protocol.primitive_step("AttachMetadata",
+meta2 = protocol.primitive_step("JoinMetadata",
                               data=measure_fluorescence2.output_pin('measurements'),
                               metadata=labop.SampleMetadata(for_samples=read_wells2.output_pin('samples'), descriptions=""))
 protocol.designate_output('dataset', 'http://bioprotocols.org/labop#Dataset', source=meta2.output_pin('dataset'))
 
-meta3 = protocol.primitive_step("AttachMetadata",
+meta3 = protocol.primitive_step("JoinMetadata",
                               data=measure_fluorescence3.output_pin('measurements'),
                               metadata=labop.SampleMetadata(for_samples=read_wells3.output_pin('samples'), descriptions=""))
 protocol.designate_output('dataset', 'http://bioprotocols.org/labop#Dataset', source=meta3.output_pin('dataset'))
 
 
-meta4 = protocol.primitive_step("AttachMetadata",
+meta4 = protocol.primitive_step("JoinMetadata",
                               data=measure_absorbance.output_pin('measurements'),
                               metadata=labop.SampleMetadata(for_samples=read_wells4.output_pin('samples'), descriptions=""))
 protocol.designate_output('dataset', 'http://bioprotocols.org/labop#Dataset', source=meta4.output_pin('dataset'))

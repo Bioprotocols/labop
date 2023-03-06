@@ -220,3 +220,6 @@ def sample_array_to_dot(self, dot, out_dir="out"):
         return self.name
 
 labop.SampleArray.to_dot = sample_array_to_dot
+def sample_metadata_to_dataarray(self: labop.SampleMetadata):
+    return xr.DataArray.from_dict(json.loads(self.descriptions))
+labop.SampleMetadata.to_dataarray = sample_metadata_to_dataarray

@@ -18,7 +18,7 @@ p.add_input('samples', 'http://bioprotocols.org/labop#SampleCollection')
 p.add_input('wavelength', sbol3.OM_MEASURE)
 p.add_input('numFlashes', 'http://www.w3.org/2001/XMLSchema#integer', True)
 p.add_input('timepoints', sbol3.OM_MEASURE, True, True)
-p.add_output('measurements', 'http://bioprotocols.org/labop#SampleData')
+p.add_output('measurements', 'http://bioprotocols.org/labop#Dataset')
 doc.add(p)
 
 p = labop.Primitive('MeasureFluorescence')
@@ -31,7 +31,7 @@ p.add_input('emissionLowpassCutoff', sbol3.OM_MEASURE, True) # e.g., 750LP
 p.add_input('numFlashes', 'http://www.w3.org/2001/XMLSchema#integer', True)
 p.add_input('gain', 'http://www.w3.org/2001/XMLSchema#double', True)
 p.add_input('timepoints', sbol3.OM_MEASURE, True, True)
-p.add_output('measurements', 'http://bioprotocols.org/labop#SampleData')
+p.add_output('measurements', 'http://bioprotocols.org/labop#Dataset')
 doc.add(p)
 
 p = labop.Primitive('MeasureFluorescenceSpectrum')
@@ -40,7 +40,7 @@ p.add_input('samples', 'http://bioprotocols.org/labop#SampleCollection')
 p.add_input('excitationWavelength', sbol3.OM_MEASURE)
 p.add_input('numFlashes', 'http://www.w3.org/2001/XMLSchema#integer', True)
 p.add_input('gain', 'http://www.w3.org/2001/XMLSchema#double', True)
-p.add_output('measurements', 'http://bioprotocols.org/labop#SampleData')
+p.add_output('measurements', 'http://bioprotocols.org/labop#Dataset')
 doc.add(p)
 
 # Consider adding Measure[Color]Fluorescence as SubProtocols that hardwire standard wavelengths
