@@ -6,11 +6,10 @@ from typing import Tuple
 import unittest
 import xarray as xr
 import json
-import cf_xarray.units  # must be imported before pint_xarray
-import pint_xarray
-from pint_xarray import unit_registry as ureg
-from random import random
-from helpers import file_diff
+from helpers import file_diff, OUT_DIR
+from labop_convert.markdown.markdown_specialization import MarkdownSpecialization
+
+from labop_convert.behavior_specialization import DefaultBehaviorSpecialization
 xr.set_options(display_expand_data=False)
 
 import sbol3
@@ -20,6 +19,8 @@ from labop_convert.plate_coordinates import get_aliquot_list, coordinate_rect_to
 import uml
 import tyto
 from sbol3 import Document
+
+
 
 logger: logging.Logger = logging.Logger("samplemap_protocol")
 
@@ -87,98 +88,35 @@ class TestProtocolEndToEnd(unittest.TestCase):
         # Arbitrary volume to use in specifying the reagents in the container.
         default_volume = sbol3.Measure(600, tyto.OM.microliter)
 
-
-        # Creating the source SampleArray involves the following steps:
-        # 1. Calling the EmptyContainer primitive with a defined specifcation
-        # 2. Creating the SampleArray and referencing the specification.
-        #    (SBOLFactory needs the specification to have an identity, which only
-        #     happens in step 1.)
-        # 3. Remove the EmptyContainer InputPin for "sample_array"
-        # 4. Create a ValuePin for "sample_array" and add it to the input of the EmptyContainer call.
-        #    (This is a place where we can map a SampleArray to a container)
-
-        # 1.
-        create_source = protocol.primitive_step('EmptyContainer', specification=source_spec)
-
-        # 2.
-        # The SampleArray is a 2D |aliquot| x |reagent| array, where values are volumes.
-        # The aliquot dimension uses aliquot_ids (specified above) as coordinates.
-        # The reagent dimension uses reagents (specified above) as coordinates.
-        #
-        # Results in the DataArray representing initial contents:
-        #
-        # <xarray.DataArray (aliquot: 4, initial_contents: 2)>
-        # array([[600., 600.],
-        #        [600., 600.],
-        #        [600., 600.],
-        #        [600., 600.]])
-        # Coordinates:
-        #   * aliquot   (aliquot) int64 0 1 2 3
-        #   * initial_contents  (initial_contents) <U30 'https://bbn.com/scratch/ddH2Oa' 'https://bbn.c...
         source_array = labop.SampleArray(
             name="source",
             container_type=source_spec,
-            initial_contents=json.dumps(xr.DataArray([[default_volume.value
+            contents=json.dumps(xr.DataArray([[[default_volume.value
                                                 for reagent in reagents]
-                                                for id in aliquot_ids],
-                                             dims=("aliquot", "initial_contents"),
-                                             coords={"aliquot": aliquot_ids,
-                                                     "initial_contents": [r.identity for r in reagents]}).to_dict()))
-        # 3.
-        sample_array_parameter = create_source.pin_parameter("sample_array")
-        [old_input] = [x for x in create_source.inputs if x.name == "sample_array"]
-        create_source.inputs.remove(old_input)
+                                                for id in aliquot_ids]],
+                                             dims=("array", "aliquot", "contents"),
+                                             attrs={"units": "uL"},
+                                             coords={"array": ["source"],
+                                                     "aliquot": aliquot_ids,
+                                                     "contents": [r.identity for r in reagents]}).to_dict()))
 
-        # 4.
-        create_source.inputs.append(uml.ValuePin(name="sample_array", is_ordered=sample_array_parameter.property_value.is_ordered,
-                                          is_unique=sample_array_parameter.property_value.is_unique, value=uml.literal(source_array)))
+        create_source = protocol.primitive_step('EmptyContainer', specification=source_spec, sample_array=source_array)
 
 
-        # Similar to the source_array, above, we specify an analogous target_array
-        # 1.
-        create_target = protocol.primitive_step('EmptyContainer', specification=target_spec)
 
-        # 2.
         target_array = labop.SampleArray(
             name="target",
             container_type=target_spec,
-            initial_contents=json.dumps(xr.DataArray([[0.0
+            contents=json.dumps(xr.DataArray([[[0.0
                                                 for reagent in reagents]
-                                                for id in aliquot_ids],
-                                             dims=("aliquot", "initial_contents"),
-                                             coords={"aliquot": aliquot_ids,
-                                                     "initial_contents": [r.identity for r in reagents]}).to_dict()))
+                                                for id in aliquot_ids]],
+                                             dims=("array", "aliquot", "contents"),
+                                             attrs={"units": "uL"},
+                                             coords={"array": ["target"],
+                                                     "aliquot": aliquot_ids,
+                                                     "contents": [r.identity for r in reagents]}).to_dict()))
+        create_target = protocol.primitive_step('EmptyContainer', specification=target_spec, sample_array=target_array)
 
-
-        # 3.
-        sample_array_parameter = create_target.pin_parameter("sample_array")
-        [old_input] = [x for x in create_target.inputs if x.name == "sample_array"]
-        create_target.inputs.remove(old_input)
-
-        # 4.
-        create_target.inputs.append(uml.ValuePin(name="sample_array", is_ordered=sample_array_parameter.property_value.is_ordered,
-                                          is_unique=sample_array_parameter.property_value.is_unique, value=uml.literal(target_array)))
-
-
-        # plan_mapping is a 4D array of volumes for transfers:
-        #    (source_array, source_aliquot) --volume--> (target_array, target_aliquot)
-        #
-        # The plan_mapping from above is a single source_array and single target_array:
-        #
-        # <xarray.DataArray (source_array: 1, source_aliquot: 4, target_array: 1,
-        #                    target_aliquot: 4)>
-        # array([[[[10., 10., 10., 10.]],
-
-        #         [[10., 10., 10., 10.]],
-
-        #         [[10., 10., 10., 10.]],
-
-        #         [[10., 10., 10., 10.]]]])
-        # Coordinates:
-        #   * source_array    (source_array) <U6 'source'
-        #   * source_aliquot  (source_aliquot) int64 0 1 2 3
-        #   * target_array    (target_array) <U6 'target'
-        #   * target_aliquot  (target_aliquot) int64 0 1 2 3
 
         plan_mapping = json.dumps(xr.DataArray([[[[
             # f"{source_array}:{source_aliquot}->{target_array}:{target_aliquot}"
@@ -215,8 +153,17 @@ class TestProtocolEndToEnd(unittest.TestCase):
                             amount=sbol3.Measure(0, tyto.OM.milliliter),
                             temperature=sbol3.Measure(30, tyto.OM.degree_Celsius))
 
-        transfer_result =  protocol.designate_output('result', labop.SampleArray,
-                                       transfer_by_map.output_pin('destinationResult'))
+        measure = protocol.primitive_step(
+            "MeasureAbsorbance",
+            samples=create_target.output_pin("samples"),
+            wavelength=sbol3.Measure(600, tyto.OM.nanometer),
+        )
+
+        result =  protocol.designate_output('absorbance', sbol3.OM_MEASURE,
+                                       measure.output_pin('measurements'))
+
+        protocol.order(measure, protocol.final())
+
 
         ########################################
         # Validate and write the document
@@ -227,12 +174,17 @@ class TestProtocolEndToEnd(unittest.TestCase):
         # Execute the protocol
         # In order to get repeatable timings, we use ordinal time in the test
         # where each timepoint is one second after the previous time point
-        ee = ExecutionEngine(use_ordinal_time=True)
+        ee = ExecutionEngine(use_ordinal_time=True, out_dir=OUT_DIR,
+                             specializations=[
+                                DefaultBehaviorSpecialization(),
+                                #MarkdownSpecialization("samplemap.md")
+                                ])
 
         execution = ee.execute(protocol, agent, id="test_execution", parameter_values=[])
 
-        result = xr.DataArray.from_dict(json.loads(execution.parameter_values[0].value.value.lookup().contents))
+        # result = xr.DataArray.from_dict(json.loads(execution.parameter_values[0].value.value.lookup().contents))
 
+        execution.to_dot().render(os.path.join(OUT_DIR, "samplemap.pdf"))
         print('Validating and writing protocol')
         v = doc.validate()
         assert len(v) == 0, "".join(f'\n {e}' for e in v)
@@ -244,7 +196,7 @@ class TestProtocolEndToEnd(unittest.TestCase):
         comparison_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'testfiles', 'sample_map_test.nt')
         # doc.write(comparison_file, sbol3.SORTED_NTRIPLES)
         print(f'Comparing against {comparison_file}')
-        diff = "\n".join(file_diff(comparison_file, temp_name))
+        diff = "".join(file_diff(comparison_file, temp_name))
         print(f"Difference:\n{diff}")
 
         assert filecmp.cmp(temp_name, comparison_file), "Files are not identical"
