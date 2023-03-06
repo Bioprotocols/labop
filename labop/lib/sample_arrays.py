@@ -12,6 +12,7 @@ sbol3.set_namespace('https://bioprotocols.org/labop/primitives/'+LIBRARY_NAME)
 # Create the primitives
 print('Making primitives for '+LIBRARY_NAME)
 
+# TODO need a Container primitive, with empty container as special case.
 p = labop.Primitive('EmptyContainer')
 p.description = 'Allocate a sample array with size and type based on an empty container'
 p.add_input('specification', sbol3.SBOL_IDENTIFIED)
