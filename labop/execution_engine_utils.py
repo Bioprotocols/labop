@@ -1546,16 +1546,20 @@ def activity_node_execution_get_token_source(
         isinstance(node, uml.CallBehaviorAction):
         main_target = target if target else self
         for flow in self.incoming_flows:
-            source = flow.lookup().get_token_source(parameter, target=main_target)
+            source = flow.lookup().get_token_source(
+                parameter, target=main_target
+            )
             if source:
                 return source
         return None
     else:
         return self
 
+
 labop.ActivityNodeExecution.get_token_source = (
     activity_node_execution_get_token_source
 )
+
 
 def call_behavior_execution_get_token_source(
     self: labop.CallBehaviorExecution,
