@@ -784,7 +784,7 @@ def activity_node_execution_get_value(
             value = self.get_parameter_value(
                 parameter, node_outputs, sample_format
             )
-            reference = hasattr(value, "document") and value.document is not None
+            reference = value.identity != None
 
     value = uml.literal(value, reference=reference)
     return value
