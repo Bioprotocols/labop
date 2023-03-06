@@ -190,7 +190,7 @@ def measure_absorbance_compute_output(self, inputs, parameter, sample_format):
 
         # FIXME Bryan create the metadata.descriptions below from the input pins
         sample_data = labop.SampleData(from_samples=samples)
-        sample_metadata =labop.SampleMetadata(descriptions=None, for_samples=samples)
+        sample_metadata = labop.SampleMetadata.for_primitive(self, input_map, samples) #labop.SampleMetadata(descriptions=None, for_samples=samples)
         sample_dataset = labop.Dataset(data=sample_data, metadata=[sample_metadata])
         return sample_dataset
 
@@ -203,6 +203,15 @@ def join_metadata_compute_output(self, inputs, parameter, sample_format):
         dataset = labop.Dataset(dataset=[data], linked_metadata=[metadata])
         return dataset
 
+def excel_metadata_compute_output(self, inputs, parameter, sample_format):
+    if parameter.name == "metadata" and \
+       parameter.type == 'http://bioprotocols.org/labop#SampleMetadata':
+        input_map = input_parameter_map(inputs)
+        filename = input_map["filename"]
+        for_samples = input_map["for_samples"]
+        metadata = labop.SampleMetadata.from_excel(filename, for_samples)
+        return metadata
+
 primitive_to_output_function = {
     "EmptyContainer" : empty_container_compute_output,
     "PlateCoordinates" : plate_coordinates_compute_output,
@@ -213,7 +222,8 @@ primitive_to_output_function = {
     "EmptyInstrument": empty_rack_compute_output,
     "EmptyRack": empty_rack_compute_output,
     "LoadContainerOnInstrument": load_container_on_instrument_compute_output,
-    "JoinMetadata": join_metadata_compute_output
+    "JoinMetadata": join_metadata_compute_output,
+    "ExcelMetadata": excel_metadata_compute_output
 }
 
 def initialize_primitive_compute_output(doc: sbol3.Document):

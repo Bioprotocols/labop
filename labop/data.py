@@ -6,14 +6,17 @@ This file monkey-patches the imported labop classes with data handling functions
 
 from cmath import nan
 import xarray as xr
+import pandas as pd
 import json
 from urllib.parse import quote, unquote
+import os
 
+import sbol3
 import labop
 from labop_convert.plate_coordinates import get_sample_list
 
 import uml
-from typing import List, Dict
+from typing import List, Dict, Union
 
 import logging
 l = logging.getLogger(__file__)
@@ -29,6 +32,7 @@ class Strings:
     MASK = "mask"
     MEASUREMENT = "measurement"
     CONTENTS = "contents"
+    SOURCE = "source"
 
 
 def protocol_execution_set_data(self, dataset):
@@ -77,7 +81,7 @@ def sample_array_to_data_array(self, sample_format=Strings.XARRAY):
     if not hasattr(self, "initial_contents") or self.initial_contents is None:
         sample_array = self.empty(sample_format=sample_format)
     else:
-        sample_array = deserialize_sample_format(self.initial_contents)
+        sample_array = deserialize_sample_format(self.initial_contents, parent=self)
     return sample_array
 labop.SampleArray.to_data_array = sample_array_to_data_array
 
@@ -148,7 +152,7 @@ def sample_mask_to_data_array(self, sample_format=Strings.XARRAY):
     if not hasattr(self, "mask") or self.mask is None:
         sample_mask = self.empty(sample_format=sample_format)
     else:
-        sample_mask = deserialize_sample_format(self.mask)
+        sample_mask = deserialize_sample_format(self.mask, parent=self)
     return sample_mask
 labop.SampleMask.to_data_array = sample_mask_to_data_array
 
@@ -202,7 +206,7 @@ def sample_data_to_data_array(self, sample_format=Strings.XARRAY):
     if not hasattr(self, "values") or self.values is None:
         sample_data = self.empty(sample_format=sample_format)
     else:
-        sample_data = deserialize_sample_format(self.values)
+        sample_data = deserialize_sample_format(self.values, parent=self)
     return sample_data
 labop.SampleData.to_data_array = sample_data_to_data_array
 
@@ -250,14 +254,15 @@ labop.CallBehaviorExecution.get_outputs = call_behavior_execution_get_outputs
 def sample_metadata_empty(self, sample_format=Strings.XARRAY):
     if sample_format == Strings.XARRAY:
         sample_array = self.for_samples.lookup().to_data_array()
-        metadata_array = xr.DataArray(
-            [nan]*len(sample_array[Strings.SAMPLE]),
-            name=self.identity,
-            dims=(Strings.SAMPLE),
-            coords={Strings.SAMPLE: sample_array.coords[Strings.SAMPLE].data}
-            )
-        self.descriptions = serialize_sample_format(metadata_array)
-        return metadata_array
+        # metadata_array = xr.DataArray(
+        #     [nan]*len(sample_array[Strings.SAMPLE]),
+        #     name=self.identity,
+        #     dims=(Strings.SAMPLE),
+        #     coords={Strings.SAMPLE: sample_array.coords[Strings.SAMPLE].data}
+        #     )
+        # self.descriptions = serialize_sample_format(metadata_array)
+        # return metadata_array
+        metadata_dataset = xr.Dataset(coords=sample_array.coords)
     else:
         raise NotImplementedError()
 labop.SampleMetadata.empty = sample_metadata_empty
@@ -266,10 +271,70 @@ def sample_metadata_to_data_array(self: labop.SampleMetadata, sample_format=Stri
     if not hasattr(self, "descriptions") or self.descriptions is None:
         metadata_array = self.empty(sample_format=sample_format)
     else:
-        metadata_array = deserialize_sample_format(self.descriptions)
+        metadata_array = deserialize_sample_format(self.descriptions, parent=self)
     return metadata_array
 labop.SampleMetadata.to_data_array = sample_metadata_to_data_array
 
+def sample_metadata_from_excel(filename: Union[str, os.PathLike],
+                               for_samples: labop.SampleCollection,
+                               sample_format=Strings.XARRAY,
+                               record_source=False):
+    metadata = labop.SampleMetadata(for_samples=for_samples)
+    metadata_df = pd.read_excel(filename)
+
+    # Assume that first column is the sample index
+    metadata_df = metadata_df.set_index(metadata_df.columns[0])
+
+    if sample_format == Strings.XARRAY:
+        # Convert pd.DataFrame into xr.DataArray
+        rename_map = {"Unnamed: 0": Strings.SAMPLE}
+        metadata_array = xr.Dataset.from_dataframe(metadata_df).rename(rename_map)
+        if record_source:
+            metadata_array = metadata_array.expand_dims({"source": [metadata.identity]}) # Will be replaced when deserilialized by parent.identity
+        metadata.descriptions = serialize_sample_format(metadata_array)
+
+        # The metadata_array is now a 2D xr.DataArray with dimensions (sample, metadata)
+        # The sample coordinates are sample ids, and the metadata coordinates are metadata attributes
+        # The name is the identity of the labop.SampleMetadata holding the metadata_array
+    else:
+        raise NotImplementedError(f"Cannot represent Excel SampleMetadata as sample_format: {sample_format}")
+
+    return metadata
+labop.SampleMetadata.from_excel = sample_metadata_from_excel
+
+def sample_metadata_for_primitive(primitive: labop.Primitive,
+                                  inputs: Dict[str, sbol3.Identified],
+                                  for_samples: labop.SampleCollection,
+                                  sample_format=Strings.XARRAY,
+                                  record_source=False):
+
+
+    metadata = labop.SampleMetadata(for_samples=for_samples)
+    # metadata_array = metadata.empty(sample_format=sample_format)
+    sample_array = for_samples.to_data_array()
+    if sample_format == Strings.XARRAY:
+        # Create new dimensions for each input to primitive, aside from for_samples
+        inputs_meta = {k:v.identity for k, v in inputs.items() if v != for_samples}
+        # values = [v.identity for v in inputs_meta.values()]
+
+        # primitive_array = xr.DataArray(
+        #     [values for s in sample_array.coords[Strings.SAMPLE]],
+        #     name=primitive.identity,
+        #     dims=(Strings.SAMPLE, Strings.METADATA),
+        #     coords={
+        #         Strings.SAMPLE: sample_array.coords[Strings.SAMPLE],
+        #         Strings.METADATA: list(inputs_meta.keys())
+        #         }
+        # )
+        metadata_dataset = xr.Dataset(inputs_meta, coords=sample_array.coords)
+        if record_source:
+            metadata_dataset = metadata_dataset.expand_dims({"source": [metadata.identity]})
+        metadata.descriptions = serialize_sample_format(metadata_dataset)
+    else:
+        raise NotImplementedError(f"Cannot represent Excel SampleMetadata as sample_format: {sample_format}")
+
+    return metadata
+labop.SampleMetadata.for_primitive = sample_metadata_for_primitive
 
 def dataset_to_dataset(self: labop.Dataset, sample_format=Strings.XARRAY):
     """
@@ -301,15 +366,19 @@ def serialize_sample_format(data):
     return quote(json.dumps(data_dict))
 
 
-def deserialize_sample_format(data: str):
+def deserialize_sample_format(data: str, parent: sbol3.Identified = None):
     try:
         json_data = json.loads(unquote(data))
         try:
             xarray_data = xr.DataArray.from_dict(json_data)
+            if parent:
+                xarray_data.name = parent.identity
             return xarray_data
         except:
             try:
                 xarray_data = xr.Dataset.from_dict(json_data)
+                if Strings.SOURCE in xarray_data.coords:
+                    xarray_data.coords[Strings.SOURCE] = [parent.identity]
                 return xarray_data
             except:
                 return json_data

@@ -80,29 +80,39 @@ class TestProtocolEndToEnd(unittest.TestCase):
                                              samples=create_coordinates.output_pin('samples'),
                                              wavelength=sbol3.Measure(600, OM.nanometer))
 
+        load_excel = protocol.primitive_step('ExcelMetadata',
+                                     for_samples=measure_absorbance.output_pin('measurements'),
+                                     filename=os.path.join(os.path.dirname(
+                                                  os.path.realpath(__file__)),
+                                                  'metadata/measure_absorbance.xlsx'))
 
-        smd = labop.SampleMetadata(for_samples=sample_array)
-        meta4 = protocol.primitive_step("JoinMetadata",
+        meta1 = protocol.primitive_step("JoinMetadata",
                               data=measure_absorbance.output_pin('measurements'),
-                              metadata=smd)
-        protocol.designate_output('dataset', 'http://bioprotocols.org/labop#Dataset', source=meta4.output_pin('dataset'))
+                              metadata=load_excel.output_pin('metadata'))
+        protocol.designate_output('dataset', 'http://bioprotocols.org/labop#Dataset', source=meta1.output_pin('dataset'))
+
+        # smd = labop.SampleMetadata(for_samples=sample_array)
+        # meta4 = protocol.primitive_step("JoinMetadata",
+        #                       data=measure_absorbance.output_pin('measurements'),
+        #                       metadata=smd)
+        # protocol.designate_output('dataset', 'http://bioprotocols.org/labop#Dataset', source=meta4.output_pin('dataset'))
 
 
-        sample_metadata = xr.DataArray(
-            #[
-            [[volume_in_sample(reagent, sample) for reagent in reagents] for sample in samples]
-            #]
-            ,
-            name=smd.identity,
-            dims=(  #labop.Strings.MEASUREMENT,
-                    labop.Strings.SAMPLE,
-                    labop.Strings.CONTENTS),
-            coords={labop.Strings.SAMPLE: samples,
-                    labop.Strings.CONTENTS: reagents,
-                    # labop.Strings.MEASUREMENT: [measure_absorbance.identity]
-                    }
-            )
-        smd.descriptions=labop.serialize_sample_format(sample_metadata)
+        # sample_metadata = xr.DataArray(
+        #     #[
+        #     [[volume_in_sample(reagent, sample) for reagent in reagents] for sample in samples]
+        #     #]
+        #     ,
+        #     name=smd.identity,
+        #     dims=(  #labop.Strings.MEASUREMENT,
+        #             labop.Strings.SAMPLE,
+        #             labop.Strings.CONTENTS),
+        #     coords={labop.Strings.SAMPLE: samples,
+        #             labop.Strings.CONTENTS: reagents,
+        #             # labop.Strings.MEASUREMENT: [measure_absorbance.identity]
+        #             }
+        #     )
+        # smd.descriptions=labop.serialize_sample_format(sample_metadata)
 
 
 
