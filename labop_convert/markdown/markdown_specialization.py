@@ -8,7 +8,8 @@ from urllib.parse import quote, unquote
 from typing import Union, List
 from collections.abc import Iterable
 
-
+import pandas as pd
+import xarray as xr
 import sbol3
 import tyto
 
@@ -80,6 +81,8 @@ class MarkdownSpecialization(BehaviorSpecialization):
             "http://bioprotocols.org/labop#Protocol": self.subprotocol_specialization,
             "https://bioprotocols.org/labop/primitives/culturing/CulturePlates": self.culture_plates,
             "https://bioprotocols.org/labop/primitives/culturing/PickColonies": self.pick_colonies,
+            "https://bioprotocols.org/labop/primitives/sample_arrays/ExcelMetadata": self.excel_metadata,
+            "https://bioprotocols.org/labop/primitives/sample_arrays/JoinMetadata": self.join_metadata,
         }
 
     def on_begin(self, execution):
@@ -1002,6 +1005,24 @@ class MarkdownSpecialization(BehaviorSpecialization):
         execution.markdown_steps += [f'Pick {replicates} colonies from each `{colonies.name}` plate.']
 
 
+    def excel_metadata(self, record: labop.ActivityNodeExecution, execution: labop.ProtocolExecution):
+        call = record.call.lookup()
+        parameter_value_map = call.parameter_value_map()
+        filename = parameter_value_map['filename']['value']
+        for_samples = parameter_value_map['for_samples']['value']
+        metadata = parameter_value_map['metadata']['value']
+        df = pd.read_excel(filename, index_col=0, header=0)
+        x = xr.Dataset.from_dataframe(df)
+        metadata.descriptions = json.dumps(x.to_dict())
+        metadata.for_samples = for_samples
+
+
+    def join_metadata(self, record: labop.ActivityNodeExecution, execution: labop.ProtocolExecution):
+        call = record.call.lookup()
+        parameter_value_map = call.parameter_value_map()
+        metadata = parameter_value_map['metadata']['value']
+        data = parameter_value_map['data']['value']
+        dataset = parameter_value_map['dataset']['value']
 
 
 def measurement_to_text(measure: sbol3.Measure):

@@ -7,6 +7,8 @@ import labop
 import sbol3
 import json
 import xarray as xr
+import pandas as pd
+
 from tyto import OM
 from labop.execution_engine import ExecutionEngine
 from labop_convert.markdown.markdown_specialization import MarkdownSpecialization
@@ -417,16 +419,16 @@ measure_absorbance = protocol.primitive_step('MeasureAbsorbance',
 # FIXME Bryan derive this from the excel file via new primitive ExcelMetadata(file="measure_fluourescence1.xslx") and link its
 # output pin to meta1.metadata.descriptions
 # Change the format of the xarray to use dimensions, coordinates, and values as they appear in the xlsx.
-read_wells1_meta = json.dumps(xr.DataArray(
-    [[f"sample_{x}", measure_fluorescence1.name]
-     for x in get_sample_list(geometry="A1:B12")],
-    dims=("aliquot", "metadata"),
-    coords={"aliquot": get_sample_list(geometry="A1:B12"),
-            "metadata": ["sample_id", "measurement_type"]}).to_dict())
+
+load_excel = protocol.primitive_step('ExcelMetadata',
+                                     for_samples=read_wells1.output_pin('samples'),
+                                     filename=os.path.join(os.path.dirname(
+                                                  os.path.realpath(__file__)),
+                                                  'metadata/measure_fluorescence1.xlsx'))
 
 meta1 = protocol.primitive_step("JoinMetadata",
                               data=measure_fluorescence1.output_pin('measurements'),
-                              metadata=labop.SampleMetadata(for_samples=read_wells1.output_pin('samples'), descriptions=read_wells1_meta))
+                              metadata=load_excel.output_pin('metadata'))
 protocol.designate_output('dataset', 'http://bioprotocols.org/labop#Dataset', source=meta1.output_pin('dataset'))
 
 meta2 = protocol.primitive_step("JoinMetadata",
