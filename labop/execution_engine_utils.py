@@ -234,11 +234,9 @@ def final_node_enabled(
     tokens: List[labop.ActivityEdgeFlow],
 ):
     protocol = self.protocol()
-    token_present = all(
-        {t.edge.lookup() for t in tokens if t.edge}.intersection(
-            protocol.incoming_edges(self)
-        )
-    )
+    token_present = {t.edge.lookup() for t in tokens if t.edge}.intersection(
+        protocol.incoming_edges(self)
+    ) == protocol.incoming_edges(self)
     return token_present
 
 
@@ -702,10 +700,12 @@ def activity_node_next_tokens_callback(
             else:
                 raise e
 
-        labop.ActivityEdgeFlow(
-            edge=edge,
-            token_source=source,
-            value=edge_value,
+        edge_tokens.append(
+            labop.ActivityEdgeFlow(
+                edge=edge,
+                token_source=source,
+                value=edge_value,
+            )
         )
     return edge_tokens
 
@@ -1277,7 +1277,7 @@ def call_behavior_action_execute_callback(
     inputs: List[labop.ActivityEdgeFlow],
 ) -> labop.ActivityNodeExecution:
     record = labop.CallBehaviorExecution(node=self, incoming_flows=inputs)
-
+    completed_normally = True
     # Get the parameter values from input tokens for input pins
     input_pin_values = {
         token.token_source.lookup()
@@ -1292,13 +1292,28 @@ def call_behavior_action_execute_callback(
     # Validate Pin values, see #130
     # Although enabled_activity_node method also validates Pin values,
     # it only checks required Pins.  This check is necessary to check optional Pins.
+    required_inputs = [
+        p
+        for i in self.behavior.lookup().get_required_inputs()
+        for p in self.input_pins(i.property_value.name)
+    ]
     for pin in self.inputs:
-        if hasattr(pin, "value"):
-            if pin.value is None:
-                raise ValueError(
-                    f"{self.behavior.lookup().display_id} Action has no ValueSpecification for Pin {pin.name}"
-                )
-            value_pin_values[pin.identity] = pin.value
+        value = pin.value if hasattr(pin, "value") else None
+        if pin.value is None:
+            if pin in required_inputs:
+                completed_normally = False
+                if engine.permissive:
+                    engine.issues[engine.ex.display_id].append(
+                        ExecutionError(
+                            f"{self.behavior.lookup().display_id} Action has no ValueSpecification for Pin {pin.name}"
+                        )
+                    )
+                    value = uml.literal("Error")
+                else:
+                    raise ValueError(
+                        f"{self.behavior.lookup().display_id} Action has no ValueSpecification for Pin {pin.name}"
+                    )
+        value_pin_values[pin.identity] = value
         # Check that pin corresponds to an input parameter.  Will cause Exception if does not exist.
         parameter = self.pin_parameter(pin.name)
 
