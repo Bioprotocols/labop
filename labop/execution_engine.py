@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 import html
 import re
-from typing import Callable, Dict, List
+from typing import Callable, Dict, List, Union
 import uuid
 import datetime
 import logging
@@ -69,6 +69,7 @@ class ExecutionEngine(ABC):
         self.permissive = permissive  # Allow execution to follow control flow even if objects not present.
         self.use_defined_primitives = use_defined_primitives  # used the compute_output definitions to compute primitive outputs
         self.sample_format = sample_format
+        self.issues: Dict[id, List[Union[ExecutionWarning, ExecutionError]]] = {} # List of Warnings and Errors
 
     def next_id(self):
         next = self.exec_counter
