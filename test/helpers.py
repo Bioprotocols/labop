@@ -17,8 +17,8 @@ if not os.path.exists(OUT_DIR):
 
 def prepare_document(namespace='https://bioprotocols.org/demo/') -> sbol3.Document:
     logger.info('Setting up document')
-    doc = sbol3.Document()
     sbol3.set_namespace(namespace)
+    doc = sbol3.Document()
     return doc
 
 def create_protocol(display_id="demo_protocol", name="DemonstrationProtocol") -> labop.Protocol:
