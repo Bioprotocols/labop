@@ -11,7 +11,7 @@ import labop
 
 from labop.execution_engine import ExecutionEngine
 from labop_convert.opentrons.opentrons_specialization import OT2Specialization
-
+from helpers import file_diff, OUT_DIR
 
 
 # Save testfiles as artifacts when running in CI environment,
@@ -34,21 +34,18 @@ CWD = os.path.split(os.path.realpath(__file__))[0]
 protocol_def_file = os.path.join(CWD, "../examples/opentrons_toy_protocol.py")
 protocol_def = load_protocol("opentrons_toy_protocol", protocol_def_file)
 
-out_dir = os.path.join(CWD, "out")
-if not os.path.exists(out_dir):
-    os.mkdir(out_dir)
 
 
 class TestProtocolEndToEnd(unittest.TestCase):
     def test_create_protocol(self):
         protocol: labop.Protocol
         doc: sbol3.Document
-        logger = logging.getLogger("LUDOX_protocol")
+        logger = logging.getLogger("opentrons_toy_protocol")
         logger.setLevel(logging.INFO)
         protocol, doc = protocol_def.opentrons_toy_protocol()
 
         protocol.to_dot().render(
-            filename=os.path.join(out_dir, protocol.display_name), format="png"
+            filename=os.path.join(OUT_DIR, protocol.display_name), format="png"
         )
 
         agent = sbol3.Agent("ot2_machine", name="OT2 machine")
@@ -59,7 +56,7 @@ class TestProtocolEndToEnd(unittest.TestCase):
         ee = ExecutionEngine(
             use_ordinal_time=True,
             specializations=[
-                OT2Specialization(os.path.join(out_dir, "opentrons_toy"))
+                OT2Specialization(os.path.join(OUT_DIR, "opentrons_toy"))
             ],
             failsafe=False
         )
@@ -96,7 +93,7 @@ class TestProtocolEndToEnd(unittest.TestCase):
         # with open(comparison_file, 'w') as f:
         #     f.write(doc.write_string(sbol3.SORTED_NTRIPLES).strip())
         print(f"Comparing against {comparison_file}")
-        diff = '\n'.join(file_diff(comparison_file, temp_name))
+        diff = ''.join(file_diff(comparison_file, temp_name))
         print(f"Difference:\n{diff}")
         assert filecmp.cmp(
             temp_name, comparison_file

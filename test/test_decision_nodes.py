@@ -201,7 +201,7 @@ class TestProtocolEndToEnd(unittest.TestCase):
                 (False, measure2),
             ],
         )
-        protocol.to_dot().view()
+        # protocol.to_dot().view()
 
 
 if __name__ == "__main__":

@@ -14,6 +14,7 @@ from labop_convert.plate_coordinates import coordinate_rect_to_row_col_pairs, co
 from labop import SampleMask, SampleData, SampleArray
 import uml
 from typing import List, Dict
+import matplotlib.pyplot as plt
 
 import logging
 l = logging.getLogger(__file__)
@@ -118,22 +119,26 @@ def sample_array_get_coordinates(self):
 SampleArray.get_coordinates = sample_mask_get_coordinates
 
 
+def initialize_dataset_from_sample_array(self, name: str):
+    sample_array = self.to_data_array()
+
+
+    # Each dataset maps uses self.identity to write back any
+    # new values to self.
+    sample_data = xr.Dataset({
+                                name : xr.DataArray(
+                                                [None]*len(sample_array[Strings.ALIQUOT]),
+                                                [ (Strings.ALIQUOT, sample_array.coords[Strings.ALIQUOT].data) ]
+                                            )})
+    return sample_data
+SampleArray.initialize_dataset = initialize_dataset_from_sample_array
+
 def sample_data_to_dataset(self):
     if hasattr(self, 'format') and self.format == 'json':
         raise NotImplementedError()
     if not hasattr(self, "values") or \
        not self.values:
-        from_samples = self.from_samples.lookup()
-        sample_array = from_samples.to_data_array()
-        masked_array = sample_array.where(sample_array, drop=True) # Apply the mask
-
-        # Each dataset maps uses self.identity to write back any
-        # new values to self.
-        sample_data = xr.Dataset({
-                                    self.identity : xr.DataArray(
-                                                    [nan]*len(masked_array[Strings.ALIQUOT]),
-                                                    [ (Strings.ALIQUOT, masked_array.coords[Strings.ALIQUOT].data) ]
-                                                )})
+        sample_data = self.from_samples.initialize_dataset(self.identity)
     else:
         sample_data = xr.Dataset.from_dict(json.loads(self.values))
 
@@ -180,3 +185,15 @@ def call_behavior_execution_get_outputs(self):
     return [x for x in self.call.lookup().parameter_values
               if x.parameter.lookup().property_value.direction == uml.PARAMETER_OUT]
 labop.CallBehaviorExecution.get_outputs = call_behavior_execution_get_outputs
+
+def sample_array_to_dot(self, dot, out_dir="out"):
+    sa = self.to_data_array()
+    # p = sa.plot.scatter(col="aliquot", x="contents")
+    p = sa.plot()
+    p.fig.savefig(f"{os.path.join(out_dir, self.name)}.pdf")
+    dot.node(self.name,
+             _attributes={
+                   "label" : f"<<table><tr><td><img src=\"{self.name}.pdf\"></img></td></tr></table>>"
+                })
+    return self.name
+labop.SampleArray.to_dot = sample_array_to_dot
