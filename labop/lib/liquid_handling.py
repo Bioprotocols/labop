@@ -87,6 +87,8 @@ p.add_input('plan', 'http://bioprotocols.org/labop#SampleData') # Must be a set 
 p.add_input('amount', sbol3.OM_MEASURE) # Must be volume
 p.add_input('temperature', sbol3.OM_MEASURE)
 p.add_input('dispenseVelocity', sbol3.OM_MEASURE, True)
+p.add_output('sourceResult', 'http://bioprotocols.org/labop#SampleCollection')
+p.add_output('destinationResult', 'http://bioprotocols.org/labop#SampleCollection')
 doc.add(p)
 
 p = labop.Primitive('PipetteMix')

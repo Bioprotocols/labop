@@ -196,6 +196,9 @@ def activity_to_dot(self, legend=False, ready=[], done=[]):
         in_struct = "_".join(truncated.split('/',1)).replace("/", ":") # Replace last "/" with "_"
         return in_struct #_gv_sanitize(object.identity.replace(f'{self.identity}/', ''))
 
+    def _param_str(param: Parameter) -> str:
+        return f"{param.name}"
+
     def _inpin_str(pin: InputPin) -> str:
         if isinstance(pin, ValuePin):
             if isinstance(pin.value, LiteralReference):
@@ -264,9 +267,12 @@ def activity_to_dot(self, legend=False, ready=[], done=[]):
         elif isinstance(object, ExecutableNode):
             if isinstance(object, CallBehaviorAction): # render as an HMTL table with pins above/below call
                 port_row = '  <tr><td><table border="0" cellspacing="-2"><tr><td> </td>{}<td> </td></tr></table></td></tr>\n'
+                required_inputs = object.behavior.lookup().get_required_inputs()
                 used_inputs = [o for o in object.inputs if isinstance(o,ValuePin) or self.incoming_edges(o)]
+                unsat_inputs = [o.property_value for o in required_inputs if o.property_value.name not in [i.name for i in used_inputs]]
                 in_ports = '<td> </td>'.join(f'<td port="{i.display_id}" border="1">{_inpin_str(i)}</td>' for i in used_inputs)
-                in_row = port_row.format(in_ports) if in_ports else ''
+                unsat_in_ports = '<td> </td>'.join(f'<td port="{i.display_id}" bgcolor="red" border="1">{_param_str(i)}</td>' for i in unsat_inputs)
+                in_row = port_row.format(in_ports+ '<td> </td>' + unsat_in_ports) if in_ports or unsat_in_ports else ''
                 out_ports = '<td> </td>'.join(f'<td port="{o.display_id}" border="1">{o.name}</td>' for o in object.outputs)
                 out_row = port_row.format(out_ports) if out_ports else ''
 
