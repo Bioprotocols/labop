@@ -16,7 +16,7 @@ import tyto
 import json
 from tyto import OM
 
-from labop_convert.plate_coordinates import get_aliquot_list
+from labop_convert.plate_coordinates import get_sample_list
 from helpers import file_diff, OUT_DIR, initialize_protocol
 
 # Save testfiles as artifacts when running in CI environment,
@@ -45,7 +45,7 @@ class TestProtocolEndToEnd(unittest.TestCase):
         protocol, doc = initialize_protocol()
 
         reagents = ["fluorescene", "sulforhodamine101",	"cascadeBlue",	"nanocym",	"water",	"pbs"]
-        samples = get_aliquot_list(geometry="A1:B12")
+        samples = get_sample_list(geometry="A1:B12")
 
         def volume_in_sample(reagent, sample):
             if "A" in sample:

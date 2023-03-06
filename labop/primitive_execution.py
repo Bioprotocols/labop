@@ -7,7 +7,7 @@ import xarray as xr
 import sbol3
 
 import labop
-from labop_convert.plate_coordinates import coordinate_rect_to_row_col_pairs, get_aliquot_list, num2row
+from labop_convert.plate_coordinates import coordinate_rect_to_row_col_pairs, get_sample_list, num2row
 import uml
 
 from typing import List, Dict
@@ -270,7 +270,10 @@ labop.Primitive.compute_output = primitive_compute_output
 
 def empty_container_initialize_contents(self, sample_format, geometry='A1:H12'):
 
-    aliquots = get_aliquot_list(geometry)
+    l.warn("Warning: Assuming that the SampleArray is a 96 well microplate!")
+    aliquots = get_sample_list(geometry)
+    #initial_contents = json.dumps(xr.DataArray(dims=("aliquot", "initial_contents"),
+    #                                   coords={"aliquot": aliquots}).to_dict())
     if sample_format == 'xarray':
         initial_contents = json.dumps(xr.DataArray(aliquots, dims=("aliquot")).to_dict())
     elif sample_format == 'json':
