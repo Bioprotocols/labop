@@ -69,7 +69,9 @@ class ExecutionEngine(ABC):
         self.permissive = permissive  # Allow execution to follow control flow even if objects not present.
         self.use_defined_primitives = use_defined_primitives  # used the compute_output definitions to compute primitive outputs
         self.sample_format = sample_format
-        self.issues: Dict[id, List[Union[ExecutionWarning, ExecutionError]]] = {} # List of Warnings and Errors
+        self.issues: Dict[
+            id, List[Union[ExecutionWarning, ExecutionError]]
+        ] = {}  # List of Warnings and Errors
 
     def next_id(self):
         next = self.exec_counter
@@ -115,6 +117,9 @@ class ExecutionEngine(ABC):
     ):
         # Record in the document containing the protocol
         doc = protocol.document
+
+        # setup possible issues
+        self.issues[id] = []
 
         if self.use_defined_primitives:
             # Define the compute_output function for known primitives
