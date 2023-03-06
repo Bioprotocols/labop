@@ -91,14 +91,14 @@ class TestProtocolEndToEnd(unittest.TestCase):
         source_array = labop.SampleArray(
             name="source",
             container_type=source_spec,
-            contents=json.dumps(xr.DataArray([[[default_volume.value
+            initial_contents=json.dumps(xr.DataArray([[[default_volume.value
                                                 for reagent in reagents]
                                                 for id in aliquot_ids]],
-                                             dims=("array", "aliquot", "contents"),
+                                             dims=("array", "aliquot", "initial_contents"),
                                              attrs={"units": "uL"},
                                              coords={"array": ["source"],
                                                      "aliquot": aliquot_ids,
-                                                     "contents": [r.identity for r in reagents]}).to_dict()))
+                                                     "initial_contents": [r.identity for r in reagents]}).to_dict()))
 
         create_source = protocol.primitive_step('EmptyContainer', specification=source_spec, sample_array=source_array)
 
@@ -107,14 +107,14 @@ class TestProtocolEndToEnd(unittest.TestCase):
         target_array = labop.SampleArray(
             name="target",
             container_type=target_spec,
-            contents=json.dumps(xr.DataArray([[[0.0
+            initial_contents=json.dumps(xr.DataArray([[[0.0
                                                 for reagent in reagents]
                                                 for id in aliquot_ids]],
-                                             dims=("array", "aliquot", "contents"),
+                                             dims=("array", "aliquot", "initial_contents"),
                                              attrs={"units": "uL"},
                                              coords={"array": ["target"],
                                                      "aliquot": aliquot_ids,
-                                                     "contents": [r.identity for r in reagents]}).to_dict()))
+                                                     "initial_contents": [r.identity for r in reagents]}).to_dict()))
         create_target = protocol.primitive_step('EmptyContainer', specification=target_spec, sample_array=target_array)
 
 
