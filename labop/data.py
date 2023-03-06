@@ -223,3 +223,16 @@ labop.SampleArray.to_dot = sample_array_to_dot
 def sample_metadata_to_dataarray(self: labop.SampleMetadata):
     return xr.DataArray.from_dict(json.loads(self.descriptions))
 labop.SampleMetadata.to_dataarray = sample_metadata_to_dataarray
+
+def dataset_to_dataset(self: labop.Dataset):
+    """
+    Join the self.data and self.metadata into a single xarray dataset.
+
+    Parameters
+    ----------
+    self : labop.Dataset
+        Dataset comprising data and metadata.
+    """
+    data = self.data.to_dataset()
+    metadata = self.metadata.to_dataarray()
+labop.Dataset.to_dataset = dataset_to_dataset
