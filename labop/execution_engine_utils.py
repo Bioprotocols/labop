@@ -1539,11 +1539,23 @@ def activity_node_execution_get_token_source(
     else:
         return self
 
+    node = self.node.lookup()
+    print(self.identity + " " + node.identity + " param = " + str(parameter))
+    if isinstance(node, uml.InputPin) or \
+        isinstance(node, uml.ForkNode) or \
+        isinstance(node, uml.CallBehaviorAction):
+        main_target = target if target else self
+        for flow in self.incoming_flows:
+            source = flow.lookup().get_token_source(parameter, target=main_target)
+            if source:
+                return source
+        return None
+    else:
+        return self
 
 labop.ActivityNodeExecution.get_token_source = (
     activity_node_execution_get_token_source
 )
-
 
 def call_behavior_execution_get_token_source(
     self: labop.CallBehaviorExecution,
