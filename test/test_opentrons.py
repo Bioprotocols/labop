@@ -1,3 +1,4 @@
+from helpers import file_diff
 import filecmp
 from importlib.machinery import SourceFileLoader
 from importlib.util import module_from_spec, spec_from_loader
@@ -10,6 +11,7 @@ import labop
 
 from labop.execution_engine import ExecutionEngine
 from labop_convert.opentrons.opentrons_specialization import OT2Specialization
+
 
 
 # Save testfiles as artifacts when running in CI environment,
@@ -94,6 +96,8 @@ class TestProtocolEndToEnd(unittest.TestCase):
         # with open(comparison_file, 'w') as f:
         #     f.write(doc.write_string(sbol3.SORTED_NTRIPLES).strip())
         print(f"Comparing against {comparison_file}")
+        diff = '\n'.join(file_diff(comparison_file, temp_name))
+        print(f"Difference:\n{diff}")
         assert filecmp.cmp(
             temp_name, comparison_file
         ), "Files are not identical"

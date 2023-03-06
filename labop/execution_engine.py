@@ -364,9 +364,11 @@ class ManualExecutionEngine(ExecutionEngine):
             }
         )
         # ready_nodes = "\n".join([f"{idx}: {r.behavior}" for idx, r in enumerate(ready)])
-        return "<div style='height: 200px; overflow: auto; width: fit-content'>" +
-             choices.to_html() +
-             "</div>"
+        return (
+            "<div style='height: 200px; overflow: auto; width: fit-content'>"
+            + choices.to_html()
+            + "</div>"
+        )
         # return choices #f"{msg}{ready_nodes}"
 
     def next(self, activity_node: uml.ActivityNode, node_output: callable):
