@@ -57,7 +57,7 @@ class TestProtocolOutputs(unittest.TestCase):
 
         self.assertTrue(isinstance(ex.parameter_values[0].value, uml.LiteralReference))
         self.assertTrue(isinstance(ex.parameter_values[0].value.value.lookup(),
-                                   labop.SampleData))
+                                   labop.Dataset))
 
     def test_default_compute_output(self):
         # This test confirms generation of an output token using the default

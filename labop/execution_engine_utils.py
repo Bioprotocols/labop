@@ -784,7 +784,7 @@ def activity_node_execution_get_value(
             value = self.get_parameter_value(
                 parameter, node_outputs, sample_format
             )
-            reference = value.identity != None
+            reference = isinstance(value, sbol3.Identified) and value.identity != None
 
     value = uml.literal(value, reference=reference)
     return value

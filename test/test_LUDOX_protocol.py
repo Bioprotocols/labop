@@ -9,7 +9,7 @@ from importlib.util import spec_from_loader, module_from_spec
 import sbol3
 
 import labop
-
+from helpers import file_diff, OUT_DIR
 
 # Save testfiles as artifacts when running in CI environment,
 # else save them to a local temp directory
@@ -65,6 +65,8 @@ class TestProtocolEndToEnd(unittest.TestCase):
         )
         # doc.write(comparison_file, sbol3.SORTED_NTRIPLES)
         print(f"Comparing against {comparison_file}")
+        diff = "".join(file_diff(comparison_file, temp_name))
+        print(f"Difference: {diff}")
         assert filecmp.cmp(
             temp_name, comparison_file
         ), "Files are not identical"
