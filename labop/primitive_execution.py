@@ -105,11 +105,11 @@ def empty_container_compute_output(self, inputs, parameter, sample_format):
             sample_array = input_map["sample_array"]
         else:
             spec = input_map["specification"]
-            contents = self.initialize_contents(sample_format)
+            initial_contents = self.initialize_contents(sample_format)
             name = f"{parameter.name}"
             sample_array = labop.SampleArray(name=name,
                                     container_type=spec,
-                                    contents=contents)
+                                    initial_contents=initial_contents)
             # This attribute isn't formally specified in the ontology yet, but supports handling of different sample formats by BehaviorSpecialiations
             sample_array.format = sample_format
         return sample_array
@@ -200,7 +200,7 @@ def measure_absorbance_compute_output(self, inputs, parameter, sample_format):
         if sample_format == 'xarray':
             data = json.dumps(samples.initialize_dataset("absorbance").to_dict())
         elif sample_format == 'json':
-            data = quote(json.dumps({k: None for k, v in json.loads(unquote(input_map["samples"].contents)).items()}))
+            data = quote(json.dumps({k: None for k, v in json.loads(unquote(input_map["samples"].initial_contents)).items()}))
         else:
             raise Exception(f"Cannot initialize contents of: {self.identity}")
 
@@ -215,11 +215,11 @@ def transfer_by_map_compute_output(self, inputs, parameter, sample_format):
         target = input_map["destination"]
         plan  = input_map["plan"]
         spec = source.container_type
-        contents = self.transfer_out(source, target, plan, sample_format)
+        initial_contents = self.transfer_out(source, target, plan, sample_format)
         name = f"{parameter.name}"
         result = labop.SampleArray(name=name,
                                    container_type=spec,
-                                   contents=contents)
+                                   initial_contents=initial_contents)
     elif parameter.name == "destinationResult" and \
          parameter.type == 'http://bioprotocols.org/labop#SampleCollection':
         input_map = input_parameter_map(inputs)
@@ -227,11 +227,11 @@ def transfer_by_map_compute_output(self, inputs, parameter, sample_format):
         target = input_map["destination"]
         plan  = input_map["plan"]
         spec = source.container_type
-        contents = self.transfer_in(source, target, plan, sample_format)
+        initial_contents = self.transfer_in(source, target, plan, sample_format)
         name = f"{parameter.name}"
         result = labop.SampleArray(name=name,
                                    container_type=spec,
-                                   contents=contents)
+                                   initial_contents=initial_contents)
     return result
 
 
