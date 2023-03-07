@@ -101,14 +101,17 @@ def empty_container_compute_output(self, inputs, parameter, sample_format):
        parameter.type == 'http://bioprotocols.org/labop#SampleArray':
         # Make a SampleArray
         input_map = input_parameter_map(inputs)
-        spec = input_map["specification"]
-        initial_contents = self.initialize_contents(sample_format)
-        name = f"{parameter.name}"
-        sample_array = labop.SampleArray(name=name,
-                                   container_type=spec,
-                                   initial_contents=initial_contents)
-        # This attribute isn't formally specified in the ontology yet, but supports handling of different sample formats by BehaviorSpecialiations
-        sample_array.format = sample_format
+        if 'sample_array' in input_map:
+            sample_array = input_map["sample_array"]
+        else:
+            spec = input_map["specification"]
+            initial_contents = self.initialize_contents(sample_format)
+            name = f"{parameter.name}"
+            sample_array = labop.SampleArray(name=name,
+                                    container_type=spec,
+                                    initial_contents=initial_contents)
+            # This attribute isn't formally specified in the ontology yet, but supports handling of different sample formats by BehaviorSpecialiations
+            sample_array.format = sample_format
         return sample_array
     else:
         return None
@@ -193,8 +196,44 @@ def measure_absorbance_compute_output(self, inputs, parameter, sample_format):
        parameter.type == 'http://bioprotocols.org/labop#SampleData':
         input_map = input_parameter_map(inputs)
         samples = input_map["samples"]
-        sample_data = labop.SampleData(from_samples=samples)
+
+        if sample_format == 'xarray':
+            data = json.dumps(samples.initialize_dataset("absorbance").to_dict())
+        elif sample_format == 'json':
+            data = quote(json.dumps({k: None for k, v in json.loads(unquote(input_map["samples"].initial_contents)).items()}))
+        else:
+            raise Exception(f"Cannot initialize contents of: {self.identity}")
+
+        sample_data = labop.SampleData(from_samples=samples, values=data)
         return sample_data
+
+def transfer_by_map_compute_output(self, inputs, parameter, sample_format):
+    if parameter.name == "sourceResult" and \
+       parameter.type == 'http://bioprotocols.org/labop#SampleCollection':
+        input_map = input_parameter_map(inputs)
+        source = input_map["source"]
+        target = input_map["destination"]
+        plan  = input_map["plan"]
+        spec = source.container_type
+        initial_contents = self.transfer_out(source, target, plan, sample_format)
+        name = f"{parameter.name}"
+        result = labop.SampleArray(name=name,
+                                   container_type=spec,
+                                   initial_contents=initial_contents)
+    elif parameter.name == "destinationResult" and \
+         parameter.type == 'http://bioprotocols.org/labop#SampleCollection':
+        input_map = input_parameter_map(inputs)
+        source = input_map["source"]
+        target = input_map["destination"]
+        plan  = input_map["plan"]
+        spec = source.container_type
+        initial_contents = self.transfer_in(source, target, plan, sample_format)
+        name = f"{parameter.name}"
+        result = labop.SampleArray(name=name,
+                                   container_type=spec,
+                                   initial_contents=initial_contents)
+    return result
+
 
 primitive_to_output_function = {
     "EmptyContainer" : empty_container_compute_output,
@@ -203,12 +242,13 @@ primitive_to_output_function = {
     "EmptyInstrument": empty_rack_compute_output,
     "EmptyRack": empty_rack_compute_output,
     "LoadContainerOnInstrument": load_container_on_instrument_compute_output,
+    "TransferByMap": transfer_by_map_compute_output,
 }
 
 def initialize_primitive_compute_output(doc: sbol3.Document):
     for k, v in primitive_to_output_function.items():
         try:
-            p = labop.get_primitive(doc, k)
+            p = labop.get_primitive(doc, k, copy_to_doc=False)
             p.compute_output = types.MethodType(v, p)
         except Exception as e:
             l.warn(f"Could not set compute_output() for primitive {k}, did you import the correct library?")
@@ -251,14 +291,8 @@ def primitive_compute_output(self, inputs, parameter, sample_format):
 labop.Primitive.compute_output = primitive_compute_output
 
 def empty_container_initialize_contents(self, sample_format, geometry='A1:H12'):
-    #if self.identity == 'https://bioprotocols.org/labop/primitives/sample_arrays/EmptyContainer':
-    # FIXME need to find a definition of the container topology from the type
-    # FIXME this assumes a 96 well plate
 
-    l.warn("Warning: Assuming that the SampleArray is a 96 well microplate!")
     aliquots = get_aliquot_list(geometry)
-    #initial_contents = json.dumps(xr.DataArray(dims=("aliquot", "initial_contents"),
-    #                                   coords={"aliquot": aliquots}).to_dict())
     if sample_format == 'xarray':
         initial_contents = json.dumps(xr.DataArray(aliquots, dims=("aliquot")).to_dict())
     elif sample_format == 'json':
@@ -267,6 +301,54 @@ def empty_container_initialize_contents(self, sample_format, geometry='A1:H12'):
         raise Exception(f"Cannot initialize contents of: {self.identity}")
     return initial_contents
 labop.Primitive.initialize_contents = empty_container_initialize_contents
+
+def transfer_out(self, source, target, plan, sample_format):
+    if sample_format == 'xarray':
+        sourceResult, targetResult = self.transfer(source, target, plan, sample_format)
+        return json.dumps(sourceResult.to_dict())
+    elif sample_format == 'json':
+        contents = quote(json.dumps({c: None for c in aliquots}))
+    else:
+        raise Exception(f"Cannot initialize contents of: {self.identity}")
+    return contents
+labop.Primitive.transfer_out = transfer_out
+
+def transfer_in(self, source, target, plan, sample_format):
+    if sample_format == 'xarray':
+        sourceResult, targetResult = self.transfer(source, target, plan, sample_format)
+        return json.dumps(targetResult.to_dict())
+    elif sample_format == 'json':
+        contents = quote(json.dumps({c: None for c in aliquots}))
+    else:
+        raise Exception(f"Cannot initialize contents of: {self.identity}")
+    return contents
+labop.Primitive.transfer_in = transfer_in
+
+def transfer(self, source, target, plan, sample_format):
+    if sample_format == 'xarray':
+        source_contents = source.to_data_array()
+        target_contents = target.to_data_array()
+        transfer = plan.get_map()
+        if source.name in transfer.source_array and target.name in transfer.target_array:
+            source_result = source_contents.rename({"aliquot": "source_aliquot", "array": "source_array"})
+            target_result = target_contents.rename({"aliquot": "target_aliquot", "array": "target_array"})
+            source_concentration = source_result / source_result.sum(dim="contents")
+
+            amount_transferred = source_concentration * transfer
+
+            source_result = source_result - amount_transferred.sum(dim=["target_aliquot", "target_array"])
+            target_result = target_result + amount_transferred.sum(dim=["source_aliquot", "source_array"])
+
+            return source_result, target_result
+        else:
+            return source_contents, target_contents
+
+    elif sample_format == 'json':
+        contents = quote(json.dumps({c: None for c in aliquots}))
+    else:
+        raise Exception(f"Cannot initialize contents of: {self.identity}")
+    return contents
+labop.Primitive.transfer = transfer
 
 def declare_primitive(
     document: sbol3.Document,

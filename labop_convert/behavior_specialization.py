@@ -1,3 +1,4 @@
+import sys
 import os
 from abc import ABC, abstractmethod
 import sys
@@ -13,14 +14,12 @@ import tyto
 l = logging.getLogger(__file__)
 l.setLevel(logging.WARN)
 
-
 container_ontology_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), '../labop/container-ontology.ttl')
 ContO = tyto.Ontology(path=container_ontology_path, uri='https://sift.net/container-ontology/container-ontology')
 
-
-
 class BehaviorSpecializationException(Exception):
     pass
+
 
 class ContainerAPIException(Exception):
     pass
@@ -37,12 +36,16 @@ class BehaviorSpecialization(ABC):
         self._behavior_func_map = self._init_behavior_func_map()
         self.top_protocol = None
         self.execution = None
+        self.issues = []
+        self.out_dir = None
+        self.objects = {}
 
         # This data field holds the results of the specialization
         self.data = []
 
-    def initialize_protocol(self, execution: labop.ProtocolExecution):
+    def initialize_protocol(self, execution: labop.ProtocolExecution, out_dir=None):
         self.execution = execution
+        self.out_dir = out_dir
 
     def _init_behavior_func_map(self) -> dict:
         return {}
@@ -51,46 +54,81 @@ class BehaviorSpecialization(ABC):
         self.data = []
 
     def on_end(self, execution: labop.ProtocolExecution):
-        self.data = json.dumps(self.data)
+        try:
+            dot_graph = execution.to_dot()
+            self.data.append(str(dot_graph.source))
+        except Exception as e:
+            msg = "Could not render dot graph for execution in DefaultBehaviorSpecialization"
+            l.warn(msg)
+            self.issues.append(msg)
 
+        self.data = json.dumps(self.data)
+        if self.out_dir:
+            with open(os.path.join(self.out_dir, f"{self.__class__.__name__}.json"), "w") as f:
+                f.write(self.data)
 
     def process(self, record, execution: labop.ProtocolExecution):
         try:
             node = record.node.lookup()
             if not isinstance(node, uml.CallBehaviorAction):
-                return # raise BehaviorSpecializationException(f"Cannot handle node type: {type(node)}")
+                return  # raise BehaviorSpecializationException(f"Cannot handle node type: {type(node)}")
 
             # Subprotocol specializations
             behavior = node.behavior.lookup()
             if isinstance(behavior, labop.Protocol):
-                return self._behavior_func_map[behavior.type_uri](record, execution)
+                return self._behavior_func_map[behavior.type_uri](
+                    record, execution
+                )
 
             # Individual Primitive specializations
             elif str(node.behavior) not in self._behavior_func_map:
-                l.warning(f"Failed to find handler for behavior: {node.behavior}")
+                l.warning(
+                    f"Failed to find handler for behavior: {node.behavior}"
+                )
                 return self.handle(record, execution)
-            return self._behavior_func_map[str(node.behavior)](record, execution)
+            return self._behavior_func_map[str(node.behavior)](
+                record, execution
+            )
         except Exception as e:
-            l.warning(f"{self.__class__} Could not process() ActivityNodeException: {record}: {e}")
+            l.warn(
+                f"{self.__class__} Could not process() ActivityNodeException: {record}: {e}"
+            )
             self.handle_process_failure(record, e)
 
     def handle_process_failure(self, record, e):
+        self.issues.append(e)
         raise e
 
     def handle(self, record, execution):
         # Save basic information about the execution record
         node = record.node.lookup()
-        params = input_parameter_map([
-            pv for pv in record.call.lookup().parameter_values
-            if pv.parameter.lookup().property_value.direction == uml.PARAMETER_IN
-            ])
+        params = input_parameter_map(
+            [
+                pv
+                for pv in record.call.lookup().parameter_values
+                if pv.parameter.lookup().property_value.direction
+                == uml.PARAMETER_IN
+            ]
+        )
         params = {p: str(v) for p, v in params.items()}
         node_data = {
             "identity": node.identity,
             "behavior": node.behavior,
-            "parameters" : params
+            "parameters": params,
         }
+        self.update_objects(record)
         self.data.append(node_data)
+
+    def update_objects(self, record: labop.ActivityNodeExecution):
+        """
+        Update the objects processed by the record.
+
+        Parameters
+        ----------
+        record : labop.ActivityNodeExecution
+            A step that modifies objects.
+        """
+        pass
 
     def resolve_container_spec(self, spec, addl_conditions=None):
         # Attempt to infer container instances using the remote container ontology
@@ -118,7 +156,7 @@ class BehaviorSpecialization(ABC):
             possible_container_types = container_uri.get_instances()
         return possible_container_types
 
-    def get_container_typename(self, container_uri: str) -> str: 
+    def get_container_typename(self, container_uri: str) -> str:
         # Returns human-readable typename for a container, e.g., '96 well plate'
         return ContO.get_term_by_uri(container_uri)
 
@@ -128,14 +166,14 @@ class BehaviorSpecialization(ABC):
 
 
 class DefaultBehaviorSpecialization(BehaviorSpecialization):
-
     def _init_behavior_func_map(self) -> dict:
         return {
-            "https://bioprotocols.org/labop/primitives/sample_arrays/EmptyContainer" : self.handle,
-            "https://bioprotocols.org/labop/primitives/liquid_handling/Provision" : self.handle,
-            "https://bioprotocols.org/labop/primitives/sample_arrays/PlateCoordinates" : self.handle,
-            "https://bioprotocols.org/labop/primitives/spectrophotometry/MeasureAbsorbance" : self.handle,
-            "http://bioprotocols.org/labop#Protocol": self.handle
+            "https://bioprotocols.org/labop/primitives/sample_arrays/EmptyContainer": self.handle,
+            "https://bioprotocols.org/labop/primitives/liquid_handling/Provision": self.handle,
+            "https://bioprotocols.org/labop/primitives/sample_arrays/PlateCoordinates": self.handle,
+            "https://bioprotocols.org/labop/primitives/spectrophotometry/MeasureAbsorbance": self.handle,
+            "https://bioprotocols.org/labop/primitives/liquid_handling/TransferByMap": self.handle,
+            "http://bioprotocols.org/labop#Protocol": self.handle,
         }
 
 
@@ -158,6 +196,3 @@ def validate_spec_query(query: str) -> "tyto.URI":
         return tyto.URI(query.replace('cont:', ContO.uri + '#'), ContO)
 
     raise ValueError(f"Cannot resolve container specification '{query}'. Is the query malformed?")
-
-
-

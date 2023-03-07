@@ -91,7 +91,7 @@ uml.DecisionNode.add_decision_output = decision_node_add_decision_output # Add t
 def decision_node_get_primary_incoming_flow(self, protocol):
     try:
         primary_incoming_flow = next(e for e in protocol.edges
-                                       if e.target.lookup() == self and \
+                                       if e.target is not None and e.target.lookup() == self and \
                                           e != self.decision_input_flow and \
                                           not (isinstance(e.source.lookup(), uml.OutputPin) and \
                                                e.source.lookup().get_parent().behavior == self.decision_input))

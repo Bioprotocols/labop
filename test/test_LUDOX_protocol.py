@@ -13,17 +13,19 @@ import labop
 
 # Save testfiles as artifacts when running in CI environment,
 # else save them to a local temp directory
-if 'GH_TMPDIR' in os.environ:
-    TMPDIR = os.environ['GH_TMPDIR']
+if "GH_TMPDIR" in os.environ:
+    TMPDIR = os.environ["GH_TMPDIR"]
 else:
     TMPDIR = tempfile.gettempdir()
 
 
-protocol_def_file = os.path.join(os.path.dirname(__file__), '../examples/LUDOX_protocol.py')
+protocol_def_file = os.path.join(
+    os.path.dirname(__file__), "../examples/LUDOX_protocol.py"
+)
 
 
 def load_ludox_protocol(protocol_filename):
-    loader = SourceFileLoader('ludox_protocol', protocol_filename)
+    loader = SourceFileLoader("ludox_protocol", protocol_filename)
     spec = spec_from_loader(loader.name, loader)
     module = module_from_spec(spec)
     loader.exec_module(module)
@@ -43,25 +45,31 @@ class TestProtocolEndToEnd(unittest.TestCase):
 
         ########################################
         # Validate and write the document
-        print('Validating and writing protocol')
+        print("Validating and writing protocol")
         v = doc.validate()
-        assert len(v) == 0, "".join(f'\n {e}' for e in v)
+        assert len(v) == 0, "".join(f"\n {e}" for e in v)
 
-        temp_name = os.path.join(TMPDIR, 'igem_ludox_test.nt')
+        temp_name = os.path.join(TMPDIR, "igem_ludox_test.nt")
 
         # At some point, rdflib began inserting an extra newline into
         # N-triple serializations, which breaks file comparison.
         # Here we strip extraneous newlines, to maintain reverse compatibility
-        with open(temp_name, 'w') as f:
+        with open(temp_name, "w") as f:
             f.write(doc.write_string(sbol3.SORTED_NTRIPLES).strip())
-        print(f'Wrote file as {temp_name}')
+        print(f"Wrote file as {temp_name}")
 
-        comparison_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'testfiles', 'igem_ludox_test.nt')
+        comparison_file = os.path.join(
+            os.path.dirname(os.path.realpath(__file__)),
+            "testfiles",
+            "igem_ludox_test.nt",
+        )
         # doc.write(comparison_file, sbol3.SORTED_NTRIPLES)
-        print(f'Comparing against {comparison_file}')
-        assert filecmp.cmp(temp_name, comparison_file), "Files are not identical"
-        print('File identical with test file')
+        print(f"Comparing against {comparison_file}")
+        assert filecmp.cmp(
+            temp_name, comparison_file
+        ), "Files are not identical"
+        print("File identical with test file")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

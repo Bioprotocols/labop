@@ -209,7 +209,7 @@ def behavior_get_output(self, name) -> Parameter:
     -------
     Parameter, or Value error
     """
-    found = [p for p in self.get_outputs() if p.name == name]
+    found = [p.property_value for p in self.get_outputs() if p.property_value.name == name]
     if len(found) == 0:
         raise ValueError(f'Behavior {self.identity} has no output parameter named {name}')
     elif len(found) > 1:

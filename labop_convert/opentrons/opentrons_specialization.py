@@ -11,7 +11,6 @@ import sbol3
 import tyto
 import labop
 import uml
-
 from labop_convert.behavior_specialization import BehaviorSpecialization
 
 
@@ -305,20 +304,22 @@ class OT2Specialization(BehaviorSpecialization):
 
         # Trace the "source" pin back to the EmptyContainer to retrieve the
         # ContainerSpec for the destination container
-        upstream_execution = get_token_source('source', record)
+        upstream_execution = record.get_token_source(parameter_value_map["source"]["parameter"].property_value)
         behavior_type = get_behavior_type(upstream_execution)
         if behavior_type == 'PlateCoordinates':
-            coordinates = upstream_execution.call.lookup().parameter_value_map()['coordinates']['value']
-            upstream_execution = get_token_source('source', upstream_execution)  # EmptyContainer
+            upstream_map = upstream_execution.call.lookup().parameter_value_map()
+            coordinates = upstream_map['coordinates']['value']
+            upstream_execution = upstream_execution.get_token_source(upstream_map["source"]["parameter"].property_value)  # EmptyContainer
             parameter_value_map = upstream_execution.call.lookup().parameter_value_map()
             source_container = parameter_value_map['specification']['value']
         elif behavior_type == 'LoadContainerInRack':
-            upstream_execution = get_token_source('slots', upstream_execution)  # EmptyRack
+            upstream_execution = upstream_execution.get_token_source(upstream_map['slots']["parameter"].property_value)  # EmptyRack
             parameter_value_map = upstream_execution.call.lookup().parameter_value_map()
             source_container = parameter_value_map['specification']['value']
         elif behavior_type == 'LoadContainerOnInstrument':
-            coordinates = upstream_execution.call.lookup().parameter_value_map()['slots']['value']
-            upstream_execution = get_token_source('container', upstream_execution)  # EmptyContainer
+            upstream_map = upstream_execution.call.lookup().parameter_value_map()
+            coordinates = upstream_map['slots']['value']
+            upstream_execution = upstream_execution.get_token_source(upstream_map['container']["parameter"].property_value)  # EmptyContainer
             parameter_value_map = upstream_execution.call.lookup().parameter_value_map()
             source_container = parameter_value_map['specification']['value']
 
@@ -336,17 +337,20 @@ class OT2Specialization(BehaviorSpecialization):
 
         # Trace the "destination" pin back to the EmptyContainer execution
         # to retrieve the ContainerSpec for the destination container
-        upstream_execution = get_token_source('destination', record)
+        parameter_value_map = call.parameter_value_map()
+        upstream_execution = record.get_token_source(parameter_value_map['destination']["parameter"].property_value)
         behavior_type = get_behavior_type(upstream_execution)
         if behavior_type == 'PlateCoordinates':
-            coordinates = upstream_execution.call.lookup().parameter_value_map()['coordinates']['value']
-            upstream_execution = get_token_source('source', upstream_execution)  # EmptyContainer
+            upstream_map = upstream_execution.call.lookup().parameter_value_map()
+            coordinates = upstream_map['coordinates']['value']
+            upstream_execution = upstream_execution.get_token_source(upstream_map["source"]["parameter"].property_value)  # EmptyContainer
             parameter_value_map = upstream_execution.call.lookup().parameter_value_map()
             destination_container = parameter_value_map['specification']['value']
 
         elif behavior_type == 'LoadContainerOnInstrument':
-            coordinates = upstream_execution.call.lookup().parameter_value_map()['slots']['value']
-            upstream_execution = get_token_source('container', upstream_execution)  # EmptyContainer
+            upstream_map = upstream_execution.call.lookup().parameter_value_map()
+            coordinates = upstream_map['slots']['value']
+            upstream_execution = upstream_execution.get_token_source(upstream_map['container']["parameter"].property_value)  # EmptyContainer
             parameter_value_map = upstream_execution.call.lookup().parameter_value_map()
             destination_container = parameter_value_map['specification']['value']
 
