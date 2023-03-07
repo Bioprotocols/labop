@@ -13,6 +13,7 @@ import os
 
 import sbol3
 import labop
+from labop.strings import Strings
 from labop_convert.plate_coordinates import get_sample_list
 
 import uml
@@ -22,18 +23,6 @@ from typing import List, Dict, Union
 import logging
 l = logging.getLogger(__file__)
 l.setLevel(logging.ERROR)
-
-class Strings:
-    ALIQUOT = "aliquot"
-    SAMPLE = "sample"
-    METADATA= "metadata"
-    DATA = "data"
-    XARRAY = "xarray"
-    JSON = "json"
-    MASK = "mask"
-    MEASUREMENT = "measurement"
-    CONTENTS = "contents"
-    SOURCE = "source"
 
 
 def protocol_execution_set_data(self, dataset):
@@ -172,7 +161,7 @@ labop.SampleMask.from_coordinates = sample_mask_from_coordinates
 
 def sample_mask_get_coordinates(self):
     mask = self.to_data_array()
-    return [c for c in mask.aliquot.data if mask.loc[c]]
+    return [c for c in mask[Strings.SAMPLE].data if mask.loc[c]]
 labop.SampleMask.get_coordinates = sample_mask_get_coordinates
 
 

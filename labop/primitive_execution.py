@@ -1,9 +1,13 @@
 import types
 import logging
-import sbol3
-import labop
-import uml
 from typing import List, Dict
+
+import sbol3
+
+import labop
+import labop.data
+from labop.lab_interface import LabInterface
+import uml
 
 l = logging.getLogger(__file__)
 l.setLevel(logging.ERROR)
@@ -187,9 +191,15 @@ def measure_absorbance_compute_output(self, inputs, parameter, sample_format):
        parameter.type == 'http://bioprotocols.org/labop#Dataset':
         input_map = input_parameter_map(inputs)
         samples = input_map["samples"]
+        wl = input_map["wavelength"]
 
-        # FIXME Bryan create the metadata.descriptions below from the input pins
-        sample_data = labop.SampleData(from_samples=samples)
+        if sample_format == 'xarray':
+            measurements = LabInterface.measure_absorbance(samples.get_coordinates(), wl.value, sample_format)
+        elif sample_format == 'json':
+            measurements == ''
+        else:
+            raise ValueException(f'Sample format {sample_format} not supported')
+        sample_data = labop.SampleData(from_samples=samples, values=measurements)
         sample_metadata = labop.SampleMetadata.for_primitive(self, input_map, samples) #labop.SampleMetadata(descriptions=None, for_samples=samples)
         sample_dataset = labop.Dataset(data=sample_data, metadata=[sample_metadata])
         return sample_dataset
