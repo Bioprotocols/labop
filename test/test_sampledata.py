@@ -30,15 +30,15 @@ else:
 protocol_def_file = os.path.join(os.path.dirname(__file__), '../examples/LUDOX_protocol.py')
 
 
-# def load_ludox_protocol(protocol_filename):
-#     loader = SourceFileLoader('ludox_protocol', protocol_filename)
-#     spec = spec_from_loader(loader.name, loader)
-#     module = module_from_spec(spec)
-#     loader.exec_module(module)
-#     return module
+def load_ludox_protocol(protocol_filename):
+    loader = SourceFileLoader('ludox_protocol', protocol_filename)
+    spec = spec_from_loader(loader.name, loader)
+    module = module_from_spec(spec)
+    loader.exec_module(module)
+    return module
 
 
-# protocol_def = load_ludox_protocol(protocol_def_file)
+protocol_def = load_ludox_protocol(protocol_def_file)
 
 
 class TestProtocolEndToEnd(unittest.TestCase):

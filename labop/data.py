@@ -356,20 +356,16 @@ def sample_metadata_for_primitive(primitive: labop.Primitive,
     sample_array = for_samples.to_data_array()
 
     # Create new metadata for each input to primitive, aside from for_samples
-    inputs_meta = {k:v.identity for k, v in inputs.items() if v != for_samples}
+    inputs_meta = {k: xr.DataArray(
+            [v.identity]*len(sample_array.coords[Strings.SAMPLE]),
+            dims=Strings.SAMPLE,
+            coords=sample_array.coords
+        )
+        for k, v in inputs.items() if v != for_samples
+    }
+
     if sample_format == Strings.XARRAY:
 
-        # values = [v.identity for v in inputs_meta.values()]
-
-        # primitive_array = xr.DataArray(
-        #     [values for s in sample_array.coords[Strings.SAMPLE]],
-        #     name=primitive.identity,
-        #     dims=(Strings.SAMPLE, Strings.METADATA),
-        #     coords={
-        #         Strings.SAMPLE: sample_array.coords[Strings.SAMPLE],
-        #         Strings.METADATA: list(inputs_meta.keys())
-        #         }
-        # )
         metadata_dataset = xr.Dataset(inputs_meta, coords=sample_array.coords)
         if record_source:
             metadata_dataset = metadata_dataset.expand_dims({"source": [metadata.identity]})

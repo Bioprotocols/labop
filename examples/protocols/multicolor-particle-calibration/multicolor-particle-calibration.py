@@ -5,16 +5,18 @@ import os
 
 import labop
 import sbol3
-import json
-import xarray as xr
-import pandas as pd
 
 from tyto import OM
 from labop.execution_engine import ExecutionEngine
 from labop_convert.markdown.markdown_specialization import MarkdownSpecialization
 
-from labop_convert.plate_coordinates import get_sample_list
 
+
+OUT_DIR = os.path.join(
+    os.path.dirname(__file__), "artifacts"
+)
+if not os.path.exists(OUT_DIR):
+    os.mkdir(OUT_DIR)
 
 doc = sbol3.Document()
 sbol3.set_namespace('http://igem.org/engineering/')
@@ -446,14 +448,18 @@ final_dataset = protocol.primitive_step("JoinDatasets",
                               )
 protocol.designate_output('dataset', 'http://bioprotocols.org/labop#Dataset', source=final_dataset.output_pin('joint_dataset'))
 
-ee = ExecutionEngine(specializations=[
-        # MarkdownSpecialization(__file__.split('.')[0] + '.md')
+ee = ExecutionEngine(
+    out_dir=OUT_DIR,
+    specializations=[
+        MarkdownSpecialization(__file__.split('.')[0] + '.md')
     ],
-    failsafe=False, sample_format='xarray')
+    failsafe=False,
+    sample_format='xarray'
+)
 execution = ee.execute(protocol, sbol3.Agent('test_agent'), id="test_execution", parameter_values=[])
 
 dataset = ee.ex.parameter_values[0].value.get_value().to_dataset()
-with open(__file__.split('.')[0] + '.csv', 'w', encoding='utf-8') as f:
+with open(os.path.join(OUT_DIR, __file__.split('.')[0] + '.csv'), 'w', encoding='utf-8') as f:
     f.write(dataset.to_dataframe().to_csv())
 
 print(execution.markdown)
@@ -463,5 +469,5 @@ execution.markdown = execution.markdown.replace(' milliliter', 'mL')
 execution.markdown = execution.markdown.replace(' nanometer', 'nm')
 execution.markdown = execution.markdown.replace(' microliter', 'uL')
 
-with open(__file__.split('.')[0] + '.md', 'w', encoding='utf-8') as f:
+with open(os.path.join(OUT_DIR, __file__.split('.')[0] + '.md'), 'w', encoding='utf-8') as f:
     f.write(execution.markdown)

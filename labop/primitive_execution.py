@@ -162,6 +162,21 @@ def measure_absorbance_compute_output(self, inputs, parameter, sample_format):
         sample_dataset = labop.Dataset(data=sample_data, metadata=[sample_metadata])
         return sample_dataset
 
+def measure_fluorescence_compute_output(self, inputs, parameter, sample_format):
+    if parameter.name == "measurements" and \
+       parameter.type == 'http://bioprotocols.org/labop#Dataset':
+        input_map = input_parameter_map(inputs)
+        samples = input_map["samples"]
+        exwl = input_map["excitationWavelength"]
+        emwl = input_map["emissionWavelength"]
+        bandpass = input_map["emissionBandpassWidth"]
+
+        measurements = LabInterface.measure_fluorescence(samples.get_coordinates(), exwl.value, emwl.value, bandpass.value,  sample_format)
+        sample_data = labop.SampleData(from_samples=samples, values=measurements)
+        sample_metadata = labop.SampleMetadata.for_primitive(self, input_map, samples, sample_format=sample_format)
+        sample_dataset = labop.Dataset(data=sample_data, metadata=[sample_metadata])
+        return sample_dataset
+
 def join_metadata_compute_output(self, inputs, parameter, sample_format):
     if parameter.name == "enhanced_dataset" and \
        parameter.type == 'http://bioprotocols.org/labop#Dataset':
@@ -202,10 +217,8 @@ def compute_metadata_compute_output(self, inputs, parameter, sample_format):
 primitive_to_output_function = {
     "EmptyContainer" : empty_container_compute_output,
     "PlateCoordinates" : plate_coordinates_compute_output,
-
-    # FIXME Bryan we need a version of what is here for MeasureAbsorbance for MeasureFluourescence
-
     "MeasureAbsorbance": measure_absorbance_compute_output,
+    "MeasureFluorescence": measure_fluorescence_compute_output,
     "EmptyInstrument": empty_rack_compute_output,
     "EmptyRack": empty_rack_compute_output,
     "LoadContainerOnInstrument": load_container_on_instrument_compute_output,
