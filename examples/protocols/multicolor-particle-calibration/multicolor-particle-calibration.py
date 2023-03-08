@@ -446,18 +446,22 @@ final_dataset = protocol.primitive_step("JoinDatasets",
                               )
 protocol.designate_output('dataset', 'http://bioprotocols.org/labop#Dataset', source=final_dataset.output_pin('joint_dataset'))
 
-ee = ExecutionEngine(specializations=[MarkdownSpecialization(__file__.split('.')[0] + '.md')], failsafe=False, sample_format='xarray')
+ee = ExecutionEngine(specializations=[
+        # MarkdownSpecialization(__file__.split('.')[0] + '.md')
+    ],
+    failsafe=False, sample_format='xarray')
 execution = ee.execute(protocol, sbol3.Agent('test_agent'), id="test_execution", parameter_values=[])
+
+dataset = ee.ex.parameter_values[0].value.get_value().to_dataset()
+with open(__file__.split('.')[0] + '.csv', 'w', encoding='utf-8') as f:
+    f.write(dataset.to_dataframe().to_csv())
+
 print(execution.markdown)
 
 # Dress up the markdown to make it pretty and more readable
 execution.markdown = execution.markdown.replace(' milliliter', 'mL')
 execution.markdown = execution.markdown.replace(' nanometer', 'nm')
 execution.markdown = execution.markdown.replace(' microliter', 'uL')
-
-dataset = ee.ex.parameter_values[0].value.get_value().to_dataset()
-with open(__file__.split('.')[0] + '.csv', 'w', encoding='utf-8') as f:
-    f.write(dataset.to_dataframe().to_csv())
 
 with open(__file__.split('.')[0] + '.md', 'w', encoding='utf-8') as f:
     f.write(execution.markdown)
