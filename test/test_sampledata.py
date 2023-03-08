@@ -18,7 +18,7 @@ from tyto import OM
 from numpy import nan
 
 from labop_convert.plate_coordinates import get_sample_list
-from helpers import file_diff, OUT_DIR, initialize_protocol
+from labop.utils.helpers import file_diff, OUT_DIR, initialize_protocol
 
 # Save testfiles as artifacts when running in CI environment,
 # else save them to a local temp directory
@@ -63,65 +63,56 @@ class TestProtocolEndToEnd(unittest.TestCase):
         #     dims=("sample"),
         #     coords={"sample": samples}
         #     )
-        initial_contents = xr.DataArray(samples,
-                                        dims=(labop.Strings.SAMPLE),
-                                        coords={labop.Strings.SAMPLE: samples})
-        sample_array = labop.SampleArray(container_type=labop.ContainerSpec("dummy_spec"),
-                                         initial_contents=labop.serialize_sample_format(initial_contents))
+        # initial_contents = xr.DataArray(samples,
+        #                                 dims=(labop.Strings.SAMPLE),
+        #                                 coords={labop.Strings.SAMPLE: samples})
+        # sample_array = labop.SampleArray(container_type=labop.ContainerSpec("dummy_spec"),
+        #                                  initial_contents=labop.serialize_sample_format(initial_contents))
 
-        container_spec = labop.ContainerSpec('abstractPlateRequirement1',
-                                         name='abstractPlateRequirement1')
-        create_source = protocol.primitive_step('EmptyContainer', specification=container_spec, sample_array=sample_array)
+        # container_spec = labop.ContainerSpec('abstractPlateRequirement1',
+        #                                  name='abstractPlateRequirement1')
+        # create_source = protocol.primitive_step('EmptyContainer', specification=container_spec, sample_array=sample_array)
 
-        create_coordinates = protocol.primitive_step('PlateCoordinates', source=create_source.output_pin('samples'), coordinates="A1:B12")
+        # Define the type of container
+        container_type = container_type = labop.ContainerSpec('deep96')
 
-        measure_absorbance = protocol.primitive_step('MeasureAbsorbance',
-                                             samples=create_coordinates.output_pin('samples'),
-                                             wavelength=sbol3.Measure(600, OM.nanometer))
+        # Create an activity to create the container.
+        create_source = protocol.primitive_step(
+            'EmptyContainer',
+            specification=container_type
+        )
 
-        load_excel = protocol.primitive_step('ExcelMetadata',
-                                     for_samples=measure_absorbance.output_pin('measurements'),
-                                     filename=os.path.join(os.path.dirname(
-                                                  os.path.realpath(__file__)),
-                                                  'metadata/measure_absorbance.xlsx'))
+        create_coordinates = protocol.primitive_step(
+            'PlateCoordinates',
+            source=create_source.output_pin('samples'),
+            coordinates="A1:B12"
+        )
 
-        meta1 = protocol.primitive_step("JoinMetadata",
-                              data=measure_absorbance.output_pin('measurements'),
-                              metadata=load_excel.output_pin('metadata'))
-        protocol.designate_output('dataset', 'http://bioprotocols.org/labop#Dataset', source=meta1.output_pin('dataset'))
+        measure_absorbance = protocol.primitive_step(
+            'MeasureAbsorbance',
+            samples=create_coordinates.output_pin('samples'),
+             wavelength=sbol3.Measure(600, OM.nanometer)
+        )
 
-        # smd = labop.SampleMetadata(for_samples=sample_array)
-        # meta4 = protocol.primitive_step("JoinMetadata",
-        #                       data=measure_absorbance.output_pin('measurements'),
-        #                       metadata=smd)
-        # protocol.designate_output('dataset', 'http://bioprotocols.org/labop#Dataset', source=meta4.output_pin('dataset'))
+        filename = os.path.join(os.path.dirname(os.path.realpath(__file__)),
+                                                  'metadata/measure_absorbance.xlsx')
 
+        load_excel = protocol.primitive_step(
+            'ExcelMetadata',
+            for_samples=create_source.output_pin('samples'),
+            filename=filename
+        )
 
-        # sample_metadata = xr.DataArray(
-        #     #[
-        #     [[volume_in_sample(reagent, sample) for reagent in reagents] for sample in samples]
-        #     #]
-        #     ,
-        #     name=smd.identity,
-        #     dims=(  #labop.Strings.MEASUREMENT,
-        #             labop.Strings.SAMPLE,
-        #             labop.Strings.CONTENTS),
-        #     coords={labop.Strings.SAMPLE: samples,
-        #             labop.Strings.CONTENTS: reagents,
-        #             # labop.Strings.MEASUREMENT: [measure_absorbance.identity]
-        #             }
-        #     )
-        # smd.descriptions=labop.serialize_sample_format(sample_metadata)
-
-
-
-
-        # sd = labop.SampleData(identity="dummy_data", values=json.dumps(sample_data.to_dict()),
-        #                         from_samples=sample_array)
-
-        # dataset = labop.Dataset(
-        #     data=sd,
-        #     metadata=[smd])
+        meta1 = protocol.primitive_step(
+            "JoinMetadata",
+            dataset=measure_absorbance.output_pin('measurements'),
+            metadata=load_excel.output_pin('metadata')
+        )
+        protocol.designate_output(
+            'dataset',
+            'http://bioprotocols.org/labop#Dataset',
+            source=meta1.output_pin('enhanced_dataset')
+        )
 
 
         ee = ExecutionEngine( failsafe=False, sample_format='xarray')

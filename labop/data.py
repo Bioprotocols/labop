@@ -49,16 +49,18 @@ def protocol_execution_get_data(self):
     return datasets
 labop.ProtocolExecution.get_data = protocol_execution_get_data
 
-def sample_array_empty(self, sample_format=Strings.XARRAY):
+def sample_array_empty(self, geometry=None, sample_format=Strings.XARRAY):
+    samples = get_sample_list(geometry) if geometry else []
+
     if sample_format == Strings.XARRAY:
         sample_array = xr.DataArray(
-            [],
+            samples,
             name=self.identity,
             dims=(Strings.SAMPLE),
-            coords={Strings.SAMPLE: []}
+            coords={Strings.SAMPLE: samples}
             )
     elif sample_format == Strings.JSON:
-        sample_array = {}
+        sample_array = {s: None for s in samples}
     else:
         raise Exception(f"Cannot initialize contents of sample_format: {sample_format}")
     self.initial_contents = serialize_sample_format(sample_array)
@@ -151,9 +153,9 @@ def sample_mask_to_masked_data_array(self, sample_format=Strings.XARRAY):
     return masked_array
 labop.SampleMask.to_masked_data_array = sample_mask_to_masked_data_array
 
-def sample_mask_from_coordinates(source: labop.SampleCollection, coordinates: str):
+def sample_mask_from_coordinates(source: labop.SampleCollection, coordinates: str, sample_format=Strings.XARRAY):
     mask = labop.SampleMask(source=source)
-    mask_array = source.mask(coordinates)
+    mask_array = source.mask(coordinates, sample_format=sample_format)
     mask_array.name = mask.identity
     mask.mask = serialize_sample_format(mask_array)
     return mask
@@ -174,6 +176,27 @@ def sample_array_get_coordinates(self):
     else:
         raise ValueError(f'Unsupported sample format: {self.sample_format}')
 labop.SampleArray.get_coordinates = sample_mask_get_coordinates
+
+def sample_array_from_coordinates(source: labop.SampleCollection, coordinates: str, sample_type=Strings.XARRAY):
+    mask = labop.SampleMask(source=source)
+    mask_array = source.mask(coordinates)
+    mask_array.name = mask.identity
+    mask.mask = serialize_sample_format(mask_array)
+    return mask
+labop.SampleArray.from_coordinates = sample_array_from_coordinates
+
+def sample_array_from_container_spec(container_type: labop.ContainerSpec, sample_format = Strings.XARRAY):
+    sample_array = labop.SampleArray(container_type=container_type)
+
+    if container_type.queryString == 'cont:Opentrons24TubeRackwithEppendorf1.5mLSafe-LockSnapcap':
+        geometry = 'A1:C8'
+    else:
+        geometry = 'A1:H12'
+
+    initial_contents = sample_array.empty(geometry=geometry, sample_format=sample_format)
+    sample_array.initial_contents = serialize_sample_format(initial_contents)
+    return sample_array
+labop.SampleArray.from_container_spec = sample_array_from_container_spec
 
 def sample_data_empty(self: labop.SampleData, sample_format=Strings.XARRAY):
     if sample_format == "xarray":
@@ -245,7 +268,8 @@ def sample_array_plot(self, out_dir="out"):
         sa = self.to_data_array()
         # p = sa.plot.scatter(col="aliquot", x="contents")
         p = sa.plot()
-        plt.savefig(f"{os.path.join(out_dir, self.name)}.pdf")
+        name = self.name if (hasattr(self, "name") and self.name) else self.identity
+        plt.savefig(f"{os.path.join(out_dir, name)}.pdf")
         return p
     except Exception as e:
         l.warning("Could not import matplotlib.  Install matplotlib to plot SampleArray objects.")
@@ -253,15 +277,16 @@ def sample_array_plot(self, out_dir="out"):
 labop.SampleArray.plot = sample_array_plot
 
 def sample_array_to_dot(self, dot, out_dir="out"):
+    name = self.name if (hasattr(self, "name") and self.name) else self.identity
     if self.plot(out_dir=out_dir):
-        dot.node(self.name,
+        dot.node(name,
              _attributes={
-                   "label" : f"<<table><tr><td><img src=\"{self.name}.pdf\"></img></td></tr></table>>"
+                   "label" : f"<<table><tr><td><img src=\"{name}.pdf\"></img></td></tr></table>>"
                 })
-        return self.name
+        return name
     else:
-        dot.node(self.name)
-        return self.name
+        dot.node(name)
+        return name
 
 labop.SampleArray.to_dot = sample_array_to_dot
 def sample_metadata_to_dataarray(self: labop.SampleMetadata):
@@ -329,9 +354,11 @@ def sample_metadata_for_primitive(primitive: labop.Primitive,
     metadata = labop.SampleMetadata(for_samples=for_samples)
     # metadata_array = metadata.empty(sample_format=sample_format)
     sample_array = for_samples.to_data_array()
+
+    # Create new metadata for each input to primitive, aside from for_samples
+    inputs_meta = {k:v.identity for k, v in inputs.items() if v != for_samples}
     if sample_format == Strings.XARRAY:
-        # Create new dimensions for each input to primitive, aside from for_samples
-        inputs_meta = {k:v.identity for k, v in inputs.items() if v != for_samples}
+
         # values = [v.identity for v in inputs_meta.values()]
 
         # primitive_array = xr.DataArray(
@@ -346,9 +373,13 @@ def sample_metadata_for_primitive(primitive: labop.Primitive,
         metadata_dataset = xr.Dataset(inputs_meta, coords=sample_array.coords)
         if record_source:
             metadata_dataset = metadata_dataset.expand_dims({"source": [metadata.identity]})
-        metadata.descriptions = serialize_sample_format(metadata_dataset)
+
+    elif sample_format == Strings.JSON:
+        metadata_dataset = inputs_meta
     else:
-        raise NotImplementedError(f"Cannot represent Excel SampleMetadata as sample_format: {sample_format}")
+        raise NotImplementedError(f"Cannot represent {primitive} SampleMetadata as sample_format: {sample_format}")
+
+    metadata.descriptions = serialize_sample_format(metadata_dataset)
 
     return metadata
 labop.SampleMetadata.for_primitive = sample_metadata_for_primitive

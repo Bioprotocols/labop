@@ -1293,12 +1293,15 @@ def call_behavior_action_execute_callback(
     completed_normally = True
     # Get the parameter values from input tokens for input pins
     input_pin_values = {
-        token.token_source.lookup()
-        .node.lookup()
-        .identity: uml.literal(token.value, reference=True)
+        token.token_source.lookup().node.lookup().identity: []
         for token in inputs
         if not token.edge
     }
+    for token in inputs:
+        if not token.edge:
+            name = token.token_source.lookup().node.lookup().identity
+            input_pin_values[name].append(uml.literal(token.value, reference=True))
+
     # Get Input value pins
     value_pin_values = {}
 
@@ -1332,7 +1335,7 @@ def call_behavior_action_execute_callback(
 
     # Convert References
     value_pin_values = {
-        k: uml.literal(value=v.get_value(), reference=True)
+        k: [uml.literal(value=v.get_value(), reference=True)]
         for k, v in value_pin_values.items()
         if v is not None
     }
@@ -1341,10 +1344,10 @@ def call_behavior_action_execute_callback(
     parameter_values = [
         labop.ParameterValue(
             parameter=self.pin_parameter(pin.name),
-            value=pin_values[pin.identity],
+            value=value,
         )
         for pin in self.inputs
-        if pin.identity in pin_values
+        for value in (pin_values[pin.identity] if pin.identity in pin_values else [])
     ]
     # parameter_values.sort(
     #     key=lambda x: engine.ex.document.find(x.parameter).index

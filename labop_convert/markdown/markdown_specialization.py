@@ -1021,8 +1021,8 @@ class MarkdownSpecialization(BehaviorSpecialization):
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
         metadata = parameter_value_map['metadata']['value']
-        data = parameter_value_map['data']['value']
         dataset = parameter_value_map['dataset']['value']
+        enhanced_dataset = parameter_value_map['enhanced_dataset']['value']
 
 
 def measurement_to_text(measure: sbol3.Measure):

@@ -965,7 +965,7 @@
     ns1:type <http://bioprotocols.org/labop#Dataset> ;
     ns1:upperValue <https://bioprotocols.org/labop/primitives/sample_arrays/JoinMetadata/OrderedPropertyValue2/Parameter1/LiteralInteger1> ;
     sbol:displayId "Parameter1" ;
-    sbol:name "data" .
+    sbol:name "dataset" .
 
 <https://bioprotocols.org/labop/primitives/sample_arrays/JoinMetadata/OrderedPropertyValue2/Parameter1/LiteralInteger1> a ns1:LiteralInteger,
         sbol:Identified ;
@@ -992,7 +992,7 @@
     ns1:type <http://bioprotocols.org/labop#Dataset> ;
     ns1:upperValue <https://bioprotocols.org/labop/primitives/sample_arrays/JoinMetadata/OrderedPropertyValue3/Parameter1/LiteralInteger1> ;
     sbol:displayId "Parameter1" ;
-    sbol:name "dataset" .
+    sbol:name "enhanced_dataset" .
 
 <https://bioprotocols.org/labop/primitives/sample_arrays/JoinMetadata/OrderedPropertyValue3/Parameter1/LiteralInteger1> a ns1:LiteralInteger,
         sbol:Identified ;
@@ -1678,4 +1678,3 @@
         sbol:Identified ;
     ns1:integerValue 1 ;
     sbol:displayId "LiteralInteger2" .
-

@@ -416,40 +416,37 @@ measure_absorbance = protocol.primitive_step('MeasureAbsorbance',
                                              samples=read_wells4.output_pin('samples'),
                                              wavelength=sbol3.Measure(600, OM.nanometer))
 
-# FIXME Bryan derive this from the excel file via new primitive ExcelMetadata(file="measure_fluourescence1.xslx") and link its
-# output pin to meta1.metadata.descriptions
-# Change the format of the xarray to use dimensions, coordinates, and values as they appear in the xlsx.
-
 load_excel = protocol.primitive_step('ExcelMetadata',
-                                     for_samples=read_wells1.output_pin('samples'),
+                                     for_samples=calibration_plate.output_pin('samples'),
                                      filename=os.path.join(os.path.dirname(
                                                   os.path.realpath(__file__)),
-                                                  'metadata/measure_fluorescence1.xlsx'))
+                                                  'metadata/sample_metadata.xlsx'))
 
 meta1 = protocol.primitive_step("JoinMetadata",
-                              data=measure_fluorescence1.output_pin('measurements'),
+                              dataset=measure_fluorescence1.output_pin('measurements'),
                               metadata=load_excel.output_pin('metadata'))
-protocol.designate_output('dataset', 'http://bioprotocols.org/labop#Dataset', source=meta1.output_pin('dataset'))
 
 meta2 = protocol.primitive_step("JoinMetadata",
-                              data=measure_fluorescence2.output_pin('measurements'),
-                              metadata=labop.SampleMetadata(for_samples=read_wells2.output_pin('samples'), descriptions=""))
-protocol.designate_output('dataset', 'http://bioprotocols.org/labop#Dataset', source=meta2.output_pin('dataset'))
+                              dataset=measure_fluorescence2.output_pin('measurements'),
+                              metadata=load_excel.output_pin('metadata'))
 
 meta3 = protocol.primitive_step("JoinMetadata",
-                              data=measure_fluorescence3.output_pin('measurements'),
-                              metadata=labop.SampleMetadata(for_samples=read_wells3.output_pin('samples'), descriptions=""))
-protocol.designate_output('dataset', 'http://bioprotocols.org/labop#Dataset', source=meta3.output_pin('dataset'))
-
+                              dataset=measure_fluorescence3.output_pin('measurements'),
+                              metadata=load_excel.output_pin('metadata'))
 
 meta4 = protocol.primitive_step("JoinMetadata",
-                              data=measure_absorbance.output_pin('measurements'),
-                              metadata=labop.SampleMetadata(for_samples=read_wells4.output_pin('samples'), descriptions=""))
-protocol.designate_output('dataset', 'http://bioprotocols.org/labop#Dataset', source=meta4.output_pin('dataset'))
+                              dataset=measure_absorbance.output_pin('measurements'),
+                              metadata=load_excel.output_pin('metadata'))
 
+final_dataset = protocol.primitive_step("JoinDatasets",
+                              dataset=[meta1.output_pin('enhanced_dataset'),
+                                       meta2.output_pin('enhanced_dataset'),
+                                       meta3.output_pin('enhanced_dataset'),
+                                       meta4.output_pin('enhanced_dataset')]
+                              )
+protocol.designate_output('dataset', 'http://bioprotocols.org/labop#Dataset', source=final_dataset.output_pin('joint_dataset'))
 
-
-ee = ExecutionEngine(specializations=[MarkdownSpecialization(__file__.split('.')[0] + '.md')], failsafe=False, sample_format='json')
+ee = ExecutionEngine(specializations=[MarkdownSpecialization(__file__.split('.')[0] + '.md')], failsafe=False, sample_format='xarray')
 execution = ee.execute(protocol, sbol3.Agent('test_agent'), id="test_execution", parameter_values=[])
 print(execution.markdown)
 
@@ -457,6 +454,10 @@ print(execution.markdown)
 execution.markdown = execution.markdown.replace(' milliliter', 'mL')
 execution.markdown = execution.markdown.replace(' nanometer', 'nm')
 execution.markdown = execution.markdown.replace(' microliter', 'uL')
+
+dataset = ee.ex.parameter_values[0].value.get_value().to_dataset()
+with open(__file__.split('.')[0] + '.csv', 'w', encoding='utf-8') as f:
+    f.write(dataset.to_dataframe().to_csv())
 
 with open(__file__.split('.')[0] + '.md', 'w', encoding='utf-8') as f:
     f.write(execution.markdown)
