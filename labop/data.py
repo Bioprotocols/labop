@@ -110,8 +110,8 @@ def sample_array_from_dict(self, initial_contents: dict):
 labop.SampleArray.from_dict = sample_array_from_dict
 
 
-def sample_array_to_dict(self) -> dict:
-    if self.sample_format == 'json':
+def sample_array_to_dict(self, sample_format=Strings.XARRAY) -> dict:
+    if sample_format == Strings.JSON:
         if not self.initial_contents:
             return {}
         if self.initial_contents == 'https://github.com/synbiodex/pysbol3#missing':
@@ -161,21 +161,24 @@ def sample_mask_from_coordinates(source: labop.SampleCollection, coordinates: st
     return mask
 labop.SampleMask.from_coordinates = sample_mask_from_coordinates
 
-def sample_mask_get_coordinates(self):
-    mask = self.to_data_array()
-    return [c for c in mask[Strings.SAMPLE].data if mask.loc[c]]
+def sample_mask_get_coordinates(self, sample_format=Strings.XARRAY):
+    if sample_format == 'xarray':
+        mask = self.to_data_array()
+        return [c for c in mask[Strings.SAMPLE].data if mask.loc[c]]
+    elif sample_format == 'json':
+        return json.loads(deserialize_sample_format(self.mask)).keys()
 labop.SampleMask.get_coordinates = sample_mask_get_coordinates
 
 
-def sample_array_get_coordinates(self):
-    if self.sample_format == 'json':
-        return self.to_dict().values()
-    elif self.sample_format == 'xarray':
+def sample_array_get_coordinates(self, sample_format=Strings.XARRAY):
+    if sample_format == Strings.JSON:
+        return self.to_dict(Strings.JSON).values()
+    elif sample_format == Strings.XARRAY:
         initial_contents = self.to_data_array()
         return [c for c in initial_contents[Strings.SAMPLE].data]
     else:
         raise ValueError(f'Unsupported sample format: {self.sample_format}')
-labop.SampleArray.get_coordinates = sample_mask_get_coordinates
+labop.SampleArray.get_coordinates = sample_array_get_coordinates
 
 def sample_array_from_coordinates(source: labop.SampleCollection, coordinates: str, sample_type=Strings.XARRAY):
     mask = labop.SampleMask(source=source)
@@ -353,25 +356,25 @@ def sample_metadata_for_primitive(primitive: labop.Primitive,
 
     metadata = labop.SampleMetadata(for_samples=for_samples)
     # metadata_array = metadata.empty(sample_format=sample_format)
-    sample_array = for_samples.to_data_array()
-
-    # Create new metadata for each input to primitive, aside from for_samples
-    inputs_meta = {k: xr.DataArray(
-            [v.identity]*len(sample_array.coords[Strings.SAMPLE]),
-            dims=Strings.SAMPLE,
-            coords=sample_array.coords
-        )
-        for k, v in inputs.items() if v != for_samples
-    }
 
     if sample_format == Strings.XARRAY:
+        sample_array = for_samples.to_data_array()
+        
+        # Create new metadata for each input to primitive, aside from for_samples
+        inputs_meta = {k: xr.DataArray(
+                [v.identity]*len(sample_array.coords[Strings.SAMPLE]),
+                dims=Strings.SAMPLE,
+                coords=sample_array.coords
+            )
+            for k, v in inputs.items() if v != for_samples
+        }
 
         metadata_dataset = xr.Dataset(inputs_meta, coords=sample_array.coords)
         if record_source:
             metadata_dataset = metadata_dataset.expand_dims({"source": [metadata.identity]})
 
     elif sample_format == Strings.JSON:
-        metadata_dataset = inputs_meta
+        metadata_dataset = {}
     else:
         raise NotImplementedError(f"Cannot represent {primitive} SampleMetadata as sample_format: {sample_format}")
 

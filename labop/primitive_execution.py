@@ -156,7 +156,7 @@ def measure_absorbance_compute_output(self, inputs, parameter, sample_format):
         wl = input_map["wavelength"]
 
 
-        measurements = LabInterface.measure_absorbance(samples.get_coordinates(), wl.value, sample_format)
+        measurements = LabInterface.measure_absorbance(samples.get_coordinates(sample_format), wl.value, sample_format)
         sample_data = labop.SampleData(from_samples=samples, values=measurements)
         sample_metadata = labop.SampleMetadata.for_primitive(self, input_map, samples, sample_format=sample_format)
         sample_dataset = labop.Dataset(data=sample_data, metadata=[sample_metadata])
@@ -171,7 +171,7 @@ def measure_fluorescence_compute_output(self, inputs, parameter, sample_format):
         emwl = input_map["emissionWavelength"]
         bandpass = input_map["emissionBandpassWidth"]
 
-        measurements = LabInterface.measure_fluorescence(samples.get_coordinates(), exwl.value, emwl.value, bandpass.value,  sample_format)
+        measurements = LabInterface.measure_fluorescence(samples.get_coordinates(sample_format), exwl.value, emwl.value, bandpass.value,  sample_format)
         sample_data = labop.SampleData(from_samples=samples, values=measurements)
         sample_metadata = labop.SampleMetadata.for_primitive(self, input_map, samples, sample_format=sample_format)
         sample_dataset = labop.Dataset(data=sample_data, metadata=[sample_metadata])
