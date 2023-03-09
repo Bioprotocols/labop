@@ -1032,8 +1032,9 @@ def measurement_to_text(measure: sbol3.Measure):
 
 
 def dataset_to_text(dataset: labop.Dataset):
-    # TODO improve string description of dataset to include filename of xlsx file generated.
-    return f'{dataset.display_name}'
+    # Assumes that the data file is the same name as the markdown file, aside from the extension
+    xlsx_file = self.out_file.split(".")[0] + "xlsx"
+    return f'{[xlsx_file](xlsx_file)}'
 
 def get_sample_names(inputs: Union[labop.SampleArray, sbol3.Component], error_msg, coordinates=None) -> List[str]:
     # Since some behavior inputs may be specified as either a SampleArray or directly as a list

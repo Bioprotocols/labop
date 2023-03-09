@@ -326,14 +326,15 @@ def sample_metadata_from_excel(filename: Union[str, os.PathLike],
                                record_source=False):
     metadata = labop.SampleMetadata(for_samples=for_samples)
     metadata_df = pd.read_excel(filename)
-
+    rename_map = {"Unnamed: 0": Strings.SAMPLE} if "Unnamed: 0" in metadata_df.columns else {}
+    metadata_df = metadata_df.rename(rename_map, axis=1)
     # Assume that first column is the sample index
     metadata_df = metadata_df.set_index(metadata_df.columns[0])
 
     if sample_format == Strings.XARRAY:
         # Convert pd.DataFrame into xr.DataArray
-        rename_map = {"Unnamed: 0": Strings.SAMPLE}
-        metadata_array = xr.Dataset.from_dataframe(metadata_df).rename(rename_map)
+
+        metadata_array = xr.Dataset.from_dataframe(metadata_df)
         if record_source:
             metadata_array = metadata_array.expand_dims({"source": [metadata.identity]}) # Will be replaced when deserilialized by parent.identity
         metadata.descriptions = serialize_sample_format(metadata_array)
@@ -359,7 +360,7 @@ def sample_metadata_for_primitive(primitive: labop.Primitive,
 
     if sample_format == Strings.XARRAY:
         sample_array = for_samples.to_data_array()
-        
+
         # Create new metadata for each input to primitive, aside from for_samples
         inputs_meta = {k: xr.DataArray(
                 [v.identity]*len(sample_array.coords[Strings.SAMPLE]),
@@ -431,3 +432,101 @@ def deserialize_sample_format(data: str, parent: sbol3.Identified = None):
                 return json_data
     except Exception as e:
         raise Exception(f"Could not determine format of data: {e}")
+
+def sort_samples(data):
+    data = data.assign_coords(
+        samplez=("sample",
+                 [(f"{s[:1]}0{s[1:]}" if len(s) == 2 else s) for s in data.coords["sample"].data])
+    ).sortby("samplez").reset_coords("samplez", drop=True)
+    return data
+
+
+def sample_data_update_data_sheet(self, data_file_path, sheet_name, sample_format=Strings.XARRAY):
+    sample_array = labop.sort_samples(labop.deserialize_sample_format(self.values, parent=self))
+
+    # Check whether data exists in the data template, and load it
+    changed = False
+    if os.path.exists(data_file_path):
+        try:
+            data_df = pd.read_excel(data_file_path, sheet_name=sheet_name)
+            # Assume that first column is the sample index
+            data_df = data_df.set_index(data_df.columns[0])
+            if sample_format == Strings.XARRAY:
+                # Convert pd.DataFrame into xr.DataArray
+                sample_data_array = xr.Dataset.from_dataframe(data_df)[sample_array.name]
+
+                changed =  not(
+                    (sample_array.isnull().all() and sample_data_array.isnull().all()) or \
+                            (sample_data_array == sample_array).all()
+                )
+                if changed:
+                    sample_array = sample_data_array
+                    self.values = labop.serialize_sample_format(sample_array)
+
+            else:
+                raise Exception(f"Cannot read sample_format {sample_format} from Excel")
+        except Exception as e:
+            # Sheet could not be loaded, so it did not change
+            pass
+
+    if not changed:
+        mode = "a" if os.path.exists(data_file_path) else "w"
+        kwargs = {"if_sheet_exists":"replace"} if mode == "a" else {}
+        # kwargs['strings_to_formulas'] = False
+        # kwargs['strings_to_urls'] = False
+        with pd.ExcelWriter(
+            data_file_path,
+            mode=mode,
+            engine="openpyxl",
+            **kwargs
+            ) as writer:
+            sample_array.to_dataframe().to_excel(
+                writer,
+                sheet_name=sheet_name
+                )
+labop.SampleData.update_data_sheet = sample_data_update_data_sheet
+
+def dataset_update_data_sheet(self, data_file_path, sheet_name, sample_format=Strings.XARRAY):
+    dataset = sort_samples(self.to_dataset())
+
+    # # Check whether data exists in the data template, and load it
+    # changed = False
+    # if os.path.exists(data_file_path):
+    #     try:
+    #         data_df = pd.read_excel(data_file_path, sheet_name=sheet_name)
+    #         # Assume that first column is the sample index
+    #         data_df = data_df.set_index(data_df.columns[0])
+    #         if sample_format == Strings.XARRAY:
+    #             # Convert pd.DataFrame into xr.DataArray
+    #             stored_dataset = xr.Dataset.from_dataframe(data_df)
+
+    #             changed =  not(
+    #                 (dataset.isnull().all() and stored_dataset.isnull().all()) or \
+    #                         (stored_dataset == dataset).all()
+    #             )
+    #             if changed:
+    #                 dataset = stored_dataset
+    #                 self.values = labop.serialize_sample_format(sample_array)
+
+    #         else:
+    #             raise Exception(f"Cannot read sample_format {sample_format} from Excel")
+    #     except Exception as e:
+    #         # Sheet could not be loaded, so it did not change
+    #         pass
+
+    # if not changed:
+    mode = "a" if os.path.exists(data_file_path) else "w"
+    kwargs = {"if_sheet_exists":"replace"} if mode == "a" else {}
+    # kwargs['strings_to_formulas'] = False
+    # kwargs['strings_to_urls'] = False
+    with pd.ExcelWriter(
+        data_file_path,
+        mode=mode,
+        engine="openpyxl",
+        **kwargs
+        ) as writer:
+        dataset.to_dataframe().to_excel(
+            writer,
+            sheet_name=sheet_name
+            )
+labop.Dataset.update_data_sheet = dataset_update_data_sheet
