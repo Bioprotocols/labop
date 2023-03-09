@@ -9,7 +9,7 @@ from importlib.util import spec_from_loader, module_from_spec
 import sbol3
 
 import labop
-from helpers import file_diff, OUT_DIR
+from helpers import file_diff
 
 # Save testfiles as artifacts when running in CI environment,
 # else save them to a local temp directory
@@ -18,6 +18,12 @@ if "GH_TMPDIR" in os.environ:
 else:
     TMPDIR = tempfile.gettempdir()
 
+
+OUT_DIR = os.path.join(
+    os.path.dirname(__file__), "out"
+)
+if not os.path.exists(OUT_DIR):
+    os.mkdir(OUT_DIR)
 
 protocol_def_file = os.path.join(
     os.path.dirname(__file__), "../examples/LUDOX_protocol.py"

@@ -6,7 +6,7 @@ from typing import Tuple
 import unittest
 import xarray as xr
 import json
-from helpers import file_diff, OUT_DIR
+from helpers import file_diff
 from labop_convert.markdown.markdown_specialization import MarkdownSpecialization
 
 from labop_convert.behavior_specialization import DefaultBehaviorSpecialization
@@ -22,6 +22,11 @@ from sbol3 import Document
 from helpers import initialize_protocol
 
 
+OUT_DIR = os.path.join(
+    os.path.dirname(__file__), "out"
+)
+if not os.path.exists(OUT_DIR):
+    os.mkdir(OUT_DIR)
 
 logger: logging.Logger = logging.Logger("samplemap_protocol")
 logger.setLevel(logging.INFO)

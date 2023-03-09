@@ -18,7 +18,14 @@ from tyto import OM
 from numpy import nan
 
 from labop_convert.plate_coordinates import get_sample_list
-from labop.utils.helpers import file_diff, OUT_DIR, initialize_protocol
+from labop.utils.helpers import file_diff, initialize_protocol
+
+
+OUT_DIR = os.path.join(
+    os.path.dirname(__file__), "out"
+)
+if not os.path.exists(OUT_DIR):
+    os.mkdir(OUT_DIR)
 
 # Save testfiles as artifacts when running in CI environment,
 # else save them to a local temp directory
@@ -44,6 +51,7 @@ protocol_def = load_ludox_protocol(protocol_def_file)
 class TestProtocolEndToEnd(unittest.TestCase):
     def test_dataset_to_dataframe(self):
         protocol, doc = initialize_protocol()
+        protocol.name = "sample_data_demo_protocol"
 
         reagents = ["fluorescene", "sulforhodamine101",	"cascadeBlue",	"nanocym",	"water",	"pbs"]
         samples = get_sample_list(geometry="A1:H12")
@@ -114,9 +122,21 @@ class TestProtocolEndToEnd(unittest.TestCase):
             source=meta1.output_pin('enhanced_dataset')
         )
 
+        protocol.to_dot().render(os.path.join(OUT_DIR, f"{protocol.name}"))
 
-        ee = ExecutionEngine( failsafe=False, sample_format='xarray')
-        execution = ee.execute(protocol, sbol3.Agent('test_agent'), id="test_execution", parameter_values=[])
+        ee = ExecutionEngine(
+            failsafe=False,
+            sample_format='xarray',
+            write_dataset_specs = "data_template", # name of xlsx file (w/o suffix)
+        )
+        execution = ee.execute(
+            protocol,
+            sbol3.Agent('test_agent'),
+            id="test_execution",
+            parameter_values=[]
+            )
+
+        execution.to_dot().render(os.path.join(OUT_DIR, f"{protocol.name}_execution"))
 
         dataset = execution.parameter_values[0].value.get_value()
         xr_dataset = dataset.to_dataset()

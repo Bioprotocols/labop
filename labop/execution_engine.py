@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 import html
+import os
 import re
 from typing import Callable, Dict, List, Union
 import uuid
@@ -53,6 +54,7 @@ class ExecutionEngine(ABC):
         use_defined_primitives=True,
         sample_format="xarray",
         out_dir = "out",
+        write_dataset_specs = False,
     ):
         self.exec_counter = 0
         self.variable_counter = 0
@@ -80,6 +82,7 @@ class ExecutionEngine(ABC):
             id, List[Union[ExecutionWarning, ExecutionError]]
         ] = {}  # List of Warnings and Errors
         self.out_dir = out_dir
+        self.write_dataset_specs = write_dataset_specs # Write dataset specifications as template files used to fill in data
 
     def next_id(self):
         next = self.exec_counter
@@ -234,6 +237,9 @@ class ExecutionEngine(ABC):
                         node_outputs[node] if node in node_outputs else None
                     ),
                 )
+                record = self.ex.executions[-1]
+                self.post_process(record)
+
             except Exception as e:
                 # Consume the tokens used by the node that caused the exception
                 # Produce control tokens
@@ -295,6 +301,46 @@ class ExecutionEngine(ABC):
         return [
             n for n, nt in candidate_clusters.items() if n.enabled(self, nt)
         ]
+
+
+    def post_process(
+            self,
+            record: labop.ActivityNodeExecution
+    ):
+        if self.write_dataset_specs is not None:
+                self.write_sample_data_template(record)
+
+
+    def write_sample_data_template(self, record: labop.ActivityNodeExecution):
+        """
+        Write a data template as an xlsx file if the record.node produces sample data (i.e., it has an output of type labop.Dataset with a data attribute of type labop.SampleData)
+        Parameters
+        ----------
+        node : labop.ActivityNodeExecution
+            ActivityNodeExecution that produces SampleData
+        """
+        if not isinstance(record, labop.CallBehaviorExecution):
+            return
+
+        # Find all labop.Dataset objects produced by record
+        sample_data = [ token.value.get_value().data
+            for token in self.tokens
+            if token.token_source == record.identity and isinstance(token.value.get_value(), labop.Dataset) and isinstance(token.value.get_value().data, labop.SampleData)
+        ]
+
+        for sd in sample_data:
+            sample_array = labop.deserialize_sample_format(sd.values, parent=sd)
+            path = os.path.join(self.out_dir, f"{self.write_dataset_specs}.xlsx")
+            mode = "a" if os.path.exists(path) else "w"
+            kwargs = {"if_sheet_exists":"replace"} if mode == "a" else {}
+            with pd.ExcelWriter(
+                path,
+                mode=mode,
+                engine="openpyxl",
+                **kwargs
+                ) as writer:
+                sample_array.to_dataframe().to_excel(writer, sheet_name=sd.identity.replace("https://", "").replace("/", "_"))
+
 
 
 class ManualExecutionEngine(ExecutionEngine):
