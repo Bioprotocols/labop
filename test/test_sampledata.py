@@ -27,6 +27,8 @@ OUT_DIR = os.path.join(
 if not os.path.exists(OUT_DIR):
     os.mkdir(OUT_DIR)
 
+
+
 # Save testfiles as artifacts when running in CI environment,
 # else save them to a local temp directory
 if 'GH_TMPDIR' in os.environ:
@@ -102,13 +104,13 @@ class TestProtocolEndToEnd(unittest.TestCase):
              wavelength=sbol3.Measure(600, OM.nanometer)
         )
 
-        filename = os.path.join(os.path.dirname(os.path.realpath(__file__)),
+        metadata_filename = os.path.join(os.path.dirname(os.path.realpath(__file__)),
                                                   'metadata/measure_absorbance.xlsx')
 
         load_excel = protocol.primitive_step(
             'ExcelMetadata',
             for_samples=create_source.output_pin('samples'),
-            filename=filename
+            filename=metadata_filename
         )
 
         meta1 = protocol.primitive_step(
@@ -122,12 +124,14 @@ class TestProtocolEndToEnd(unittest.TestCase):
             source=meta1.output_pin('enhanced_dataset')
         )
 
-        protocol.to_dot().render(os.path.join(OUT_DIR, f"{protocol.name}"))
+        filename = protocol.name
+        protocol.to_dot().render(os.path.join(OUT_DIR, filename))
 
         ee = ExecutionEngine(
             failsafe=False,
             sample_format='xarray',
-            write_dataset_specs = "data_template", # name of xlsx file (w/o suffix)
+            dataset_file = f"{filename}_data", # name of xlsx file (w/o suffix)
+            out_dir=OUT_DIR
         )
         execution = ee.execute(
             protocol,
@@ -136,13 +140,41 @@ class TestProtocolEndToEnd(unittest.TestCase):
             parameter_values=[]
             )
 
-        execution.to_dot().render(os.path.join(OUT_DIR, f"{protocol.name}_execution"))
+        # execution.to_dot().render(os.path.join(OUT_DIR, f"{protocol.name}_execution"))
 
-        dataset = execution.parameter_values[0].value.get_value()
-        xr_dataset = dataset.to_dataset()
-        df = xr_dataset.to_dataframe()
-        with open(os.path.join(OUT_DIR, "dataset.csv"), "w")as f:
-            f.write(df.to_csv())
+        # dataset = execution.parameter_values[0].value.get_value()
+        # xr_dataset = labop.sort_samples(dataset.to_dataset())
+        # df = xr_dataset.to_dataframe()
+        # df.to_excel(os.path.join(OUT_DIR, "dataset.xlsx"))
+
+        print("Validating and writing protocol")
+        v = doc.validate()
+        assert len(v) == 0, "".join(f"\n {e}" for e in v)
+
+        nt_file = f"{filename}.nt"
+        temp_name = os.path.join(TMPDIR, nt_file)
+
+        # At some point, rdflib began inserting an extra newline into
+        # N-triple serializations, which breaks file comparison.
+        # Here we strip extraneous newlines, to maintain reverse compatibility
+        with open(temp_name, "w") as f:
+            f.write(doc.write_string(sbol3.SORTED_NTRIPLES).strip())
+        print(f"Wrote file as {temp_name}")
+
+        comparison_file = os.path.join(
+            os.path.dirname(os.path.realpath(__file__)),
+            "testfiles",
+            nt_file,
+        )
+        # with open(comparison_file, 'w') as f:
+        #     f.write(doc.write_string(sbol3.SORTED_NTRIPLES).strip())
+        print(f"Comparing against {comparison_file}")
+        diff = ''.join(file_diff(comparison_file, temp_name))
+        print(f"Difference:\n{diff}")
+        assert filecmp.cmp(
+            temp_name, comparison_file
+        ), "Files are not identical"
+        print("File identical with test file")
 
 
     @unittest.skip(reason="tmp remove for dev")

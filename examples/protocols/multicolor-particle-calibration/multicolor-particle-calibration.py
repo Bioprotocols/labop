@@ -18,6 +18,8 @@ OUT_DIR = os.path.join(
 if not os.path.exists(OUT_DIR):
     os.mkdir(OUT_DIR)
 
+filename = "".join(__file__.split(".")[0].split('/')[-1:])
+
 doc = sbol3.Document()
 sbol3.set_namespace('http://igem.org/engineering/')
 
@@ -451,16 +453,16 @@ protocol.designate_output('dataset', 'http://bioprotocols.org/labop#Dataset', so
 ee = ExecutionEngine(
     out_dir=OUT_DIR,
     specializations=[
-        MarkdownSpecialization(__file__.split('.')[0] + '.md')
+        MarkdownSpecialization(filename + '.md')
     ],
     failsafe=False,
-    sample_format='xarray'
+    sample_format='xarray',
+    dataset_file = f"{filename}_template" # name of xlsx
 )
 execution = ee.execute(protocol, sbol3.Agent('test_agent'), id="test_execution", parameter_values=[])
 
-dataset = ee.ex.parameter_values[0].value.get_value().to_dataset()
-with open(os.path.join(OUT_DIR, __file__.split('.')[0] + '.csv'), 'w', encoding='utf-8') as f:
-    f.write(dataset.to_dataframe().to_csv())
+dataset = labop.sort_samples(ee.ex.parameter_values[0].value.get_value().to_dataset())
+dataset.to_dataframe().to_excel(os.path.join(OUT_DIR, filename + '.xlsx'))
 
 print(execution.markdown)
 

@@ -1,6 +1,7 @@
 import random
 import json
 from urllib.parse import quote, unquote
+from numpy import nan
 
 import xarray as xr
 
@@ -14,7 +15,7 @@ class LabInterface():
         # Override this method to interface with laboratory plate reader API
         if sample_format == Strings.XARRAY:
             measurements = xr.DataArray(
-                [random.random() for c in coordinates],
+                [nan for c in coordinates],
                 name=Strings.DATA,
                 dims=(Strings.SAMPLE),
                 coords={Strings.SAMPLE: coordinates}
@@ -31,7 +32,7 @@ class LabInterface():
         # Override this method to interface with laboratory plate reader API
         if sample_format == Strings.XARRAY:
             measurements = xr.DataArray(
-                [random.random() for c in coordinates],
+                [nan for c in coordinates],
                 name=Strings.DATA,
                 dims=(Strings.SAMPLE),
                 coords={Strings.SAMPLE: coordinates}

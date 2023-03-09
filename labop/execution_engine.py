@@ -6,8 +6,10 @@ from typing import Callable, Dict, List, Union
 import uuid
 import datetime
 import logging
+from urllib.parse import quote, unquote
 
 import pandas as pd
+import xarray as xr
 import graphviz
 import sbol3
 
@@ -20,6 +22,8 @@ from labop_convert.behavior_specialization import (
     DefaultBehaviorSpecialization,
 )
 from labop.primitive_execution import initialize_primitive_compute_output
+
+from labop.strings import Strings
 
 
 l = logging.getLogger(__file__)
@@ -54,7 +58,7 @@ class ExecutionEngine(ABC):
         use_defined_primitives=True,
         sample_format="xarray",
         out_dir = "out",
-        write_dataset_specs = False,
+        dataset_file = False,
     ):
         self.exec_counter = 0
         self.variable_counter = 0
@@ -82,7 +86,9 @@ class ExecutionEngine(ABC):
             id, List[Union[ExecutionWarning, ExecutionError]]
         ] = {}  # List of Warnings and Errors
         self.out_dir = out_dir
-        self.write_dataset_specs = write_dataset_specs # Write dataset specifications as template files used to fill in data
+        self.dataset_file = dataset_file # Write dataset specifications as template files used to fill in data
+        self.data_id = 0
+        self.data_id_map = {}
 
     def next_id(self):
         next = self.exec_counter
@@ -307,11 +313,11 @@ class ExecutionEngine(ABC):
             self,
             record: labop.ActivityNodeExecution
     ):
-        if self.write_dataset_specs is not None:
-                self.write_sample_data_template(record)
+        if self.dataset_file is not None:
+                self.write_data_templates(record)
 
 
-    def write_sample_data_template(self, record: labop.ActivityNodeExecution):
+    def write_data_templates(self, record: labop.ActivityNodeExecution):
         """
         Write a data template as an xlsx file if the record.node produces sample data (i.e., it has an output of type labop.Dataset with a data attribute of type labop.SampleData)
         Parameters
@@ -323,23 +329,30 @@ class ExecutionEngine(ABC):
             return
 
         # Find all labop.Dataset objects produced by record
-        sample_data = [ token.value.get_value().data
+        datasets = [ token.value.get_value()
             for token in self.tokens
-            if token.token_source == record.identity and isinstance(token.value.get_value(), labop.Dataset) and isinstance(token.value.get_value().data, labop.SampleData)
+            if token.token_source == record.identity and isinstance(token.value.get_value(), labop.Dataset)
+        ]
+        sample_data = [ dataset.data
+            for dataset in datasets
+            if isinstance(dataset.data, labop.SampleData)
         ]
 
+        path = os.path.join(self.out_dir, f"{self.dataset_file}.xlsx")
+
+        for dataset in datasets:
+            sheet_name = f"{record.node.lookup().behavior.lookup().display_id}_dataset_{self.data_id}"
+            dataset.update_data_sheet(path, sheet_name, sample_format=Strings.XARRAY)
+            self.data_id += 1
+
         for sd in sample_data:
-            sample_array = labop.deserialize_sample_format(sd.values, parent=sd)
-            path = os.path.join(self.out_dir, f"{self.write_dataset_specs}.xlsx")
-            mode = "a" if os.path.exists(path) else "w"
-            kwargs = {"if_sheet_exists":"replace"} if mode == "a" else {}
-            with pd.ExcelWriter(
-                path,
-                mode=mode,
-                engine="openpyxl",
-                **kwargs
-                ) as writer:
-                sample_array.to_dataframe().to_excel(writer, sheet_name=sd.identity.replace("https://", "").replace("/", "_"))
+            sheet_name = f"{record.node.lookup().behavior.lookup().display_id}_data_{self.data_id}"
+            sd.update_data_sheet(path, sheet_name, sample_format=Strings.XARRAY)
+            self.data_id += 1
+
+
+
+
 
 
 
