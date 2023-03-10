@@ -92,6 +92,16 @@ class TestProtocolEndToEnd(unittest.TestCase):
             specification=container_type
         )
 
+        metadata_filename = os.path.join(os.path.dirname(os.path.realpath(__file__)),
+                                            'metadata/measure_absorbance.xlsx')
+
+        load_excel = protocol.primitive_step(
+            'ExcelMetadata',
+            for_samples=create_source.output_pin('samples'),
+            filename=metadata_filename
+        )
+
+
         create_coordinates = protocol.primitive_step(
             'PlateCoordinates',
             source=create_source.output_pin('samples'),
@@ -104,25 +114,21 @@ class TestProtocolEndToEnd(unittest.TestCase):
              wavelength=sbol3.Measure(600, OM.nanometer)
         )
 
-        metadata_filename = os.path.join(os.path.dirname(os.path.realpath(__file__)),
-                                                  'metadata/measure_absorbance.xlsx')
 
-        load_excel = protocol.primitive_step(
-            'ExcelMetadata',
-            for_samples=create_source.output_pin('samples'),
-            filename=metadata_filename
-        )
 
         meta1 = protocol.primitive_step(
             "JoinMetadata",
             dataset=measure_absorbance.output_pin('measurements'),
             metadata=load_excel.output_pin('metadata')
         )
-        protocol.designate_output(
+
+        outnode = protocol.designate_output(
             'dataset',
             'http://bioprotocols.org/labop#Dataset',
             source=meta1.output_pin('enhanced_dataset')
         )
+
+        protocol.order(outnode, protocol.final())
 
         filename = protocol.name
         protocol.to_dot().render(os.path.join(OUT_DIR, filename))
@@ -130,6 +136,7 @@ class TestProtocolEndToEnd(unittest.TestCase):
         ee = ExecutionEngine(
             failsafe=False,
             sample_format='xarray',
+            use_ordinal_time=True,
             dataset_file = f"{filename}_data", # name of xlsx file (w/o suffix)
             out_dir=OUT_DIR
         )
@@ -140,7 +147,7 @@ class TestProtocolEndToEnd(unittest.TestCase):
             parameter_values=[]
             )
 
-        # execution.to_dot().render(os.path.join(OUT_DIR, f"{protocol.name}_execution"))
+        execution.to_dot().render(os.path.join(OUT_DIR, f"{protocol.name}_execution"))
 
         # dataset = execution.parameter_values[0].value.get_value()
         # xr_dataset = labop.sort_samples(dataset.to_dataset())

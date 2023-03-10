@@ -5,6 +5,7 @@ This file monkey-patches the imported labop classes with data handling functions
 """
 
 from cmath import nan
+from itertools import islice
 import xarray as xr
 import pandas as pd
 import json
@@ -15,7 +16,7 @@ import sbol3
 import labop
 from labop.strings import Strings
 from labop_convert.plate_coordinates import get_sample_list
-
+from openpyxl import load_workbook
 import uml
 from typing import List, Dict, Union
 
@@ -86,7 +87,7 @@ def sample_array_mask(self, mask, sample_format=Strings.XARRAY):
     elif sample_format == Strings.XARRAY:
         initial_contents_array = self.to_data_array(sample_format=sample_format)
         if isinstance(mask, labop.SampleMask):
-            mask_array = mask.to_data_array(sample_format=sample_format)
+            masked_array = mask.to_data_array(sample_format=sample_format)
         else:
             mask_coordinates = get_sample_list(mask)
             mask_array = xr.DataArray([m in mask_coordinates
@@ -94,7 +95,7 @@ def sample_array_mask(self, mask, sample_format=Strings.XARRAY):
                             name="mask",
                             dims=("sample"),
                             coords={"sample": initial_contents_array[Strings.SAMPLE].data})
-        masked_array = initial_contents_array.where(mask_array, drop=True)
+            masked_array = initial_contents_array.where(mask_array, drop=True)
         return masked_array
     else:
         raise Exception(f'Sample format {self.sample_format} is not currently supported by the mask method')
@@ -279,6 +280,22 @@ def sample_array_plot(self, out_dir="out"):
         return None
 labop.SampleArray.plot = sample_array_plot
 
+def sample_array_sample_coordinates(self):
+    sample_array = deserialize_sample_format(self.initial_contents, parent=self)
+    coords = sample_array.coords[Strings.SAMPLE].data.tolist()
+    plate_coords = get_sample_list("A1:H12")
+    if all([ c in coords for c in plate_coords]):
+        return "A1:H12"
+    else:
+        return coords
+labop.SampleArray.sample_coordinates = sample_array_sample_coordinates
+
+def sample_mask_sample_coordinates(self):
+    sample_array = self.to_masked_data_array()
+    return sample_array.coords[Strings.SAMPLE].data.tolist()
+labop.SampleMask.sample_coordinates = sample_mask_sample_coordinates
+
+
 def sample_array_to_dot(self, dot, out_dir="out"):
     name = self.name if (hasattr(self, "name") and self.name) else self.identity
     if self.plot(out_dir=out_dir):
@@ -325,11 +342,18 @@ def sample_metadata_from_excel(filename: Union[str, os.PathLike],
                                sample_format=Strings.XARRAY,
                                record_source=False):
     metadata = labop.SampleMetadata(for_samples=for_samples)
-    metadata_df = pd.read_excel(filename)
-    rename_map = {"Unnamed: 0": Strings.SAMPLE} if "Unnamed: 0" in metadata_df.columns else {}
-    metadata_df = metadata_df.rename(rename_map, axis=1)
-    # Assume that first column is the sample index
-    metadata_df = metadata_df.set_index(metadata_df.columns[0])
+
+    wb = load_workbook(filename=filename, data_only=True)
+    sheet_names = wb.get_sheet_names()
+    sheet_name = sheet_names[0]
+    ws = wb[sheet_name]
+    data = ws.values
+    cols = next(data)[1:]
+    data = list(data)
+    idx = [r[0] for r in data]
+    data = (islice(r, 1, None) for r in data)
+    metadata_df = pd.DataFrame(data, index=idx, columns=cols)
+    metadata_df.index.name = Strings.SAMPLE
 
     if sample_format == Strings.XARRAY:
         # Convert pd.DataFrame into xr.DataArray
@@ -384,7 +408,7 @@ def sample_metadata_for_primitive(primitive: labop.Primitive,
     return metadata
 labop.SampleMetadata.for_primitive = sample_metadata_for_primitive
 
-def dataset_to_dataset(self: labop.Dataset, sample_format=Strings.XARRAY):
+def dataset_to_dataset(self: labop.Dataset, sample_format=Strings.XARRAY, humanize=False):
     """
     Join the self.data and self.metadata into a single xarray dataset.
 
@@ -399,6 +423,8 @@ def dataset_to_dataset(self: labop.Dataset, sample_format=Strings.XARRAY):
     linked_metadata = [m.lookup().to_data_array(sample_format=sample_format) for m in self.linked_metadata] if self.linked_metadata else []
     to_merge = data + metadata + datasets + linked_metadata
     ds = xr.merge(to_merge)
+    if humanize:
+        ds = self.humanize(dataset=ds)
     return ds
 labop.Dataset.to_dataset = dataset_to_dataset
 
@@ -421,28 +447,31 @@ def deserialize_sample_format(data: str, parent: sbol3.Identified = None):
             xarray_data = xr.DataArray.from_dict(json_data)
             if parent:
                 xarray_data.name = parent.identity
-            return xarray_data
+            return sort_samples(xarray_data, sample_format=Strings.XARRAY)
         except:
             try:
                 xarray_data = xr.Dataset.from_dict(json_data)
                 if Strings.SOURCE in xarray_data.coords:
                     xarray_data.coords[Strings.SOURCE] = [parent.identity]
-                return xarray_data
+                return sort_samples(xarray_data, sample_format=Strings.XARRAY)
             except:
-                return json_data
+                return sort_samples(json_data, sample_format=Strings.JSON)
     except Exception as e:
         raise Exception(f"Could not determine format of data: {e}")
 
-def sort_samples(data):
-    data = data.assign_coords(
-        samplez=("sample",
-                 [(f"{s[:1]}0{s[1:]}" if len(s) == 2 else s) for s in data.coords["sample"].data])
-    ).sortby("samplez").reset_coords("samplez", drop=True)
+def sort_samples(data, sample_format=Strings.XARRAY):
+
+    if sample_format == Strings.XARRAY:
+        if Strings.SAMPLE in data.coords:
+            data = data.assign_coords(
+                samplez=("sample",
+                        [(f"{s[:1]}0{s[1:]}" if len(s) == 2 else s) for s in data.coords["sample"].data])
+            ).sortby("samplez").reset_coords("samplez", drop=True)
     return data
 
 
 def sample_data_update_data_sheet(self, data_file_path, sheet_name, sample_format=Strings.XARRAY):
-    sample_array = labop.sort_samples(labop.deserialize_sample_format(self.values, parent=self))
+    sample_array = self.humanize()
 
     # Check whether data exists in the data template, and load it
     changed = False
@@ -472,8 +501,6 @@ def sample_data_update_data_sheet(self, data_file_path, sheet_name, sample_forma
     if not changed:
         mode = "a" if os.path.exists(data_file_path) else "w"
         kwargs = {"if_sheet_exists":"replace"} if mode == "a" else {}
-        # kwargs['strings_to_formulas'] = False
-        # kwargs['strings_to_urls'] = False
         with pd.ExcelWriter(
             data_file_path,
             mode=mode,
@@ -486,8 +513,63 @@ def sample_data_update_data_sheet(self, data_file_path, sheet_name, sample_forma
                 )
 labop.SampleData.update_data_sheet = sample_data_update_data_sheet
 
+def dataset_humanize(self, dataset=None):
+    # rename all dataset variables to human readible names
+    # for variable in dataset.variables:
+    #     variable.name = "foo"
+    #     for
+    # rename all values of variables to human readible values
+
+    if dataset is None:
+        dataset = self.to_dataset(humanize=True)  # to_dataset will call this function again with an xaray.Dataset for dataset
+
+    vars = list(dataset.data_vars.keys())
+    var_map = {}
+    for var in vars:
+        var_obj = self.document.find(var)
+        if var_obj is not None:
+            var_map[var] = str(var_obj.name)
+        values = dataset[var]
+        if values.dtype.str == "<U102" or values.dtype.str == "|O":
+            unique_values = set(values.data.tolist())
+            for old in unique_values:
+                val_obj = self.document.find(old)
+                if val_obj is not None:
+                    new = str(val_obj)
+                    values = values.astype("str").str.replace(old, str(new))
+            dataset = dataset.assign({var: values})
+
+    dataset = dataset.rename(var_map)
+    return dataset
+labop.Dataset.humanize = dataset_humanize
+
+def sample_data_humanize(self):
+    # rename all dataset variables to human readible names
+    # for variable in dataset.variables:
+    #     variable.name = "foo"
+    #     for
+    # rename all values of variables to human readible values
+
+    sample_array = self.to_data_array()
+
+    var = sample_array.name
+    var_obj = self.document.find(var)
+    if var_obj is not None:
+        sample_array.name = str(var_obj.name)
+
+    if sample_array.dtype.str == "<U102" or sample_array.dtype.str == "|O":
+        unique_values = set(sample_array.data.tolist())
+        for old in unique_values:
+            val_obj = self.document.find(old)
+            if val_obj is not None:
+                new = str(val_obj)
+                sample_array = sample_array.str.replace(old, str(new))
+    return sample_array
+labop.SampleData.humanize = sample_data_humanize
+
 def dataset_update_data_sheet(self, data_file_path, sheet_name, sample_format=Strings.XARRAY):
-    dataset = sort_samples(self.to_dataset())
+    dataset = sort_samples(self.to_dataset(humanize=True), sample_format=sample_format)
+
 
     # # Check whether data exists in the data template, and load it
     # changed = False

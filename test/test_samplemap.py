@@ -43,7 +43,7 @@ logger.setLevel(logging.INFO)
 class TestProtocolEndToEnd(unittest.TestCase):
     def test_create_protocol(self):
 
-        protocol: labop.Protocol, doc: sbol3.Document = initialize_protocol()
+        protocol, doc = initialize_protocol()
 
         # The aliquots will be the coordinates of the SampleArray and SampleMap objects
         num_aliquots = 4

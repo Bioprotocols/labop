@@ -8,6 +8,7 @@ import labop
 import labop.data
 from labop.lab_interface import LabInterface
 import uml
+import uuid
 
 l = logging.getLogger(__file__)
 l.setLevel(logging.ERROR)
@@ -148,6 +149,9 @@ def plate_coordinates_compute_output(self, inputs, parameter, sample_format):
 
         return mask
 
+def get_short_uuid(obj):
+    return hash(str(obj)) % 1000
+
 def measure_absorbance_compute_output(self, inputs, parameter, sample_format):
     if parameter.name == "measurements" and \
        parameter.type == 'http://bioprotocols.org/labop#Dataset':
@@ -157,7 +161,8 @@ def measure_absorbance_compute_output(self, inputs, parameter, sample_format):
 
 
         measurements = LabInterface.measure_absorbance(samples.get_coordinates(sample_format), wl.value, sample_format)
-        sample_data = labop.SampleData(from_samples=samples, values=measurements)
+        name = f"{self.display_id}.{parameter.name}.{get_short_uuid([self, parameter, inputs])}"
+        sample_data = labop.SampleData(name=name, from_samples=samples, values=measurements)
         sample_metadata = labop.SampleMetadata.for_primitive(self, input_map, samples, sample_format=sample_format)
         sample_dataset = labop.Dataset(data=sample_data, metadata=[sample_metadata])
         return sample_dataset
@@ -172,7 +177,8 @@ def measure_fluorescence_compute_output(self, inputs, parameter, sample_format):
         bandpass = input_map["emissionBandpassWidth"]
 
         measurements = LabInterface.measure_fluorescence(samples.get_coordinates(sample_format), exwl.value, emwl.value, bandpass.value,  sample_format)
-        sample_data = labop.SampleData(from_samples=samples, values=measurements)
+        name = f"{self.display_id}.{parameter.name}.{get_short_uuid([self, parameter, inputs])}"
+        sample_data = labop.SampleData(name=name, from_samples=samples, values=measurements)
         sample_metadata = labop.SampleMetadata.for_primitive(self, input_map, samples, sample_format=sample_format)
         sample_dataset = labop.Dataset(data=sample_data, metadata=[sample_metadata])
         return sample_dataset

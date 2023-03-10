@@ -86,6 +86,18 @@ def activity_node_enabled(
         pins_with_tokens = {
             t.token_source.lookup().node.lookup() for t in tokens if not t.edge
         }
+        # pin_in_edges = { i.identity: [edge for edge in self.ex.protocol.lookup().incoming_edges(i)] for i in node.inputs}
+
+        # # Every required input pin has a token on each incoming edge
+        # all([
+        #     all([
+        #         any([
+        #             any([flow.lookup().edge == in_edge.identity
+        #                  for flow in  token.token_source.lookup().incoming_flows]) # flows are into pins
+        #               for token in tokens ]) # tokens going from pins to activity
+        #          for in_edge in pin_in_edges[pin.identity] ])  # in_edges are going into pins
+        #     for pin in required_input_pins])
+
         # parameter_names = {pv.parameter.lookup().property_value.name for pv in ex.parameter_values}
         # pins_with_params = {p for p in required_input_pins if p.name in parameter_names}
         # satisfied_pins = set(list(pins_with_params) + list(pins_with_tokens))
@@ -145,12 +157,15 @@ def input_pin_enabled(
     }
 
     assert len(incoming_controls) == 0  # Pins do not receive control flow
-    assert len(incoming_objects) > 0  # input pins have at least one object flow
 
-    # Need at least one incoming object token
-    tokens_present = {t.edge.lookup() for t in tokens if t.edge}.issubset(
-        incoming_objects
-    )
+    # # Every incoming edge has a token
+
+    tokens_present = all([
+                        any([
+                            token.edge == in_edge.identity
+                            for token in tokens ]) # tokens going from pins to activity
+                        for in_edge in incoming_objects])  # in_edges are going into pins
+
 
     return tokens_present or engine.permissive
 
@@ -530,7 +545,7 @@ def activity_node_execute(
                 )
 
     # return updated token list
-    return [t for t in engine.tokens if t not in inputs] + new_tokens
+    return new_tokens, inputs
 
 
 uml.ActivityNode.execute = activity_node_execute
@@ -1498,11 +1513,12 @@ def input_pin_next_tokens_callback(
     out_edges: List[uml.ActivityEdge],
     node_outputs: Callable,
 ) -> List[labop.ActivityEdgeFlow]:
-    assert len(source.incoming_flows) == 1  # One input per pin
-    incoming_flow = source.incoming_flows[0].lookup()
-    pin_value = uml.literal(value=incoming_flow.value, reference=True)
+    assert len(source.incoming_flows) == len(engine.ex.protocol.lookup().incoming_edges(source.node.lookup()))
+    incoming_flows = [f.lookup() for f in source.incoming_flows]
+    pin_values = [uml.literal(value=incoming_flow.value, reference=True) for incoming_flow in incoming_flows]
     edge_tokens = [
         labop.ActivityEdgeFlow(edge=None, token_source=source, value=pin_value)
+        for pin_value in pin_values
     ]
     return edge_tokens
 

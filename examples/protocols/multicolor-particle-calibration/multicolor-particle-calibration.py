@@ -448,7 +448,12 @@ final_dataset = protocol.primitive_step("JoinDatasets",
                                        meta3.output_pin('enhanced_dataset'),
                                        meta4.output_pin('enhanced_dataset')]
                               )
-protocol.designate_output('dataset', 'http://bioprotocols.org/labop#Dataset', source=final_dataset.output_pin('joint_dataset'))
+outnode = protocol.designate_output('dataset', 'http://bioprotocols.org/labop#Dataset', source=final_dataset.output_pin('joint_dataset'))
+
+protocol.order(final_dataset, protocol.final())
+protocol.order(outnode, protocol.final())
+
+protocol.to_dot().render(os.path.join(OUT_DIR, filename))
 
 ee = ExecutionEngine(
     out_dir=OUT_DIR,
@@ -466,10 +471,13 @@ dataset.to_dataframe().to_excel(os.path.join(OUT_DIR, filename + '.xlsx'))
 
 print(execution.markdown)
 
-# Dress up the markdown to make it pretty and more readable
-execution.markdown = execution.markdown.replace(' milliliter', 'mL')
-execution.markdown = execution.markdown.replace(' nanometer', 'nm')
-execution.markdown = execution.markdown.replace(' microliter', 'uL')
+# # Dress up the markdown to make it pretty and more readable
+# execution.markdown = execution.markdown.replace(' milliliter', 'mL')
+# execution.markdown = execution.markdown.replace(' nanometer', 'nm')
+# execution.markdown = execution.markdown.replace(' microliter', 'uL')
 
-with open(os.path.join(OUT_DIR, __file__.split('.')[0] + '.md'), 'w', encoding='utf-8') as f:
-    f.write(execution.markdown)
+# with open(os.path.join(OUT_DIR, __file__.split('.')[0] + '.md'), 'w', encoding='utf-8') as f:
+#     f.write(execution.markdown)
+
+with open(os.path.join(OUT_DIR, f"{filename}.nt"), "w") as f:
+    f.write(doc.write_string(sbol3.SORTED_NTRIPLES).strip())
