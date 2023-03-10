@@ -387,7 +387,7 @@ digraph _root {
 </table>> fillcolor=white shape=none style=rounded]
 		interlab_ForkNode10 [label="" fillcolor=black height=0.02 shape=rectangle style=filled]
 		interlab_CallBehaviorAction43 [label=<<table border="0" cellspacing="0">
-  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="ValuePin1" border="1">image: /Users/danbryce/Documents/sift/xplan/external/labop/examples/protocols/multicolor-particle-calibration/serial_dilution.png</td><td> </td><td port="ValuePin2" border="1">caption: Serial Dilution</td><td> </td><td> </td></tr></table></td></tr>
+  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="ValuePin1" border="1">image: ..figures/serial_dilution.png</td><td> </td><td port="ValuePin2" border="1">caption: Serial Dilution</td><td> </td><td> </td></tr></table></td></tr>
   <tr><td port="node" bgcolor="white" border="1">EmbeddedImage</td></tr>
 </table>> fillcolor=white shape=none style=rounded]
 		interlab_CallBehaviorAction44 [label=<<table border="0" cellspacing="0">

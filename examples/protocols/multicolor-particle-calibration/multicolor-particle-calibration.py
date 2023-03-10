@@ -66,7 +66,7 @@ doc.add(sulforhodamine)
 
 protocol = labop.Protocol('interlab')
 protocol.name = 'Multicolor fluorescence per bacterial particle calibration'
-protocol.version = '1.1b'
+protocol.version = '1.2'
 protocol.description = '''Plate readers report fluorescence values in arbitrary units that vary widely from instrument to instrument. Therefore absolute fluorescence values cannot be directly compared from one instrument to another. In order to compare fluorescence output of biological devices, it is necessary to create a standard fluorescence curve. This variant of the protocol uses two replicates of three colors of dye, plus beads.
 Adapted from [https://dx.doi.org/10.17504/protocols.io.bht7j6rn](https://dx.doi.org/10.17504/protocols.io.bht7j6r) and [https://dx.doi.org/10.17504/protocols.io.6zrhf56](https://dx.doi.org/10.17504/protocols.io.6zrhf56)'''
 doc.add(protocol)
@@ -280,7 +280,11 @@ serial_dilution1 = protocol.primitive_step('SerialDilution',
 serial_dilution1.description = ' For each transfer, pipette up and down 3X to ensure the dilution is mixed homogeneously.'
 
 embedded_image = protocol.primitive_step('EmbeddedImage',
-                                         image=os.path.join(os.path.dirname(os.path.realpath(__file__)), 'serial_dilution.png'),
+                                         image=os.path.join(
+                                            # os.path.dirname(os.path.realpath(__file__)),
+                                            '..'
+                                            'figures',
+                                            'serial_dilution.png'),
                                          caption="Serial Dilution")
 
 serial_dilution2 = protocol.primitive_step('SerialDilution',
@@ -466,10 +470,7 @@ ee = ExecutionEngine(
 )
 execution = ee.execute(protocol, sbol3.Agent('test_agent'), id="test_execution", parameter_values=[])
 
-dataset = labop.sort_samples(ee.ex.parameter_values[0].value.get_value().to_dataset())
-dataset.to_dataframe().to_excel(os.path.join(OUT_DIR, filename + '.xlsx'))
-
-print(execution.markdown)
+# print(execution.markdown)
 
 # # Dress up the markdown to make it pretty and more readable
 # execution.markdown = execution.markdown.replace(' milliliter', 'mL')
