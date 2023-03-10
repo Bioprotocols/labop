@@ -15,6 +15,7 @@ SBOLFactory('labop_submodule',
 # Import symbols into the top-level labop module
 from labop_submodule import *
 from labop.ui import *
+from labop.utils import *
 from labop.data import *
 from labop.sample_maps import *
 from labop.primitive_execution import *
