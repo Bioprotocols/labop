@@ -1,4 +1,4 @@
-from helpers import file_diff
+from labop.utils.helpers import file_diff
 import filecmp
 from importlib.machinery import SourceFileLoader
 from importlib.util import module_from_spec, spec_from_loader
@@ -11,7 +11,7 @@ import labop
 
 from labop.execution_engine import ExecutionEngine
 from labop_convert.opentrons.opentrons_specialization import OT2Specialization
-from helpers import file_diff, OUT_DIR
+
 
 
 # Save testfiles as artifacts when running in CI environment,
@@ -21,6 +21,11 @@ if "GH_TMPDIR" in os.environ:
 else:
     TMPDIR = tempfile.gettempdir()
 
+OUT_DIR = os.path.join(
+    os.path.dirname(__file__), "out"
+)
+if not os.path.exists(OUT_DIR):
+    os.mkdir(OUT_DIR)
 
 def load_protocol(protocol_def_fn, protocol_filename):
     loader = SourceFileLoader(protocol_def_fn, protocol_filename)

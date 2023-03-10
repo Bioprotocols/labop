@@ -9,7 +9,7 @@ from importlib.util import spec_from_loader, module_from_spec
 import sbol3
 
 import labop
-from helpers import file_diff
+from labop.utils.helpers import file_diff
 
 # Save testfiles as artifacts when running in CI environment,
 # else save them to a local temp directory

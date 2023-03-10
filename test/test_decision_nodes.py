@@ -11,7 +11,12 @@ import labop
 from labop.execution_engine import ExecutionEngine
 from importlib.machinery import SourceFileLoader
 from importlib.util import spec_from_loader, module_from_spec
-from helpers import OUT_DIR
+
+OUT_DIR = os.path.join(
+    os.path.dirname(__file__), "out"
+)
+if not os.path.exists(OUT_DIR):
+    os.mkdir(OUT_DIR)
 
 # Save testfiles as artifacts when running in CI environment,
 # else save them to a local temp directory

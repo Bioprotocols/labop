@@ -9,7 +9,7 @@ import labop
 from labop.execution_engine import ExecutionEngine
 from labop_convert.markdown.markdown_specialization import MarkdownSpecialization
 from labop_convert.behavior_specialization import DefaultBehaviorSpecialization
-from helpers import OUT_DIR
+from labop.utils.helpers import OUT_DIR
 
 PARAMETER_IN = 'http://bioprotocols.org/uml#in'
 PARAMETER_OUT = 'http://bioprotocols.org/uml#out'

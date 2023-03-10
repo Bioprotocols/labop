@@ -6,7 +6,7 @@ from typing import Tuple
 import unittest
 import xarray as xr
 import json
-from helpers import file_diff
+from labop.utils.helpers import file_diff
 from labop_convert.markdown.markdown_specialization import MarkdownSpecialization
 
 from labop_convert.behavior_specialization import DefaultBehaviorSpecialization
