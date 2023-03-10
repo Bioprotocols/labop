@@ -1,3 +1,5 @@
+import dataclasses
+import datetime
 import types
 import logging
 from typing import List, Dict
@@ -8,7 +10,8 @@ import labop
 import labop.data
 from labop.lab_interface import LabInterface
 import uml
-import uuid
+import json
+import hashlib
 
 l = logging.getLogger(__file__)
 l.setLevel(logging.ERROR)
@@ -150,7 +153,34 @@ def plate_coordinates_compute_output(self, inputs, parameter, sample_format):
         return mask
 
 def get_short_uuid(obj):
-    return hash(str(obj)) % 1000
+    """
+    This function generates a 3 digit id for an object that is stable.
+
+    Parameters
+    ----------
+    obj : object
+        object needing an id
+    """
+    def json_default(thing):
+        try:
+            return dataclasses.asdict(thing)
+        except TypeError:
+            pass
+        if isinstance(thing, datetime.datetime):
+            return thing.isoformat(timespec='microseconds')
+        raise TypeError(f"object of type {type(thing).__name__} not serializable")
+
+    def json_dumps(thing):
+        return json.dumps(
+            thing,
+            default=json_default,
+            ensure_ascii=False,
+            sort_keys=True,
+            indent=None,
+            separators=(',', ':'),
+        )
+    j = int(hashlib.md5(json_dumps(obj).encode('utf-8')).digest().hex(),16)%1000
+    return j
 
 def measure_absorbance_compute_output(self, inputs, parameter, sample_format):
     if parameter.name == "measurements" and \
@@ -161,7 +191,7 @@ def measure_absorbance_compute_output(self, inputs, parameter, sample_format):
 
 
         measurements = LabInterface.measure_absorbance(samples.get_coordinates(sample_format), wl.value, sample_format)
-        name = f"{self.display_id}.{parameter.name}.{get_short_uuid([self, parameter, inputs])}"
+        name = f"{self.display_id}.{parameter.name}.{get_short_uuid([self.identity, parameter.identity, [i.value.identity for i in inputs]])}"
         sample_data = labop.SampleData(name=name, from_samples=samples, values=measurements)
         sample_metadata = labop.SampleMetadata.for_primitive(self, input_map, samples, sample_format=sample_format)
         sample_dataset = labop.Dataset(data=sample_data, metadata=[sample_metadata])
@@ -177,7 +207,7 @@ def measure_fluorescence_compute_output(self, inputs, parameter, sample_format):
         bandpass = input_map["emissionBandpassWidth"]
 
         measurements = LabInterface.measure_fluorescence(samples.get_coordinates(sample_format), exwl.value, emwl.value, bandpass.value,  sample_format)
-        name = f"{self.display_id}.{parameter.name}.{get_short_uuid([self, parameter, inputs])}"
+        name = f"{self.display_id}.{parameter.name}.{get_short_uuid([self.identity, parameter.identity, [i.value.identity for i in inputs]])}"
         sample_data = labop.SampleData(name=name, from_samples=samples, values=measurements)
         sample_metadata = labop.SampleMetadata.for_primitive(self, input_map, samples, sample_format=sample_format)
         sample_dataset = labop.Dataset(data=sample_data, metadata=[sample_metadata])

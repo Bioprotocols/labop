@@ -34,13 +34,14 @@ ContainerOntology = tyto.Ontology(path=container_ontology_path, uri='https://sif
 
 
 class MarkdownSpecialization(BehaviorSpecialization):
-    def __init__(self, out_file) -> None:
+    def __init__(self, out_file, sample_format=Strings.JSON) -> None:
         super().__init__()
         self.out_file = out_file
         self.var_to_entity = {}
         self.markdown_converter = None
         self.doc = None
         self.propagate_objects = False
+        self.sample_format = sample_format
 
     def initialize_protocol(self, execution: labop.ProtocolExecution, out_dir=None):
         super().initialize_protocol(execution, out_dir=out_dir)
@@ -506,7 +507,7 @@ class MarkdownSpecialization(BehaviorSpecialization):
         # Get coordinates if this is a plate
         coordinates = ''
         if isinstance(samples, labop.SampleMask):
-            coordinates = f'wells {samples.sample_coordinates()} of '
+            coordinates = f'wells {samples.sample_coordinates(sample_format=self.sample_format)} of '
             samples = samples.source.lookup()
 
         # Get the container specs
@@ -586,7 +587,7 @@ class MarkdownSpecialization(BehaviorSpecialization):
 
         # Add to markdown
         if destination_coordinates is not None:
-            destination_coordinates = f'wells {destination.sample_coordinates()} of '
+            destination_coordinates = f'wells {destination.sample_coordinates(sample_format=self.sample_format)} of '
 
         source_names = get_sample_names(source, error_msg='Transfer execution failed. All source Components must specify a name.')
         if len(source_names) == 0:
@@ -878,7 +879,7 @@ class MarkdownSpecialization(BehaviorSpecialization):
         if isinstance(destination, labop.SampleMask):
             destination_coordinates = f' wells {labop.deserialize_sample_format(destination.mask, destination)[Strings.SAMPLE].data.tolist()} of'
             destination = destination.source.lookup()
-        source_coordinates = source.sample_coordinates()
+        source_coordinates = source.sample_coordinates(sample_format=self.sample_format)
         if isinstance(source, labop.SampleMask):
             source = source.source.lookup()
 
@@ -1114,7 +1115,11 @@ def read_sample_contents(sample_array: Union[sbol3.Component, labop.SampleArray]
     if not sample_array.initial_contents:
         return {}
     # De-serialize the initial_contents field of a SampleArray
-    return labop.deserialize_sample_format(sample_array.initial_contents, sample_array)[Strings.SAMPLE].data.tolist()
+    contents = labop.deserialize_sample_format(sample_array.initial_contents, sample_array)
+    if isinstance(contents, xr.DataArray):
+        contents = contents[Strings.SAMPLE].data.tolist()
+    return contents
+
 
 
 def add_description(record, text):

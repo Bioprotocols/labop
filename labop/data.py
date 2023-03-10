@@ -280,19 +280,26 @@ def sample_array_plot(self, out_dir="out"):
         return None
 labop.SampleArray.plot = sample_array_plot
 
-def sample_array_sample_coordinates(self):
+def sample_array_sample_coordinates(self, sample_format=Strings.XARRAY):
     sample_array = deserialize_sample_format(self.initial_contents, parent=self)
-    coords = sample_array.coords[Strings.SAMPLE].data.tolist()
-    plate_coords = get_sample_list("A1:H12")
-    if all([ c in coords for c in plate_coords]):
-        return "A1:H12"
+    if sample_format == Strings.XARRAY:
+        coords = sample_array.coords[Strings.SAMPLE].data.tolist()
+        plate_coords = get_sample_list("A1:H12")
+        if all([ c in coords for c in plate_coords]):
+            return "A1:H12"
+        else:
+            return coords
     else:
-        return coords
+        return sample_array
 labop.SampleArray.sample_coordinates = sample_array_sample_coordinates
 
-def sample_mask_sample_coordinates(self):
+def sample_mask_sample_coordinates(self, sample_format=Strings.XARRAY):
     sample_array = self.to_masked_data_array()
-    return sample_array.coords[Strings.SAMPLE].data.tolist()
+
+    if sample_format == Strings.XARRAY:
+        return sample_array.coords[Strings.SAMPLE].data.tolist()
+    else:
+        return sample_array
 labop.SampleMask.sample_coordinates = sample_mask_sample_coordinates
 
 
@@ -424,7 +431,7 @@ def dataset_to_dataset(self: labop.Dataset, sample_format=Strings.XARRAY, humani
     to_merge = data + metadata + datasets + linked_metadata
     ds = xr.merge(to_merge)
     if humanize:
-        ds = self.humanize(dataset=ds)
+        ds = self.humanize(dataset=ds, sample_format=sample_format)
     return ds
 labop.Dataset.to_dataset = dataset_to_dataset
 
@@ -471,49 +478,50 @@ def sort_samples(data, sample_format=Strings.XARRAY):
 
 
 def sample_data_update_data_sheet(self, data_file_path, sheet_name, sample_format=Strings.XARRAY):
-    sample_array = self.humanize()
+    sample_array = self.humanize(sample_format=sample_format)
 
-    # Check whether data exists in the data template, and load it
-    changed = False
-    if os.path.exists(data_file_path):
-        try:
-            data_df = pd.read_excel(data_file_path, sheet_name=sheet_name)
-            # Assume that first column is the sample index
-            data_df = data_df.set_index(data_df.columns[0])
-            if sample_format == Strings.XARRAY:
-                # Convert pd.DataFrame into xr.DataArray
-                sample_data_array = xr.Dataset.from_dataframe(data_df)[sample_array.name]
+    if sample_format == Strings.XARRAY:
+        # Check whether data exists in the data template, and load it
+        changed = False
+        if os.path.exists(data_file_path):
+            try:
+                data_df = pd.read_excel(data_file_path, sheet_name=sheet_name)
+                # Assume that first column is the sample index
+                data_df = data_df.set_index(data_df.columns[0])
+                if sample_format == Strings.XARRAY:
+                    # Convert pd.DataFrame into xr.DataArray
+                    sample_data_array = xr.Dataset.from_dataframe(data_df)[sample_array.name]
 
-                changed =  not(
-                    (sample_array.isnull().all() and sample_data_array.isnull().all()) or \
-                            (sample_data_array == sample_array).all()
-                )
-                if changed:
-                    sample_array = sample_data_array
-                    self.values = labop.serialize_sample_format(sample_array)
+                    changed =  not(
+                        (sample_array.isnull().all() and sample_data_array.isnull().all()) or \
+                                (sample_data_array == sample_array).all()
+                    )
+                    if changed:
+                        sample_array = sample_data_array
+                        self.values = labop.serialize_sample_format(sample_array)
 
-            else:
-                raise Exception(f"Cannot read sample_format {sample_format} from Excel")
-        except Exception as e:
-            # Sheet could not be loaded, so it did not change
-            pass
+                else:
+                    raise Exception(f"Cannot read sample_format {sample_format} from Excel")
+            except Exception as e:
+                # Sheet could not be loaded, so it did not change
+                pass
 
-    if not changed:
-        mode = "a" if os.path.exists(data_file_path) else "w"
-        kwargs = {"if_sheet_exists":"replace"} if mode == "a" else {}
-        with pd.ExcelWriter(
-            data_file_path,
-            mode=mode,
-            engine="openpyxl",
-            **kwargs
-            ) as writer:
-            sample_array.to_dataframe().to_excel(
-                writer,
-                sheet_name=sheet_name
-                )
+        if not changed:
+            mode = "a" if os.path.exists(data_file_path) else "w"
+            kwargs = {"if_sheet_exists":"replace"} if mode == "a" else {}
+            with pd.ExcelWriter(
+                data_file_path,
+                mode=mode,
+                engine="openpyxl",
+                **kwargs
+                ) as writer:
+                sample_array.to_dataframe().to_excel(
+                    writer,
+                    sheet_name=sheet_name
+                    )
 labop.SampleData.update_data_sheet = sample_data_update_data_sheet
 
-def dataset_humanize(self, dataset=None):
+def dataset_humanize(self, dataset=None, sample_format=Strings.XARRAY):
     # rename all dataset variables to human readible names
     # for variable in dataset.variables:
     #     variable.name = "foo"
@@ -523,92 +531,69 @@ def dataset_humanize(self, dataset=None):
     if dataset is None:
         dataset = self.to_dataset(humanize=True)  # to_dataset will call this function again with an xaray.Dataset for dataset
 
-    vars = list(dataset.data_vars.keys())
-    var_map = {}
-    for var in vars:
-        var_obj = self.document.find(var)
-        if var_obj is not None:
-            var_map[var] = str(var_obj.name)
-        values = dataset[var]
-        if values.dtype.str == "<U102" or values.dtype.str == "|O":
-            unique_values = set(values.data.tolist())
-            for old in unique_values:
-                val_obj = self.document.find(old)
-                if val_obj is not None:
-                    new = str(val_obj)
-                    values = values.astype("str").str.replace(old, str(new))
-            dataset = dataset.assign({var: values})
+    if sample_format == Strings.XARRAY:
+        vars = list(dataset.data_vars.keys())
+        var_map = {}
+        for var in vars:
+            var_obj = self.document.find(var)
+            if var_obj is not None:
+                var_map[var] = str(var_obj.name)
+            values = dataset[var]
+            if values.dtype.str == "<U102" or values.dtype.str == "|O":
+                unique_values = set(values.data.tolist())
+                for old in unique_values:
+                    val_obj = self.document.find(old)
+                    if val_obj is not None:
+                        new = str(val_obj)
+                        values = values.astype("str").str.replace(old, str(new))
+                dataset = dataset.assign({var: values})
 
-    dataset = dataset.rename(var_map)
-    return dataset
+        dataset = dataset.rename(var_map)
+        return dataset
+    else:
+        return dataset
 labop.Dataset.humanize = dataset_humanize
 
-def sample_data_humanize(self):
+def sample_data_humanize(self, sample_format=Strings.XARRAY):
     # rename all dataset variables to human readible names
     # for variable in dataset.variables:
     #     variable.name = "foo"
     #     for
     # rename all values of variables to human readible values
+    sample_array = self.to_data_array(sample_format=sample_format)
+    if sample_format == Strings.XARRAY:
+        var = sample_array.name
+        var_obj = self.document.find(var)
+        if var_obj is not None:
+            sample_array.name = str(var_obj.name)
 
-    sample_array = self.to_data_array()
-
-    var = sample_array.name
-    var_obj = self.document.find(var)
-    if var_obj is not None:
-        sample_array.name = str(var_obj.name)
-
-    if sample_array.dtype.str == "<U102" or sample_array.dtype.str == "|O":
-        unique_values = set(sample_array.data.tolist())
-        for old in unique_values:
-            val_obj = self.document.find(old)
-            if val_obj is not None:
-                new = str(val_obj)
-                sample_array = sample_array.str.replace(old, str(new))
-    return sample_array
+        if sample_array.dtype.str == "<U102" or sample_array.dtype.str == "|O":
+            unique_values = set(sample_array.data.tolist())
+            for old in unique_values:
+                val_obj = self.document.find(old)
+                if val_obj is not None:
+                    new = str(val_obj)
+                    sample_array = sample_array.str.replace(old, str(new))
+        return sample_array
+    else:
+        return sample_array
 labop.SampleData.humanize = sample_data_humanize
 
 def dataset_update_data_sheet(self, data_file_path, sheet_name, sample_format=Strings.XARRAY):
     dataset = sort_samples(self.to_dataset(humanize=True), sample_format=sample_format)
 
 
-    # # Check whether data exists in the data template, and load it
-    # changed = False
-    # if os.path.exists(data_file_path):
-    #     try:
-    #         data_df = pd.read_excel(data_file_path, sheet_name=sheet_name)
-    #         # Assume that first column is the sample index
-    #         data_df = data_df.set_index(data_df.columns[0])
-    #         if sample_format == Strings.XARRAY:
-    #             # Convert pd.DataFrame into xr.DataArray
-    #             stored_dataset = xr.Dataset.from_dataframe(data_df)
-
-    #             changed =  not(
-    #                 (dataset.isnull().all() and stored_dataset.isnull().all()) or \
-    #                         (stored_dataset == dataset).all()
-    #             )
-    #             if changed:
-    #                 dataset = stored_dataset
-    #                 self.values = labop.serialize_sample_format(sample_array)
-
-    #         else:
-    #             raise Exception(f"Cannot read sample_format {sample_format} from Excel")
-    #     except Exception as e:
-    #         # Sheet could not be loaded, so it did not change
-    #         pass
-
-    # if not changed:
-    mode = "a" if os.path.exists(data_file_path) else "w"
-    kwargs = {"if_sheet_exists":"replace"} if mode == "a" else {}
-    # kwargs['strings_to_formulas'] = False
-    # kwargs['strings_to_urls'] = False
-    with pd.ExcelWriter(
-        data_file_path,
-        mode=mode,
-        engine="openpyxl",
-        **kwargs
-        ) as writer:
-        dataset.to_dataframe().to_excel(
-            writer,
-            sheet_name=sheet_name
-            )
+    if len(dataset) > 0:
+        mode = "a" if os.path.exists(data_file_path) else "w"
+        kwargs = {"if_sheet_exists":"replace"} if mode == "a" else {}
+        with pd.ExcelWriter(
+            data_file_path,
+            mode=mode,
+            engine="openpyxl",
+            **kwargs
+            ) as writer:
+            dataset.to_dataframe().to_excel(
+                writer,
+                sheet_name=sheet_name
+                )
 labop.Dataset.update_data_sheet = dataset_update_data_sheet

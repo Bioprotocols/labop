@@ -10,6 +10,8 @@ from tyto import OM
 from labop.execution_engine import ExecutionEngine
 from labop_convert.markdown.markdown_specialization import MarkdownSpecialization
 
+from labop.strings import Strings
+
 
 
 OUT_DIR = os.path.join(
@@ -18,7 +20,7 @@ OUT_DIR = os.path.join(
 if not os.path.exists(OUT_DIR):
     os.mkdir(OUT_DIR)
 
-filename = "".join(__file__.split(".")[0].split('/')[-1:])
+filename = "".join(__file__.split(".py")[0].split('/')[-1:])
 
 doc = sbol3.Document()
 sbol3.set_namespace('http://igem.org/engineering/')
@@ -462,7 +464,7 @@ protocol.to_dot().render(os.path.join(OUT_DIR, filename))
 ee = ExecutionEngine(
     out_dir=OUT_DIR,
     specializations=[
-        MarkdownSpecialization(filename + '.md')
+        MarkdownSpecialization(filename + '.md', sample_format=Strings.XARRAY)
     ],
     failsafe=False,
     sample_format='xarray',

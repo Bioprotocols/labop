@@ -351,12 +351,12 @@ class ExecutionEngine(ABC):
 
         for dataset in datasets:
             sheet_name = f"{record.node.lookup().behavior.lookup().display_id}_dataset_{self.data_id}"
-            dataset.update_data_sheet(path, sheet_name, sample_format=Strings.XARRAY)
+            dataset.update_data_sheet(path, sheet_name, sample_format=self.sample_format)
             self.data_id += 1
 
         for sd in sample_data:
             sheet_name = f"{record.node.lookup().behavior.lookup().display_id}_data_{self.data_id}"
-            sd.update_data_sheet(path, sheet_name, sample_format=Strings.XARRAY)
+            sd.update_data_sheet(path, sheet_name, sample_format=self.sample_format)
             self.data_id += 1
 
 
