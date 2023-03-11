@@ -19,7 +19,7 @@ from labop_convert.plate_coordinates import get_sample_list, coordinate_rect_to_
 import uml
 import tyto
 from sbol3 import Document
-from helpers import initialize_protocol
+from labop.utils.helpers import initialize_protocol
 
 
 OUT_DIR = os.path.join(
