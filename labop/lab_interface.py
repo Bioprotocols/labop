@@ -1,5 +1,6 @@
 import random
 import json
+from typing import List
 from urllib.parse import quote, unquote
 from numpy import nan
 
@@ -8,40 +9,51 @@ import xarray as xr
 from labop.strings import Strings
 
 
-class LabInterface():
-
+class LabInterface:
     @staticmethod
-    def measure_absorbance(coordinates: list[str], wavelength: float, sample_format: str) -> xr.DataArray:
+    def measure_absorbance(
+        coordinates: List[str], wavelength: float, sample_format: str
+    ) -> xr.DataArray:
         # Override this method to interface with laboratory plate reader API
         if sample_format == Strings.XARRAY:
             measurements = xr.DataArray(
                 [nan for c in coordinates],
                 name=Strings.DATA,
                 dims=(Strings.SAMPLE),
-                coords={Strings.SAMPLE: coordinates}
-                )
+                coords={Strings.SAMPLE: coordinates},
+            )
             measurements = quote(json.dumps(measurements.to_dict()))
         elif sample_format == Strings.JSON:
             measurements = quote(json.dumps({}))
         else:
-            raise Exception(f"Cannot initialize contents of sample_format: {sample_format}")
+            raise Exception(
+                f"Cannot initialize contents of sample_format: {sample_format}"
+            )
         return measurements
 
     @staticmethod
-    def measure_fluorescence(coordinates: list[str], excitation: float, emission: float, bandpass: float, sample_format: str) -> xr.DataArray:
+    def measure_fluorescence(
+        coordinates: List[str],
+        excitation: float,
+        emission: float,
+        bandpass: float,
+        sample_format: str,
+    ) -> xr.DataArray:
         # Override this method to interface with laboratory plate reader API
         if sample_format == Strings.XARRAY:
             measurements = xr.DataArray(
                 [nan for c in coordinates],
                 name=Strings.DATA,
                 dims=(Strings.SAMPLE),
-                coords={Strings.SAMPLE: coordinates}
-                )
+                coords={Strings.SAMPLE: coordinates},
+            )
             measurements = quote(json.dumps(measurements.to_dict()))
         elif sample_format == Strings.JSON:
             measurements = quote(json.dumps({}))
         else:
-            raise Exception(f"Cannot initialize contents of sample_format: {sample_format}")
+            raise Exception(
+                f"Cannot initialize contents of sample_format: {sample_format}"
+            )
         return measurements
 
     @staticmethod
