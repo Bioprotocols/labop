@@ -57,8 +57,8 @@ class ExecutionEngine(ABC):
         permissive=False,
         use_defined_primitives=True,
         sample_format="xarray",
-        out_dir = "out",
-        dataset_file = False,
+        out_dir="out",
+        dataset_file=False,
     ):
         self.exec_counter = 0
         self.variable_counter = 0
@@ -86,7 +86,7 @@ class ExecutionEngine(ABC):
             id, List[Union[ExecutionWarning, ExecutionError]]
         ] = {}  # List of Warnings and Errors
         self.out_dir = out_dir
-        self.dataset_file = dataset_file # Write dataset specifications as template files used to fill in data
+        self.dataset_file = dataset_file  # Write dataset specifications as template files used to fill in data
         self.data_id = 0
         self.data_id_map = {}
         self.candidate_clusters = {}
@@ -228,13 +228,15 @@ class ExecutionEngine(ABC):
         node_outputs: Dict[uml.ActivityNode, Callable] = {},
     ):
         non_call_nodes = [
-                node
-                for node in ready
-                if not isinstance(node, uml.CallBehaviorAction)
-            ]
+            node
+            for node in ready
+            if not isinstance(node, uml.CallBehaviorAction)
+        ]
         new_tokens = []
         # prefer executing non_call_nodes first
-        for node in non_call_nodes + [n for n in ready if n not in non_call_nodes]:
+        for node in non_call_nodes + [
+            n for n in ready if n not in non_call_nodes
+        ]:
             self.current_node = node
             try:
                 tokens_added, tokens_removed = node.execute(
@@ -243,7 +245,9 @@ class ExecutionEngine(ABC):
                         node_outputs[node] if node in node_outputs else None
                     ),
                 )
-                self.tokens = [t for t in self.tokens if t not in tokens_removed]
+                self.tokens = [
+                    t for t in self.tokens if t not in tokens_removed
+                ]
 
                 new_tokens = new_tokens + tokens_added
                 record = self.ex.executions[-1]
@@ -305,28 +309,35 @@ class ExecutionEngine(ABC):
         updated_clusters = set({})
         for t in tokens_added:
             target = t.get_target()
-            self.candidate_clusters[target.identity] = self.candidate_clusters.get(target.identity, []) + [
-                t
-            ]
+            self.candidate_clusters[
+                target.identity
+            ] = self.candidate_clusters.get(target.identity, []) + [t]
             updated_clusters.add(target)
-        return [
-            n for n in updated_clusters
+
+        enabled_nodes = [
+            n
+            for n in updated_clusters
             if n.enabled(self, self.candidate_clusters[n.identity])
         ]
+        enabled_nodes.sort(
+            key=lambda x: x.identity
+        )  # Avoid any ordering non-determinism
 
+        return enabled_nodes
 
     def post_process(
-            self,
-            record: labop.ActivityNodeExecution,
-            new_tokens: List[labop.ActivityEdgeFlow]
+        self,
+        record: labop.ActivityNodeExecution,
+        new_tokens: List[labop.ActivityEdgeFlow],
     ):
         if self.dataset_file is not None:
-                self.write_data_templates(record, new_tokens)
+            self.write_data_templates(record, new_tokens)
 
-
-    def write_data_templates(self,
-                             record: labop.ActivityNodeExecution,
-                             new_tokens: List[labop.ActivityEdgeFlow]):
+    def write_data_templates(
+        self,
+        record: labop.ActivityNodeExecution,
+        new_tokens: List[labop.ActivityEdgeFlow],
+    ):
         """
         Write a data template as an xlsx file if the record.node produces sample data (i.e., it has an output of type labop.Dataset with a data attribute of type labop.SampleData)
         Parameters
@@ -338,11 +349,14 @@ class ExecutionEngine(ABC):
             return
 
         # Find all labop.Dataset objects produced by record
-        datasets = [ token.value.get_value()
+        datasets = [
+            token.value.get_value()
             for token in new_tokens
-            if token.token_source == record.identity and isinstance(token.value.get_value(), labop.Dataset)
+            if token.token_source == record.identity
+            and isinstance(token.value.get_value(), labop.Dataset)
         ]
-        sample_data = [ dataset.data
+        sample_data = [
+            dataset.data
             for dataset in datasets
             if isinstance(dataset.data, labop.SampleData)
         ]
@@ -351,18 +365,17 @@ class ExecutionEngine(ABC):
 
         for dataset in datasets:
             sheet_name = f"{record.node.lookup().behavior.lookup().display_id}_dataset_{self.data_id}"
-            dataset.update_data_sheet(path, sheet_name, sample_format=self.sample_format)
+            dataset.update_data_sheet(
+                path, sheet_name, sample_format=self.sample_format
+            )
             self.data_id += 1
 
         for sd in sample_data:
             sheet_name = f"{record.node.lookup().behavior.lookup().display_id}_data_{self.data_id}"
-            sd.update_data_sheet(path, sheet_name, sample_format=self.sample_format)
+            sd.update_data_sheet(
+                path, sheet_name, sample_format=self.sample_format
+            )
             self.data_id += 1
-
-
-
-
-
 
 
 class ManualExecutionEngine(ExecutionEngine):
@@ -376,7 +389,9 @@ class ManualExecutionEngine(ExecutionEngine):
         ready = protocol.initiating_nodes()
         ready = self.advance(ready)
         choices = self.ready_message(ready)
-        graph = self.ex.to_dot(ready=ready, done=self.ex.backtrace()[0], out_dir=self.out_dir)
+        graph = self.ex.to_dot(
+            ready=ready, done=self.ex.backtrace()[0], out_dir=self.out_dir
+        )
         return ready, choices, graph
 
     def advance(self, ready: List[uml.ActivityNode]):
@@ -525,7 +540,7 @@ def protocol_execution_to_dot(
     execution_engine=None,
     ready: List[uml.ActivityNode] = [],
     done=set([]),
-    out_dir="out"
+    out_dir="out",
 ):
     """
     Create a dot graph that illustrates edge values appearing the execution of the protocol.
