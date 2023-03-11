@@ -58,7 +58,7 @@ class ExecutionEngine(ABC):
         use_defined_primitives=True,
         sample_format="xarray",
         out_dir="out",
-        dataset_file=False,
+        dataset_file=None,
     ):
         self.exec_counter = 0
         self.variable_counter = 0

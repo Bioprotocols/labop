@@ -66,5 +66,5 @@ Adapted from [https://dx.doi.org/10.17504/protocols.io.bht7j6rn](https://dx.doi.
 38. Measure absorbance of `calibration plate` at 600.0 nanometer.
 39. Import data into the provided Excel file: Dataset: [multicolor-particle-calibration.xlsx](multicolor-particle-calibration.xlsx).
 ---
-Timestamp: 2023-03-10 15:27:12.632180
+Timestamp: 2023-03-11 16:07:18.485143
 Protocol version: 1.2

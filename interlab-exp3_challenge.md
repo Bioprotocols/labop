@@ -127,5 +127,5 @@ Data variables:
 40. Measure fluorescence timepoint of `Plates 2, 3, and 4` with excitation wavelength of 488.0nm and emission filter of 530.0nm and 30.0nm bandpass.
 41. Import data into the provided Excel file: `baseline absorbance of culture (day 2) measurements of cultures (0 hr timepoint)`, `0 hr absorbance timepoint measurements of plate 1`, `0 hr fluorescence timepoint measurements of plate 1`, `absorbance timepoint measurements of plate 1 at timepoints 2.0 hour, 4.0 hour, 6.0 hour`, `fluorescence timepoint measurements of plate 1 at timepoints 2.0 hour, 4.0 hour, 6.0 hour`, `absorbance timepoint measurements of Plates 2, 3, and 4`, `fluorescence timepoint measurements of Plates 2, 3, and 4`.
 ---
-Timestamp: 2023-03-11 14:21:08.799390
+Timestamp: 2023-03-11 16:06:01.091432
 Protocol version: 1.2b

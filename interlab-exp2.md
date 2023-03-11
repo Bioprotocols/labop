@@ -39,5 +39,5 @@ This experiment aims to assess the lab-to-lab reproducibility of the three color
 ## Protocol Steps:
 1. Import data into the provided Excel file: .
 ---
-Timestamp: 2023-03-11 14:20:42.579117
+Timestamp: 2023-03-11 16:05:34.526107
 Protocol version: 1.0b
