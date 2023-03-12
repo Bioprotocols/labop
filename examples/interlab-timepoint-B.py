@@ -37,9 +37,7 @@ labop.import_library("culturing")
 
 
 # create the materials to be provisioned
-dh5alpha = sbol3.Component(
-    "dh5alpha", "https://identifiers.org/taxonomy:668369"
-)
+dh5alpha = sbol3.Component("dh5alpha", "https://identifiers.org/taxonomy:668369")
 dh5alpha.name = "_E. coli_ DH5 alpha"
 doc.add(dh5alpha)
 
@@ -69,39 +67,27 @@ pos_control_plasmid = sbol3.Component(
 pos_control_plasmid.name = "Positive control (I20270)"
 pos_control_plasmid.description = "BBa_I20270 Kit Plate 1 Well 1A"
 
-test_device1 = sbol3.Component(
-    "test_device1", "http://parts.igem.org/Part:BBa_J364000"
-)
+test_device1 = sbol3.Component("test_device1", "http://parts.igem.org/Part:BBa_J364000")
 test_device1.name = "Test Device 1 (J364000)"
 test_device1.description = "BBa_J364000 Kit Plate 1 Well 1C"
 
-test_device2 = sbol3.Component(
-    "test_device2", "http://parts.igem.org/Part:BBa_J364001"
-)
+test_device2 = sbol3.Component("test_device2", "http://parts.igem.org/Part:BBa_J364001")
 test_device2.name = "Test Device 2 (J364001)"
 test_device2.description = "BBa_J364001 Kit Plate 1 Well 1E"
 
-test_device3 = sbol3.Component(
-    "test_device3", "http://parts.igem.org/Part:BBa_J364002"
-)
+test_device3 = sbol3.Component("test_device3", "http://parts.igem.org/Part:BBa_J364002")
 test_device3.name = "Test Device 3 (J364002)"
 test_device3.description = "BBa_J364002 Kit Plate 1 Well 1G"
 
-test_device4 = sbol3.Component(
-    "test_device4", "http://parts.igem.org/Part:BBa_J364007"
-)
+test_device4 = sbol3.Component("test_device4", "http://parts.igem.org/Part:BBa_J364007")
 test_device4.name = "Test Device 4 (J364007)"
 test_device4.description = "BBa_J364007 Kit Plate 1 Well 1I"
 
-test_device5 = sbol3.Component(
-    "test_device5", "http://parts.igem.org/Part:BBa_J364008"
-)
+test_device5 = sbol3.Component("test_device5", "http://parts.igem.org/Part:BBa_J364008")
 test_device5.name = "Test Device 5 (J364008)"
 test_device5.description = "BBa_J364008 Kit Plate 1 Well 1K"
 
-test_device6 = sbol3.Component(
-    "test_device6", "http://parts.igem.org/Part:BBa_J364009"
-)
+test_device6 = sbol3.Component("test_device6", "http://parts.igem.org/Part:BBa_J364009")
 test_device6.name = "Test Device 6 (J364009)"
 test_device6.description = "BBa_J364009 Kit Plate 1 Well 1M"
 
@@ -147,9 +133,7 @@ culture_plates = protocol.primitive_step(
     specification=labop.ContainerSpec(
         name=f"test strains",
         queryString="cont:CulturePlate",
-        prefixMap={
-            "cont": "https://sift.net/container-ontology/container-ontology#"
-        },
+        prefixMap={"cont": "https://sift.net/container-ontology/container-ontology#"},
     ),
     growth_medium=lb_agar_cam,
 )
@@ -169,9 +153,7 @@ culture_container_day1 = protocol.primitive_step(
     specification=labop.ContainerSpec(
         name=f"culture (day 1)",
         queryString="cont:CultureTube",
-        prefixMap={
-            "cont": "https://sift.net/container-ontology/container-ontology#"
-        },
+        prefixMap={"cont": "https://sift.net/container-ontology/container-ontology#"},
     ),
 )
 
@@ -187,13 +169,9 @@ overnight_culture = protocol.primitive_step(
     inoculum=pick_colonies.output_pin("samples"),
     replicates=2,
     growth_medium=lb_cam,
-    volume=sbol3.Measure(
-        5, OM.millilitre
-    ),  # Actually 5-10 ml in the written protocol
+    volume=sbol3.Measure(5, OM.millilitre),  # Actually 5-10 ml in the written protocol
     duration=sbol3.Measure(16, OM.hour),  # Actually 16-18 hours
-    orbital_shake_speed=sbol3.Measure(
-        220, None
-    ),  # No unit for RPM or inverse minutes
+    orbital_shake_speed=sbol3.Measure(220, None),  # No unit for RPM or inverse minutes
     temperature=sbol3.Measure(37, OM.degree_Celsius),
     container=culture_container_day1.output_pin("samples"),
 )
@@ -206,9 +184,7 @@ culture_container_day2 = protocol.primitive_step(
     specification=labop.ContainerSpec(
         name=f"culture (day 2)",
         queryString="cont:CultureTube",
-        prefixMap={
-            "cont": "https://sift.net/container-ontology/container-ontology#"
-        },
+        prefixMap={"cont": "https://sift.net/container-ontology/container-ontology#"},
     ),
 )
 
@@ -231,9 +207,7 @@ timepoint_0hrs = protocol.primitive_step(
     specification=labop.ContainerSpec(
         name="cultures (0 hr timepoint)",
         queryString="cont:MicrofugeTube",
-        prefixMap={
-            "cont": "https://sift.net/container-ontology/container-ontology#"
-        },
+        prefixMap={"cont": "https://sift.net/container-ontology/container-ontology#"},
     ),
 )
 
@@ -272,9 +246,7 @@ conical_tube = protocol.primitive_step(
     specification=labop.ContainerSpec(
         name=f"back-diluted culture",
         queryString="cont:50mlConicalTube",
-        prefixMap={
-            "cont": "https://sift.net/container-ontology/container-ontology#"
-        },
+        prefixMap={"cont": "https://sift.net/container-ontology/container-ontology#"},
     ),
 )
 conical_tube.description = (
@@ -295,8 +267,7 @@ dilution.description = " Use the provided Excel sheet to calculate this dilution
 embedded_image = protocol.primitive_step(
     "EmbeddedImage",
     image=os.path.join(
-        os.path.dirname(os.path.realpath(__file__)),
-        "fig1_challenge_protocol.png",
+        os.path.dirname(os.path.realpath(__file__)), "fig1_challenge_protocol.png"
     ),
 )
 
@@ -305,9 +276,7 @@ embedded_image = protocol.primitive_step(
 spec = labop.ContainerSpec(
     name=f"Tube 1",
     queryString="cont:50mlConicalTube",
-    prefixMap={
-        "cont": "https://sift.net/container-ontology/container-ontology#"
-    },
+    prefixMap={"cont": "https://sift.net/container-ontology/container-ontology#"},
 )
 timepoint_subculture1 = protocol.primitive_step(
     "ContainerSet", quantity=2 * len(plasmids), specification=spec
@@ -322,9 +291,7 @@ timepoint_subculture2 = protocol.primitive_step(
     specification=labop.ContainerSpec(
         name=f"Tube 2",
         queryString="cont:50mlConicalTube",
-        prefixMap={
-            "cont": "https://sift.net/container-ontology/container-ontology#"
-        },
+        prefixMap={"cont": "https://sift.net/container-ontology/container-ontology#"},
     ),
 )
 timepoint_subculture2.description = (
@@ -337,9 +304,7 @@ timepoint_subculture3 = protocol.primitive_step(
     specification=labop.ContainerSpec(
         name=f"Tube 3",
         queryString="cont:50mlConicalTube",
-        prefixMap={
-            "cont": "https://sift.net/container-ontology/container-ontology#"
-        },
+        prefixMap={"cont": "https://sift.net/container-ontology/container-ontology#"},
     ),
 )
 timepoint_subculture3.description = (
@@ -375,9 +340,7 @@ plate1 = protocol.primitive_step(
     specification=labop.ContainerSpec(
         name="plate 1",
         queryString="cont:Plate96Well",
-        prefixMap={
-            "cont": "https://sift.net/container-ontology/container-ontology#"
-        },
+        prefixMap={"cont": "https://sift.net/container-ontology/container-ontology#"},
     ),
 )
 
@@ -431,8 +394,7 @@ plate_blanks = protocol.primitive_step(
 plate_blanks.description = "These samples are blanks."
 
 embedded_image = protocol.primitive_step(
-    "EmbeddedImage",
-    image="/Users/bbartley/Dev/git/sd2/labop/fig2_cell_calibration.png",
+    "EmbeddedImage", image="/Users/bbartley/Dev/git/sd2/labop/fig2_cell_calibration.png"
 )
 
 # Cover plate
@@ -567,9 +529,7 @@ plates234 = protocol.primitive_step(
     specification=labop.ContainerSpec(
         name="Plates 2, 3, and 4",
         queryString="cont:Plate96Well",
-        prefixMap={
-            "cont": "https://sift.net/container-ontology/container-ontology#"
-        },
+        prefixMap={"cont": "https://sift.net/container-ontology/container-ontology#"},
     ),
 )
 

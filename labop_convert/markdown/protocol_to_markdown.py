@@ -13,37 +13,50 @@ from IPython.display import Markdown
 # Transform an Excel-style range (col:row, inclusive, alpha-numeric) to numpy-style (row:col, start/stop, numeric)
 def excel_to_numpy_range(excel_range):
     bounds = openpyxl.utils.cell.range_boundaries(excel_range)
-    return [bounds[1]-1,bounds[0]-1,bounds[3],bounds[2]]
+    return [bounds[1] - 1, bounds[0] - 1, bounds[3], bounds[2]]
 
-def numpy_to_excel_range(top,left,bottom,right):
-    if top+1==bottom and left+1==right: # degenerate case of a single cell
-        return openpyxl.utils.cell.get_column_letter(left+1)+str(top+1)
+
+def numpy_to_excel_range(top, left, bottom, right):
+    if top + 1 == bottom and left + 1 == right:  # degenerate case of a single cell
+        return openpyxl.utils.cell.get_column_letter(left + 1) + str(top + 1)
     else:
-        return openpyxl.utils.cell.get_column_letter(left+1)+str(top+1) + ":" + \
-               openpyxl.utils.cell.get_column_letter(right) + str(bottom)
+        return (
+            openpyxl.utils.cell.get_column_letter(left + 1)
+            + str(top + 1)
+            + ":"
+            + openpyxl.utils.cell.get_column_letter(right)
+            + str(bottom)
+        )
+
 
 def extract_range_from_top_left(region: numpy.ndarray):
     # find the largest rectangular region starting at the first top-left zero
     top = numpy.where(region)[0][0]
     left = numpy.where(region)[1][0]
-    right = numpy.where(region[top,:])[0][-1]+1
-    for bottom in range(top,region.shape[0]):
-        if not region[bottom,left:right].all():
+    right = numpy.where(region[top, :])[0][-1] + 1
+    for bottom in range(top, region.shape[0]):
+        if not region[bottom, left:right].all():
             bottom -= 1
             break
-    bottom += 1 # adjust to stop coordinate
+    bottom += 1  # adjust to stop coordinate
     region[top:bottom, left:right] = False
     return numpy_to_excel_range(top, left, bottom, right)
 
+
 def reduce_range_set(ranges):
-    assert len(ranges)>0, "Range set to reduce must have at least one element"
-    bounds = [max(openpyxl.utils.cell.range_boundaries(r)[i] for r in ranges) for i in range(2,4)]
-    region = numpy.zeros([bounds[1],bounds[0]],dtype=bool) # make an array of zeros
+    assert len(ranges) > 0, "Range set to reduce must have at least one element"
+    bounds = [
+        max(openpyxl.utils.cell.range_boundaries(r)[i] for r in ranges)
+        for i in range(2, 4)
+    ]
+    region = numpy.zeros([bounds[1], bounds[0]], dtype=bool)  # make an array of zeros
     # mark each range in turn, ensuring that they don't overlap
     for r in ranges:
         nr = excel_to_numpy_range(r)
-        assert not (region[nr[0]:nr[2], nr[1]:nr[3]]).any(), ValueError("Found overlapping range in "+str(ranges))
-        region[nr[0]:nr[2], nr[1]:nr[3]] = True
+        assert not (region[nr[0] : nr[2], nr[1] : nr[3]]).any(), ValueError(
+            "Found overlapping range in " + str(ranges)
+        )
+        region[nr[0] : nr[2], nr[1] : nr[3]] = True
     # pull chunks out until all zeros
     reduced = set()
     while region.any():
@@ -55,16 +68,27 @@ def reduce_range_set(ranges):
 # Converter state object, to be carried along with "to_markdown" functions
 #
 # TODO: make this build PROV-O as it goes?
-class MarkdownConverter():
+class MarkdownConverter:
     def __init__(self, document: sbol3.Document):
         self.document = document
-        #self.protocol_typing = labop.type_inference.ProtocolTyping()
+        # self.protocol_typing = labop.type_inference.ProtocolTyping()
 
     def markdown_header(self, protocol):
-        header = '# ' + (protocol.display_id if (protocol.name is None) else protocol.name) + '\n'
-        header += '\n'
-        header += '## Description:\n' + (
-            'No description given' if protocol.description is None else protocol.description) + '\n'
+        header = (
+            "# "
+            + (protocol.display_id if (protocol.name is None) else protocol.name)
+            + "\n"
+        )
+        header += "\n"
+        header += (
+            "## Description:\n"
+            + (
+                "No description given"
+                if protocol.description is None
+                else protocol.description
+            )
+            + "\n"
+        )
         return header
 
     # Entry-point for document conversion
@@ -77,18 +101,19 @@ class MarkdownConverter():
         # print('Inferring flow values')
         # self.protocol_typing.infer_typing(protocol)
 
-        print('Serializing activities')
+        print("Serializing activities")
         serialized_noncontrol_activities = serialize_activities(execution)
 
-        print('Writing markdown file')
-        markdown = write_markdown_file(execution, serialized_noncontrol_activities, self, out=out)
+        print("Writing markdown file")
+        markdown = write_markdown_file(
+            execution, serialized_noncontrol_activities, self, out=out
+        )
 
-        print('Writing Excel file')
+        print("Writing Excel file")
         # write_excel_file(protocol, serialized_noncontrol_activities, self)
 
-        print('Export complete')
+        print("Export complete")
         return markdown
-
 
 
 # ##############################################
@@ -233,10 +258,12 @@ class MarkdownConverter():
 #############################
 # Other sorts of markdown functions
 
-def markdown_input(input : uml.Parameter, mdc: MarkdownConverter):
-    bullet = '* ' + str(input)
-    if input.description is not None: bullet += ': ' + input.description
-    bullet += '\n'
+
+def markdown_input(input: uml.Parameter, mdc: MarkdownConverter):
+    bullet = "* " + str(input)
+    if input.description is not None:
+        bullet += ": " + input.description
+    bullet += "\n"
     return bullet
 
 
@@ -278,49 +305,71 @@ def serialize_activities(execution: labop.ProtocolExecution):
     # assert isinstance(serialized_activities[-1], labop.Final)
 
     # filter out control flow statements
-    serialized_noncontrol_activities = [x for x in serialized_activities if (not isinstance(x, uml.ControlNode)) and (not isinstance(x, uml.ObjectNode))]
+    serialized_noncontrol_activities = [
+        x
+        for x in serialized_activities
+        if (not isinstance(x, uml.ControlNode)) and (not isinstance(x, uml.ObjectNode))
+    ]
     serialized_noncontrol_activities.reverse()
     return serialized_noncontrol_activities
+
 
 ##############################
 # Write to a markdown file
 
-def write_markdown_file(execution: labop.ProtocolExecution, serialized_noncontrol_activities, mdc: MarkdownConverter, out=None):
+
+def write_markdown_file(
+    execution: labop.ProtocolExecution,
+    serialized_noncontrol_activities,
+    mdc: MarkdownConverter,
+    out=None,
+):
     protocol = execution.protocol.lookup()
     markdown = mdc.markdown_header(protocol)
 
-    markdown += '\n\n## Protocol Inputs:\n'
+    markdown += "\n\n## Protocol Inputs:\n"
     for i in protocol.parameters:
         if i.property_value.direction == uml.PARAMETER_IN:
             markdown += markdown_input(i.property_value, mdc)
 
-    markdown += '\n\n## Materials\n'
+    markdown += "\n\n## Materials\n"
     # for material in protocol.material:
     #     file.write(markdown_material(material.lookup(), mdc))
 
-    markdown += '\n\n## Containers\n'
+    markdown += "\n\n## Containers\n"
     # for container in (x for x in protocol.locations if isinstance(x, labop.Container)):
     #     file.write(markdown_container_toplevel(container, mdc))
 
-    markdown += '\n\n## Steps\n'
+    markdown += "\n\n## Steps\n"
     for step in range(len(serialized_noncontrol_activities)):
-        print('Writing step '+str(step)+": "+serialized_noncontrol_activities[step].identity)
-        #file.write('### Step ' + str(step + 1) + '\n' + serialized_noncontrol_activities[step].to_markdown(mdc) + '\n')
+        print(
+            "Writing step "
+            + str(step)
+            + ": "
+            + serialized_noncontrol_activities[step].identity
+        )
+        # file.write('### Step ' + str(step + 1) + '\n' + serialized_noncontrol_activities[step].to_markdown(mdc) + '\n')
         # file.write(str(step + 1) + '. ' + serialized_noncontrol_activities[step].to_markdown(mdc) + '\n')
-        markdown += str(step + 1) + '. ' + serialized_noncontrol_activities[step].behavior + '\n'
+        markdown += (
+            str(step + 1)
+            + ". "
+            + serialized_noncontrol_activities[step].behavior
+            + "\n"
+        )
 
     markdown = Markdown(markdown)
 
     # make sure the file is fully written
     if out:
-        with open(out, 'w') as file:
+        with open(out, "w") as file:
             markdown.filename = out
             file.write(markdown.data)
             file.flush()
             file.close()
 
-    print('Finished writing markdown')
+    print("Finished writing markdown")
     return markdown
+
 
 # ##############################
 # # Write to an accompanying Excel file

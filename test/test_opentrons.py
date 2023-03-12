@@ -13,7 +13,6 @@ from labop.execution_engine import ExecutionEngine
 from labop_convert.opentrons.opentrons_specialization import OT2Specialization
 
 
-
 # Save testfiles as artifacts when running in CI environment,
 # else save them to a local temp directory
 if "GH_TMPDIR" in os.environ:
@@ -21,11 +20,10 @@ if "GH_TMPDIR" in os.environ:
 else:
     TMPDIR = tempfile.gettempdir()
 
-OUT_DIR = os.path.join(
-    os.path.dirname(__file__), "out"
-)
+OUT_DIR = os.path.join(os.path.dirname(__file__), "out")
 if not os.path.exists(OUT_DIR):
     os.mkdir(OUT_DIR)
+
 
 def load_protocol(protocol_def_fn, protocol_filename):
     loader = SourceFileLoader(protocol_def_fn, protocol_filename)
@@ -38,7 +36,6 @@ def load_protocol(protocol_def_fn, protocol_filename):
 CWD = os.path.split(os.path.realpath(__file__))[0]
 protocol_def_file = os.path.join(CWD, "../examples/opentrons_toy_protocol.py")
 protocol_def = load_protocol("opentrons_toy_protocol", protocol_def_file)
-
 
 
 class TestProtocolEndToEnd(unittest.TestCase):
@@ -60,10 +57,8 @@ class TestProtocolEndToEnd(unittest.TestCase):
         # where each timepoint is one second after the previous time point
         ee = ExecutionEngine(
             use_ordinal_time=True,
-            specializations=[
-                OT2Specialization(os.path.join(OUT_DIR, "opentrons_toy"))
-            ],
-            failsafe=False
+            specializations=[OT2Specialization(os.path.join(OUT_DIR, "opentrons_toy"))],
+            failsafe=False,
         )
         parameter_values = []
         execution = ee.execute(
@@ -95,14 +90,12 @@ class TestProtocolEndToEnd(unittest.TestCase):
             "testfiles",
             nt_file,
         )
-        with open(comparison_file, 'w') as f:
+        with open(comparison_file, "w") as f:
             f.write(doc.write_string(sbol3.SORTED_NTRIPLES).strip())
         print(f"Comparing against {comparison_file}")
-        diff = ''.join(file_diff(comparison_file, temp_name))
+        diff = "".join(file_diff(comparison_file, temp_name))
         print(f"Difference:\n{diff}")
-        assert filecmp.cmp(
-            temp_name, comparison_file
-        ), "Files are not identical"
+        assert filecmp.cmp(temp_name, comparison_file), "Files are not identical"
         print("File identical with test file")
 
 

@@ -9,18 +9,18 @@ ap = argparse.ArgumentParser()
 ap.add_argument(
     "file1",
     help="file1 to compare.",
-   )
+)
 
 ap.add_argument(
     "file2",
     help="file2 to compare.",
-   )
+)
 
 
 def dump_nt_sorted(g: Graph):
-    for l in sorted(g.serialize(format='nt').splitlines()):
+    for l in sorted(g.serialize(format="nt").splitlines()):
         if l:
-            print(l.decode('ascii'))
+            print(l.decode("ascii"))
 
 
 def main():
@@ -38,5 +38,6 @@ def main():
     print(f"Only in {values.file2}")
     dump_nt_sorted(in_second)
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     main()

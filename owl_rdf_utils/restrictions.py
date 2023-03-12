@@ -14,7 +14,7 @@ __all__ = [
     "repair_graph",
     "repair_all_bad_restrictions",
     "RELATIONS",
-    "IGNORE_PROPERTIES"
+    "IGNORE_PROPERTIES",
 ]
 
 import argparse

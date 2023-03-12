@@ -38,9 +38,7 @@ print("... Imported sample arrays")
 
 
 # create the materials to be provisioned
-ddh2o = sbol3.Component(
-    "ddH2O", "https://identifiers.org/pubchem.substance:24901740"
-)
+ddh2o = sbol3.Component("ddH2O", "https://identifiers.org/pubchem.substance:24901740")
 ddh2o.name = "Water, sterile-filtered, BioReagent, suitable for cell culture"
 
 silica_beads = sbol3.Component(
@@ -48,13 +46,9 @@ silica_beads = sbol3.Component(
     "https://nanocym.com/wp-content/uploads/2018/07/NanoCym-All-Datasheets-.pdf",
 )
 silica_beads.name = "NanoCym 950 nm monodisperse silica nanoparticles"
-silica_beads.description = (
-    "3e9 NanoCym microspheres/mL ddH20"  # where does this go?
-)
+silica_beads.description = "3e9 NanoCym microspheres/mL ddH20"  # where does this go?
 
-pbs = sbol3.Component(
-    "pbs", "https://pubchem.ncbi.nlm.nih.gov/substance/329753341"
-)
+pbs = sbol3.Component("pbs", "https://pubchem.ncbi.nlm.nih.gov/substance/329753341")
 pbs.name = "Phosphate Buffered Saline"
 
 fluorescein = sbol3.Component(
@@ -96,9 +90,7 @@ fluorescein_standard_solution_container = protocol.primitive_step(
         "fluroscein_calibrant",
         name="Fluorescein calibrant",
         queryString="cont:StockReagent",
-        prefixMap={
-            "cont": "https://sift.net/container-ontology/container-ontology#"
-        },
+        prefixMap={"cont": "https://sift.net/container-ontology/container-ontology#"},
     ),
 )
 
@@ -109,9 +101,7 @@ sulforhodamine_standard_solution_container = protocol.primitive_step(
         "sulforhodamine_calibrant",
         name="Sulforhodamine 101 calibrant",
         queryString="cont:StockReagent",
-        prefixMap={
-            "cont": "https://sift.net/container-ontology/container-ontology#"
-        },
+        prefixMap={"cont": "https://sift.net/container-ontology/container-ontology#"},
     ),
 )
 
@@ -121,9 +111,7 @@ cascade_blue_standard_solution_container = protocol.primitive_step(
         "cascade_blue_calibrant",
         name="Cascade blue calibrant",
         queryString="cont:StockReagent",
-        prefixMap={
-            "cont": "https://sift.net/container-ontology/container-ontology#"
-        },
+        prefixMap={"cont": "https://sift.net/container-ontology/container-ontology#"},
     ),
 )
 
@@ -133,9 +121,7 @@ microsphere_standard_solution_container = protocol.primitive_step(
         "microspheres",
         name="NanoCym 950 nm microspheres",
         queryString="cont:StockReagent",
-        prefixMap={
-            "cont": "https://sift.net/container-ontology/container-ontology#"
-        },
+        prefixMap={"cont": "https://sift.net/container-ontology/container-ontology#"},
     ),
 )
 
@@ -158,9 +144,7 @@ vortex_fluorescein = protocol.primitive_step(
 suspend_sulforhodamine = protocol.primitive_step(
     "Transfer",
     source=pbs,
-    destination=sulforhodamine_standard_solution_container.output_pin(
-        "samples"
-    ),
+    destination=sulforhodamine_standard_solution_container.output_pin("samples"),
     amount=sbol3.Measure(1, OM.millilitre),
 )
 suspend_sulforhodamine.description = f"The reconstituted `{sulforhodamine.name}` standard will have a final concentration of 2 uM in `{pbs.name}`"
@@ -206,55 +190,37 @@ calibration_plate = protocol.primitive_step(
         "calibration_plate",
         name="calibration plate",
         queryString="cont:Plate96Well",
-        prefixMap={
-            "cont": "https://sift.net/container-ontology/container-ontology#"
-        },
+        prefixMap={"cont": "https://sift.net/container-ontology/container-ontology#"},
     ),
 )
 
 
 fluorescein_wells_A1 = protocol.primitive_step(
-    "PlateCoordinates",
-    source=calibration_plate.output_pin("samples"),
-    coordinates="A1",
+    "PlateCoordinates", source=calibration_plate.output_pin("samples"), coordinates="A1"
 )
 fluorescein_wells_B1 = protocol.primitive_step(
-    "PlateCoordinates",
-    source=calibration_plate.output_pin("samples"),
-    coordinates="B1",
+    "PlateCoordinates", source=calibration_plate.output_pin("samples"), coordinates="B1"
 )
 
 sulforhodamine_wells_C1 = protocol.primitive_step(
-    "PlateCoordinates",
-    source=calibration_plate.output_pin("samples"),
-    coordinates="C1",
+    "PlateCoordinates", source=calibration_plate.output_pin("samples"), coordinates="C1"
 )
 sulforhodamine_wells_D1 = protocol.primitive_step(
-    "PlateCoordinates",
-    source=calibration_plate.output_pin("samples"),
-    coordinates="D1",
+    "PlateCoordinates", source=calibration_plate.output_pin("samples"), coordinates="D1"
 )
 
 cascade_blue_wells_E1 = protocol.primitive_step(
-    "PlateCoordinates",
-    source=calibration_plate.output_pin("samples"),
-    coordinates="E1",
+    "PlateCoordinates", source=calibration_plate.output_pin("samples"), coordinates="E1"
 )
 cascade_blue_wells_F1 = protocol.primitive_step(
-    "PlateCoordinates",
-    source=calibration_plate.output_pin("samples"),
-    coordinates="F1",
+    "PlateCoordinates", source=calibration_plate.output_pin("samples"), coordinates="F1"
 )
 
 silica_beads_wells_G1 = protocol.primitive_step(
-    "PlateCoordinates",
-    source=calibration_plate.output_pin("samples"),
-    coordinates="G1",
+    "PlateCoordinates", source=calibration_plate.output_pin("samples"), coordinates="G1"
 )
 silica_beads_wells_H1 = protocol.primitive_step(
-    "PlateCoordinates",
-    source=calibration_plate.output_pin("samples"),
-    coordinates="H1",
+    "PlateCoordinates", source=calibration_plate.output_pin("samples"), coordinates="H1"
 )
 
 # Plate blanks
@@ -642,10 +608,7 @@ ee = ExecutionEngine(
     dataset_file=f"{filename}_template",  # name of xlsx
 )
 execution = ee.execute(
-    protocol,
-    sbol3.Agent("test_agent"),
-    id="test_execution",
-    parameter_values=[],
+    protocol, sbol3.Agent("test_agent"), id="test_execution", parameter_values=[]
 )
 
 # print(execution.markdown)

@@ -42,7 +42,6 @@ filename = "".join(__file__.split(".py")[0].split("/")[-1:])
 logger: logging.Logger = logging.Logger(__file__)
 logger.setLevel(logging.INFO)
 
-
 # Need logical to physical mapping
 # Need volumes, and source contents
 # Mix needs order for transfers (could be sub-protocol, media, then low volume)

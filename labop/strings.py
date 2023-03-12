@@ -1,7 +1,7 @@
 class Strings:
     ALIQUOT = "aliquot"
     SAMPLE = "sample"
-    METADATA= "metadata"
+    METADATA = "metadata"
     DATA = "data"
     XARRAY = "xarray"
     JSON = "json"
@@ -9,5 +9,3 @@ class Strings:
     MEASUREMENT = "measurement"
     CONTENTS = "contents"
     SOURCE = "source"
-
-

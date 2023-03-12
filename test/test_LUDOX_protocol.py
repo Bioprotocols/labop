@@ -19,9 +19,7 @@ else:
     TMPDIR = tempfile.gettempdir()
 
 
-OUT_DIR = os.path.join(
-    os.path.dirname(__file__), "out"
-)
+OUT_DIR = os.path.join(os.path.dirname(__file__), "out")
 if not os.path.exists(OUT_DIR):
     os.mkdir(OUT_DIR)
 
@@ -73,9 +71,7 @@ class TestProtocolEndToEnd(unittest.TestCase):
         print(f"Comparing against {comparison_file}")
         diff = "".join(file_diff(comparison_file, temp_name))
         print(f"Difference: {diff}")
-        assert filecmp.cmp(
-            temp_name, comparison_file
-        ), "Files are not identical"
+        assert filecmp.cmp(temp_name, comparison_file), "Files are not identical"
         print("File identical with test file")
 
 

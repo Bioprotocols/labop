@@ -12,9 +12,7 @@ from labop.execution_engine import ExecutionEngine
 from importlib.machinery import SourceFileLoader
 from importlib.util import spec_from_loader, module_from_spec
 
-OUT_DIR = os.path.join(
-    os.path.dirname(__file__), "out"
-)
+OUT_DIR = os.path.join(os.path.dirname(__file__), "out")
 if not os.path.exists(OUT_DIR):
     os.mkdir(OUT_DIR)
 
@@ -57,17 +55,13 @@ class TestProtocolEndToEnd(unittest.TestCase):
         final = protocol.final()
 
         pH_meter_calibrated = labop.Primitive("pHMeterCalibrated")
-        pH_meter_calibrated.description = (
-            "Determine if the pH Meter is calibrated."
-        )
+        pH_meter_calibrated.description = "Determine if the pH Meter is calibrated."
         pH_meter_calibrated.add_output(
             "return", "http://www.w3.org/2001/XMLSchema#boolean"
         )
         doc.add(pH_meter_calibrated)
 
-        def pH_meter_calibrated_compute_output(
-            inputs, parameter, sample_format
-        ):
+        def pH_meter_calibrated_compute_output(inputs, parameter, sample_format):
             return True
 
         pH_meter_calibrated.compute_output = pH_meter_calibrated_compute_output
@@ -84,8 +78,7 @@ class TestProtocolEndToEnd(unittest.TestCase):
 
         agent = sbol3.Agent("test_agent")
         ee = ExecutionEngine(
-            out_dir=OUT_DIR,
-            use_ordinal_time=True, use_defined_primitives=False
+            out_dir=OUT_DIR, use_ordinal_time=True, use_defined_primitives=False
         )
         parameter_values = []
         execution = ee.execute(
@@ -112,9 +105,7 @@ class TestProtocolEndToEnd(unittest.TestCase):
         )
         # doc.write(comparison_file, sbol3.SORTED_NTRIPLES)
         print(f"Comparing against {comparison_file}")
-        assert filecmp.cmp(
-            temp_name, comparison_file
-        ), "Files are not identical"
+        assert filecmp.cmp(temp_name, comparison_file), "Files are not identical"
         print("File identical with test file")
 
     def test_ludox_calibration_decision(self):
@@ -134,14 +125,10 @@ class TestProtocolEndToEnd(unittest.TestCase):
         )
         doc.add(measurment_is_nominal)
 
-        def measurement_is_nominal_compute_output(
-            inputs, parameter, sample_format
-        ):
+        def measurement_is_nominal_compute_output(inputs, parameter, sample_format):
             return True
 
-        measurment_is_nominal.compute_output = (
-            measurement_is_nominal_compute_output
-        )
+        measurment_is_nominal.compute_output = measurement_is_nominal_compute_output
 
         try:
             measure = next(
@@ -200,7 +187,7 @@ class TestProtocolEndToEnd(unittest.TestCase):
             measure2.output_pin("measurements"),
         )
         decision = protocol.make_decision_node(
-            measure, #.output_pin("measurements"),  # primary_incoming
+            measure,  # .output_pin("measurements"),  # primary_incoming
             decision_input_behavior=measurment_is_nominal,
             decision_input_source=measure.output_pin("measurements"),
             outgoing_targets=[

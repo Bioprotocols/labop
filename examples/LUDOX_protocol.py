@@ -17,12 +17,8 @@ from labop_convert.markdown.markdown_specialization import (
 
 logger: logging.Logger = logging.Logger("LUDOX_protocol")
 
-CONT_NS = rdfl.Namespace(
-    "https://sift.net/container-ontology/container-ontology#"
-)
-OM_NS = rdfl.Namespace(
-    "http://www.ontology-of-units-of-measure.org/resource/om-2/"
-)
+CONT_NS = rdfl.Namespace("https://sift.net/container-ontology/container-ontology#")
+OM_NS = rdfl.Namespace("http://www.ontology-of-units-of-measure.org/resource/om-2/")
 
 
 def prepare_document() -> Document:
@@ -91,13 +87,14 @@ PREFIX_MAP = json.dumps({"cont": CONT_NS, "om": OM_NS})
 
 
 def create_plate(protocol: labop.Protocol):
-    spec = labop.ContainerSpec('plateRequirement',
-                              name='calibration plate',
-                              queryString=PLATE_SPECIFICATION,
-                              prefixMap=PREFIX_MAP)
-    plate = protocol.primitive_step('EmptyContainer',
-                                    specification=spec)
-    plate.name = 'calibration plate'
+    spec = labop.ContainerSpec(
+        "plateRequirement",
+        name="calibration plate",
+        queryString=PLATE_SPECIFICATION,
+        prefixMap=PREFIX_MAP,
+    )
+    plate = protocol.primitive_step("EmptyContainer", specification=spec)
+    plate.name = "calibration plate"
     return plate
 
 
@@ -233,6 +230,4 @@ if __name__ == "__main__":
     ee = ExecutionEngine(
         specializations=[MarkdownSpecialization("test_LUDOX_markdown.md")]
     )
-    x = ee.execute(
-        new_protocol, agent, id="test_execution", parameter_values=[]
-    )
+    x = ee.execute(new_protocol, agent, id="test_execution", parameter_values=[])

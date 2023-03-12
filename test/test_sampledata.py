@@ -96,9 +96,10 @@ class TestProtocolEndToEnd(unittest.TestCase):
             "EmptyContainer", specification=container_type
         )
 
-        # metadata_filename = os.path.join(os.path.dirname(os.path.realpath(__file__)),
-        #                                     'metadata/measure_absorbance.xlsx')
-        metadata_filename = "test/metadata/measure_absorbance.xlsx"
+        metadata_filename = os.path.join(
+            os.path.dirname(os.path.realpath(__file__)),
+            "metadata/measure_absorbance.xlsx",
+        )
 
         load_excel = protocol.primitive_step(
             "ExcelMetadata",
@@ -182,9 +183,7 @@ class TestProtocolEndToEnd(unittest.TestCase):
         print(f"Comparing against {comparison_file}")
         diff = "".join(file_diff(comparison_file, temp_name))
         print(f"Difference:\n{diff}")
-        assert filecmp.cmp(
-            temp_name, comparison_file
-        ), "Files are not identical"
+        assert filecmp.cmp(temp_name, comparison_file), "Files are not identical"
         print("File identical with test file")
 
     @unittest.skip(reason="tmp remove for dev")
@@ -213,10 +212,7 @@ class TestProtocolEndToEnd(unittest.TestCase):
             )
         ]
         execution = ee.execute(
-            protocol,
-            agent,
-            id="test_execution",
-            parameter_values=parameter_values,
+            protocol, agent, id="test_execution", parameter_values=parameter_values
         )
 
         # Get the SampleData objects and attach values
@@ -255,9 +251,7 @@ class TestProtocolEndToEnd(unittest.TestCase):
         # with open(comparison_file, 'w') as f:
         #     f.write(doc.write_string(sbol3.SORTED_NTRIPLES).strip())
         print(f"Comparing against {comparison_file}")
-        assert filecmp.cmp(
-            temp_name, comparison_file
-        ), "Files are not identical"
+        assert filecmp.cmp(temp_name, comparison_file), "Files are not identical"
         print("File identical with test file")
 
 

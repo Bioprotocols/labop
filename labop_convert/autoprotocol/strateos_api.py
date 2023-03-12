@@ -14,14 +14,16 @@ import logging
 l = logging.getLogger(__file__)
 l.setLevel(logging.ERROR)
 
+
 class StrateosException(Exception):
     pass
+
 
 class StrateosEnvironmentException(Exception):
     pass
 
 
-class StrateosConfig():
+class StrateosConfig:
     @property
     def email(self) -> str:
         return self._email
@@ -42,7 +44,14 @@ class StrateosConfig():
     def project_id(self) -> str:
         return self._project_id
 
-    def __init__(self, email: str, token: str, user_id: str, organization_id: str, project_id: str) -> None:
+    def __init__(
+        self,
+        email: str,
+        token: str,
+        user_id: str,
+        organization_id: str,
+        project_id: str,
+    ) -> None:
         self._email = email
         self._token = token
         self._user_id = user_id
@@ -55,17 +64,19 @@ class StrateosConfig():
             "api_root": "https://secure.transcriptic.com",
             "email": self.email,
             "feature_groups": [],
-            "organization_id":  self.organization_id,
+            "organization_id": self.organization_id,
             "token": self.token,
-            "user_id": self.user_id
-            }
+            "user_id": self.user_id,
+        }
 
     @staticmethod
     def from_file(cfg_file):
         def get_file_else_error(cfg, var):
             res = cfg[var] if var in cfg else None
             if res is None:
-                raise StrateosEnvironmentException(f"Configuration variable '{var}' is unset")
+                raise StrateosEnvironmentException(
+                    f"Configuration variable '{var}' is unset"
+                )
             return res
 
         with open(cfg_file, "r") as tx_cfg_file:
@@ -83,8 +94,11 @@ class StrateosConfig():
         def get_env_else_error(var):
             res = os.environ.get(var)
             if res is None:
-                raise StrateosEnvironmentException(f"Environment variable '{var}' is unset")
+                raise StrateosEnvironmentException(
+                    f"Environment variable '{var}' is unset"
+                )
             return res
+
         email = get_env_else_error("_TRANSCRIPTIC_EMAIL")
         token = get_env_else_error("_TRANSCRIPTIC_TOKEN")
         user = get_env_else_error("_TRANSCRIPTIC_USER_ID")
@@ -92,14 +106,15 @@ class StrateosConfig():
         proj = get_env_else_error("_TRANSCRIPTIC_PROJECT_ID")
         return StrateosConfig(email, token, user, org, proj)
 
-class StrateosProtocol():
+
+class StrateosProtocol:
     def __init__(self, protocol):
         self.protocol = protocol
         self.id = protocol["id"]
         self.name = protocol["name"]
 
-class StrateosAPI():
 
+class StrateosAPI:
     @property
     def protocol_make_containers(self) -> StrateosProtocol:
         return self._protocol_make_containers
@@ -126,36 +141,39 @@ class StrateosAPI():
         return res
 
     def _build_headers(self):
-        return {"X-User-Email": self.cfg.email,  # user-account-email
-                "X-User-Token": self.cfg.token,  # Regular-mode API key
-                "Content-Type": "application/json",
-                "Accept": "application/json"}
+        return {
+            "X-User-Email": self.cfg.email,  # user-account-email
+            "X-User-Token": self.cfg.token,  # Regular-mode API key
+            "Content-Type": "application/json",
+            "Accept": "application/json",
+        }
 
     def _build_query_protocols(self):
-        return ("https://secure.transcriptic.com/{}/protocols.json".format(self.cfg.organization_id),
-                self._build_headers())
-
+        return (
+            "https://secure.transcriptic.com/{}/protocols.json".format(
+                self.cfg.organization_id
+            ),
+            self._build_headers(),
+        )
 
     def query_all_protocols(self):
         """
         Get all protocols
         """
         (url, headers) = self._build_query_protocols()
-        #l.debug(headers)
+        # l.debug(headers)
         response = requests.get(url, headers=headers)
         return json.loads(response.content)
 
     # TODO
-    def make_containers(self, containers, title = "make_containers", test_mode=True):
-        params = {
-            "parameters": {
-                "containers": containers
-            }
-        }
+    def make_containers(self, containers, title="make_containers", test_mode=True):
+        params = {"parameters": {"containers": containers}}
         # TODO verify this request then enable sending
-        response = self.submit_to_strateos(self._protocol_make_containers, params, title)
+        response = self.submit_to_strateos(
+            self._protocol_make_containers, params, title
+        )
 
-        container_ids = {x['name'] : x['container_id'] for x in response['refs']}
+        container_ids = {x["name"]: x["container_id"] for x in response["refs"]}
 
         return container_ids
 
@@ -166,12 +184,9 @@ class StrateosAPI():
         except Exception:
             raise
 
-
-    def submit_to_strateos(self,
-                           protocol: StrateosProtocol,
-                           params,
-                           title,
-                           test_mode=True):
+    def submit_to_strateos(
+        self, protocol: StrateosProtocol, params, title, test_mode=True
+    ):
         """Submit to Strateos and record response"""
 
         launch_request_id = None
@@ -183,9 +198,13 @@ class StrateosAPI():
             raise StrateosException(exc)
 
         try:
-            launch_request = self._create_launch_request(params, title, test_mode=test_mode)
+            launch_request = self._create_launch_request(
+                params, title, test_mode=test_mode
+            )
             try:
-                launch_protocol = conn.launch_protocol(launch_request, protocol_id=protocol.id)
+                launch_protocol = conn.launch_protocol(
+                    launch_request, protocol_id=protocol.id
+                )
             except Exception as exc:
                 raise StrateosException(exc)
             launch_request_id = launch_protocol["id"]
@@ -199,9 +218,7 @@ class StrateosAPI():
         request_response = {}
         try:
             req_title = "{}_{}_{}".format(
-                datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%ST%f'),
-                title,
-                protocol.name
+                datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%ST%f"), title, protocol.name
             )
 
             # req_title = "{}-{}".format(
@@ -214,7 +231,8 @@ class StrateosAPI():
                 protocol_id=protocol.id,
                 project_id=self.cfg.project_id,
                 title=req_title,
-                test_mode=test_mode)
+                test_mode=test_mode,
+            )
             return request_response
 
         except Exception as exc:
@@ -227,26 +245,35 @@ class StrateosAPI():
         params_dict["launch_request"]["bsl"] = bsl
         params_dict["launch_request"]["test_mode"] = test_mode
 
-        with open(os.path.join(self.out_dir, 'launch_request_{}.json'.format(local_name)), 'w') as lr:
-            json.dump(params_dict, lr, sort_keys=True,
-                    indent=2, separators=(',', ': '))
+        with open(
+            os.path.join(self.out_dir, "launch_request_{}.json".format(local_name)), "w"
+        ) as lr:
+            json.dump(params_dict, lr, sort_keys=True, indent=2, separators=(",", ": "))
         return json.dumps(params_dict)
 
-
-    #@retry(stop=stop_after_delay(70), wait=wait_exponential(multiplier=1, max=16))
-    def __submit_launch_request(self, conn, launch_request_id, protocol_id=None,
-                                project_id=None, title=None, test_mode=True):
+    # @retry(stop=stop_after_delay(70), wait=wait_exponential(multiplier=1, max=16))
+    def __submit_launch_request(
+        self,
+        conn,
+        launch_request_id,
+        protocol_id=None,
+        project_id=None,
+        title=None,
+        test_mode=True,
+    ):
         try:
             l.debug("Launching: launch_request_id = " + launch_request_id)
             l.debug("Launching: protocol_id = " + protocol_id)
             l.debug("Launching: project_id = " + project_id)
             l.debug("Launching: title = " + title)
             l.debug("Launching: test_mode = " + str(test_mode))
-            lr = conn.submit_launch_request(launch_request_id,
-                                            protocol_id=protocol_id,
-                                            project_id=project_id,
-                                            title=title,
-                                            test_mode=test_mode)
+            lr = conn.submit_launch_request(
+                launch_request_id,
+                protocol_id=protocol_id,
+                project_id=project_id,
+                title=title,
+                test_mode=test_mode,
+            )
             return lr
         except Exception as exc:
             raise StrateosException(exc)
@@ -259,11 +286,15 @@ class StrateosAPI():
                 session = HTMLSession()
                 response = session.get(type)
                 meta = response.html.find("meta")
-                properties = [x.attrs for x in response.html.find('meta') if "property" in x.attrs]
-                [title] = [x['content'] for x in properties if x['property'] == "og:title"]
+                properties = [
+                    x.attrs for x in response.html.find("meta") if "property" in x.attrs
+                ]
+                [title] = [
+                    x["content"] for x in properties if x["property"] == "og:title"
+                ]
             except requests.exceptions.RequestException as e:
                 l.debug(e)
 
         conn = self.get_strateos_connection()
-        results = conn.resources(resource)['results']
+        results = conn.resources(resource)["results"]
         return results

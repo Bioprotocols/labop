@@ -18,6 +18,7 @@ l.setLevel(logging.ERROR)
 
 PRIMITIVE_BASE_NAMESPACE = "https://bioprotocols.org/labop/primitives/"
 
+
 def call_behavior_execution_compute_output(self, parameter, sample_format):
     """
     Get parameter value from call behavior execution
@@ -27,10 +28,17 @@ def call_behavior_execution_compute_output(self, parameter, sample_format):
     """
     primitive = self.node.lookup().behavior.lookup()
     call = self.call.lookup()
-    inputs = [x for x in call.parameter_values if x.parameter.lookup().property_value.direction == uml.PARAMETER_IN]
+    inputs = [
+        x
+        for x in call.parameter_values
+        if x.parameter.lookup().property_value.direction == uml.PARAMETER_IN
+    ]
     value = primitive.compute_output(inputs, parameter, sample_format)
     return value
+
+
 labop.CallBehaviorExecution.compute_output = call_behavior_execution_compute_output
+
 
 def call_behavior_action_compute_output(self, inputs, parameter, sample_format):
     """
@@ -44,7 +52,10 @@ def call_behavior_action_compute_output(self, inputs, parameter, sample_format):
     inputs = self.input_parameter_values(inputs=inputs)
     value = primitive.compute_output(inputs, parameter, sample_format)
     return value
+
+
 uml.CallBehaviorAction.compute_output = call_behavior_action_compute_output
+
 
 def call_behavior_action_input_parameter_values(self, inputs=None):
     """
@@ -57,37 +68,59 @@ def call_behavior_action_input_parameter_values(self, inputs=None):
     # Get the parameter values from input tokens for input pins
     input_pin_values = {}
     if inputs:
-        input_pin_values = {token.token_source.lookup().node.lookup().identity:
-                                    uml.literal(token.value, reference=True)
-                            for token in inputs if not token.edge}
-
+        input_pin_values = {
+            token.token_source.lookup()
+            .node.lookup()
+            .identity: uml.literal(token.value, reference=True)
+            for token in inputs
+            if not token.edge
+        }
 
     # Get Input value pins
-    value_pin_values = {pin.identity: pin.value for pin in self.inputs if hasattr(pin, "value")}
+    value_pin_values = {
+        pin.identity: pin.value for pin in self.inputs if hasattr(pin, "value")
+    }
     # Convert References
-    value_pin_values = {k: (uml.LiteralReference(value=self.document.find(v.value))
-                            if hasattr(v, "value") and
-                               (isinstance(v.value, sbol3.refobj_property.ReferencedURI) or
-                                isinstance(v, uml.LiteralReference))
-                            else  uml.LiteralReference(value=v))
-                        for k, v in value_pin_values.items()}
-    pin_values = { **input_pin_values, **value_pin_values} # merge the dicts
+    value_pin_values = {
+        k: (
+            uml.LiteralReference(value=self.document.find(v.value))
+            if hasattr(v, "value")
+            and (
+                isinstance(v.value, sbol3.refobj_property.ReferencedURI)
+                or isinstance(v, uml.LiteralReference)
+            )
+            else uml.LiteralReference(value=v)
+        )
+        for k, v in value_pin_values.items()
+    }
+    pin_values = {**input_pin_values, **value_pin_values}  # merge the dicts
 
-    parameter_values = [labop.ParameterValue(parameter=self.pin_parameter(pin.name).property_value,
-                                            value=pin_values[pin.identity])
-                        for pin in self.inputs if pin.identity in pin_values]
+    parameter_values = [
+        labop.ParameterValue(
+            parameter=self.pin_parameter(pin.name).property_value,
+            value=pin_values[pin.identity],
+        )
+        for pin in self.inputs
+        if pin.identity in pin_values
+    ]
     return parameter_values
-uml.CallBehaviorAction.input_parameter_values = call_behavior_action_input_parameter_values
+
+
+uml.CallBehaviorAction.input_parameter_values = (
+    call_behavior_action_input_parameter_values
+)
+
 
 def resolve_value(v):
-        if not isinstance(v, uml.LiteralReference):
-            return v.value
+    if not isinstance(v, uml.LiteralReference):
+        return v.value
+    else:
+        resolved = v.value.lookup()
+        if isinstance(resolved, uml.LiteralSpecification):
+            return resolved.value
         else:
-            resolved = v.value.lookup()
-            if isinstance(resolved, uml.LiteralSpecification):
-                return resolved.value
-            else:
-                return resolved
+            return resolved
+
 
 def input_parameter_map(inputs: List[labop.ParameterValue]):
     map = {input.parameter.lookup().property_value.name: [] for input in inputs}
@@ -95,19 +128,26 @@ def input_parameter_map(inputs: List[labop.ParameterValue]):
         i_parameter = input.parameter.lookup().property_value
         value = input.value.get_value()
         map[i_parameter.name].append(value)
-    map = {k:(v[0] if len(v) == 1 else v) for k, v in map.items()}
+    map = {k: (v[0] if len(v) == 1 else v) for k, v in map.items()}
     return map
 
+
 def empty_container_compute_output(self, inputs, parameter, sample_format):
-    if parameter.name == "samples" and \
-       parameter.type == 'http://bioprotocols.org/labop#SampleArray':
+    if (
+        parameter.name == "samples"
+        and parameter.type == "http://bioprotocols.org/labop#SampleArray"
+    ):
         # Make a SampleArray
         input_map = input_parameter_map(inputs)
         spec = input_map["specification"]
-        sample_array = input_map["sample_array"] if "sample_array" in input_map else None
+        sample_array = (
+            input_map["sample_array"] if "sample_array" in input_map else None
+        )
 
         if not sample_array:
-            sample_array = labop.SampleArray.from_container_spec(spec, sample_format=sample_format)
+            sample_array = labop.SampleArray.from_container_spec(
+                spec, sample_format=sample_format
+            )
 
         # This attribute isn't formally specified in the ontology yet, but supports handling of different sample formats by BehaviorSpecialiations
         # sample_array.format = sample_format
@@ -115,42 +155,56 @@ def empty_container_compute_output(self, inputs, parameter, sample_format):
     else:
         return None
 
+
 def empty_rack_compute_output(self, inputs, parameter, sample_format):
-    if parameter.name == "slots" and \
-       parameter.type == 'http://bioprotocols.org/labop#SampleArray':
+    if (
+        parameter.name == "slots"
+        and parameter.type == "http://bioprotocols.org/labop#SampleArray"
+    ):
         # Make a SampleArray
         input_map = input_parameter_map(inputs)
         spec = input_map["specification"]
-        sample_array = labop.SampleArray.from_container_spec(spec, sample_format=sample_format)
+        sample_array = labop.SampleArray.from_container_spec(
+            spec, sample_format=sample_format
+        )
         return sample_array
     else:
         return None
 
 
 def load_container_on_instrument_compute_output(self, inputs, parameter, sample_format):
-    if parameter.name == "samples" and \
-       parameter.type == 'http://bioprotocols.org/labop#SampleArray':
+    if (
+        parameter.name == "samples"
+        and parameter.type == "http://bioprotocols.org/labop#SampleArray"
+    ):
         # Make a SampleArray
         input_map = input_parameter_map(inputs)
         spec = input_map["specification"]
-        sample_array = labop.SampleArray.from_container_spec(spec, sample_format=sample_format)
+        sample_array = labop.SampleArray.from_container_spec(
+            spec, sample_format=sample_format
+        )
         return sample_array
     else:
         return None
 
 
 def plate_coordinates_compute_output(self, inputs, parameter, sample_format):
-    if parameter.name == "samples" and \
-    parameter.type == 'http://bioprotocols.org/labop#SampleCollection':
+    if (
+        parameter.name == "samples"
+        and parameter.type == "http://bioprotocols.org/labop#SampleCollection"
+    ):
         input_map = input_parameter_map(inputs)
         source = input_map["source"]
         coordinates = input_map["coordinates"]
         # convert coordinates into a boolean sample mask array
         # 1. read source contents into array
         # 2. create parallel array for entries noted in coordinates
-        mask = labop.SampleMask.from_coordinates(source, coordinates, sample_format=sample_format)
+        mask = labop.SampleMask.from_coordinates(
+            source, coordinates, sample_format=sample_format
+        )
 
         return mask
+
 
 def get_short_uuid(obj):
     """
@@ -161,13 +215,14 @@ def get_short_uuid(obj):
     obj : object
         object needing an id
     """
+
     def json_default(thing):
         try:
             return dataclasses.asdict(thing)
         except TypeError:
             pass
         if isinstance(thing, datetime.datetime):
-            return thing.isoformat(timespec='microseconds')
+            return thing.isoformat(timespec="microseconds")
         raise TypeError(f"object of type {type(thing).__name__} not serializable")
 
     def json_dumps(thing):
@@ -177,82 +232,125 @@ def get_short_uuid(obj):
             ensure_ascii=False,
             sort_keys=True,
             indent=None,
-            separators=(',', ':'),
+            separators=(",", ":"),
         )
-    j = int(hashlib.md5(json_dumps(obj).encode('utf-8')).digest().hex(),16)%1000
+
+    j = int(hashlib.md5(json_dumps(obj).encode("utf-8")).digest().hex(), 16) % 1000
     return j
 
+
 def measure_absorbance_compute_output(self, inputs, parameter, sample_format):
-    if parameter.name == "measurements" and \
-       parameter.type == 'http://bioprotocols.org/labop#Dataset':
+    if (
+        parameter.name == "measurements"
+        and parameter.type == "http://bioprotocols.org/labop#Dataset"
+    ):
         input_map = input_parameter_map(inputs)
         samples = input_map["samples"]
         wl = input_map["wavelength"]
 
-
-        measurements = LabInterface.measure_absorbance(samples.get_coordinates(sample_format), wl.value, sample_format)
+        measurements = LabInterface.measure_absorbance(
+            samples.get_coordinates(sample_format), wl.value, sample_format
+        )
         name = f"{self.display_id}.{parameter.name}.{get_short_uuid([self.identity, parameter.identity, [i.value.identity for i in inputs]])}"
-        sample_data = labop.SampleData(name=name, from_samples=samples, values=measurements)
-        sample_metadata = labop.SampleMetadata.for_primitive(self, input_map, samples, sample_format=sample_format)
+        sample_data = labop.SampleData(
+            name=name, from_samples=samples, values=measurements
+        )
+        sample_metadata = labop.SampleMetadata.for_primitive(
+            self, input_map, samples, sample_format=sample_format
+        )
         sample_dataset = labop.Dataset(data=sample_data, metadata=[sample_metadata])
         return sample_dataset
 
+
 def measure_fluorescence_compute_output(self, inputs, parameter, sample_format):
-    if parameter.name == "measurements" and \
-       parameter.type == 'http://bioprotocols.org/labop#Dataset':
+    if (
+        parameter.name == "measurements"
+        and parameter.type == "http://bioprotocols.org/labop#Dataset"
+    ):
         input_map = input_parameter_map(inputs)
         samples = input_map["samples"]
         exwl = input_map["excitationWavelength"]
         emwl = input_map["emissionWavelength"]
         bandpass = input_map["emissionBandpassWidth"]
 
-        measurements = LabInterface.measure_fluorescence(samples.get_coordinates(sample_format), exwl.value, emwl.value, bandpass.value,  sample_format)
+        measurements = LabInterface.measure_fluorescence(
+            samples.get_coordinates(sample_format),
+            exwl.value,
+            emwl.value,
+            bandpass.value,
+            sample_format,
+        )
         name = f"{self.display_id}.{parameter.name}.{get_short_uuid([self.identity, parameter.identity, [i.value.identity for i in inputs]])}"
-        sample_data = labop.SampleData(name=name, from_samples=samples, values=measurements)
-        sample_metadata = labop.SampleMetadata.for_primitive(self, input_map, samples, sample_format=sample_format)
+        sample_data = labop.SampleData(
+            name=name, from_samples=samples, values=measurements
+        )
+        sample_metadata = labop.SampleMetadata.for_primitive(
+            self, input_map, samples, sample_format=sample_format
+        )
         sample_dataset = labop.Dataset(data=sample_data, metadata=[sample_metadata])
         return sample_dataset
 
+
 def join_metadata_compute_output(self, inputs, parameter, sample_format):
-    if parameter.name == "enhanced_dataset" and \
-       parameter.type == 'http://bioprotocols.org/labop#Dataset':
+    if (
+        parameter.name == "enhanced_dataset"
+        and parameter.type == "http://bioprotocols.org/labop#Dataset"
+    ):
         input_map = input_parameter_map(inputs)
         dataset = input_map["dataset"]
         metadata = input_map["metadata"]
         enhanced_dataset = labop.Dataset(dataset=[dataset], linked_metadata=[metadata])
         return enhanced_dataset
 
+
 def join_datasets_compute_output(self, inputs, parameter, sample_format):
-    if parameter.name == "joint_dataset" and \
-       parameter.type == 'http://bioprotocols.org/labop#Dataset':
+    if (
+        parameter.name == "joint_dataset"
+        and parameter.type == "http://bioprotocols.org/labop#Dataset"
+    ):
         input_map = input_parameter_map(inputs)
         datasets = input_map["dataset"]
-        metadata = input_map["metadata"] if "metadata" in input_map and input_map["metadata"] else []
+        metadata = (
+            input_map["metadata"]
+            if "metadata" in input_map and input_map["metadata"]
+            else []
+        )
         joint_dataset = labop.Dataset(dataset=datasets, linked_metadata=metadata)
         return joint_dataset
 
+
 def excel_metadata_compute_output(self, inputs, parameter, sample_format):
-    if parameter.name == "metadata" and \
-       parameter.type == 'http://bioprotocols.org/labop#SampleMetadata':
+    if (
+        parameter.name == "metadata"
+        and parameter.type == "http://bioprotocols.org/labop#SampleMetadata"
+    ):
         input_map = input_parameter_map(inputs)
         filename = input_map["filename"]
-        for_samples = input_map["for_samples"] #check dataarray
-        metadata = labop.SampleMetadata.from_excel(filename, for_samples, sample_format=sample_format)
+        for_samples = input_map["for_samples"]  # check dataarray
+        metadata = labop.SampleMetadata.from_excel(
+            filename, for_samples, sample_format=sample_format
+        )
         return metadata
 
+
 def compute_metadata_compute_output(self, inputs, parameter, sample_format):
-    if parameter.name == "metadata" and \
-       parameter.type == 'http://bioprotocols.org/labop#SampleMetadata':
+    if (
+        parameter.name == "metadata"
+        and parameter.type == "http://bioprotocols.org/labop#SampleMetadata"
+    ):
         input_map = input_parameter_map(inputs)
         for_samples = input_map["for_samples"]
         samples = for_samples.to_data_array()
         trajectory_graph.metadata(samples, tick)
-        metadata = labop.SampleMetadata.from_excel(filename, for_samples, sample_format=sample_format)
+        metadata = labop.SampleMetadata.from_excel(
+            filename, for_samples, sample_format=sample_format
+        )
         return metadata
 
+
 primitive_to_output_function = {
-    "EmptyContainer" : empty_container_compute_output,
-    "PlateCoordinates" : plate_coordinates_compute_output,
+    "EmptyContainer": empty_container_compute_output,
+    "PlateCoordinates": plate_coordinates_compute_output,
     "MeasureAbsorbance": measure_absorbance_compute_output,
     "MeasureFluorescence": measure_fluorescence_compute_output,
     "EmptyInstrument": empty_rack_compute_output,
@@ -260,8 +358,9 @@ primitive_to_output_function = {
     "LoadContainerOnInstrument": load_container_on_instrument_compute_output,
     "JoinMetadata": join_metadata_compute_output,
     "JoinDatasets": join_datasets_compute_output,
-    "ExcelMetadata": excel_metadata_compute_output
+    "ExcelMetadata": excel_metadata_compute_output,
 }
+
 
 def initialize_primitive_compute_output(doc: sbol3.Document):
     for k, v in primitive_to_output_function.items():
@@ -269,8 +368,9 @@ def initialize_primitive_compute_output(doc: sbol3.Document):
             p = labop.get_primitive(doc, k, copy_to_doc=False)
             p.compute_output = types.MethodType(v, p)
         except Exception as e:
-            l.warning(f"Could not set compute_output() for primitive {k}, did you import the correct library?")
-
+            l.warning(
+                f"Could not set compute_output() for primitive {k}, did you import the correct library?"
+            )
 
 
 def primitive_compute_output(self, inputs, parameter, sample_format):
@@ -281,7 +381,7 @@ def primitive_compute_output(self, inputs, parameter, sample_format):
     :param parameter: Parameter needing value
     :return: value
     """
-    if hasattr(parameter, 'type') and parameter.type in sbol3.Document._uri_type_map:
+    if hasattr(parameter, "type") and parameter.type in sbol3.Document._uri_type_map:
         # Generalized handler for output tokens, see #125
         # TODO: This currently assumes the output token is an sbol3.TopLevel
         # Still needs special handling for non-toplevel tokens
@@ -293,7 +393,7 @@ def primitive_compute_output(self, inputs, parameter, sample_format):
         successful = False
         while not successful:
             try:
-                token_id = f'{parameter.name}{instance_count}'
+                token_id = f"{parameter.name}{instance_count}"
                 output_token = builder_fxn(token_id, type_uri=parameter.type)
                 if isinstance(output_token, sbol3.TopLevel):
                     self.document.add(output_token)
@@ -304,8 +404,12 @@ def primitive_compute_output(self, inputs, parameter, sample_format):
                 instance_count += 1
         return output_token
     else:
-        l.warning(f'No builder found for output Parameter of {parameter.name}. Returning a string literal by default.')
+        l.warning(
+            f"No builder found for output Parameter of {parameter.name}. Returning a string literal by default."
+        )
         return f"{parameter.name}"
+
+
 labop.Primitive.compute_output = primitive_compute_output
 
 # def empty_container_initialize_contents(self, sample_format, geometry='A1:H12'):
@@ -323,53 +427,74 @@ labop.Primitive.compute_output = primitive_compute_output
 #     return initial_contents
 # labop.Primitive.initialize_contents = empty_container_initialize_contents
 
+
 def transfer_out(self, source, target, plan, sample_format):
-    if sample_format == 'xarray':
+    if sample_format == "xarray":
         sourceResult, targetResult = self.transfer(source, target, plan, sample_format)
         return json.dumps(sourceResult.to_dict())
-    elif sample_format == 'json':
+    elif sample_format == "json":
         contents = quote(json.dumps({c: None for c in aliquots}))
     else:
         raise Exception(f"Cannot initialize contents of: {self.identity}")
     return contents
+
+
 labop.Primitive.transfer_out = transfer_out
 
+
 def transfer_in(self, source, target, plan, sample_format):
-    if sample_format == 'xarray':
+    if sample_format == "xarray":
         sourceResult, targetResult = self.transfer(source, target, plan, sample_format)
         return json.dumps(targetResult.to_dict())
-    elif sample_format == 'json':
+    elif sample_format == "json":
         contents = quote(json.dumps({c: None for c in aliquots}))
     else:
         raise Exception(f"Cannot initialize contents of: {self.identity}")
     return contents
+
+
 labop.Primitive.transfer_in = transfer_in
 
+
 def transfer(self, source, target, plan, sample_format):
-    if sample_format == 'xarray':
+    if sample_format == "xarray":
         source_contents = source.to_data_array()
         target_contents = target.to_data_array()
         transfer = plan.get_map()
-        if source.name in transfer.source_array and target.name in transfer.target_array:
-            source_result = source_contents.rename({"aliquot": "source_aliquot", "array": "source_array"})
-            target_result = target_contents.rename({"aliquot": "target_aliquot", "array": "target_array"})
+        if (
+            source.name in transfer.source_array
+            and target.name in transfer.target_array
+        ):
+            source_result = source_contents.rename(
+                {"aliquot": "source_aliquot", "array": "source_array"}
+            )
+            target_result = target_contents.rename(
+                {"aliquot": "target_aliquot", "array": "target_array"}
+            )
             source_concentration = source_result / source_result.sum(dim="contents")
 
             amount_transferred = source_concentration * transfer
 
-            source_result = source_result - amount_transferred.sum(dim=["target_aliquot", "target_array"])
-            target_result = target_result + amount_transferred.sum(dim=["source_aliquot", "source_array"])
+            source_result = source_result - amount_transferred.sum(
+                dim=["target_aliquot", "target_array"]
+            )
+            target_result = target_result + amount_transferred.sum(
+                dim=["source_aliquot", "source_array"]
+            )
 
             return source_result, target_result
         else:
             return source_contents, target_contents
 
-    elif sample_format == 'json':
+    elif sample_format == "json":
         contents = quote(json.dumps({c: None for c in aliquots}))
     else:
         raise Exception(f"Cannot initialize contents of: {self.identity}")
     return contents
+
+
 labop.Primitive.transfer = transfer
+
 
 def declare_primitive(
     document: sbol3.Document,
@@ -378,14 +503,12 @@ def declare_primitive(
     template: labop.Primitive = None,
     inputs: List[Dict] = {},
     outputs: List[Dict] = {},
-    description: str = ""
+    description: str = "",
 ):
     old_ns = sbol3.get_namespace()
     sbol3.set_namespace(PRIMITIVE_BASE_NAMESPACE + library)
     try:
-        primitive = labop.get_primitive(
-            name=primitive_name, doc=document
-        )
+        primitive = labop.get_primitive(name=primitive_name, doc=document)
         if not primitive:
             raise Exception("Need to create the primitive")
     except Exception as e:
@@ -394,11 +517,13 @@ def declare_primitive(
         if template:
             primitive.inherit_parameters(template)
         for input in inputs:
-            optional = input['optional'] if 'optional' in  input else False
-            default_value = input['default_value'] if 'default_value' in input else None
-            primitive.add_input(input['name'], input['type'], optional=optional, default_value=None)
+            optional = input["optional"] if "optional" in input else False
+            default_value = input["default_value"] if "default_value" in input else None
+            primitive.add_input(
+                input["name"], input["type"], optional=optional, default_value=None
+            )
         for output in outputs:
-            primitive.add_output(output['name'], output['type'])
+            primitive.add_output(output["name"], output["type"])
 
         document.add(primitive)
     sbol3.set_namespace(old_ns)
