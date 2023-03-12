@@ -1,5 +1,5 @@
-from labop import Protocol, Primitive, SampleArray, SampleMask, SampleData, SampleMap
 import uml
+from labop import Primitive, Protocol, SampleArray, SampleData, SampleMap, SampleMask
 
 
 def protocol_template():

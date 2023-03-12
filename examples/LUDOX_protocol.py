@@ -10,10 +10,7 @@ from sbol3 import Document
 
 import labop
 from labop.execution_engine import ExecutionEngine
-from labop_convert.markdown.markdown_specialization import (
-    MarkdownSpecialization,
-)
-
+from labop_convert.markdown.markdown_specialization import MarkdownSpecialization
 
 logger: logging.Logger = logging.Logger("LUDOX_protocol")
 

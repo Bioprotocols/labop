@@ -1,14 +1,13 @@
 import unittest
 
+import sbol3
 import tyto
+
 import labop
 import uml
-import sbol3
-import labop
 from labop.execution_engine import ExecutionEngine
-from labop_convert.markdown.markdown_specialization import MarkdownSpecialization
 from labop_convert.behavior_specialization import DefaultBehaviorSpecialization
-
+from labop_convert.markdown.markdown_specialization import MarkdownSpecialization
 
 PARAMETER_IN = "http://bioprotocols.org/uml#in"
 PARAMETER_OUT = "http://bioprotocols.org/uml#out"

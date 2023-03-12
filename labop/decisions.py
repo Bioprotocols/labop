@@ -1,6 +1,7 @@
+from typing import List, Tuple
+
 import labop
 import uml
-from typing import Dict, List, Tuple
 
 
 def protocol_make_decision_node(

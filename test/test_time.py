@@ -1,12 +1,13 @@
 import filecmp
 import os
 import tempfile
+import unittest
 
 import sbol3
-import unittest
 import tyto
-import labop_time as labopt
+
 import labop
+import labop_time as labopt
 import uml
 
 # from labop_check.labop_check import check_doc, get_minimum_duration

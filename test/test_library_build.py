@@ -1,10 +1,11 @@
-import tempfile
-import os
-import unittest
 import filecmp
-import sbol3
-import labop
+import os
+import tempfile
+import unittest
 
+import sbol3
+
+import labop
 
 # Save testfiles as artifacts when running in CI environment,
 # else save them to a local temp directory

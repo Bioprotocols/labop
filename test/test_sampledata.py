@@ -1,25 +1,22 @@
-import datetime
 import filecmp
 import logging
 import os
 import tempfile
 import unittest
 from importlib.machinery import SourceFileLoader
-from importlib.util import spec_from_loader, module_from_spec
-import xarray as xr
+from importlib.util import module_from_spec, spec_from_loader
 
 import sbol3
-import labop
-from labop.execution_engine import ExecutionEngine
-import uml
 import tyto
-import json
-from tyto import OM
+import xarray as xr
 from numpy import nan
+from tyto import OM
 
-from labop_convert.plate_coordinates import get_sample_list
+import labop
+import uml
+from labop.execution_engine import ExecutionEngine
 from labop.utils.helpers import file_diff, initialize_protocol
-
+from labop_convert.plate_coordinates import get_sample_list
 
 OUT_DIR = os.path.join(os.path.dirname(__file__), "out")
 if not os.path.exists(OUT_DIR):

@@ -6,17 +6,17 @@ import argparse
 import logging
 import os
 import sys
-from typing import Tuple, Optional, Any
+from typing import Any, Optional, Tuple
 
 import rdflib as rdf
 from rdflib import OWL, RDF, RDFS
 
 from owl_rdf_utils import (
-    all_bad_restrictions,
-    repair_graph,
-    describe_bad_restr,
-    RELATIONS,
     IGNORE_PROPERTIES,
+    RELATIONS,
+    all_bad_restrictions,
+    describe_bad_restr,
+    repair_graph,
 )
 
 Triple = Tuple[Any, Any, Any]

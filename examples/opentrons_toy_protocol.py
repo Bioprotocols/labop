@@ -1,19 +1,18 @@
-from logging import Logger
-import os
-import logging
-import sbol3
-import labop
-import tyto
-import uml
 import json
+import logging
+from typing import Tuple
+
 import rdflib as rdfl
-from typing import Dict, Tuple
+import sbol3
+import tyto
 from sbol3 import Document
 
+import labop
+import uml
 from labop.execution_engine import ExecutionEngine
 from labop_convert.opentrons.opentrons_specialization import (
-    OT2Specialization,
     REVERSE_LABWARE_MAP,
+    OT2Specialization,
 )
 
 logger: logging.Logger = logging.Logger("OT2_demo")

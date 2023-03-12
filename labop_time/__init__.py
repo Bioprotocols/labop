@@ -1,10 +1,12 @@
 import os
 import posixpath
-from sbol_factory import SBOLFactory, UMLFactory
+
 import sbol3
-import uml  # Note: looks unused, but is used in SBOLFactory
-import labop_time as labopt
 import tyto
+from sbol_factory import SBOLFactory, UMLFactory
+
+import labop_time as labopt
+import uml  # Note: looks unused, but is used in SBOLFactory
 
 # Import ontology
 SBOLFactory(

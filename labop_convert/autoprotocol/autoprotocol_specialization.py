@@ -1,25 +1,21 @@
 import json
+import logging
 from typing import Dict
 
 import sbol3
 import transcriptic
-
-import labop_convert.autoprotocol.plate_coordinates as pc
 import tyto
-import labop
-
+from autoprotocol import container_type as ctype
 from autoprotocol.container import WellGroup
 from autoprotocol.instruction import Provision, Spectrophotometry
 from autoprotocol.protocol import Protocol
 from autoprotocol.unit import Unit
-from autoprotocol import container_type as ctype
-from labop_convert.behavior_specialization import BehaviorSpecialization
-from labop_convert.autoprotocol.strateos_api import StrateosAPI
-
 from container_api.client_api import matching_containers, strateos_id
 
-
-import logging
+import labop
+import labop_convert.autoprotocol.plate_coordinates as pc
+from labop_convert.autoprotocol.strateos_api import StrateosAPI
+from labop_convert.behavior_specialization import BehaviorSpecialization
 
 l = logging.getLogger(__file__)
 l.setLevel(logging.ERROR)

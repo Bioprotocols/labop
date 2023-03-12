@@ -1,8 +1,8 @@
 import argparse
 
 from rdflib import Graph
+from rdflib.compare import IsomorphicGraph, graph_diff, to_isomorphic
 from rdflib.util import guess_format
-from rdflib.compare import IsomorphicGraph, to_isomorphic, graph_diff
 
 ap = argparse.ArgumentParser()
 

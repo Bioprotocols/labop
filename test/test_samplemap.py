@@ -1,8 +1,8 @@
 import filecmp
+import json
 import logging
 import os
 import tempfile
-from typing import Tuple
 import unittest
 import xarray as xr
 import json
@@ -11,7 +11,13 @@ from labop_convert.markdown.markdown_specialization import (
     MarkdownSpecialization,
 )
 
+import xarray as xr
+
+from labop.utils.helpers import file_diff
 from labop_convert.behavior_specialization import DefaultBehaviorSpecialization
+from labop_convert.markdown.markdown_specialization import (
+    MarkdownSpecialization,
+)
 
 from labop.strings import Strings
 
@@ -20,18 +26,18 @@ from labop.data import serialize_sample_format
 xr.set_options(display_expand_data=False)
 
 import sbol3
+import tyto
+from helpers import initialize_protocol
+from sbol3 import Document
+
 import labop
+import uml
 from labop.execution_engine import ExecutionEngine
 from labop_convert.plate_coordinates import (
-    get_sample_list,
     coordinate_rect_to_row_col_pairs,
     coordinate_to_row_col,
+    get_sample_list,
 )
-import uml
-import tyto
-from sbol3 import Document
-from labop.utils.helpers import initialize_protocol
-
 
 OUT_DIR = os.path.join(os.path.dirname(__file__), "out")
 if not os.path.exists(OUT_DIR):

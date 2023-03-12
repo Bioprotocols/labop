@@ -1,18 +1,15 @@
-import os
-import tempfile
-import sbol3
-import labop
-import tyto
-import uml
-import json
 import csv
+import json
+
 import rdflib as rdfl
-from typing import Dict
+import sbol3
+import tyto
 
-
+import labop
+import uml
 from labop.execution_engine import ExecutionEngine
-from labop_convert.opentrons.opentrons_specialization import OT2Specialization
 from labop_convert.markdown.markdown_specialization import MarkdownSpecialization
+from labop_convert.opentrons.opentrons_specialization import OT2Specialization
 
 # Dev Note: This is a test of the initial version of the OT2 specialization. Any specs shown here can be changed in the future. Use at your own risk. Here be dragons.
 

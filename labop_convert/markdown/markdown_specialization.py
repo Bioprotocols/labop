@@ -1,25 +1,22 @@
+import json
 import logging
-import json
 import os
-import json
 import subprocess
-from datetime import datetime
-from urllib.parse import quote, unquote
-from typing import Union, List
 from collections.abc import Iterable
+from datetime import datetime
+from typing import List, Union
+from urllib.parse import quote, unquote
 
 import pandas as pd
-import xarray as xr
 import sbol3
 import tyto
+import xarray as xr
 
 import labop
 import uml
+from labop.strings import Strings
 from labop_convert.behavior_specialization import BehaviorSpecialization
 from labop_convert.markdown import MarkdownConverter
-
-from labop.strings import Strings
-
 
 l = logging.getLogger(__file__)
 l.setLevel(logging.ERROR)

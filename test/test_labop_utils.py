@@ -1,4 +1,5 @@
 import unittest
+
 import labop
 from labop_convert.markdown.protocol_to_markdown import reduce_range_set
 

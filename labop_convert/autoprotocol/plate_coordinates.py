@@ -3,6 +3,7 @@ Autoprotocol specific extensions for Autoprotocol containers
 """
 
 from autoprotocol.container import Container, WellGroup
+
 from labop_convert.plate_coordinates import coordinate_rect_to_row_col_pairs
 
 

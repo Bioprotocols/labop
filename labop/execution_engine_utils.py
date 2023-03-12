@@ -1,13 +1,14 @@
-from abc import abstractmethod
-from typing import Callable, List, Set, Tuple
-import uuid
 import logging
+import uuid
+from abc import abstractmethod
+from typing import Callable, List, Set
+
+import sbol3
 
 import labop
-from labop_convert.behavior_specialization import BehaviorSpecialization
 import uml
-import sbol3
 from labop.execution_engine import ExecutionEngine
+from labop_convert.behavior_specialization import BehaviorSpecialization
 
 l = logging.getLogger(__file__)
 l.setLevel(logging.ERROR)

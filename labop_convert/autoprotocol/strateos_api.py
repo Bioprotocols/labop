@@ -1,15 +1,12 @@
 import json
-import os
-import requests
-import time
-import transcriptic
-
-from datetime import datetime
-import requests
-from requests_html import HTMLSession
-
-
 import logging
+import os
+import time
+from datetime import datetime
+
+import requests
+import transcriptic
+from requests_html import HTMLSession
 
 l = logging.getLogger(__file__)
 l.setLevel(logging.ERROR)

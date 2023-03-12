@@ -3,12 +3,11 @@ import os
 import tempfile
 import unittest
 
-
-import labop
 import sbol3
 import tyto
-import uml
 
+import labop
+import uml
 from labop.execution_engine import ExecutionEngine
 from labop_convert.autoprotocol.autoprotocol_specialization import (
     AutoprotocolSpecialization,

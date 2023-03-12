@@ -1,8 +1,8 @@
 import os
 import posixpath
 
-from sbol_factory import SBOLFactory
 import sbol3
+from sbol_factory import SBOLFactory
 
 import uml
 
@@ -15,14 +15,15 @@ SBOLFactory(
 
 # Import symbols into the top-level labop module
 from labop_submodule import *
-from labop.ui import *
-from labop.utils import *
+
 from labop.data import *
-from labop.sample_maps import *
-from labop.primitive_execution import *
 from labop.decisions import *
 from labop.execution_engine import *
 from labop.execution_engine_utils import *
+from labop.primitive_execution import *
+from labop.sample_maps import *
+from labop.ui import *
+from labop.utils import *
 
 
 #########################################

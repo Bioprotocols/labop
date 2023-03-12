@@ -1,10 +1,10 @@
 import difflib
-import os
-import sbol3
 import logging
-import labop
-
 from typing import Tuple
+
+import sbol3
+
+import labop
 
 logger = logging.getLogger(__file__)
 logger.setLevel(logging.INFO)

@@ -1,11 +1,10 @@
 import unittest
-import os
 
+import sbol3
 import tyto
+
 import labop
 import uml
-import sbol3
-import labop
 from labop.execution_engine import ExecutionEngine
 from labop_convert.markdown.markdown_specialization import (
     MarkdownSpecialization,

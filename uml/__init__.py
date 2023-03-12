@@ -1,10 +1,11 @@
+import logging
 import os
 import posixpath
 from collections import Counter
-from typing import List, Set, Iterable
-from sbol_factory import SBOLFactory, UMLFactory
+from typing import Iterable, List, Set
+
 import sbol3
-import logging
+from sbol_factory import SBOLFactory, UMLFactory
 
 l = logging.getLogger(__file__)
 l.setLevel(logging.WARN)
@@ -18,7 +19,9 @@ SBOLFactory(
 
 # Import submodule symbols into top-level uml module
 from uml_submodule import *
+
 from .uml_graphviz import *
+
 
 # Workaround for pySBOL3 issue #231: should be applied to every iteration on a collection of SBOL objects
 # TODO: delete after resolution of pySBOL3 issue #231

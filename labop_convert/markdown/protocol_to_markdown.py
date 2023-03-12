@@ -1,11 +1,10 @@
-import sbol3
-import labop
-import uml
-import labop.type_inference
-import openpyxl
 import numpy
+import openpyxl
+import sbol3
 from IPython.display import Markdown
 
+import labop
+import uml
 
 ###########################################
 # Functions for reasoning about ranges

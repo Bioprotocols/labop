@@ -1,11 +1,10 @@
 import os
 import tempfile
-import unittest
-import filecmp
+
 import sbol3
-import labop
 import tyto
 
+import labop
 
 # import labop_md
 import uml

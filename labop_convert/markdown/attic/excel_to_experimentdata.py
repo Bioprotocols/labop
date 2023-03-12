@@ -1,10 +1,11 @@
-import sbol3
-import labop
-import openpyxl
-import tyto
 import uuid
 import warnings
 
+import openpyxl
+import sbol3
+import tyto
+
+import labop
 
 ##############################
 # Set up for conversion

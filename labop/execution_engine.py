@@ -1,30 +1,23 @@
-from abc import ABC, abstractmethod
-import html
-import os
-import re
-from typing import Callable, Dict, List, Union
-import uuid
 import datetime
 import logging
+import os
+import uuid
+from abc import ABC
+from typing import Callable, Dict, List, Union
 from urllib.parse import quote, unquote
 
-import pandas as pd
-import xarray as xr
 import graphviz
+import pandas as pd
 import sbol3
+import xarray as xr
 
 import labop
 import uml
-import sbol3
-
+from labop.primitive_execution import initialize_primitive_compute_output
 from labop_convert.behavior_specialization import (
     BehaviorSpecialization,
     DefaultBehaviorSpecialization,
 )
-from labop.primitive_execution import initialize_primitive_compute_output
-
-from labop.strings import Strings
-
 
 l = logging.getLogger(__file__)
 l.setLevel(logging.ERROR)
@@ -277,7 +270,6 @@ class ExecutionEngine(ABC):
                 # ]
                 if self.permissive:
                     self.issues[self.ex.display_id].append(ExecutionWarning(e))
-                    pass
                 else:
                     self.issues[self.ex.display_id].append(ExecutionError(e))
                     raise (e)

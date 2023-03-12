@@ -1,7 +1,8 @@
 import io
+import sys
+
 import opentrons.simulate as simulate
 from opentrons.protocols import bundle
-import sys
 
 
 def run_ot2_sim(filename):

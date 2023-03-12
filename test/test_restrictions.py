@@ -1,7 +1,7 @@
-import unittest
-import subprocess
-import owl_rdf_utils.restrictions
 import os
+import unittest
+
+import owl_rdf_utils.restrictions
 
 
 class TestRestrictions(unittest.TestCase):

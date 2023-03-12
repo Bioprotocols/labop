@@ -1,15 +1,13 @@
-import sys
-import os
-from abc import ABC, abstractmethod
-import sys
+import json
 import logging
-from logging import error
+import os
+from abc import ABC
+
+import tyto
 
 import labop
-from labop.primitive_execution import input_parameter_map
 import uml
-import json
-import tyto
+from labop.primitive_execution import input_parameter_map
 
 l = logging.getLogger(__file__)
 l.setLevel(logging.WARN)

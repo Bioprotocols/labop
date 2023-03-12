@@ -1,7 +1,9 @@
-import uml
-import sbol3
 import unittest
+
+import sbol3
 import tyto
+
+import uml
 
 
 class TestUML(unittest.TestCase):

@@ -1,12 +1,13 @@
 """This module supports the pH_calibration.py script by defining several of the primitives and other related helpers, such as error handlers.
 """
+from typing import Tuple
+
 import sbol3
+import tyto
+
 import labop
 import uml
-import tyto
 from labop.primitive_execution import declare_primitive, resolve_value
-
-from typing import Tuple
 
 
 def get_ph_adjustment_protocol_inputs(

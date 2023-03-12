@@ -8,19 +8,17 @@ import logging
 import os
 from os.path import basename
 from typing import Tuple
-from labop.execution_engine import ExecutionEngine
-
-import examples.pH_calibration.ph_calibration_utils as util
-
-import labop
 
 # import labop_time as labopt
 import rdflib as rdfl
 import sbol3
 import tyto
-import uml
 from sbol3 import Document
 
+import examples.pH_calibration.ph_calibration_utils as util
+import labop
+import uml
+from labop.execution_engine import ExecutionEngine
 
 logger: logging.Logger = logging.Logger("pH_calibration")
 

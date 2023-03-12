@@ -1,13 +1,12 @@
-import os
-import tempfile
-import unittest
-import filecmp
-import sbol3
-import labop
-import tyto
-from labop.execution_engine import ExecutionEngine
-
 import logging
+import os
+import unittest
+
+import sbol3
+import tyto
+
+import labop
+from labop.execution_engine import ExecutionEngine
 
 l = logging.getLogger(__file__)
 l.setLevel(logging.ERROR)

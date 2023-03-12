@@ -1,18 +1,16 @@
-import os
 import json
 import logging
-import abc
+import os
 from typing import Dict
-from labop_convert.plate_coordinates import get_sample_list
-import xarray as xr
-
 
 import sbol3
 import tyto
+import xarray as xr
+
 import labop
 import uml
 from labop_convert.behavior_specialization import BehaviorSpecialization
-
+from labop_convert.plate_coordinates import get_sample_list
 
 l = logging.getLogger(__file__)
 l.setLevel(logging.ERROR)

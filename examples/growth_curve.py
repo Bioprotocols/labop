@@ -1,6 +1,7 @@
 import sbol3
-import labop
 import tyto
+
+import labop
 
 #############################################
 # Helper functions

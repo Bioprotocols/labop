@@ -2,7 +2,6 @@
 http://2018.igem.org/wiki/images/0/09/2018_InterLab_Plate_Reader_Protocol.pdf
 """
 import json
-import os
 from urllib.parse import quote
 
 import sbol3

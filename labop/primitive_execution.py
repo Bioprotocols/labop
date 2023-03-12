@@ -1,17 +1,17 @@
 import dataclasses
 import datetime
-import types
+import hashlib
+import json
 import logging
-from typing import List, Dict
+import types
+from typing import Dict, List
 
 import sbol3
 
 import labop
 import labop.data
-from labop.lab_interface import LabInterface
 import uml
-import json
-import hashlib
+from labop.lab_interface import LabInterface
 
 l = logging.getLogger(__file__)
 l.setLevel(logging.ERROR)

@@ -4,20 +4,20 @@ Functions related to sample map get and set.
 This file monkey-patches the imported labop classes with data handling functions.
 """
 
-from cmath import nan
-import xarray as xr
 import json
+import logging
+from cmath import nan
+
+import xarray as xr
 
 import labop
+import uml
+from labop import SampleArray, SampleData, SampleMask
 from labop_convert.plate_coordinates import (
     coordinate_rect_to_row_col_pairs,
     coordinate_to_row_col,
     get_sample_list,
 )
-from labop import SampleMask, SampleData, SampleArray
-import uml
-
-import logging
 
 l = logging.getLogger(__file__)
 l.setLevel(logging.ERROR)

@@ -3,14 +3,14 @@ import logging
 import os
 import tempfile
 import unittest
+from importlib.machinery import SourceFileLoader
+from importlib.util import module_from_spec, spec_from_loader
 
 import sbol3
 
-import uml
 import labop
+import uml
 from labop.execution_engine import ExecutionEngine
-from importlib.machinery import SourceFileLoader
-from importlib.util import spec_from_loader, module_from_spec
 
 OUT_DIR = os.path.join(os.path.dirname(__file__), "out")
 if not os.path.exists(OUT_DIR):

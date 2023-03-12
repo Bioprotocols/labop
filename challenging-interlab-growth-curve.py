@@ -12,7 +12,6 @@ import uml
 from labop.execution_engine import ExecutionEngine
 from labop_convert.markdown.markdown_specialization import MarkdownSpecialization
 
-
 doc = sbol3.Document()
 sbol3.set_namespace("http://igem.org/engineering/")
 

@@ -3,17 +3,17 @@ http://2018.igem.org/wiki/images/0/09/2018_InterLab_Plate_Reader_Protocol.pdf
 """
 import os
 
-import labop
 import sbol3
-
 from tyto import OM
+
+import labop
 from labop.execution_engine import ExecutionEngine
 from labop_convert.markdown.markdown_specialization import (
     MarkdownSpecialization,
 )
 
 from labop.strings import Strings
-
+from labop_convert.markdown.markdown_specialization import MarkdownSpecialization
 
 OUT_DIR = os.path.join(os.path.dirname(__file__), "artifacts")
 if not os.path.exists(OUT_DIR):

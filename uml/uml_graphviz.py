@@ -1,9 +1,11 @@
-import graphviz
-from uml import *
-import tyto
-import sbol3
 import html
 from typing import Dict
+
+import graphviz
+import sbol3
+import tyto
+
+from uml import *
 
 
 def activity_node_dot_attrs(self):

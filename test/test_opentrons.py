@@ -1,17 +1,17 @@
-from labop.utils.helpers import file_diff
 import filecmp
-from importlib.machinery import SourceFileLoader
-from importlib.util import module_from_spec, spec_from_loader
 import logging
 import os
 import tempfile
 import unittest
+from importlib.machinery import SourceFileLoader
+from importlib.util import module_from_spec, spec_from_loader
+
 import sbol3
+
 import labop
-
 from labop.execution_engine import ExecutionEngine
+from labop.utils.helpers import file_diff
 from labop_convert.opentrons.opentrons_specialization import OT2Specialization
-
 
 # Save testfiles as artifacts when running in CI environment,
 # else save them to a local temp directory

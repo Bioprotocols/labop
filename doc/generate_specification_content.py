@@ -1,9 +1,9 @@
 import glob
+import os
+from pathlib import Path
+from shutil import copy
 
 from sbol_factory import UMLFactory
-import os
-from shutil import copy
-from pathlib import Path
 
 print(
     "Warning: this script is fragile and assumes that LabOP and LabOP-specification are sibling directories on Mac or Unix."

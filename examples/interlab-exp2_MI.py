@@ -5,6 +5,7 @@ import json
 from urllib.parse import quote
 
 import sbol3
+from kit_coordinates import render_kit_coordinates_table
 from tyto import OM
 
 import labop

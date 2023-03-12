@@ -4,24 +4,23 @@ Functions related to data i/o in connection with a protocol execution trace.
 This file monkey-patches the imported labop classes with data handling functions.
 """
 
+import json
+import logging
+import os
 from cmath import nan
 from itertools import islice
-import xarray as xr
-import pandas as pd
-import json
+from typing import Dict, List, Union
 from urllib.parse import quote, unquote
-import os
 
+import pandas as pd
 import sbol3
+import xarray as xr
+from openpyxl import load_workbook
+
 import labop
+import uml
 from labop.strings import Strings
 from labop_convert.plate_coordinates import get_sample_list
-from openpyxl import load_workbook
-import uml
-from typing import List, Dict, Union
-
-
-import logging
 
 l = logging.getLogger(__file__)
 l.setLevel(logging.ERROR)
