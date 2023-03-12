@@ -2,18 +2,20 @@
 http://2018.igem.org/wiki/images/0/09/2018_InterLab_Plate_Reader_Protocol.pdf
 """
 import os
+import sys
 
 import sbol3
 from tyto import OM
 
 import labop
 from labop.execution_engine import ExecutionEngine
-from labop_convert.markdown.markdown_specialization import (
-    MarkdownSpecialization,
-)
-
 from labop.strings import Strings
-from labop_convert.markdown.markdown_specialization import MarkdownSpecialization
+from labop_convert import MarkdownSpecialization
+
+if "unittest" in sys.modules:
+    REGENERATE_ARTIFACTS = False
+else:
+    REGENERATE_ARTIFACTS = True
 
 OUT_DIR = os.path.join(os.path.dirname(__file__), "artifacts")
 if not os.path.exists(OUT_DIR):
@@ -596,16 +598,20 @@ outnode = protocol.designate_output(
 protocol.order(final_dataset, protocol.final())
 protocol.order(outnode, protocol.final())
 
-protocol.to_dot().render(os.path.join(OUT_DIR, filename))
+if REGENERATE_ARTIFACTS:
+    protocol.to_dot().render(os.path.join(OUT_DIR, filename))
+    dataset_file = (f"{filename}_template",)  # name of xlsx
+    md_file = filename + ".md"
+else:
+    dataset_file = None
+    md_file = None
 
 ee = ExecutionEngine(
     out_dir=OUT_DIR,
-    specializations=[
-        MarkdownSpecialization(filename + ".md", sample_format=Strings.XARRAY)
-    ],
+    specializations=[MarkdownSpecialization(md_file, sample_format=Strings.XARRAY)],
     failsafe=False,
     sample_format="xarray",
-    dataset_file=f"{filename}_template",  # name of xlsx
+    dataset_file=dataset_file,
 )
 execution = ee.execute(
     protocol, sbol3.Agent("test_agent"), id="test_execution", parameter_values=[]
@@ -621,5 +627,6 @@ execution = ee.execute(
 # with open(os.path.join(OUT_DIR, filename + '.md'), 'w', encoding='utf-8') as f:
 #     f.write(execution.markdown)
 
-with open(os.path.join(OUT_DIR, f"{filename}.nt"), "w") as f:
-    f.write(doc.write_string(sbol3.SORTED_NTRIPLES).strip())
+if REGENERATE_ARTIFACTS:
+    with open(os.path.join(OUT_DIR, f"{filename}.nt"), "w") as f:
+        f.write(doc.write_string(sbol3.SORTED_NTRIPLES).strip())

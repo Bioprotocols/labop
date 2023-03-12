@@ -11,9 +11,7 @@ from tyto import OM
 import labop
 import uml
 from labop.execution_engine import ExecutionEngine
-from labop_convert.markdown.markdown_specialization import (
-    MarkdownSpecialization,
-)
+from labop_convert import MarkdownSpecialization
 
 
 def render_kit_coordinates_table(ex: labop.ProtocolExecution):
@@ -48,6 +46,11 @@ def render_kit_coordinates_table(ex: labop.ProtocolExecution):
     insert_index = ex.markdown.find("## Protocol Steps")
     ex.markdown = ex.markdown[:insert_index] + table + ex.markdown[insert_index:]
 
+
+if "unittest" in sys.modules:
+    REGENERATE_ARTIFACTS = False
+else:
+    REGENERATE_ARTIFACTS = True
 
 filename = "".join(__file__.split(".py")[0].split("/")[-1:])
 
@@ -629,5 +632,8 @@ execution.markdown = execution.markdown.replace(
 execution.markdown = execution.markdown.replace(" nanometer", "nm")
 execution.markdown = execution.markdown.replace(" microliter", "uL")
 
-with open(__file__.split(".")[0] + ".md", "w", encoding="utf-8") as f:
-    f.write(execution.markdown)
+filename = "".join(__file__.split(".py")[0].split("/")[-1:])
+
+if REGENERATE_ARTIFACTS:
+    with open(filename + ".md", "w", encoding="utf-8") as f:
+        f.write(execution.markdown)

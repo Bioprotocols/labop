@@ -1,3 +1,4 @@
+import os
 import unittest
 
 import sbol3
@@ -6,9 +7,7 @@ import tyto
 import labop
 import uml
 from labop.execution_engine import ExecutionEngine
-from labop_convert.markdown.markdown_specialization import (
-    MarkdownSpecialization,
-)
+from labop_convert import MarkdownSpecialization
 from labop_convert.behavior_specialization import DefaultBehaviorSpecialization
 
 OUT_DIR = os.path.join(os.path.dirname(__file__), "out")
@@ -62,9 +61,7 @@ class TestProtocolOutputs(unittest.TestCase):
             out_dir=OUT_DIR,
             specializations=[MarkdownSpecialization("test_LUDOX_markdown.md")],
         )
-        ex = ee.execute(
-            self.protocol, agent, id="test_execution", parameter_values=[]
-        )
+        ex = ee.execute(self.protocol, agent, id="test_execution", parameter_values=[])
 
     def test_specialized_compute_output(self):
         # This test confirms generation of an output token from a Primitive
@@ -80,17 +77,11 @@ class TestProtocolOutputs(unittest.TestCase):
             out_dir=OUT_DIR,
             specializations=[MarkdownSpecialization("test_LUDOX_markdown.md")],
         )
-        ex = ee.execute(
-            self.protocol, agent, id="test_execution", parameter_values=[]
-        )
+        ex = ee.execute(self.protocol, agent, id="test_execution", parameter_values=[])
 
+        self.assertTrue(isinstance(ex.parameter_values[0].value, uml.LiteralReference))
         self.assertTrue(
-            isinstance(ex.parameter_values[0].value, uml.LiteralReference)
-        )
-        self.assertTrue(
-            isinstance(
-                ex.parameter_values[0].value.value.lookup(), labop.Dataset
-            )
+            isinstance(ex.parameter_values[0].value.value.lookup(), labop.Dataset)
         )
 
     def test_default_compute_output(self):
@@ -124,9 +115,7 @@ class TestProtocolOutputs(unittest.TestCase):
             parameter_values=[],
         )
 
-        self.assertTrue(
-            ex.parameter_values[1].value.value.lookup(), sbol3.Component
-        )
+        self.assertTrue(ex.parameter_values[1].value.value.lookup(), sbol3.Component)
 
 
 if __name__ == "__main__":

@@ -16,7 +16,8 @@ import labop
 import uml
 from labop.strings import Strings
 from labop_convert.behavior_specialization import BehaviorSpecialization
-from labop_convert.markdown import MarkdownConverter
+
+from .protocol_to_markdown import MarkdownConverter
 
 l = logging.getLogger(__file__)
 l.setLevel(logging.ERROR)
@@ -1261,7 +1262,12 @@ class MarkdownSpecialization(BehaviorSpecialization):
 
     def dataset_to_text(self, dataset: labop.Dataset):
         # Assumes that the data file is the same name as the markdown file, aside from the extension
-        xlsx_file = self.out_file.split(".")[0] + ".xlsx"
+        if self.out_file:
+            xlsx_file = self.out_file.split(".")[0] + ".xlsx"
+        else:
+            xlsx_file = (
+                "template.xlsx"  # Dummy value used when generating, but not writing md
+            )
         return f"Dataset: [{xlsx_file}]({xlsx_file})"
 
 

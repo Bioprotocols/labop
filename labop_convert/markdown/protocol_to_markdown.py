@@ -3,7 +3,6 @@ import openpyxl
 import sbol3
 from IPython.display import Markdown
 
-import labop
 import uml
 
 ###########################################
@@ -92,11 +91,7 @@ class MarkdownConverter:
 
     # Entry-point for document conversion
     # TODO: allow us to control the name of the output
-    def convert(self, execution, out=None):
-        # protocol argument can be either string, URI, or labop.Protocol
-        if not isinstance(execution, labop.ProtocolExecution):
-            execution = self.document.find(execution)
-
+    def convert(self, execution: "ProtocolExecution", out=None):
         # print('Inferring flow values')
         # self.protocol_typing.infer_typing(protocol)
 
@@ -292,7 +287,7 @@ def markdown_input(input: uml.Parameter, mdc: MarkdownConverter):
 #     return isinstance(x,labop.Value) and \
 #            not({f for f in x.input_flows() if not isinstance(f.source.lookup(), labop.Initial)})
 #
-def serialize_activities(execution: labop.ProtocolExecution):
+def serialize_activities(execution: "labop.ProtocolExecution"):
     serialized_activities = []
 
     for execution in execution.executions:
@@ -318,7 +313,7 @@ def serialize_activities(execution: labop.ProtocolExecution):
 
 
 def write_markdown_file(
-    execution: labop.ProtocolExecution,
+    execution: "labop.ProtocolExecution",
     serialized_noncontrol_activities,
     mdc: MarkdownConverter,
     out=None,

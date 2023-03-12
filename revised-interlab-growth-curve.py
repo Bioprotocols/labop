@@ -10,9 +10,12 @@ from tyto import OM
 import labop
 import uml
 from labop.execution_engine import ExecutionEngine
-from labop_convert.markdown.markdown_specialization import (
-    MarkdownSpecialization,
-)
+from labop_convert import MarkdownSpecialization
+
+if "unittest" in sys.modules:
+    REGENERATE_ARTIFACTS = False
+else:
+    REGENERATE_ARTIFACTS = True
 
 filename = "".join(__file__.split(".py")[0].split("/")[-1:])
 
@@ -562,15 +565,15 @@ protocol.designate_output(
 
 
 agent = sbol3.Agent("test_agent")
-ee = ExecutionEngine(
-    specializations=[MarkdownSpecialization("test_LUDOX_markdown.md")]
-)
-execution = ee.execute(
-    protocol, agent, id="test_execution", parameter_values=[]
-)
+ee = ExecutionEngine(specializations=[MarkdownSpecialization("test_LUDOX_markdown.md")])
+execution = ee.execute(protocol, agent, id="test_execution", parameter_values=[])
 print(ee.specializations[0].markdown)
 ee.specializations[0].markdown = ee.specializations[0].markdown.replace(
     "`_E. coli_", "_`E. coli`_ `"
 )
-with open(__file__.split(".")[0] + ".md", "w", encoding="utf-8") as f:
-    f.write(ee.specializations[0].markdown)
+
+filename = "".join(__file__.split(".py")[0].split("/")[-1:])
+
+if REGENERATE_ARTIFACTS:
+    with open(filename + ".md", "w", encoding="utf-8") as f:
+        f.write(ee.specializations[0].markdown)

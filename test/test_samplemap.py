@@ -1,34 +1,21 @@
 import filecmp
-import json
 import logging
 import os
 import tempfile
 import unittest
-import xarray as xr
-import json
-from labop.utils.helpers import file_diff
-from labop_convert.markdown.markdown_specialization import (
-    MarkdownSpecialization,
-)
 
 import xarray as xr
-
-from labop.utils.helpers import file_diff
-from labop_convert.behavior_specialization import DefaultBehaviorSpecialization
-from labop_convert.markdown.markdown_specialization import (
-    MarkdownSpecialization,
-)
-
-from labop.strings import Strings
 
 from labop.data import serialize_sample_format
+from labop.strings import Strings
+from labop.utils.helpers import file_diff, initialize_protocol
+from labop_convert import MarkdownSpecialization
+from labop_convert.behavior_specialization import DefaultBehaviorSpecialization
 
 xr.set_options(display_expand_data=False)
 
 import sbol3
 import tyto
-from helpers import initialize_protocol
-from sbol3 import Document
 
 import labop
 import uml
@@ -57,7 +44,6 @@ logger.setLevel(logging.INFO)
 
 class TestProtocolEndToEnd(unittest.TestCase):
     def test_create_protocol(self):
-
         protocol, doc = initialize_protocol()
 
         # The aliquots will be the coordinates of the SampleArray and SampleMap objects
@@ -237,9 +223,7 @@ class TestProtocolEndToEnd(unittest.TestCase):
         diff = "".join(file_diff(comparison_file, temp_name))
         print(f"Difference:\n{diff}")
 
-        assert filecmp.cmp(
-            temp_name, comparison_file
-        ), "Files are not identical"
+        assert filecmp.cmp(temp_name, comparison_file), "Files are not identical"
         print("File identical with test file")
 
     def test_mask(self):
@@ -445,9 +429,7 @@ class TestProtocolEndToEnd(unittest.TestCase):
                 "H12",
             ],
         )
-        self.assertEqual(
-            coordinate_rect_to_row_col_pairs("H11:H12")[1], (7, 11)
-        )
+        self.assertEqual(coordinate_rect_to_row_col_pairs("H11:H12")[1], (7, 11))
         self.assertEqual(coordinate_to_row_col("H12"), (7, 11))
 
 

@@ -9,16 +9,15 @@ import tyto
 import labop
 import uml
 from labop.execution_engine import ExecutionEngine
+from labop_convert import MarkdownSpecialization
 from labop_convert.autoprotocol.autoprotocol_specialization import (
     AutoprotocolSpecialization,
 )
 from labop_convert.autoprotocol.strateos_api import StrateosAPI, StrateosConfig
-from labop_convert.markdown.markdown_specialization import MarkdownSpecialization
 
 
 class TestConvert(unittest.TestCase):
     def _run_execution(self, doc, specializations):
-
         protocol = doc.find("https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018")
 
         #############################################

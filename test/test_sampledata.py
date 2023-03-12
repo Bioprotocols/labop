@@ -93,10 +93,7 @@ class TestProtocolEndToEnd(unittest.TestCase):
             "EmptyContainer", specification=container_type
         )
 
-        metadata_filename = os.path.join(
-            os.path.dirname(os.path.realpath(__file__)),
-            "metadata/measure_absorbance.xlsx",
-        )
+        metadata_filename = "test/metadata/measure_absorbance.xlsx"
 
         load_excel = protocol.primitive_step(
             "ExcelMetadata",
@@ -147,9 +144,7 @@ class TestProtocolEndToEnd(unittest.TestCase):
             parameter_values=[],
         )
 
-        execution.to_dot().render(
-            os.path.join(OUT_DIR, f"{protocol.name}_execution")
-        )
+        execution.to_dot().render(os.path.join(OUT_DIR, f"{protocol.name}_execution"))
 
         # dataset = execution.parameter_values[0].value.get_value()
         # xr_dataset = labop.sort_samples(dataset.to_dataset())

@@ -5,8 +5,8 @@ import sbol3
 import labop
 import uml
 from labop.execution_engine import ExecutionEngine
+from labop_convert import MarkdownSpecialization
 from labop_convert.behavior_specialization import DefaultBehaviorSpecialization
-from labop_convert.markdown.markdown_specialization import MarkdownSpecialization
 
 
 class TestSubprotocols(unittest.TestCase):
