@@ -1,5 +1,6 @@
 # TODO: allow optionals to actually be optional
 
+
 # Pre-declare the MarkdownConverter class to avoid circularity with markdown.protocol_to_markdown
 class MarkdownConverter:
     pass

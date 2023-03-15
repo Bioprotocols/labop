@@ -12,12 +12,18 @@ import xarray as xr
 
 import labop
 import uml
-from labop import SampleArray, SampleData, SampleMask
-from labop_convert.plate_coordinates import (
-    coordinate_rect_to_row_col_pairs,
-    coordinate_to_row_col,
-    get_sample_list,
-)
+
+from .utils.plate_coordinates import get_sample_list
+
+# from labop import (
+#     SampleArray,
+#     SampleData,
+#     SampleMask,
+#     coordinate_rect_to_row_col_pairs,
+#     coordinate_to_row_col,
+#     get_sample_list,
+# )\
+
 
 l = logging.getLogger(__file__)
 l.setLevel(logging.ERROR)
@@ -44,7 +50,6 @@ def many_to_one_sample_map_get_map(self):
     Get the XArray Dataset from the values field.
     """
     if not hasattr(self, "values") or not self.values:
-
         sources = [source.lookup() for source in self.sources]
         target = self.targets.lookup()
 
@@ -74,7 +79,6 @@ def one_to_many_sample_map_get_map(self):
     Get the XArray Dataset from the values field.
     """
     if not hasattr(self, "values") or not self.values:
-
         source = self.sources
         targets = self.targets
 

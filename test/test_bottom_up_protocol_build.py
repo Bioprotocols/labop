@@ -147,7 +147,10 @@ class TestParameters(unittest.TestCase):
 
         with self.assertRaises(ValueError):
             x = ee.execute(
-                protocol, agent, id="test_execution", parameter_values=parameter_values
+                protocol,
+                agent,
+                id="test_execution",
+                parameter_values=parameter_values,
             )
 
     def test_duplicate_parameters(self):
@@ -203,7 +206,7 @@ class TestParameters(unittest.TestCase):
         )
 
         ## Need to define an output for the "samples" output, otherwise ee will compute unique values for each: "samples0", "samples1", etc.
-        def step1_compute_output(inputs, parameter, sample_format):
+        def step1_compute_output(inputs, parameter, sample_format, record_hash):
             return "samples_value"
 
         step1.compute_output = step1_compute_output
@@ -215,7 +218,10 @@ class TestParameters(unittest.TestCase):
         parameter_values = []
         with self.assertRaises(ValueError):
             x = ee.execute(
-                protocol, agent, id="test_execution", parameter_values=parameter_values
+                protocol,
+                agent,
+                id="test_execution",
+                parameter_values=parameter_values,
             )
 
     def test_optional_and_required_parameters(self):

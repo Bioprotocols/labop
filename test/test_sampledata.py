@@ -14,9 +14,10 @@ from tyto import OM
 
 import labop
 import uml
+from labop import Protocol
 from labop.execution_engine import ExecutionEngine
-from labop.utils.helpers import file_diff, initialize_protocol
-from labop_convert.plate_coordinates import get_sample_list
+from labop.utils.helpers import file_diff
+from labop.utils.plate_coordinates import get_sample_list
 
 OUT_DIR = os.path.join(os.path.dirname(__file__), "out")
 if not os.path.exists(OUT_DIR):
@@ -48,7 +49,7 @@ protocol_def = load_ludox_protocol(protocol_def_file)
 
 class TestProtocolEndToEnd(unittest.TestCase):
     def test_dataset_to_dataframe(self):
-        protocol, doc = initialize_protocol()
+        protocol, doc = Protocol.initialize_protocol()
         protocol.name = "sample_data_demo_protocol"
 
         reagents = [
@@ -204,7 +205,10 @@ class TestProtocolEndToEnd(unittest.TestCase):
             )
         ]
         execution = ee.execute(
-            protocol, agent, id="test_execution", parameter_values=parameter_values
+            protocol,
+            agent,
+            id="test_execution",
+            parameter_values=parameter_values,
         )
 
         # Get the SampleData objects and attach values

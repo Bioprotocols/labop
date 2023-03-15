@@ -1,5 +1,11 @@
 import uml
-from labop import Primitive, Protocol, SampleArray, SampleData, SampleMap, SampleMask
+
+from .primitive import Primitive
+from .protocol import Protocol
+from .sample_array import SampleArray
+from .sample_data import SampleData
+from .sample_map import SampleMap
+from .sample_mask import SampleMask
 
 
 def protocol_template():

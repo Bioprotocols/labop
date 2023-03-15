@@ -61,7 +61,9 @@ class TestProtocolEndToEnd(unittest.TestCase):
         )
         doc.add(pH_meter_calibrated)
 
-        def pH_meter_calibrated_compute_output(inputs, parameter, sample_format):
+        def pH_meter_calibrated_compute_output(
+            inputs, parameter, sample_format, record_hash
+        ):
             return True
 
         pH_meter_calibrated.compute_output = pH_meter_calibrated_compute_output
@@ -125,7 +127,9 @@ class TestProtocolEndToEnd(unittest.TestCase):
         )
         doc.add(measurment_is_nominal)
 
-        def measurement_is_nominal_compute_output(inputs, parameter, sample_format):
+        def measurement_is_nominal_compute_output(
+            inputs, parameter, sample_format, record_hash
+        ):
             return True
 
         measurment_is_nominal.compute_output = measurement_is_nominal_compute_output

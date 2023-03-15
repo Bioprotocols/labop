@@ -6,18 +6,21 @@ from abc import ABC
 from typing import Callable, Dict, List, Union
 from urllib.parse import quote, unquote
 
-import graphviz
 import pandas as pd
 import sbol3
-import xarray as xr
 
-import labop
-import uml
-from labop.primitive_execution import initialize_primitive_compute_output
-from labop_convert.behavior_specialization import (
-    BehaviorSpecialization,
-    DefaultBehaviorSpecialization,
-)
+from labop_convert import DefaultBehaviorSpecialization
+from uml import ActivityNode, CallBehaviorAction
+
+from .activity_edge_flow import ActivityEdgeFlow
+from .activity_node_execution import ActivityNodeExecution
+from .call_behavior_execution import CallBehaviorExecution
+from .dataset import Dataset
+from .parameter_value import ParameterValue
+from .primitive import Primitive
+from .protocol import Protocol
+from .protocol_execution import ProtocolExecution
+from .sample_data import SampleData
 
 l = logging.getLogger(__file__)
 l.setLevel(logging.ERROR)
@@ -42,9 +45,7 @@ class ExecutionEngine(ABC):
 
     def __init__(
         self,
-        specializations: List[BehaviorSpecialization] = [
-            DefaultBehaviorSpecialization()
-        ],
+        specializations=[DefaultBehaviorSpecialization()],
         use_ordinal_time=False,
         failsafe=True,
         permissive=False,
@@ -121,10 +122,10 @@ class ExecutionEngine(ABC):
 
     def initialize(
         self,
-        protocol: labop.Protocol,
+        protocol: Protocol,
         agent: sbol3.Agent,
         id: str = uuid.uuid4(),
-        parameter_values: List[labop.ParameterValue] = {},
+        parameter_values: List[ParameterValue] = {},
     ):
         # Record in the document containing the protocol
         doc = protocol.document
@@ -134,10 +135,10 @@ class ExecutionEngine(ABC):
 
         if self.use_defined_primitives:
             # Define the compute_output function for known primitives
-            initialize_primitive_compute_output(doc)
+            Primitive.initialize_primitive_compute_output(doc)
 
         # First, set up the record for the protocol and parameter values
-        self.ex = labop.ProtocolExecution(id, protocol=protocol)
+        self.ex = ProtocolExecution(id, protocol=protocol)
         doc.add(self.ex)
 
         self.ex.association.append(sbol3.Association(agent=agent, plan=protocol))
@@ -150,7 +151,7 @@ class ExecutionEngine(ABC):
 
     def finalize(
         self,
-        protocol: labop.Protocol,
+        protocol: Protocol,
     ):
         self.ex.end_time = self.get_current_time()
 
@@ -168,12 +169,12 @@ class ExecutionEngine(ABC):
 
     def execute(
         self,
-        protocol: labop.Protocol,
+        protocol: Protocol,
         agent: sbol3.Agent,
-        parameter_values: List[labop.ParameterValue] = {},
+        parameter_values: List[ParameterValue] = {},
         id: str = uuid.uuid4(),
         start_time: datetime.datetime = None,
-    ) -> labop.ProtocolExecution:
+    ) -> ProtocolExecution:
         """Execute the given protocol against the provided parameters
 
         Parameters
@@ -195,8 +196,7 @@ class ExecutionEngine(ABC):
 
         return self.ex
 
-    def run(self, protocol: labop.Protocol, start_time: datetime.datetime = None):
-
+    def run(self, protocol: Protocol, start_time: datetime.datetime = None):
         self.init_time(start_time)
         self.ex.start_time = (
             self.start_time
@@ -211,26 +211,22 @@ class ExecutionEngine(ABC):
 
     def step(
         self,
-        ready: List[uml.ActivityNode],
-        node_outputs: Dict[uml.ActivityNode, Callable] = {},
+        ready: List[ActivityNode],
+        node_outputs: Dict[ActivityNode, Callable] = {},
     ):
         non_call_nodes = [
-            node for node in ready if not isinstance(node, uml.CallBehaviorAction)
+            node for node in ready if not isinstance(node, CallBehaviorAction)
         ]
         new_tokens = []
         # prefer executing non_call_nodes first
-        for node in non_call_nodes + [
-            n for n in ready if n not in non_call_nodes
-        ]:
+        for node in non_call_nodes + [n for n in ready if n not in non_call_nodes]:
             self.current_node = node
             try:
                 tokens_added, tokens_removed = node.execute(
                     self,
                     node_outputs=(node_outputs[node] if node in node_outputs else None),
                 )
-                self.tokens = [
-                    t for t in self.tokens if t not in tokens_removed
-                ]
+                self.tokens = [t for t in self.tokens if t not in tokens_removed]
 
                 new_tokens = new_tokens + tokens_added
                 record = self.ex.executions[-1]
@@ -242,7 +238,7 @@ class ExecutionEngine(ABC):
                 # incoming_flows = [
                 #     t for t in self.tokens if node == t.get_target()
                 # ]
-                # exec = labop.CallBehaviorExecution(
+                # exec = CallBehaviorExecution(
                 #     node=node, incoming_flows=incoming_flows
                 # )
                 # self.ex.document.add(exec)
@@ -255,16 +251,16 @@ class ExecutionEngine(ABC):
                 #         or node.identity
                 #         == edge.source.lookup().get_parent().identity
                 #     )
-                #     and (isinstance(edge, uml.ControlFlow))
+                #     and (isinstance(edge, ControlFlow))
                 # ]
 
                 # self.tokens = [
                 #     t for t in self.tokens if t.get_target() != node
                 # ] + [
-                #     labop.ActivityEdgeFlow(
+                #     ActivityEdgeFlow(
                 #         token_source=exec,
                 #         edge=edge,
-                #         value=uml.literal("uml.ControlFlow"),
+                #         value=literal("uml.ControlFlow"),
                 #     )
                 #     for edge in control_edges
                 # ]
@@ -276,7 +272,7 @@ class ExecutionEngine(ABC):
         self.tokens = self.tokens + new_tokens
         return self.executable_activity_nodes(new_tokens)
 
-    def executable_activity_nodes(self, tokens_added) -> List[uml.ActivityNode]:
+    def executable_activity_nodes(self, tokens_added) -> List[ActivityNode]:
         """Find all of the activity nodes that are ready to be run given the current set of tokens
         Note that this will NOT identify activities with no in-flows: those are only set up as initiating nodes
 
@@ -291,9 +287,9 @@ class ExecutionEngine(ABC):
         updated_clusters = set({})
         for t in tokens_added:
             target = t.get_target()
-            self.candidate_clusters[
-                target.identity
-            ] = self.candidate_clusters.get(target.identity, []) + [t]
+            self.candidate_clusters[target.identity] = self.candidate_clusters.get(
+                target.identity, []
+            ) + [t]
             updated_clusters.add(target)
 
         enabled_nodes = [
@@ -309,38 +305,36 @@ class ExecutionEngine(ABC):
 
     def post_process(
         self,
-        record: labop.ActivityNodeExecution,
-        new_tokens: List[labop.ActivityEdgeFlow],
+        record: ActivityNodeExecution,
+        new_tokens: List[ActivityEdgeFlow],
     ):
         if self.dataset_file is not None:
             self.write_data_templates(record, new_tokens)
 
     def write_data_templates(
         self,
-        record: labop.ActivityNodeExecution,
-        new_tokens: List[labop.ActivityEdgeFlow],
+        record: ActivityNodeExecution,
+        new_tokens: List[ActivityEdgeFlow],
     ):
         """
-        Write a data template as an xlsx file if the record.node produces sample data (i.e., it has an output of type labop.Dataset with a data attribute of type labop.SampleData)
+        Write a data template as an xlsx file if the record.node produces sample data (i.e., it has an output of type Dataset with a data attribute of type SampleData)
         Parameters
         ----------
-        node : labop.ActivityNodeExecution
+        node : ActivityNodeExecution
             ActivityNodeExecution that produces SampleData
         """
-        if not isinstance(record, labop.CallBehaviorExecution):
+        if not isinstance(record, CallBehaviorExecution):
             return
 
-        # Find all labop.Dataset objects produced by record
+        # Find all Dataset objects produced by record
         datasets = [
             token.value.get_value()
             for token in new_tokens
             if token.token_source == record.identity
-            and isinstance(token.value.get_value(), labop.Dataset)
+            and isinstance(token.value.get_value(), Dataset)
         ]
         sample_data = [
-            dataset.data
-            for dataset in datasets
-            if isinstance(dataset.data, labop.SampleData)
+            dataset.data for dataset in datasets if isinstance(dataset.data, SampleData)
         ]
 
         path = os.path.join(self.out_dir, f"{self.dataset_file}.xlsx")
@@ -354,14 +348,12 @@ class ExecutionEngine(ABC):
 
         for sd in sample_data:
             sheet_name = f"{record.node.lookup().behavior.lookup().display_id}_data_{self.data_id}"
-            sd.update_data_sheet(
-                path, sheet_name, sample_format=self.sample_format
-            )
+            sd.update_data_sheet(path, sheet_name, sample_format=self.sample_format)
             self.data_id += 1
 
 
 class ManualExecutionEngine(ExecutionEngine):
-    def run(self, protocol: labop.Protocol, start_time: datetime.datetime = None):
+    def run(self, protocol: Protocol, start_time: datetime.datetime = None):
         self.init_time(start_time)
         self.ex.start_time = (
             self.start_time
@@ -374,18 +366,17 @@ class ManualExecutionEngine(ExecutionEngine):
         )
         return ready, choices, graph
 
-    def advance(self, ready: List[uml.ActivityNode]):
+    def advance(self, ready: List[ActivityNode]):
         def auto_advance(r):
             # If Node is a CallBehavior action, then:
-            if isinstance(r, uml.CallBehaviorAction):
+            if isinstance(r, CallBehaviorAction):
                 behavior = r.behavior.lookup()
                 return (  # It is a subprotocol
-                    isinstance(behavior, labop.Protocol)
+                    isinstance(behavior, Protocol)
                     or (len(list(behavior.get_outputs())) == 0)  # Has no output pins
                     or (  # Overrides the (empty) default implementation of compute_output()
                         not hasattr(behavior.compute_output, "__func__")
-                        or behavior.compute_output.__func__
-                        != labop.primitive_execution.primitive_compute_output
+                        or behavior.compute_output.__func__ != Primitive.compute_output
                     )
                 )
             else:
@@ -399,7 +390,7 @@ class ManualExecutionEngine(ExecutionEngine):
 
         return self.executable_activity_nodes()
 
-    def ready_message(self, ready: List[uml.ActivityNode]):
+    def ready_message(self, ready: List[ActivityNode]):
         msg = "Activities Ready to Execute:\n"
 
         def activity_name(a):
@@ -414,7 +405,7 @@ class ManualExecutionEngine(ExecutionEngine):
         activities = [activity_name(r.protocol()) for r in ready]
         behaviors = [
             behavior_name(r.behavior.lookup())
-            if isinstance(r, uml.CallBehaviorAction)
+            if isinstance(r, CallBehaviorAction)
             else decision_name(r)
             for r in ready
         ]
@@ -434,7 +425,7 @@ class ManualExecutionEngine(ExecutionEngine):
         )
         # return choices #f"{msg}{ready_nodes}"
 
-    def next(self, activity_node: uml.ActivityNode, node_output: callable):
+    def next(self, activity_node: ActivityNode, node_output: callable):
         """Execute a single ActivityNode using the node_output function to calculate its output pin values.
 
         Args:
@@ -455,213 +446,3 @@ class ManualExecutionEngine(ExecutionEngine):
 
 ##################################
 # Helper utility functions
-
-
-def sum_measures(measure_list):
-    """Add a list of measures and return a fresh measure
-    Note: requires that all have the same unit and types
-
-    Parameters
-    ----------
-    measure_list of SBOL Measure objects
-
-    Returns
-    -------
-    New Measure object with the sum of input measure amounts
-    """
-    prototype = measure_list[0]
-    if not all(
-        m.types == prototype.types and m.unit == prototype.unit for m in measure_list
-    ):
-        raise ValueError(
-            f"Can only merge measures with identical units and types: {([m.value, m.unit, m.types] for m in measure_list)}"
-        )
-    total = sum(m.value for m in measure_list)
-    return sbol3.Measure(value=total, unit=prototype.unit, types=prototype.types)
-
-
-def protocol_execution_aggregate_child_materials(self):
-    """Merge the consumed material from children, adding a fresh Material for each to this record.
-
-    Parameters
-    ----------
-    self: ProtocolExecution object
-    """
-    child_materials = [
-        e.call.consumed_material
-        for e in self.executions
-        if isinstance(e, labop.CallBehaviorExecution)
-        and hasattr(e.call, "consumed_material")
-    ]
-    specifications = {m.specification for m in child_materials}
-    self.consumed_material = (
-        labop.Material(
-            s,
-            sum_measures([m.amount for m in child_materials if m.specification == s]),
-        )
-        for s in specifications
-    )
-
-
-labop.ProtocolExecution.aggregate_child_materials = (
-    protocol_execution_aggregate_child_materials
-)
-
-
-def protocol_execution_to_dot(
-    self,
-    execution_engine=None,
-    ready: List[uml.ActivityNode] = [],
-    done=set([]),
-    out_dir="out",
-):
-    """
-    Create a dot graph that illustrates edge values appearing the execution of the protocol.
-    :param self:
-    :return: graphviz.Digraph
-    """
-    dot = graphviz.Digraph(
-        comment=self.protocol,
-        strict=True,
-        graph_attr={"rankdir": "TB", "concentrate": "true"},
-        node_attr={"ordering": "out"},
-    )
-
-    def _make_object_edge(dot, incoming_flow, target, dest_parameter=None):
-        flow_source = incoming_flow.lookup().token_source.lookup()
-        source = incoming_flow.lookup().edge.lookup().source.lookup()
-        value = incoming_flow.lookup().value.get_value()
-        is_ref = isinstance(incoming_flow.lookup().value, uml.LiteralReference)
-        # value = value.value.lookup() if isinstance(value, uml.LiteralReference) else value.value
-
-        if isinstance(source, uml.Pin):
-            src_parameter = (
-                source.get_parent().pin_parameter(source.name).property_value
-            )
-            src_var = src_parameter.name
-        else:
-            src_var = ""
-
-        dest_var = dest_parameter.name if dest_parameter else ""
-
-        source_id = source.dot_label(parent_identity=self.protocol)
-        if isinstance(source, uml.CallBehaviorAction):
-            source_id = f"{source_id}:node"
-        target_id = target.dot_label(parent_identity=self.protocol)
-        if isinstance(target, uml.CallBehaviorAction):
-            target_id = f"{target_id}:node"
-
-        if isinstance(value, sbol3.Identified):
-            edge_label = value.display_id  # value.identity
-        else:
-            edge_label = f"{value}"
-
-        if False and hasattr(value, "to_dot") and not is_ref:
-            # Make node for value and connect to source
-            value_node_id = value.to_dot(dot, out_dir=out_dir)
-            dot.edge(source_id, value_node_id)
-
-        edge_index = incoming_flow.split("ActivityEdgeFlow")[-1]
-
-        edge_label = f"{edge_index}: {edge_label}"
-
-        attrs = {"color": "orange"}
-        dot.edge(target_id, source_id, edge_label, _attributes=attrs)
-
-    dot = graphviz.Digraph(
-        name=f"cluster_{self.identity}", graph_attr={"label": self.identity}
-    )
-
-    # Protocol graph
-    protocol_graph = self.protocol.lookup().to_dot(ready=ready, done=done)
-    dot.subgraph(protocol_graph)
-
-    if execution_engine and execution_engine.current_node:
-        current_node_id = execution_engine.current_node.dot_label(
-            parent_identity=self.protocol
-        )
-        current_node_id = f"{current_node_id}:node"
-        dot.edge(
-            current_node_id,
-            current_node_id,
-            _attributes={
-                "tailport": "w",
-                "headport": "w",
-                "taillabel": "current_node",
-                "color": "red",
-            },
-        )
-
-    # Execution graph
-    for execution in self.executions:
-        exec_target = execution.node.lookup()
-        execution_label = ""
-
-        # Make a self loop that includes the and start and end time.
-        if isinstance(execution, labop.CallBehaviorExecution):
-            time_format = "%H:%M:%S"
-            start_time = datetime.datetime.strftime(
-                execution.call.lookup().start_time, time_format
-            )
-            end_time = datetime.datetime.strftime(
-                execution.call.lookup().end_time, time_format
-            )
-            if start_time == end_time:
-                execution_label += f"[{start_time}]"
-            else:
-                execution_label += f"[{start_time},\n  {end_time}]"
-            target_id = exec_target.dot_label(parent_identity=self.protocol)
-            target_id = f"{target_id}:node"
-            dot.edge(
-                target_id,
-                target_id,
-                _attributes={
-                    "tailport": "w",
-                    "headport": "w",
-                    "taillabel": execution_label,
-                    "color": "invis",
-                },
-            )
-
-        for incoming_flow in execution.incoming_flows:
-            # Executable Nodes have incoming flow from their input pins and ControlFlows
-            flow_source = incoming_flow.lookup().token_source.lookup()
-            exec_source = flow_source.node.lookup()
-            edge_ref = incoming_flow.lookup().edge
-            if edge_ref and isinstance(edge_ref.lookup(), uml.ObjectFlow):
-                if isinstance(exec_target, uml.ActivityParameterNode):
-                    # ActivityParameterNodes are ObjectNodes that have a parameter
-                    _make_object_edge(
-                        dot,
-                        incoming_flow,
-                        exec_target,
-                        dest_parameter=exec_target.parameter.lookup(),
-                    )
-                elif isinstance(exec_target, uml.ControlNode):
-                    # This in an object flow into the node itself, which happens for ControlNodes
-                    _make_object_edge(dot, incoming_flow, exec_target)
-            elif isinstance(exec_source, uml.Pin):
-                # This incoming_flow is from an input pin, and need the flow into the pin
-                for into_pin_flow in flow_source.incoming_flows:
-                    # source = src_to_pin_edge.source.lookup()
-                    # target = src_to_pin_edge.target.lookup()
-                    dest_parameter = exec_target.pin_parameter(
-                        exec_source.name
-                    ).property_value
-                    _make_object_edge(
-                        dot,
-                        into_pin_flow,
-                        into_pin_flow.lookup().edge.lookup().target.lookup(),
-                        dest_parameter=dest_parameter,
-                    )
-            elif (
-                isinstance(exec_source, uml.DecisionNode)
-                and edge_ref
-                and isinstance(edge_ref.lookup(), uml.ControlFlow)
-            ):
-                _make_object_edge(dot, incoming_flow, exec_target)
-
-    return dot
-
-
-labop.ProtocolExecution.to_dot = protocol_execution_to_dot

@@ -68,7 +68,7 @@ class TestProtocolOutputs(unittest.TestCase):
         # with a specialized compute_output method
         self.protocol.designate_output(
             "measurements",
-            "http://bioprotocols.org/labop#SampleData",
+            "http://bioprotocols.org/labop#Dataset",
             source=self.output,
         )
 
@@ -100,7 +100,7 @@ class TestProtocolOutputs(unittest.TestCase):
         )
         self.protocol.designate_output(
             "measurements",
-            "http://bioprotocols.org/labop#SampleData",
+            "http://bioprotocols.org/labop#Dataset",
             source=self.output,
         )
 

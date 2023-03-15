@@ -6,11 +6,10 @@ import unittest
 
 import xarray as xr
 
+from labop import Protocol, Strings
 from labop.data import serialize_sample_format
-from labop.strings import Strings
-from labop.utils.helpers import file_diff, initialize_protocol
-from labop_convert import MarkdownSpecialization
-from labop_convert.behavior_specialization import DefaultBehaviorSpecialization
+from labop.utils.helpers import file_diff
+from labop_convert import DefaultBehaviorSpecialization
 
 xr.set_options(display_expand_data=False)
 
@@ -20,7 +19,7 @@ import tyto
 import labop
 import uml
 from labop.execution_engine import ExecutionEngine
-from labop_convert.plate_coordinates import (
+from labop.utils.plate_coordinates import (
     coordinate_rect_to_row_col_pairs,
     coordinate_to_row_col,
     get_sample_list,
@@ -44,7 +43,7 @@ logger.setLevel(logging.INFO)
 
 class TestProtocolEndToEnd(unittest.TestCase):
     def test_create_protocol(self):
-        protocol, doc = initialize_protocol()
+        protocol, doc = Protocol.initialize_protocol()
 
         # The aliquots will be the coordinates of the SampleArray and SampleMap objects
 

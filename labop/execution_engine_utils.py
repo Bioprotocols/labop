@@ -1,3 +1,4 @@
+import json
 import logging
 import uuid
 from abc import abstractmethod
@@ -9,6 +10,7 @@ import labop
 import uml
 from labop.execution_engine import ExecutionEngine
 from labop_convert.behavior_specialization import BehaviorSpecialization
+from uml.strings import DECISION_ELSE
 
 l = logging.getLogger(__file__)
 l.setLevel(logging.ERROR)
@@ -357,10 +359,10 @@ uml.DecisionNode.enabled = decision_node_enabled
 
 
 class ProtocolExecutionExtractor:
-    def extract(self, record: labop.ActivityNodeExecution):
+    def extract_record(self, record: labop.ActivityNodeExecution):
         pass
 
-    def extract(self, token: labop.ActivityEdgeFlow):
+    def extract_token(self, token: labop.ActivityEdgeFlow):
         pass
 
 
@@ -372,9 +374,9 @@ class JSONProtocolExecutionExtractor(ProtocolExecutionExtractor):
         }
 
     def extract_call_behavior_action(self, token: labop.ActivityEdgeFlow):
-        return super().extract(token)
+        return super().extract_token(token)
 
-    def extract(self, record: labop.ActivityNodeExecution):
+    def extract_record(self, record: labop.ActivityNodeExecution):
         behavior_str = (
             record.node.lookup().behavior
             if isinstance(record.node.lookup(), uml.CallBehaviorAction)
@@ -392,7 +394,7 @@ class JSONProtocolExecutionExtractor(ProtocolExecutionExtractor):
 
 
 class StringProtocolExecutionExtractor(ProtocolExecutionExtractor):
-    def extract(self, record: labop.ActivityNodeExecution):
+    def extract_record(self, record: labop.ActivityNodeExecution):
         behavior_str = (
             record.node.lookup().behavior
             if isinstance(record.node.lookup(), uml.CallBehaviorAction)
@@ -422,7 +424,7 @@ def backtrace(
         head = stack[:-1]
         nodes, head = self.backtrace(stack=head)
         nodes.add(tail.node.lookup())
-        head += [extractor.extract(tail)]
+        head += [extractor.extract_record(tail)]
         return nodes, head
 
 
@@ -544,7 +546,9 @@ uml.ActivityNode.execute_callback = activity_node_execute_callback
 
 
 def activity_node_execution_next_tokens(
-    self: labop.ActivityNodeExecution, engine: ExecutionEngine, node_outputs: Callable
+    self: labop.ActivityNodeExecution,
+    engine: ExecutionEngine,
+    node_outputs: Callable,
 ) -> List[labop.ActivityEdgeFlow]:
     node = self.node.lookup()
     protocol = node.protocol()
@@ -598,7 +602,6 @@ def call_behavior_execution_check_next_tokens(
     node_outputs: Callable,
     sample_format: str,
 ):
-
     # ## Add the output values to the call parameter-values
     linked_parameters = []
     if not isinstance(self.node.lookup().behavior.lookup(), labop.Protocol):
@@ -778,7 +781,6 @@ def initial_node_execute_callback(
     engine: ExecutionEngine,
     inputs: List[labop.ActivityEdgeFlow],
 ) -> labop.ActivityNodeExecution:
-
     non_call_edge_inputs = {
         i for i in inputs if i.edge.lookup() not in engine.ex.activity_call_edge
     }
@@ -1077,7 +1079,7 @@ def decision_node_next_tokens_callback(
 
     try:
         else_edge = next(
-            edge for edge in out_edges if edge.guard.value == uml.DECISION_ELSE
+            edge for edge in out_edges if edge.guard.value == DECISION_ELSE
         )
     except StopIteration as e:
         else_edge = None

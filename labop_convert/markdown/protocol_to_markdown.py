@@ -4,9 +4,14 @@ import sbol3
 from IPython.display import Markdown
 
 import uml
+from labop import CallBehaviorExecution
+from uml.control_node import ControlNode
+from uml.object_node import ObjectNode
+from uml.parameter import Parameter
 
 ###########################################
 # Functions for reasoning about ranges
+
 
 # Transform an Excel-style range (col:row, inclusive, alpha-numeric) to numpy-style (row:col, start/stop, numeric)
 def excel_to_numpy_range(excel_range):
@@ -91,7 +96,7 @@ class MarkdownConverter:
 
     # Entry-point for document conversion
     # TODO: allow us to control the name of the output
-    def convert(self, execution: "ProtocolExecution", out=None):
+    def convert(self, execution: "labop.ProtocolExecution", out=None):
         # print('Inferring flow values')
         # self.protocol_typing.infer_typing(protocol)
 
@@ -253,7 +258,7 @@ class MarkdownConverter:
 # Other sorts of markdown functions
 
 
-def markdown_input(input: uml.Parameter, mdc: MarkdownConverter):
+def markdown_input(input: Parameter, mdc: MarkdownConverter):
     bullet = "* " + str(input)
     if input.description is not None:
         bullet += ": " + input.description
@@ -291,7 +296,7 @@ def serialize_activities(execution: "labop.ProtocolExecution"):
     serialized_activities = []
 
     for execution in execution.executions:
-        if isinstance(execution, labop.CallBehaviorExecution):
+        if isinstance(execution, CallBehaviorExecution):
             execution_node = execution.node.lookup()
             serialized_activities.append(execution_node)
 
@@ -302,7 +307,7 @@ def serialize_activities(execution: "labop.ProtocolExecution"):
     serialized_noncontrol_activities = [
         x
         for x in serialized_activities
-        if (not isinstance(x, uml.ControlNode)) and (not isinstance(x, uml.ObjectNode))
+        if (not isinstance(x, ControlNode)) and (not isinstance(x, ObjectNode))
     ]
     serialized_noncontrol_activities.reverse()
     return serialized_noncontrol_activities

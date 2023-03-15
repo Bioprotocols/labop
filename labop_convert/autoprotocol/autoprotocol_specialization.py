@@ -13,7 +13,7 @@ from autoprotocol.unit import Unit
 from container_api.client_api import matching_containers, strateos_id
 
 import labop
-import labop_convert.autoprotocol.plate_coordinates as pc
+import labop.utils.plate_coordinates as pc
 from labop_convert.autoprotocol.strateos_api import StrateosAPI
 from labop_convert.behavior_specialization import BehaviorSpecialization
 
@@ -132,9 +132,7 @@ class AutoprotocolSpecialization(BehaviorSpecialization):
         return container_id
 
     # def provision_container(self, wells: WellGroup, amounts = None, volumes = None, informatics = None) -> Provision:
-    def provision_container(
-        self, record: labop.ActivityNodeExecution
-    ) -> Provision:
+    def provision_container(self, record: labop.ActivityNodeExecution) -> Provision:
         results = {}
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
@@ -157,9 +155,7 @@ class AutoprotocolSpecialization(BehaviorSpecialization):
         # self.unresolved_terms.append(resource_term)
         return results
 
-    def plate_coordinates(
-        self, record: labop.ActivityNodeExecution
-    ) -> WellGroup:
+    def plate_coordinates(self, record: labop.ActivityNodeExecution) -> WellGroup:
         results = {}
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()

@@ -9,7 +9,7 @@ import tyto
 import labop
 import uml
 from labop.execution_engine import ExecutionEngine
-from labop_convert import MarkdownSpecialization
+from labop_convert import MarkdownSpecialization, OpentronsSpecialization
 from labop_convert.autoprotocol.autoprotocol_specialization import (
     AutoprotocolSpecialization,
 )
@@ -36,10 +36,13 @@ class TestConvert(unittest.TestCase):
         #############################################
         # Execute Protocol and Convert
         execution = ee.execute(
-            protocol, agent, id="test_execution", parameter_values=parameter_values
+            protocol,
+            agent,
+            id="test_execution",
+            parameter_values=parameter_values,
         )
 
-    @pytest.mark.skip(
+    @unittest.skip(
         reason="need to put strateos_secrets.json credentials on github first"
     )
     def test_igem_ludox(self):
@@ -57,7 +60,7 @@ class TestConvert(unittest.TestCase):
             "igem_ludox_test.nt",
         )
         doc.read(protocol_file, "nt")
-
+        protocol = doc.find("https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018")
         #############################################
         # Autoprotocol and Strateos Configuration
         autoprotocol_output = os.path.join(
@@ -93,7 +96,10 @@ class TestConvert(unittest.TestCase):
         #############################################
         # Execute Protocol and Convert
         execution = ee.execute(
-            protocol, agent, id="test_execution", parameter_values=parameter_values
+            protocol,
+            agent,
+            id="test_execution",
+            parameter_values=parameter_values,
         )
 
         #############################################
@@ -137,7 +143,7 @@ class TestConvert(unittest.TestCase):
         markdown_output = os.path.join(tempfile.gettempdir(), "igem_ludox_markdown.md")
         markdown_specialization = MarkdownSpecialization(markdown_output)
 
-        self._run_execution(doc, [autoprotocol_specialization, markdown_specialization])
+        self._run_execution(doc, [markdown_specialization])
 
         #############################################
         # Check outputs match
@@ -198,7 +204,10 @@ class TestConvert(unittest.TestCase):
         #############################################
         # Execute Protocol and Convert
         execution = ee.execute(
-            protocol, agent, id="test_execution", parameter_values=parameter_values
+            protocol,
+            agent,
+            id="test_execution",
+            parameter_values=parameter_values,
         )
 
         #############################################
@@ -206,7 +215,9 @@ class TestConvert(unittest.TestCase):
 
         # Check Opentrons output
         opentrons_comparison_file = os.path.join(
-            os.path.dirname(os.path.realpath(__file__)), "testfiles", "ludox_ot2.py"
+            os.path.dirname(os.path.realpath(__file__)),
+            "testfiles",
+            "ludox_ot2.py",
         )
         # Uncomment next two lines to write the rubric file (Careful!)
         # with open(opentrons_comparison_file, "w") as out_file, open(opentrons_output) as in_file:

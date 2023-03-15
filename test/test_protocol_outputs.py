@@ -6,7 +6,6 @@ import tyto
 import labop
 import uml
 from labop.execution_engine import ExecutionEngine
-from labop.primitive_execution import initialize_primitive_compute_output
 from labop_convert import MarkdownSpecialization
 from labop_convert.behavior_specialization import DefaultBehaviorSpecialization
 

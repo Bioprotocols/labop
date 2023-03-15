@@ -7,7 +7,7 @@ import tyto
 
 import labop
 import uml
-from labop.primitive_execution import declare_primitive, resolve_value
+from labop import Primitive
 
 
 def get_ph_adjustment_protocol_inputs(
@@ -42,11 +42,16 @@ def get_ph_adjustment_protocol_inputs(
         "initial_transfer_amount", sbol3.Measure
     )
 
-    return reaction_vessel, naoh_container, measurement_delay, initial_transfer_amount
+    return (
+        reaction_vessel,
+        naoh_container,
+        measurement_delay,
+        initial_transfer_amount,
+    )
 
 
 def define_pH_adjustment_protocol_primitives(document: sbol3.Document, library: str):
-    measure_pH_primitive = declare_primitive(
+    measure_pH_primitive = Primitive.declare_primitive(
         document,
         library,
         "MeasurePH",
@@ -55,7 +60,7 @@ def define_pH_adjustment_protocol_primitives(document: sbol3.Document, library: 
         description="Measure pH of samples.",
     )
 
-    measure_temperature_primitive = declare_primitive(
+    measure_temperature_primitive = Primitive.declare_primitive(
         document,
         library,
         "MeasureTemperature",
@@ -64,7 +69,7 @@ def define_pH_adjustment_protocol_primitives(document: sbol3.Document, library: 
         description="Measure Temperature of samples.",
     )
 
-    at_target_primitive = declare_primitive(
+    at_target_primitive = Primitive.declare_primitive(
         document,
         library,
         "AtTargetPH",
@@ -85,7 +90,7 @@ def define_pH_adjustment_protocol_primitives(document: sbol3.Document, library: 
             i_parameter = input.parameter.lookup().property_value
             value = input.value
             if i_parameter.name == "measurement":
-                measurement = resolve_value(value)
+                measurement = value.get_value()
         # FIXME write predicate test
         # volume = sbol3.Measure(
         #     (total_volume * percentage) / 100.0, tyto.OM.milliliter
@@ -94,7 +99,7 @@ def define_pH_adjustment_protocol_primitives(document: sbol3.Document, library: 
 
     at_target_primitive.compute_output = at_target_compute_output
 
-    calculate_naoh_addition = declare_primitive(
+    calculate_naoh_addition = Primitive.declare_primitive(
         document,
         library,
         "CalculateNaOHAddition",
@@ -140,12 +145,15 @@ def define_pH_adjustment_protocol_primitives(document: sbol3.Document, library: 
 
 
 def define_error_message(document: sbol3.Document, library: str):
-    return declare_primitive(
+    return Primitive.declare_primitive(
         document,
         library,
         "ErrorMessage",
         inputs=[
-            {"name": "message", "type": "http://www.w3.org/2001/XMLSchema#string"},
+            {
+                "name": "message",
+                "type": "http://www.w3.org/2001/XMLSchema#string",
+            },
         ],
         description="Display an Error Message",
     )
@@ -154,13 +162,16 @@ def define_error_message(document: sbol3.Document, library: str):
 def wrap_with_error_message(protocol, library, primitive, **kwargs):
     name = f"{primitive.display_id}_with_exception"
 
-    wrapped_primitive = declare_primitive(
+    wrapped_primitive = Primitive.declare_primitive(
         protocol.document,
         library,
         name,
         template=primitive,
         outputs=[
-            {"name": "error", "type": "http://www.w3.org/2001/XMLSchema#string"},
+            {
+                "name": "error",
+                "type": "http://www.w3.org/2001/XMLSchema#string",
+            },
         ],
         description=f"Extends {primitive} with an error output pin",
     )
@@ -224,12 +235,15 @@ def get_ph_calibration_protocol_inputs(
 
 
 def define_pH_calibration_protocol_primitives(document: sbol3.Document, library: str):
-    pH_meter_calibrated_primitive = declare_primitive(
+    pH_meter_calibrated_primitive = Primitive.declare_primitive(
         document,
         library,
         "PHMeterCalibrated",
         outputs=[
-            {"name": "return", "type": "http://www.w3.org/2001/XMLSchema#boolean"}
+            {
+                "name": "return",
+                "type": "http://www.w3.org/2001/XMLSchema#boolean",
+            }
         ],
         description="Decide whether to calibrate pH meter.",
     )
@@ -239,17 +253,20 @@ def define_pH_calibration_protocol_primitives(document: sbol3.Document, library:
 
     pH_meter_calibrated_primitive.compute_output = pH_meter_calibrated_compute_output
 
-    calibrate_pH_meter_primitive = declare_primitive(
+    calibrate_pH_meter_primitive = Primitive.declare_primitive(
         document,
         library,
         "CalibratePHMeter",
         outputs=[
-            {"name": "return", "type": "http://www.w3.org/2001/XMLSchema#boolean"}
+            {
+                "name": "return",
+                "type": "http://www.w3.org/2001/XMLSchema#boolean",
+            }
         ],
         description="Calibrate the pH meter.",
     )
 
-    mix_primitive = declare_primitive(
+    mix_primitive = Primitive.declare_primitive(
         document,
         library,
         "Mix",
@@ -260,7 +277,7 @@ def define_pH_calibration_protocol_primitives(document: sbol3.Document, library:
         description="Start Mixing contents of container.",
     )
 
-    stop_mix_primitive = declare_primitive(
+    stop_mix_primitive = Primitive.declare_primitive(
         document,
         library,
         "StopMix",
@@ -270,7 +287,7 @@ def define_pH_calibration_protocol_primitives(document: sbol3.Document, library:
         description="Stop Mixing contents of container.",
     )
 
-    clean_electrode_primitive = declare_primitive(
+    clean_electrode_primitive = Primitive.declare_primitive(
         document,
         library,
         "CleanElectrode",
@@ -292,14 +309,17 @@ def define_pH_calibration_protocol_primitives(document: sbol3.Document, library:
 
 
 def define_setup_protocol_primitives(document: sbol3.Document, library: str):
-    calculate_volume_primitive = declare_primitive(
+    calculate_volume_primitive = Primitive.declare_primitive(
         document,
         library,
         "CalculateVolume",
         inputs=[
             {"name": "resource", "type": sbol3.Component},
             {"name": "total_volume", "type": tyto.OM.milliliter},
-            {"name": "percentage", "type": "http://www.w3.org/2001/XMLSchema#float"},
+            {
+                "name": "percentage",
+                "type": "http://www.w3.org/2001/XMLSchema#float",
+            },
         ],
         outputs=[{"name": "volume", "type": tyto.OM.milliliter}],
         description="Decide whether to calibrate pH meter.",
@@ -312,9 +332,9 @@ def define_setup_protocol_primitives(document: sbol3.Document, library: str):
             i_parameter = input.parameter.lookup().property_value
             value = input.value
             if i_parameter.name == "total_volume":
-                total_volume = resolve_value(value)
+                total_volume = value.get_value()
             elif i_parameter.name == "percentage":
-                percentage = resolve_value(value)
+                percentage = value.get_value()
         volume = sbol3.Measure(
             (total_volume.value * percentage) / 100.0, tyto.OM.milliliter
         )

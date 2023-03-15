@@ -5,6 +5,18 @@ Generic helper functions for dealing with plate coordinates
 import re
 from string import ascii_letters
 
+"""
+Autoprotocol specific extensions for Autoprotocol containers
+"""
+
+from autoprotocol.container import Container, WellGroup
+
+
+def coordinate_rect_to_well_group(container: Container, coordinates: str):
+    indices = coordinate_rect_to_row_col_pairs(coordinates)
+    wells = [container.well_from_coordinates(i, j) for i, j in indices]
+    return WellGroup(wells)
+
 
 def get_sample_list(geometry="A1:H12"):
     row_col_pairs = coordinate_rect_to_row_col_pairs(geometry)

@@ -7,7 +7,8 @@ import owl_rdf_utils.restrictions
 class TestRestrictions(unittest.TestCase):
     def test_bad_restrictions(self):
         ontology_file_name = os.path.join(
-            os.path.dirname(os.path.realpath(__file__)), "labop-bad-restrictions.ttl"
+            os.path.dirname(os.path.realpath(__file__)),
+            "labop-bad-restrictions.ttl",
         )
         try:
             owl_rdf_utils.restrictions.main(
@@ -19,7 +20,11 @@ class TestRestrictions(unittest.TestCase):
 
     def test_good_restrictions(self):
         ontology_file_name = os.path.join(
-            os.path.dirname(os.path.realpath(__file__)), "..", "labop", "labop.ttl"
+            os.path.dirname(os.path.realpath(__file__)),
+            "..",
+            "labop",
+            "inner",
+            "labop.ttl",
         )
         try:
             owl_rdf_utils.restrictions.main(
@@ -33,7 +38,11 @@ class TestRestrictions(unittest.TestCase):
 
     def test_labop_actual(self):
         ontology_file_name = os.path.join(
-            os.path.dirname(os.path.realpath(__file__)), "..", "labop", "labop.ttl"
+            os.path.dirname(os.path.realpath(__file__)),
+            "..",
+            "labop",
+            "inner",
+            "labop.ttl",
         )
         try:
             owl_rdf_utils.restrictions.main(
@@ -64,7 +73,11 @@ class TestRestrictions(unittest.TestCase):
 
     def test_uml_actual(self):
         ontology_file_name = os.path.join(
-            os.path.dirname(os.path.realpath(__file__)), "..", "uml", "uml.ttl"
+            os.path.dirname(os.path.realpath(__file__)),
+            "..",
+            "uml",
+            "inner",
+            "uml.ttl",
         )
         try:
             owl_rdf_utils.restrictions.main(

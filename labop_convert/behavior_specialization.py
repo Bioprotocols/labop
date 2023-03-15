@@ -5,15 +5,15 @@ from abc import ABC
 
 import tyto
 
-import labop
 import uml
-from labop.primitive_execution import input_parameter_map
+from labop import ActivityNodeExecution, Protocol
 
 l = logging.getLogger(__file__)
 l.setLevel(logging.WARN)
 
 container_ontology_path = os.path.join(
-    os.path.dirname(os.path.realpath(__file__)), "../labop/container-ontology.ttl"
+    os.path.dirname(os.path.realpath(__file__)),
+    "../labop/container-ontology.ttl",
 )
 ContO = tyto.Ontology(
     path=container_ontology_path,
@@ -47,17 +47,17 @@ class BehaviorSpecialization(ABC):
         # This data field holds the results of the specialization
         self.data = []
 
-    def initialize_protocol(self, execution: labop.ProtocolExecution, out_dir=None):
+    def initialize_protocol(self, execution: "ProtocolExecution", out_dir=None):
         self.execution = execution
         self.out_dir = out_dir
 
     def _init_behavior_func_map(self) -> dict:
         return {}
 
-    def on_begin(self, execution: labop.ProtocolExecution):
+    def on_begin(self, execution: "ProtocolExecution"):
         self.data = []
 
-    def on_end(self, execution: labop.ProtocolExecution):
+    def on_end(self, execution: "ProtocolExecution"):
         try:
             dot_graph = execution.to_dot()
             self.data.append(str(dot_graph.source))
@@ -69,11 +69,12 @@ class BehaviorSpecialization(ABC):
         self.data = json.dumps(self.data)
         if self.out_dir:
             with open(
-                os.path.join(self.out_dir, f"{self.__class__.__name__}.json"), "w"
+                os.path.join(self.out_dir, f"{self.__class__.__name__}.json"),
+                "w",
             ) as f:
                 f.write(self.data)
 
-    def process(self, record, execution: labop.ProtocolExecution):
+    def process(self, record, execution: "ProtocolExecution"):
         try:
             node = record.node.lookup()
             if not isinstance(node, uml.CallBehaviorAction):
@@ -81,7 +82,7 @@ class BehaviorSpecialization(ABC):
 
             # Subprotocol specializations
             behavior = node.behavior.lookup()
-            if isinstance(behavior, labop.Protocol):
+            if isinstance(behavior, Protocol):
                 return self._behavior_func_map[behavior.type_uri](record, execution)
 
             # Individual Primitive specializations
@@ -102,12 +103,13 @@ class BehaviorSpecialization(ABC):
     def handle(self, record, execution):
         # Save basic information about the execution record
         node = record.node.lookup()
-        params = input_parameter_map(
-            [
-                pv
-                for pv in record.call.lookup().parameter_values
-                if pv.parameter.lookup().property_value.direction == uml.PARAMETER_IN
-            ]
+        params = record.input_parameter_map(
+            # [
+            #     pv
+            #     for pv in record.call.lookup().parameter_values
+            #     if pv.parameter.lookup().property_value.direction
+            #     == uml.PARAMETER_IN
+            # ]
         )
         params = {p: str(v) for p, v in params.items()}
         node_data = {
@@ -118,7 +120,7 @@ class BehaviorSpecialization(ABC):
         self.update_objects(record)
         self.data.append(node_data)
 
-    def update_objects(self, record: labop.ActivityNodeExecution):
+    def update_objects(self, record: ActivityNodeExecution):
         """
         Update the objects processed by the record.
 
