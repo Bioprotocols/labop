@@ -164,3 +164,11 @@ class Protocol(inner.Protocol, Activity):
                 decision.add_decision_output(self, guard, target)
 
         return decision
+
+    def template(self):
+        """
+        Create a template instantiation of a protocol.  Used for populating UI elements.
+        :param
+        :return: str
+        """
+        return f'protocol = labop.Protocol(\n\t"Identity",\n\tname="Name",\n\tdescription="Description")'

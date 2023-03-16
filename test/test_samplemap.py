@@ -6,8 +6,7 @@ import unittest
 
 import xarray as xr
 
-from labop import Protocol, Strings
-from labop.data import serialize_sample_format
+from labop import Protocol, Strings, serialize_sample_format
 from labop.utils.helpers import file_diff
 from labop_convert import DefaultBehaviorSpecialization
 

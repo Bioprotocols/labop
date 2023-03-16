@@ -181,3 +181,17 @@ class SampleArray(inner.SampleArray, SampleCollection):
                 return coords
         else:
             return sample_array
+
+    def __str__(self):
+        """
+        Create a human readable string for a SampleArray.
+        :param self:
+        :return: str
+        """
+        return f"SampleArray(name={self.name}, container_type={self.container_type}, initial_contents={self.initial_contents})"
+
+    def plot(self):
+        """
+        Render the sample array using a matplotlib plot
+        """
+        self.plot()

@@ -144,3 +144,11 @@ class SampleData(inner.SampleData):
             return sample_array
         else:
             return sample_array
+
+    def __str__(self):
+        """
+        Create a human readable string for a SampleData.
+        :param self:
+        :return: str
+        """
+        return f"SampleData(name={self.name}, from_samples={self.from_samples}, values={self.values})"

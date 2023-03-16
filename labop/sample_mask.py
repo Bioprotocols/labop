@@ -82,3 +82,11 @@ class SampleMask(inner.SampleMask, SampleCollection):
         else:
             dot.node(name)
             return name
+
+    def __str__(self):
+        """
+        Create a human readable string for a SampleMask.
+        :param self:
+        :return: str
+        """
+        return f"SampleMask(name={self.name}, source={self.source}, mask={self.mask})"

@@ -222,10 +222,11 @@ class MarkdownSpecialization(BehaviorSpecialization):
 
     def _parameter_value_markdown(self, pv: ParameterValue, is_output=False):
         parameter = pv.parameter.lookup().property_value
-        value = pv.value.get_value()
+        value = pv.value
         if isinstance(value, sbol3.Measure):
             value = measurement_to_text(value)
         elif isinstance(value, Dataset):
+            value = value.get_value()
             value = self.dataset_to_text(value)
             return f"* {value}\n"
         elif isinstance(value, sbol3.Identified):
@@ -314,7 +315,9 @@ class MarkdownSpecialization(BehaviorSpecialization):
         output_parameters = []
         for i in execution.parameter_values:
             parameter = i.parameter.lookup()
-            value = i.value.get_value()
+            value = i.value
+            if isinstance(value, uml.LiteralSpecification):
+                value = value.get_value()
             if isinstance(value, sbol3.Identified) and value.name:
                 value = f"`{value.name}`"
             elif isinstance(value, Dataset):

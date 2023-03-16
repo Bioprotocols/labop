@@ -5,8 +5,9 @@ import sbol3
 
 import labop.inner as inner
 
-from .utils.helpers import *
-from .utils.plate_coordinates import *
+from uml import assign_outer_class_builders
+
+from .utils import *
 from .parameter_value import *
 from .activity_node_execution import *
 from .activity_edge_flow import *
@@ -42,7 +43,6 @@ from .dataset import *
 
 from .strings import *
 from .type_inference import *
-from .ui import *
 from .library import *
 
 
@@ -80,3 +80,5 @@ def __str__(self):
 for symbol in dir():
     if isinstance(symbol, sbol3.Identified):
         symbol.__str__ = __str__
+
+assign_outer_class_builders(__name__)

@@ -94,8 +94,16 @@ def labop_hash(obj):
     return j
 
 
-def inner_to_outer(inner_class):
+def inner_to_outer(inner_class, package="uml"):
     # Convert the inner class into an outer class
-    labop_module = importlib.import_module("uml")
+    labop_module = importlib.import_module(package)
     labop_class = getattr(labop_module, type(inner_class).__name__)
     return labop_class
+
+
+def convert_to_outer_class(inner_class, package="uml"):
+    try:
+        inner_class.__class__ = inner_to_outer(inner_class, package=package)
+    except:
+        pass
+    return inner_class

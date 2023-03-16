@@ -10,6 +10,7 @@ import sbol3
 
 import labop.inner as inner
 import uml
+from uml.utils import inner_to_outer
 
 from .dataset import Dataset
 from .lab_interface import LabInterface
@@ -18,7 +19,6 @@ from .sample_array import SampleArray
 from .sample_data import SampleData
 from .sample_mask import SampleMask
 from .sample_metadata import SampleMetadata
-from .utils import inner_to_outer
 from .utils.helpers import get_short_uuid
 
 PRIMITIVE_BASE_NAMESPACE = "https://bioprotocols.org/labop/primitives/"
@@ -75,7 +75,7 @@ class Primitive(inner.Primitive, uml.Behavior):
 
         # Convert inner class to outer class
         try:
-            found.__class__ = inner_to_outer(found)
+            found.__class__ = inner_to_outer(found, package="labop")
         except:
             raise ValueError(
                 f'"{name}" should be a Primitive, but it resolves to a {type(found).__name__}'
@@ -168,7 +168,7 @@ class Primitive(inner.Primitive, uml.Behavior):
 
             # Convert the inner class into an outer class
             try:
-                output_token.__class__ = inner_to_outer(output_token)
+                output_token.__class__ = inner_to_outer(output_token, package="labop")
             except Exception as e:
                 pass
 
@@ -476,3 +476,18 @@ class Primitive(inner.Primitive, uml.Behavior):
             document.add(primitive)
         sbol3.set_namespace(old_ns)
         return primitive
+
+    def template(self):
+        """
+        Create a template instantiation of a primitive for writing a protocol.  Used for populating UI elements.
+        :param self:
+        :return: str
+        """
+        args = ",\n\t".join(
+            [
+                f"{parameter.property_value.template()}"
+                for parameter in self.parameters
+                if parameter.property_value.direction == uml.PARAMETER_IN
+            ]
+        )
+        return f"step = protocol.primitive_step(\n\t'{self.display_id}',\n\t{args}\n\t)"

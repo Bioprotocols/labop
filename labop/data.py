@@ -6,15 +6,11 @@ This file monkey-patches the imported labop classes with data handling functions
 
 import json
 import logging
-from cmath import nan
-from itertools import islice
 from typing import Dict
 from urllib.parse import quote, unquote
 
-import pandas as pd
 import sbol3
 import xarray as xr
-from openpyxl import load_workbook
 
 from labop.strings import Strings
 
@@ -23,14 +19,12 @@ l.setLevel(logging.ERROR)
 
 
 def serialize_sample_format(data):
-    data_str = None
     if isinstance(data, xr.DataArray) or isinstance(data, xr.Dataset):
         data_dict = data.to_dict()
     elif isinstance(data, Dict):
         data_dict = data
     else:
         raise Exception(f"Cannot serialize sample_format of type: {type(data)}")
-
     return quote(json.dumps(data_dict))
 
 

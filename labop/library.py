@@ -3,6 +3,8 @@ import posixpath
 
 import sbol3
 
+from uml.utils import convert_to_outer_class
+
 loaded_libraries = {}
 
 
@@ -27,6 +29,13 @@ def import_library(library: str, extension: str = "ttl", nickname: str = None):
     # read in the library and put the document in the library collection
     lib = sbol3.Document()
     lib.read(library, extension)
+    # Convert each Primitive to an outer class
+
+    # for o in lib.objects:
+    #     o = convert_to_outer_class(
+    #         o, package="labop"
+    #     )  # Assume that lib only contains labop objects, such as Primitive
+
     loaded_libraries[nickname] = lib
 
 
