@@ -1,23 +1,27 @@
+import logging
 import os
 import posixpath
 from collections import Counter
-from typing import List, Set, Iterable
-from sbol_factory import SBOLFactory, UMLFactory
+from typing import Iterable, List, Set
+
 import sbol3
-import logging
+from sbol_factory import SBOLFactory, UMLFactory
 
 l = logging.getLogger(__file__)
 l.setLevel(logging.WARN)
 
 # Load ontology and create uml submodule
-SBOLFactory('uml_submodule',
-            posixpath.join(os.path.dirname(os.path.realpath(__file__)),
-            'uml.ttl'),
-            'http://bioprotocols.org/uml#')
+SBOLFactory(
+    "uml_submodule",
+    posixpath.join(os.path.dirname(os.path.realpath(__file__)), "uml.ttl"),
+    "http://bioprotocols.org/uml#",
+)
 
 # Import submodule symbols into top-level uml module
 from uml_submodule import *
+
 from .uml_graphviz import *
+
 
 # Workaround for pySBOL3 issue #231: should be applied to every iteration on a collection of SBOL objects
 # TODO: delete after resolution of pySBOL3 issue #231
@@ -31,9 +35,9 @@ def id_sort(i: iter):
 # Define extension methods for ValueSpecification
 
 # TODO: move constants into ontology after resolution of https://github.com/SynBioDex/sbol_factory/issues/14
-PARAMETER_IN = 'http://bioprotocols.org/uml#in'
-PARAMETER_OUT = 'http://bioprotocols.org/uml#out'
-DECISION_ELSE = 'http://bioprotocols.org/uml#else'
+PARAMETER_IN = "http://bioprotocols.org/uml#in"
+PARAMETER_OUT = "http://bioprotocols.org/uml#out"
+DECISION_ELSE = "http://bioprotocols.org/uml#else"
 
 
 def literal(value, reference: bool = False) -> LiteralSpecification:
@@ -49,11 +53,13 @@ def literal(value, reference: bool = False) -> LiteralSpecification:
     LiteralSpecification of the appropriate type for the value
     """
     if isinstance(value, LiteralReference):
-        return literal(value.value.lookup(), reference) # if it's a reference, make co-reference
+        return literal(
+            value.value.lookup(), reference
+        )  # if it's a reference, make co-reference
     elif isinstance(value, LiteralNull):
         return LiteralNull()
     elif isinstance(value, LiteralSpecification):
-        return literal(value.value, reference) # if it's a literal, unwrap and rebuild
+        return literal(value.value, reference)  # if it's a literal, unwrap and rebuild
     elif value is None:
         return LiteralNull()
     elif isinstance(value, str):
@@ -64,31 +70,51 @@ def literal(value, reference: bool = False) -> LiteralSpecification:
         return LiteralInteger(value=value)
     elif isinstance(value, float):
         return LiteralReal(value=value)
-    elif isinstance(value, sbol3.TopLevel) or (reference and isinstance(value, sbol3.Identified)):
+    elif isinstance(value, sbol3.TopLevel) or (
+        reference and isinstance(value, sbol3.Identified)
+    ):
         return LiteralReference(value=value)
     elif isinstance(value, sbol3.Identified):
         return LiteralIdentified(value=value)
     else:
-        raise ValueError(f'Don\'t know how to make literal from {type(value)} "{value}"')
+        raise ValueError(
+            f'Don\'t know how to make literal from {type(value)} "{value}"'
+        )
+
 
 def literal_value(self: LiteralSpecification):
     return self.value
+
+
 LiteralSpecification.get_value = literal_value
+
 
 def literal_null_value(self: LiteralNull):
     return None
+
+
 LiteralNull.get_value = literal_null_value
+
 
 def literal_reference_value(self: LiteralReference):
     return self.value.lookup()
+
+
 LiteralReference.get_value = literal_reference_value
 
 ###########################################
 # Define extension methods for Behavior
 
-def behavior_add_parameter(self, name: str, param_type: str, direction: str, optional: bool=False,
-                           unbounded: bool=False,
-                           default_value: ValueSpecification=None) -> OrderedPropertyValue:
+
+def behavior_add_parameter(
+    self,
+    name: str,
+    param_type: str,
+    direction: str,
+    optional: bool = False,
+    unbounded: bool = False,
+    default_value: ValueSpecification = None,
+) -> OrderedPropertyValue:
     """Add a Parameter for this Behavior; usually not called directly
 
     Note: Current assumption is that cardinality is either [0..1] or 1
@@ -99,8 +125,12 @@ def behavior_add_parameter(self, name: str, param_type: str, direction: str, opt
     :param default_value: must be specified if Parameter is optional
     :return: Parameter that has been added
     """
-    param = Parameter(name=name, type=param_type, direction=direction, is_ordered=True, is_unique=True)
-    ordered_param = OrderedPropertyValue(index=len(self.parameters), property_value=param)
+    param = Parameter(
+        name=name, type=param_type, direction=direction, is_ordered=True, is_unique=True
+    )
+    ordered_param = OrderedPropertyValue(
+        index=len(self.parameters), property_value=param
+    )
     self.parameters.append(ordered_param)
 
     # Leave upper value property unspecified if the Parameter supports
@@ -114,12 +144,19 @@ def behavior_add_parameter(self, name: str, param_type: str, direction: str, opt
     if default_value:
         param.default_value = default_value
     return ordered_param
+
+
 Behavior.add_parameter = behavior_add_parameter  # Add to class via monkey patch
 
 
-def behavior_add_input(self, name: str, param_type: str, optional: bool=False,
-                       unbounded=False,
-                       default_value: ValueSpecification = None) -> OrderedPropertyValue:
+def behavior_add_input(
+    self,
+    name: str,
+    param_type: str,
+    optional: bool = False,
+    unbounded=False,
+    default_value: ValueSpecification = None,
+) -> OrderedPropertyValue:
     """Add an input Parameter for this Behavior
 
     Note: Current assumption is that cardinality is either [0..1] or 1
@@ -130,7 +167,11 @@ def behavior_add_input(self, name: str, param_type: str, optional: bool=False,
     :param default_value: default value for this parameter
     :return: Parameter that has been added
     """
-    return self.add_parameter(name, param_type, PARAMETER_IN, optional, unbounded, default_value)
+    return self.add_parameter(
+        name, param_type, PARAMETER_IN, optional, unbounded, default_value
+    )
+
+
 Behavior.add_input = behavior_add_input  # Add to class via monkey patch
 
 
@@ -142,6 +183,8 @@ def behavior_add_output(self, name, param_type) -> OrderedPropertyValue:
     :return: Parameter that has been added
     """
     return self.add_parameter(name, param_type, PARAMETER_OUT)
+
+
 Behavior.add_output = behavior_add_output  # Add to class via monkey patch
 
 
@@ -154,6 +197,8 @@ def behavior_get_inputs(self) -> Iterable[Parameter]:
     Iterator over Parameters
     """
     return (p for p in self.parameters if p.property_value.direction == PARAMETER_IN)
+
+
 Behavior.get_inputs = behavior_get_inputs  # Add to class via monkey patch
 
 
@@ -167,11 +212,17 @@ def behavior_get_input(self, name) -> Parameter:
     """
     found = [p for p in self.get_inputs() if p.property_value.name == name]
     if len(found) == 0:
-        raise ValueError(f'Behavior {self.identity} has no input parameter named {name}')
+        raise ValueError(
+            f"Behavior {self.identity} has no input parameter named {name}"
+        )
     elif len(found) > 1:
-        raise ValueError(f'Behavior {self.identity} has multiple input parameters named {name}')
+        raise ValueError(
+            f"Behavior {self.identity} has multiple input parameters named {name}"
+        )
     else:
         return found[0]
+
+
 Behavior.get_input = behavior_get_input  # Add to class via monkey patch
 
 
@@ -183,10 +234,18 @@ def behavior_get_required_inputs(self):
     -------
     Iterator over Parameters
     """
-    #return (p for p in self.get_inputs() if p.property_value.lower_value.value > 0)
-    return (p for p in self.get_inputs() if p.property_value.lower_value is not None and
-                                            p.property_value.lower_value.value > 0)
-Behavior.get_required_inputs = behavior_get_required_inputs  # Add to class via monkey patch
+    # return (p for p in self.get_inputs() if p.property_value.lower_value.value > 0)
+    return (
+        p
+        for p in self.get_inputs()
+        if p.property_value.lower_value is not None
+        and p.property_value.lower_value.value > 0
+    )
+
+
+Behavior.get_required_inputs = (
+    behavior_get_required_inputs  # Add to class via monkey patch
+)
 
 
 def behavior_get_outputs(self):
@@ -198,6 +257,8 @@ def behavior_get_outputs(self):
     Iterator over Parameters
     """
     return (p for p in self.parameters if p.property_value.direction == PARAMETER_OUT)
+
+
 Behavior.get_outputs = behavior_get_outputs  # Add to class via monkey patch
 
 
@@ -209,13 +270,21 @@ def behavior_get_output(self, name) -> Parameter:
     -------
     Parameter, or Value error
     """
-    found = [p.property_value for p in self.get_outputs() if p.property_value.name == name]
+    found = [
+        p.property_value for p in self.get_outputs() if p.property_value.name == name
+    ]
     if len(found) == 0:
-        raise ValueError(f'Behavior {self.identity} has no output parameter named {name}')
+        raise ValueError(
+            f"Behavior {self.identity} has no output parameter named {name}"
+        )
     elif len(found) > 1:
-        raise ValueError(f'Behavior {self.identity} has multiple output parameters named {name}')
+        raise ValueError(
+            f"Behavior {self.identity} has multiple output parameters named {name}"
+        )
     else:
         return found[0]
+
+
 Behavior.get_output = behavior_get_output  # Add to class via monkey patch
 
 
@@ -228,11 +297,16 @@ def behavior_get_required_outputs(self):
     Iterator over Parameters
     """
     return (p for p in self.get_outputs() if p.property_value.lower_value.value > 0)
-Behavior.get_required_outputs = behavior_get_required_outputs  # Add to class via monkey patch
+
+
+Behavior.get_required_outputs = (
+    behavior_get_required_outputs  # Add to class via monkey patch
+)
 
 
 ###########################################
 # Define extension methods for ActivityNode
+
 
 def activitynode_unpin(self: ActivityNode) -> ActivityNode:
     """Find the root node for an ActivityNode: either itself if a Pin, otherwise the owning Action
@@ -245,17 +319,22 @@ def activitynode_unpin(self: ActivityNode) -> ActivityNode:
     -------
     self if not a Pin, otherwise the owning Action
     """
-    if isinstance(self,Pin):
+    if isinstance(self, Pin):
         action = self.get_parent()
-        if not isinstance(action,Action):
-            raise ValueError(f'Parent of {self.identity} should be Action, but found {type(action)} instead')
+        if not isinstance(action, Action):
+            raise ValueError(
+                f"Parent of {self.identity} should be Action, but found {type(action)} instead"
+            )
         return action
     else:
         return self
+
+
 ActivityNode.unpin = activitynode_unpin  # Add to class via monkey patch
 
 ###########################################
 # Define extension methods for CallBehaviorAction
+
 
 def call_behavior_action_input_pin(self, pin_name: str):
     """Find an input pin on the action with the specified name
@@ -265,11 +344,20 @@ def call_behavior_action_input_pin(self, pin_name: str):
     """
     pin_set = {x for x in self.inputs if x.name == pin_name}
     if len(pin_set) == 0:
-        raise ValueError(f'Could not find input pin named {pin_name} for Primitive {self.behavior.lookup().display_id}')
+        raise ValueError(
+            f"Could not find input pin named {pin_name} for Primitive {self.behavior.lookup().display_id}"
+        )
     if len(pin_set) > 1:
-        raise ValueError(f'Found more than one input pin named {pin_name} for Primitive {self.behavior.lookup().display_id}')
+        raise ValueError(
+            f"Found more than one input pin named {pin_name} for Primitive {self.behavior.lookup().display_id}"
+        )
     return pin_set.pop()
-CallBehaviorAction.input_pin = call_behavior_action_input_pin  # Add to class via monkey patch
+
+
+CallBehaviorAction.input_pin = (
+    call_behavior_action_input_pin  # Add to class via monkey patch
+)
+
 
 def call_behavior_action_input_pins(self, pin_name: str):
     """Find an input pin on the action with the specified name
@@ -279,10 +367,15 @@ def call_behavior_action_input_pins(self, pin_name: str):
     """
     pin_set = {x for x in self.inputs if x.name == pin_name}
     if len(pin_set) == 0:
-        raise ValueError(f'Could not find input pin named {pin_name} for Primitive {self.behavior.lookup().display_id}')
+        raise ValueError(
+            f"Could not find input pin named {pin_name} for Primitive {self.behavior.lookup().display_id}"
+        )
     return pin_set
-CallBehaviorAction.input_pins = call_behavior_action_input_pins  # Add to class via monkey patch
 
+
+CallBehaviorAction.input_pins = (
+    call_behavior_action_input_pins  # Add to class via monkey patch
+)
 
 
 def call_behavior_action_output_pin(self, pin_name: str):
@@ -293,11 +386,16 @@ def call_behavior_action_output_pin(self, pin_name: str):
     """
     pin_set = {x for x in self.outputs if x.name == pin_name}
     if len(pin_set) == 0:
-        raise ValueError(f'Could not find output pin named {pin_name}')
+        raise ValueError(f"Could not find output pin named {pin_name}")
     if len(pin_set) > 1:
-        raise ValueError(f'Found more than one output pin named {pin_name}')
+        raise ValueError(f"Found more than one output pin named {pin_name}")
     return pin_set.pop()
-CallBehaviorAction.output_pin = call_behavior_action_output_pin  # Add to class via monkey patch
+
+
+CallBehaviorAction.output_pin = (
+    call_behavior_action_output_pin  # Add to class via monkey patch
+)
+
 
 def call_behavior_action_pin_parameter(self, pin_name: str):
     """Find the behavior parameter corresponding to the pin
@@ -311,17 +409,28 @@ def call_behavior_action_pin_parameter(self, pin_name: str):
         try:
             pin = self.output_pin(pin_name)
         except:
-            raise ValueError(f'Could not find pin named {pin_name}')
+            raise ValueError(f"Could not find pin named {pin_name}")
     behavior = self.behavior.lookup()
     parameters = [p for p in behavior.parameters if p.property_value.name == pin_name]
     if len(parameters) == 0:
-        raise ValueError(f'Invalid parameter {pin_name} provided for Primitive {behavior.display_id}')
+        raise ValueError(
+            f"Invalid parameter {pin_name} provided for Primitive {behavior.display_id}"
+        )
     elif len(parameters) > 1:
-        raise ValueError(f'Primitive {behavior.display_id} has multiple Parameters with the same name')
+        raise ValueError(
+            f"Primitive {behavior.display_id} has multiple Parameters with the same name"
+        )
     return parameters[0]
-CallBehaviorAction.pin_parameter = call_behavior_action_pin_parameter  # Add to class via monkey patch
 
-def add_call_behavior_action(parent: Activity, behavior: Behavior, **input_pin_literals):
+
+CallBehaviorAction.pin_parameter = (
+    call_behavior_action_pin_parameter  # Add to class via monkey patch
+)
+
+
+def add_call_behavior_action(
+    parent: Activity, behavior: Behavior, **input_pin_literals
+):
     """Create a call to a Behavior and add it to an Activity
 
     :param parent: Activity to which the behavior is being added
@@ -330,9 +439,15 @@ def add_call_behavior_action(parent: Activity, behavior: Behavior, **input_pin_l
     :return: newly constructed
     """
     # first, make sure that all of the keyword arguments are in the inputs of the behavior
-    unmatched_keys = [key for key in input_pin_literals.keys() if key not in (i.property_value.name for i in behavior.get_inputs())]
+    unmatched_keys = [
+        key
+        for key in input_pin_literals.keys()
+        if key not in (i.property_value.name for i in behavior.get_inputs())
+    ]
     if unmatched_keys:
-        raise ValueError(f'Specification for "{behavior.display_id}" does not have inputs: {unmatched_keys}')
+        raise ValueError(
+            f'Specification for "{behavior.display_id}" does not have inputs: {unmatched_keys}'
+        )
 
     # create action
     action = CallBehaviorAction(behavior=behavior)
@@ -354,22 +469,39 @@ def add_call_behavior_action(parent: Activity, behavior: Behavior, **input_pin_l
             for value in values:
                 if isinstance(value, sbol3.TopLevel) and not value.document:
                     parent.document.add(value)
-                action.inputs.append(ValuePin(name=i.property_value.name, is_ordered=i.property_value.is_ordered,
-                                              is_unique=i.property_value.is_unique, value=literal(value)))
+                action.inputs.append(
+                    ValuePin(
+                        name=i.property_value.name,
+                        is_ordered=i.property_value.is_ordered,
+                        is_unique=i.property_value.is_unique,
+                        value=literal(value),
+                    )
+                )
 
         else:  # if not a constant, then just a generic InputPin
-            action.inputs.append(InputPin(name=i.property_value.name, is_ordered=i.property_value.is_ordered,
-                                          is_unique=i.property_value.is_unique))
+            action.inputs.append(
+                InputPin(
+                    name=i.property_value.name,
+                    is_ordered=i.property_value.is_ordered,
+                    is_unique=i.property_value.is_unique,
+                )
+            )
 
     # Instantiate output pins
     for o in id_sort(behavior.get_outputs()):
-        action.outputs.append(OutputPin(name=o.property_value.name, is_ordered=o.property_value.is_ordered,
-                                        is_unique=o.property_value.is_unique))
+        action.outputs.append(
+            OutputPin(
+                name=o.property_value.name,
+                is_ordered=o.property_value.is_ordered,
+                is_unique=o.property_value.is_unique,
+            )
+        )
     return action
 
 
 ###########################################
 # Define extension methods for Activity
+
 
 def activity_initial(self):
     """Find or create an initial node in an Activity.
@@ -385,7 +517,11 @@ def activity_initial(self):
     elif len(initial) == 1:
         return initial[0]
     else:
-        raise ValueError(f'Activity "{self.display_id}" assumed to have one initial node, but found {len(initial)}')
+        raise ValueError(
+            f'Activity "{self.display_id}" assumed to have one initial node, but found {len(initial)}'
+        )
+
+
 Activity.initial = activity_initial  # Add to class via monkey patch
 
 
@@ -402,12 +538,21 @@ def activity_final(self):
     elif len(final) == 1:
         return final[0]
     else:
-        raise ValueError(f'Activity "{self.display_id}" assumed to have one initial node, but found {len(initial)}')
+        raise ValueError(
+            f'Activity "{self.display_id}" assumed to have one initial node, but found {len(initial)}'
+        )
+
+
 Activity.final = activity_final  # Add to class via monkey patch
 
 
-def activity_input_value(self, name: str, param_type: str, optional: bool = False,
-                       default_value: ValueSpecification = None) -> ActivityParameterNode:
+def activity_input_value(
+    self,
+    name: str,
+    param_type: str,
+    optional: bool = False,
+    default_value: ValueSpecification = None,
+) -> ActivityParameterNode:
     """Add an input, then return the ActivityParameterNode that refers to that input
 
     :param self: Activity
@@ -417,14 +562,20 @@ def activity_input_value(self, name: str, param_type: str, optional: bool = Fals
     :param default_value: if the input is optional, a default value must be set
     :return: ActivityParameterNode associated with the input
     """
-    parameter = self.add_input(name=name, param_type=param_type, optional=optional, default_value=default_value)
+    parameter = self.add_input(
+        name=name, param_type=param_type, optional=optional, default_value=default_value
+    )
     node = ActivityParameterNode(parameter=parameter)
     self.nodes.append(node)
     return node
+
+
 Activity.input_value = activity_input_value  # Add to class via monkey patch
 
 
-def activity_designate_output(self, name: str, param_type: str, source: ActivityNode) -> ActivityParameterNode:
+def activity_designate_output(
+    self, name: str, param_type: str, source: ActivityNode
+) -> ActivityParameterNode:
     """Add an output, connect it to an ActivityParameterNode, and get its value from the designated node
 
     :param self: Activity
@@ -439,8 +590,12 @@ def activity_designate_output(self, name: str, param_type: str, source: Activity
     if source:
         self.use_value(source, node)
     else:
-        l.warn(f"Creating ActivityParameterNode in designate_output() that has no source.")
+        l.warn(
+            f"Creating ActivityParameterNode in designate_output() that has no source."
+        )
     return node
+
+
 Activity.designate_output = activity_designate_output  # Add to class via monkey patch
 
 
@@ -456,8 +611,18 @@ def activity_initiating_nodes(self) -> List[ActivityNode]:
     -------
     List of ActivityNodes able to initiate execution
     """
-    return [n for n in self.nodes if isinstance(n, InitialNode) or
-            (isinstance(n, ActivityParameterNode) and n.parameter and n.parameter.lookup().property_value.direction == PARAMETER_IN)]
+    return [
+        n
+        for n in self.nodes
+        if isinstance(n, InitialNode)
+        or (
+            isinstance(n, ActivityParameterNode)
+            and n.parameter
+            and n.parameter.lookup().property_value.direction == PARAMETER_IN
+        )
+    ]
+
+
 Activity.initiating_nodes = activity_initiating_nodes  # Add to class via monkey patch
 
 
@@ -472,7 +637,11 @@ def activity_incoming_edges(self, node: ActivityNode) -> Set[ActivityEdge]:
     -------
     Set of ActivityEdges with node as a target
     """
-    return {e for e in self.edges if e.target == node.identity}  # TODO: change to pointer lookup after pySBOL #237
+    return {
+        e for e in self.edges if e.target == node.identity
+    }  # TODO: change to pointer lookup after pySBOL #237
+
+
 Activity.incoming_edges = activity_incoming_edges  # Add to class via monkey patch
 
 
@@ -487,12 +656,16 @@ def activity_outgoing_edges(self, node: ActivityNode) -> Set[ActivityEdge]:
     -------
     Set of ActivityEdges with node as a source
     """
-    return {e for e in self.edges if e.source == node.identity}  # TODO: change to pointer lookup after pySBOL #237
+    return {
+        e for e in self.edges if e.source == node.identity
+    }  # TODO: change to pointer lookup after pySBOL #237
+
+
 Activity.outgoing_edges = activity_outgoing_edges  # Add to class via monkey patch
 
 
 def activity_deconflict_objectflow_sources(self, source: ActivityNode) -> ActivityNode:
-    '''Avoid nondeterminism in ObjectFlows by injecting ForkNode objects where necessary
+    """Avoid nondeterminism in ObjectFlows by injecting ForkNode objects where necessary
 
     Parameters
     ----------
@@ -502,7 +675,7 @@ def activity_deconflict_objectflow_sources(self, source: ActivityNode) -> Activi
     Returns
     -------
     A source to attach to; either the original or an intervening ForkNode
-    '''
+    """
     # Use original if it's one of the node types that supports multiple dispatch
     if isinstance(source, ForkNode) or isinstance(source, DecisionNode):
         return source
@@ -510,21 +683,25 @@ def activity_deconflict_objectflow_sources(self, source: ActivityNode) -> Activi
     current_outflows = [e for e in self.edges if e.source.lookup() is source]
     # Use original if nothing is attached to it
     if len(current_outflows) == 0:
-        #print(f'No prior use of {source.identity}, connecting directly')
+        # print(f'No prior use of {source.identity}, connecting directly')
         return source
     # If the flow goes to a single ForkNode, connect to that ForkNode
-    elif len(current_outflows) == 1 and isinstance(current_outflows[0].target.lookup(),ForkNode):
-        #print(f'Found an existing fork from {source.identity}, reusing')
+    elif len(current_outflows) == 1 and isinstance(
+        current_outflows[0].target.lookup(), ForkNode
+    ):
+        # print(f'Found an existing fork from {source.identity}, reusing')
         return current_outflows[0].target.lookup()
     # Otherwise, inject a ForkNode and connect all current flows to that instead
     else:
-        #print(f'Found no existing fork from {source.identity}, injecting one')
+        # print(f'Found no existing fork from {source.identity}, injecting one')
         fork = ForkNode()
         self.nodes.append(fork)
         self.edges.append(ObjectFlow(source=source, target=fork))
         for f in current_outflows:
-            f.source = fork # change over the existing flows
+            f.source = fork  # change over the existing flows
         return fork
+
+
 Activity.deconflict_objectflow_sources = activity_deconflict_objectflow_sources
 
 
@@ -537,19 +714,26 @@ def activity_call_behavior(self, behavior: Behavior, **input_pin_map):
     """
 
     # Any ActivityNode in the pin map will be withheld for connecting via object flows instead
-    activity_inputs = {k: v for k, v in input_pin_map.items()
-                       if isinstance(v, ActivityNode) or
-                          (isinstance(v, list) and all([isinstance(vi, ActivityNode) for vi in v ]))}
-    non_activity_inputs = {k: v for k, v in input_pin_map.items() if k not in activity_inputs}
+    activity_inputs = {
+        k: v
+        for k, v in input_pin_map.items()
+        if isinstance(v, ActivityNode)
+        or (isinstance(v, list) and all([isinstance(vi, ActivityNode) for vi in v]))
+    }
+    non_activity_inputs = {
+        k: v for k, v in input_pin_map.items() if k not in activity_inputs
+    }
     cba = add_call_behavior_action(self, behavior, **non_activity_inputs)
     # add flows for activities being connected implicitly
     for name, source in id_sort(activity_inputs.items()):
         sources = source if isinstance(source, list) else [source]
         for source in sources:
             for pin in cba.input_pins(name):
-                #self.use_value(source, cba.input_pin(name))
+                # self.use_value(source, cba.input_pin(name))
                 self.use_value(source, pin)
     return cba
+
+
 Activity.call_behavior = activity_call_behavior  # Add to class via monkey patch
 
 
@@ -561,12 +745,18 @@ def activity_order(self, source: ActivityNode, target: ActivityNode):
     :return: ControlFlow created between source and target
     """
     if source not in self.nodes:
-        raise ValueError(f'Source node {source.identity} is not a member of activity {self.identity}')
+        raise ValueError(
+            f"Source node {source.identity} is not a member of activity {self.identity}"
+        )
     if target not in self.nodes:
-        raise ValueError(f'Target node {target.identity} is not a member of activity {self.identity}')
+        raise ValueError(
+            f"Target node {target.identity} is not a member of activity {self.identity}"
+        )
     flow = ControlFlow(source=source, target=target)
     self.edges.append(flow)
     return flow
+
+
 Activity.order = activity_order  # Add to class via monkey patch
 
 
@@ -578,21 +768,35 @@ def activity_use_value(self, source: ActivityNode, target: ActivityNode) -> Obje
     :param target: ActivityNode that receives the value
     :return: ObjectFlow created between source and target
     """
-    if source.get_toplevel() is not self:  # check via toplevel, because pins are not directly in the node list
-        raise ValueError(f'Source node {source.identity} is not a member of activity {self.identity}')
+    if (
+        source.get_toplevel() is not self
+    ):  # check via toplevel, because pins are not directly in the node list
+        raise ValueError(
+            f"Source node {source.identity} is not a member of activity {self.identity}"
+        )
     if target.get_toplevel() is not self:
-        raise ValueError(f'Target node {target.identity} is not a member of activity {self.identity}')
+        raise ValueError(
+            f"Target node {target.identity} is not a member of activity {self.identity}"
+        )
     source = self.deconflict_objectflow_sources(source)
     flow = ObjectFlow(source=source, target=target)
     self.edges.append(flow)
     return flow
+
+
 Activity.use_value = activity_use_value  # Add to class via monkey patch
 
-def activity_use_values(self, source: ActivityNode, targets: List[ActivityNode]) -> List[ObjectFlow]:
+
+def activity_use_values(
+    self, source: ActivityNode, targets: List[ActivityNode]
+) -> List[ObjectFlow]:
     return [activity_use_value(source, target) for target in targets]
 
-def activity_validate(self, report: sbol3.ValidationReport = None) -> sbol3.ValidationReport:
-    '''Checks to see if the activity has any undesirable non-deterministic edges
+
+def activity_validate(
+    self, report: sbol3.ValidationReport = None
+) -> sbol3.ValidationReport:
+    """Checks to see if the activity has any undesirable non-deterministic edges
     Parameters
     ----------
     self
@@ -601,28 +805,55 @@ def activity_validate(self, report: sbol3.ValidationReport = None) -> sbol3.Vali
     Returns
     -------
 
-    '''
+    """
     report = super(Activity, self).validate(report)
 
     # Check for objects with multiple outgoing ObjectFlow edges that are not of type ForkNode or DecisionNode
-    source_counts = Counter([e.source.lookup() for e in self.edges if isinstance(e,ObjectFlow)])
-    multi_targets = {n: c for n, c in source_counts.items() if c>1 and not (isinstance(n,ForkNode) or isinstance(n,DecisionNode))}
+    source_counts = Counter(
+        [e.source.lookup() for e in self.edges if isinstance(e, ObjectFlow)]
+    )
+    multi_targets = {
+        n: c
+        for n, c in source_counts.items()
+        if c > 1 and not (isinstance(n, ForkNode) or isinstance(n, DecisionNode))
+    }
     for n, c in multi_targets.items():
-        report.addWarning(n.identity, None, f'ActivityNode has {c} outgoing edges: multi-edges can cause nondeterministic flow')
+        report.addWarning(
+            n.identity,
+            None,
+            f"ActivityNode has {c} outgoing edges: multi-edges can cause nondeterministic flow",
+        )
 
     # Check that incoming flow counts obey constraints:
-    target_counts = Counter([e.target.lookup().unpin() for e in self.edges
-                             if isinstance(e.target.lookup(), ActivityNode) ])
+    target_counts = Counter(
+        [
+            e.target.lookup().unpin()
+            for e in self.edges
+            if isinstance(e.target.lookup(), ActivityNode)
+        ]
+    )
     # No InitialNode should have an incoming flow (though an ActivityParameterNode may)
-    initial_with_inflow = {n: c for n, c in target_counts.items() if isinstance(n,InitialNode)}
+    initial_with_inflow = {
+        n: c for n, c in target_counts.items() if isinstance(n, InitialNode)
+    }
     for n, c in initial_with_inflow.items():
-        report.addError(n.identity, None, f'InitialNode must have no incoming edges, but has {c}')
+        report.addError(
+            n.identity, None, f"InitialNode must have no incoming edges, but has {c}"
+        )
     # No node besides initiating nodes (InitialNode or ActivityParameterNode) should have no incoming flows
-    missing_inflow = set(self.nodes) - {n for n, c in target_counts.items()} - set(self.initiating_nodes())
+    missing_inflow = (
+        set(self.nodes)
+        - {n for n, c in target_counts.items()}
+        - set(self.initiating_nodes())
+    )
     for n in missing_inflow:
-        report.addWarning(n.identity, None, f'Node has no incoming edges, so cannot be executed')
+        report.addWarning(
+            n.identity, None, f"Node has no incoming edges, so cannot be executed"
+        )
 
     return report
+
+
 Activity.validate = activity_validate
 
 # TODO: add a check for loops that can obtain too many or too few values

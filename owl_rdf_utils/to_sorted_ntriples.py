@@ -32,8 +32,7 @@ def join_lines(lines: List[Union[bytes, str]]) -> str:
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("input", help="File containing RDF graph to translate")
-    ap.add_argument("--output", "-o",
-                    help="Write RDF graph as sorted n-triples here.")
+    ap.add_argument("--output", "-o", help="Write RDF graph as sorted n-triples here.")
     values = ap.parse_args()
     infile = values.input
     assert os.path.exists(infile), f"No such file: {infile}"

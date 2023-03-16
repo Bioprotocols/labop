@@ -1,7 +1,8 @@
 import io
+import sys
+
 import opentrons.simulate as simulate
 from opentrons.protocols import bundle
-import sys
 
 
 def run_ot2_sim(filename):
@@ -49,9 +50,7 @@ def run_ot2_sim(filename):
         print("--------------------------------------------------------------")
         print(f"Estimated protocol duration: {hours}h:{minutes}m")
         print("--------------------------------------------------------------")
-        print(
-            "WARNING: Protocol duration estimation is an experimental feature"
-        )
+        print("WARNING: Protocol duration estimation is an experimental feature")
 
     return runlog
 

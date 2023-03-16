@@ -1,30 +1,23 @@
-from abc import ABC, abstractmethod
-import html
-import os
-import re
-from typing import Callable, Dict, List, Union
-import uuid
 import datetime
 import logging
+import os
+import uuid
+from abc import ABC
+from typing import Callable, Dict, List, Union
 from urllib.parse import quote, unquote
 
-import pandas as pd
-import xarray as xr
 import graphviz
+import pandas as pd
 import sbol3
+import xarray as xr
 
 import labop
 import uml
-import sbol3
-
+from labop.primitive_execution import initialize_primitive_compute_output
 from labop_convert.behavior_specialization import (
     BehaviorSpecialization,
     DefaultBehaviorSpecialization,
 )
-from labop.primitive_execution import initialize_primitive_compute_output
-
-from labop.strings import Strings
-
 
 l = logging.getLogger(__file__)
 l.setLevel(logging.ERROR)
@@ -147,9 +140,7 @@ class ExecutionEngine(ABC):
         self.ex = labop.ProtocolExecution(id, protocol=protocol)
         doc.add(self.ex)
 
-        self.ex.association.append(
-            sbol3.Association(agent=agent, plan=protocol)
-        )
+        self.ex.association.append(sbol3.Association(agent=agent, plan=protocol))
         self.ex.parameter_values = parameter_values
 
         # Initialize specializations
@@ -164,9 +155,7 @@ class ExecutionEngine(ABC):
         self.ex.end_time = self.get_current_time()
 
         # A Protocol has completed normally if all of its required output parameters have values
-        self.ex.completed_normally = set(
-            protocol.get_required_inputs()
-        ).issubset(
+        self.ex.completed_normally = set(protocol.get_required_inputs()).issubset(
             set([p.parameter.lookup() for p in self.ex.parameter_values])
         )
 
@@ -206,9 +195,7 @@ class ExecutionEngine(ABC):
 
         return self.ex
 
-    def run(
-        self, protocol: labop.Protocol, start_time: datetime.datetime = None
-    ):
+    def run(self, protocol: labop.Protocol, start_time: datetime.datetime = None):
 
         self.init_time(start_time)
         self.ex.start_time = (
@@ -228,9 +215,7 @@ class ExecutionEngine(ABC):
         node_outputs: Dict[uml.ActivityNode, Callable] = {},
     ):
         non_call_nodes = [
-            node
-            for node in ready
-            if not isinstance(node, uml.CallBehaviorAction)
+            node for node in ready if not isinstance(node, uml.CallBehaviorAction)
         ]
         new_tokens = []
         # prefer executing non_call_nodes first
@@ -241,9 +226,7 @@ class ExecutionEngine(ABC):
             try:
                 tokens_added, tokens_removed = node.execute(
                     self,
-                    node_outputs=(
-                        node_outputs[node] if node in node_outputs else None
-                    ),
+                    node_outputs=(node_outputs[node] if node in node_outputs else None),
                 )
                 self.tokens = [
                     t for t in self.tokens if t not in tokens_removed
@@ -287,7 +270,6 @@ class ExecutionEngine(ABC):
                 # ]
                 if self.permissive:
                     self.issues[self.ex.display_id].append(ExecutionWarning(e))
-                    pass
                 else:
                     self.issues[self.ex.display_id].append(ExecutionError(e))
                     raise (e)
@@ -379,9 +361,7 @@ class ExecutionEngine(ABC):
 
 
 class ManualExecutionEngine(ExecutionEngine):
-    def run(
-        self, protocol: labop.Protocol, start_time: datetime.datetime = None
-    ):
+    def run(self, protocol: labop.Protocol, start_time: datetime.datetime = None):
         self.init_time(start_time)
         self.ex.start_time = (
             self.start_time
@@ -401,9 +381,7 @@ class ManualExecutionEngine(ExecutionEngine):
                 behavior = r.behavior.lookup()
                 return (  # It is a subprotocol
                     isinstance(behavior, labop.Protocol)
-                    or (  # Has no output pins
-                        len(list(behavior.get_outputs())) == 0
-                    )
+                    or (len(list(behavior.get_outputs())) == 0)  # Has no output pins
                     or (  # Overrides the (empty) default implementation of compute_output()
                         not hasattr(behavior.compute_output, "__func__")
                         or behavior.compute_output.__func__
@@ -493,16 +471,13 @@ def sum_measures(measure_list):
     """
     prototype = measure_list[0]
     if not all(
-        m.types == prototype.types and m.unit == prototype.unit
-        for m in measure_list
+        m.types == prototype.types and m.unit == prototype.unit for m in measure_list
     ):
         raise ValueError(
             f"Can only merge measures with identical units and types: {([m.value, m.unit, m.types] for m in measure_list)}"
         )
     total = sum(m.value for m in measure_list)
-    return sbol3.Measure(
-        value=total, unit=prototype.unit, types=prototype.types
-    )
+    return sbol3.Measure(value=total, unit=prototype.unit, types=prototype.types)
 
 
 def protocol_execution_aggregate_child_materials(self):
@@ -522,9 +497,7 @@ def protocol_execution_aggregate_child_materials(self):
     self.consumed_material = (
         labop.Material(
             s,
-            sum_measures(
-                [m.amount for m in child_materials if m.specification == s]
-            ),
+            sum_measures([m.amount for m in child_materials if m.specification == s]),
         )
         for s in specifications
     )

@@ -1,5 +1,19 @@
-exclude: '.*\.nt|.*\.md'
+exclude: '.*\.nt|.*\.md|container-ontology'
 repos:
+  - repo: https://github.com/psf/black
+    rev: 22.12.0
+    hooks:
+      - id: black
+  - repo: https://github.com/pycqa/isort
+    rev: 5.12.0
+    hooks:
+      - id: isort
+        args: ["--profile", "black"]
+  - repo: https://github.com/hadialqattan/pycln
+    rev: v2.1.2 # Possible releases: https://github.com/hadialqattan/pycln/releases
+    hooks:
+      - id: pycln
+        args: ["--exclude", "__init__.py"]
   - repo: https://github.com/kynan/nbstripout
     rev: 0.5.0
     hooks:

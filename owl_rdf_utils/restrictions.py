@@ -14,19 +14,18 @@ __all__ = [
     "repair_graph",
     "repair_all_bad_restrictions",
     "RELATIONS",
-    "IGNORE_PROPERTIES"
+    "IGNORE_PROPERTIES",
 ]
 
 import argparse
 import logging
 import os
 import sys
+from typing import Any, List, Optional, Set, Tuple
 
 import rdflib as rdf
 from rdflib import OWL, RDF, RDFS, Graph
 from rdflib.term import Node
-
-from typing import List, Tuple, Optional, Any, Set
 
 Triple = Tuple[Any, Any, Any]
 

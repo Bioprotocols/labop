@@ -10,9 +10,12 @@ from tyto import OM
 import labop
 import uml
 from labop.execution_engine import ExecutionEngine
-from labop_convert.markdown.markdown_specialization import (
-    MarkdownSpecialization,
-)
+from labop_convert import MarkdownSpecialization
+
+if "unittest" in sys.modules:
+    REGENERATE_ARTIFACTS = False
+else:
+    REGENERATE_ARTIFACTS = True
 
 filename = "".join(__file__.split(".py")[0].split("/")[-1:])
 
@@ -41,9 +44,7 @@ dh5alpha = sbol3.Component(
 dh5alpha.name = "_E. coli_ DH5 alpha"
 doc.add(dh5alpha)
 
-lb_cam = sbol3.Component(
-    "lb_cam", "https://identifiers.org/pubchem.substance:24901740"
-)
+lb_cam = sbol3.Component("lb_cam", "https://identifiers.org/pubchem.substance:24901740")
 lb_cam.name = "LB Broth+chloramphenicol"
 doc.add(lb_cam)
 
@@ -135,9 +136,7 @@ culture_container_day1 = protocol.primitive_step(
     specification=labop.ContainerSpec(
         name=f"culture (day 1)",
         queryString="cont:CultureTube",
-        prefixMap={
-            "cont": "https://sift.net/container-ontology/container-ontology#"
-        },
+        prefixMap={"cont": "https://sift.net/container-ontology/container-ontology#"},
     ),
 )
 
@@ -146,13 +145,9 @@ overnight_culture = protocol.primitive_step(
     inoculum=transformation.output_pin("transformants"),
     replicates=2,
     growth_medium=lb_cam,
-    volume=sbol3.Measure(
-        5, OM.millilitre
-    ),  # Actually 5-10 ml in the written protocol
+    volume=sbol3.Measure(5, OM.millilitre),  # Actually 5-10 ml in the written protocol
     duration=sbol3.Measure(16, OM.hour),  # Actually 16-18 hours
-    orbital_shake_speed=sbol3.Measure(
-        220, None
-    ),  # No unit for RPM or inverse minutes
+    orbital_shake_speed=sbol3.Measure(220, None),  # No unit for RPM or inverse minutes
     temperature=sbol3.Measure(37, OM.degree_Celsius),
     container=culture_container_day1.output_pin("samples"),
 )
@@ -164,9 +159,7 @@ culture_container_day2 = protocol.primitive_step(
     specification=labop.ContainerSpec(
         name=f"culture (day 2)",
         queryString="cont:CultureTube",
-        prefixMap={
-            "cont": "https://sift.net/container-ontology/container-ontology#"
-        },
+        prefixMap={"cont": "https://sift.net/container-ontology/container-ontology#"},
     ),
 )
 
@@ -189,9 +182,7 @@ timepoint_0hrs = protocol.primitive_step(
     specification=labop.ContainerSpec(
         name="cultures (0 hr timepoint)",
         queryString="cont:MicrofugeTube",
-        prefixMap={
-            "cont": "https://sift.net/container-ontology/container-ontology#"
-        },
+        prefixMap={"cont": "https://sift.net/container-ontology/container-ontology#"},
     ),
 )
 
@@ -224,9 +215,7 @@ conical_tube = protocol.primitive_step(
     specification=labop.ContainerSpec(
         name=f"back-diluted culture",
         queryString="cont:50mlConicalTube",
-        prefixMap={
-            "cont": "https://sift.net/container-ontology/container-ontology#"
-        },
+        prefixMap={"cont": "https://sift.net/container-ontology/container-ontology#"},
     ),
 )
 conical_tube.description = (
@@ -245,8 +234,7 @@ dilution = protocol.primitive_step(
 dilution.description = " Use the provided Excel sheet to calculate this dilution. Reliability of the dilution upon Abs600 measurement: should stay between 0.1-0.9"
 
 embedded_image = protocol.primitive_step(
-    "EmbeddedImage",
-    image="/Users/bbartley/Dev/git/sd2/labop/fig1_cell_calibration.png",
+    "EmbeddedImage", image="/Users/bbartley/Dev/git/sd2/labop/fig1_cell_calibration.png"
 )
 
 
@@ -256,9 +244,7 @@ temporary = protocol.primitive_step(
     specification=labop.ContainerSpec(
         name="back-diluted culture aliquots",
         queryString="cont:MicrofugeTube",
-        prefixMap={
-            "cont": "https://sift.net/container-ontology/container-ontology#"
-        },
+        prefixMap={"cont": "https://sift.net/container-ontology/container-ontology#"},
     ),
 )
 
@@ -282,9 +268,7 @@ plate1 = protocol.primitive_step(
     specification=labop.ContainerSpec(
         name="plate 1",
         queryString="cont:Plate96Well",
-        prefixMap={
-            "cont": "https://sift.net/container-ontology/container-ontology#"
-        },
+        prefixMap={"cont": "https://sift.net/container-ontology/container-ontology#"},
     ),
 )
 
@@ -343,8 +327,7 @@ plate_blanks = protocol.primitive_step(
 plate_blanks.description = "These samples are blanks."
 
 embedded_image = protocol.primitive_step(
-    "EmbeddedImage",
-    image="/Users/bbartley/Dev/git/sd2/labop/fig2_cell_calibration.png",
+    "EmbeddedImage", image="/Users/bbartley/Dev/git/sd2/labop/fig2_cell_calibration.png"
 )
 
 # Cover plate
@@ -414,9 +397,7 @@ timepoint_6hrs = protocol.primitive_step(
     specification=labop.ContainerSpec(
         name=f"6hr timepoint",
         queryString="cont:MicrofugeTube",
-        prefixMap={
-            "cont": "https://sift.net/container-ontology/container-ontology#"
-        },
+        prefixMap={"cont": "https://sift.net/container-ontology/container-ontology#"},
     ),
 )
 
@@ -425,9 +406,7 @@ plate2 = protocol.primitive_step(
     specification=labop.ContainerSpec(
         name="plate 2",
         queryString="cont:Plate96Well",
-        prefixMap={
-            "cont": "https://sift.net/container-ontology/container-ontology#"
-        },
+        prefixMap={"cont": "https://sift.net/container-ontology/container-ontology#"},
     ),
 )
 
@@ -586,15 +565,15 @@ protocol.designate_output(
 
 
 agent = sbol3.Agent("test_agent")
-ee = ExecutionEngine(
-    specializations=[MarkdownSpecialization("test_LUDOX_markdown.md")]
-)
-execution = ee.execute(
-    protocol, agent, id="test_execution", parameter_values=[]
-)
+ee = ExecutionEngine(specializations=[MarkdownSpecialization("test_LUDOX_markdown.md")])
+execution = ee.execute(protocol, agent, id="test_execution", parameter_values=[])
 print(ee.specializations[0].markdown)
 ee.specializations[0].markdown = ee.specializations[0].markdown.replace(
     "`_E. coli_", "_`E. coli`_ `"
 )
-with open(filename + ".md", "w", encoding="utf-8") as f:
-    f.write(ee.specializations[0].markdown)
+
+filename = "".join(__file__.split(".py")[0].split("/")[-1:])
+
+if REGENERATE_ARTIFACTS:
+    with open(filename + ".md", "w", encoding="utf-8") as f:
+        f.write(ee.specializations[0].markdown)

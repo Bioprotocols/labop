@@ -1,29 +1,24 @@
-from logging import Logger
-import os
-import logging
-import sbol3
-import labop
-import tyto
-import uml
 import json
+import logging
+from typing import Tuple
+
 import rdflib as rdfl
-from typing import Dict, Tuple
+import sbol3
+import tyto
 from sbol3 import Document
 
+import labop
+import uml
 from labop.execution_engine import ExecutionEngine
 from labop_convert.opentrons.opentrons_specialization import (
-    OT2Specialization,
     REVERSE_LABWARE_MAP,
+    OT2Specialization,
 )
 
 logger: logging.Logger = logging.Logger("OT2_demo")
 
-CONT_NS = rdfl.Namespace(
-    "https://sift.net/container-ontology/container-ontology#"
-)
-OM_NS = rdfl.Namespace(
-    "http://www.ontology-of-units-of-measure.org/resource/om-2/"
-)
+CONT_NS = rdfl.Namespace("https://sift.net/container-ontology/container-ontology#")
+OM_NS = rdfl.Namespace("http://www.ontology-of-units-of-measure.org/resource/om-2/")
 PREFIX_MAP = json.dumps({"cont": CONT_NS, "om": OM_NS})
 
 
@@ -54,9 +49,7 @@ def create_protocol() -> labop.Protocol:
     return protocol
 
 
-def get_container(
-    protocol: labop.Protocol, container_name: str, container_type: str
-):
+def get_container(protocol: labop.Protocol, container_name: str, container_type: str):
     query_string = REVERSE_LABWARE_MAP[container_type]
     plate_spec = labop.ContainerSpec(
         container_name.replace(" ", "_"),
@@ -99,9 +92,7 @@ def opentrons_toy_protocol() -> Tuple[labop.Protocol, Document]:
     )
 
     # tiprack = protocol.load_labware('opentrons_96_tiprack_300ul', location='2')
-    create_tiprack = get_container(
-        protocol, "tiprack", "opentrons_96_tiprack_300ul"
-    )
+    create_tiprack = get_container(protocol, "tiprack", "opentrons_96_tiprack_300ul")
     tiprack = protocol.primitive_step(
         "LoadRackOnInstrument",
         rack=create_tiprack.input_pin("specification").value.get_value(),

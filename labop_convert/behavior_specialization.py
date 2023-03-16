@@ -1,21 +1,25 @@
-import sys
-import os
-from abc import ABC, abstractmethod
-import sys
+import json
 import logging
-from logging import error
+import os
+from abc import ABC
+
+import tyto
 
 import labop
-from labop.primitive_execution import input_parameter_map
 import uml
-import json
-import tyto
+from labop.primitive_execution import input_parameter_map
 
 l = logging.getLogger(__file__)
 l.setLevel(logging.WARN)
 
-container_ontology_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), '../labop/container-ontology.ttl')
-ContO = tyto.Ontology(path=container_ontology_path, uri='https://sift.net/container-ontology/container-ontology')
+container_ontology_path = os.path.join(
+    os.path.dirname(os.path.realpath(__file__)), "../labop/container-ontology.ttl"
+)
+ContO = tyto.Ontology(
+    path=container_ontology_path,
+    uri="https://sift.net/container-ontology/container-ontology",
+)
+
 
 class BehaviorSpecializationException(Exception):
     pass
@@ -64,7 +68,9 @@ class BehaviorSpecialization(ABC):
 
         self.data = json.dumps(self.data)
         if self.out_dir:
-            with open(os.path.join(self.out_dir, f"{self.__class__.__name__}.json"), "w") as f:
+            with open(
+                os.path.join(self.out_dir, f"{self.__class__.__name__}.json"), "w"
+            ) as f:
                 f.write(self.data)
 
     def process(self, record, execution: labop.ProtocolExecution):
@@ -76,19 +82,13 @@ class BehaviorSpecialization(ABC):
             # Subprotocol specializations
             behavior = node.behavior.lookup()
             if isinstance(behavior, labop.Protocol):
-                return self._behavior_func_map[behavior.type_uri](
-                    record, execution
-                )
+                return self._behavior_func_map[behavior.type_uri](record, execution)
 
             # Individual Primitive specializations
             elif str(node.behavior) not in self._behavior_func_map:
-                l.warning(
-                    f"Failed to find handler for behavior: {node.behavior}"
-                )
+                l.warning(f"Failed to find handler for behavior: {node.behavior}")
                 return self.handle(record, execution)
-            return self._behavior_func_map[str(node.behavior)](
-                record, execution
-            )
+            return self._behavior_func_map[str(node.behavior)](record, execution)
         except Exception as e:
             l.warn(
                 f"{self.__class__} Could not process() ActivityNodeException: {record}: {e}"
@@ -106,8 +106,7 @@ class BehaviorSpecialization(ABC):
             [
                 pv
                 for pv in record.call.lookup().parameter_values
-                if pv.parameter.lookup().property_value.direction
-                == uml.PARAMETER_IN
+                if pv.parameter.lookup().property_value.direction == uml.PARAMETER_IN
             ]
         )
         params = {p: str(v) for p, v in params.items()}
@@ -136,11 +135,13 @@ class BehaviorSpecialization(ABC):
         try:
             from container_api import matching_containers
         except:
-            l.warning('Could not import container_api, is it installed?')
+            l.warning("Could not import container_api, is it installed?")
         else:
             try:
                 if addl_conditions:
-                    possible_container_types = matching_containers(spec, addl_conditions=addl_conditions)
+                    possible_container_types = matching_containers(
+                        spec, addl_conditions=addl_conditions
+                    )
                 else:
                     possible_container_types = matching_containers(spec)
                 return possible_container_types
@@ -148,7 +149,9 @@ class BehaviorSpecialization(ABC):
                 l.warning(e)
 
         # This fallback only works when the spec query is a simple container class/instance formatted in Manchester owl as cont:<container_uri>. Other container constraints / query criteria are not supported
-        l.warning(f'Cannot resolve container specification using remote ontology server. Defaulting to static ontology copy')
+        l.warning(
+            f"Cannot resolve container specification using remote ontology server. Defaulting to static ontology copy"
+        )
         container_uri = validate_spec_query(spec.queryString)
         if container_uri.is_instance():
             possible_container_types = [container_uri]
@@ -181,18 +184,26 @@ def validate_spec_query(query: str) -> "tyto.URI":
     if type(query) is tyto.URI:
         return query
 
-    if '#' in query:
+    if "#" in query:
         # Query is assumed to be a URI
-        tokens = query.split('#')
+        tokens = query.split("#")
         if len(tokens) > 2 or tokens[0] != ContO.uri:
-            raise ValueError(f"Cannot resolve container specification '{query}'. The query is not a valid URI")
+            raise ValueError(
+                f"Cannot resolve container specification '{query}'. The query is not a valid URI"
+            )
         return tyto.URI(query, ContO)
 
     # Query is assumed to be a qname
-    if ':' in query:
-        tokens = query.split(':')
-        if len(tokens) > 2 or tokens[0] != 'cont':  # TODO: use prefixMap instead of assuming the prefix is `cont`
-            raise ValueError(f"Cannot resolve container specification '{query}'. Is the query malformed?")
-        return tyto.URI(query.replace('cont:', ContO.uri + '#'), ContO)
+    if ":" in query:
+        tokens = query.split(":")
+        if (
+            len(tokens) > 2 or tokens[0] != "cont"
+        ):  # TODO: use prefixMap instead of assuming the prefix is `cont`
+            raise ValueError(
+                f"Cannot resolve container specification '{query}'. Is the query malformed?"
+            )
+        return tyto.URI(query.replace("cont:", ContO.uri + "#"), ContO)
 
-    raise ValueError(f"Cannot resolve container specification '{query}'. Is the query malformed?")
+    raise ValueError(
+        f"Cannot resolve container specification '{query}'. Is the query malformed?"
+    )

@@ -6,7 +6,7 @@ import os
 
 os.chdir(os.path.dirname(os.path.realpath(__file__)))
 
-for file in glob.glob('*.py'):
+for file in glob.glob("*.py"):
     if os.path.realpath(file) == os.path.realpath(__file__):
         continue  # don't rerun this file and start an infinite loop
     exec(open(file).read())

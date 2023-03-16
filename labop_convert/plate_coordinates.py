@@ -2,13 +2,15 @@
 Generic helper functions for dealing with plate coordinates
 """
 
-from string import ascii_letters
 import re
+from string import ascii_letters
+
 
 def get_sample_list(geometry="A1:H12"):
     row_col_pairs = coordinate_rect_to_row_col_pairs(geometry)
     aliquots = [f"{num2row(r+1)}{c+1}" for (r, c) in row_col_pairs]
     return aliquots
+
 
 def num2row(num: int):
     """
@@ -25,9 +27,9 @@ def num2row(num: int):
     while True:
         if num > 26:
             num, r = divmod(num - 1, 26)
-            col = chr(r + ord('A')) + col
+            col = chr(r + ord("A")) + col
         else:
-            return chr(num + ord('A') - 1) + col
+            return chr(num + ord("A") - 1) + col
 
 
 def row2num(col: str):
@@ -42,14 +44,14 @@ def row2num(col: str):
     num = 0
     for c in col:
         if c in ascii_letters:
-            num = num * 26 + (ord(c.upper()) - ord('A')) + 1
+            num = num * 26 + (ord(c.upper()) - ord("A")) + 1
         else:
             raise Exception(f"Invalid character: {c}")
     return num
 
 
 def coordinate_to_row_col(coord: str):
-    m = re.match('^([a-zA-Z]+)([0-9]+)$', coord)
+    m = re.match("^([a-zA-Z]+)([0-9]+)$", coord)
     if m is None:
         raise Exception(f"Invalid coordinate: {coord}")
     # convert column to index and then adjust to zero-based indices
@@ -61,7 +63,7 @@ def coordinate_rect_to_row_col_pairs(coords: str):
     if num_separators == 0:
         return [coordinate_to_row_col(coords)]
     elif num_separators == 1:
-        parts = coords.split(':')
+        parts = coords.split(":")
         frow, fcol = coordinate_to_row_col(parts[0])
         srow, scol = coordinate_to_row_col(parts[1])
 

@@ -1,25 +1,22 @@
-import datetime
 import filecmp
 import logging
 import os
 import tempfile
 import unittest
 from importlib.machinery import SourceFileLoader
-from importlib.util import spec_from_loader, module_from_spec
-import xarray as xr
+from importlib.util import module_from_spec, spec_from_loader
 
 import sbol3
-import labop
-from labop.execution_engine import ExecutionEngine
-import uml
 import tyto
-import json
-from tyto import OM
+import xarray as xr
 from numpy import nan
+from tyto import OM
 
-from labop_convert.plate_coordinates import get_sample_list
+import labop
+import uml
+from labop.execution_engine import ExecutionEngine
 from labop.utils.helpers import file_diff, initialize_protocol
-
+from labop_convert.plate_coordinates import get_sample_list
 
 OUT_DIR = os.path.join(os.path.dirname(__file__), "out")
 if not os.path.exists(OUT_DIR):
@@ -96,8 +93,6 @@ class TestProtocolEndToEnd(unittest.TestCase):
             "EmptyContainer", specification=container_type
         )
 
-        # metadata_filename = os.path.join(os.path.dirname(os.path.realpath(__file__)),
-        #                                     'metadata/measure_absorbance.xlsx')
         metadata_filename = "test/metadata/measure_absorbance.xlsx"
 
         load_excel = protocol.primitive_step(
@@ -149,9 +144,7 @@ class TestProtocolEndToEnd(unittest.TestCase):
             parameter_values=[],
         )
 
-        execution.to_dot().render(
-            os.path.join(OUT_DIR, f"{protocol.name}_execution")
-        )
+        execution.to_dot().render(os.path.join(OUT_DIR, f"{protocol.name}_execution"))
 
         # dataset = execution.parameter_values[0].value.get_value()
         # xr_dataset = labop.sort_samples(dataset.to_dataset())
@@ -182,9 +175,7 @@ class TestProtocolEndToEnd(unittest.TestCase):
         print(f"Comparing against {comparison_file}")
         diff = "".join(file_diff(comparison_file, temp_name))
         print(f"Difference:\n{diff}")
-        assert filecmp.cmp(
-            temp_name, comparison_file
-        ), "Files are not identical"
+        assert filecmp.cmp(temp_name, comparison_file), "Files are not identical"
         print("File identical with test file")
 
     @unittest.skip(reason="tmp remove for dev")
@@ -213,10 +204,7 @@ class TestProtocolEndToEnd(unittest.TestCase):
             )
         ]
         execution = ee.execute(
-            protocol,
-            agent,
-            id="test_execution",
-            parameter_values=parameter_values,
+            protocol, agent, id="test_execution", parameter_values=parameter_values
         )
 
         # Get the SampleData objects and attach values
@@ -255,9 +243,7 @@ class TestProtocolEndToEnd(unittest.TestCase):
         # with open(comparison_file, 'w') as f:
         #     f.write(doc.write_string(sbol3.SORTED_NTRIPLES).strip())
         print(f"Comparing against {comparison_file}")
-        assert filecmp.cmp(
-            temp_name, comparison_file
-        ), "Files are not identical"
+        assert filecmp.cmp(temp_name, comparison_file), "Files are not identical"
         print("File identical with test file")
 
 

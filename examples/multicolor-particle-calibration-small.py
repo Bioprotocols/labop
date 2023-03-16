@@ -1,11 +1,11 @@
 """
 http://2018.igem.org/wiki/images/0/09/2018_InterLab_Plate_Reader_Protocol.pdf
 """
-import os
 
-import labop
 import sbol3
 from tyto import OM
+
+import labop
 from labop.execution_engine import ExecutionEngine
 from labop_convert.markdown.markdown_specialization import (
     MarkdownSpecialization,
@@ -30,9 +30,7 @@ print("... Imported sample arrays")
 
 
 # create the materials to be provisioned
-ddh2o = sbol3.Component(
-    "ddH2O", "https://identifiers.org/pubchem.substance:24901740"
-)
+ddh2o = sbol3.Component("ddH2O", "https://identifiers.org/pubchem.substance:24901740")
 ddh2o.name = "Water, sterile-filtered, BioReagent, suitable for cell culture"
 
 silica_beads = sbol3.Component(
@@ -40,13 +38,9 @@ silica_beads = sbol3.Component(
     "https://nanocym.com/wp-content/uploads/2018/07/NanoCym-All-Datasheets-.pdf",
 )
 silica_beads.name = "NanoCym 950 nm monodisperse silica nanoparticles"
-silica_beads.description = (
-    "3e9 NanoCym microspheres/mL ddH20"  # where does this go?
-)
+silica_beads.description = "3e9 NanoCym microspheres/mL ddH20"  # where does this go?
 
-pbs = sbol3.Component(
-    "pbs", "https://pubchem.ncbi.nlm.nih.gov/substance/329753341"
-)
+pbs = sbol3.Component("pbs", "https://pubchem.ncbi.nlm.nih.gov/substance/329753341")
 pbs.name = "Phosphate Buffered Saline"
 
 fluorescein = sbol3.Component(
@@ -87,9 +81,7 @@ calibration_plate = protocol.primitive_step(
         "calibration_plate",
         name="calibration plate",
         queryString="cont:Plate96Well",
-        prefixMap={
-            "cont": "https://sift.net/container-ontology/container-ontology#"
-        },
+        prefixMap={"cont": "https://sift.net/container-ontology/container-ontology#"},
     ),
 )
 
@@ -125,15 +117,12 @@ protocol.designate_output(
 
 
 ee = ExecutionEngine(
-    specializations=[MarkdownSpecialization(filename + ".md")],
+    specializations=[MarkdownSpecialization(__file__.split(".")[0] + ".md")],
     failsafe=False,
     sample_format="json",
 )
 execution = ee.execute(
-    protocol,
-    sbol3.Agent("test_agent"),
-    id="test_execution",
-    parameter_values=[],
+    protocol, sbol3.Agent("test_agent"), id="test_execution", parameter_values=[]
 )
 print(execution.markdown)
 

@@ -1,25 +1,21 @@
 import json
+import logging
 from typing import Dict
 
 import sbol3
 import transcriptic
-
-import labop_convert.autoprotocol.plate_coordinates as pc
 import tyto
-import labop
-
+from autoprotocol import container_type as ctype
 from autoprotocol.container import WellGroup
 from autoprotocol.instruction import Provision, Spectrophotometry
 from autoprotocol.protocol import Protocol
 from autoprotocol.unit import Unit
-from autoprotocol import container_type as ctype
-from labop_convert.behavior_specialization import BehaviorSpecialization
-from labop_convert.autoprotocol.strateos_api import StrateosAPI
-
 from container_api.client_api import matching_containers, strateos_id
 
-
-import logging
+import labop
+import labop_convert.autoprotocol.plate_coordinates as pc
+from labop_convert.autoprotocol.strateos_api import StrateosAPI
+from labop_convert.behavior_specialization import BehaviorSpecialization
 
 l = logging.getLogger(__file__)
 l.setLevel(logging.ERROR)
@@ -67,10 +63,10 @@ class AutoprotocolSpecialization(BehaviorSpecialization):
             container_id = self.resolutions["container_id"]
         else:
             container_type = self.get_container_type_from_spec(spec)
-            container_name = f"{self.execution.protocol.lookup().name} Container {samples_var}"
-            container_id = self.create_new_container(
-                container_name, container_type
+            container_name = (
+                f"{self.execution.protocol.lookup().name} Container {samples_var}"
             )
+            container_id = self.create_new_container(container_name, container_type)
 
         # container_id = tx.inventory("flat test")['results'][1]['id']
         # container_id = "ct1g9q3bndujat5"
@@ -105,12 +101,8 @@ class AutoprotocolSpecialization(BehaviorSpecialization):
             possible_container_types = self.resolve_container_spec(
                 spec, addl_conditions=self.container_api_addl_conditions
             )
-            possible_short_names = [
-                strateos_id(x) for x in possible_container_types
-            ]
-            matching_short_names = [
-                x for x in short_names if x in possible_short_names
-            ]
+            possible_short_names = [strateos_id(x) for x in possible_container_types]
+            matching_short_names = [x for x in short_names if x in possible_short_names]
             name_map = {
                 "96-ubottom-clear-tc": "96-flat",
                 "96-flat-clear-clear-tc": "96-flat",

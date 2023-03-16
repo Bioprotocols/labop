@@ -8,32 +8,25 @@ import logging
 import os
 from os.path import basename
 from typing import Tuple
-from labop.execution_engine import ExecutionEngine
 
-import examples.pH_calibration.ph_calibration_utils as util
-
-import labop
 # import labop_time as labopt
 import rdflib as rdfl
 import sbol3
 import tyto
-import uml
 from sbol3 import Document
 
+import examples.pH_calibration.ph_calibration_utils as util
+import labop
+import uml
+from labop.execution_engine import ExecutionEngine
 
 logger: logging.Logger = logging.Logger("pH_calibration")
 
-CONT_NS = rdfl.Namespace(
-    "https://sift.net/container-ontology/container-ontology#"
-)
-OM_NS = rdfl.Namespace(
-    "http://www.ontology-of-units-of-measure.org/resource/om-2/"
-)
+CONT_NS = rdfl.Namespace("https://sift.net/container-ontology/container-ontology#")
+OM_NS = rdfl.Namespace("http://www.ontology-of-units-of-measure.org/resource/om-2/")
 
 LIBRARY_NAME = "pH_calibration"
-DOCSTRING = (
-    "This protocol implements a pH calibration protocol with decision nodes."
-)
+DOCSTRING = "This protocol implements a pH calibration protocol with decision nodes."
 
 
 def prepare_document() -> Document:
@@ -89,9 +82,7 @@ def create_subprotocol(doc) -> labop.Protocol:
         at_target_primitive,
         calculate_naoh_addition,
         error_message,
-    ) = util.define_pH_adjustment_protocol_primitives(
-        protocol.document, LIBRARY_NAME
-    )
+    ) = util.define_pH_adjustment_protocol_primitives(protocol.document, LIBRARY_NAME)
 
     ############################################################################
     # Protocol Steps
@@ -161,12 +152,8 @@ def create_subprotocol(doc) -> labop.Protocol:
     )
 
     # At Target -> Exception: No change, overshoot, overflow
-    at_target_error = protocol.execute_primitive(
-        error_message, message="Exception"
-    )
-    at_target_decision.add_decision_output(
-        protocol, "Exception", at_target_error
-    )
+    at_target_error = protocol.execute_primitive(error_message, message="Exception")
+    at_target_decision.add_decision_output(protocol, "Exception", at_target_error)
     protocol.edges.append(
         uml.ControlFlow(source=at_target_error, target=protocol.final())
     )
@@ -215,9 +202,7 @@ def create_setup_subprotocol(doc):
     reaction_vessel.name = "reaction_vessel"
     protocol.order(protocol.initial(), reaction_vessel)
 
-    naoh_container = protocol.execute_primitive(
-        "EmptyContainer", specification="vial"
-    )
+    naoh_container = protocol.execute_primitive("EmptyContainer", specification="vial")
     protocol.order(protocol.initial(), naoh_container)
     naoh_provision = protocol.execute_primitive(
         "Provision",
@@ -270,9 +255,7 @@ def create_setup_subprotocol(doc):
     provision_phosphoric_acid_error_handler.add_decision_output(
         protocol, None, final_join
     )
-    provision_h2o_error_handler.add_decision_output(
-        protocol, None, final_join
-    )
+    provision_h2o_error_handler.add_decision_output(protocol, None, final_join)
 
     protocol.designate_output(
         "naoh_container",
@@ -325,9 +308,7 @@ def pH_calibration_protocol() -> Tuple[labop.Protocol, Document]:
         mix_primitive,
         stop_mix_primitive,
         clean_electrode_primitive,
-    ) = util.define_pH_calibration_protocol_primitives(
-        protocol.document, LIBRARY_NAME
-    )
+    ) = util.define_pH_calibration_protocol_primitives(protocol.document, LIBRARY_NAME)
 
     ############################################################################
     # Protocol Steps
@@ -340,9 +321,7 @@ def pH_calibration_protocol() -> Tuple[labop.Protocol, Document]:
     )
 
     # 2. If not pH_meter_calibrated, then Calibrate the pH meter if needed
-    calibrate_pH_meter = protocol.execute_primitive(
-        calibrate_pH_meter_primitive
-    )
+    calibrate_pH_meter = protocol.execute_primitive(calibrate_pH_meter_primitive)
     # Link 1 -> 2 (False)
     pH_meter_calibrated.add_decision_output(protocol, False, calibrate_pH_meter)
 
@@ -352,7 +331,6 @@ def pH_calibration_protocol() -> Tuple[labop.Protocol, Document]:
     #     provision_h2o_error_handler,
     #     naoh_container,
     # ) = make_inventorise_and_confirm_materials(protocol, reaction_volume)
-
 
     # 3. Setup Reagents and Labware subprotocol
     setup_subprotocol: labop.Protocol = create_setup_subprotocol(doc)
@@ -372,9 +350,7 @@ def pH_calibration_protocol() -> Tuple[labop.Protocol, Document]:
     protocol.nodes.append(ready_to_adjust1)
     protocol.order(setup_subprotocol_invocation, ready_to_adjust1)
     # Link 4 -> ready_to_adjust (True)
-    is_calibration_successful.add_decision_output(
-        protocol, True, ready_to_adjust1
-    )
+    is_calibration_successful.add_decision_output(protocol, True, ready_to_adjust1)
     ready_to_adjust2 = uml.MergeNode()
     protocol.nodes.append(ready_to_adjust2)
     protocol.order(setup_subprotocol_invocation, ready_to_adjust2)
@@ -382,16 +358,12 @@ def pH_calibration_protocol() -> Tuple[labop.Protocol, Document]:
     pH_meter_calibrated.add_decision_output(protocol, True, ready_to_adjust2)
 
     # Error Message Activity
-    error_message_primitive = util.define_error_message(
-        protocol.document, LIBRARY_NAME
-    )
+    error_message_primitive = util.define_error_message(protocol.document, LIBRARY_NAME)
     calibration_error = protocol.execute_primitive(
         error_message_primitive, message="Calibration Failed!"
     )
     # Link 4 -> Error (False)
-    is_calibration_successful.add_decision_output(
-        protocol, False, calibration_error
-    )
+    is_calibration_successful.add_decision_output(protocol, False, calibration_error)
 
     # 5. Start Mix
     mix_vessel = protocol.execute_primitive(
@@ -417,7 +389,8 @@ def pH_calibration_protocol() -> Tuple[labop.Protocol, Document]:
 
     # 8. Stop Mix
     stop_mix_vessel = protocol.execute_primitive(
-        stop_mix_primitive, samples=setup_subprotocol_invocation.output_pin("reaction_vessel")
+        stop_mix_primitive,
+        samples=setup_subprotocol_invocation.output_pin("reaction_vessel"),
     )
     protocol.order(adjust_subprotocol_invocation, stop_mix_vessel)
 
@@ -430,9 +403,7 @@ def pH_calibration_protocol() -> Tuple[labop.Protocol, Document]:
         clean_electrode_primitive,
     )
     protocol.order(stop_mix_vessel, clean_electrode_invocation)
-    clean_electrode_error_handler.add_decision_output(
-        protocol, None, protocol.final()
-    )
+    clean_electrode_error_handler.add_decision_output(protocol, None, protocol.final())
 
     protocol.designate_output(
         "rpm",
@@ -463,10 +434,15 @@ def main():
     agent = sbol3.Agent("test_agent")
     ee = ExecutionEngine()
     parameter_values = [
-        labop.ParameterValue(parameter=new_protocol.get_input("reaction_volume"), value=sbol3.Measure(10, tyto.OM.milliliter)),
+        labop.ParameterValue(
+            parameter=new_protocol.get_input("reaction_volume"),
+            value=sbol3.Measure(10, tyto.OM.milliliter),
+        ),
     ]
     try:
-        execution = ee.execute(new_protocol, agent, id="test_execution", parameter_values=parameter_values)
+        execution = ee.execute(
+            new_protocol, agent, id="test_execution", parameter_values=parameter_values
+        )
     except Exception as e:
         logger.exception(e)
 
@@ -474,9 +450,7 @@ def main():
     v = doc.validate()
     assert len(v) == 0, "".join(f"\n {e}" for e in v)
 
-    rdf_filename = os.path.join(
-        os.path.dirname(__file__), "pH_calibration_protocol.nt"
-    )
+    rdf_filename = os.path.join(os.path.dirname(__file__), "pH_calibration_protocol.nt")
     doc.write(rdf_filename, sbol3.SORTED_NTRIPLES)
     print(f"Wrote file as {rdf_filename}")
 

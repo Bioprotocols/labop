@@ -5,6 +5,7 @@ import json
 from urllib.parse import quote
 
 import sbol3
+from kit_coordinates import render_kit_coordinates_table
 from tyto import OM
 
 import labop
@@ -36,9 +37,7 @@ labop.import_library("culturing")
 
 
 # create the materials to be provisioned
-dh5alpha = sbol3.Component(
-    "dh5alpha", "https://identifiers.org/taxonomy:668369"
-)
+dh5alpha = sbol3.Component("dh5alpha", "https://identifiers.org/taxonomy:668369")
 dh5alpha.name = "_E. coli_ DH5 alpha competent cells"
 doc.add(dh5alpha)
 
@@ -54,39 +53,27 @@ pos_control_plasmid = sbol3.Component(
 pos_control_plasmid.name = "Positive control 2018"
 pos_control_plasmid.description = "BBa_I20270 Mini-interlab Plate Well A1"
 
-test_device1 = sbol3.Component(
-    "test_device1", "https://github.com/igem-Engineering/"
-)
+test_device1 = sbol3.Component("test_device1", "https://github.com/igem-Engineering/")
 test_device1.name = "Test Device 1 Exp 1 (Green Device Insulation 1)"
 test_device1.description = "H3_Green_Device_Ins_1 Mini-interlab Plate Well A2"
 
-test_device2 = sbol3.Component(
-    "test_device2", "https://github.com/igem-Engineering/"
-)
+test_device2 = sbol3.Component("test_device2", "https://github.com/igem-Engineering/")
 test_device2.name = "Test Device 2 Exp 1 (Blue device Insulation 1)"
 test_device2.description = "F2_Blue_Device_Ins_1 Mini-interlab Plate Well B2"
 
-test_device3 = sbol3.Component(
-    "test_device3", "https://github.com/igem-Engineering/"
-)
+test_device3 = sbol3.Component("test_device3", "https://github.com/igem-Engineering/")
 test_device3.name = "Test Device 3 Exp 1 (Red device Insulation 1)"
 test_device3.description = "C3_Red_Device_Ins_1 Mini-interlab Plate Well C2"
 
-test_device4 = sbol3.Component(
-    "test_device4", "https://github.com/igem-Engineering/"
-)
+test_device4 = sbol3.Component("test_device4", "https://github.com/igem-Engineering/")
 test_device4.name = "Test Device 4 Exp 1 (Green device Insulation 2)"
 test_device4.description = "H6_Green_Device_Ins_2 Mini-interlab Plate Well D2"
 
-test_device5 = sbol3.Component(
-    "test_device5", "https://github.com/igem-Engineering/"
-)
+test_device5 = sbol3.Component("test_device5", "https://github.com/igem-Engineering/")
 test_device5.name = "Test Device 5 Exp 1 (Blue device Insulation 2)"
 test_device5.description = "A3_Blue_Device_Ins_2 Mini-interlab Plate Well E2"
 
-test_device6 = sbol3.Component(
-    "test_device6", "https://github.com/igem-Engineering/"
-)
+test_device6 = sbol3.Component("test_device6", "https://github.com/igem-Engineering/")
 test_device6.name = "Test Device 6 Exp 1 (Red device Insulation 2)"
 test_device6.description = "B6_Red_Device_Ins_2 Mini-interlab Plate Well F2"
 
@@ -166,9 +153,7 @@ culture_plates = protocol.primitive_step(
     specification=labop.ContainerSpec(
         name=f"transformant strains",
         queryString="cont:PetriDish",
-        prefixMap={
-            "cont": "https://sift.net/container-ontology/container-ontology#"
-        },
+        prefixMap={"cont": "https://sift.net/container-ontology/container-ontology#"},
     ),
     growth_medium=lb_agar_cam,
 )
@@ -180,9 +165,7 @@ transformation = protocol.primitive_step(
     selection_medium=lb_agar_cam,
     destination=culture_plates.output_pin("samples"),
 )
-transformation.description = (
-    "Incubate overnight (for 16 hour) at 37.0 degree Celsius."
-)
+transformation.description = "Incubate overnight (for 16 hour) at 37.0 degree Celsius."
 
 # Day 2: Pick colonies and culture overnight
 culture_container_day1 = protocol.primitive_step(
@@ -191,9 +174,7 @@ culture_container_day1 = protocol.primitive_step(
     specification=labop.ContainerSpec(
         name=f"culture (day 1)",
         queryString="cont:CultureTube",
-        prefixMap={
-            "cont": "https://sift.net/container-ontology/container-ontology#"
-        },
+        prefixMap={"cont": "https://sift.net/container-ontology/container-ontology#"},
     ),
 )
 
@@ -209,13 +190,9 @@ overnight_culture = protocol.primitive_step(
     inoculum=pick_colonies.output_pin("samples"),
     replicates=2,
     growth_medium=lb_cam,
-    volume=sbol3.Measure(
-        5, OM.millilitre
-    ),  # Actually 5-10 ml in the written protocol
+    volume=sbol3.Measure(5, OM.millilitre),  # Actually 5-10 ml in the written protocol
     duration=sbol3.Measure(16, OM.hour),  # Actually 16-18 hours
-    orbital_shake_speed=sbol3.Measure(
-        220, None
-    ),  # No unit for RPM or inverse minutes
+    orbital_shake_speed=sbol3.Measure(220, None),  # No unit for RPM or inverse minutes
     temperature=sbol3.Measure(37, OM.degree_Celsius),
     container=culture_container_day1.output_pin("samples"),
 )
@@ -227,9 +204,7 @@ culture_container_day2 = protocol.primitive_step(
     specification=labop.ContainerSpec(
         name=f"culture (day 2)",
         queryString="cont:CultureTube",
-        prefixMap={
-            "cont": "https://sift.net/container-ontology/container-ontology#"
-        },
+        prefixMap={"cont": "https://sift.net/container-ontology/container-ontology#"},
     ),
 )
 
@@ -253,9 +228,7 @@ timepoint_0hrs = protocol.primitive_step(
     specification=labop.ContainerSpec(
         name="cultures (0 hr timepoint)",
         queryString="cont:MicrofugeTube",
-        prefixMap={
-            "cont": "https://sift.net/container-ontology/container-ontology#"
-        },
+        prefixMap={"cont": "https://sift.net/container-ontology/container-ontology#"},
     ),
 )
 
@@ -288,9 +261,7 @@ conical_tube = protocol.primitive_step(
     specification=labop.ContainerSpec(
         name=f"back-diluted culture",
         queryString="cont:50mlConicalTube",
-        prefixMap={
-            "cont": "https://sift.net/container-ontology/container-ontology#"
-        },
+        prefixMap={"cont": "https://sift.net/container-ontology/container-ontology#"},
     ),
 )
 conical_tube.description = (
@@ -321,15 +292,11 @@ temporary = protocol.primitive_step(
     specification=labop.ContainerSpec(
         name="back-diluted culture aliquots",
         queryString="cont:MicrofugeTube",
-        prefixMap={
-            "cont": "https://sift.net/container-ontology/container-ontology#"
-        },
+        prefixMap={"cont": "https://sift.net/container-ontology/container-ontology#"},
     ),
 )
 
-hold = protocol.primitive_step(
-    "HoldOnIce", location=temporary.output_pin("samples")
-)
+hold = protocol.primitive_step("HoldOnIce", location=temporary.output_pin("samples"))
 hold.description = "This will prevent cell growth while transferring samples."
 
 transfer = protocol.primitive_step(
@@ -346,16 +313,12 @@ plate1 = protocol.primitive_step(
     specification=labop.ContainerSpec(
         name="plate 1",
         queryString="cont:Plate96Well",
-        prefixMap={
-            "cont": "https://sift.net/container-ontology/container-ontology#"
-        },
+        prefixMap={"cont": "https://sift.net/container-ontology/container-ontology#"},
     ),
 )
 
 
-hold = protocol.primitive_step(
-    "HoldOnIce", location=plate1.output_pin("samples")
-)
+hold = protocol.primitive_step("HoldOnIce", location=plate1.output_pin("samples"))
 
 
 plan = labop.SampleData(
@@ -405,9 +368,7 @@ plate_blanks = protocol.primitive_step(
 plate_blanks.description = "These samples are blanks."
 
 embedded_image = protocol.primitive_step(
-    "EmbeddedImage",
-    image="fig2_cell_calibration.png",
-    caption="Fig 2: Plate layout",
+    "EmbeddedImage", image="fig2_cell_calibration.png", caption="Fig 2: Plate layout"
 )
 
 
@@ -457,9 +418,7 @@ incubate = protocol.primitive_step(
 
 
 # Hold on ice to inhibit cell growth
-hold = protocol.primitive_step(
-    "HoldOnIce", location=conical_tube.output_pin("samples")
-)
+hold = protocol.primitive_step("HoldOnIce", location=conical_tube.output_pin("samples"))
 hold.description = (
     "This will inhibit cell growth during the subsequent pipetting steps."
 )
@@ -470,16 +429,12 @@ plate2 = protocol.primitive_step(
     specification=labop.ContainerSpec(
         name="plate 2",
         queryString="cont:Plate96Well",
-        prefixMap={
-            "cont": "https://sift.net/container-ontology/container-ontology#"
-        },
+        prefixMap={"cont": "https://sift.net/container-ontology/container-ontology#"},
     ),
 )
 
 # Hold on ice
-hold = protocol.primitive_step(
-    "HoldOnIce", location=plate2.output_pin("samples")
-)
+hold = protocol.primitive_step("HoldOnIce", location=plate2.output_pin("samples"))
 
 
 plan = labop.SampleData(
