@@ -9,7 +9,7 @@ from importlib.util import spec_from_loader, module_from_spec
 import sbol3
 
 import labop
-
+from labop.utils.helpers import file_diff
 
 # Save testfiles as artifacts when running in CI environment,
 # else save them to a local temp directory
@@ -18,6 +18,12 @@ if "GH_TMPDIR" in os.environ:
 else:
     TMPDIR = tempfile.gettempdir()
 
+
+OUT_DIR = os.path.join(
+    os.path.dirname(__file__), "out"
+)
+if not os.path.exists(OUT_DIR):
+    os.mkdir(OUT_DIR)
 
 protocol_def_file = os.path.join(
     os.path.dirname(__file__), "../examples/LUDOX_protocol.py"
@@ -65,6 +71,8 @@ class TestProtocolEndToEnd(unittest.TestCase):
         )
         # doc.write(comparison_file, sbol3.SORTED_NTRIPLES)
         print(f"Comparing against {comparison_file}")
+        diff = "".join(file_diff(comparison_file, temp_name))
+        print(f"Difference: {diff}")
         assert filecmp.cmp(
             temp_name, comparison_file
         ), "Files are not identical"

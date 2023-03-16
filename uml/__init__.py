@@ -537,14 +537,18 @@ def activity_call_behavior(self, behavior: Behavior, **input_pin_map):
     """
 
     # Any ActivityNode in the pin map will be withheld for connecting via object flows instead
-    activity_inputs = {k: v for k, v in input_pin_map.items() if isinstance(v, ActivityNode)}
+    activity_inputs = {k: v for k, v in input_pin_map.items()
+                       if isinstance(v, ActivityNode) or
+                          (isinstance(v, list) and all([isinstance(vi, ActivityNode) for vi in v ]))}
     non_activity_inputs = {k: v for k, v in input_pin_map.items() if k not in activity_inputs}
     cba = add_call_behavior_action(self, behavior, **non_activity_inputs)
     # add flows for activities being connected implicitly
     for name, source in id_sort(activity_inputs.items()):
-        for pin in cba.input_pins(name):
-            #self.use_value(source, cba.input_pin(name))
-            self.use_value(source, pin)
+        sources = source if isinstance(source, list) else [source]
+        for source in sources:
+            for pin in cba.input_pins(name):
+                #self.use_value(source, cba.input_pin(name))
+                self.use_value(source, pin)
     return cba
 Activity.call_behavior = activity_call_behavior  # Add to class via monkey patch
 

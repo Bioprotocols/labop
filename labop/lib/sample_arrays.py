@@ -124,6 +124,33 @@ p.add_input('instrument', 'http://www.w3.org/ns/prov#Agent')
 p.add_input('mount', 'http://bioprotocols.org/uml#ValueSpecification', optional=True)
 doc.add(p)
 
+p = labop.Primitive('JoinMetadata')
+p.description = 'Associate a labop:SampleMetadata with a labop.Dataset to create a labop.Dataset that also includes the new metadata'
+p.add_input('metadata', 'http://bioprotocols.org/labop#SampleMetadata')
+p.add_input('dataset', 'http://bioprotocols.org/labop#Dataset'),
+p.add_output('enhanced_dataset', 'http://bioprotocols.org/labop#Dataset')
+doc.add(p)
+
+p = labop.Primitive('JoinDatasets')
+p.description = 'Group several labop.Dataset to create a labop.Dataset'
+p.add_input('metadata', 'http://bioprotocols.org/labop#SampleMetadata', optional=True)
+p.add_input('dataset', 'http://bioprotocols.org/labop#Dataset', unbounded=True),
+p.add_output('joint_dataset', 'http://bioprotocols.org/labop#Dataset')
+doc.add(p)
+
+p = labop.Primitive('ExcelMetadata')
+p.description = 'Parse sample descriptions and metadata from an Excel file'
+p.add_input('filename', 'http://bioprotocols.org/uml#ValueSpecification')
+p.add_input('for_samples', 'https://bioprotocols.org/labop#SampleArray')
+p.add_output('metadata', 'http://bioprotocols.org/labop#SampleMetadata')
+doc.add(p)
+
+p = labop.Primitive('ComputeMetadata')
+p.description = 'Compute Metadata describing samples at the time that this primitive executes.'
+p.add_input('for_samples', 'https://bioprotocols.org/labop#SampleArray')
+p.add_output('metadata', 'http://bioprotocols.org/labop#SampleMetadata')
+doc.add(p)
+
 print('Library construction complete')
 
 print('Validating library')

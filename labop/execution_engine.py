@@ -1,12 +1,15 @@
 from abc import ABC, abstractmethod
 import html
+import os
 import re
 from typing import Callable, Dict, List, Union
 import uuid
 import datetime
 import logging
+from urllib.parse import quote, unquote
 
 import pandas as pd
+import xarray as xr
 import graphviz
 import sbol3
 
@@ -19,6 +22,8 @@ from labop_convert.behavior_specialization import (
     DefaultBehaviorSpecialization,
 )
 from labop.primitive_execution import initialize_primitive_compute_output
+
+from labop.strings import Strings
 
 
 l = logging.getLogger(__file__)
@@ -52,7 +57,8 @@ class ExecutionEngine(ABC):
         permissive=False,
         use_defined_primitives=True,
         sample_format="xarray",
-        out_dir = "out",
+        out_dir="out",
+        dataset_file=None,
     ):
         self.exec_counter = 0
         self.variable_counter = 0
@@ -80,6 +86,10 @@ class ExecutionEngine(ABC):
             id, List[Union[ExecutionWarning, ExecutionError]]
         ] = {}  # List of Warnings and Errors
         self.out_dir = out_dir
+        self.dataset_file = dataset_file  # Write dataset specifications as template files used to fill in data
+        self.data_id = 0
+        self.data_id_map = {}
+        self.candidate_clusters = {}
 
     def next_id(self):
         next = self.exec_counter
@@ -209,15 +219,7 @@ class ExecutionEngine(ABC):
 
         # Iteratively execute all unblocked activities until no more tokens can progress
         while ready:
-            non_call_nodes = [
-                node
-                for node in ready
-                if not isinstance(node, uml.CallBehaviorAction)
-            ]
-            if non_call_nodes:
-                ready = self.step(non_call_nodes)
-            else:
-                ready = self.step(ready)
+            ready = self.step(ready)
         return ready
 
     def step(
@@ -225,15 +227,32 @@ class ExecutionEngine(ABC):
         ready: List[uml.ActivityNode],
         node_outputs: Dict[uml.ActivityNode, Callable] = {},
     ):
-        for node in ready:
+        non_call_nodes = [
+            node
+            for node in ready
+            if not isinstance(node, uml.CallBehaviorAction)
+        ]
+        new_tokens = []
+        # prefer executing non_call_nodes first
+        for node in non_call_nodes + [
+            n for n in ready if n not in non_call_nodes
+        ]:
             self.current_node = node
             try:
-                self.tokens = node.execute(
+                tokens_added, tokens_removed = node.execute(
                     self,
                     node_outputs=(
                         node_outputs[node] if node in node_outputs else None
                     ),
                 )
+                self.tokens = [
+                    t for t in self.tokens if t not in tokens_removed
+                ]
+
+                new_tokens = new_tokens + tokens_added
+                record = self.ex.executions[-1]
+                self.post_process(record, new_tokens)
+
             except Exception as e:
                 # Consume the tokens used by the node that caused the exception
                 # Produce control tokens
@@ -272,10 +291,10 @@ class ExecutionEngine(ABC):
                 else:
                     self.issues[self.ex.display_id].append(ExecutionError(e))
                     raise (e)
+        self.tokens = self.tokens + new_tokens
+        return self.executable_activity_nodes(new_tokens)
 
-        return self.executable_activity_nodes()
-
-    def executable_activity_nodes(self) -> List[uml.ActivityNode]:
+    def executable_activity_nodes(self, tokens_added) -> List[uml.ActivityNode]:
         """Find all of the activity nodes that are ready to be run given the current set of tokens
         Note that this will NOT identify activities with no in-flows: those are only set up as initiating nodes
 
@@ -286,15 +305,77 @@ class ExecutionEngine(ABC):
         -------
         List of ActivityNodes that are ready to be run
         """
-        candidate_clusters = {}
-        for t in self.tokens:
+        # candidate_clusters = {}
+        updated_clusters = set({})
+        for t in tokens_added:
             target = t.get_target()
-            candidate_clusters[target] = candidate_clusters.get(target, []) + [
-                t
-            ]
-        return [
-            n for n, nt in candidate_clusters.items() if n.enabled(self, nt)
+            self.candidate_clusters[
+                target.identity
+            ] = self.candidate_clusters.get(target.identity, []) + [t]
+            updated_clusters.add(target)
+
+        enabled_nodes = [
+            n
+            for n in updated_clusters
+            if n.enabled(self, self.candidate_clusters[n.identity])
         ]
+        enabled_nodes.sort(
+            key=lambda x: x.identity
+        )  # Avoid any ordering non-determinism
+
+        return enabled_nodes
+
+    def post_process(
+        self,
+        record: labop.ActivityNodeExecution,
+        new_tokens: List[labop.ActivityEdgeFlow],
+    ):
+        if self.dataset_file is not None:
+            self.write_data_templates(record, new_tokens)
+
+    def write_data_templates(
+        self,
+        record: labop.ActivityNodeExecution,
+        new_tokens: List[labop.ActivityEdgeFlow],
+    ):
+        """
+        Write a data template as an xlsx file if the record.node produces sample data (i.e., it has an output of type labop.Dataset with a data attribute of type labop.SampleData)
+        Parameters
+        ----------
+        node : labop.ActivityNodeExecution
+            ActivityNodeExecution that produces SampleData
+        """
+        if not isinstance(record, labop.CallBehaviorExecution):
+            return
+
+        # Find all labop.Dataset objects produced by record
+        datasets = [
+            token.value.get_value()
+            for token in new_tokens
+            if token.token_source == record.identity
+            and isinstance(token.value.get_value(), labop.Dataset)
+        ]
+        sample_data = [
+            dataset.data
+            for dataset in datasets
+            if isinstance(dataset.data, labop.SampleData)
+        ]
+
+        path = os.path.join(self.out_dir, f"{self.dataset_file}.xlsx")
+
+        for dataset in datasets:
+            sheet_name = f"{record.node.lookup().behavior.lookup().display_id}_dataset_{self.data_id}"
+            dataset.update_data_sheet(
+                path, sheet_name, sample_format=self.sample_format
+            )
+            self.data_id += 1
+
+        for sd in sample_data:
+            sheet_name = f"{record.node.lookup().behavior.lookup().display_id}_data_{self.data_id}"
+            sd.update_data_sheet(
+                path, sheet_name, sample_format=self.sample_format
+            )
+            self.data_id += 1
 
 
 class ManualExecutionEngine(ExecutionEngine):
@@ -308,7 +389,9 @@ class ManualExecutionEngine(ExecutionEngine):
         ready = protocol.initiating_nodes()
         ready = self.advance(ready)
         choices = self.ready_message(ready)
-        graph = self.ex.to_dot(ready=ready, done=self.ex.backtrace()[0], out_dir=self.out_dir)
+        graph = self.ex.to_dot(
+            ready=ready, done=self.ex.backtrace()[0], out_dir=self.out_dir
+        )
         return ready, choices, graph
 
     def advance(self, ready: List[uml.ActivityNode]):
@@ -457,7 +540,7 @@ def protocol_execution_to_dot(
     execution_engine=None,
     ready: List[uml.ActivityNode] = [],
     done=set([]),
-    out_dir="out"
+    out_dir="out",
 ):
     """
     Create a dot graph that illustrates edge values appearing the execution of the protocol.
@@ -500,7 +583,7 @@ def protocol_execution_to_dot(
         else:
             edge_label = f"{value}"
 
-        if hasattr(value, "to_dot") and not is_ref:
+        if False and hasattr(value, "to_dot") and not is_ref:
             # Make node for value and connect to source
             value_node_id = value.to_dot(dot, out_dir=out_dir)
             dot.edge(source_id, value_node_id)
@@ -586,18 +669,18 @@ def protocol_execution_to_dot(
                     _make_object_edge(dot, incoming_flow, exec_target)
             elif isinstance(exec_source, uml.Pin):
                 # This incoming_flow is from an input pin, and need the flow into the pin
-                into_pin_flow = flow_source.incoming_flows[0]
-                # source = src_to_pin_edge.source.lookup()
-                # target = src_to_pin_edge.target.lookup()
-                dest_parameter = exec_target.pin_parameter(
-                    exec_source.name
-                ).property_value
-                _make_object_edge(
-                    dot,
-                    into_pin_flow,
-                    into_pin_flow.lookup().edge.lookup().target.lookup(),
-                    dest_parameter=dest_parameter,
-                )
+                for into_pin_flow in flow_source.incoming_flows:
+                    # source = src_to_pin_edge.source.lookup()
+                    # target = src_to_pin_edge.target.lookup()
+                    dest_parameter = exec_target.pin_parameter(
+                        exec_source.name
+                    ).property_value
+                    _make_object_edge(
+                        dot,
+                        into_pin_flow,
+                        into_pin_flow.lookup().edge.lookup().target.lookup(),
+                        dest_parameter=dest_parameter,
+                    )
             elif (
                 isinstance(exec_source, uml.DecisionNode)
                 and edge_ref

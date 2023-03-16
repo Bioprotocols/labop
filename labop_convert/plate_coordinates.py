@@ -5,7 +5,7 @@ Generic helper functions for dealing with plate coordinates
 from string import ascii_letters
 import re
 
-def get_aliquot_list(geometry="A1:H12"):
+def get_sample_list(geometry="A1:H12"):
     row_col_pairs = coordinate_rect_to_row_col_pairs(geometry)
     aliquots = [f"{num2row(r+1)}{c+1}" for (r, c) in row_col_pairs]
     return aliquots

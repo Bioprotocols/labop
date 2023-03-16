@@ -275,20 +275,17 @@ labop:Dataset a owl:Class ;
             owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
             owl:onProperty labop:data ],
         [ a owl:Restriction ;
-            owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
-            owl:onProperty labop:metadata ],
+            owl:allValuesFrom labop:SampleData ;
+            owl:onProperty labop:data ],
         [ a owl:Restriction ;
             owl:allValuesFrom labop:SampleMetadata  ;
             owl:onProperty labop:metadata ],
         [ a owl:Restriction ;
-            owl:minCardinality "1"^^xsd:nonNegativeInteger ;
-            owl:onProperty labop:metadata ],
+            owl:allValuesFrom labop:SampleMetadata  ;
+            owl:onProperty labop:linkedMetadata ],
         [ a owl:Restriction ;
-            owl:minCardinality "1"^^xsd:nonNegativeInteger ;
-            owl:onProperty labop:data ],
-        [ a owl:Restriction ;
-            owl:allValuesFrom labop:SampleData ;
-            owl:onProperty labop:data ],
+            owl:allValuesFrom labop:Dataset  ;
+            owl:onProperty labop:dataset ],
         sbol:Identified .
 
 labop:SampleMap a owl:Class ;
@@ -467,12 +464,28 @@ labop:data a owl:ObjectProperty ;
     rdfs:label "data" ;
     rdfs:comment """The data property indicates the SampleData used in a Dataset.""" ;
     rdfs:domain labop:Dataset  ;
-    rdfs:range labop:SampleData  .
+    rdfs:range labop:SampleData ;
+    rdfs:subPropertyOf sbol:directlyComprises .
 
 
 labop:metadata a owl:ObjectProperty ;
     rdfs:label "metadata" ;
     rdfs:comment """The metadata property indicates the SampleMetadata used in a Dataset.""" ;
+    rdfs:domain labop:Dataset  ;
+    rdfs:range labop:SampleMetadata ;
+    rdfs:subPropertyOf sbol:directlyComprises  .
+
+
+labop:dataset a owl:ObjectProperty ;
+    rdfs:label "dataset" ;
+    rdfs:comment """The data property indicates the sub Dataset used in a Dataset.""" ;
+    rdfs:domain labop:Dataset  ;
+    rdfs:range labop:Dataset .
+
+
+labop:linkedMetadata a owl:ObjectProperty ;
+    rdfs:label "linked_metadata" ;
+    rdfs:comment """The metadata property indicates the (referenced) SampleMetadata used in a Dataset.""" ;
     rdfs:domain labop:Dataset  ;
     rdfs:range labop:SampleMetadata  .
 

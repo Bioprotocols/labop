@@ -86,6 +86,18 @@ def activity_node_enabled(
         pins_with_tokens = {
             t.token_source.lookup().node.lookup() for t in tokens if not t.edge
         }
+        # pin_in_edges = { i.identity: [edge for edge in self.ex.protocol.lookup().incoming_edges(i)] for i in node.inputs}
+
+        # # Every required input pin has a token on each incoming edge
+        # all([
+        #     all([
+        #         any([
+        #             any([flow.lookup().edge == in_edge.identity
+        #                  for flow in  token.token_source.lookup().incoming_flows]) # flows are into pins
+        #               for token in tokens ]) # tokens going from pins to activity
+        #          for in_edge in pin_in_edges[pin.identity] ])  # in_edges are going into pins
+        #     for pin in required_input_pins])
+
         # parameter_names = {pv.parameter.lookup().property_value.name for pv in ex.parameter_values}
         # pins_with_params = {p for p in required_input_pins if p.name in parameter_names}
         # satisfied_pins = set(list(pins_with_params) + list(pins_with_tokens))
@@ -145,12 +157,15 @@ def input_pin_enabled(
     }
 
     assert len(incoming_controls) == 0  # Pins do not receive control flow
-    assert len(incoming_objects) > 0  # input pins have at least one object flow
 
-    # Need at least one incoming object token
-    tokens_present = {t.edge.lookup() for t in tokens if t.edge}.issubset(
-        incoming_objects
-    )
+    # # Every incoming edge has a token
+
+    tokens_present = all([
+                        any([
+                            token.edge == in_edge.identity
+                            for token in tokens ]) # tokens going from pins to activity
+                        for in_edge in incoming_objects])  # in_edges are going into pins
+
 
     return tokens_present or engine.permissive
 
@@ -530,7 +545,7 @@ def activity_node_execute(
                 )
 
     # return updated token list
-    return [t for t in engine.tokens if t not in inputs] + new_tokens
+    return new_tokens, inputs
 
 
 uml.ActivityNode.execute = activity_node_execute
@@ -784,7 +799,7 @@ def activity_node_execution_get_value(
             value = self.get_parameter_value(
                 parameter, node_outputs, sample_format
             )
-            reference = hasattr(value, "document") and value.document is not None
+            reference = isinstance(value, sbol3.Identified) and value.identity != None
 
     value = uml.literal(value, reference=reference)
     return value
@@ -1293,12 +1308,15 @@ def call_behavior_action_execute_callback(
     completed_normally = True
     # Get the parameter values from input tokens for input pins
     input_pin_values = {
-        token.token_source.lookup()
-        .node.lookup()
-        .identity: uml.literal(token.value, reference=True)
+        token.token_source.lookup().node.lookup().identity: []
         for token in inputs
         if not token.edge
     }
+    for token in inputs:
+        if not token.edge:
+            name = token.token_source.lookup().node.lookup().identity
+            input_pin_values[name].append(uml.literal(token.value, reference=True))
+
     # Get Input value pins
     value_pin_values = {}
 
@@ -1332,7 +1350,7 @@ def call_behavior_action_execute_callback(
 
     # Convert References
     value_pin_values = {
-        k: uml.literal(value=v.get_value(), reference=True)
+        k: [uml.literal(value=v.get_value(), reference=True)]
         for k, v in value_pin_values.items()
         if v is not None
     }
@@ -1341,10 +1359,10 @@ def call_behavior_action_execute_callback(
     parameter_values = [
         labop.ParameterValue(
             parameter=self.pin_parameter(pin.name),
-            value=pin_values[pin.identity],
+            value=value,
         )
         for pin in self.inputs
-        if pin.identity in pin_values
+        for value in (pin_values[pin.identity] if pin.identity in pin_values else [])
     ]
     # parameter_values.sort(
     #     key=lambda x: engine.ex.document.find(x.parameter).index
@@ -1495,11 +1513,12 @@ def input_pin_next_tokens_callback(
     out_edges: List[uml.ActivityEdge],
     node_outputs: Callable,
 ) -> List[labop.ActivityEdgeFlow]:
-    assert len(source.incoming_flows) == 1  # One input per pin
-    incoming_flow = source.incoming_flows[0].lookup()
-    pin_value = uml.literal(value=incoming_flow.value, reference=True)
+    assert len(source.incoming_flows) == len(engine.ex.protocol.lookup().incoming_edges(source.node.lookup()))
+    incoming_flows = [f.lookup() for f in source.incoming_flows]
+    pin_values = [uml.literal(value=incoming_flow.value, reference=True) for incoming_flow in incoming_flows]
     edge_tokens = [
         labop.ActivityEdgeFlow(edge=None, token_source=source, value=pin_value)
+        for pin_value in pin_values
     ]
     return edge_tokens
 
@@ -1598,101 +1617,3 @@ def activity_edge_flow_get_token_source(
 
 
 labop.ActivityEdgeFlow.get_token_source = activity_edge_flow_get_token_source
-
-# def activity_node_get_token_source(
-#     self: uml.ActivityNode,
-#     parameter: uml.Parameter,
-#     record: labop.ActivityNodeExecution,
-#     target: labop.ActivityNodeExecution = None,
-# ) -> labop.CallBehaviorExecution:
-#     raise Exception(f"Cannot get_token_source() for node of type {type(parameter)}")
-
-
-# uml.ActivityNode.get_token_source = activity_node_get_token_source
-
-
-# def call_behavior_action_get_token_source(
-#     self: uml.ActivityNode,
-#     parameter: uml.Parameter,
-#     record: labop.ActivityNodeExecution,
-#     target: labop.ActivityNodeExecution = None,
-# ) -> labop.CallBehaviorExecution:
-#     if parameter:
-#         # parameter refers to this CallBehaviorAction input
-#         input_pin = self.input_pin(parameter.name)
-#         # Get token that was consumed by the input_pin
-#         input_source = next(
-#             iter(
-#                 [
-#                     f.lookup().token_source.lookup()
-#                     for f in record.incoming_flows
-#                     if f.lookup().token_source.lookup().node.lookup() == input_pin
-#                 ]
-#             )
-#         )
-#         # Find source of target token via input_source.  Pins refer to parameters, but do not have parameters (hence None)
-#         return input_source.get_token_source(None, target=target)
-#     else:
-#         # reached this CallBehaviorAction as part of resolving the target.
-#         return self
-
-
-# uml.CallBehaviorAction.get_token_source = call_behavior_action_get_token_source
-
-
-# def input_pin_get_token_source(
-#     self: uml.ActivityNode,
-#     parameter: uml.Parameter,
-#     record: labop.ActivityNodeExecution,
-#     target: labop.ActivityNodeExecution = None,
-# ) -> labop.CallBehaviorExecution:
-#     input_source = next(
-#         iter([f.lookup().token_source.lookup() for f in record.incoming_flows])
-#     )
-#     return input_source.get_token_source(None, target=target)
-
-
-# uml.InputPin.get_token_source = input_pin_get_token_source
-
-
-# def fork_node_get_token_source(
-#     self: uml.ActivityNode,
-#     parameter: uml.Parameter,
-#     record: labop.ActivityNodeExecution,
-#     target: labop.ActivityNodeExecution = None,
-# ) -> labop.CallBehaviorExecution:
-#     input_source = next(
-#         iter([f.lookup().token_source.lookup() for f in record.incoming_flows])
-#     )
-#     return input_source.get_token_source(None, target=target)
-
-
-# uml.ForkNode.get_token_source = fork_node_get_token_source
-
-
-# def initial_node_get_token_source(
-#     self: uml.ActivityNode,
-#     parameter: uml.Parameter,
-#     record: labop.ActivityNodeExecution,
-#     target: labop.ActivityNodeExecution = None,
-# ) -> labop.CallBehaviorExecution:
-
-#     return record
-
-
-# uml.InitialNode.get_token_source = initial_node_get_token_source
-
-
-# def activity_parameter_node_get_token_source(
-#     self: uml.ActivityNode,
-#     parameter: uml.Parameter,
-#     record: labop.ActivityNodeExecution,
-#     target: labop.ActivityNodeExecution = None,
-# ) -> labop.CallBehaviorExecution:
-
-#     return record
-
-
-# uml.ActivityParameterNode.get_token_source = (
-#     activity_parameter_node_get_token_source
-# )

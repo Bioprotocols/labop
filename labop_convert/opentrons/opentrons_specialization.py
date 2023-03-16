@@ -3,7 +3,7 @@ import json
 import logging
 import abc
 from typing import Dict
-from labop_convert.plate_coordinates import get_aliquot_list
+from labop_convert.plate_coordinates import get_sample_list
 import xarray as xr
 
 
@@ -361,7 +361,7 @@ class OT2Specialization(BehaviorSpecialization):
             if type(labware) is sbol3.Agent and hasattr(labware, 'configuration'):
                 # If labware is a hardware module (i.e. Agent),
                 # then we need to look further to find out what conta
-                coordinate = get_aliquot_list(destination.mask)[0]
+                coordinate = get_sample_list(destination.mask)[0]
                 if coordinate in labware.configuration:
                     labware = labware.configuration[coordinate]
             if labware == destination_container:
@@ -380,8 +380,8 @@ class OT2Specialization(BehaviorSpecialization):
 
         source_str = source.mask
         destination_str = destination.mask
-        for c_source in get_aliquot_list(source.mask):
-            for c_destination in get_aliquot_list(destination.mask):
+        for c_source in get_sample_list(source.mask):
+            for c_destination in get_sample_list(destination.mask):
                 self.script_steps += [f"{pipette.display_id}.transfer({value}, {source_name}['{c_source}'], {destination_name}['{c_destination}'])  {comment}"]
 
 
@@ -444,8 +444,8 @@ class OT2Specialization(BehaviorSpecialization):
 
         source_str = source.mask
         destination_str = destination.mask
-        for c_source in get_aliquot_list(source.mask):
-            for c_destination in get_aliquot_list(destination.mask):
+        for c_source in get_sample_list(source.mask):
+            for c_destination in get_sample_list(destination.mask):
                 self.script_steps += [f"{pipette.display_id}.transfer({value}, {source_name}['{c_source}'], {destination_name}['{c_destination}'])"]
 
     def plate_coordinates(self, record: labop.ActivityNodeExecution, ex: labop.ProtocolExecution):
@@ -506,7 +506,7 @@ class OT2Specialization(BehaviorSpecialization):
         except Exception as e:
             print(e)
 
-        aliquots = get_aliquot_list(coords)
+        aliquots = get_sample_list(coords)
         if len(aliquots) == 1:
             self.markdown_steps += [f'Load {container_str} in slot {coords} of {rack_str}']
         elif len(aliquots) > 1:
@@ -522,7 +522,7 @@ class OT2Specialization(BehaviorSpecialization):
         samples: labop.SampleArray = parameter_value_map['samples']['value']
 
         # Assume 96 well plate
-        aliquots = get_aliquot_list(geometry="A1:H12")
+        aliquots = get_sample_list(geometry="A1:H12")
         samples.initial_contents = json.dumps(xr.DataArray(aliquots, dims=("aliquot")).to_dict())
 
         #upstream_ex = get_token_source('container', record)
@@ -541,7 +541,7 @@ class OT2Specialization(BehaviorSpecialization):
         # Keep track of instrument configuration
         if not hasattr(instrument, 'configuration'):
             instrument.configuration = {}
-            for c in get_aliquot_list(slots):
+            for c in get_sample_list(slots):
                 instrument.configuration[c] = container_spec
 
 

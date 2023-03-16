@@ -38,7 +38,8 @@ class TestIgemExamples(unittest.TestCase):
         load_protocol('interlab-exp3_challenge.py')
 
     def test_example5(self):
-        load_protocol('multicolor-particle-calibration.py')
+        load_protocol('protocols/multicolor-particle-calibration/multicolor-particle-calibration.py')
+
 
 
 if __name__ == '__main__':

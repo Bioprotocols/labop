@@ -358,3 +358,32 @@ def activity_to_dot(self, legend=False, ready=[], done=[]):
 
     return parent
 Activity.to_dot = activity_to_dot
+
+def input_pin_str(self):
+    return self.name
+InputPin.__str__ = input_pin_str
+
+def value_pin_str(self):
+    return f"{self.name}: {self.value}"
+ValuePin.__str__ = value_pin_str
+
+def literal_str(self):
+    value = self.get_value()
+    if isinstance(value, str) or isinstance(value, int) or isinstance(value, bool):
+        val_str = html.escape(str(value)).lstrip('\n').replace('\n', '<br/>')
+    else:
+        val_str = str(value)
+    return val_str
+LiteralSpecification.__str__ = literal_str
+
+def measure_str(self):
+    if self.unit.startswith('http://www.ontology-of-units-of-measure.org'):
+        unit = tyto.OM.get_term_by_uri(self.unit)
+    else:
+        unit = self.unit.rsplit('/',maxsplit=1)[1]
+    return f'{self.value} {unit}'
+sbol3.Measure.__str__ = measure_str
+
+def identified_str(self):
+    return str(self.name or self.display_id)
+sbol3.Identified.__str__ = identified_str
