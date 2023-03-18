@@ -148,9 +148,8 @@ def empty_container_compute_output(self, inputs, parameter, sample_format):
             sample_array = labop.SampleArray.from_container_spec(
                 spec, sample_format=sample_format
             )
+        sample_array.name = spec.name
 
-        # This attribute isn't formally specified in the ontology yet, but supports handling of different sample formats by BehaviorSpecialiations
-        # sample_array.format = sample_format
         return sample_array
     else:
         return None
