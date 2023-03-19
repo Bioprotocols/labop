@@ -2,8 +2,8 @@
 The TimeConstraint class defines the functions corresponding to the dynamically generated labop class TimeConstraint
 """
 
-import uml.inner as inner
-from uml.interval_constraint import IntervalConstraint
+from . import inner
+from .interval_constraint import IntervalConstraint
 
 
 class TimeConstraint(inner.TimeConstraint, IntervalConstraint):

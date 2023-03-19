@@ -11,29 +11,28 @@ import graphviz
 import sbol3
 import tyto
 
-import uml.inner as inner
-from uml.call_behavior_action import CallBehaviorAction
-from uml.executable_node import ExecutableNode
-from uml.join_node import JoinNode
-from uml.literal_null import LiteralNull
-from uml.merge_node import MergeNode
-from uml.object_node import ObjectNode
-from uml.output_pin import OutputPin
-from uml.pin import Pin
-
 from .activity_edge import ActivityEdge
 from .activity_node import ActivityNode
 from .activity_parameter_node import ActivityParameterNode
 from .behavior import Behavior
+from .call_behavior_action import CallBehaviorAction
 from .control_flow import ControlFlow
 from .decision_node import DecisionNode
+from .executable_node import ExecutableNode
 from .final_node import FinalNode
 from .fork_node import ForkNode
 from .initial_node import InitialNode
+from .inner import *
 from .input_pin import InputPin
+from .join_node import JoinNode
+from .literal_null import LiteralNull
 from .literal_reference import LiteralReference
+from .merge_node import MergeNode
 from .object_flow import ObjectFlow
+from .object_node import ObjectNode
+from .output_pin import OutputPin
 from .parameter import Parameter
+from .pin import Pin
 from .strings import PARAMETER_IN
 from .utils import id_sort, literal
 from .value_pin import ValuePin

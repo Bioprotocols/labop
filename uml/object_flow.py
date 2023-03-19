@@ -2,8 +2,8 @@
 The ObjectFlow class defines the functions corresponding to the dynamically generated labop class ObjectFlow
 """
 
-import uml.inner as inner
-from uml.activity_edge import ActivityEdge
+from . import inner
+from .activity_edge import ActivityEdge
 
 
 class ObjectFlow(inner.ObjectFlow, ActivityEdge):

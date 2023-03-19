@@ -4,8 +4,8 @@ The LiteralSpecification class defines the functions corresponding to the dynami
 
 import html
 
-import uml.inner as inner
-from uml.value_specification import ValueSpecification
+from . import inner
+from .value_specification import ValueSpecification
 
 
 class LiteralSpecification(inner.LiteralSpecification, ValueSpecification):

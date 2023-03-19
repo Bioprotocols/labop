@@ -2,8 +2,8 @@
 The DurationConstraint class defines the functions corresponding to the dynamically generated labop class DurationConstraint
 """
 
-import uml.inner as inner
-from uml.interval_constraint import IntervalConstraint
+from . import inner
+from .interval_constraint import IntervalConstraint
 
 
 class DurationConstraint(inner.DurationConstraint, IntervalConstraint):

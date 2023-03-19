@@ -5,10 +5,10 @@ import sbol3
 import tyto
 
 import labop
-import uml
 from labop.execution_engine import ExecutionEngine
 from labop_convert import MarkdownSpecialization
 from labop_convert.behavior_specialization import DefaultBehaviorSpecialization
+from uml import LiteralReference
 
 OUT_DIR = os.path.join(os.path.dirname(__file__), "out")
 if not os.path.exists(OUT_DIR):
@@ -79,7 +79,7 @@ class TestProtocolOutputs(unittest.TestCase):
         )
         ex = ee.execute(self.protocol, agent, id="test_execution", parameter_values=[])
 
-        self.assertTrue(isinstance(ex.parameter_values[0].value, uml.LiteralReference))
+        self.assertTrue(isinstance(ex.parameter_values[0].value, LiteralReference))
         self.assertTrue(
             isinstance(ex.parameter_values[0].value.value.lookup(), labop.Dataset)
         )

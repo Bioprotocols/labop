@@ -3,7 +3,7 @@ import unittest
 import sbol3
 
 import labop
-import uml
+from uml import ActivityParameterNode, ObjectFlow
 
 
 class TestValidationErrorChecking(unittest.TestCase):
@@ -23,20 +23,23 @@ class TestValidationErrorChecking(unittest.TestCase):
         # use it in three places
         s1 = protocol.primitive_step("PlateCoordinates", coordinates="A1:D1")
         protocol.edges.append(
-            uml.ObjectFlow(
-                source=plate.output_pin("samples"), target=s1.input_pin("source")
+            ObjectFlow(
+                source=plate.output_pin("samples"),
+                target=s1.input_pin("source"),
             )
         )
         s2 = protocol.primitive_step("PlateCoordinates", coordinates="A2:D2")
         protocol.edges.append(
-            uml.ObjectFlow(
-                source=plate.output_pin("samples"), target=s2.input_pin("source")
+            ObjectFlow(
+                source=plate.output_pin("samples"),
+                target=s2.input_pin("source"),
             )
         )
         s3 = protocol.primitive_step("PlateCoordinates", coordinates="A3:D3")
         protocol.edges.append(
-            uml.ObjectFlow(
-                source=plate.output_pin("samples"), target=s3.input_pin("source")
+            ObjectFlow(
+                source=plate.output_pin("samples"),
+                target=s3.input_pin("source"),
             )
         )
         # Validate the document, which should produce one error
@@ -65,7 +68,7 @@ class TestValidationErrorChecking(unittest.TestCase):
         # call order backwards, to make an edge from the final to the initial
         protocol.order(protocol.final(), protocol.initial())
         # access a parameter node and order it backwards too
-        p = uml.ActivityParameterNode()
+        p = ActivityParameterNode()
         protocol.nodes.append(p)
         protocol.order(protocol.final(), p)
         # Validate the document, which should produce two errors

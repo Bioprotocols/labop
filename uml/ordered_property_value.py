@@ -2,7 +2,7 @@
 The OrderedPropertyValue class defines the functions corresponding to the dynamically generated labop class OrderedPropertyValue
 """
 
-import uml.inner as inner
+from . import inner
 
 
 class OrderedPropertyValue(inner.OrderedPropertyValue):

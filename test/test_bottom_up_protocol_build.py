@@ -3,11 +3,26 @@ import unittest
 
 import sbol3
 
-import labop
-import uml
-from labop import ExecutionEngine
+from labop import (
+    CallBehaviorAction,
+    ControlFlow,
+    ExecutionEngine,
+    InitialNode,
+    Parameter,
+    Primitive,
+    Protocol,
+)
 from labop_convert import MarkdownSpecialization
 from labop_convert.behavior_specialization import DefaultBehaviorSpecialization
+from uml import (
+    InputPin,
+    LiteralInteger,
+    LiteralReference,
+    ObjectFlow,
+    OutputPin,
+    ValuePin,
+)
+from uml.ordered_property_value import OrderedPropertyValue
 
 PARAMETER_IN = "http://bioprotocols.org/uml#in"
 PARAMETER_OUT = "http://bioprotocols.org/uml#out"
@@ -23,15 +38,15 @@ class ExampleProtocol(unittest.TestCase):
         # Provides a minimal, working example of a Protocol built from
         # the bottom-up without using any of the library's convenience methods
         doc = sbol3.Document()
-        protocol = labop.Protocol("foo")
+        protocol = Protocol("foo")
         doc.add(protocol)
 
-        step1 = labop.Primitive("step1")
-        step2 = labop.Primitive("step2")
+        step1 = Primitive("step1")
+        step2 = Primitive("step2")
 
-        step1_output = uml.OrderedPropertyValue(
+        step1_output = OrderedPropertyValue(
             index=1,
-            property_value=uml.Parameter(
+            property_value=Parameter(
                 name="samples",
                 type=sbol3.SBOL_COMPONENT,
                 direction=PARAMETER_OUT,
@@ -39,9 +54,9 @@ class ExampleProtocol(unittest.TestCase):
                 is_unique=True,
             ),
         )
-        step2_input = uml.OrderedPropertyValue(
+        step2_input = OrderedPropertyValue(
             index=1,
-            property_value=uml.Parameter(
+            property_value=Parameter(
                 name="samples",
                 type=sbol3.SBOL_COMPONENT,
                 direction=PARAMETER_IN,
@@ -55,21 +70,21 @@ class ExampleProtocol(unittest.TestCase):
         doc.add(step1)
         doc.add(step2)
 
-        start_action = uml.InitialNode()
-        step1_action = uml.CallBehaviorAction(behavior=step1)
-        step2_action = uml.CallBehaviorAction(behavior=step2)
+        start_action = InitialNode()
+        step1_action = CallBehaviorAction(behavior=step1)
+        step2_action = CallBehaviorAction(behavior=step2)
         protocol.nodes.append(start_action)
         protocol.nodes.append(step1_action)
         protocol.nodes.append(step2_action)
-        protocol.edges.append(uml.ControlFlow(source=start_action, target=step1_action))
-        protocol.edges.append(uml.ControlFlow(source=step1_action, target=step2_action))
+        protocol.edges.append(ControlFlow(source=start_action, target=step1_action))
+        protocol.edges.append(ControlFlow(source=step1_action, target=step2_action))
 
-        output = uml.OutputPin(name="samples", is_ordered=True, is_unique=True)
+        output = OutputPin(name="samples", is_ordered=True, is_unique=True)
         step1_action.outputs.append(output)
 
-        input = uml.InputPin(name="samples", is_ordered=True, is_unique=True)
+        input = InputPin(name="samples", is_ordered=True, is_unique=True)
         step2_action.inputs.append(input)
-        flow = uml.ObjectFlow(source=output, target=input)
+        flow = ObjectFlow(source=output, target=input)
         protocol.edges.append(flow)
 
         agent = sbol3.Agent("test_agent")
@@ -90,14 +105,14 @@ class TestParameters(unittest.TestCase):
     def test_parameters_not_found(self):
         # Verify exception-handling when user specifies a Pin that doesn't match expected Parameter names
         doc = sbol3.Document()
-        protocol = labop.Protocol("foo")
+        protocol = Protocol("foo")
         doc.add(protocol)
 
-        step1 = labop.Primitive("step1")
-        step2 = labop.Primitive("step2")
-        step1_output = uml.OrderedPropertyValue(
+        step1 = Primitive("step1")
+        step2 = Primitive("step2")
+        step1_output = OrderedPropertyValue(
             index=1,
-            property_value=uml.Parameter(
+            property_value=Parameter(
                 name="samples",
                 type=sbol3.SBOL_COMPONENT,
                 direction=PARAMETER_OUT,
@@ -105,9 +120,9 @@ class TestParameters(unittest.TestCase):
                 is_unique=True,
             ),
         )
-        step2_input = uml.OrderedPropertyValue(
+        step2_input = OrderedPropertyValue(
             index=1,
-            property_value=uml.Parameter(
+            property_value=Parameter(
                 name="samples",
                 type=sbol3.SBOL_COMPONENT,
                 direction=PARAMETER_IN,
@@ -121,21 +136,21 @@ class TestParameters(unittest.TestCase):
         doc.add(step1)
         doc.add(step2)
 
-        start_action = uml.InitialNode()
-        step1_action = uml.CallBehaviorAction(behavior=step1)
-        step2_action = uml.CallBehaviorAction(behavior=step2)
+        start_action = InitialNode()
+        step1_action = CallBehaviorAction(behavior=step1)
+        step2_action = CallBehaviorAction(behavior=step2)
         protocol.nodes.append(start_action)
         protocol.nodes.append(step1_action)
         protocol.nodes.append(step2_action)
-        protocol.edges.append(uml.ControlFlow(source=start_action, target=step1_action))
-        protocol.edges.append(uml.ControlFlow(source=step1_action, target=step2_action))
+        protocol.edges.append(ControlFlow(source=start_action, target=step1_action))
+        protocol.edges.append(ControlFlow(source=step1_action, target=step2_action))
 
         # Action pin "output" does not match expected Primitive Parameters
         step1_action.outputs.append(
-            uml.OutputPin(name="output", is_ordered=True, is_unique=True)
+            OutputPin(name="output", is_ordered=True, is_unique=True)
         )
         step2_action.inputs.append(
-            uml.InputPin(name="input", is_ordered=True, is_unique=True)
+            InputPin(name="input", is_ordered=True, is_unique=True)
         )
 
         agent = sbol3.Agent("test_agent")
@@ -156,16 +171,16 @@ class TestParameters(unittest.TestCase):
     def test_duplicate_parameters(self):
         # Verify exception-handling for name collisions between Parameters
         doc = sbol3.Document()
-        protocol = labop.Protocol("foo")
+        protocol = Protocol("foo")
         doc.add(protocol)
 
-        step1 = labop.Primitive("step1")
-        step2 = labop.Primitive("step2")
+        step1 = Primitive("step1")
+        step2 = Primitive("step2")
 
         # create duplicate Parameters for the step1 Primitive, resulting in a failure mode
-        step1_output = uml.OrderedPropertyValue(
+        step1_output = OrderedPropertyValue(
             index=1,
-            property_value=uml.Parameter(
+            property_value=Parameter(
                 name="samples",
                 type=sbol3.SBOL_COMPONENT,
                 direction=PARAMETER_OUT,
@@ -173,9 +188,9 @@ class TestParameters(unittest.TestCase):
                 is_unique=True,
             ),
         )
-        step1_duplicate_output = uml.OrderedPropertyValue(
+        step1_duplicate_output = OrderedPropertyValue(
             index=2,
-            property_value=uml.Parameter(
+            property_value=Parameter(
                 name="samples",
                 type=sbol3.SBOL_COMPONENT,
                 direction=PARAMETER_OUT,
@@ -189,20 +204,20 @@ class TestParameters(unittest.TestCase):
         doc.add(step1)
         doc.add(step2)
 
-        start_action = uml.InitialNode()
-        step1_action = uml.CallBehaviorAction(behavior=step1)
-        step2_action = uml.CallBehaviorAction(behavior=step2)
+        start_action = InitialNode()
+        step1_action = CallBehaviorAction(behavior=step1)
+        step2_action = CallBehaviorAction(behavior=step2)
         protocol.nodes.append(start_action)
         protocol.nodes.append(step1_action)
         protocol.nodes.append(step2_action)
-        protocol.edges.append(uml.ControlFlow(source=start_action, target=step1_action))
-        protocol.edges.append(uml.ControlFlow(source=step1_action, target=step2_action))
+        protocol.edges.append(ControlFlow(source=start_action, target=step1_action))
+        protocol.edges.append(ControlFlow(source=step1_action, target=step2_action))
 
         step1_action.outputs.append(
-            uml.OutputPin(name="samples", is_ordered=True, is_unique=True)
+            OutputPin(name="samples", is_ordered=True, is_unique=True)
         )
         step1_action.outputs.append(
-            uml.OutputPin(name="samples", is_ordered=True, is_unique=True)
+            OutputPin(name="samples", is_ordered=True, is_unique=True)
         )
 
         ## Need to define an output for the "samples" output, otherwise ee will compute unique values for each: "samples0", "samples1", etc.
@@ -226,18 +241,18 @@ class TestParameters(unittest.TestCase):
 
     def test_optional_and_required_parameters(self):
         doc = sbol3.Document()
-        protocol = labop.Protocol("foo")
+        protocol = Protocol("foo")
         doc.add(protocol)
 
         input_component = sbol3.Component("input_component", sbol3.SBO_DNA)
         doc.add(input_component)
 
-        step1 = labop.Primitive("step1")
+        step1 = Primitive("step1")
 
         # create optional parameter
-        step1_optional_input1 = uml.OrderedPropertyValue(
+        step1_optional_input1 = OrderedPropertyValue(
             index=1,
-            property_value=uml.Parameter(
+            property_value=Parameter(
                 name="step1_optional_input1",
                 type=sbol3.SBOL_COMPONENT,
                 direction=PARAMETER_IN,
@@ -245,10 +260,10 @@ class TestParameters(unittest.TestCase):
                 is_unique=True,
             ),
         )
-        step1_optional_input1.property_value.lower_value = uml.LiteralInteger(value=0)
-        step1_optional_input2 = uml.OrderedPropertyValue(
+        step1_optional_input1.property_value.lower_value = LiteralInteger(value=0)
+        step1_optional_input2 = OrderedPropertyValue(
             index=2,
-            property_value=uml.Parameter(
+            property_value=Parameter(
                 name="step1_optional_input2",
                 type=sbol3.SBOL_COMPONENT,
                 direction=PARAMETER_IN,
@@ -261,11 +276,11 @@ class TestParameters(unittest.TestCase):
         step1.parameters.append(step1_optional_input2)
         doc.add(step1)
 
-        start_action = uml.InitialNode()
-        step1_action = uml.CallBehaviorAction(behavior=step1)
+        start_action = InitialNode()
+        step1_action = CallBehaviorAction(behavior=step1)
         protocol.nodes.append(start_action)
         protocol.nodes.append(step1_action)
-        protocol.edges.append(uml.ControlFlow(source=start_action, target=step1_action))
+        protocol.edges.append(ControlFlow(source=start_action, target=step1_action))
 
         # Execute without specifying InputPins, this should work fine, since the Parameters are optional
         agent = sbol3.Agent("test_agent")
@@ -280,13 +295,13 @@ class TestParameters(unittest.TestCase):
 
         # Make optional input required, and re-execute, triggering an exception, because
         # no input pin is provided
-        step1_optional_input1.property_value.lower_value = uml.LiteralInteger(value=1)
+        step1_optional_input1.property_value.lower_value = LiteralInteger(value=1)
         with self.assertRaises(ValueError):
             x = ee.execute(protocol, agent, id="test_execution2", parameter_values=[])
 
         # Now provide the required input pin, but it is missing its value. See #130
         step1_action.inputs.append(
-            uml.ValuePin(name="step1_optional_input1", is_ordered=True, is_unique=True)
+            ValuePin(name="step1_optional_input1", is_ordered=True, is_unique=True)
         )
         with self.assertRaises(ValueError):
             x = ee.execute(protocol, agent, id="test_execution3", parameter_values=[])
@@ -294,15 +309,15 @@ class TestParameters(unittest.TestCase):
         # Provide the remaining, optional Pin. This too should fail because it does not have
         # a ValueSpecification
         step1_action.inputs.append(
-            uml.ValuePin(name="step1_optional_input2", is_ordered=True, is_unique=True)
+            ValuePin(name="step1_optional_input2", is_ordered=True, is_unique=True)
         )
         with self.assertRaises(ValueError):
             x = ee.execute(protocol, agent, id="test_execution4", parameter_values=[])
 
         # Now that Pins have a valid ValueSpecification, we should be able to execute
         # successfully
-        step1_action.inputs[0].value = uml.LiteralReference(value=input_component)
-        step1_action.inputs[1].value = uml.LiteralReference(value=input_component)
+        step1_action.inputs[0].value = LiteralReference(value=input_component)
+        step1_action.inputs[1].value = LiteralReference(value=input_component)
         x = ee.execute(protocol, agent, id="test_execution5", parameter_values=[])
 
     def test_bad_ordered_property_value(self):

@@ -93,7 +93,7 @@
 # labop.PrimitiveExecutable.infer_typing = primitiveexecutable_infer_typing
 #
 # # TODO: add type inference for SubProtocol
-# def subprotocol_infer_typing(self: labop.SubProtocol, typing: ProtocolTyping):
+# def subprotocol_infer_typing(self, typing: ProtocolTyping):
 #     typing.flow_values.update({f: None for f in self.direct_output_flows()})
 #     subprotocol = self.instance_of.lookup()
 #     if subprotocol not in typing.typed_protocols:
@@ -119,7 +119,7 @@
 #         ValueError("Don't know how to make dummy object for type "+type_name)
 #
 #
-# def value_infer_typing(self: labop.Value, typing: ProtocolTyping):
+# def value_infer_typing(self, typing: ProtocolTyping):
 #     # assert len(self.direct_output_flows()) == 1  # should be precisely one output --- or maybe not. TODO: decide
 #     output_instance = (type_to_value(self.type, name=self.name) if self.type else None)
 #     # Don't overwrite values that are already written

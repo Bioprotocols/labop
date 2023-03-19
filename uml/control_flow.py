@@ -1,9 +1,8 @@
 """
 The ControlFlow class defines the functions corresponding to the dynamically generated labop class ControlFlow
 """
-
-import uml.inner as inner
-from uml.activity_edge import ActivityEdge
+from . import inner
+from .activity_edge import ActivityEdge
 
 
 class ControlFlow(inner.ControlFlow, ActivityEdge):

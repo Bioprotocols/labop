@@ -2,8 +2,8 @@
 The IntervalConstraint class defines the functions corresponding to the dynamically generated labop class IntervalConstraint
 """
 
-import uml.inner as inner
-from uml.constraint import Constraint
+from . import inner
+from .constraint import Constraint
 
 
 class IntervalConstraint(inner.IntervalConstraint, Constraint):

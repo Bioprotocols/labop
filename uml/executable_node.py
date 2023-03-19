@@ -2,8 +2,8 @@
 The ExecutableNode class defines the functions corresponding to the dynamically generated labop class ExecutableNode
 """
 
-import uml.inner as inner
-from uml.activity_node import ActivityNode
+from . import inner
+from .activity_node import ActivityNode
 
 
 class ExecutableNode(inner.ExecutableNode, ActivityNode):

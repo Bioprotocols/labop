@@ -2,8 +2,8 @@
 The Expression class defines the functions corresponding to the dynamically generated labop class Expression
 """
 
-import uml.inner as inner
-from uml.value_specification import ValueSpecification
+from . import inner
+from .value_specification import ValueSpecification
 
 
 class Expression(inner.Expression, ValueSpecification):

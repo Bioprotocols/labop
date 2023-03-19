@@ -2,8 +2,8 @@
 The LiteralInteger class defines the functions corresponding to the dynamically generated labop class LiteralInteger
 """
 
-import uml.inner as inner
-from uml.literal_specification import LiteralSpecification
+from . import inner
+from .literal_specification import LiteralSpecification
 
 
 class LiteralInteger(inner.LiteralInteger, LiteralSpecification):

@@ -199,9 +199,7 @@ class TestProtocolEndToEnd(unittest.TestCase):
         parameter_values = [
             labop.ParameterValue(
                 parameter=protocol.get_input("wavelength"),
-                value=uml.LiteralIdentified(
-                    value=sbol3.Measure(100, tyto.OM.nanometer)
-                ),
+                value=LiteralIdentified(value=sbol3.Measure(100, tyto.OM.nanometer)),
             )
         ]
         execution = ee.execute(

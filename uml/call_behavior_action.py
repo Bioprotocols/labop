@@ -2,99 +2,30 @@
 The CallBehaviorAction class defines the functions corresponding to the dynamically generated labop class CallBehaviorAction
 """
 
-import sbol3
+import uuid
+from typing import Callable, Dict, List
 
-import uml.inner as inner
+from uml.invocation_action import InvocationAction
+from uml.literal_specification import LiteralSpecification
 
+from . import inner
+from .activity_edge import ActivityEdge
+from .activity_node import ActivityNode
+from .activity_parameter_node import ActivityParameterNode
 from .call_action import CallAction
-from .literal_reference import LiteralReference
+from .control_flow import ControlFlow
+from .initial_node import InitialNode
+from .object_flow import ObjectFlow
 from .utils import inner_to_outer, literal
+from .value_pin import ValuePin
 
 
 class CallBehaviorAction(inner.CallBehaviorAction, CallAction):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-    def input_pin(self, pin_name: str):
-        """Find an input pin on the action with the specified name
-
-        :param pin_name:
-        :return: Pin with specified name
-        """
-        pin_set = {x for x in self.inputs if x.name == pin_name}
-        if len(pin_set) == 0:
-            raise ValueError(
-                f"Could not find input pin named {pin_name} for Primitive {self.behavior.lookup().display_id}"
-            )
-        if len(pin_set) > 1:
-            raise ValueError(
-                f"Found more than one input pin named {pin_name} for Primitive {self.behavior.lookup().display_id}"
-            )
-        return pin_set.pop()
-
-    def input_pins(self, pin_name: str):
-        """Find an input pin on the action with the specified name
-
-        :param pin_name:
-        :return: Pin with specified name
-        """
-        pin_set = {x for x in self.inputs if x.name == pin_name}
-        if len(pin_set) == 0:
-            raise ValueError(
-                f"Could not find input pin named {pin_name} for Primitive {self.behavior.lookup().display_id}"
-            )
-        return pin_set
-
-    def output_pin(self, pin_name: str):
-        """Find an output pin on the action with the specified name
-
-        :param pin_name:
-        :return: Pin with specified name
-        """
-        pin_set = {x for x in self.outputs if x.name == pin_name}
-        if len(pin_set) == 0:
-            raise ValueError(f"Could not find output pin named {pin_name}")
-        if len(pin_set) > 1:
-            raise ValueError(f"Found more than one output pin named {pin_name}")
-        return pin_set.pop()
-
-    def pin_parameter(self, pin_name: str):
-        """Find the behavior parameter corresponding to the pin
-
-        :param pin_name:
-        :return: Parameter with specified name
-        """
-        try:
-            pins = self.input_pins(pin_name)
-        except:
-            try:
-                pin = self.output_pin(pin_name)
-            except:
-                raise ValueError(f"Could not find pin named {pin_name}")
-        behavior = self.behavior.lookup()
-        parameters = [
-            p for p in behavior.parameters if p.property_value.name == pin_name
-        ]
-        if len(parameters) == 0:
-            raise ValueError(
-                f"Invalid parameter {pin_name} provided for Primitive {behavior.display_id}"
-            )
-        elif len(parameters) > 1:
-            raise ValueError(
-                f"Primitive {behavior.display_id} has multiple Parameters with the same name"
-            )
-        parameter = parameters[0]
-        try:
-            parameter.__class__ = inner_to_outer(parameter)
-        except:
-            pass
-        try:
-            parameter.property_value.__class__ = inner_to_outer(
-                parameter.property_value
-            )
-        except:
-            pass
-        return parameter
+    def behavior(self):
+        return self.behavior.lookup()
 
     def dot_attrs(self):
         port_row = '  <tr><td><table border="0" cellspacing="-2"><tr><td> </td>{}<td> </td></tr></table></td></tr>\n'
@@ -113,3 +44,101 @@ class CallBehaviorAction(inner.CallBehaviorAction, CallAction):
         label = table_template.format(in_row, node_row, out_row)
         shape = "none"
         return {"label": label, "shape": shape, "style": "rounded"}
+
+    def next_tokens_callback(
+        self,
+        node_inputs: Dict[ActivityEdge, LiteralSpecification],
+        outgoing_edges: List[ActivityEdge],
+        node_outputs: Callable,
+        calling_behavior: InvocationAction,
+        sample_format: str,
+        permissive: bool,
+    ) -> Dict[ActivityEdge, LiteralSpecification]:
+        if isinstance(self.behavior(), Activity):
+            if engine.is_asynchronous:
+                # Push record onto blocked nodes to complete
+                engine.blocked_nodes.add(source)
+                # new_tokens are those corresponding to the subprotocol initiating_nodes
+                init_nodes = self.behavior.lookup().initiating_nodes()
+
+                def get_invocation_edge(r, n):
+                    invocation = {}
+                    value = None
+                    if isinstance(n, InitialNode):
+                        try:
+                            invocation["edge"] = ControlFlow(source=r.node, target=n)
+                            engine.ex.activity_call_edge += [invocation["edge"]]
+                            source = next(
+                                i
+                                for i in r.incoming_flows
+                                if hasattr(i.lookup(), "edge")
+                                and i.lookup().edge
+                                and isinstance(i.lookup().edge.lookup(), ControlFlow)
+                            )
+                            invocation["value"] = literal(
+                                source.lookup().value, reference=True
+                            )
+
+                        except StopIteration as e:
+                            pass
+
+                    elif isinstance(n, ActivityParameterNode):
+                        # if ActivityParameterNode is a ValuePin of the calling behavior, then it won't be an incoming flow
+                        source = self.input_pin(
+                            n.parameter.lookup().property_value.name
+                        )
+                        invocation["edge"] = ObjectFlow(source=source, target=n)
+                        engine.ex.activity_call_edge += [invocation["edge"]]
+                        # ex.protocol.lookup().edges.append(invocation['edge'])
+                        if isinstance(source, ValuePin):
+                            invocation["value"] = literal(source.value, reference=True)
+                        else:
+                            try:
+                                source = next(
+                                    iter(
+                                        [
+                                            i
+                                            for i in r.incoming_flows
+                                            if i.lookup()
+                                            .token_source.lookup()
+                                            .node.lookup()
+                                            .name
+                                            == n.parameter.lookup().property_value.name
+                                        ]
+                                    )
+                                )
+                                # invocation['edge'] = ObjectFlow(source=source.lookup().token_source.lookup().node.lookup(), target=n)
+                                # engine.ex.activity_call_edge += [invocation['edge']]
+                                # ex.protocol.lookup().edges.append(invocation['edge'])
+                                invocation["value"] = literal(
+                                    source.lookup().value, reference=True
+                                )
+                            except StopIteration as e:
+                                pass
+
+                    return invocation
+
+                new_tokens = {
+                    source: get_invocation_edge(source, init_node)
+                    for init_node in init_nodes
+                }
+                # engine.ex.flows += new_tokens
+
+                if len(new_tokens) == 0:
+                    # Subprotocol does not have a body, so need to complete the CallBehaviorAction here, otherwise would have seen a FinalNode.
+                    new_tokens = source.complete_subprotocol(engine)
+
+            else:  # is synchronous execution
+                # Execute subprotocol
+                self.execute(
+                    self.behavior.lookup(),
+                    engine.ex.association[0].agent.lookup(),
+                    id=f"{engine.display_id}{uuid.uuid4()}".replace("-", "_"),
+                    parameter_values=[],
+                )
+        else:
+            new_tokens = self.next_tokens_callback(
+                source, engine, out_edges, node_outputs
+            )
+
+        return new_tokens

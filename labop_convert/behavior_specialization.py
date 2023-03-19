@@ -5,8 +5,8 @@ from abc import ABC
 
 import tyto
 
-import uml
-from labop import ActivityNodeExecution, Protocol
+from labop import ActivityNodeExecution, Protocol, ProtocolExecution
+from uml import CallBehaviorAction
 
 l = logging.getLogger(__file__)
 l.setLevel(logging.WARN)
@@ -77,7 +77,7 @@ class BehaviorSpecialization(ABC):
     def process(self, record, execution: "ProtocolExecution"):
         try:
             node = record.node.lookup()
-            if not isinstance(node, uml.CallBehaviorAction):
+            if not isinstance(node, CallBehaviorAction):
                 return  # raise BehaviorSpecializationException(f"Cannot handle node type: {type(node)}")
 
             # Subprotocol specializations
@@ -108,7 +108,7 @@ class BehaviorSpecialization(ABC):
             #     pv
             #     for pv in record.call.lookup().parameter_values
             #     if pv.parameter.lookup().property_value.direction
-            #     == uml.PARAMETER_IN
+            #     == PARAMETER_IN
             # ]
         )
         params = {p: str(v) for p, v in params.items()}

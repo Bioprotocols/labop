@@ -3,11 +3,8 @@ import openpyxl
 import sbol3
 from IPython.display import Markdown
 
-import uml
 from labop import CallBehaviorExecution
-from uml.control_node import ControlNode
-from uml.object_node import ObjectNode
-from uml.parameter import Parameter
+from uml import PARAMETER_IN, ControlNode, ObjectNode, Parameter
 
 ###########################################
 # Functions for reasoning about ranges
@@ -96,7 +93,7 @@ class MarkdownConverter:
 
     # Entry-point for document conversion
     # TODO: allow us to control the name of the output
-    def convert(self, execution: "labop.ProtocolExecution", out=None):
+    def convert(self, execution: "ProtocolExecution", out=None):
         # print('Inferring flow values')
         # self.protocol_typing.infer_typing(protocol)
 
@@ -140,7 +137,7 @@ class MarkdownConverter:
 #     else:
 #         return this + ', ' + strlist_to_markdown(l, mdc)
 #
-# def measure_to_markdown(self: sbol3.Measure, mdc: MarkdownConverter):
+# def measure_to_markdown(self, mdc: MarkdownConverter):
 #     # TODO: convert large numbers to friendlier units
 #     unit = (mdc.document.find(self.unit).name if mdc.document.find(self.unit) else tyto.OM.get_term_by_uri(self.unit))
 #     if unit=="number":  # special case: don't need to say unit for pure numbers
@@ -149,17 +146,17 @@ class MarkdownConverter:
 # sbol3.Measure.to_markdown = measure_to_markdown
 #
 #
-# def component_to_markdown(self: sbol3.Component, mdc: MarkdownConverter):
+# def component_to_markdown(self, mdc: MarkdownConverter):
 #     return '[' + (self.display_id if (self.name is None) else self.name) + ']('+self.types[0]+')'
 # sbol3.Component.to_markdown = component_to_markdown
 #
 #
-# def container_to_markdown(self: labop.Container, mdc: MarkdownConverter):
+# def container_to_markdown(self, mdc: MarkdownConverter):
 #     return '[' + (self.display_id if (self.name is None) else self.name) + ']('+self.type+')'
 # labop.Container.to_markdown = container_to_markdown
 #
 #
-# def containercoodinates_to_markdown(self: labop.ContainerCoordinates, mdc: MarkdownConverter):
+# def containercoodinates_to_markdown(self, mdc: MarkdownConverter):
 #     return mdc.document.find(self.in_container).to_markdown(mdc) + ' ' + self.coordinates # TODO: figure out how to set document to enable changing doc.find to lookup
 # labop.ContainerCoordinates.to_markdown = containercoodinates_to_markdown
 #
@@ -179,45 +176,45 @@ class MarkdownConverter:
 #     return list_to_markdown(containers+reduced, mdc)
 #
 #
-# def locateddata_to_markdown(self: labop.LocatedData, mdc: MarkdownConverter):
+# def locateddata_to_markdown(self, mdc: MarkdownConverter):
 #     return self.from_samples.to_markdown(mdc)
 # labop.LocatedData.to_markdown = locateddata_to_markdown
 #
-# def locatedsamples_to_markdown(self: labop.ReplicateSamples, _: MarkdownConverter):
+# def locatedsamples_to_markdown(self, _: MarkdownConverter):
 #     return self.name  # TODO: can we do better than this kludge?
 # labop.LocatedSamples.to_markdown = locatedsamples_to_markdown
 #
 #
-# def replicatesamples_to_markdown(self: labop.ReplicateSamples, mdc: MarkdownConverter):
+# def replicatesamples_to_markdown(self, mdc: MarkdownConverter):
 #     return markdown_mergedlocations({mdc.document.find(x) for x in self.in_location}, mdc)
 # labop.ReplicateSamples.to_markdown = replicatesamples_to_markdown
 #
 #
-# def heterogeneoussamples_to_markdown(self: labop.HeterogeneousSamples, mdc: MarkdownConverter):
+# def heterogeneoussamples_to_markdown(self, mdc: MarkdownConverter):
 #     return markdown_mergedlocations({mdc.document.find(loc) for rep in self.replicate_samples for loc in rep.in_location}, mdc)
 # labop.HeterogeneousSamples.to_markdown = heterogeneoussamples_to_markdown
 #
 #
-# def integerconstantpin_to_markdown(self: labop.IntegerConstantPin, mdc: MarkdownConverter):
+# def integerconstantpin_to_markdown(self, mdc: MarkdownConverter):
 #     return str(self.value)
 # labop.IntegerConstantPin.to_markdown = integerconstantpin_to_markdown
 #
-# def stringconstantpin_to_markdown(self: labop.StringConstantPin, mdc: MarkdownConverter):
+# def stringconstantpin_to_markdown(self, mdc: MarkdownConverter):
 #     return str(self.value)
 # labop.StringConstantPin.to_markdown = stringconstantpin_to_markdown
 #
 #
-# def localvaluepin_to_markdown(self: labop.LocalValuePin, mdc: MarkdownConverter):
+# def localvaluepin_to_markdown(self, mdc: MarkdownConverter):
 #     return self.value.to_markdown(mdc)
 # labop.LocalValuePin.to_markdown = localvaluepin_to_markdown
 #
 #
-# def referencevaluepin_to_markdown(self: labop.ReferenceValuePin, mdc: MarkdownConverter):
+# def referencevaluepin_to_markdown(self, mdc: MarkdownConverter):
 #     return self.value.lookup().to_markdown(mdc)
 # labop.ReferenceValuePin.to_markdown = referencevaluepin_to_markdown
 #
 # # A non-constant pin needs to pull its value from the flow
-# def pin_to_markdown(self: labop.Pin, mdc: MarkdownConverter):
+# def pin_to_markdown(self, mdc: MarkdownConverter):
 #     inflows = self.input_flows()
 #     assert len(inflows)==1, ValueError('Pin has more than one input flow: '+self.identity)
 #     value = mdc.protocol_typing.flow_values[inflows.pop()]
@@ -227,7 +224,7 @@ class MarkdownConverter:
 # ###############################
 # # Base activities to markdown
 #
-# def primitiveexecutable_to_markdown(self: labop.PrimitiveExecutable, mdc: MarkdownConverter):
+# def primitiveexecutable_to_markdown(self, mdc: MarkdownConverter):
 #     stepwriter = primitive_to_markdown_functions[mdc.document.find(self.instance_of).identity]
 #     return stepwriter(self, mdc)
 # labop.PrimitiveExecutable.to_markdown = primitiveexecutable_to_markdown
@@ -236,7 +233,7 @@ class MarkdownConverter:
 #     activity = pin.instance_of.lookup().activity.lookup()
 #     return pin.to_markdown(mdc) + " for " + (activity.description if activity.description else activity.name)
 #
-# def subprotocol_to_markdown(self: labop.SubProtocol, mdc: MarkdownConverter):
+# def subprotocol_to_markdown(self, mdc: MarkdownConverter):
 #     protocol = self.instance_of.lookup()
 #     pname = (protocol.display_id if (protocol.name is None) else protocol.name)
 #     input_string = strlist_to_markdown([subcall_variable_to_markdown(pin,mdc) for pin in self.input], mdc)
@@ -244,7 +241,7 @@ class MarkdownConverter:
 # labop.SubProtocol.to_markdown = subprotocol_to_markdown
 #
 #
-# def value_to_markdown(self: labop.Value, mdc: MarkdownConverter):
+# def value_to_markdown(self, mdc: MarkdownConverter):
 #     if is_input_value(self):  # This is an input value, used as a variable
 #         value = mdc.protocol_typing.flow_values[self.output_flows().pop()]
 #         return 'Protocol input: ' + value.to_markdown(mdc)
@@ -292,7 +289,7 @@ def markdown_input(input: Parameter, mdc: MarkdownConverter):
 #     return isinstance(x,labop.Value) and \
 #            not({f for f in x.input_flows() if not isinstance(f.source.lookup(), labop.Initial)})
 #
-def serialize_activities(execution: "labop.ProtocolExecution"):
+def serialize_activities(execution: "ProtocolExecution"):
     serialized_activities = []
 
     for execution in execution.executions:
@@ -318,7 +315,7 @@ def serialize_activities(execution: "labop.ProtocolExecution"):
 
 
 def write_markdown_file(
-    execution: "labop.ProtocolExecution",
+    execution: "ProtocolExecution",
     serialized_noncontrol_activities,
     mdc: MarkdownConverter,
     out=None,
@@ -328,7 +325,7 @@ def write_markdown_file(
 
     markdown += "\n\n## Protocol Inputs:\n"
     for i in protocol.parameters:
-        if i.property_value.direction == uml.PARAMETER_IN:
+        if i.property_value.direction == PARAMETER_IN:
             markdown += markdown_input(i.property_value, mdc)
 
     markdown += "\n\n## Materials\n"

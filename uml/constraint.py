@@ -1,8 +1,7 @@
 """
 The Constraint class defines the functions corresponding to the dynamically generated labop class Constraint
 """
-
-import uml.inner as inner
+from . import inner
 
 
 class Constraint(inner.Constraint):

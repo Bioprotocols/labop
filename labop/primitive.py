@@ -9,8 +9,7 @@ from typing import Dict, List
 import sbol3
 
 import labop.inner as inner
-import uml
-from uml.utils import inner_to_outer
+from uml import PARAMETER_IN, PARAMETER_OUT, Behavior, inner_to_outer
 
 from .dataset import Dataset
 from .lab_interface import LabInterface
@@ -28,7 +27,7 @@ l = logging.Logger(__file__)
 l.setLevel(logging.INFO)
 
 
-class Primitive(inner.Primitive, uml.Behavior):
+class Primitive(inner.Primitive, Behavior):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -39,14 +38,14 @@ class Primitive(inner.Primitive, uml.Behavior):
         """
         for p in parent_primitive.parameters:
             param = p.property_value
-            if param.direction == uml.PARAMETER_IN:
+            if param.direction == PARAMETER_IN:
                 self.add_input(
                     param.name,
                     param.type,
                     optional=(param.lower_value.value == 0),
                     default_value=param.default_value,
                 )
-            elif param.direction == uml.PARAMETER_OUT:
+            elif param.direction == PARAMETER_OUT:
                 self.add_output(param.name, param.type)
             else:
                 raise Exception(f"Cannot inherit parameter {param.name}")
@@ -102,7 +101,7 @@ class Primitive(inner.Primitive, uml.Behavior):
             [
                 f"{parameter.property_value}{mark_optional(parameter.property_value)}"
                 for parameter in self.parameters
-                if parameter.property_value.direction == uml.PARAMETER_IN
+                if parameter.property_value.direction == PARAMETER_IN
             ]
         )
         input_str = (
@@ -114,7 +113,7 @@ class Primitive(inner.Primitive, uml.Behavior):
             [
                 f"{parameter.property_value}{mark_optional(parameter.property_value)}"
                 for parameter in self.parameters
-                if parameter.property_value.direction == uml.PARAMETER_OUT
+                if parameter.property_value.direction == PARAMETER_OUT
             ]
         )
         output_str = (
@@ -487,7 +486,7 @@ class Primitive(inner.Primitive, uml.Behavior):
             [
                 f"{parameter.property_value.template()}"
                 for parameter in self.parameters
-                if parameter.property_value.direction == uml.PARAMETER_IN
+                if parameter.property_value.direction == PARAMETER_IN
             ]
         )
         return f"step = protocol.primitive_step(\n\t'{self.display_id}',\n\t{args}\n\t)"

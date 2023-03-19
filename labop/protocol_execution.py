@@ -11,7 +11,13 @@ import sbol3
 
 import labop.inner as inner
 import uml
+from labop.execution_engine_utils import (
+    JSONProtocolExecutionExtractor,
+    ProtocolExecutionExtractor,
+)
 from uml import (
+    PARAMETER_IN,
+    PARAMETER_OUT,
     ActivityNode,
     ActivityParameterNode,
     CallBehaviorAction,
@@ -301,3 +307,54 @@ class ProtocolExecution(inner.ProtocolExecution, BehaviorExecution):
                     _make_object_edge(dot, incoming_flow, exec_target)
 
         return dot
+
+    def backtrace(
+        self,
+        stack=None,
+        extractor: ProtocolExecutionExtractor = JSONProtocolExecutionExtractor(),
+    ):
+        stack = self.executions if stack is None else stack
+        if len(stack) == 0:
+            return set([]), []
+        else:
+            tail = stack[-1]
+            head = stack[:-1]
+            nodes, head = self.backtrace(stack=head)
+            nodes.add(tail.node.lookup())
+            head += [extractor.extract_record(tail)]
+            return nodes, head
+
+    def to_json(self):
+        """
+        Convert Protocol Execution to JSON
+        """
+        p_json = self.backtrace(extractor=JSONProtocolExecutionExtractor())[1]
+        return json.dumps(p_json)
+
+    def unbound_inputs(self):
+        unbound_input_parameters = [
+            p.node.lookup().parameter.lookup().property_value
+            for p in self.executions
+            if isinstance(p.node.lookup(), ActivityParameterNode)
+            and p.node.lookup().parameter.lookup().property_value.direction
+            == PARAMETER_IN
+            and p.node.lookup().parameter.lookup().property_value
+            not in [
+                pv.parameter.lookup().property_value for pv in self.parameter_values
+            ]
+        ]
+        return unbound_input_parameters
+
+    def unbound_outputs(self):
+        unbound_output_parameters = [
+            p.node.lookup().parameter.lookup().property_value
+            for p in self.executions
+            if isinstance(p.node.lookup(), ActivityParameterNode)
+            and p.node.lookup().parameter.lookup().property_value.direction
+            == PARAMETER_OUT
+            and p.node.lookup().parameter.lookup().property_value
+            not in [
+                pv.parameter.lookup().property_value for pv in self.parameter_values
+            ]
+        ]
+        return unbound_output_parameters

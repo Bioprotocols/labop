@@ -9,8 +9,13 @@ from urllib.parse import quote, unquote
 import pandas as pd
 import sbol3
 
+from labop.behavior_execution import BehaviorExecution
 from labop_convert import DefaultBehaviorSpecialization
 from uml import ActivityNode, CallBehaviorAction
+from uml.activity_edge import ActivityEdge
+from uml.activity_parameter_node import ActivityParameterNode
+from uml.literal_specification import LiteralSpecification
+from uml.utils import literal
 
 from .activity_edge_flow import ActivityEdgeFlow
 from .activity_node_execution import ActivityNodeExecution
@@ -84,6 +89,7 @@ class ExecutionEngine(ABC):
         self.data_id = 0
         self.data_id_map = {}
         self.candidate_clusters = {}
+        self.incoming_edge_tokens = {}  # Maps node -> edge -> value
 
     def next_id(self):
         next = self.exec_counter
@@ -143,6 +149,20 @@ class ExecutionEngine(ABC):
 
         self.ex.association.append(sbol3.Association(agent=agent, plan=protocol))
         self.ex.parameter_values = parameter_values
+
+        # Setup incoming edge map for each node
+        for node in protocol.nodes:
+            for e in protocol.incoming_edges(node):
+                self.incoming_edge_tokens[node][e] = []
+            if isinstance(node, ActivityParameterNode) and node.input():
+                # if matching input parameters, then add dummy edge value
+                param_values = [
+                    pv
+                    for pv in self.ex.parameter_values
+                    if pv.parameter() == node.parameter()
+                ]
+                for pv in param_values:
+                    self.incoming_edge_tokens[node][pv.parameter()] = pv.value()
 
         # Initialize specializations
         for specialization in self.specializations:
@@ -222,15 +242,32 @@ class ExecutionEngine(ABC):
         for node in non_call_nodes + [n for n in ready if n not in non_call_nodes]:
             self.current_node = node
             try:
+                calling_behaviors = self.possible_calling_behaviors(node)
+                outgoing_edges = self.ex.protocol.outgoing_edges(node)
+                node.consume_tokens()
                 tokens_added, tokens_removed = node.execute(
-                    self,
-                    node_outputs=(node_outputs[node] if node in node_outputs else None),
+                    self.incoming_edge_tokens[node],
+                    outgoing_edges,
+                    (node_outputs[node] if node in node_outputs else None),
+                    calling_behaviors,
+                    self.sample_format,
+                    self.permissive,
                 )
-                self.tokens = [t for t in self.tokens if t not in tokens_removed]
 
+                consumed_tokens = self.consume_tokens(tokens_removed)
+                self.tokens = [t for t in self.tokens if t not in consumed_tokens]
+                record = self.create_record(node, consumed_tokens)
+
+                self.ex.executions.append(record)
+
+                tokens_added = [
+                    ActivityEdgeFlow(edge=edge, token_source=node, value=value)
+                    for edge, value in tokens_added.items()
+                ]
+                self.ex.flows += tokens_added
                 new_tokens = new_tokens + tokens_added
-                record = self.ex.executions[-1]
-                self.post_process(record, new_tokens)
+
+                self.post_process(record, tokens_added)
 
             except Exception as e:
                 # Consume the tokens used by the node that caused the exception
@@ -272,6 +309,101 @@ class ExecutionEngine(ABC):
         self.tokens = self.tokens + new_tokens
         return self.executable_activity_nodes(new_tokens)
 
+    def possible_calling_behaviors(self, node: ActivityNode):
+        # Get all CallBehaviorAction nodes that correspond to a CallBehaviorExecution that supports the current execution of the ActivityNode
+        tokens_supporting_node = [
+            t for t in self.tokens if t.edge in self.incoming_edge_tokens[node]
+        ]
+        records = set(
+            [t.source.get_calling_behavior_execution() for t in tokens_supporting_node]
+        )
+        nodes = set({record.node for record in records})
+        return nodes
+
+    def create_record(self, node, consumed_tokens):
+        if isinstance(node, CallBehaviorAction):
+            call = BehaviorExecution(
+                f"execute_{self.next_id()}",
+                parameter_values=self.record_parameter_values(node, consumed_tokens),
+                completed_normally=True,
+                start_time=self.get_current_time(),  # TODO: remove str wrapper after sbol_factory #22 fixed
+                end_time=self.get_current_time(),  # TODO: remove str wrapper after sbol_factory #22 fixed
+                consumed_material=[],
+            )  # FIXME handle materials
+            record = CallBehaviorExecution(
+                node=node, incoming_flows=consumed_tokens, call=call
+            )
+            self.ex.document.add(call)
+        else:
+            record = ActivityNodeExecution(node=node, incoming_flows=consumed_tokens)
+        return record
+
+    def record_parameter_values(
+        self, node: CallBehaviorAction, inputs: List[ActivityEdgeFlow]
+    ) -> List[ParameterValue]:
+        # Get the parameter values from input tokens for input pins
+        input_pin_values = {
+            token.token_source.lookup()
+            .node.lookup()
+            .identity: literal(token.value, reference=True)
+            for token in inputs
+            if not token.edge
+        }
+        # Get Input value pins
+        value_pin_values = {}
+
+        # Validate Pin values, see #130
+        # Although enabled_activity_node method also validates Pin values,
+        # it only checks required Pins.  This check is necessary to check optional Pins.
+        for pin in self.inputs:
+            if hasattr(pin, "value"):
+                if pin.value is None:
+                    raise ValueError(
+                        f"{self.behavior.lookup().display_id} Action has no ValueSpecification for Pin {pin.name}"
+                    )
+                value_pin_values[pin.identity] = pin.value
+            # Check that pin corresponds to an input parameter.  Will cause Exception if does not exist.
+            parameter = self.pin_parameter(pin.name)
+
+        # Convert References
+        value_pin_values = {
+            k: literal(value=v.get_value(), reference=True)
+            for k, v in value_pin_values.items()
+        }
+        pin_values = {**input_pin_values, **value_pin_values}  # merge the dicts
+
+        parameter_values = [
+            ParameterValue(
+                parameter=self.pin_parameter(pin.name),
+                value=pin_values[pin.identity],
+            )
+            for pin in self.inputs
+            if pin.identity in pin_values
+        ]
+        return parameter_values
+
+    def consume_tokens(
+        self,
+        node: ActivityNode,
+        tokens_removed: Dict[ActivityEdge, LiteralSpecification],
+    ) -> List[ActivityEdgeFlow]:
+        consumed_tokens = [
+            t
+            for t in self.tokens
+            if t.edge in tokens_removed and tokens_removed[t.edge] == t.value
+        ]
+
+        # Remove values on edges
+        self.incoming_edge_tokens[node] = {
+            edge: [
+                v
+                for v in self.incoming_edge_tokens[node][edge]
+                if v != tokens_removed[edge]
+            ]
+            for edge in self.incoming_edge_tokens[node]
+        }
+        return consumed_tokens
+
     def executable_activity_nodes(self, tokens_added) -> List[ActivityNode]:
         """Find all of the activity nodes that are ready to be run given the current set of tokens
         Note that this will NOT identify activities with no in-flows: those are only set up as initiating nodes
@@ -287,6 +419,7 @@ class ExecutionEngine(ABC):
         updated_clusters = set({})
         for t in tokens_added:
             target = t.get_target()
+            self.incoming_edge_tokens[target][t.edge].append(t.value)
             self.candidate_clusters[target.identity] = self.candidate_clusters.get(
                 target.identity, []
             ) + [t]
@@ -295,7 +428,11 @@ class ExecutionEngine(ABC):
         enabled_nodes = [
             n
             for n in updated_clusters
-            if n.enabled(self, self.candidate_clusters[n.identity])
+            if n.enabled(
+                self,
+                self.incoming_edge_tokens[n],
+                permissive=self.permissive,
+            )
         ]
         enabled_nodes.sort(
             key=lambda x: x.identity
@@ -308,8 +445,34 @@ class ExecutionEngine(ABC):
         record: ActivityNodeExecution,
         new_tokens: List[ActivityEdgeFlow],
     ):
+        node = record.node()
+        if isinstance(node, ActivityParameterNode) and node.parameter().output():
+            self.ex.parameter_values += [
+                ParameterValue(
+                    parameter=node.parameter(),
+                    value=literal(node.value(), reference=True),
+                )
+            ]
+
+            # Activity Call Edges
+            self.ex.activity_call_edge += [
+                token.edge
+                for token in new_tokens
+                if token.edge not in node.protocol().edges
+            ]
+
         if self.dataset_file is not None:
             self.write_data_templates(record, new_tokens)
+
+        for specialization in self.specializations:
+            try:
+                specialization.process(record, self.ex)
+            except Exception as e:
+                if not self.failsafe:
+                    raise e
+                l.error(
+                    f"Could Not Process {record.name if record.name else record.identity}: {e}"
+                )
 
     def write_data_templates(
         self,
@@ -429,7 +592,7 @@ class ManualExecutionEngine(ExecutionEngine):
         """Execute a single ActivityNode using the node_output function to calculate its output pin values.
 
         Args:
-            activity_node (uml.ActivityNode): node to execute
+            activity_node (ActivityNode): node to execute
             node_output (callable): function to calculate output pins
 
         Returns:

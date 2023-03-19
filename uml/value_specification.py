@@ -2,7 +2,7 @@
 The ValueSpecification class defines the functions corresponding to the dynamically generated labop class ValueSpecification
 """
 
-import uml.inner as inner
+from . import inner
 
 
 class ValueSpecification(inner.ValueSpecification):

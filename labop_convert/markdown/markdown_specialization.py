@@ -14,18 +14,26 @@ import xarray as xr
 
 import labop
 import uml
-from labop.activity_node_execution import ActivityNodeExecution
-from labop.container_spec import ContainerSpec
-from labop.data import deserialize_sample_format
-from labop.dataset import Dataset
-from labop.parameter_value import ParameterValue
-from labop.protocol_execution import ProtocolExecution
-from labop.sample_array import SampleArray
-from labop.sample_collection import SampleCollection
-from labop.sample_mask import SampleMask
-from labop.strings import Strings
+from labop import (
+    ActivityNodeExecution,
+    ContainerSpec,
+    Dataset,
+    ParameterValue,
+    ProtocolExecution,
+    SampleArray,
+    SampleCollection,
+    SampleMask,
+    Strings,
+    deserialize_sample_format,
+)
 from labop_convert.behavior_specialization import BehaviorSpecialization
-from uml.parameter import Parameter
+from uml import (
+    PARAMETER_IN,
+    PARAMETER_OUT,
+    CallBehaviorAction,
+    LiteralSpecification,
+    Parameter,
+)
 
 from .protocol_to_markdown import MarkdownConverter
 
@@ -134,7 +142,7 @@ class MarkdownSpecialization(BehaviorSpecialization):
         markdown = ""
         for i in parameter_values:
             parameter = i.parameter.lookup()
-            if parameter.property_value.direction == uml.PARAMETER_IN:
+            if parameter.property_value.direction == PARAMETER_IN:
                 markdown += self._parameter_value_markdown(i)
         for parameter in unbound_input_parameters:
             markdown += self._parameter_markdown(parameter)
@@ -152,7 +160,7 @@ class MarkdownSpecialization(BehaviorSpecialization):
         markdown = ""
         for i in parameter_values:
             parameter = i.parameter.lookup()
-            if parameter.property_value.direction == uml.PARAMETER_OUT:
+            if parameter.property_value.direction == PARAMETER_OUT:
                 markdown += self._parameter_value_markdown(i, True)
         for parameter in unbound_output_parameters:
             markdown += self._parameter_markdown(parameter)
@@ -181,7 +189,7 @@ class MarkdownSpecialization(BehaviorSpecialization):
         document_objects = []
         protocol.document.traverse(lambda obj: document_objects.append(obj))
         call_behavior_actions = [
-            obj for obj in document_objects if type(obj) is uml.CallBehaviorAction
+            obj for obj in document_objects if type(obj) is CallBehaviorAction
         ]
         containers = {}
         for cba in call_behavior_actions:
@@ -316,13 +324,13 @@ class MarkdownSpecialization(BehaviorSpecialization):
         for i in execution.parameter_values:
             parameter = i.parameter.lookup()
             value = i.value
-            if isinstance(value, uml.LiteralSpecification):
+            if isinstance(value, LiteralSpecification):
                 value = value.get_value()
             if isinstance(value, sbol3.Identified) and value.name:
                 value = f"`{value.name}`"
             elif isinstance(value, Dataset):
                 value = self.dataset_to_text(value)
-            if parameter.property_value.direction == uml.PARAMETER_OUT:
+            if parameter.property_value.direction == PARAMETER_OUT:
                 output_parameters.append(f"{value}")
         output_parameters = ", ".join(output_parameters)
         return f"Import data into the provided Excel file: {output_parameters}."

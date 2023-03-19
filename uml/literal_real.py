@@ -2,8 +2,8 @@
 The LiteralReal class defines the functions corresponding to the dynamically generated labop class LiteralReal
 """
 
-import uml.inner as inner
-from uml.literal_specification import LiteralSpecification
+from . import inner
+from .literal_specification import LiteralSpecification
 
 
 class LiteralReal(inner.LiteralReal, LiteralSpecification):

@@ -2,8 +2,8 @@
 The TimeInterval class defines the functions corresponding to the dynamically generated labop class TimeInterval
 """
 
-import uml.inner as inner
-from uml.interval import Interval
+from . import inner
+from .interval import Interval
 
 
 class TimeInterval(inner.TimeInterval, Interval):

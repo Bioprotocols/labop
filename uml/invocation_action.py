@@ -2,8 +2,7 @@
 The InvocationAction class defines the functions corresponding to the dynamically generated labop class InvocationAction
 """
 
-import uml.inner as inner
-
+from . import inner
 from .action import Action
 
 

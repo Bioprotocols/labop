@@ -4,12 +4,13 @@ The Behavior class defines the functions corresponding to the dynamically genera
 
 from typing import Iterable
 
-import uml.inner as inner
-from uml.ordered_property_value import OrderedPropertyValue
-from uml.parameter import Parameter
-from uml.strings import PARAMETER_IN, PARAMETER_OUT
-from uml.utils import literal
-from uml.value_specification import ValueSpecification
+from uml import inner
+
+from .ordered_property_value import OrderedPropertyValue
+from .parameter import Parameter
+from .strings import PARAMETER_IN, PARAMETER_OUT
+from .utils import literal
+from .value_specification import ValueSpecification
 
 
 class Behavior(inner.Behavior):

@@ -2,8 +2,8 @@
 The TimeExpression class defines the functions corresponding to the dynamically generated labop class TimeExpression
 """
 
-import uml.inner as inner
-from uml.value_specification import ValueSpecification
+from . import inner
+from .value_specification import ValueSpecification
 
 
 class TimeExpression(inner.TimeExpression, ValueSpecification):

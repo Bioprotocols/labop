@@ -4,10 +4,10 @@ import sbol3
 import tyto
 
 import labop
-import uml
 from labop.execution_engine import ExecutionEngine
 from labop_convert import MarkdownSpecialization
 from labop_convert.behavior_specialization import DefaultBehaviorSpecialization
+from uml import LiteralReference
 
 PARAMETER_IN = "http://bioprotocols.org/uml#in"
 PARAMETER_OUT = "http://bioprotocols.org/uml#out"
@@ -33,7 +33,9 @@ class TestProtocolOutputs(unittest.TestCase):
         )
         plate = protocol.primitive_step("EmptyContainer", specification=plate_spec)
         target_wells = protocol.primitive_step(
-            "PlateCoordinates", source=plate.output_pin("samples"), coordinates=f"A1"
+            "PlateCoordinates",
+            source=plate.output_pin("samples"),
+            coordinates=f"A1",
         )
         measure_absorbance = protocol.primitive_step(
             "MeasureAbsorbance",
@@ -66,7 +68,7 @@ class TestProtocolOutputs(unittest.TestCase):
         )
         ex = ee.execute(self.protocol, agent, id="test_execution", parameter_values=[])
 
-        self.assertTrue(isinstance(ex.parameter_values[0].value, uml.LiteralReference))
+        self.assertTrue(isinstance(ex.parameter_values[0].value, LiteralReference))
         self.assertTrue(
             isinstance(ex.parameter_values[0].value.value.lookup(), labop.Dataset)
         )

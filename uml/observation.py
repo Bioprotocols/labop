@@ -2,7 +2,7 @@
 The Observation class defines the functions corresponding to the dynamically generated labop class Observation
 """
 
-import uml.inner as inner
+from . import inner
 
 
 class Observation(inner.Observation):

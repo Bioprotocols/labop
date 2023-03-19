@@ -6,14 +6,13 @@ import unittest
 import sbol3
 import tyto
 
-import labop
-import uml
-from labop.execution_engine import ExecutionEngine
+from labop import ExecutionEngine, ParameterValue
 from labop_convert import MarkdownSpecialization, OpentronsSpecialization
 from labop_convert.autoprotocol.autoprotocol_specialization import (
     AutoprotocolSpecialization,
 )
 from labop_convert.autoprotocol.strateos_api import StrateosAPI, StrateosConfig
+from uml import LiteralIdentified
 
 
 class TestConvert(unittest.TestCase):
@@ -25,11 +24,9 @@ class TestConvert(unittest.TestCase):
         ee = ExecutionEngine(specializations=specializations)
         agent = sbol3.Agent("test_agent")
         parameter_values = [
-            labop.ParameterValue(
+            ParameterValue(
                 parameter=protocol.get_input("wavelength"),
-                value=uml.LiteralIdentified(
-                    value=sbol3.Measure(100, tyto.OM.nanometer)
-                ),
+                value=LiteralIdentified(value=sbol3.Measure(100, tyto.OM.nanometer)),
             )
         ]
 
@@ -85,11 +82,9 @@ class TestConvert(unittest.TestCase):
         ee = ExecutionEngine(specializations=[autoprotocol_specialization])
         agent = sbol3.Agent("test_agent")
         parameter_values = [
-            labop.ParameterValue(
+            ParameterValue(
                 parameter=protocol.get_input("wavelength"),
-                value=uml.LiteralIdentified(
-                    value=sbol3.Measure(100, tyto.OM.nanometer)
-                ),
+                value=LiteralIdentified(value=sbol3.Measure(100, tyto.OM.nanometer)),
             )
         ]
 
@@ -193,11 +188,9 @@ class TestConvert(unittest.TestCase):
         ee = ExecutionEngine(specializations=[opentrons_specialization])
         agent = sbol3.Agent("test_agent")
         parameter_values = [
-            labop.ParameterValue(
+            ParameterValue(
                 parameter=protocol.get_input("wavelength"),
-                value=uml.LiteralIdentified(
-                    value=sbol3.Measure(100, tyto.OM.nanometer)
-                ),
+                value=LiteralIdentified(value=sbol3.Measure(100, tyto.OM.nanometer)),
             )
         ]
 

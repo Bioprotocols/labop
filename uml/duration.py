@@ -2,8 +2,8 @@
 The Duration class defines the functions corresponding to the dynamically generated labop class Duration
 """
 
-import uml.inner as inner
-from uml.value_specification import ValueSpecification
+from . import inner
+from .value_specification import ValueSpecification
 
 
 class Duration(inner.Duration, ValueSpecification):

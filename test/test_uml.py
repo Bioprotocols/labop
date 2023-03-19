@@ -8,20 +8,20 @@ import uml
 
 class TestUML(unittest.TestCase):
     def test_ordered_properties(self):
-        property = uml.LiteralNull()
-        ordered_property = uml.OrderedPropertyValue(index=0, property_value=property)
+        property = LiteralNull()
+        ordered_property = OrderedPropertyValue(index=0, property_value=property)
         assert (
             ordered_property.property_value == property and ordered_property.index == 0
         )
 
     def test_ordered_constraint(self):
-        property1 = uml.OrderedPropertyValue(
-            index=0, property_value=uml.LiteralInteger(value=0)
+        property1 = OrderedPropertyValue(
+            index=0, property_value=LiteralInteger(value=0)
         )
-        property2 = uml.OrderedPropertyValue(
-            index=1, property_value=uml.LiteralInteger(value=2)
+        property2 = OrderedPropertyValue(
+            index=1, property_value=LiteralInteger(value=2)
         )
-        constraint = uml.Constraint(constrained_elements=[property1, property2])
+        constraint = Constraint(constrained_elements=[property1, property2])
         assert (
             property1 in constraint.constrained_elements
             and property2 in constraint.constrained_elements
@@ -31,29 +31,29 @@ class TestUML(unittest.TestCase):
         doc = sbol3.Document()
         sbol3.set_namespace("https://bbn.com/scratch/")
 
-        parameter1 = uml.OrderedPropertyValue(
+        parameter1 = OrderedPropertyValue(
             index=0,
-            property_value=uml.Parameter(
+            property_value=Parameter(
                 direction="in",
-                default_value=uml.LiteralInteger(value=0),
+                default_value=LiteralInteger(value=0),
                 is_unique=True,
                 is_ordered=True,
-                lower_value=uml.LiteralInteger(value=0),
-                upper_value=uml.LiteralInteger(value=10),
+                lower_value=LiteralInteger(value=0),
+                upper_value=LiteralInteger(value=10),
             ),
         )
-        parameter2 = uml.OrderedPropertyValue(
+        parameter2 = OrderedPropertyValue(
             index=1,
-            property_value=uml.Parameter(
+            property_value=Parameter(
                 direction="in",
-                default_value=uml.LiteralInteger(value=0),
+                default_value=LiteralInteger(value=0),
                 is_unique=True,
                 is_ordered=True,
-                lower_value=uml.LiteralInteger(value=0),
-                upper_value=uml.LiteralInteger(value=10),
+                lower_value=LiteralInteger(value=0),
+                upper_value=LiteralInteger(value=10),
             ),
         )
-        behavior = uml.Behavior("b", parameters=[parameter1, parameter2])
+        behavior = Behavior("b", parameters=[parameter1, parameter2])
         assert parameter1 in behavior.parameters and parameter2 in behavior.parameters
 
         doc.add(behavior)

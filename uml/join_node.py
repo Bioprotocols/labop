@@ -2,7 +2,7 @@
 The JoinNode class defines the functions corresponding to the dynamically generated labop class JoinNode
 """
 
-import uml.inner as inner
+from . import inner
 
 
 class JoinNode(inner.JoinNode):

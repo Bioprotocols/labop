@@ -3,8 +3,7 @@ The Parameter class defines the functions corresponding to the dynamically gener
 """
 
 
-import uml.inner as inner
-
+from . import inner
 from .utils import labop_hash
 
 
@@ -14,6 +13,12 @@ class Parameter(inner.Parameter):
 
     def __hash__(self):
         return labop_hash(self.identity)
+
+    def output(self):
+        return self.direction == PARAMETER_OUT
+
+    def input(self):
+        return self.direction == PARAMETER_IN
 
     def __str__(self):
         """

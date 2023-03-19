@@ -4,8 +4,8 @@ The LiteralIdentified class defines the functions corresponding to the dynamical
 import sbol3
 import tyto
 
-import uml.inner as inner
-from uml.literal_specification import LiteralSpecification
+from . import inner
+from .literal_specification import LiteralSpecification
 
 
 class LiteralIdentified(inner.LiteralIdentified, LiteralSpecification):

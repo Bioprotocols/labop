@@ -2,8 +2,9 @@
 The ActivityEdgeFlow class defines the functions corresponding to the dynamically generated labop class ActivityEdgeFlow
 """
 
+import labop
 import labop.inner as inner
-from uml import CallBehaviorAction, InputPin
+from uml import CallBehaviorAction, InputPin, Parameter
 
 from .protocol import Protocol
 
@@ -37,3 +38,32 @@ class ActivityEdgeFlow(inner.ActivityEdgeFlow):
         else:
             raise Exception(f"Cannot find the target node of edge flow: {self}")
         return target
+
+    def info(self):
+        return {
+            "edge_type": (type(self.edge.lookup()) if self.edge else None),
+            "source": self.token_source.lookup().node.lookup().identity,
+            "target": self.get_target().identity,
+            "behavior": (
+                self.get_target().behavior
+                if isinstance(self.get_target(), CallBehaviorAction)
+                else None
+            ),
+        }
+
+    def get_token_source(
+        self,
+        parameter: Parameter,
+        target: labop.ActivityNodeExecution = None,
+    ) -> labop.CallBehaviorExecution:
+        node = self.token_source.lookup().node.lookup()
+        print(self.identity + " src = " + node.identity + " param = " + str(parameter))
+        if parameter and isinstance(node, InputPin):
+            if node == target.node.lookup().input_pin(parameter.name):
+                return self.token_source.lookup().get_token_source(None, target=target)
+            else:
+                return None
+        elif not parameter:
+            return self.token_source.lookup().get_token_source(None, target=target)
+        else:
+            return None

@@ -2,8 +2,8 @@
 The LiteralString class defines the functions corresponding to the dynamically generated labop class LiteralString
 """
 
-import uml.inner as inner
-from uml.literal_specification import LiteralSpecification
+from . import inner
+from .literal_specification import LiteralSpecification
 
 
 class LiteralString(inner.LiteralString, LiteralSpecification):

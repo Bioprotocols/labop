@@ -8,18 +8,20 @@ import tyto
 import xarray as xr
 
 import labop
-import uml
-from labop.activity_edge_flow import ActivityEdgeFlow
-from labop.activity_node_execution import ActivityNodeExecution
-from labop.call_behavior_execution import CallBehaviorExecution
-from labop.container_spec import ContainerSpec
-from labop.parameter_value import ParameterValue
-from labop.protocol_execution import ProtocolExecution
-from labop.sample_array import SampleArray
-from labop.sample_collection import SampleCollection
-from labop.sample_mask import SampleMask
-from labop.utils.plate_coordinates import get_sample_list
+from labop import (
+    ActivityEdgeFlow,
+    ActivityNodeExecution,
+    CallBehaviorExecution,
+    ContainerSpec,
+    ParameterValue,
+    ProtocolExecution,
+    SampleArray,
+    SampleCollection,
+    SampleMask,
+    get_sample_list,
+)
 from labop_convert.behavior_specialization import BehaviorSpecialization
+from uml import CallBehaviorAction, ForkNode, InputPin, LiteralReference, ValuePin
 
 l = logging.getLogger(__file__)
 l.setLevel(logging.ERROR)
@@ -238,7 +240,7 @@ class OT2Specialization(BehaviorSpecialization):
         document_objects = []
         protocol.document.traverse(lambda obj: document_objects.append(obj))
         call_behavior_actions = [
-            obj for obj in document_objects if type(obj) is uml.CallBehaviorAction
+            obj for obj in document_objects if type(obj) is CallBehaviorAction
         ]
         containers = {}
         for cba in call_behavior_actions:
@@ -249,7 +251,7 @@ class OT2Specialization(BehaviorSpecialization):
                 container = cba.input_pin("rack").value.value.lookup()
             elif (
                 "container" in input_names
-                and type(cba.input_pin("container")) is uml.ValuePin
+                and type(cba.input_pin("container")) is ValuePin
             ):
                 container = cba.input_pin("container").value.value.lookup()
             else:
@@ -282,7 +284,7 @@ class OT2Specialization(BehaviorSpecialization):
         parameter = pv.parameter.lookup().property_value
         value = (
             pv.value.lookup().value
-            if isinstance(pv.value, uml.LiteralReference)
+            if isinstance(pv.value, LiteralReference)
             else pv.value.value
         )
         units = (
@@ -868,7 +870,7 @@ def get_token_source(
     target_node = None
     for node in upstream_execution_nodes:
         pin = node.node.lookup()
-        assert type(pin) is uml.InputPin
+        assert type(pin) is InputPin
         if pin.name == input_name:
             target_node = node
             break
@@ -876,7 +878,7 @@ def get_token_source(
         raise Exception(f"{input_name} not found")
     assert len(target_node.incoming_flows) == 1
     token_source = target_node.incoming_flows[0].lookup().token_source.lookup()
-    if type(token_source.node.lookup()) is uml.ForkNode:
+    if type(token_source.node.lookup()) is ForkNode:
         # Go one more step upstream to get the source CallBehaviorExecution
         return token_source.incoming_flows[0].lookup().token_source.lookup()
     assert (
