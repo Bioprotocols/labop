@@ -7,7 +7,7 @@ import sbol3
 from sbol3 import PYSBOL3_MISSING
 
 
-import uml.inner as inner
+from . import inner
 
 from .strings import *
 from .parameter import *

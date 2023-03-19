@@ -4,7 +4,6 @@ import posixpath
 
 from sbol_factory import SBOLFactory
 
-import uml
 
 SBOLFactory(
     "labop_submodule",

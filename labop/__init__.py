@@ -1,11 +1,8 @@
-import os
-import posixpath
-
 import sbol3
 
+from uml import assign_outer_class_builders
 import labop.inner as inner
 
-from uml import assign_outer_class_builders
 
 from .utils import *
 from .parameter_value import *

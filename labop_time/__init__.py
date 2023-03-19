@@ -58,7 +58,9 @@ def constrainTimePoint(
     element: uml.Behavior, interval, units=tyto.OM.second, first=True
 ):
     return timePointExpression(
-        element, _getUMLInterval(interval, uml.TimeInterval, units=units), first=first
+        element,
+        _getUMLInterval(interval, uml.TimeInterval, units=units),
+        first=first,
     )
 
 
@@ -121,7 +123,10 @@ def binaryDuration(
 
 
 def precedes(
-    element1: uml.Behavior, interval, element2: uml.Behavior, units=tyto.OM.second
+    element1: uml.Behavior,
+    interval,
+    element2: uml.Behavior,
+    units=tyto.OM.second,
 ):
     return binaryDuration(
         element1,
@@ -146,4 +151,4 @@ def _referencedOrderedPropertyValue(i: int, value):
 def And(elements):
     name = "and"  # TODO use a more descriptive name
     ordered_elements = [_orderedPropertyValue(i, e) for i, e in enumerate(elements)]
-    return AndConstraint(constrained_elements=ordered_elements)
+    return labopt.AndConstraint(constrained_elements=ordered_elements)
