@@ -30,7 +30,6 @@ uml/
 _root.gv
 .env
 general.log
-*.md
 **/*.gv
 *.egg-info
 container-ontology
