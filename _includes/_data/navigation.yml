@@ -1,0 +1,6 @@
+- name: Home
+  link: /labop
+- name: About
+  link: /labop/about.html
+- name: Blog
+  link: /labop/blog.html
