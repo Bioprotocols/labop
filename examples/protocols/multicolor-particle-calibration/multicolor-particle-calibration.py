@@ -198,31 +198,47 @@ calibration_plate = protocol.primitive_step(
 
 
 fluorescein_wells_A1 = protocol.primitive_step(
-    "PlateCoordinates", source=calibration_plate.output_pin("samples"), coordinates="A1"
+    "PlateCoordinates",
+    source=calibration_plate.output_pin("samples"),
+    coordinates="A1",
 )
 fluorescein_wells_B1 = protocol.primitive_step(
-    "PlateCoordinates", source=calibration_plate.output_pin("samples"), coordinates="B1"
+    "PlateCoordinates",
+    source=calibration_plate.output_pin("samples"),
+    coordinates="B1",
 )
 
 sulforhodamine_wells_C1 = protocol.primitive_step(
-    "PlateCoordinates", source=calibration_plate.output_pin("samples"), coordinates="C1"
+    "PlateCoordinates",
+    source=calibration_plate.output_pin("samples"),
+    coordinates="C1",
 )
 sulforhodamine_wells_D1 = protocol.primitive_step(
-    "PlateCoordinates", source=calibration_plate.output_pin("samples"), coordinates="D1"
+    "PlateCoordinates",
+    source=calibration_plate.output_pin("samples"),
+    coordinates="D1",
 )
 
 cascade_blue_wells_E1 = protocol.primitive_step(
-    "PlateCoordinates", source=calibration_plate.output_pin("samples"), coordinates="E1"
+    "PlateCoordinates",
+    source=calibration_plate.output_pin("samples"),
+    coordinates="E1",
 )
 cascade_blue_wells_F1 = protocol.primitive_step(
-    "PlateCoordinates", source=calibration_plate.output_pin("samples"), coordinates="F1"
+    "PlateCoordinates",
+    source=calibration_plate.output_pin("samples"),
+    coordinates="F1",
 )
 
 silica_beads_wells_G1 = protocol.primitive_step(
-    "PlateCoordinates", source=calibration_plate.output_pin("samples"), coordinates="G1"
+    "PlateCoordinates",
+    source=calibration_plate.output_pin("samples"),
+    coordinates="G1",
 )
 silica_beads_wells_H1 = protocol.primitive_step(
-    "PlateCoordinates", source=calibration_plate.output_pin("samples"), coordinates="H1"
+    "PlateCoordinates",
+    source=calibration_plate.output_pin("samples"),
+    coordinates="H1",
 )
 
 # Plate blanks
@@ -367,7 +383,8 @@ embedded_image = protocol.primitive_step(
     "EmbeddedImage",
     image=os.path.join(
         # os.path.dirname(os.path.realpath(__file__)),
-        ".." "figures",
+        "..",
+        "figures",
         "serial_dilution.png",
     ),
     caption="Serial Dilution",
@@ -600,7 +617,7 @@ protocol.order(outnode, protocol.final())
 
 if REGENERATE_ARTIFACTS:
     protocol.to_dot().render(os.path.join(OUT_DIR, filename))
-    dataset_file = (f"{filename}_template",)  # name of xlsx
+    dataset_file = f"{filename}_template"  # name of xlsx
     md_file = filename + ".md"
 else:
     dataset_file = None
@@ -614,7 +631,10 @@ ee = ExecutionEngine(
     dataset_file=dataset_file,
 )
 execution = ee.execute(
-    protocol, sbol3.Agent("test_agent"), id="test_execution", parameter_values=[]
+    protocol,
+    sbol3.Agent("test_agent"),
+    id="test_execution",
+    parameter_values=[],
 )
 
 # print(execution.markdown)
