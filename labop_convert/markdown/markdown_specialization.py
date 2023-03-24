@@ -714,22 +714,25 @@ class MarkdownSpecialization(BehaviorSpecialization):
 
         # Add to markdown
         if destination_coordinates is not None:
-            destination_coordinates = f"wells {destination_coordinates} of "
+            if len(destination_coordinates) == 1:
+                destination_coordinates_str = ""
+            else:
+                destination_coordinates_str = f"wells {destination_coordinates} of"
 
         source_names = get_sample_names(
             source,
             error_msg="Transfer execution failed. All source Components must specify a name.",
         )
         if len(source_names) == 0:
-            text = f"Transfer {amount_scalar} {amount_units} of `{source.name}` sample to {destination_coordinates} {container_str} `{container_spec.name}`."
+            text = f"Transfer {amount_scalar} {amount_units} of `{source.name}` sample to {destination_coordinates_str} {container_str} `{container_spec.name}`."
 
         elif len(source_names) == 1:
-            text = f"Transfer {amount_scalar} {amount_units} of `{source_names[0]}` sample to {destination_coordinates} {container_str} `{container_spec.name}`."
+            text = f"Transfer {amount_scalar} {amount_units} of `{source_names[0]}` sample to {destination_coordinates_str} {container_str} `{container_spec.name}`."
         elif len(source_names) > 1:
             n_source = len(read_sample_contents(source))
             n_destination = n_source * replicates
-            replicate_str = f"each of {replicates} replicate " if replicates > 1 else ""
-            text = f"Transfer {amount_scalar} {amount_units} of each of {n_source} `{source.name}` samples to {destination_coordinates}{replicate_str}{container_str} containers to contain a total of {n_destination} `{container_spec.name}` samples."
+            replicate_str = f"each of {replicates} replicate" if replicates > 1 else ""
+            text = f"Transfer {amount_scalar} {amount_units} of each of {n_source} `{source.name}` samples to {destination_coordinates_str} {replicate_str} {container_str} containers to contain a total of {n_destination} `{container_spec.name}` samples."
             # f' Repeat for the remaining {len(source_names)-1} `{container_spec.name}` samples.'
         if temperature:
             text += f" Maintain at {measurement_to_text(temperature)} during transfer."
@@ -1095,7 +1098,7 @@ class MarkdownSpecialization(BehaviorSpecialization):
 
         destination_coordinates = ""
         if isinstance(destination, labop.SampleMask):
-            destination_coordinates = f" wells {destination.sample_coordinates(sample_format=self.sample_format)} of"
+            destination_coordinates = f"wells {destination.sample_coordinates(sample_format=self.sample_format)} of"
             destination = destination.source.lookup()
         source_coordinates = source.sample_coordinates(sample_format=self.sample_format)
         if isinstance(source, labop.SampleMask):
@@ -1120,7 +1123,7 @@ class MarkdownSpecialization(BehaviorSpecialization):
             )
         else:
             sample_names = source_coordinates
-        text = f"Perform a series of {series} {dilution_factor}-fold dilutions on `{sample_names[0]}` using `{diluent.name}` as diluent to a final volume of {measurement_to_text(amount)} in {destination_coordinates} {container_str} `{container_spec.name}`."
+        text = f"Perform a series of {series} {dilution_factor}-fold dilutions on {sample_names} using `{diluent.name}` as diluent to a final volume of {measurement_to_text(amount)} in {destination_coordinates} {container_str} `{container_spec.name}`."
         if len(sample_names) > 1 and not source_coordinates:
             text += f" Repeat for the remaining {len(sample_names)-1} `{source.name}` samples."
         # repeat_for_remaining_samples(sample_names, repeat_msg='Repeat for the remaining cultures:')

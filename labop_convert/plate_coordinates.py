@@ -15,6 +15,19 @@ def get_sample_list(geometry="A1:H12"):
 
 
 def contiguous_coordinates(coords):
+    """
+    Summarize a list of well coordinates of the form ["A1", "A2", ...] with a rectangle of the form "A1:B2".  Ensure that the elements of the list are a rectangle without any missing wells.
+
+    Parameters
+    ----------
+    coords : List[str]
+        List of coordinates to summarize.
+
+    Returns
+    -------
+    Union[List[str], str]
+        The original list (if not a rectangle) or a summarized rectangle string.
+    """
     # assumes that coords are sorted
     if len(coords) == 0:
         return ""
@@ -41,6 +54,19 @@ def contiguous_coordinates(coords):
 
 
 def roboticize_2D(coords):
+    """
+    Convert a list strings or string representation of coordinates to a list of pairs of integers.  For example convert ["A1", "A2", ...] to [(0, 0), (0, 1), ...].  Similarly also convert rectangle coordinates of the form "A1:B12" to a list of pairs of integers.
+
+    Parameters
+    ----------
+    coords : Union[List[str], str]
+        Humanized coordinates
+
+    Returns
+    -------
+    List[Tuple[int, int]]
+        roboicized coordinates
+    """
     if isinstance(coords, list):
         return [y for x in coords for y in roboticize_2D(x)]
     else:
