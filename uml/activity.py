@@ -11,6 +11,7 @@ import graphviz
 import sbol3
 import tyto
 
+from . import inner
 from .activity_edge import ActivityEdge
 from .activity_node import ActivityNode
 from .activity_parameter_node import ActivityParameterNode
@@ -22,7 +23,6 @@ from .executable_node import ExecutableNode
 from .final_node import FinalNode
 from .fork_node import ForkNode
 from .initial_node import InitialNode
-from .inner import *
 from .input_pin import InputPin
 from .join_node import JoinNode
 from .literal_null import LiteralNull
@@ -198,17 +198,17 @@ class Activity(inner.Activity, Behavior):
         if isinstance(source, ForkNode) or isinstance(source, DecisionNode):
             return source
         # Otherwise, find out what targets currently attach:
-        current_outflows = [e for e in self.edges if e.source.lookup() is source]
+        current_outflows = [e for e in self.edges if e.get_source() is source]
         # Use original if nothing is attached to it
         if len(current_outflows) == 0:
             # print(f'No prior use of {source.identity}, connecting directly')
             return source
         # If the flow goes to a single ForkNode, connect to that ForkNode
         elif len(current_outflows) == 1 and isinstance(
-            current_outflows[0].target.lookup(), ForkNode
+            current_outflows[0].get_target(), ForkNode
         ):
             # print(f'Found an existing fork from {source.identity}, reusing')
-            return current_outflows[0].target.lookup()
+            return current_outflows[0].get_target()
         # Otherwise, inject a ForkNode and connect all current flows to that instead
         else:
             # print(f'Found no existing fork from {source.identity}, injecting one')
@@ -306,7 +306,7 @@ class Activity(inner.Activity, Behavior):
         unmatched_keys = [
             key
             for key in input_pin_literals.keys()
-            if key not in (i.property_value.name for i in behavior.get_inputs())
+            if key not in (i.property_value.name for i in behavior.get_ordered_inputs())
         ]
         if unmatched_keys:
             raise ValueError(
@@ -318,7 +318,7 @@ class Activity(inner.Activity, Behavior):
         self.nodes.append(action)
 
         # Instantiate input pins
-        for i in id_sort(behavior.get_inputs()):
+        for i in id_sort(behavior.get_ordered_inputs()):
             if i.property_value.name in input_pin_literals:
                 # input values might be a collection or singleton
                 values = input_pin_literals[i.property_value.name]
@@ -332,33 +332,33 @@ class Activity(inner.Activity, Behavior):
                 for value in values:
                     if isinstance(value, sbol3.TopLevel) and not value.document:
                         self.document.add(value)
-                    action.inputs.append(
-                        ValuePin(
-                            name=i.property_value.name,
-                            is_ordered=i.property_value.is_ordered,
-                            is_unique=i.property_value.is_unique,
-                            value=literal(value),
-                        )
-                    )
-
-            else:  # if not a constant, then just a generic InputPin
-                action.inputs.append(
-                    InputPin(
+                    value_pin = ValuePin(
                         name=i.property_value.name,
                         is_ordered=i.property_value.is_ordered,
                         is_unique=i.property_value.is_unique,
+                        value=literal(value),
                     )
+                    action.inputs.append(value_pin)
+                    self.edges.append(ActivityEdge(source=value_pin, target=action))
+
+            else:  # if not a constant, then just a generic InputPin
+                input_pin = InputPin(
+                    name=i.property_value.name,
+                    is_ordered=i.property_value.is_ordered,
+                    is_unique=i.property_value.is_unique,
                 )
+                action.inputs.append(input_pin)
+                self.edges.append(ActivityEdge(source=input_pin, target=action))
 
         # Instantiate output pins
-        for o in id_sort(behavior.get_outputs()):
-            action.outputs.append(
-                OutputPin(
-                    name=o.property_value.name,
-                    is_ordered=o.property_value.is_ordered,
-                    is_unique=o.property_value.is_unique,
-                )
+        for o in id_sort(behavior.get_ordered_outputs()):
+            output_pin = OutputPin(
+                name=o.property_value.name,
+                is_ordered=o.property_value.is_ordered,
+                is_unique=o.property_value.is_unique,
             )
+            action.outputs.append(output_pin)
+            self.edges.append(ActivityEdge(source=action, target=output_pin))
         return action
 
     def validate(self, report: sbol3.ValidationReport = None) -> sbol3.ValidationReport:

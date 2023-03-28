@@ -6,6 +6,7 @@ from typing import Callable, List
 
 import sbol3
 
+from labop import inner
 from uml import (
     PARAMETER_OUT,
     ActivityEdge,
@@ -22,11 +23,6 @@ from uml import (
     literal,
 )
 
-from . import inner
-from .activity_edge_flow import ActivityEdgeFlow
-from .call_behavior_execution import CallBehaviorExecution
-from .execution_engine import ExecutionEngine
-
 
 class ActivityNodeExecution(inner.ActivityNodeExecution):
     def __init__(self, *args, **kwargs):
@@ -37,7 +33,7 @@ class ActivityNodeExecution(inner.ActivityNodeExecution):
 
     def check_next_tokens(
         self,
-        tokens: List[ActivityEdgeFlow],
+        tokens: List["ActivityEdgeFlow"],
         node_outputs: Callable,
         sample_format: str,
     ):
@@ -47,7 +43,7 @@ class ActivityNodeExecution(inner.ActivityNodeExecution):
         self,
         parameter: Parameter,
         target=None,
-    ) -> CallBehaviorExecution:
+    ) -> "CallBehaviorExecution":
         # Get a ActivityNodeExecution that produced this token assigned to this ActivityNodeExecution parameter.
         # The immediate predecessor will be the token_source
 

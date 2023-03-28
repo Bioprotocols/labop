@@ -12,8 +12,6 @@ import sbol3
 import tyto
 import xarray as xr
 
-import labop
-import uml
 from labop import (
     ActivityNodeExecution,
     ContainerSpec,

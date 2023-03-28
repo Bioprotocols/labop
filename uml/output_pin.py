@@ -2,12 +2,12 @@
 The OutputPin class defines the functions corresponding to the dynamically generated labop class OutputPin
 """
 
-from typing import List
-
-from uml.control_flow import ControlFlow
-from uml.object_flow import ObjectFlow
+from typing import Callable, Dict, List
 
 from . import inner
+from .control_flow import ControlFlow
+from .literal_specification import LiteralSpecification
+from .object_flow import ObjectFlow
 from .pin import Pin
 
 
@@ -27,8 +27,8 @@ class OutputPin(inner.OutputPin, Pin):
 
     def get_value(
         self,
-        edge: ActivityEdge,
-        node_inputs: Dict[ActivityEdge, LiteralSpecification],
+        edge: "ActivityEdge",
+        node_inputs: Dict["ActivityEdge", LiteralSpecification],
         node_outputs: Callable,
         sample_format: str,
     ):

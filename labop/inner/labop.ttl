@@ -377,6 +377,9 @@ labop:ProtocolExecution a owl:Class ;
         [ a owl:Restriction ;
             owl:allValuesFrom labop:edge ;
             owl:onProperty labop:activityCallEdge ],
+        [ a owl:Restriction ;
+            owl:allValuesFrom uml:ActivityNode ;
+            owl:onProperty labop:activityCallNode ],
         labop:BehaviorExecution .
 
 labop:activityCallEdge a owl:ObjectProperty ;
@@ -384,6 +387,13 @@ labop:activityCallEdge a owl:ObjectProperty ;
     rdfs:comment """ActivityEdge list for CallBehaviorAction to Activity invocations""" ;
     rdfs:domain labop:ProtocolExecution ;
     rdfs:range labop:edge ;
+    rdfs:subPropertyOf sbol:directlyComprises .
+
+labop:activityCallNode a owl:ObjectProperty ;
+    rdfs:label "activity_call_node" ;
+    rdfs:comment """ActivityNode list for CallBehaviorAction to Activity invocations""" ;
+    rdfs:domain labop:ProtocolExecution ;
+    rdfs:range uml:ActivityNode ;
     rdfs:subPropertyOf sbol:directlyComprises .
 
 labop:amount a owl:ObjectProperty ;

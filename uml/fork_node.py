@@ -5,7 +5,6 @@ The ForkNode class defines the functions corresponding to the dynamically genera
 from typing import Callable, List
 
 import uml
-from labop import ActivityNodeExecution
 from uml.activity_edge import ActivityEdge
 from uml.control_flow import ControlFlow
 from uml.object_flow import ObjectFlow
@@ -59,7 +58,7 @@ class ForkNode(inner.ForkNode, ControlNode):
 
     def next_tokens_callback(
         self,
-        source: ActivityNodeExecution,
+        source: "ActivityNodeExecution",
         engine: "ExecutionEngine",
         out_edges: List[ActivityEdge],
         node_outputs: Callable,

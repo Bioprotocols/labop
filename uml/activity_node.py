@@ -3,20 +3,15 @@ The ActivityNode class defines the functions corresponding to the dynamically ge
 """
 
 import logging
-from typing import Callable, Dict, List, Tuple
-
-import sbol3
-
-from uml.invocation_action import InvocationAction
-from uml.parameter import Parameter
+from typing import Callable, Dict, List
 
 from . import inner
 from .activity_edge import ActivityEdge
 from .control_flow import ControlFlow
 from .literal_specification import LiteralSpecification
 from .object_flow import ObjectFlow
+from .parameter import Parameter
 from .utils import literal
-from .value_pin import ValuePin
 
 l = logging.getLogger(__file__)
 l.setLevel(logging.ERROR)
@@ -54,63 +49,62 @@ class ActivityNode(inner.ActivityNode):
         )
         return control_tokens_present
 
-    def execute(
-        self,
-        edge_values: Dict[ActivityEdge, List[LiteralSpecification]],
-        outgoing_edges: List[ActivityEdge],
-        node_outputs: Callable,
-        calling_behavior: InvocationAction,
-        sample_format: str,
-        permissive: bool,
-    ) -> Tuple[
-        Dict[ActivityEdge, List[LiteralSpecification]],  # consumed values for record
-        Dict[ActivityEdge, LiteralSpecification],  # produced values for tokens
-    ]:
-        """Execute a node in an activity, consuming the incoming flows and recording execution and outgoing flows
+    # def execute(
+    #     self,
+    #     edge_values: Dict[ActivityEdge, List[LiteralSpecification]],
+    #     outgoing_edges: List[ActivityEdge],
+    #     node_outputs: Callable,
+    #     calling_behavior: InvocationAction,
+    #     sample_format: str,
+    #     permissive: bool,
+    # ) -> Tuple[
+    #     Dict[ActivityEdge, List[LiteralSpecification]],  # consumed values for record
+    #     Dict[ActivityEdge, LiteralSpecification],  # produced values for tokens
+    # ]:
+    #     """Execute a node in an activity, consuming the incoming flows and recording execution and outgoing flows
 
-        Parameters
-        ----------
-        self: node to be executed
+    #     Parameters
+    #     ----------
+    #     self: node to be executed
 
+    #     Returns
+    #     -------
+    #     updated list of pending edge flows
+    #     """
+    #     # Extract the relevant set of incoming flow values
 
-        Returns
-        -------
-        updated list of pending edge flows
-        """
-        # Extract the relevant set of incoming flow values
+    #     node_inputs = self.consume_tokens(edge_values)
+    #     new_tokens: Dict[ActivityEdge, LiteralSpecification] = self.next_tokens(
+    #         node_inputs,
+    #         outgoing_edges,
+    #         node_outputs,
+    #         calling_behavior,
+    #         sample_format,
+    #         permissive,
+    #     )
 
-        node_inputs = self.consume_tokens(edge_values)
-        new_tokens: Dict[ActivityEdge, LiteralSpecification] = self.next_tokens(
-            node_inputs,
-            outgoing_edges,
-            node_outputs,
-            calling_behavior,
-            sample_format,
-            permissive,
-        )
+    #     # return updated token list
+    #     return new_tokens, node_inputs
 
-        # return updated token list
-        return new_tokens, node_inputs
+    # def next_tokens(
+    #     self,
+    #     node_inputs: Dict[ActivityEdge, List[LiteralSpecification]],
+    #     outgoing_edges: List[ActivityEdge],
+    #     node_outputs: Callable,
+    #     calling_behavior: InvocationAction,
+    #     sample_format: str,
+    #     permissive: bool,
+    # ) -> Dict[ActivityEdge, LiteralSpecification]:
+    #     edge_tokens = self.next_tokens_callback(
+    #         node_inputs,
+    #         outgoing_edges,
+    #         node_outputs,
+    #         calling_behavior,
+    #         sample_format,
+    #     )
+    #     self.check_next_tokens(edge_tokens, node_outputs, sample_format, permissive)
 
-    def next_tokens(
-        self,
-        node_inputs: Dict[ActivityEdge, List[LiteralSpecification]],
-        outgoing_edges: List[ActivityEdge],
-        node_outputs: Callable,
-        calling_behavior: InvocationAction,
-        sample_format: str,
-        permissive: bool,
-    ) -> Dict[ActivityEdge, LiteralSpecification]:
-        edge_tokens = self.next_tokens_callback(
-            node_inputs,
-            outgoing_edges,
-            node_outputs,
-            calling_behavior,
-            sample_format,
-        )
-        self.check_next_tokens(edge_tokens, node_outputs, sample_format, permissive)
-
-        return edge_tokens
+    #     return edge_tokens
 
     def consume_tokens(
         self, edge_values: Dict[ActivityEdge, List[LiteralSpecification]]
@@ -125,7 +119,7 @@ class ActivityNode(inner.ActivityNode):
         node_inputs: Dict[ActivityEdge, LiteralSpecification],
         outgoing_edges: List[ActivityEdge],
         node_outputs: Callable,
-        calling_behavior: InvocationAction,
+        calling_behavior: "InvocationAction",
         sample_format: str,
         permissive: bool,
     ) -> Dict[ActivityEdge, LiteralSpecification]:
@@ -170,7 +164,7 @@ class ActivityNode(inner.ActivityNode):
     ):
         if node_outputs:
             value = node_outputs(self, parameter)
-        elif hasattr(self.behavior(), "compute_output"):
+        elif hasattr(self.get_behavior(), "compute_output"):
             value = self.compute_output(parameter, sample_format)
         else:
             value = f"{parameter.name}"

@@ -24,7 +24,7 @@ class CallBehaviorAction(inner.CallBehaviorAction, CallAction):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-    def behavior(self):
+    def get_behavior(self):
         return self.behavior.lookup()
 
     def dot_attrs(self):
@@ -54,7 +54,7 @@ class CallBehaviorAction(inner.CallBehaviorAction, CallAction):
         sample_format: str,
         permissive: bool,
     ) -> Dict[ActivityEdge, LiteralSpecification]:
-        if isinstance(self.behavior(), Activity):
+        if isinstance(self.get_behavior(), Activity):
             if engine.is_asynchronous:
                 # Push record onto blocked nodes to complete
                 engine.blocked_nodes.add(source)

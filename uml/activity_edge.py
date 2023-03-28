@@ -9,8 +9,8 @@ class ActivityEdge(inner.ActivityEdge):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-    def source(self):
-        return self.source.lookup()
+    def get_source(self):
+        return self.source.lookup() if self.source else self.source
 
-    def target(self):
-        return self.target.lookup()
+    def get_target(self):
+        return self.target.lookup() if self.target else self.target

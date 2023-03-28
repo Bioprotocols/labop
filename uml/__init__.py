@@ -42,11 +42,11 @@ from .interval_constraint import *
 from .time_constraint import *
 from .duration_constraint import *
 
+from .activity_node import *
 
 from .executable_node import *
 from .action import *
 from .invocation_action import *
-from .activity_node import *
 from .control_node import *
 from .object_node import *
 from .decision_node import *
@@ -58,8 +58,9 @@ from .activity_parameter_node import *
 from .join_node import *
 from .merge_node import *
 
-from .activity import *
 from .behavior import *
+from .activity import *
+
 from .call_action import *
 from .call_behavior_action import *
 
@@ -101,4 +102,22 @@ def assign_outer_class_builder(inner_class_uri, outer_class):
     sbol3.Document.register_builder(str(inner_class_uri), builder)
 
 
+def __outer_getattribute__(self, name):
+    # Call the default method
+    for s in self.__mro__:
+        result = s.__getattribute__(name)
+        if hasattr(result, "_sbol_singleton"):
+            result = result.get()
+        return result
+
+
+def set_method_resolution_order(module_name):
+    outer_classes = inspect.getmembers(sys.modules[module_name])
+    for outer_class in outer_classes:
+        if inspect.isclass(outer_class[1]):
+            outer_class[1].__getattribute__ = __outer_getattribute__
+
+
 assign_outer_class_builders(__name__)
+
+# set_method_resolution_order(__name__)

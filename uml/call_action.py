@@ -2,8 +2,7 @@
 The CallAction class defines the functions corresponding to the dynamically generated labop class CallAction
 """
 
-from uml import inner
-
+from . import inner
 from .invocation_action import InvocationAction
 
 

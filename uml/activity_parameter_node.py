@@ -2,11 +2,9 @@
 The ActivityParameterNode class defines the functions corresponding to the dynamically generated labop class ActivityParameterNode
 """
 
-from ast import List
-from typing import Callable, Dict
+from typing import Callable, Dict, List
 
-from uml import inner
-
+from . import inner
 from .activity_edge import ActivityEdge
 from .control_flow import ControlFlow
 from .invocation_action import InvocationAction
@@ -25,16 +23,16 @@ class ActivityParameterNode(inner.ActivityParameterNode, ObjectNode):
         label = self.parameter.lookup().name
         return {"label": label, "shape": "rectangle", "peripheries": "2"}
 
-    def parameter(self):
-        return self.parameter.property_value
+    def get_parameter(self):
+        return self.parameter.lookup().property_value
 
-    def output(self):
-        return self.parameter().output()
+    def is_output(self):
+        return self.get_parameter().is_output()
 
-    def input(self):
-        return self.parameter().input()
+    def is_input(self):
+        return self.get_parameter().is_input()
 
-    def value(self) -> Dict[Parameter, LiteralSpecification]:
+    def get_value(self) -> Dict[Parameter, LiteralSpecification]:
         values = [
             i.value.get_value()
             for i in self.incoming_flows
@@ -55,7 +53,7 @@ class ActivityParameterNode(inner.ActivityParameterNode, ObjectNode):
         sample_format: str,
         permissive: bool,
     ) -> Dict[ActivityEdge, LiteralSpecification]:
-        if self.parameter().input():
+        if self.get_parameter().get_input():
             try:
                 parameter_value = next(
                     node_inputs[self][edge]
@@ -64,16 +62,16 @@ class ActivityParameterNode(inner.ActivityParameterNode, ObjectNode):
                     ]  # edge may be a dummy edge that is atually a ParameterValue
                     if (
                         isinstance(edge, Parameter)
-                        and edge.parameter() == self.parameter()
+                        and edge.get_parameter() == self.get_parameter()
                     )
                     or (isinstance(edge, ActivityEdge))
                 )
             except StopIteration as e:
                 try:
-                    parameter_value = self.parameter().default_value
+                    parameter_value = self.get_parameter().default_value
                 except Exception as e:
                     raise Exception(
-                        f"ERROR: Could not find input parameter {self.parameter().name} value and/or no default_value."
+                        f"ERROR: Could not find input parameter {self.get_parameter().name} value and/or no default_value."
                     )
             edge_tokens = {
                 edge: literal(value=parameter_value, reference=True)
@@ -85,7 +83,7 @@ class ActivityParameterNode(inner.ActivityParameterNode, ObjectNode):
             if calling_behavior:
                 return_edge = ObjectFlow(
                     source=self,
-                    target=calling_behavior.output_pin(self.parameter().name),
+                    target=calling_behavior.output_pin(self.get_parameter().name),
                 )
 
                 edge_tokens = {
@@ -111,7 +109,7 @@ class ActivityParameterNode(inner.ActivityParameterNode, ObjectNode):
         if isinstance(edge, ControlFlow):
             value = "uml.ControlFlow"
         elif isinstance(edge, ObjectFlow):
-            if self.output():
+            if self.is_output():
                 value = node_inputs[edge]
                 reference = True
 

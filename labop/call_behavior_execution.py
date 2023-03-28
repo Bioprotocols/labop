@@ -6,9 +6,7 @@ from typing import Callable, List, Protocol
 
 import sbol3
 
-import labop.inner as inner
-from labop.activity_edge_flow import ActivityEdgeFlow
-from labop.execution_engine import ExecutionEngine
+from labop import inner
 from uml import (
     PARAMETER_IN,
     PARAMETER_OUT,
@@ -21,6 +19,7 @@ from uml import (
     literal,
 )
 
+from .activity_edge_flow import ActivityEdgeFlow
 from .activity_node_execution import ActivityNodeExecution
 from .behavior_execution import BehaviorExecution
 from .parameter_value import ParameterValue
@@ -228,7 +227,7 @@ class CallBehaviorExecution(inner.CallBehaviorExecution, ActivityNodeExecution):
 
     def complete_subprotocol(
         self,
-        engine: ExecutionEngine,
+        engine: "ExecutionEngine",
     ):
         # Map of subprotocol output parameter name to token
         subprotocol_output_tokens = {

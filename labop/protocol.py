@@ -3,13 +3,14 @@ The Protocol class defines the functions corresponding to the dynamically genera
 """
 
 import logging
-from typing import List, Tuple
+from typing import List, Set, Tuple
 
 import sbol3
 
 import labop.inner as inner
 from uml import (
     Activity,
+    ActivityEdge,
     ActivityNode,
     Behavior,
     ControlFlow,

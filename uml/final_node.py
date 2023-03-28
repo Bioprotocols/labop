@@ -5,7 +5,6 @@ The FinalNode class defines the functions corresponding to the dynamically gener
 from typing import Callable, List
 
 import uml
-from labop import ActivityNodeExecution
 from uml.activity_edge import ActivityEdge
 
 from . import inner
@@ -59,7 +58,7 @@ class FinalNode(inner.FinalNode, ControlNode):
 
     def next_tokens_callback(
         self,
-        source: ActivityNodeExecution,
+        source: "ActivityNodeExecution",
         engine: "ExecutionEngine",
         out_edges: List[ActivityEdge],
         node_outputs: Callable,

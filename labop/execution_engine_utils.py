@@ -1,6 +1,7 @@
 import logging
 
-from uml import ActivityEdgeFlow, CallBehaviorAction, Pin
+from labop import ActivityEdgeFlow
+from uml import CallBehaviorAction, Pin
 
 from .activity_node_execution import ActivityNodeExecution
 

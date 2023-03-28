@@ -7,9 +7,7 @@ from tyto import OM
 
 import labop
 from labop.execution_engine import ExecutionEngine
-from labop_convert.markdown.markdown_specialization import (
-    MarkdownSpecialization,
-)
+from labop_convert.markdown.markdown_specialization import MarkdownSpecialization
 
 filename = "".join(__file__.split(".py")[0].split("/")[-1:])
 
@@ -103,8 +101,8 @@ measure_fluorescence1 = protocol.primitive_step(
 measure_fluorescence1.name = "fluorescein and bead fluorescence"
 
 meta1 = protocol.primitive_step(
-    "AttachMetadata",
-    data=measure_fluorescence1.output_pin("measurements"),
+    "JoinMetadata",
+    dataset=measure_fluorescence1.output_pin("measurements"),
     metadata=labop.SampleMetadata(
         for_samples=read_wells1.output_pin("samples"), descriptions=""
     ),
@@ -112,7 +110,7 @@ meta1 = protocol.primitive_step(
 protocol.designate_output(
     "dataset",
     "http://bioprotocols.org/labop#Dataset",
-    source=meta1.output_pin("dataset"),
+    source=meta1.output_pin("enhanced_dataset"),
 )
 
 

@@ -5,6 +5,7 @@ The InputPin class defines the functions corresponding to the dynamically genera
 from typing import Callable, List
 
 from . import inner
+from .activity_edge import ActivityEdge
 from .control_flow import ControlFlow
 from .object_flow import ObjectFlow
 from .pin import Pin

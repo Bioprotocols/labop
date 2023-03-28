@@ -4,8 +4,7 @@ The Behavior class defines the functions corresponding to the dynamically genera
 
 from typing import Iterable
 
-from uml import inner
-
+from . import inner
 from .ordered_property_value import OrderedPropertyValue
 from .parameter import Parameter
 from .strings import PARAMETER_IN, PARAMETER_OUT
@@ -100,6 +99,20 @@ class Behavior(inner.Behavior):
         Iterator over Parameters
         """
         return (
+            p.property_value
+            for p in self.parameters
+            if p.property_value.direction == PARAMETER_IN
+        )
+
+    def get_ordered_inputs(self) -> Iterable[OrderedPropertyValue]:
+        """Return all Parameters of type input for this Behavior
+
+        Note: assumes that type is all either in or out
+        Returns
+        -------
+        Iterator over Parameters
+        """
+        return (
             p for p in self.parameters if p.property_value.direction == PARAMETER_IN
         )
 
@@ -139,7 +152,7 @@ class Behavior(inner.Behavior):
             and p.property_value.lower_value.value > 0
         )
 
-    def get_outputs(self):
+    def get_ordered_outputs(self):
         """Return all Parameters of type output for this Behavior
 
         Note: assumes that type is all either in or out
@@ -149,6 +162,20 @@ class Behavior(inner.Behavior):
         """
         return (
             p for p in self.parameters if p.property_value.direction == PARAMETER_OUT
+        )
+
+    def get_outputs(self):
+        """Return all Parameters of type output for this Behavior
+
+        Note: assumes that type is all either in or out
+        Returns
+        -------
+        Iterator over Parameters
+        """
+        return (
+            p.property_value
+            for p in self.parameters
+            if p.property_value.direction == PARAMETER_OUT
         )
 
     def get_output(self, name) -> Parameter:
