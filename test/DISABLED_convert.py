@@ -64,7 +64,6 @@ class TestConvert(unittest.TestCase):
         autoprotocol_output = os.path.join(
             tempfile.gettempdir(), "igem_ludox_autoprotocol.json"
         )
-        print(autoprotocol_output)
         secrets_file = os.path.join(
             os.path.dirname(os.path.realpath(__file__)),
             "../secrets/strateos_secrets.json",

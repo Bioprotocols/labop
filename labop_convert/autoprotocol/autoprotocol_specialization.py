@@ -15,10 +15,25 @@ from container_api.client_api import matching_containers, strateos_id
 import labop
 import labop_convert.autoprotocol.plate_coordinates as pc
 from labop_convert.autoprotocol.strateos_api import StrateosAPI
-from labop_convert.behavior_specialization import BehaviorSpecialization
+from labop_convert.behavior_specialization import BehaviorSpecialization, ContO
 
 l = logging.getLogger(__file__)
 l.setLevel(logging.ERROR)
+
+
+# https://developers.strateos.com/docs/containers
+strateos_container_types = {
+    ContO["96 well PCR plate"]: "96-pcr",
+    ContO["96 well plate"]: "96-flat",
+    #    "": "96-deep",
+    #    "": "96-deep-kf",
+    #    "": "96-v-kf",
+    #    "": "384-pcr",
+    ContO["384 well plate"]: "384-flat",
+    #    "": "384-echo",
+    ContO["1.5 mL microfuge tube"]: "micro-1.5",
+    #    "": "micro-2.0",
+}
 
 
 class AutoprotocolSpecialization(BehaviorSpecialization):
@@ -30,7 +45,7 @@ class AutoprotocolSpecialization(BehaviorSpecialization):
     ) -> None:
         super().__init__()
         self.out_path = out_path
-        self.resolutions = resolutions
+        self.resolutions = resolutions if resolutions else {}
         self.api = api
         self.var_to_entity = {}
         self.container_api_addl_conditions = "(cont:availableAt value <https://sift.net/container-ontology/strateos-catalog#Strateos>)"
@@ -41,6 +56,9 @@ class AutoprotocolSpecialization(BehaviorSpecialization):
             "https://bioprotocols.org/labop/primitives/liquid_handling/Provision": self.provision_container,
             "https://bioprotocols.org/labop/primitives/sample_arrays/PlateCoordinates": self.plate_coordinates,
             "https://bioprotocols.org/labop/primitives/spectrophotometry/MeasureAbsorbance": self.measure_absorbance,
+            "https://bioprotocols.org/labop/primitives/liquid_handling/Transfer": self.transfer,
+            "https://bioprotocols.org/labop/primitives/liquid_handling/SerialDilution": self.serial_dilution,
+            "https://bioprotocols.org/labop/primitives/spectrophotometry/MeasureFluorescence": self.measure_fluorescence,
         }
 
     def on_begin(self, execution: labop.ProtocolExecution):
@@ -65,13 +83,12 @@ class AutoprotocolSpecialization(BehaviorSpecialization):
             container_id = self.resolutions["container_id"]
         else:
             container_type = self.get_container_type_from_spec(spec)
-            container_name = (
-                f"{self.execution.protocol.lookup().name} Container {samples_var}"
-            )
+            container_name = f"{self.execution.protocol.lookup().name} Container {samples_var.display_id}"
             container_id = self.create_new_container(container_name, container_type)
 
         # container_id = tx.inventory("flat test")['results'][1]['id']
         # container_id = "ct1g9q3bndujat5"
+
         tx = (
             self.api.get_strateos_connection()
         )  # Make sure that connection is alive for making the container object
@@ -103,13 +120,16 @@ class AutoprotocolSpecialization(BehaviorSpecialization):
             possible_container_types = self.resolve_container_spec(
                 spec, addl_conditions=self.container_api_addl_conditions
             )
+            print("Possible container types: ", possible_container_types)
             possible_short_names = [strateos_id(x) for x in possible_container_types]
+            print("Possible short names: ", possible_short_names)
             matching_short_names = [x for x in short_names if x in possible_short_names]
             name_map = {
                 "96-ubottom-clear-tc": "96-flat",
                 "96-flat-clear-clear-tc": "96-flat",
             }
             mapped_names = [name_map[x] for x in matching_short_names]
+            print(mapped_names)
             return mapped_names[0]
             # return matching_short_names[0] # FIXME need some error handling here
 
@@ -120,6 +140,15 @@ class AutoprotocolSpecialization(BehaviorSpecialization):
             return container_type
 
     def create_new_container(self, name, container_type):
+
+        # TODO: use strateos_container_type map
+        if "StockReagent" in container_type:
+            container_type = "micro-2.0"
+        elif container_type.is_instance(ContO.Plate96Well):
+            container_type = "96-flat"
+        elif container_type.is_instance(ContO.MicrofugeTube):
+            container_type = "micro-1.5"
+
         container_spec = {
             "name": name,
             "cont_type": container_type,  # resolve with spec here
@@ -218,3 +247,62 @@ class AutoprotocolSpecialization(BehaviorSpecialization):
             ),
         )
         return results
+
+    def measure_fluorescence(
+        self, record: labop.ActivityNodeExecution, execution: labop.ProtocolExecution
+    ):
+        results = {}
+        call = record.call.lookup()
+        parameter_value_map = call.parameter_value_map()
+
+        excitation = parameter_value_map["excitationWavelength"]["value"]
+        excitation = Unit(excitation.value, tyto.OM.get_term_by_uri(excitation.unit))
+        emission = parameter_value_map["emissionWavelength"]["value"]
+        emission = Unit(emission.value, tyto.OM.get_term_by_uri(emission.unit))
+        bandpass = parameter_value_map["emissionBandpassWidth"]["value"]
+        samples = parameter_value_map["samples"]["value"]
+        timepoints = (
+            parameter_value_map["timepoints"]["value"]
+            if "timepoints" in parameter_value_map
+            else None
+        )
+        measurements = parameter_value_map["measurements"]["value"]
+
+        # HACK extract contrainer from well group since we do not have it as input
+        wells = self.var_to_entity[samples]
+        container = wells[0].container
+
+        self.protocol.spectrophotometry(
+            dataref="measurements",  # TODO: update this to measurements.identity
+            obj=container,
+            groups=Spectrophotometry.builders.groups(
+                [
+                    Spectrophotometry.builders.group(
+                        "fluorescence",
+                        Spectrophotometry.builders.fluorescence_mode_params(
+                            wells=wells,
+                            excitation=[{"ideal": excitation}],
+                            emission=[{"ideal": emission}],
+                            num_flashes=None,
+                            settle_time=None,
+                            lag_time=None,
+                            integration_time=None,
+                            gain=None,
+                            read_position=None,
+                            position_z=None,
+                        ),
+                    )
+                ]
+            ),
+        )
+        return results
+
+    def transfer(
+        self, record: labop.ActivityNodeExecution, execution: labop.ProtocolExecution
+    ):
+        pass
+
+    def serial_dilution(
+        self, record: labop.ActivityNodeExecution, execution: labop.ProtocolExecution
+    ):
+        pass
