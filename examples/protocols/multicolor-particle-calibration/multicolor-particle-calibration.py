@@ -135,7 +135,7 @@ suspend_fluorescein = protocol.primitive_step(
     destination=fluorescein_standard_solution_container.output_pin("samples"),
     amount=sbol3.Measure(1, OM.millilitre),
 )
-suspend_fluorescein.description = f"The reconstituted `{fluorescein.name}` should have a final concentration of 10 uM in `{pbs.name}`"
+suspend_fluorescein.description = f"The reconstituted `{fluorescein.name}` should have a final concentration of 10 uM in `{pbs.name}`."
 
 vortex_fluorescein = protocol.primitive_step(
     "Vortex",
@@ -149,7 +149,7 @@ suspend_sulforhodamine = protocol.primitive_step(
     destination=sulforhodamine_standard_solution_container.output_pin("samples"),
     amount=sbol3.Measure(1, OM.millilitre),
 )
-suspend_sulforhodamine.description = f"The reconstituted `{sulforhodamine.name}` standard will have a final concentration of 2 uM in `{pbs.name}`"
+suspend_sulforhodamine.description = f"The reconstituted `{sulforhodamine.name}` standard will have a final concentration of 2 uM in `{pbs.name}`."
 
 vortex_sulforhodamine = protocol.primitive_step(
     "Vortex",
@@ -245,12 +245,12 @@ silica_beads_wells_H1 = protocol.primitive_step(
 blank_wells1 = protocol.primitive_step(
     "PlateCoordinates",
     source=calibration_plate.output_pin("samples"),
-    coordinates="A12:D12",
+    coordinates="A2:D12",
 )
 blank_wells2 = protocol.primitive_step(
     "PlateCoordinates",
     source=calibration_plate.output_pin("samples"),
-    coordinates="E12:H12",
+    coordinates="E2:H12",
 )
 transfer_blanks1 = protocol.primitive_step(
     "Transfer",
@@ -258,14 +258,13 @@ transfer_blanks1 = protocol.primitive_step(
     destination=blank_wells1.output_pin("samples"),
     amount=sbol3.Measure(100, OM.microlitre),
 )
-transfer_blanks1.description = " These are blanks."
 transfer_blanks2 = protocol.primitive_step(
     "Transfer",
     source=ddh2o,
     destination=blank_wells2.output_pin("samples"),
     amount=sbol3.Measure(100, OM.microlitre),
 )
-transfer_blanks2.description = " These are blanks."
+
 
 ### Plate calibrants in first column
 transfer1 = protocol.primitive_step(
@@ -372,7 +371,7 @@ serial_dilution1 = protocol.primitive_step(
     "SerialDilution",
     source=fluorescein_wells_A1.output_pin("samples"),
     destination=dilution_series1.output_pin("samples"),
-    amount=sbol3.Measure(200, OM.microlitre),
+    amount=sbol3.Measure(100, OM.microlitre),
     diluent=pbs,
     dilution_factor=2,
     series=10,
@@ -394,7 +393,7 @@ serial_dilution2 = protocol.primitive_step(
     "SerialDilution",
     source=fluorescein_wells_B1.output_pin("samples"),
     destination=dilution_series2.output_pin("samples"),
-    amount=sbol3.Measure(200, OM.microlitre),
+    amount=sbol3.Measure(100, OM.microlitre),
     diluent=pbs,
     dilution_factor=2,
     series=10,
@@ -405,7 +404,7 @@ serial_dilution3 = protocol.primitive_step(
     "SerialDilution",
     source=sulforhodamine_wells_C1.output_pin("samples"),
     destination=dilution_series3.output_pin("samples"),
-    amount=sbol3.Measure(200, OM.microlitre),
+    amount=sbol3.Measure(100, OM.microlitre),
     diluent=pbs,
     dilution_factor=2,
     series=10,
@@ -416,7 +415,7 @@ serial_dilution4 = protocol.primitive_step(
     "SerialDilution",
     source=sulforhodamine_wells_D1.output_pin("samples"),
     destination=dilution_series4.output_pin("samples"),
-    amount=sbol3.Measure(200, OM.microlitre),
+    amount=sbol3.Measure(100, OM.microlitre),
     diluent=pbs,
     dilution_factor=2,
     series=10,
@@ -427,7 +426,7 @@ serial_dilution5 = protocol.primitive_step(
     "SerialDilution",
     source=cascade_blue_wells_E1.output_pin("samples"),
     destination=dilution_series5.output_pin("samples"),
-    amount=sbol3.Measure(200, OM.microlitre),
+    amount=sbol3.Measure(100, OM.microlitre),
     diluent=ddh2o,
     dilution_factor=2,
     series=10,
@@ -438,7 +437,7 @@ serial_dilution6 = protocol.primitive_step(
     "SerialDilution",
     source=cascade_blue_wells_F1.output_pin("samples"),
     destination=dilution_series6.output_pin("samples"),
-    amount=sbol3.Measure(200, OM.microlitre),
+    amount=sbol3.Measure(100, OM.microlitre),
     diluent=ddh2o,
     dilution_factor=2,
     series=10,
@@ -449,7 +448,7 @@ serial_dilution7 = protocol.primitive_step(
     "SerialDilution",
     source=silica_beads_wells_G1.output_pin("samples"),
     destination=dilution_series7.output_pin("samples"),
-    amount=sbol3.Measure(200, OM.microlitre),
+    amount=sbol3.Measure(100, OM.microlitre),
     diluent=ddh2o,
     dilution_factor=2,
     series=10,
@@ -460,7 +459,7 @@ serial_dilution8 = protocol.primitive_step(
     "SerialDilution",
     source=silica_beads_wells_H1.output_pin("samples"),
     destination=dilution_series8.output_pin("samples"),
-    amount=sbol3.Measure(200, OM.microlitre),
+    amount=sbol3.Measure(100, OM.microlitre),
     diluent=ddh2o,
     dilution_factor=2,
     series=10,

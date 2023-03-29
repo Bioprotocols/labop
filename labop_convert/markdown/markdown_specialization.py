@@ -360,7 +360,7 @@ class MarkdownSpecialization(BehaviorSpecialization):
                 else:
                     text = f"Obtain a {container_str} to contain `{spec.name}`"
                 text = add_description(record, text)
-
+                text += "."
             except Exception as e:
                 l.warning(e)
         if not text:
@@ -592,9 +592,10 @@ class MarkdownSpecialization(BehaviorSpecialization):
         mixed_samples.name = samples.name
 
         # Add to markdown
-        text = f"Vortex {samples.name}"
+        text = f"Vortex `{samples.name}`"
         if duration:
             text += f" for {duration_scalar} {duration_units}"
+        text += "."
         execution.markdown_steps += [text]
 
     def discard(
@@ -670,6 +671,15 @@ class MarkdownSpecialization(BehaviorSpecialization):
         if source_coordinates:
             source_contents = {source_coordinates: source_contents[source_coordinates]}
 
+        # All possible destination coordinates (including those not part of the transfer)
+        all_destination_coordinates = (
+            destination.source.lookup().sample_coordinates(
+                sample_format=self.sample_format
+            )
+            if isinstance(destination, labop.SampleMask)
+            else destination.sample_coordinates(sample_format=self.sample_format)
+        )
+
         destination_coordinates = destination.sample_coordinates(
             sample_format=self.sample_format
         )
@@ -714,7 +724,8 @@ class MarkdownSpecialization(BehaviorSpecialization):
 
         # Add to markdown
         if destination_coordinates is not None:
-            if len(destination_coordinates) == 1:
+            # If destination_coordinates are all coordinates, then don't specify them
+            if destination_coordinates == all_destination_coordinates:
                 destination_coordinates_str = ""
             else:
                 destination_coordinates_str = f"wells {destination_coordinates} of"
