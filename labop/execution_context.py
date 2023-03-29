@@ -41,6 +41,7 @@ class ExecutionContext(object):
             self.create_invocation_pins()
 
         # Setup incoming edge map for each node
+        self.incoming_edge_tokens[self.call_protocol_node] = {}
         for node in self.protocol.nodes:
             self.incoming_edge_tokens[node] = {}
             for e in self.protocol.incoming_edges(node):
@@ -80,7 +81,7 @@ class ExecutionContext(object):
                         is_unique=i.property_value.is_unique,
                         value=literal(value),
                     )
-                    self.call_protocol_node.inputs.append(value_pin)
+                    self.call_protocol_node.get_inputs.append(value_pin)
                     e = ActivityEdge(source=value_pin, target=self.call_protocol_node)
                     self.execution_trace.activity_call_edge.append(e)
                     self.input_edges.append(e)
@@ -90,7 +91,7 @@ class ExecutionContext(object):
                 is_ordered=o.is_ordered,
                 is_unique=o.is_unique,
             )
-            self.call_protocol_node.outputs.append(output_pin)
+            self.call_protocol_node.get_outputs().append(output_pin)
             e = ActivityEdge(source=self.call_protocol_node, target=output_pin)
             self.execution_trace.activity_call_edge.append(e)
             self.output_edges.append(e)
@@ -98,3 +99,12 @@ class ExecutionContext(object):
     def initialize_entry(self):
 
         return [self.call_protocol_node]
+
+    def outgoing_edges(self, node):
+        out_edges = []
+        if node in self.protocol.nodes:
+            out_edges += self.protocol.outgoing_edges(node)
+            # FIXME if node is a CallBehaviorAction, then ensure call edges are included in outgoing
+        if node == self.call_protocol_node:
+            out_edges += self.execution_trace.activity_call_edge
+        return out_edges

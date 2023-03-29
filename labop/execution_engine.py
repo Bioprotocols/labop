@@ -268,14 +268,17 @@ class ExecutionEngine(ABC):
     ) -> Tuple[List[ActivityEdgeFlow], List[ActivityEdgeFlow]]:
         # Process inputs
         supporting_tokens = execution_context.incoming_edge_tokens[node]
-        consumed_tokens = self.consume_tokens(ec, tokens_removed)
+
+        consumed_tokens = self.consume_tokens(
+            execution_context, node, supporting_tokens
+        )
 
         # Create execution record
         record = self.create_record(node, consumed_tokens)
         self.ex.executions.append(record)
 
         # Process outputs
-        outgoing_edges = execution_context.protocol.outgoing_edges(node)
+        outgoing_edges = execution_context.outgoing_edges(node)
 
         # from ActivityNode.execute()
         new_tokens: Dict[ActivityEdge, LiteralSpecification] = self.next_tokens(
@@ -388,7 +391,7 @@ class ExecutionEngine(ABC):
         # Validate Pin values, see #130
         # Although enabled_activity_node method also validates Pin values,
         # it only checks required Pins.  This check is necessary to check optional Pins.
-        for pin in self.inputs:
+        for pin in node.get_inputs():
             if hasattr(pin, "value"):
                 if pin.value is None:
                     raise ValueError(
@@ -396,7 +399,7 @@ class ExecutionEngine(ABC):
                     )
                 value_pin_values[pin.identity] = pin.value
             # Check that pin corresponds to an input parameter.  Will cause Exception if does not exist.
-            parameter = self.pin_parameter(pin.name)
+            parameter = node.pin_parameter(pin.name)
 
         # Convert References
         value_pin_values = {
@@ -407,10 +410,10 @@ class ExecutionEngine(ABC):
 
         parameter_values = [
             ParameterValue(
-                parameter=self.pin_parameter(pin.name),
+                parameter=node.pin_parameter(pin.name),
                 value=pin_values[pin.identity],
             )
-            for pin in self.inputs
+            for pin in node.get_inputs()
             if pin.identity in pin_values
         ]
         return parameter_values
@@ -419,20 +422,15 @@ class ExecutionEngine(ABC):
         self,
         execution_context: ExecutionContext,
         node: ActivityNode,
-        tokens_removed: Dict[ActivityEdge, LiteralSpecification],
+        supporting_tokens: Dict[ActivityEdge, List[ActivityEdgeFlow]],
     ) -> List[ActivityEdgeFlow]:
-        consumed_tokens = [
-            t
-            for t in execution_context.tokens
-            if t.edge in tokens_removed and tokens_removed[t.edge] == t.value
-        ]
-
+        consumed_tokens = {e: next(iter(ts)) for e, ts in supporting_tokens.items()}
         # Remove values on edges
         execution_context.incoming_edge_tokens[node] = {
             edge: [
                 v
                 for v in execution_context.incoming_edge_tokens[node][edge]
-                if v != tokens_removed[edge]
+                if v != consumed_tokens[edge]
             ]
             for edge in execution_context.incoming_edge_tokens[node]
         }

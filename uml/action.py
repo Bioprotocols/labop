@@ -19,17 +19,17 @@ class Action(inner.Action, ExecutableNode):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-    def inputs(self):
+    def get_inputs(self):
         return self.inputs
 
-    def outputs(self):
+    def get_outputs(self):
         return self.outputs
 
     def required_inputs(self):
-        return [i for i in self.inputs() if i.required()]
+        return [i for i in self.get_inputs() if i.required()]
 
     def required_outputs(self):
-        return [o for o in self.outputs() if o.required()]
+        return [o for o in self.get_outputs() if o.required()]
 
     def input_pin(self, pin_name: str):
         """Find an input pin on the action with the specified name
@@ -37,7 +37,7 @@ class Action(inner.Action, ExecutableNode):
         :param pin_name:
         :return: Pin with specified name
         """
-        pin_set = {x for x in self.inputs if x.name == pin_name}
+        pin_set = {x for x in self.get_inputs() if x.name == pin_name}
         if len(pin_set) == 0:
             raise ValueError(
                 f"Could not find input pin named {pin_name} for Primitive {self.behavior.lookup().display_id}"
@@ -54,7 +54,7 @@ class Action(inner.Action, ExecutableNode):
         :param pin_name:
         :return: Pin with specified name
         """
-        pin_set = {x for x in self.inputs if x.name == pin_name}
+        pin_set = {x for x in self.get_inputs() if x.name == pin_name}
         if len(pin_set) == 0:
             raise ValueError(
                 f"Could not find input pin named {pin_name} for Primitive {self.behavior.lookup().display_id}"
@@ -67,7 +67,7 @@ class Action(inner.Action, ExecutableNode):
         :param pin_name:
         :return: Pin with specified name
         """
-        pin_set = {x for x in self.outputs if x.name == pin_name}
+        pin_set = {x for x in self.get_outputs() if x.name == pin_name}
         if len(pin_set) == 0:
             raise ValueError(f"Could not find output pin named {pin_name}")
         if len(pin_set) > 1:
@@ -100,16 +100,16 @@ class Action(inner.Action, ExecutableNode):
                 f"Primitive {behavior.display_id} has multiple Parameters with the same name"
             )
         parameter = parameters[0]
-        try:
-            parameter.__class__ = inner_to_outer(parameter)
-        except:
-            pass
-        try:
-            parameter.property_value.__class__ = inner_to_outer(
-                parameter.property_value
-            )
-        except:
-            pass
+        # try:
+        #     parameter.__class__ = inner_to_outer(parameter)
+        # except:
+        #     pass
+        # try:
+        #     parameter.property_value.__class__ = inner_to_outer(
+        #         parameter.property_value
+        #     )
+        # except:
+        #     pass
         return parameter
 
     def enabled(

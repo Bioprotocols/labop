@@ -244,7 +244,7 @@ class OT2Specialization(BehaviorSpecialization):
         ]
         containers = {}
         for cba in call_behavior_actions:
-            input_names = [input.name for input in cba.inputs]
+            input_names = [input.name for input in cba.get_inputs()]
             if "specification" in input_names:
                 container = cba.input_pin("specification").value.value.lookup()
             elif "rack" in input_names:

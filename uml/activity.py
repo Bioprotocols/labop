@@ -338,7 +338,7 @@ class Activity(inner.Activity, Behavior):
                         is_unique=i.property_value.is_unique,
                         value=literal(value),
                     )
-                    action.inputs.append(value_pin)
+                    action.get_inputs().append(value_pin)
                     self.edges.append(ActivityEdge(source=value_pin, target=action))
 
             else:  # if not a constant, then just a generic InputPin
@@ -347,7 +347,7 @@ class Activity(inner.Activity, Behavior):
                     is_ordered=i.property_value.is_ordered,
                     is_unique=i.property_value.is_unique,
                 )
-                action.inputs.append(input_pin)
+                action.get_inputs().append(input_pin)
                 self.edges.append(ActivityEdge(source=input_pin, target=action))
 
         # Instantiate output pins
@@ -357,7 +357,7 @@ class Activity(inner.Activity, Behavior):
                 is_ordered=o.property_value.is_ordered,
                 is_unique=o.property_value.is_unique,
             )
-            action.outputs.append(output_pin)
+            action.get_outputs().append(output_pin)
             self.edges.append(ActivityEdge(source=action, target=output_pin))
         return action
 

@@ -31,11 +31,12 @@ class CallBehaviorAction(inner.CallBehaviorAction, CallAction):
         port_row = '  <tr><td><table border="0" cellspacing="-2"><tr><td> </td>{}<td> </td></tr></table></td></tr>\n'
         in_ports = "<td> </td>".join(
             f'<td port="{i.display_id}" border="1">{i.dot_node_name()}</td>'
-            for i in self.inputs
+            for i in self.get_inputs()
         )
         in_row = port_row.format(in_ports) if in_ports else ""
         out_ports = "<td> </td>".join(
-            f'<td port="{o.display_id}" border="1">{o.name}</td>' for o in self.outputs
+            f'<td port="{o.display_id}" border="1">{o.name}</td>'
+            for o in self.get_outputs()
         )
         out_row = port_row.format(out_ports) if out_ports else ""
 

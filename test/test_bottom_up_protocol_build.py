@@ -80,10 +80,10 @@ class ExampleProtocol(unittest.TestCase):
         protocol.edges.append(ControlFlow(source=step1_action, target=step2_action))
 
         output = OutputPin(name="samples", is_ordered=True, is_unique=True)
-        step1_action.outputs.append(output)
+        step1_action.get_outputs().append(output)
 
         input = InputPin(name="samples", is_ordered=True, is_unique=True)
-        step2_action.inputs.append(input)
+        step2_action.get_inputs().append(input)
         flow = ObjectFlow(source=output, target=input)
         protocol.edges.append(flow)
 
@@ -146,10 +146,10 @@ class TestParameters(unittest.TestCase):
         protocol.edges.append(ControlFlow(source=step1_action, target=step2_action))
 
         # Action pin "output" does not match expected Primitive Parameters
-        step1_action.outputs.append(
+        step1_action.get_outputs().append(
             OutputPin(name="output", is_ordered=True, is_unique=True)
         )
-        step2_action.inputs.append(
+        step2_action.get_inputs().append(
             InputPin(name="input", is_ordered=True, is_unique=True)
         )
 
@@ -213,10 +213,10 @@ class TestParameters(unittest.TestCase):
         protocol.edges.append(ControlFlow(source=start_action, target=step1_action))
         protocol.edges.append(ControlFlow(source=step1_action, target=step2_action))
 
-        step1_action.outputs.append(
+        step1_action.get_outputs().append(
             OutputPin(name="samples", is_ordered=True, is_unique=True)
         )
-        step1_action.outputs.append(
+        step1_action.get_outputs().append(
             OutputPin(name="samples", is_ordered=True, is_unique=True)
         )
 
@@ -300,7 +300,7 @@ class TestParameters(unittest.TestCase):
             x = ee.execute(protocol, agent, id="test_execution2", parameter_values=[])
 
         # Now provide the required input pin, but it is missing its value. See #130
-        step1_action.inputs.append(
+        step1_action.get_inputs().append(
             ValuePin(name="step1_optional_input1", is_ordered=True, is_unique=True)
         )
         with self.assertRaises(ValueError):
@@ -308,7 +308,7 @@ class TestParameters(unittest.TestCase):
 
         # Provide the remaining, optional Pin. This too should fail because it does not have
         # a ValueSpecification
-        step1_action.inputs.append(
+        step1_action.get_inputs().append(
             ValuePin(name="step1_optional_input2", is_ordered=True, is_unique=True)
         )
         with self.assertRaises(ValueError):
@@ -316,8 +316,8 @@ class TestParameters(unittest.TestCase):
 
         # Now that Pins have a valid ValueSpecification, we should be able to execute
         # successfully
-        step1_action.inputs[0].value = LiteralReference(value=input_component)
-        step1_action.inputs[1].value = LiteralReference(value=input_component)
+        step1_action.get_inputs[0].value = LiteralReference(value=input_component)
+        step1_action.get_inputs[1].value = LiteralReference(value=input_component)
         x = ee.execute(protocol, agent, id="test_execution5", parameter_values=[])
 
     def test_bad_ordered_property_value(self):
