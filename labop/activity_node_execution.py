@@ -28,7 +28,7 @@ class ActivityNodeExecution(inner.ActivityNodeExecution):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-    def node(self):
+    def get_node(self):
         return self.node.lookup()
 
     def check_next_tokens(
@@ -38,6 +38,10 @@ class ActivityNodeExecution(inner.ActivityNodeExecution):
         sample_format: str,
     ):
         pass
+
+    def parameter_value_map(self):
+        # This is an abstract function that shouldn't be called directly.
+        return {}
 
     def get_token_source(
         self,

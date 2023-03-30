@@ -141,7 +141,7 @@ class ActivityNode(inner.ActivityNode):
     def get_value(
         self,
         edge: ActivityEdge,
-        node_inputs: Dict[ActivityEdge, LiteralSpecification],
+        parameter_value_map: Dict[str, [LiteralSpecification]],
         node_outputs: Callable,
         sample_format: str,
     ):

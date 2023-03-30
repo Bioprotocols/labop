@@ -46,6 +46,25 @@ class CallBehaviorAction(inner.CallBehaviorAction, CallAction):
         shape = "none"
         return {"label": label, "shape": shape, "style": "rounded"}
 
+    def get_value(
+        self,
+        edge: ActivityEdge,
+        parameter_value_map: Dict[str, [LiteralSpecification]],
+        node_outputs: Callable,
+        sample_format: str,
+    ):
+        if isinstance(edge, uml.ControlFlow):
+            return super().get_value(
+                edge, parameter_value_map, node_outputs, sample_format
+            )
+        elif isinstance(edge, uml.ObjectFlow):
+            parameter = node.pin_parameter(edge.get_source().name).property_value
+            value = self.get_parameter_value(parameter, node_outputs, sample_format)
+            reference = isinstance(value, sbol3.Identified) and value.identity != None
+
+        value = uml.literal(value, reference=reference)
+        return value
+
     def next_tokens_callback(
         self,
         node_inputs: Dict[ActivityEdge, LiteralSpecification],

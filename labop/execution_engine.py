@@ -4,7 +4,6 @@ import os
 import uuid
 from abc import ABC
 from typing import Callable, Dict, List, Tuple, Union
-from urllib.parse import quote, unquote
 
 import pandas as pd
 import sbol3
@@ -14,7 +13,6 @@ from labop.execution_context import ExecutionContext
 from uml import ActivityNode, CallBehaviorAction
 from uml.activity_edge import ActivityEdge
 from uml.activity_parameter_node import ActivityParameterNode
-from uml.literal_specification import LiteralSpecification
 from uml.utils import literal
 
 from .activity_edge_flow import ActivityEdgeFlow
@@ -277,39 +275,21 @@ class ExecutionEngine(ABC):
         record = self.create_record(node, consumed_tokens)
         self.ex.executions.append(record)
 
-        # Process outputs
-        outgoing_edges = execution_context.outgoing_edges(node)
-
         # from ActivityNode.execute()
-        new_tokens: Dict[ActivityEdge, LiteralSpecification] = self.next_tokens(
-            node_inputs,
-            outgoing_edges,
-            node_outputs,
-            calling_behavior,
-            sample_format,
-            permissive,
+        new_tokens: ActivityEdgeFlow = self.next_tokens(
+            execution_context, record, node_outputs
         )
 
-        # next_tokens_callback cases
-        ## ActivityNode: get_value(edge)
-        ## ActivityParameterNode: parameter-value token, input/output edges, get_value()
-        ## CallBehaviorAction call_subprotocol or super()
-        ## DecisionNode: handle input cases to pick output
-        ## FinalNode: handle end of protocol and return
-        ## ForkNode: handle in ActivityNode? copy/ref tokens
-        ## InputPin: handle case with no edge between pin and CallBehaviorAction
-
         # from ActivityNode.next_tokens()
-        self.check_next_tokens(edge_tokens, node_outputs, sample_format, permissive)
+        # self.check_next_tokens(new_tokens, node_outputs, self.sample_format, self.permissive)
 
-        tokens_added = [
-            ActivityEdgeFlow(edge=edge, token_source=node, value=value)
-            for edge, value in tokens_added.items()
-        ]
-        consumed_tokens = self.consume_tokens(tokens_removed)
+        # tokens_added = [
+        #     ActivityEdgeFlow(edge=edge, token_source=node, value=value)
+        #     for edge, value in tokens_added.items()
+        # ]
 
         # Side Effects / Bookkeeping
-        self.post_process(record, tokens_added)
+        self.post_process(record, new_tokens)
 
         # Consume the tokens used by the node that caused the exception
         # Produce control tokens
@@ -336,14 +316,39 @@ class ExecutionEngine(ABC):
         #     t for t in self.tokens if t.get_target() != node
         # ] + [
         #     ActivityEdgeFlow(
-        #         token_source=exec,
-        #         edge=edge,
+        #         token_source=exec: ExecutionContext,
+        #         edge=edge, List[ActivityEdgeFlow],
         #         value=literal("uml.ControlFlow"),
         #     )
         #     for edge in control_edges
         # ]
 
-        return tokens_added, consumed_tokens
+        return new_tokens, consumed_tokens
+
+    def next_tokens(
+        self,
+        execution_context: ExecutionContext,
+        record: ActivityNodeExecution,
+        node_outputs: Callable,
+    ):
+        # next_tokens_callback cases
+        # ActivityNode: get_value(edge)
+        # ActivityParameterNode: parameter-value token, input/output edges, get_value()
+        # CallBehaviorAction call_subprotocol or super()
+        # DecisionNode: handle input cases to pick output
+        # FinalNode: handle end of protocol and return
+        # ForkNode: handle in ActivityNode? copy/ref tokens
+        # InputPin: handle case with no edge between pin and CallBehaviorAction
+        # Process outputs
+        node = record.get_node()
+        outgoing_edges = execution_context.outgoing_edges(node)
+        parameter_value_map = record.parameter_value_map()
+        new_tokens = [
+            node.get_value(edge, parameter_value_map, node_outputs, self.sample_format)
+            for edge in outgoing_edges
+        ]
+
+        return new_tokens
 
     def possible_calling_behaviors(self, node: ActivityNode):
         # Get all CallBehaviorAction nodes that correspond to a CallBehaviorExecution that supports the current execution of the ActivityNode

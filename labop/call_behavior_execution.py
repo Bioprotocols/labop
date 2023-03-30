@@ -35,6 +35,9 @@ class CallBehaviorExecution(inner.CallBehaviorExecution, ActivityNodeExecution):
     def behavior(self):
         return self.node.lookup().behavior.lookup()
 
+    def parameter_value_map(self):
+        return self.call.lookup().parameter_value_map()
+
     def get_outputs(self) -> List[ParameterValue]:
         return [
             x
