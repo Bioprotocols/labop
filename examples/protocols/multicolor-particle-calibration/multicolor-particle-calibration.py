@@ -135,7 +135,7 @@ suspend_fluorescein = protocol.primitive_step(
     destination=fluorescein_standard_solution_container.output_pin("samples"),
     amount=sbol3.Measure(1, OM.millilitre),
 )
-suspend_fluorescein.description = f"The reconstituted `{fluorescein.name}` should have a final concentration of 10 uM in `{pbs.name}`"
+suspend_fluorescein.description = f"The reconstituted `{fluorescein.name}` should have a final concentration of 10 uM in `{pbs.name}`."
 
 vortex_fluorescein = protocol.primitive_step(
     "Vortex",
@@ -149,7 +149,7 @@ suspend_sulforhodamine = protocol.primitive_step(
     destination=sulforhodamine_standard_solution_container.output_pin("samples"),
     amount=sbol3.Measure(1, OM.millilitre),
 )
-suspend_sulforhodamine.description = f"The reconstituted `{sulforhodamine.name}` standard will have a final concentration of 2 uM in `{pbs.name}`"
+suspend_sulforhodamine.description = f"The reconstituted `{sulforhodamine.name}` standard will have a final concentration of 2 uM in `{pbs.name}`."
 
 vortex_sulforhodamine = protocol.primitive_step(
     "Vortex",
@@ -245,12 +245,12 @@ silica_beads_wells_H1 = protocol.primitive_step(
 blank_wells1 = protocol.primitive_step(
     "PlateCoordinates",
     source=calibration_plate.output_pin("samples"),
-    coordinates="A12:D12",
+    coordinates="A2:D12",
 )
 blank_wells2 = protocol.primitive_step(
     "PlateCoordinates",
     source=calibration_plate.output_pin("samples"),
-    coordinates="E12:H12",
+    coordinates="E2:H12",
 )
 transfer_blanks1 = protocol.primitive_step(
     "Transfer",
@@ -258,14 +258,13 @@ transfer_blanks1 = protocol.primitive_step(
     destination=blank_wells1.output_pin("samples"),
     amount=sbol3.Measure(100, OM.microlitre),
 )
-transfer_blanks1.description = " These are blanks."
 transfer_blanks2 = protocol.primitive_step(
     "Transfer",
     source=ddh2o,
     destination=blank_wells2.output_pin("samples"),
     amount=sbol3.Measure(100, OM.microlitre),
 )
-transfer_blanks2.description = " These are blanks."
+
 
 ### Plate calibrants in first column
 transfer1 = protocol.primitive_step(
@@ -377,7 +376,7 @@ serial_dilution1 = protocol.primitive_step(
     dilution_factor=2,
     series=10,
 )
-serial_dilution1.description = " For each transfer, pipette up and down 3X to ensure the dilution is mixed homogeneously."
+serial_dilution1.description = "For each 100.0 microliter transfer, pipette up and down 3X to ensure the dilution is mixed homogeneously."
 
 embedded_image = protocol.primitive_step(
     "EmbeddedImage",
@@ -399,7 +398,7 @@ serial_dilution2 = protocol.primitive_step(
     dilution_factor=2,
     series=10,
 )
-serial_dilution2.description = " For each transfer, pipette up and down 3X to ensure the dilution is mixed homogeneously."
+serial_dilution2.description = "For each 100.0 microliter transfer, pipette up and down 3X to ensure the dilution is mixed homogeneously."
 
 serial_dilution3 = protocol.primitive_step(
     "SerialDilution",
@@ -410,7 +409,7 @@ serial_dilution3 = protocol.primitive_step(
     dilution_factor=2,
     series=10,
 )
-serial_dilution3.description = " For each transfer, pipette up and down 3X to ensure the dilution is mixed homogeneously."
+serial_dilution3.description = "For each 100.0 microliter transfer, pipette up and down 3X to ensure the dilution is mixed homogeneously."
 
 serial_dilution4 = protocol.primitive_step(
     "SerialDilution",
@@ -421,7 +420,7 @@ serial_dilution4 = protocol.primitive_step(
     dilution_factor=2,
     series=10,
 )
-serial_dilution4.description = " For each transfer, pipette up and down 3X to ensure the dilution is mixed homogeneously."
+serial_dilution4.description = "For each 100.0 microliter transfer, pipette up and down 3X to ensure the dilution is mixed homogeneously."
 
 serial_dilution5 = protocol.primitive_step(
     "SerialDilution",
@@ -432,7 +431,7 @@ serial_dilution5 = protocol.primitive_step(
     dilution_factor=2,
     series=10,
 )
-serial_dilution5.description = " For each transfer, pipette up and down 3X to ensure the dilution is mixed homogeneously."
+serial_dilution5.description = "For each 100.0 microliter transfer, pipette up and down 3X to ensure the dilution is mixed homogeneously."
 
 serial_dilution6 = protocol.primitive_step(
     "SerialDilution",
@@ -443,7 +442,7 @@ serial_dilution6 = protocol.primitive_step(
     dilution_factor=2,
     series=10,
 )
-serial_dilution6.description = " For each transfer, pipette up and down 3X to ensure the dilution is mixed homogeneously."
+serial_dilution6.description = "For each 100.0 microliter transfer, pipette up and down 3X to ensure the dilution is mixed homogeneously."
 
 serial_dilution7 = protocol.primitive_step(
     "SerialDilution",
@@ -454,7 +453,7 @@ serial_dilution7 = protocol.primitive_step(
     dilution_factor=2,
     series=10,
 )
-serial_dilution7.description = " For each transfer, pipette up and down 3X to ensure the dilution is mixed homogeneously."
+serial_dilution7.description = "For each 100.0 microliter transfer, pipette up and down 3X to ensure the dilution is mixed homogeneously."
 
 serial_dilution8 = protocol.primitive_step(
     "SerialDilution",
@@ -465,7 +464,7 @@ serial_dilution8 = protocol.primitive_step(
     dilution_factor=2,
     series=10,
 )
-serial_dilution8.description = " For each transfer, pipette up and down 3X to ensure the dilution is mixed homogeneously."
+serial_dilution8.description = "For each 100.0 microliter transfer, pipette up and down 3X to ensure the dilution is mixed homogeneously."
 
 
 discard_wells = protocol.primitive_step(
@@ -480,7 +479,7 @@ discard = protocol.primitive_step(
     amount=sbol3.Measure(100, OM.microlitre),
 )
 
-discard.description = " This step ensures that all wells contain an equivalent volume. Be sure to change pipette tips for every well to avoid cross-contamination"
+discard.description = " This step ensures that all wells contain an equivalent volume. Be sure to change pipette tips for every well to avoid cross-contamination."
 
 # Bring to volume of 200 ul
 samples_in_pbs = protocol.primitive_step(

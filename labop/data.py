@@ -374,11 +374,11 @@ def sample_array_plot(self, out_dir="out"):
 labop.SampleArray.plot = sample_array_plot
 
 
-def sample_array_sample_coordinates(self, sample_format=Strings.XARRAY):
+def sample_array_sample_coordinates(self, sample_format=Strings.XARRAY, as_list=False):
     sample_array = deserialize_sample_format(self.initial_contents, parent=self)
     if sample_format == Strings.XARRAY:
         coords = sample_array.coords[Strings.SAMPLE].data.tolist()
-        return contiguous_coordinates(coords)
+        return contiguous_coordinates(coords) if not as_list else coords
         # plate_coords = get_sample_list("A1:H12")
         # if all([c in coords for c in plate_coords]):
         #     return "A1:H12"
@@ -391,12 +391,12 @@ def sample_array_sample_coordinates(self, sample_format=Strings.XARRAY):
 labop.SampleArray.sample_coordinates = sample_array_sample_coordinates
 
 
-def sample_mask_sample_coordinates(self, sample_format=Strings.XARRAY):
+def sample_mask_sample_coordinates(self, sample_format=Strings.XARRAY, as_list=False):
     sample_array = self.to_masked_data_array()
 
     if sample_format == Strings.XARRAY:
         coords = sample_array.coords[Strings.SAMPLE].data.tolist()
-        return contiguous_coordinates(coords)
+        return contiguous_coordinates(coords) if not as_list else coords
     else:
         return sample_array
 
