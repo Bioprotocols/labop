@@ -1110,6 +1110,7 @@ class MarkdownSpecialization(BehaviorSpecialization):
         destination_coordinates = ""
         if isinstance(destination, labop.SampleMask):
             destination_coordinates = f"wells {destination.sample_coordinates(sample_format=self.sample_format)} of"
+            last_destination_coordinate = f"{destination.sample_coordinates(sample_format=self.sample_format, as_list=True)[-1]}"
             destination = destination.source.lookup()
         source_coordinates = source.sample_coordinates(sample_format=self.sample_format)
         if isinstance(source, labop.SampleMask):
@@ -1134,7 +1135,7 @@ class MarkdownSpecialization(BehaviorSpecialization):
             )
         else:
             sample_names = source_coordinates
-        text = f"Perform a series of {series} {dilution_factor}-fold dilutions on {sample_names} using `{diluent.name}` as diluent to a final volume of {measurement_to_text(amount)} in {destination_coordinates} {container_str} `{container_spec.name}`."
+        text = f"Perform a series of {series} {dilution_factor}-fold dilutions on {destination_coordinates} {container_str} `{container_spec.name}`. Start with {sample_names}, use `{diluent.name}` as the diluent, and end with a final volume of {measurement_to_text(amount)} in {last_destination_coordinate}. "
         if len(sample_names) > 1 and not source_coordinates:
             text += f" Repeat for the remaining {len(sample_names)-1} `{source.name}` samples."
         # repeat_for_remaining_samples(sample_names, repeat_msg='Repeat for the remaining cultures:')

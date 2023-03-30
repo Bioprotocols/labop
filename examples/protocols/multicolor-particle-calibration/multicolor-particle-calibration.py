@@ -371,12 +371,12 @@ serial_dilution1 = protocol.primitive_step(
     "SerialDilution",
     source=fluorescein_wells_A1.output_pin("samples"),
     destination=dilution_series1.output_pin("samples"),
-    amount=sbol3.Measure(100, OM.microlitre),
+    amount=sbol3.Measure(200, OM.microlitre),
     diluent=pbs,
     dilution_factor=2,
     series=10,
 )
-serial_dilution1.description = " For each transfer, pipette up and down 3X to ensure the dilution is mixed homogeneously."
+serial_dilution1.description = "For each 100.0 microliter transfer, pipette up and down 3X to ensure the dilution is mixed homogeneously."
 
 embedded_image = protocol.primitive_step(
     "EmbeddedImage",
@@ -393,78 +393,78 @@ serial_dilution2 = protocol.primitive_step(
     "SerialDilution",
     source=fluorescein_wells_B1.output_pin("samples"),
     destination=dilution_series2.output_pin("samples"),
-    amount=sbol3.Measure(100, OM.microlitre),
+    amount=sbol3.Measure(200, OM.microlitre),
     diluent=pbs,
     dilution_factor=2,
     series=10,
 )
-serial_dilution2.description = " For each transfer, pipette up and down 3X to ensure the dilution is mixed homogeneously."
+serial_dilution2.description = "For each 100.0 microliter transfer, pipette up and down 3X to ensure the dilution is mixed homogeneously."
 
 serial_dilution3 = protocol.primitive_step(
     "SerialDilution",
     source=sulforhodamine_wells_C1.output_pin("samples"),
     destination=dilution_series3.output_pin("samples"),
-    amount=sbol3.Measure(100, OM.microlitre),
+    amount=sbol3.Measure(200, OM.microlitre),
     diluent=pbs,
     dilution_factor=2,
     series=10,
 )
-serial_dilution3.description = " For each transfer, pipette up and down 3X to ensure the dilution is mixed homogeneously."
+serial_dilution3.description = "For each 100.0 microliter transfer, pipette up and down 3X to ensure the dilution is mixed homogeneously."
 
 serial_dilution4 = protocol.primitive_step(
     "SerialDilution",
     source=sulforhodamine_wells_D1.output_pin("samples"),
     destination=dilution_series4.output_pin("samples"),
-    amount=sbol3.Measure(100, OM.microlitre),
+    amount=sbol3.Measure(200, OM.microlitre),
     diluent=pbs,
     dilution_factor=2,
     series=10,
 )
-serial_dilution4.description = " For each transfer, pipette up and down 3X to ensure the dilution is mixed homogeneously."
+serial_dilution4.description = "For each 100.0 microliter transfer, pipette up and down 3X to ensure the dilution is mixed homogeneously."
 
 serial_dilution5 = protocol.primitive_step(
     "SerialDilution",
     source=cascade_blue_wells_E1.output_pin("samples"),
     destination=dilution_series5.output_pin("samples"),
-    amount=sbol3.Measure(100, OM.microlitre),
+    amount=sbol3.Measure(200, OM.microlitre),
     diluent=ddh2o,
     dilution_factor=2,
     series=10,
 )
-serial_dilution5.description = " For each transfer, pipette up and down 3X to ensure the dilution is mixed homogeneously."
+serial_dilution5.description = "For each 100.0 microliter transfer, pipette up and down 3X to ensure the dilution is mixed homogeneously."
 
 serial_dilution6 = protocol.primitive_step(
     "SerialDilution",
     source=cascade_blue_wells_F1.output_pin("samples"),
     destination=dilution_series6.output_pin("samples"),
-    amount=sbol3.Measure(100, OM.microlitre),
+    amount=sbol3.Measure(200, OM.microlitre),
     diluent=ddh2o,
     dilution_factor=2,
     series=10,
 )
-serial_dilution6.description = " For each transfer, pipette up and down 3X to ensure the dilution is mixed homogeneously."
+serial_dilution6.description = "For each 100.0 microliter transfer, pipette up and down 3X to ensure the dilution is mixed homogeneously."
 
 serial_dilution7 = protocol.primitive_step(
     "SerialDilution",
     source=silica_beads_wells_G1.output_pin("samples"),
     destination=dilution_series7.output_pin("samples"),
-    amount=sbol3.Measure(100, OM.microlitre),
+    amount=sbol3.Measure(200, OM.microlitre),
     diluent=ddh2o,
     dilution_factor=2,
     series=10,
 )
-serial_dilution7.description = " For each transfer, pipette up and down 3X to ensure the dilution is mixed homogeneously."
+serial_dilution7.description = "For each 100.0 microliter transfer, pipette up and down 3X to ensure the dilution is mixed homogeneously."
 
 serial_dilution8 = protocol.primitive_step(
     "SerialDilution",
     source=silica_beads_wells_H1.output_pin("samples"),
     destination=dilution_series8.output_pin("samples"),
-    amount=sbol3.Measure(100, OM.microlitre),
+    amount=sbol3.Measure(200, OM.microlitre),
     diluent=ddh2o,
     dilution_factor=2,
     series=10,
 )
-serial_dilution8.description = " For each transfer, pipette up and down 3X to ensure the dilution is mixed homogeneously."
+serial_dilution8.description = "For each 100.0 microliter transfer, pipette up and down 3X to ensure the dilution is mixed homogeneously."
 
 
 discard_wells = protocol.primitive_step(
@@ -479,7 +479,7 @@ discard = protocol.primitive_step(
     amount=sbol3.Measure(100, OM.microlitre),
 )
 
-discard.description = " This step ensures that all wells contain an equivalent volume. Be sure to change pipette tips for every well to avoid cross-contamination"
+discard.description = " This step ensures that all wells contain an equivalent volume. Be sure to change pipette tips for every well to avoid cross-contamination."
 
 # Bring to volume of 200 ul
 samples_in_pbs = protocol.primitive_step(

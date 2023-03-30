@@ -382,7 +382,7 @@ digraph _root {
   <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="OutputPin1" border="1">samples</td><td> </td></tr></table></td></tr>
 </table>> fillcolor=white shape=none style=rounded]
 		interlab_CallBehaviorAction42 [label=<<table border="0" cellspacing="0">
-  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="InputPin1" border="1">source</td><td> </td><td port="InputPin2" border="1">destination</td><td> </td><td port="ValuePin1" border="1">amount: 100.0 microliter</td><td> </td><td port="ValuePin2" border="1">diluent: Phosphate Buffered Saline</td><td> </td><td port="ValuePin3" border="1">dilution_factor: 2</td><td> </td><td port="ValuePin4" border="1">series: 10</td><td> </td><td> </td></tr></table></td></tr>
+  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="InputPin1" border="1">source</td><td> </td><td port="InputPin2" border="1">destination</td><td> </td><td port="ValuePin1" border="1">amount: 200.0 microliter</td><td> </td><td port="ValuePin2" border="1">diluent: Phosphate Buffered Saline</td><td> </td><td port="ValuePin3" border="1">dilution_factor: 2</td><td> </td><td port="ValuePin4" border="1">series: 10</td><td> </td><td> </td></tr></table></td></tr>
   <tr><td port="node" bgcolor="white" border="1">SerialDilution</td></tr>
 </table>> fillcolor=white shape=none style=rounded]
 		interlab_ForkNode10 [label="" fillcolor=black height=0.02 shape=rectangle style=filled]
@@ -391,37 +391,37 @@ digraph _root {
   <tr><td port="node" bgcolor="white" border="1">EmbeddedImage</td></tr>
 </table>> fillcolor=white shape=none style=rounded]
 		interlab_CallBehaviorAction44 [label=<<table border="0" cellspacing="0">
-  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="InputPin1" border="1">source</td><td> </td><td port="InputPin2" border="1">destination</td><td> </td><td port="ValuePin1" border="1">amount: 100.0 microliter</td><td> </td><td port="ValuePin2" border="1">diluent: Phosphate Buffered Saline</td><td> </td><td port="ValuePin3" border="1">dilution_factor: 2</td><td> </td><td port="ValuePin4" border="1">series: 10</td><td> </td><td> </td></tr></table></td></tr>
+  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="InputPin1" border="1">source</td><td> </td><td port="InputPin2" border="1">destination</td><td> </td><td port="ValuePin1" border="1">amount: 200.0 microliter</td><td> </td><td port="ValuePin2" border="1">diluent: Phosphate Buffered Saline</td><td> </td><td port="ValuePin3" border="1">dilution_factor: 2</td><td> </td><td port="ValuePin4" border="1">series: 10</td><td> </td><td> </td></tr></table></td></tr>
   <tr><td port="node" bgcolor="white" border="1">SerialDilution</td></tr>
 </table>> fillcolor=white shape=none style=rounded]
 		interlab_ForkNode11 [label="" fillcolor=black height=0.02 shape=rectangle style=filled]
 		interlab_CallBehaviorAction45 [label=<<table border="0" cellspacing="0">
-  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="InputPin1" border="1">source</td><td> </td><td port="InputPin2" border="1">destination</td><td> </td><td port="ValuePin1" border="1">amount: 100.0 microliter</td><td> </td><td port="ValuePin2" border="1">diluent: Phosphate Buffered Saline</td><td> </td><td port="ValuePin3" border="1">dilution_factor: 2</td><td> </td><td port="ValuePin4" border="1">series: 10</td><td> </td><td> </td></tr></table></td></tr>
+  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="InputPin1" border="1">source</td><td> </td><td port="InputPin2" border="1">destination</td><td> </td><td port="ValuePin1" border="1">amount: 200.0 microliter</td><td> </td><td port="ValuePin2" border="1">diluent: Phosphate Buffered Saline</td><td> </td><td port="ValuePin3" border="1">dilution_factor: 2</td><td> </td><td port="ValuePin4" border="1">series: 10</td><td> </td><td> </td></tr></table></td></tr>
   <tr><td port="node" bgcolor="white" border="1">SerialDilution</td></tr>
 </table>> fillcolor=white shape=none style=rounded]
 		interlab_ForkNode12 [label="" fillcolor=black height=0.02 shape=rectangle style=filled]
 		interlab_CallBehaviorAction46 [label=<<table border="0" cellspacing="0">
-  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="InputPin1" border="1">source</td><td> </td><td port="InputPin2" border="1">destination</td><td> </td><td port="ValuePin1" border="1">amount: 100.0 microliter</td><td> </td><td port="ValuePin2" border="1">diluent: Phosphate Buffered Saline</td><td> </td><td port="ValuePin3" border="1">dilution_factor: 2</td><td> </td><td port="ValuePin4" border="1">series: 10</td><td> </td><td> </td></tr></table></td></tr>
+  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="InputPin1" border="1">source</td><td> </td><td port="InputPin2" border="1">destination</td><td> </td><td port="ValuePin1" border="1">amount: 200.0 microliter</td><td> </td><td port="ValuePin2" border="1">diluent: Phosphate Buffered Saline</td><td> </td><td port="ValuePin3" border="1">dilution_factor: 2</td><td> </td><td port="ValuePin4" border="1">series: 10</td><td> </td><td> </td></tr></table></td></tr>
   <tr><td port="node" bgcolor="white" border="1">SerialDilution</td></tr>
 </table>> fillcolor=white shape=none style=rounded]
 		interlab_ForkNode13 [label="" fillcolor=black height=0.02 shape=rectangle style=filled]
 		interlab_CallBehaviorAction47 [label=<<table border="0" cellspacing="0">
-  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="InputPin1" border="1">source</td><td> </td><td port="InputPin2" border="1">destination</td><td> </td><td port="ValuePin1" border="1">amount: 100.0 microliter</td><td> </td><td port="ValuePin2" border="1">diluent: Water, sterile-filtered, BioReagent, suitable for cell culture</td><td> </td><td port="ValuePin3" border="1">dilution_factor: 2</td><td> </td><td port="ValuePin4" border="1">series: 10</td><td> </td><td> </td></tr></table></td></tr>
+  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="InputPin1" border="1">source</td><td> </td><td port="InputPin2" border="1">destination</td><td> </td><td port="ValuePin1" border="1">amount: 200.0 microliter</td><td> </td><td port="ValuePin2" border="1">diluent: Water, sterile-filtered, BioReagent, suitable for cell culture</td><td> </td><td port="ValuePin3" border="1">dilution_factor: 2</td><td> </td><td port="ValuePin4" border="1">series: 10</td><td> </td><td> </td></tr></table></td></tr>
   <tr><td port="node" bgcolor="white" border="1">SerialDilution</td></tr>
 </table>> fillcolor=white shape=none style=rounded]
 		interlab_ForkNode14 [label="" fillcolor=black height=0.02 shape=rectangle style=filled]
 		interlab_CallBehaviorAction48 [label=<<table border="0" cellspacing="0">
-  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="InputPin1" border="1">source</td><td> </td><td port="InputPin2" border="1">destination</td><td> </td><td port="ValuePin1" border="1">amount: 100.0 microliter</td><td> </td><td port="ValuePin2" border="1">diluent: Water, sterile-filtered, BioReagent, suitable for cell culture</td><td> </td><td port="ValuePin3" border="1">dilution_factor: 2</td><td> </td><td port="ValuePin4" border="1">series: 10</td><td> </td><td> </td></tr></table></td></tr>
+  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="InputPin1" border="1">source</td><td> </td><td port="InputPin2" border="1">destination</td><td> </td><td port="ValuePin1" border="1">amount: 200.0 microliter</td><td> </td><td port="ValuePin2" border="1">diluent: Water, sterile-filtered, BioReagent, suitable for cell culture</td><td> </td><td port="ValuePin3" border="1">dilution_factor: 2</td><td> </td><td port="ValuePin4" border="1">series: 10</td><td> </td><td> </td></tr></table></td></tr>
   <tr><td port="node" bgcolor="white" border="1">SerialDilution</td></tr>
 </table>> fillcolor=white shape=none style=rounded]
 		interlab_ForkNode15 [label="" fillcolor=black height=0.02 shape=rectangle style=filled]
 		interlab_CallBehaviorAction49 [label=<<table border="0" cellspacing="0">
-  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="InputPin1" border="1">source</td><td> </td><td port="InputPin2" border="1">destination</td><td> </td><td port="ValuePin1" border="1">amount: 100.0 microliter</td><td> </td><td port="ValuePin2" border="1">diluent: Water, sterile-filtered, BioReagent, suitable for cell culture</td><td> </td><td port="ValuePin3" border="1">dilution_factor: 2</td><td> </td><td port="ValuePin4" border="1">series: 10</td><td> </td><td> </td></tr></table></td></tr>
+  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="InputPin1" border="1">source</td><td> </td><td port="InputPin2" border="1">destination</td><td> </td><td port="ValuePin1" border="1">amount: 200.0 microliter</td><td> </td><td port="ValuePin2" border="1">diluent: Water, sterile-filtered, BioReagent, suitable for cell culture</td><td> </td><td port="ValuePin3" border="1">dilution_factor: 2</td><td> </td><td port="ValuePin4" border="1">series: 10</td><td> </td><td> </td></tr></table></td></tr>
   <tr><td port="node" bgcolor="white" border="1">SerialDilution</td></tr>
 </table>> fillcolor=white shape=none style=rounded]
 		interlab_ForkNode16 [label="" fillcolor=black height=0.02 shape=rectangle style=filled]
 		interlab_CallBehaviorAction50 [label=<<table border="0" cellspacing="0">
-  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="InputPin1" border="1">source</td><td> </td><td port="InputPin2" border="1">destination</td><td> </td><td port="ValuePin1" border="1">amount: 100.0 microliter</td><td> </td><td port="ValuePin2" border="1">diluent: Water, sterile-filtered, BioReagent, suitable for cell culture</td><td> </td><td port="ValuePin3" border="1">dilution_factor: 2</td><td> </td><td port="ValuePin4" border="1">series: 10</td><td> </td><td> </td></tr></table></td></tr>
+  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="InputPin1" border="1">source</td><td> </td><td port="InputPin2" border="1">destination</td><td> </td><td port="ValuePin1" border="1">amount: 200.0 microliter</td><td> </td><td port="ValuePin2" border="1">diluent: Water, sterile-filtered, BioReagent, suitable for cell culture</td><td> </td><td port="ValuePin3" border="1">dilution_factor: 2</td><td> </td><td port="ValuePin4" border="1">series: 10</td><td> </td><td> </td></tr></table></td></tr>
   <tr><td port="node" bgcolor="white" border="1">SerialDilution</td></tr>
 </table>> fillcolor=white shape=none style=rounded]
 		interlab_ForkNode17 [label="" fillcolor=black height=0.02 shape=rectangle style=filled]
