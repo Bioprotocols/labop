@@ -54,7 +54,7 @@ silica_beads = sbol3.Component(
 silica_beads.name = "NanoCym 950 nm monodisperse silica nanoparticles"
 silica_beads.description = "3e9 NanoCym microspheres/mL ddH20"  # where does this go?
 
-pbs = sbol3.Component("pbs", "https://pubchem.ncbi.nlm.nih.gov/substance/329753341")
+pbs = sbol3.Component("pbs", "https://pubchem.ncbi.nlm.nih.gov/compound/24978514")
 pbs.name = "Phosphate Buffered Saline"
 
 fluorescein = sbol3.Component(
@@ -63,12 +63,12 @@ fluorescein = sbol3.Component(
 fluorescein.name = "Fluorescein"
 
 cascade_blue = sbol3.Component(
-    "cascade_blue", "https://pubchem.ncbi.nlm.nih.gov/substance/329753341"
+    "cascade_blue", "https://pubchem.ncbi.nlm.nih.gov/substance/57269662"
 )
 cascade_blue.name = "Cascade Blue"
 
 sulforhodamine = sbol3.Component(
-    "sulforhodamine", "https://pubchem.ncbi.nlm.nih.gov/substance/329753341"
+    "sulforhodamine", "https://pubchem.ncbi.nlm.nih.gov/compound/139216224"
 )
 sulforhodamine.name = "Sulforhodamine"
 
@@ -260,31 +260,47 @@ calibration_plate = protocol.primitive_step(
 
 
 fluorescein_wells_A1 = protocol.primitive_step(
-    "PlateCoordinates", source=calibration_plate.output_pin("samples"), coordinates="A1"
+    "PlateCoordinates",
+    source=calibration_plate.output_pin("samples"),
+    coordinates="A1",
 )
 fluorescein_wells_B1 = protocol.primitive_step(
-    "PlateCoordinates", source=calibration_plate.output_pin("samples"), coordinates="B1"
+    "PlateCoordinates",
+    source=calibration_plate.output_pin("samples"),
+    coordinates="B1",
 )
 
 sulforhodamine_wells_C1 = protocol.primitive_step(
-    "PlateCoordinates", source=calibration_plate.output_pin("samples"), coordinates="C1"
+    "PlateCoordinates",
+    source=calibration_plate.output_pin("samples"),
+    coordinates="C1",
 )
 sulforhodamine_wells_D1 = protocol.primitive_step(
-    "PlateCoordinates", source=calibration_plate.output_pin("samples"), coordinates="D1"
+    "PlateCoordinates",
+    source=calibration_plate.output_pin("samples"),
+    coordinates="D1",
 )
 
 cascade_blue_wells_E1 = protocol.primitive_step(
-    "PlateCoordinates", source=calibration_plate.output_pin("samples"), coordinates="E1"
+    "PlateCoordinates",
+    source=calibration_plate.output_pin("samples"),
+    coordinates="E1",
 )
 cascade_blue_wells_F1 = protocol.primitive_step(
-    "PlateCoordinates", source=calibration_plate.output_pin("samples"), coordinates="F1"
+    "PlateCoordinates",
+    source=calibration_plate.output_pin("samples"),
+    coordinates="F1",
 )
 
 silica_beads_wells_G1 = protocol.primitive_step(
-    "PlateCoordinates", source=calibration_plate.output_pin("samples"), coordinates="G1"
+    "PlateCoordinates",
+    source=calibration_plate.output_pin("samples"),
+    coordinates="G1",
 )
 silica_beads_wells_H1 = protocol.primitive_step(
-    "PlateCoordinates", source=calibration_plate.output_pin("samples"), coordinates="H1"
+    "PlateCoordinates",
+    source=calibration_plate.output_pin("samples"),
+    coordinates="H1",
 )
 
 # Plate blanks
@@ -714,7 +730,10 @@ autoprotocol_specialization = AutoprotocolSpecialization(
 
 ee = ExecutionEngine(specializations=[autoprotocol_specialization], failsafe=False)
 execution = ee.execute(
-    protocol, sbol3.Agent("test_agent"), id="test_execution", parameter_values=[]
+    protocol,
+    sbol3.Agent("test_agent"),
+    id="test_execution",
+    parameter_values=[],
 )
 
 st = api.get_strateos_connection()
