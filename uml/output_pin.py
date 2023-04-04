@@ -2,7 +2,7 @@
 The OutputPin class defines the functions corresponding to the dynamically generated labop class OutputPin
 """
 
-from typing import Callable, Dict, List
+from typing import Callable, Dict
 
 from . import inner
 from .control_flow import ControlFlow
@@ -18,13 +18,6 @@ class OutputPin(inner.OutputPin, Pin):
     def get_decision_input_node(self):
         return self.get_parent()
 
-    def enabled(
-        self,
-        engine: "ExecutionEngine",
-        tokens: List["ActivityEdgeFlow"],
-    ):
-        return False
-
     def get_value(
         self,
         edge: "ActivityEdge",
@@ -39,7 +32,7 @@ class OutputPin(inner.OutputPin, Pin):
             value = "uml.ControlFlow"
         elif isinstance(edge, ObjectFlow):
             call_node = self.get_parent()
-            parameter = call_node.pin_parameter(edge.source().name).property_value
+            parameter = call_node.pin_parameter(edge.get_source().name).property_value
             value = node_inputs[edge]
             reference = True
 

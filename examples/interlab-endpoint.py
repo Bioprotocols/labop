@@ -155,12 +155,17 @@ doc.add(plate_reader)
 doc.add(shaking_incubator)
 
 
-protocol = labop.Protocol("interlab")
-protocol.name = "Cell measurement protocol"
-protocol.version = sbol3.TextProperty(
-    protocol, "http://igem.org/interlab_working_group#Version", 0, 1, [], "1.2.2"
+activity = labop.Protocol("interlab")
+activity.name = "Cell measurement protocol"
+activity.version = sbol3.TextProperty(
+    activity,
+    "http://igem.org/interlab_working_group#Version",
+    0,
+    1,
+    [],
+    "1.2.2",
 )
-protocol.description = """This year we plan to test protocols that will eventually be automated. For this reason, we will use 96-well plates instead of test tubes for culturing. Consequently, we want to evaluate how the performance of our plate culturing protocol compares to culturing in test tubes (e.g. 10 mL falcon tube) on a global scale.
+activity.description = """This year we plan to test protocols that will eventually be automated. For this reason, we will use 96-well plates instead of test tubes for culturing. Consequently, we want to evaluate how the performance of our plate culturing protocol compares to culturing in test tubes (e.g. 10 mL falcon tube) on a global scale.
 
 At the end of the experiment, you will have two plates to be measured. You will measure both fluorescence and absorbance in each plate.
 
@@ -170,8 +175,8 @@ For all below indicated cell measurements, you must use the same type of plates 
 
 Protocol summary: You will transform the eight devices listed in Table 1 into E. coli K-12 DH5-alpha cells. The next day you will pick two colonies from each transformation (16 total) and use them to inoculate 5 mL overnight cultures (this step is still in tubes). Each of these 16 overnight cultures will be used to inoculate four wells in a 96-well plate (200 microliter each, 4 replicates) and one test tube (12 mL). You will measure how fluorescence and optical density develops over 6 hours by taking measurements at time point 0 hour and at time point 6 hours. Follow the protocol below and the visual instructions in Figure 1 and Figure 2."""
 
-doc.add(protocol)
-protocol = doc.find(protocol.identity)
+doc.add(activity)
+activity = doc.find(activity.identity)
 
 plasmids = [
     neg_control_plasmid,
@@ -185,7 +190,7 @@ plasmids = [
 ]
 
 # Day 1: Transformation
-culture_plates = protocol.primitive_step(
+culture_plates = activity.primitive_step(
     "CulturePlates",
     quantity=len(plasmids),
     specification=labop.ContainerSpec(
@@ -197,7 +202,7 @@ culture_plates = protocol.primitive_step(
     growth_medium=lb_agar_cam,
 )
 
-transformation = protocol.primitive_step(
+transformation = activity.primitive_step(
     f"Transform",
     host=dh5alpha,
     dna=plasmids,
@@ -207,7 +212,7 @@ transformation = protocol.primitive_step(
 transformation.description = "Incubate overnight (for 16 hour) at 37.0 degree Celsius."
 
 # Day 2: Pick colonies and culture overnight
-culture_container_day1 = protocol.primitive_step(
+culture_container_day1 = activity.primitive_step(
     "ContainerSet",
     quantity=2 * len(plasmids),
     specification=labop.ContainerSpec(
@@ -218,14 +223,14 @@ culture_container_day1 = protocol.primitive_step(
     ),
 )
 
-pick_colonies = protocol.primitive_step(
+pick_colonies = activity.primitive_step(
     "PickColonies",
     colonies=transformation.output_pin("transformants"),
     quantity=2 * len(plasmids),
     replicates=2,
 )
 
-overnight_culture = protocol.primitive_step(
+overnight_culture = activity.primitive_step(
     "Culture",
     inoculum=pick_colonies.output_pin("samples"),
     replicates=2,
@@ -238,7 +243,7 @@ overnight_culture = protocol.primitive_step(
 )
 
 # Day 3 culture
-culture_container_day2 = protocol.primitive_step(
+culture_container_day2 = activity.primitive_step(
     "ContainerSet",
     quantity=2 * len(plasmids),
     specification=labop.ContainerSpec(
@@ -250,7 +255,7 @@ culture_container_day2 = protocol.primitive_step(
 )
 
 
-back_dilution = protocol.primitive_step(
+back_dilution = activity.primitive_step(
     "Dilute",
     source=culture_container_day1.output_pin("samples"),
     destination=culture_container_day2.output_pin("samples"),
@@ -264,7 +269,7 @@ back_dilution.description = "(This can be also performed on ice)."
 
 
 # Transfer cultures to a microplate baseline measurement and outgrowth
-timepoint_0hrs = protocol.primitive_step(
+timepoint_0hrs = activity.primitive_step(
     "ContainerSet",
     quantity=2 * len(plasmids),
     specification=labop.ContainerSpec(
@@ -275,12 +280,12 @@ timepoint_0hrs = protocol.primitive_step(
     ),
 )
 
-hold = protocol.primitive_step(
+hold = activity.primitive_step(
     "HoldOnIce", location=timepoint_0hrs.output_pin("samples")
 )
 hold.description = "This will prevent cell growth while transferring samples."
 
-transfer = protocol.primitive_step(
+transfer = activity.primitive_step(
     "Transfer",
     source=culture_container_day2.output_pin("samples"),
     destination=timepoint_0hrs.output_pin("samples"),
@@ -290,7 +295,7 @@ transfer = protocol.primitive_step(
 transfer.description = "(This can be also performed on Ice)."
 
 # Abs measurement
-baseline_absorbance = protocol.primitive_step(
+baseline_absorbance = activity.primitive_step(
     "MeasureAbsorbance",
     samples=timepoint_0hrs.output_pin("samples"),
     wavelength=sbol3.Measure(600, OM.nanometer),
@@ -298,7 +303,7 @@ baseline_absorbance = protocol.primitive_step(
 baseline_absorbance.name = "baseline absorbance of culture (day 2)"
 
 
-conical_tube = protocol.primitive_step(
+conical_tube = activity.primitive_step(
     "ContainerSet",
     quantity=2 * len(plasmids),
     specification=labop.ContainerSpec(
@@ -312,7 +317,7 @@ conical_tube.description = (
     "The conical tube should be opaque, amber-colored, or covered with foil."
 )
 
-dilution = protocol.primitive_step(
+dilution = activity.primitive_step(
     "DiluteToTargetOD",
     source=culture_container_day2.output_pin("samples"),
     destination=conical_tube.output_pin("samples"),
@@ -323,16 +328,17 @@ dilution = protocol.primitive_step(
 )  # Dilute to a target OD of 0.2, opaque container
 dilution.description = f"(This can be also performed on Ice)."
 
-embedded_image = protocol.primitive_step(
+embedded_image = activity.primitive_step(
     "EmbeddedImage",
     image=os.path.join(
-        os.path.dirname(os.path.realpath(__file__)), "fig1_standard_protocol.png"
+        os.path.dirname(os.path.realpath(__file__)),
+        "fig1_standard_protocol.png",
     ),
     caption="Fig 1: Visual representation of protocol",
 )
 
 
-temporary = protocol.primitive_step(
+temporary = activity.primitive_step(
     "ContainerSet",
     quantity=2 * len(plasmids),
     specification=labop.ContainerSpec(
@@ -343,10 +349,10 @@ temporary = protocol.primitive_step(
     ),
 )
 
-hold = protocol.primitive_step("HoldOnIce", location=temporary.output_pin("samples"))
+hold = activity.primitive_step("HoldOnIce", location=temporary.output_pin("samples"))
 hold.description = "This will prevent cell growth while transferring samples."
 
-transfer = protocol.primitive_step(
+transfer = activity.primitive_step(
     "Transfer",
     source=conical_tube.output_pin("samples"),
     destination=temporary.output_pin("samples"),
@@ -355,7 +361,7 @@ transfer = protocol.primitive_step(
 )
 transfer.description = "(This can be also performed on Ice)."
 
-plate1 = protocol.primitive_step(
+plate1 = activity.primitive_step(
     "EmptyContainer",
     specification=labop.ContainerSpec(
         "plate_1",
@@ -366,7 +372,7 @@ plate1 = protocol.primitive_step(
 )
 
 
-hold = protocol.primitive_step("HoldOnIce", location=plate1.output_pin("samples"))
+hold = activity.primitive_step("HoldOnIce", location=plate1.output_pin("samples"))
 
 
 plan = labop.SampleData(
@@ -395,7 +401,7 @@ plan = labop.SampleData(
 )
 
 
-transfer = protocol.primitive_step(
+transfer = activity.primitive_step(
     "TransferByMap",
     source=temporary.output_pin("samples"),
     destination=plate1.output_pin("samples"),
@@ -405,7 +411,7 @@ transfer = protocol.primitive_step(
 )
 transfer.description = "See also the plate layout below."
 
-plate_blanks = protocol.primitive_step(
+plate_blanks = activity.primitive_step(
     "Transfer",
     source=[lb_cam],
     destination=plate1.output_pin("samples"),
@@ -415,7 +421,7 @@ plate_blanks = protocol.primitive_step(
 )
 plate_blanks.description = "These samples are blanks."
 
-embedded_image = protocol.primitive_step(
+embedded_image = activity.primitive_step(
     "EmbeddedImage",
     image=os.path.join(
         os.path.dirname(os.path.realpath(__file__)), "fig2_cell_calibration.png"
@@ -424,13 +430,13 @@ embedded_image = protocol.primitive_step(
 )
 
 # Possibly display map here
-absorbance_plate1 = protocol.primitive_step(
+absorbance_plate1 = activity.primitive_step(
     "MeasureAbsorbance",
     samples=plate1.output_pin("samples"),
     wavelength=sbol3.Measure(600, OM.nanometer),
 )
 absorbance_plate1.name = "0 hr absorbance timepoint"
-fluorescence_plate1 = protocol.primitive_step(
+fluorescence_plate1 = activity.primitive_step(
     "MeasureFluorescence",
     samples=plate1.output_pin("samples"),
     excitationWavelength=sbol3.Measure(488, OM.nanometer),
@@ -440,7 +446,7 @@ fluorescence_plate1 = protocol.primitive_step(
 fluorescence_plate1.name = "0 hr fluorescence timepoint"
 
 # Cover plate
-seal = protocol.primitive_step(
+seal = activity.primitive_step(
     "EvaporativeSeal",
     location=plate1.output_pin("samples"),
     specification=labop.ContainerSpec(
@@ -451,7 +457,7 @@ seal = protocol.primitive_step(
 )
 
 # Begin outgrowth
-incubate = protocol.primitive_step(
+incubate = activity.primitive_step(
     "Incubate",
     location=conical_tube.output_pin("samples"),
     duration=sbol3.Measure(6, OM.hour),
@@ -459,7 +465,7 @@ incubate = protocol.primitive_step(
     shakingFrequency=sbol3.Measure(220, None),
 )
 
-incubate = protocol.primitive_step(
+incubate = activity.primitive_step(
     "Incubate",
     location=plate1.output_pin("samples"),
     duration=sbol3.Measure(6, OM.hour),
@@ -468,12 +474,12 @@ incubate = protocol.primitive_step(
 )
 
 # Hold on ice to inhibit cell growth
-hold = protocol.primitive_step("HoldOnIce", location=conical_tube.output_pin("samples"))
+hold = activity.primitive_step("HoldOnIce", location=conical_tube.output_pin("samples"))
 hold.description = (
     "This will inhibit cell growth during the subsequent pipetting steps."
 )
 
-hold = protocol.primitive_step("HoldOnIce", location=plate1.output_pin("samples"))
+hold = activity.primitive_step("HoldOnIce", location=plate1.output_pin("samples"))
 hold.description = (
     "This will inhibit cell growth during the subsequent pipetting steps."
 )
@@ -481,7 +487,7 @@ hold.description = (
 
 # Take a 6hr timepoint measurement
 
-plate2 = protocol.primitive_step(
+plate2 = activity.primitive_step(
     "EmptyContainer",
     specification=labop.ContainerSpec(
         "plate_2",
@@ -493,7 +499,7 @@ plate2 = protocol.primitive_step(
 
 # Hold on ice
 
-hold = protocol.primitive_step("HoldOnIce", location=plate2.output_pin("samples"))
+hold = activity.primitive_step("HoldOnIce", location=plate2.output_pin("samples"))
 
 
 plan = labop.SampleData(
@@ -521,7 +527,7 @@ plan = labop.SampleData(
     )
 )
 
-transfer = protocol.primitive_step(
+transfer = activity.primitive_step(
     "TransferByMap",
     source=conical_tube.output_pin("samples"),
     destination=plate2.output_pin("samples"),
@@ -532,7 +538,7 @@ transfer = protocol.primitive_step(
 transfer.description = "See the plate layout."
 
 # Plate the blanks
-plate_blanks = protocol.primitive_step(
+plate_blanks = activity.primitive_step(
     "Transfer",
     source=[lb_cam],
     destination=plate2.output_pin("samples"),
@@ -543,14 +549,14 @@ plate_blanks = protocol.primitive_step(
 plate_blanks.description = "These are the blanks."
 
 
-endpoint_absorbance_plate1 = protocol.primitive_step(
+endpoint_absorbance_plate1 = activity.primitive_step(
     "MeasureAbsorbance",
     samples=plate1.output_pin("samples"),
     wavelength=sbol3.Measure(600, OM.nanometer),
 )
 endpoint_absorbance_plate1.name = "6 hr absorbance timepoint"
 
-endpoint_fluorescence_plate1 = protocol.primitive_step(
+endpoint_fluorescence_plate1 = activity.primitive_step(
     "MeasureFluorescence",
     samples=plate1.output_pin("samples"),
     excitationWavelength=sbol3.Measure(485, OM.nanometer),
@@ -559,14 +565,14 @@ endpoint_fluorescence_plate1 = protocol.primitive_step(
 )
 endpoint_fluorescence_plate1.name = "6 hr fluorescence timepoint"
 
-endpoint_absorbance_plate2 = protocol.primitive_step(
+endpoint_absorbance_plate2 = activity.primitive_step(
     "MeasureAbsorbance",
     samples=plate2.output_pin("samples"),
     wavelength=sbol3.Measure(600, OM.nanometer),
 )
 endpoint_absorbance_plate2.name = "6 hr absorbance timepoint"
 
-endpoint_fluorescence_plate2 = protocol.primitive_step(
+endpoint_fluorescence_plate2 = activity.primitive_step(
     "MeasureFluorescence",
     samples=plate2.output_pin("samples"),
     excitationWavelength=sbol3.Measure(485, OM.nanometer),
@@ -575,39 +581,39 @@ endpoint_fluorescence_plate2 = protocol.primitive_step(
 )
 endpoint_fluorescence_plate2.name = "6 hr fluorescence timepoint"
 
-protocol.designate_output(
+activity.designate_output(
     "measurements",
     "http://bioprotocols.org/labop#SampleData",
     source=baseline_absorbance.output_pin("measurements"),
 )
-protocol.designate_output(
+activity.designate_output(
     "measurements",
     "http://bioprotocols.org/labop#SampleData",
     source=absorbance_plate1.output_pin("measurements"),
 )
-protocol.designate_output(
+activity.designate_output(
     "measurements",
     "http://bioprotocols.org/labop#SampleData",
     source=fluorescence_plate1.output_pin("measurements"),
 )
 
-protocol.designate_output(
+activity.designate_output(
     "measurements",
     "http://bioprotocols.org/labop#SampleData",
     source=endpoint_absorbance_plate1.output_pin("measurements"),
 )
-protocol.designate_output(
+activity.designate_output(
     "measurements",
     "http://bioprotocols.org/labop#SampleData",
     source=endpoint_fluorescence_plate1.output_pin("measurements"),
 )
 
-protocol.designate_output(
+activity.designate_output(
     "measurements",
     "http://bioprotocols.org/labop#SampleData",
     source=endpoint_absorbance_plate2.output_pin("measurements"),
 )
-protocol.designate_output(
+activity.designate_output(
     "measurements",
     "http://bioprotocols.org/labop#SampleData",
     source=endpoint_fluorescence_plate2.output_pin("measurements"),
@@ -620,7 +626,7 @@ ee = ExecutionEngine(
     failsafe=False,
     sample_format="json",
 )
-execution = ee.execute(protocol, agent, id="test_execution", parameter_values=[])
+execution = ee.execute(activity, agent, id="test_execution", parameter_values=[])
 render_kit_coordinates_table(execution)
 print(execution.markdown)
 

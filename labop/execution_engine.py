@@ -3,7 +3,7 @@ import logging
 import os
 import uuid
 from abc import ABC
-from typing import Callable, Dict, List, Tuple, Union
+from typing import Callable, Dict, List, Optional, Tuple, Union
 
 import pandas as pd
 import sbol3
@@ -11,9 +11,16 @@ import sbol3
 from labop.behavior_execution import BehaviorExecution
 from labop.execution_context import ExecutionContext
 from uml import ActivityNode, CallBehaviorAction
+from uml.activity import Activity
 from uml.activity_edge import ActivityEdge
 from uml.activity_parameter_node import ActivityParameterNode
+from uml.control_flow import ControlFlow
+from uml.input_pin import InputPin
+from uml.object_flow import ObjectFlow
+from uml.output_pin import OutputPin
+from uml.pin import Pin
 from uml.utils import literal
+from uml.value_pin import ValuePin
 
 from .activity_edge_flow import ActivityEdgeFlow
 from .activity_node_execution import ActivityNodeExecution
@@ -25,11 +32,8 @@ from .protocol import Protocol
 from .protocol_execution import ProtocolExecution
 from .sample_data import SampleData
 
-l = logging.getLogger(__file__)
+l: logging.Logger = logging.getLogger(__file__)
 l.setLevel(logging.ERROR)
-
-
-failsafe = True  # When set to True, a protocol execution will proceed through to the end, even if a CallBehaviorAction raises an exception.  Set to False for debugging
 
 
 class ExecutionError(Exception):
@@ -42,20 +46,21 @@ class ExecutionWarning(Exception):
 
 class ExecutionEngine(ABC):
     """Base class for implementing and recording a LabOP executions.
-    This class can handle common UML activities and the propagation of tokens, but does not execute primitives.
-    It needs to be extended with specific implementations that have that capability.
+    This class can handle common UML activities and the propagation of tokens,
+    but does not execute primitives. It needs to be extended with specific
+    implementations that have that capability.
     """
 
     def __init__(
         self,
-        specializations=[],
-        use_ordinal_time=False,
-        failsafe=True,
-        permissive=False,
-        use_defined_primitives=True,
-        sample_format="xarray",
-        out_dir="out",
-        dataset_file=None,
+        specializations: Optional[List["BehaviorSpecialization"]] = None,
+        use_ordinal_time: bool = False,
+        failsafe: bool = True,
+        permissive: bool = False,
+        use_defined_primitives: bool = True,
+        sample_format: str = "xarray",
+        out_dir: str = "out",
+        dataset_file: str = None,  # type: ignore
     ):
         self.exec_counter = 0
         self.variable_counter = 0
@@ -83,6 +88,9 @@ class ExecutionEngine(ABC):
 
         self.ex = None
         self.is_asynchronous = True
+
+        # When set to True, a protocol execution will proceed through to the end, even
+        # if a CallBehaviorAction raises an exception.  Set to False for debugging
         self.failsafe = failsafe
         self.permissive = permissive  # Allow execution to follow control flow even if objects not present.
         self.use_defined_primitives = use_defined_primitives  # used the compute_output definitions to compute primitive outputs
@@ -116,7 +124,7 @@ class ExecutionEngine(ABC):
             start_time = start_time if start_time else datetime.datetime.now()
             self.start_time = start_time
 
-    def get_current_time(self, as_string=False):
+    def get_current_time(self, as_string: bool = False):
         if self.use_ordinal_time:
             now = self.ordinal_time
             self.ordinal_time += datetime.timedelta(seconds=1)
@@ -211,74 +219,101 @@ class ExecutionEngine(ABC):
         return self.ex
 
     def run(
-        self, execution_context: ExecutionContext, start_time: datetime.datetime = None
+        self,
+        execution_context: ExecutionContext,
+        start_time: datetime.datetime = None,
     ):
         self.init_time(start_time)
         self.ex.start_time = (
             self.start_time
         )  # TODO: remove str wrapper after sbol_factory #22 fixed
 
-        # Get initiating_nodes, and create invocation edges
-        ready = {execution_context: execution_context.initialize_entry()}
+        execution_contexts = [execution_context]
 
         # Iteratively execute all unblocked activities until no more tokens can progress
-        while ready:
-            ready = self.step(ready)
-        return ready
+        while any([c.ready for c in execution_contexts]):
+            execution_contexts = self.step(execution_contexts)
+        return execution_contexts
 
     def step(
         self,
-        active_contexts: Dict[ExecutionContext, List[ActivityNode]],
+        active_contexts: List[ExecutionContext],
         node_outputs: Dict[ActivityNode, Callable] = {},
     ):
-        for ec, ready in active_contexts.items():
+        new_execution_contexts = []
+        new_tokens = {}
+        for ec in active_contexts:
+            new_tokens[ec] = [] if ec not in new_tokens else new_tokens[ec]
             non_call_nodes = [
-                node for node in ready if not isinstance(node, CallBehaviorAction)
+                node for node in ec.ready if not isinstance(node, CallBehaviorAction)
             ]
-            new_tokens = []
+
             # prefer executing non_call_nodes first
-            for node in non_call_nodes + [n for n in ready if n not in non_call_nodes]:
+            for node in non_call_nodes + [
+                n for n in ec.ready if n not in non_call_nodes
+            ]:
                 self.current_node = node
                 try:
-                    tokens_added, consumed_tokens = self.execute_node(
-                        ec, node, node_outputs
-                    )
-                    self.tokens = [t for t in self.tokens if t not in consumed_tokens]
-                    self.ex.flows += tokens_added
-                    new_tokens = new_tokens + tokens_added
+                    (
+                        tokens_created,
+                        tokens_consumed,
+                        new_execution_context,
+                    ) = self.execute_node(ec, node, node_outputs)
+
+                    ec.tokens = [t for t in ec.tokens if t not in tokens_consumed[ec]]
+                    for _, created in tokens_created.items():
+                        self.ex.flows += created
+                    new_tokens[ec] += tokens_created[ec]
+
+                    # new_execution_context will have tokens and ready nodes initialized
+                    if new_execution_context is not None:
+                        new_execution_contexts.append(new_execution_context)
+                        new_tokens[new_execution_context] = tokens_created[
+                            new_execution_context
+                        ]
+
                 except Exception as e:
                     if self.permissive:
                         self.issues[self.ex.display_id].append(ExecutionWarning(e))
                     else:
                         self.issues[self.ex.display_id].append(ExecutionError(e))
                         raise (e)
-            ec.tokens = ec.tokens + new_tokens
-            ec.ready = self.executable_activity_nodes(ec, new_tokens)
+        active_contexts += new_execution_contexts
+        for ec in active_contexts:
+            ec.tokens += new_tokens[ec]
+            ec.ready = self.executable_activity_nodes(ec, new_tokens[ec])
+
         return (
             active_contexts  # FIXME need to filter contexts that are no longer active
         )
 
     def execute_node(
         self,
-        execution_context,
+        execution_context: ExecutionContext,
         node: ActivityNode,
         node_outputs: Dict[ActivityNode, Callable] = {},
-    ) -> Tuple[List[ActivityEdgeFlow], List[ActivityEdgeFlow]]:
+    ) -> Tuple[
+        Dict[ExecutionContext, List[ActivityEdgeFlow]],
+        Dict[ExecutionContext, List[ActivityEdgeFlow]],
+        ExecutionContext,
+    ]:
         # Process inputs
-        supporting_tokens = execution_context.incoming_edge_tokens[node]
+        supporting_tokens: Dict[
+            ActivityEdge, List[ActivityEdgeFlow]
+        ] = execution_context.incoming_edge_tokens[node]
 
-        consumed_tokens = self.consume_tokens(
-            execution_context, node, supporting_tokens
-        )
+        tokens_consumed: Dict[
+            ExecutionContext, List[ActivityEdgeFlow]
+        ] = self.consume_tokens(execution_context, node, supporting_tokens)
 
         # Create execution record
-        record = self.create_record(node, consumed_tokens)
+        record = self.create_record(node, tokens_consumed[execution_context])
         self.ex.executions.append(record)
 
         # from ActivityNode.execute()
-        new_tokens: ActivityEdgeFlow = self.next_tokens(
-            execution_context, record, node_outputs
-        )
+        tokens_created: Dict[
+            ExecutionContext, List[ActivityEdgeFlow]
+        ] = self.next_tokens(execution_context, record, node_outputs)
 
         # from ActivityNode.next_tokens()
         # self.check_next_tokens(new_tokens, node_outputs, self.sample_format, self.permissive)
@@ -289,7 +324,7 @@ class ExecutionEngine(ABC):
         # ]
 
         # Side Effects / Bookkeeping
-        self.post_process(record, new_tokens)
+        self.post_process(execution_context, record, tokens_created[execution_context])
 
         # Consume the tokens used by the node that caused the exception
         # Produce control tokens
@@ -307,7 +342,7 @@ class ExecutionEngine(ABC):
         #     if (
         #         node.identity == edge.source
         #         or node.identity
-        #         == edge.source.lookup().get_parent().identity
+        #         == edge.get_source().get_parent().identity
         #     )
         #     and (isinstance(edge, ControlFlow))
         # ]
@@ -323,14 +358,24 @@ class ExecutionEngine(ABC):
         #     for edge in control_edges
         # ]
 
-        return new_tokens, consumed_tokens
+        new_ecs = [ec for ec in tokens_created.keys() if ec != execution_context]
+        if new_ecs is not None and len(new_ecs) == 1:
+            new_execution_context = next(iter(new_ecs))
+        elif new_ecs is not None and len(new_ecs) > 1:
+            raise Exception(
+                f"Executing {node}, resulted in {len(new_ecs)} new execution context(s)."
+            )
+        else:
+            new_execution_context = None
+
+        return tokens_created, tokens_consumed, new_execution_context
 
     def next_tokens(
         self,
         execution_context: ExecutionContext,
         record: ActivityNodeExecution,
         node_outputs: Callable,
-    ):
+    ) -> Dict[ExecutionContext, List[ActivityEdgeFlow]]:
         # next_tokens_callback cases
         # ActivityNode: get_value(edge)
         # ActivityParameterNode: parameter-value token, input/output edges, get_value()
@@ -343,10 +388,55 @@ class ExecutionEngine(ABC):
         node = record.get_node()
         outgoing_edges = execution_context.outgoing_edges(node)
         parameter_value_map = record.parameter_value_map()
-        new_tokens = [
-            node.get_value(edge, parameter_value_map, node_outputs, self.sample_format)
-            for edge in outgoing_edges
-        ]
+
+        new_tokens: Dict[ExecutionContext, List[ActivityEdgeFlow]] = {
+            execution_context: [
+                ActivityEdgeFlow(
+                    edge=edge,
+                    token_source=record,
+                    value=node.get_value(
+                        edge,
+                        parameter_value_map,
+                        node_outputs,
+                        self.sample_format,
+                    ),
+                )
+                for edge in outgoing_edges
+            ]
+        }
+
+        if isinstance(node, CallBehaviorAction):
+            behavior = node.get_behavior()
+            if isinstance(behavior, Activity):
+                new_execution_context = execution_context.invoke_activity(record)
+
+                # Create tokens that cross from parent to child context.
+                # Tokens include:
+                #  - parent input/value pin to child activity parameter node
+                #  - parent call_behavior_action to child initial
+                new_tokens[new_execution_context] = [
+                    ActivityEdgeFlow(
+                        edge=new_execution_context.get_invocation_edge(
+                            token_consumed.get_edge().get_source(),
+                        ),
+                        token_source=token_consumed.token_source,
+                        value=literal(token_consumed.value, reference=True),
+                    )
+                    for token_consumed in record.get_incoming_flows()
+                    if isinstance(token_consumed.get_edge().get_source(), Pin)
+                    for activity_parameter_node in behavior.get_nodes(
+                        name=token_consumed.get_edge().get_source().name,
+                        node_type=ActivityParameterNode,
+                    )
+                ] + [
+                    ActivityEdgeFlow(
+                        edge=new_execution_context.get_invocation_edge(
+                            node, behavior.initial()
+                        ),
+                        token_source=record,
+                        value=literal("uml.ControlFlow", reference=True),
+                    )
+                ]
 
         return new_tokens
 
@@ -361,7 +451,11 @@ class ExecutionEngine(ABC):
         nodes = set({record.node for record in records})
         return nodes
 
-    def create_record(self, node, consumed_tokens):
+    def create_record(
+        self,
+        node: ActivityNode,
+        consumed_tokens: List[ActivityEdgeFlow],
+    ) -> ActivityNodeExecution:
         if isinstance(node, CallBehaviorAction):
             call = BehaviorExecution(
                 f"execute_{self.next_id()}",
@@ -380,7 +474,9 @@ class ExecutionEngine(ABC):
         return record
 
     def record_parameter_values(
-        self, node: CallBehaviorAction, inputs: List[ActivityEdgeFlow]
+        self,
+        node: CallBehaviorAction,
+        inputs: Dict[ExecutionContext, List[ActivityEdgeFlow]],
     ) -> List[ParameterValue]:
         # Get the parameter values from input tokens for input pins
         input_pin_values = {
@@ -388,7 +484,6 @@ class ExecutionEngine(ABC):
             .node.lookup()
             .identity: literal(token.value, reference=True)
             for token in inputs
-            if not token.edge
         }
         # Get Input value pins
         value_pin_values = {}
@@ -428,14 +523,29 @@ class ExecutionEngine(ABC):
         execution_context: ExecutionContext,
         node: ActivityNode,
         supporting_tokens: Dict[ActivityEdge, List[ActivityEdgeFlow]],
-    ) -> List[ActivityEdgeFlow]:
-        consumed_tokens = {e: next(iter(ts)) for e, ts in supporting_tokens.items()}
+    ) -> Dict[ExecutionContext, List[ActivityEdgeFlow]]:
+        ec_consumed_tokens = []
+        for edge, tokens in supporting_tokens.items():
+            source = edge.get_source()
+            target = edge.get_target()
+            try:
+                token = next(iter(tokens))
+                ec_consumed_tokens.append(token)
+            except StopIteration:
+                if source.required():
+                    msg = f"Could not find a required token for source: {source.name}"
+                    if self.permissive:
+                        raise ExecutionWarning(msg)
+                    else:
+                        raise ExecutionError(msg)
+
+        consumed_tokens = {execution_context: ec_consumed_tokens}
         # Remove values on edges
         execution_context.incoming_edge_tokens[node] = {
             edge: [
                 v
                 for v in execution_context.incoming_edge_tokens[node][edge]
-                if v != consumed_tokens[edge]
+                if v not in consumed_tokens[execution_context]
             ]
             for edge in execution_context.incoming_edge_tokens[node]
         }
@@ -458,7 +568,7 @@ class ExecutionEngine(ABC):
         updated_clusters = set({})
         for t in tokens_added:
             target = t.get_target()
-            execution_context.incoming_edge_tokens[target][t.edge].append(t.value)
+            execution_context.incoming_edge_tokens[target][t.get_edge()].append(t)
             execution_context.candidate_clusters[
                 target.identity
             ] = execution_context.candidate_clusters.get(target.identity, []) + [t]
@@ -468,7 +578,6 @@ class ExecutionEngine(ABC):
             n
             for n in updated_clusters
             if n.enabled(
-                self,
                 execution_context.incoming_edge_tokens[n],
                 permissive=self.permissive,
             )
@@ -481,23 +590,17 @@ class ExecutionEngine(ABC):
 
     def post_process(
         self,
+        execution_context: ExecutionContext,
         record: ActivityNodeExecution,
         new_tokens: List[ActivityEdgeFlow],
     ):
-        node = record.node()
+        node = record.get_node()
         if isinstance(node, ActivityParameterNode) and node.get_parameter().is_output():
-            self.ex.parameter_values += [
+            execution_context.parameter_values += [
                 ParameterValue(
                     parameter=node.get_parameter(),
                     value=literal(node.value(), reference=True),
                 )
-            ]
-
-            # Activity Call Edges
-            self.ex.activity_call_edge += [
-                token.edge
-                for token in new_tokens
-                if token.edge not in node.protocol().edges
             ]
 
         if self.dataset_file is not None:

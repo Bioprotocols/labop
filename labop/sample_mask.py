@@ -16,9 +16,12 @@ class SampleMask(inner.SampleMask, SampleCollection):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
+    def get_source(self):
+        return self.source.lookup()
+
     def empty(self, sample_format=Strings.XARRAY):
         if sample_format == "xarray":
-            source_samples = self.source.lookup()
+            source_samples = self.get_source()
             sample_array = source_samples.to_data_array(sample_format=sample_format)
             mask_array = xr.DataArray(
                 [True] * len(sample_array[Strings.SAMPLE]),
@@ -39,7 +42,7 @@ class SampleMask(inner.SampleMask, SampleCollection):
         return sample_mask
 
     def to_masked_data_array(self, sample_format=Strings.XARRAY):
-        source = self.source.lookup()
+        source = self.get_source()
         masked_array = source.mask(self)
         return masked_array
 

@@ -151,7 +151,7 @@ class Action(inner.Action, ExecutableNode):
     def get_value(
         self,
         edge: ActivityEdge,
-        node_inputs: Dict[ActivityEdge, LiteralSpecification],
+        parameter_value_map: Dict[str, List[LiteralSpecification]],
         node_outputs: Callable,
         sample_format: str,
     ):
@@ -161,8 +161,10 @@ class Action(inner.Action, ExecutableNode):
         if isinstance(edge, ControlFlow):
             value = "uml.ControlFlow"
         elif isinstance(edge, ObjectFlow):
-            parameter = self.pin_parameter(edge.source().name).property_value
-            value = self.get_parameter_value(parameter, node_outputs, sample_format)
+            parameter = self.pin_parameter(edge.get_source().name).property_value
+            value = self.get_parameter_value(
+                parameter, parameter_value_map, node_outputs, sample_format
+            )
             reference = isinstance(value, sbol3.Identified) and value.identity != None
 
         value = literal(value, reference=reference)

@@ -22,6 +22,9 @@ class Parameter(inner.Parameter):
     def is_input(self):
         return self.direction == PARAMETER_IN
 
+    def required(self):
+        return self.lower_value.get_value() > 0
+
     def __str__(self):
         """
         Create a human readable string for a parameter.

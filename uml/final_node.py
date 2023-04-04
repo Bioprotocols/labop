@@ -23,39 +23,6 @@ class FinalNode(inner.FinalNode, ControlNode):
             "fillcolor": "black",
         }
 
-    def enabled(
-        self,
-        engine: "ExecutionEngine",
-        tokens: List["ActivityEdgeFlow"],
-    ):
-        """
-        Check whether there exists at least one token on an incoming edge.
-
-        Parameters
-        ----------
-        self
-            Node to execute
-        engine : "ExecutionEngine"
-            the engine executing the node
-        tokens : List["ActivityEdgeFlow"]
-            tokens offered to node
-
-        Returns
-        -------
-        bool
-            is the node enabled
-        """
-        protocol = self.protocol()
-        token_present = (
-            len(
-                {t.edge.lookup() for t in tokens if t.edge}.intersection(
-                    protocol.incoming_edges(self)
-                )
-            )
-            > 0
-        )
-        return token_present
-
     def next_tokens_callback(
         self,
         source: "ActivityNodeExecution",

@@ -42,16 +42,11 @@ class ParameterValue(inner.ParameterValue):
             # downstream effects on BehaviorSpecializations
 
             if name not in parameter_value_map:
-                parameter_value_map[name] = {
-                    "parameter": pv.parameter.lookup(),
-                    "value": value,
-                }
+                parameter_value_map[name] = [value]
+
             else:
-                if isinstance(parameter_value_map[name]["value"], list):
-                    parameter_value_map[name]["value"] += [value]
+                if isinstance(parameter_value_map[name], list):
+                    parameter_value_map[name] += [value]
                 else:
-                    parameter_value_map[name]["value"] = [
-                        parameter_value_map[name]["value"],
-                        value,
-                    ]
+                    parameter_value_map[name] = [value]
         return parameter_value_map

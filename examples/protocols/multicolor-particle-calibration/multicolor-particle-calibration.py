@@ -76,17 +76,17 @@ doc.add(cascade_blue)
 doc.add(sulforhodamine)
 
 
-protocol = labop.Protocol("interlab")
-protocol.name = "Multicolor fluorescence per bacterial particle calibration"
-protocol.version = "1.2"
-protocol.description = """Plate readers report fluorescence values in arbitrary units that vary widely from instrument to instrument. Therefore absolute fluorescence values cannot be directly compared from one instrument to another. In order to compare fluorescence output of biological devices, it is necessary to create a standard fluorescence curve. This variant of the protocol uses two replicates of three colors of dye, plus beads.
+activity = labop.Protocol("interlab")
+activity.name = "Multicolor fluorescence per bacterial particle calibration"
+activity.version = "1.2"
+activity.description = """Plate readers report fluorescence values in arbitrary units that vary widely from instrument to instrument. Therefore absolute fluorescence values cannot be directly compared from one instrument to another. In order to compare fluorescence output of biological devices, it is necessary to create a standard fluorescence curve. This variant of the protocol uses two replicates of three colors of dye, plus beads.
 Adapted from [https://dx.doi.org/10.17504/protocols.io.bht7j6rn](https://dx.doi.org/10.17504/protocols.io.bht7j6r) and [https://dx.doi.org/10.17504/protocols.io.6zrhf56](https://dx.doi.org/10.17504/protocols.io.6zrhf56)"""
-doc.add(protocol)
+doc.add(activity)
 
 
 # Provision an empty Microfuge tube in which to mix the standard solution
 
-fluorescein_standard_solution_container = protocol.primitive_step(
+fluorescein_standard_solution_container = activity.primitive_step(
     "EmptyContainer",
     specification=labop.ContainerSpec(
         "fluroscein_calibrant",
@@ -97,7 +97,7 @@ fluorescein_standard_solution_container = protocol.primitive_step(
 )
 
 
-sulforhodamine_standard_solution_container = protocol.primitive_step(
+sulforhodamine_standard_solution_container = activity.primitive_step(
     "EmptyContainer",
     specification=labop.ContainerSpec(
         "sulforhodamine_calibrant",
@@ -107,7 +107,7 @@ sulforhodamine_standard_solution_container = protocol.primitive_step(
     ),
 )
 
-cascade_blue_standard_solution_container = protocol.primitive_step(
+cascade_blue_standard_solution_container = activity.primitive_step(
     "EmptyContainer",
     specification=labop.ContainerSpec(
         "cascade_blue_calibrant",
@@ -117,7 +117,7 @@ cascade_blue_standard_solution_container = protocol.primitive_step(
     ),
 )
 
-microsphere_standard_solution_container = protocol.primitive_step(
+microsphere_standard_solution_container = activity.primitive_step(
     "EmptyContainer",
     specification=labop.ContainerSpec(
         "microspheres",
@@ -129,7 +129,7 @@ microsphere_standard_solution_container = protocol.primitive_step(
 
 
 ### Suspend calibrant dry reagents
-suspend_fluorescein = protocol.primitive_step(
+suspend_fluorescein = activity.primitive_step(
     "Transfer",
     source=pbs,
     destination=fluorescein_standard_solution_container.output_pin("samples"),
@@ -137,13 +137,13 @@ suspend_fluorescein = protocol.primitive_step(
 )
 suspend_fluorescein.description = f"The reconstituted `{fluorescein.name}` should have a final concentration of 10 uM in `{pbs.name}`"
 
-vortex_fluorescein = protocol.primitive_step(
+vortex_fluorescein = activity.primitive_step(
     "Vortex",
     samples=fluorescein_standard_solution_container.output_pin("samples"),
     duration=sbol3.Measure(30, OM.second),
 )
 
-suspend_sulforhodamine = protocol.primitive_step(
+suspend_sulforhodamine = activity.primitive_step(
     "Transfer",
     source=pbs,
     destination=sulforhodamine_standard_solution_container.output_pin("samples"),
@@ -151,13 +151,13 @@ suspend_sulforhodamine = protocol.primitive_step(
 )
 suspend_sulforhodamine.description = f"The reconstituted `{sulforhodamine.name}` standard will have a final concentration of 2 uM in `{pbs.name}`"
 
-vortex_sulforhodamine = protocol.primitive_step(
+vortex_sulforhodamine = activity.primitive_step(
     "Vortex",
     samples=sulforhodamine_standard_solution_container.output_pin("samples"),
     duration=sbol3.Measure(30, OM.second),
 )
 
-suspend_cascade_blue = protocol.primitive_step(
+suspend_cascade_blue = activity.primitive_step(
     "Transfer",
     source=ddh2o,
     destination=cascade_blue_standard_solution_container.output_pin("samples"),
@@ -165,20 +165,20 @@ suspend_cascade_blue = protocol.primitive_step(
 )
 suspend_cascade_blue.description = f"The reconstituted `{cascade_blue.name}` calibrant will have a final concentration of 10 uM in `{ddh2o.name}`."
 
-vortex_cascade_blue = protocol.primitive_step(
+vortex_cascade_blue = activity.primitive_step(
     "Vortex",
     samples=cascade_blue_standard_solution_container.output_pin("samples"),
     duration=sbol3.Measure(30, OM.second),
 )
 
-suspend_silica_beads = protocol.primitive_step(
+suspend_silica_beads = activity.primitive_step(
     "Transfer",
     source=ddh2o,
     destination=microsphere_standard_solution_container.output_pin("samples"),
     amount=sbol3.Measure(1, OM.millilitre),
 )
 suspend_silica_beads.description = f"The resuspended `{silica_beads.name}` will have a final concentration of 3e9 microspheres/mL in `{ddh2o.name}`."
-vortex_silica_beads = protocol.primitive_step(
+vortex_silica_beads = activity.primitive_step(
     "Vortex",
     samples=microsphere_standard_solution_container.output_pin("samples"),
     duration=sbol3.Measure(30, OM.second),
@@ -186,7 +186,7 @@ vortex_silica_beads = protocol.primitive_step(
 
 
 # Transfer to plate
-calibration_plate = protocol.primitive_step(
+calibration_plate = activity.primitive_step(
     "EmptyContainer",
     specification=labop.ContainerSpec(
         "calibration_plate",
@@ -197,53 +197,69 @@ calibration_plate = protocol.primitive_step(
 )
 
 
-fluorescein_wells_A1 = protocol.primitive_step(
-    "PlateCoordinates", source=calibration_plate.output_pin("samples"), coordinates="A1"
+fluorescein_wells_A1 = activity.primitive_step(
+    "PlateCoordinates",
+    source=calibration_plate.output_pin("samples"),
+    coordinates="A1",
 )
-fluorescein_wells_B1 = protocol.primitive_step(
-    "PlateCoordinates", source=calibration_plate.output_pin("samples"), coordinates="B1"
-)
-
-sulforhodamine_wells_C1 = protocol.primitive_step(
-    "PlateCoordinates", source=calibration_plate.output_pin("samples"), coordinates="C1"
-)
-sulforhodamine_wells_D1 = protocol.primitive_step(
-    "PlateCoordinates", source=calibration_plate.output_pin("samples"), coordinates="D1"
+fluorescein_wells_B1 = activity.primitive_step(
+    "PlateCoordinates",
+    source=calibration_plate.output_pin("samples"),
+    coordinates="B1",
 )
 
-cascade_blue_wells_E1 = protocol.primitive_step(
-    "PlateCoordinates", source=calibration_plate.output_pin("samples"), coordinates="E1"
+sulforhodamine_wells_C1 = activity.primitive_step(
+    "PlateCoordinates",
+    source=calibration_plate.output_pin("samples"),
+    coordinates="C1",
 )
-cascade_blue_wells_F1 = protocol.primitive_step(
-    "PlateCoordinates", source=calibration_plate.output_pin("samples"), coordinates="F1"
+sulforhodamine_wells_D1 = activity.primitive_step(
+    "PlateCoordinates",
+    source=calibration_plate.output_pin("samples"),
+    coordinates="D1",
 )
 
-silica_beads_wells_G1 = protocol.primitive_step(
-    "PlateCoordinates", source=calibration_plate.output_pin("samples"), coordinates="G1"
+cascade_blue_wells_E1 = activity.primitive_step(
+    "PlateCoordinates",
+    source=calibration_plate.output_pin("samples"),
+    coordinates="E1",
 )
-silica_beads_wells_H1 = protocol.primitive_step(
-    "PlateCoordinates", source=calibration_plate.output_pin("samples"), coordinates="H1"
+cascade_blue_wells_F1 = activity.primitive_step(
+    "PlateCoordinates",
+    source=calibration_plate.output_pin("samples"),
+    coordinates="F1",
+)
+
+silica_beads_wells_G1 = activity.primitive_step(
+    "PlateCoordinates",
+    source=calibration_plate.output_pin("samples"),
+    coordinates="G1",
+)
+silica_beads_wells_H1 = activity.primitive_step(
+    "PlateCoordinates",
+    source=calibration_plate.output_pin("samples"),
+    coordinates="H1",
 )
 
 # Plate blanks
-blank_wells1 = protocol.primitive_step(
+blank_wells1 = activity.primitive_step(
     "PlateCoordinates",
     source=calibration_plate.output_pin("samples"),
     coordinates="A12:D12",
 )
-blank_wells2 = protocol.primitive_step(
+blank_wells2 = activity.primitive_step(
     "PlateCoordinates",
     source=calibration_plate.output_pin("samples"),
     coordinates="E12:H12",
 )
-transfer_blanks1 = protocol.primitive_step(
+transfer_blanks1 = activity.primitive_step(
     "Transfer",
     source=pbs,
     destination=blank_wells1.output_pin("samples"),
     amount=sbol3.Measure(100, OM.microlitre),
 )
 transfer_blanks1.description = " These are blanks."
-transfer_blanks2 = protocol.primitive_step(
+transfer_blanks2 = activity.primitive_step(
     "Transfer",
     source=ddh2o,
     destination=blank_wells2.output_pin("samples"),
@@ -252,50 +268,50 @@ transfer_blanks2 = protocol.primitive_step(
 transfer_blanks2.description = " These are blanks."
 
 ### Plate calibrants in first column
-transfer1 = protocol.primitive_step(
+transfer1 = activity.primitive_step(
     "Transfer",
     source=vortex_fluorescein.output_pin("mixed_samples"),
     destination=fluorescein_wells_A1.output_pin("samples"),
     amount=sbol3.Measure(200, OM.microlitre),
 )
-transfer2 = protocol.primitive_step(
+transfer2 = activity.primitive_step(
     "Transfer",
     source=vortex_fluorescein.output_pin("mixed_samples"),
     destination=fluorescein_wells_B1.output_pin("samples"),
     amount=sbol3.Measure(200, OM.microlitre),
 )
-transfer3 = protocol.primitive_step(
+transfer3 = activity.primitive_step(
     "Transfer",
     source=vortex_sulforhodamine.output_pin("mixed_samples"),
     destination=sulforhodamine_wells_C1.output_pin("samples"),
     amount=sbol3.Measure(200, OM.microlitre),
 )
-transfer4 = protocol.primitive_step(
+transfer4 = activity.primitive_step(
     "Transfer",
     source=vortex_sulforhodamine.output_pin("mixed_samples"),
     destination=sulforhodamine_wells_D1.output_pin("samples"),
     amount=sbol3.Measure(200, OM.microlitre),
 )
-transfer5 = protocol.primitive_step(
+transfer5 = activity.primitive_step(
     "Transfer",
     source=vortex_cascade_blue.output_pin("mixed_samples"),
     destination=cascade_blue_wells_E1.output_pin("samples"),
     amount=sbol3.Measure(200, OM.microlitre),
 )
-transfer6 = protocol.primitive_step(
+transfer6 = activity.primitive_step(
     "Transfer",
     source=vortex_cascade_blue.output_pin("mixed_samples"),
     destination=cascade_blue_wells_F1.output_pin("samples"),
     amount=sbol3.Measure(200, OM.microlitre),
 )
-transfer7 = protocol.primitive_step(
+transfer7 = activity.primitive_step(
     "Transfer",
     source=vortex_silica_beads.output_pin("mixed_samples"),
     destination=silica_beads_wells_G1.output_pin("samples"),
     amount=sbol3.Measure(200, OM.microlitre),
 )
 
-transfer8 = protocol.primitive_step(
+transfer8 = activity.primitive_step(
     "Transfer",
     source=vortex_silica_beads.output_pin("mixed_samples"),
     destination=silica_beads_wells_H1.output_pin("samples"),
@@ -303,56 +319,56 @@ transfer8 = protocol.primitive_step(
 )
 
 
-dilution_series1 = protocol.primitive_step(
+dilution_series1 = activity.primitive_step(
     "PlateCoordinates",
     source=calibration_plate.output_pin("samples"),
     coordinates="A1:A11",
 )
 
-dilution_series2 = protocol.primitive_step(
+dilution_series2 = activity.primitive_step(
     "PlateCoordinates",
     source=calibration_plate.output_pin("samples"),
     coordinates="B1:B11",
 )
 
-dilution_series3 = protocol.primitive_step(
+dilution_series3 = activity.primitive_step(
     "PlateCoordinates",
     source=calibration_plate.output_pin("samples"),
     coordinates="C1:C11",
 )
 
-dilution_series4 = protocol.primitive_step(
+dilution_series4 = activity.primitive_step(
     "PlateCoordinates",
     source=calibration_plate.output_pin("samples"),
     coordinates="D1:D11",
 )
 
-dilution_series5 = protocol.primitive_step(
+dilution_series5 = activity.primitive_step(
     "PlateCoordinates",
     source=calibration_plate.output_pin("samples"),
     coordinates="E1:E11",
 )
 
-dilution_series6 = protocol.primitive_step(
+dilution_series6 = activity.primitive_step(
     "PlateCoordinates",
     source=calibration_plate.output_pin("samples"),
     coordinates="F1:F11",
 )
 
-dilution_series7 = protocol.primitive_step(
+dilution_series7 = activity.primitive_step(
     "PlateCoordinates",
     source=calibration_plate.output_pin("samples"),
     coordinates="G1:G11",
 )
 
-dilution_series8 = protocol.primitive_step(
+dilution_series8 = activity.primitive_step(
     "PlateCoordinates",
     source=calibration_plate.output_pin("samples"),
     coordinates="H1:H11",
 )
 
 
-serial_dilution1 = protocol.primitive_step(
+serial_dilution1 = activity.primitive_step(
     "SerialDilution",
     source=fluorescein_wells_A1.output_pin("samples"),
     destination=dilution_series1.output_pin("samples"),
@@ -363,7 +379,7 @@ serial_dilution1 = protocol.primitive_step(
 )
 serial_dilution1.description = " For each transfer, pipette up and down 3X to ensure the dilution is mixed homogeneously."
 
-embedded_image = protocol.primitive_step(
+embedded_image = activity.primitive_step(
     "EmbeddedImage",
     image=os.path.join(
         # os.path.dirname(os.path.realpath(__file__)),
@@ -373,7 +389,7 @@ embedded_image = protocol.primitive_step(
     caption="Serial Dilution",
 )
 
-serial_dilution2 = protocol.primitive_step(
+serial_dilution2 = activity.primitive_step(
     "SerialDilution",
     source=fluorescein_wells_B1.output_pin("samples"),
     destination=dilution_series2.output_pin("samples"),
@@ -384,7 +400,7 @@ serial_dilution2 = protocol.primitive_step(
 )
 serial_dilution2.description = " For each transfer, pipette up and down 3X to ensure the dilution is mixed homogeneously."
 
-serial_dilution3 = protocol.primitive_step(
+serial_dilution3 = activity.primitive_step(
     "SerialDilution",
     source=sulforhodamine_wells_C1.output_pin("samples"),
     destination=dilution_series3.output_pin("samples"),
@@ -395,7 +411,7 @@ serial_dilution3 = protocol.primitive_step(
 )
 serial_dilution3.description = " For each transfer, pipette up and down 3X to ensure the dilution is mixed homogeneously."
 
-serial_dilution4 = protocol.primitive_step(
+serial_dilution4 = activity.primitive_step(
     "SerialDilution",
     source=sulforhodamine_wells_D1.output_pin("samples"),
     destination=dilution_series4.output_pin("samples"),
@@ -406,7 +422,7 @@ serial_dilution4 = protocol.primitive_step(
 )
 serial_dilution4.description = " For each transfer, pipette up and down 3X to ensure the dilution is mixed homogeneously."
 
-serial_dilution5 = protocol.primitive_step(
+serial_dilution5 = activity.primitive_step(
     "SerialDilution",
     source=cascade_blue_wells_E1.output_pin("samples"),
     destination=dilution_series5.output_pin("samples"),
@@ -417,7 +433,7 @@ serial_dilution5 = protocol.primitive_step(
 )
 serial_dilution5.description = " For each transfer, pipette up and down 3X to ensure the dilution is mixed homogeneously."
 
-serial_dilution6 = protocol.primitive_step(
+serial_dilution6 = activity.primitive_step(
     "SerialDilution",
     source=cascade_blue_wells_F1.output_pin("samples"),
     destination=dilution_series6.output_pin("samples"),
@@ -428,7 +444,7 @@ serial_dilution6 = protocol.primitive_step(
 )
 serial_dilution6.description = " For each transfer, pipette up and down 3X to ensure the dilution is mixed homogeneously."
 
-serial_dilution7 = protocol.primitive_step(
+serial_dilution7 = activity.primitive_step(
     "SerialDilution",
     source=silica_beads_wells_G1.output_pin("samples"),
     destination=dilution_series7.output_pin("samples"),
@@ -439,7 +455,7 @@ serial_dilution7 = protocol.primitive_step(
 )
 serial_dilution7.description = " For each transfer, pipette up and down 3X to ensure the dilution is mixed homogeneously."
 
-serial_dilution8 = protocol.primitive_step(
+serial_dilution8 = activity.primitive_step(
     "SerialDilution",
     source=silica_beads_wells_H1.output_pin("samples"),
     destination=dilution_series8.output_pin("samples"),
@@ -451,13 +467,13 @@ serial_dilution8 = protocol.primitive_step(
 serial_dilution8.description = " For each transfer, pipette up and down 3X to ensure the dilution is mixed homogeneously."
 
 
-discard_wells = protocol.primitive_step(
+discard_wells = activity.primitive_step(
     "PlateCoordinates",
     source=calibration_plate.output_pin("samples"),
     coordinates="A11:H11",
 )
 
-discard = protocol.primitive_step(
+discard = activity.primitive_step(
     "Discard",
     samples=discard_wells.output_pin("samples"),
     amount=sbol3.Measure(100, OM.microlitre),
@@ -466,24 +482,24 @@ discard = protocol.primitive_step(
 discard.description = " This step ensures that all wells contain an equivalent volume. Be sure to change pipette tips for every well to avoid cross-contamination"
 
 # Bring to volume of 200 ul
-samples_in_pbs = protocol.primitive_step(
+samples_in_pbs = activity.primitive_step(
     "PlateCoordinates",
     source=calibration_plate.output_pin("samples"),
     coordinates="A1:D12",
 )
-samples_in_ddh2o = protocol.primitive_step(
+samples_in_ddh2o = activity.primitive_step(
     "PlateCoordinates",
     source=calibration_plate.output_pin("samples"),
     coordinates="E1:H12",
 )
-btv1 = protocol.primitive_step(
+btv1 = activity.primitive_step(
     "Transfer",
     source=pbs,
     destination=samples_in_pbs.output_pin("samples"),
     amount=sbol3.Measure(100, OM.microlitre),
 )
 btv1.description = " This will bring all wells to volume 200 microliter."
-btv2 = protocol.primitive_step(
+btv2 = activity.primitive_step(
     "Transfer",
     source=ddh2o,
     destination=samples_in_ddh2o.output_pin("samples"),
@@ -493,28 +509,28 @@ btv2.description = " This will bring all wells to volume 200 microliter."
 
 
 # Perform measurements
-read_wells1 = protocol.primitive_step(
+read_wells1 = activity.primitive_step(
     "PlateCoordinates",
     source=calibration_plate.output_pin("samples"),
     coordinates="A1:B12",
 )
-read_wells2 = protocol.primitive_step(
+read_wells2 = activity.primitive_step(
     "PlateCoordinates",
     source=calibration_plate.output_pin("samples"),
     coordinates="C1:D12",
 )
-read_wells3 = protocol.primitive_step(
+read_wells3 = activity.primitive_step(
     "PlateCoordinates",
     source=calibration_plate.output_pin("samples"),
     coordinates="E1:F12",
 )
-read_wells4 = protocol.primitive_step(
+read_wells4 = activity.primitive_step(
     "PlateCoordinates",
     source=calibration_plate.output_pin("samples"),
     coordinates="G1:H12",
 )
 
-measure_fluorescence1 = protocol.primitive_step(
+measure_fluorescence1 = activity.primitive_step(
     "MeasureFluorescence",
     samples=read_wells1.output_pin("samples"),
     excitationWavelength=sbol3.Measure(488, OM.nanometer),
@@ -523,7 +539,7 @@ measure_fluorescence1 = protocol.primitive_step(
 )
 measure_fluorescence1.name = "fluorescein and bead fluorescence"
 
-measure_fluorescence2 = protocol.primitive_step(
+measure_fluorescence2 = activity.primitive_step(
     "MeasureFluorescence",
     samples=read_wells2.output_pin("samples"),
     excitationWavelength=sbol3.Measure(561, OM.nanometer),
@@ -532,7 +548,7 @@ measure_fluorescence2 = protocol.primitive_step(
 )
 measure_fluorescence2.name = "sulforhodamine 101 fluorescence"
 
-measure_fluorescence3 = protocol.primitive_step(
+measure_fluorescence3 = activity.primitive_step(
     "MeasureFluorescence",
     samples=read_wells3.output_pin("samples"),
     excitationWavelength=sbol3.Measure(405, OM.nanometer),
@@ -541,13 +557,13 @@ measure_fluorescence3 = protocol.primitive_step(
 )
 measure_fluorescence3.name = "cascade blue fluorescence"
 
-measure_absorbance = protocol.primitive_step(
+measure_absorbance = activity.primitive_step(
     "MeasureAbsorbance",
     samples=read_wells4.output_pin("samples"),
     wavelength=sbol3.Measure(600, OM.nanometer),
 )
 
-load_excel = protocol.primitive_step(
+load_excel = activity.primitive_step(
     "ExcelMetadata",
     for_samples=calibration_plate.output_pin("samples"),
     filename=os.path.join(
@@ -556,31 +572,31 @@ load_excel = protocol.primitive_step(
     ),
 )
 
-meta1 = protocol.primitive_step(
+meta1 = activity.primitive_step(
     "JoinMetadata",
     dataset=measure_fluorescence1.output_pin("measurements"),
     metadata=load_excel.output_pin("metadata"),
 )
 
-meta2 = protocol.primitive_step(
+meta2 = activity.primitive_step(
     "JoinMetadata",
     dataset=measure_fluorescence2.output_pin("measurements"),
     metadata=load_excel.output_pin("metadata"),
 )
 
-meta3 = protocol.primitive_step(
+meta3 = activity.primitive_step(
     "JoinMetadata",
     dataset=measure_fluorescence3.output_pin("measurements"),
     metadata=load_excel.output_pin("metadata"),
 )
 
-meta4 = protocol.primitive_step(
+meta4 = activity.primitive_step(
     "JoinMetadata",
     dataset=measure_absorbance.output_pin("measurements"),
     metadata=load_excel.output_pin("metadata"),
 )
 
-final_dataset = protocol.primitive_step(
+final_dataset = activity.primitive_step(
     "JoinDatasets",
     dataset=[
         meta1.output_pin("enhanced_dataset"),
@@ -589,17 +605,17 @@ final_dataset = protocol.primitive_step(
         meta4.output_pin("enhanced_dataset"),
     ],
 )
-outnode = protocol.designate_output(
+outnode = activity.designate_output(
     "dataset",
     "http://bioprotocols.org/labop#Dataset",
     source=final_dataset.output_pin("joint_dataset"),
 )
 
-protocol.order(final_dataset, protocol.final())
-protocol.order(outnode, protocol.final())
+activity.order(final_dataset, activity.final())
+activity.order(outnode, activity.final())
 
 if REGENERATE_ARTIFACTS:
-    protocol.to_dot().render(os.path.join(OUT_DIR, filename))
+    activity.to_dot().render(os.path.join(OUT_DIR, filename))
     dataset_file = (f"{filename}_template",)  # name of xlsx
     md_file = filename + ".md"
 else:
@@ -614,7 +630,10 @@ ee = ExecutionEngine(
     dataset_file=dataset_file,
 )
 execution = ee.execute(
-    protocol, sbol3.Agent("test_agent"), id="test_execution", parameter_values=[]
+    activity,
+    sbol3.Agent("test_agent"),
+    id="test_execution",
+    parameter_values=[],
 )
 
 # print(execution.markdown)

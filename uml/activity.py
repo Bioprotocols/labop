@@ -5,7 +5,7 @@ The Activity class defines the functions corresponding to the dynamically genera
 import html
 import logging
 from collections import Counter
-from typing import Dict, Iterable, List, Set
+from typing import Dict, Iterable, List, Set, Type
 
 import graphviz
 import sbol3
@@ -339,7 +339,7 @@ class Activity(inner.Activity, Behavior):
                         value=literal(value),
                     )
                     action.get_inputs().append(value_pin)
-                    self.edges.append(ActivityEdge(source=value_pin, target=action))
+                    self.edges.append(ObjectFlow(source=value_pin, target=action))
 
             else:  # if not a constant, then just a generic InputPin
                 input_pin = InputPin(
@@ -348,7 +348,7 @@ class Activity(inner.Activity, Behavior):
                     is_unique=i.property_value.is_unique,
                 )
                 action.get_inputs().append(input_pin)
-                self.edges.append(ActivityEdge(source=input_pin, target=action))
+                self.edges.append(ObjectFlow(source=input_pin, target=action))
 
         # Instantiate output pins
         for o in id_sort(behavior.get_ordered_outputs()):
@@ -358,7 +358,7 @@ class Activity(inner.Activity, Behavior):
                 is_unique=o.property_value.is_unique,
             )
             action.get_outputs().append(output_pin)
-            self.edges.append(ActivityEdge(source=action, target=output_pin))
+            self.edges.append(ObjectFlow(source=action, target=output_pin))
         return action
 
     def validate(self, report: sbol3.ValidationReport = None) -> sbol3.ValidationReport:
@@ -376,7 +376,7 @@ class Activity(inner.Activity, Behavior):
 
         # Check for objects with multiple outgoing ObjectFlow edges that are not of type ForkNode or DecisionNode
         source_counts = Counter(
-            [e.source.lookup() for e in self.edges if isinstance(e, ObjectFlow)]
+            [e.get_source() for e in self.edges if isinstance(e, ObjectFlow)]
         )
         multi_targets = {
             n: c
@@ -736,12 +736,12 @@ class Activity(inner.Activity, Behavior):
                 dot.subgraph(_legend())
 
             for edge in self.edges:
-                src_id = _label(edge.source.lookup())  # edge.source.replace(":", "_")
+                src_id = _label(edge.get_source())  # edge.source.replace(":", "_")
                 dest_id = _label(edge.target.lookup())  # edge.target.replace(":", "_")
                 edge_id = _label(edge)  # edge.identity.replace(":", "_")
                 if isinstance(edge.target.lookup(), CallBehaviorAction):
                     dest_id = f"{dest_id}:node"
-                if isinstance(edge.source.lookup(), CallBehaviorAction):
+                if isinstance(edge.get_source(), CallBehaviorAction):
                     src_id = f"{src_id}:node"
 
                 source = self.document.find(edge.source)
@@ -794,3 +794,11 @@ class Activity(inner.Activity, Behavior):
             print(f"Cannot translate to graphviz: {e}")
 
         return parent
+
+    def get_nodes(self, name: str = None, node_type: Type = None) -> List[ActivityNode]:
+        return [
+            n
+            for n in self.nodes
+            if (node_type is None or isinstance(n, node_type))
+            and (name is None or n.get_parameter().name == name)
+        ]

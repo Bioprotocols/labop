@@ -35,6 +35,12 @@ class CallBehaviorExecution(inner.CallBehaviorExecution, ActivityNodeExecution):
     def behavior(self):
         return self.node.lookup().behavior.lookup()
 
+    def get_call(self):
+        return self.call.lookup()
+
+    def parameter_values() -> List[ParameterValue]:
+        return self.call.lookup().parameter_values
+
     def parameter_value_map(self):
         return self.call.lookup().parameter_value_map()
 
@@ -156,7 +162,7 @@ class CallBehaviorExecution(inner.CallBehaviorExecution, ActivityNodeExecution):
             for token in tokens:
                 edge = token.edge.lookup()
                 if isinstance(edge, ObjectFlow):
-                    source = edge.source.lookup()
+                    source = edge.get_source()
                     parameter = self.node.lookup().pin_parameter(source.name)
                     linked_parameters.append(parameter)
                     parameter_value = literal(token.value.get_value(), reference=True)
@@ -176,7 +182,10 @@ class CallBehaviorExecution(inner.CallBehaviorExecution, ActivityNodeExecution):
         possible_output_parameter_values = []
         for p in unlinked_output_parameters:
             value = self.get_parameter_value(
-                p.property_value, node_outputs, sample_format
+                p.property_value,
+                parameter_value_map,
+                node_outputs,
+                sample_format,
             )
             reference = hasattr(value, "document") and value.document is not None
             possible_output_parameter_values.append(
@@ -250,23 +259,21 @@ class CallBehaviorExecution(inner.CallBehaviorExecution, ActivityNodeExecution):
         calling_behavior_out_edges = [
             e
             for e in calling_behavior_node.protocol().edges
-            if calling_behavior_node == e.source.lookup()
-            or calling_behavior_node == e.source.lookup().get_parent()
+            if calling_behavior_node == e.get_source()
+            or calling_behavior_node == e.get_source().get_parent()
         ]
 
         new_tokens = [
             ActivityEdgeFlow(
                 token_source=(
-                    subprotocol_output_tokens[
-                        e.source.lookup().name
-                    ].token_source.lookup()
+                    subprotocol_output_tokens[e.get_source().name].token_source.lookup()
                     if isinstance(e, ObjectFlow)
                     else self
                 ),
                 edge=e,
                 value=(
                     literal(
-                        subprotocol_output_tokens[e.source.lookup().name].value,
+                        subprotocol_output_tokens[e.get_source().name].value,
                         reference=True,
                     )
                     if isinstance(e, ObjectFlow)

@@ -3,6 +3,7 @@ import datetime
 import hashlib
 import importlib
 import json
+from typing import Union
 
 import sbol3
 
@@ -28,7 +29,20 @@ def id_sort(i: iter):
 # Define extension methods for ValueSpecification
 
 
-def literal(value, reference: bool = False) -> LiteralSpecification:
+def literal(
+    value: Union[
+        str,
+        LiteralReference,
+        LiteralNull,
+        None,
+        bool,
+        int,
+        float,
+        sbol3.TopLevel,
+        sbol3.Identified,
+    ],
+    reference: bool = False,
+) -> LiteralSpecification:
     """Construct a UML LiteralSpecification based on the value of the literal passed
 
     Parameters

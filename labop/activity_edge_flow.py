@@ -13,6 +13,12 @@ class ActivityEdgeFlow(inner.ActivityEdgeFlow):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
+    def get_edge(self):
+        return self.edge.lookup()
+
+    def get_value(self):
+        return self.value
+
     def get_target(self):
         """Find the target node of an edge flow
         Parameters

@@ -12,9 +12,6 @@ class Pin(inner.Pin, ObjectNode):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-    def required(self):
-        return self.lower_value is not None and self.lower_value.value > 0
-
     def unpin(self):
         """Find the root node for an ActivityNode: either itself if a Pin, otherwise the owning Action
 

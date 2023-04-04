@@ -1,12 +1,12 @@
 """
-The CallBehaviorAction class defines the functions corresponding to the dynamically generated labop class CallBehaviorAction
+The CallBehaviorAction class defines the functions corresponding to the
+dynamically generated labop class CallBehaviorAction
 """
 
 import uuid
 from typing import Callable, Dict, List
 
-from uml.invocation_action import InvocationAction
-from uml.literal_specification import LiteralSpecification
+import sbol3
 
 from . import inner
 from .activity_edge import ActivityEdge
@@ -15,6 +15,8 @@ from .activity_parameter_node import ActivityParameterNode
 from .call_action import CallAction
 from .control_flow import ControlFlow
 from .initial_node import InitialNode
+from .invocation_action import InvocationAction
+from .literal_specification import LiteralSpecification
 from .object_flow import ObjectFlow
 from .utils import inner_to_outer, literal
 from .value_pin import ValuePin
@@ -49,20 +51,22 @@ class CallBehaviorAction(inner.CallBehaviorAction, CallAction):
     def get_value(
         self,
         edge: ActivityEdge,
-        parameter_value_map: Dict[str, [LiteralSpecification]],
+        parameter_value_map: Dict[str, List[LiteralSpecification]],
         node_outputs: Callable,
         sample_format: str,
     ):
-        if isinstance(edge, uml.ControlFlow):
-            return super().get_value(
-                edge, parameter_value_map, node_outputs, sample_format
+        if isinstance(edge, ControlFlow):
+            return ActivityNode.get_value(
+                self, edge, parameter_value_map, node_outputs, sample_format
             )
-        elif isinstance(edge, uml.ObjectFlow):
-            parameter = node.pin_parameter(edge.get_source().name).property_value
-            value = self.get_parameter_value(parameter, node_outputs, sample_format)
+        elif isinstance(edge, ObjectFlow):
+            parameter = self.pin_parameter(edge.get_target().name).property_value
+            value = self.get_parameter_value(
+                parameter, parameter_value_map, node_outputs, sample_format
+            )
             reference = isinstance(value, sbol3.Identified) and value.identity != None
 
-        value = uml.literal(value, reference=reference)
+        value = literal(value, reference=reference)
         return value
 
     def next_tokens_callback(
@@ -78,7 +82,8 @@ class CallBehaviorAction(inner.CallBehaviorAction, CallAction):
             if engine.is_asynchronous:
                 # Push record onto blocked nodes to complete
                 engine.blocked_nodes.add(source)
-                # new_tokens are those corresponding to the subprotocol initiating_nodes
+                # new_tokens are those corresponding to the subprotocol
+                # initiating_nodes
                 init_nodes = self.behavior.lookup().initiating_nodes()
 
                 def get_invocation_edge(r, n):
@@ -103,7 +108,8 @@ class CallBehaviorAction(inner.CallBehaviorAction, CallAction):
                             pass
 
                     elif isinstance(n, ActivityParameterNode):
-                        # if ActivityParameterNode is a ValuePin of the calling behavior, then it won't be an incoming flow
+                        # if ActivityParameterNode is a ValuePin of the calling
+                        # behavior, then it won't be an incoming flow
                         source = self.input_pin(
                             n.parameter.lookup().property_value.name
                         )
@@ -127,8 +133,10 @@ class CallBehaviorAction(inner.CallBehaviorAction, CallAction):
                                         ]
                                     )
                                 )
-                                # invocation['edge'] = ObjectFlow(source=source.lookup().token_source.lookup().node.lookup(), target=n)
-                                # engine.ex.activity_call_edge += [invocation['edge']]
+                                # invocation['edge'] =
+                                # ObjectFlow(source=source.lookup().token_source.lookup().node.lookup(),
+                                # target=n) engine.ex.activity_call_edge +=
+                                # [invocation['edge']]
                                 # ex.protocol.lookup().edges.append(invocation['edge'])
                                 invocation["value"] = literal(
                                     source.lookup().value, reference=True
@@ -145,7 +153,9 @@ class CallBehaviorAction(inner.CallBehaviorAction, CallAction):
                 # engine.ex.flows += new_tokens
 
                 if len(new_tokens) == 0:
-                    # Subprotocol does not have a body, so need to complete the CallBehaviorAction here, otherwise would have seen a FinalNode.
+                    # Subprotocol does not have a body, so need to complete the
+                    # CallBehaviorAction here, otherwise would have seen a
+                    # FinalNode.
                     new_tokens = source.complete_subprotocol(engine)
 
             else:  # is synchronous execution

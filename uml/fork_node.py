@@ -31,7 +31,7 @@ class ForkNode(inner.ForkNode, ControlNode):
         [fork_input_edge] = [
             e for e in self.protocol().edges if e.target.lookup() == self
         ]
-        decision_input_node = fork_input_edge.source.lookup().get_decision_input_node()
+        decision_input_node = fork_input_edge.get_source().get_decision_input_node()
         return decision_input_node
 
     def enabled(

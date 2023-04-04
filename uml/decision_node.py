@@ -50,8 +50,8 @@ class DecisionNode(inner.DecisionNode, ControlNode):
                 and e.target.lookup() == self
                 and e != self.decision_input_flow
                 and not (
-                    isinstance(e.source.lookup(), OutputPin)
-                    and e.source.lookup().get_parent().behavior == self.decision_input
+                    isinstance(e.get_source(), OutputPin)
+                    and e.get_source().get_parent().behavior == self.decision_input
                 )
             )
             return primary_incoming_flow
@@ -66,7 +66,7 @@ class DecisionNode(inner.DecisionNode, ControlNode):
         else:
             # primary input flow leads to decision
             primary_incoming_flow = self.get_primary_incoming_flow(self.protocol())
-            return primary_incoming_flow.source.lookup().get_decision_input_node()
+            return primary_incoming_flow.get_source().get_decision_input_node()
 
     def enabled(
         self,
@@ -91,8 +91,8 @@ class DecisionNode(inner.DecisionNode, ControlNode):
             decision_input_token = next(
                 t
                 for t in tokens
-                if isinstance(t.edge.lookup().source.lookup(), OutputPin)
-                and t.edge.lookup().source.lookup().get_parent().behavior
+                if isinstance(t.edge.lookup().get_source(), OutputPin)
+                and t.edge.lookup().get_source().get_parent().behavior
                 == self.decision_input
             )
         except StopIteration:
@@ -145,7 +145,7 @@ class DecisionNode(inner.DecisionNode, ControlNode):
             decision_input_return_token = next(
                 t
                 for t in source.incoming_flows
-                if isinstance(t.lookup().edge.lookup().source.lookup(), OutputPin)
+                if isinstance(t.lookup().edge.lookup().get_source(), OutputPin)
                 and t.lookup().token_source.lookup().node.lookup().behavior
                 == self.decision_input
             ).lookup()

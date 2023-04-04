@@ -64,16 +64,16 @@ doc.add(cascade_blue)
 doc.add(sulforhodamine)
 
 
-protocol = labop.Protocol("interlab")
-protocol.name = "Multicolor fluorescence per bacterial particle calibration"
-protocol.version = "1.1b"
-protocol.description = """Plate readers report fluorescence values in arbitrary units that vary widely from instrument to instrument. Therefore absolute fluorescence values cannot be directly compared from one instrument to another. In order to compare fluorescence output of biological devices, it is necessary to create a standard fluorescence curve. This variant of the protocol uses two replicates of three colors of dye, plus beads.
+activity = labop.Protocol("interlab")
+activity.name = "Multicolor fluorescence per bacterial particle calibration"
+activity.version = "1.1b"
+activity.description = """Plate readers report fluorescence values in arbitrary units that vary widely from instrument to instrument. Therefore absolute fluorescence values cannot be directly compared from one instrument to another. In order to compare fluorescence output of biological devices, it is necessary to create a standard fluorescence curve. This variant of the protocol uses two replicates of three colors of dye, plus beads.
 Adapted from [https://dx.doi.org/10.17504/protocols.io.bht7j6rn](https://dx.doi.org/10.17504/protocols.io.bht7j6r) and [https://dx.doi.org/10.17504/protocols.io.6zrhf56](https://dx.doi.org/10.17504/protocols.io.6zrhf56)"""
-doc.add(protocol)
+doc.add(activity)
 
 
 # Transfer to plate
-calibration_plate = protocol.primitive_step(
+calibration_plate = activity.primitive_step(
     "EmptyContainer",
     specification=labop.ContainerSpec(
         "calibration_plate",
@@ -85,13 +85,13 @@ calibration_plate = protocol.primitive_step(
 
 
 # Perform measurements
-read_wells1 = protocol.primitive_step(
+read_wells1 = activity.primitive_step(
     "PlateCoordinates",
     source=calibration_plate.output_pin("samples"),
     coordinates="A1:B12",
 )
 
-measure_fluorescence1 = protocol.primitive_step(
+measure_fluorescence1 = activity.primitive_step(
     "MeasureFluorescence",
     samples=read_wells1.output_pin("samples"),
     excitationWavelength=sbol3.Measure(488, OM.nanometer),
@@ -100,14 +100,14 @@ measure_fluorescence1 = protocol.primitive_step(
 )
 measure_fluorescence1.name = "fluorescein and bead fluorescence"
 
-meta1 = protocol.primitive_step(
+meta1 = activity.primitive_step(
     "JoinMetadata",
     dataset=measure_fluorescence1.output_pin("measurements"),
     metadata=labop.SampleMetadata(
         for_samples=read_wells1.output_pin("samples"), descriptions=""
     ),
 )
-protocol.designate_output(
+activity.designate_output(
     "dataset",
     "http://bioprotocols.org/labop#Dataset",
     source=meta1.output_pin("enhanced_dataset"),
@@ -120,7 +120,10 @@ ee = ExecutionEngine(
     sample_format="json",
 )
 execution = ee.execute(
-    protocol, sbol3.Agent("test_agent"), id="test_execution", parameter_values=[]
+    activity,
+    sbol3.Agent("test_agent"),
+    id="test_execution",
+    parameter_values=[],
 )
 print(execution.markdown)
 

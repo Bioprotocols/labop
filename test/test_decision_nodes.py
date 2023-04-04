@@ -151,7 +151,7 @@ class TestProtocolEndToEnd(unittest.TestCase):
             measurement_samples = next(
                 iter(
                     [
-                        e.source.lookup()
+                        e.get_source()
                         for e in protocol.edges
                         if measure.identity in e.target
                         and isinstance(e.target.lookup(), InputPin)

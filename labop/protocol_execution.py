@@ -174,7 +174,7 @@ class ProtocolExecution(inner.ProtocolExecution, BehaviorExecution):
 
         def _make_object_edge(dot, incoming_flow, target, dest_parameter=None):
             flow_source = incoming_flow.lookup().token_source.lookup()
-            source = incoming_flow.lookup().edge.lookup().source.lookup()
+            source = incoming_flow.lookup().edge.lookup().get_source()
             value = incoming_flow.lookup().value.get_value()
             is_ref = isinstance(incoming_flow.lookup().value, LiteralReference)
             # value = value.value.lookup() if isinstance(value, LiteralReference) else value.value
@@ -288,7 +288,7 @@ class ProtocolExecution(inner.ProtocolExecution, BehaviorExecution):
                 elif isinstance(exec_source, Pin):
                     # This incoming_flow is from an input pin, and need the flow into the pin
                     for into_pin_flow in flow_source.incoming_flows:
-                        # source = src_to_pin_edge.source.lookup()
+                        # source = src_to_pin_edge.get_source()
                         # target = src_to_pin_edge.target.lookup()
                         dest_parameter = exec_target.pin_parameter(
                             exec_source.name

@@ -21,6 +21,13 @@ class ActivityNode(inner.ActivityNode):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
+    def required(self):
+        return (
+            hasattr(self, "lower_value")
+            and self.lower_value is not None
+            and self.lower_value.value > 0
+        )
+
     def unpin(self):
         """Find the root node for an ActivityNode: either itself if a Pin, otherwise the owning Action
 
@@ -43,11 +50,14 @@ class ActivityNode(inner.ActivityNode):
         permissive=False,
     ):
         incoming_controls = {e for e in edge_values if isinstance(e, ControlFlow)}
-        # Need all incoming control tokens
-        control_tokens_present = all(
-            [len(edge_values[ic]) > 0 for ic in incoming_controls]
-        )
-        return control_tokens_present
+        if len(incoming_controls) > 0:
+            # Need all incoming control tokens
+            control_tokens_present = all(
+                [len(edge_values[ic]) > 0 for ic in incoming_controls]
+            )
+            return control_tokens_present
+        else:
+            return False  # Cannot execute a node with no incoming controls unless its an InitialNode
 
     # def execute(
     #     self,
@@ -141,7 +151,7 @@ class ActivityNode(inner.ActivityNode):
     def get_value(
         self,
         edge: ActivityEdge,
-        parameter_value_map: Dict[str, [LiteralSpecification]],
+        parameter_value_map: Dict[str, List[LiteralSpecification]],
         node_outputs: Callable,
         sample_format: str,
     ):
@@ -159,13 +169,14 @@ class ActivityNode(inner.ActivityNode):
     def get_parameter_value(
         self,
         parameter: Parameter,
+        parameter_value_map: Dict[str, List[LiteralSpecification]],
         node_outputs: Callable,
         sample_format: str,
     ):
         if node_outputs:
             value = node_outputs(self, parameter)
         elif hasattr(self.get_behavior(), "compute_output"):
-            value = self.compute_output(parameter, sample_format)
+            value = self.compute_output(parameter, parameter_value_map, sample_format)
         else:
             value = f"{parameter.name}"
         return value

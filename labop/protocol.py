@@ -178,5 +178,7 @@ class Protocol(inner.Protocol, Activity):
         edges = super().outgoing_edges(node)
 
         # Add edges with output pins as the source
-        edges = edges + [e for e in self.edges if node == e.source().get_parent()]
+        edges = edges.union(
+            {e for e in self.edges if node == e.get_source().get_parent()}
+        )
         return edges

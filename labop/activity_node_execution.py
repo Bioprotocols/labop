@@ -7,9 +7,11 @@ from typing import Callable, List
 import sbol3
 
 from labop import inner
+from labop.activity_edge_flow import ActivityEdgeFlow
 from uml import (
     PARAMETER_OUT,
     ActivityEdge,
+    ActivityNode,
     ActivityParameterNode,
     CallBehaviorAction,
     ControlFlow,
@@ -20,6 +22,7 @@ from uml import (
     ObjectFlow,
     OutputPin,
     Parameter,
+    flow_final_node,
     literal,
 )
 
@@ -28,8 +31,11 @@ class ActivityNodeExecution(inner.ActivityNodeExecution):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-    def get_node(self):
+    def get_node(self) -> ActivityNode:
         return self.node.lookup()
+
+    def get_incoming_flows(self) -> List[ActivityEdgeFlow]:
+        return [flow.lookup() for flow in self.incoming_flows]
 
     def check_next_tokens(
         self,
