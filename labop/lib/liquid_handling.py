@@ -112,7 +112,6 @@ p = labop.Primitive("Vortex")
 p.description = "Vortex a sample in order to homogeneously mix or suspend its contents"
 p.add_input("samples", "http://bioprotocols.org/labop#SampleCollection")
 p.add_input("duration", sbol3.OM_MEASURE)  # Must be time
-p.add_output("mixed_samples", "http://bioprotocols.org/labop#SampleCollection")
 doc.add(p)
 
 p = labop.Primitive("Discard")
