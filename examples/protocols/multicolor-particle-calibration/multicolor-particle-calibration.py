@@ -26,6 +26,7 @@ if not os.path.exists(OUT_DIR):
 
 filename = "".join(__file__.split(".py")[0].split("/")[-1:])
 
+
 doc = sbol3.Document()
 sbol3.set_namespace("http://igem.org/engineering/")
 
@@ -98,7 +99,7 @@ fluorescein_standard_solution_container = protocol.primitive_step(
         prefixMap={"cont": "https://sift.net/container-ontology/container-ontology#"},
     ),
 )
-
+fluorescein_standard_solution_container.name = "fluroscein_calibrant"
 
 sulforhodamine_standard_solution_container = protocol.primitive_step(
     "EmptyContainer",
@@ -108,6 +109,9 @@ sulforhodamine_standard_solution_container = protocol.primitive_step(
         queryString="cont:StockReagent",
         prefixMap={"cont": "https://sift.net/container-ontology/container-ontology#"},
     ),
+)
+sulforhodamine_standard_solution_container.name = (
+    "sulforhodamine_standard_solution_container"
 )
 
 cascade_blue_standard_solution_container = protocol.primitive_step(
@@ -119,22 +123,77 @@ cascade_blue_standard_solution_container = protocol.primitive_step(
         prefixMap={"cont": "https://sift.net/container-ontology/container-ontology#"},
     ),
 )
+cascade_blue_standard_solution_container.name = (
+    "cascade_blue_standard_solution_container"
+)
 
 microsphere_standard_solution_container = protocol.primitive_step(
     "EmptyContainer",
     specification=labop.ContainerSpec(
         "microspheres",
-        name="NanoCym 950 nm microspheres",
+        name="microspheres",
         queryString="cont:StockReagent",
         prefixMap={"cont": "https://sift.net/container-ontology/container-ontology#"},
     ),
+)
+microsphere_standard_solution_container.name = "microsphere_standard_solution_container"
+
+ddh2o_container = protocol.primitive_step(
+    "EmptyContainer",
+    specification=labop.ContainerSpec(
+        "ddh2o_container",
+        name="molecular grade H2O",
+        queryString="cont:StockReagent",
+        prefixMap={"cont": "https://sift.net/container-ontology/container-ontology#"},
+    ),
+)
+ddh2o_container.name = "ddh2o_container"
+
+pbs_container = protocol.primitive_step(
+    "EmptyContainer",
+    specification=labop.ContainerSpec(
+        "pbs_container",
+        name="PBS",
+        queryString="cont:StockReagent",
+        prefixMap={"cont": "https://sift.net/container-ontology/container-ontology#"},
+    ),
+)
+pbs_container.name = "pbs_container"
+
+
+provision = protocol.primitive_step(
+    "Provision",
+    resource=fluorescein,
+    destination=fluorescein_standard_solution_container.output_pin("samples"),
+    amount=sbol3.Measure(500, OM.microliter),
+)
+
+provision = protocol.primitive_step(
+    "Provision",
+    resource=cascade_blue,
+    destination=cascade_blue_standard_solution_container.output_pin("samples"),
+    amount=sbol3.Measure(500, OM.microliter),
+)
+
+provision = protocol.primitive_step(
+    "Provision",
+    resource=sulforhodamine,
+    destination=sulforhodamine_standard_solution_container.output_pin("samples"),
+    amount=sbol3.Measure(500, OM.microliter),
+)
+
+provision = protocol.primitive_step(
+    "Provision",
+    resource=silica_beads,
+    destination=microsphere_standard_solution_container.output_pin("samples"),
+    amount=sbol3.Measure(500, OM.microliter),
 )
 
 
 ### Suspend calibrant dry reagents
 suspend_fluorescein = protocol.primitive_step(
     "Transfer",
-    source=pbs,
+    source=pbs_container.output_pin("samples"),
     destination=fluorescein_standard_solution_container.output_pin("samples"),
     amount=sbol3.Measure(1, OM.millilitre),
 )
@@ -148,7 +207,7 @@ vortex_fluorescein = protocol.primitive_step(
 
 suspend_sulforhodamine = protocol.primitive_step(
     "Transfer",
-    source=pbs,
+    source=pbs_container.output_pin("samples"),
     destination=sulforhodamine_standard_solution_container.output_pin("samples"),
     amount=sbol3.Measure(1, OM.millilitre),
 )
@@ -162,7 +221,7 @@ vortex_sulforhodamine = protocol.primitive_step(
 
 suspend_cascade_blue = protocol.primitive_step(
     "Transfer",
-    source=ddh2o,
+    source=ddh2o_container.output_pin("samples"),
     destination=cascade_blue_standard_solution_container.output_pin("samples"),
     amount=sbol3.Measure(1, OM.millilitre),
 )
@@ -176,12 +235,12 @@ vortex_cascade_blue = protocol.primitive_step(
 
 suspend_silica_beads = protocol.primitive_step(
     "Transfer",
-    source=ddh2o,
+    source=ddh2o_container.output_pin("samples"),
     destination=microsphere_standard_solution_container.output_pin("samples"),
     amount=sbol3.Measure(1, OM.millilitre),
 )
 suspend_silica_beads.description = f"The resuspended `{silica_beads.name}` will have a final concentration of 3e9 microspheres/mL in `{ddh2o.name}`."
-vortex_silica_beads = protocol.primitive_step(
+vortex_microspheres = protocol.primitive_step(
     "Vortex",
     samples=microsphere_standard_solution_container.output_pin("samples"),
     duration=sbol3.Measure(30, OM.second),
@@ -241,14 +300,14 @@ blank_wells2 = protocol.primitive_step(
 )
 transfer_blanks1 = protocol.primitive_step(
     "Transfer",
-    source=pbs,
+    source=pbs_container.output_pin("samples"),
     destination=blank_wells1.output_pin("samples"),
     amount=sbol3.Measure(100, OM.microlitre),
 )
 transfer_blanks1.description = " These are blanks."
 transfer_blanks2 = protocol.primitive_step(
     "Transfer",
-    source=ddh2o,
+    source=ddh2o_container.output_pin("samples"),
     destination=blank_wells2.output_pin("samples"),
     amount=sbol3.Measure(100, OM.microlitre),
 )
@@ -257,50 +316,50 @@ transfer_blanks2.description = " These are blanks."
 ### Plate calibrants in first column
 transfer1 = protocol.primitive_step(
     "Transfer",
-    source=vortex_fluorescein.output_pin("mixed_samples"),
+    source=fluorescein_standard_solution_container.output_pin("samples"),
     destination=fluorescein_wells_A1.output_pin("samples"),
     amount=sbol3.Measure(200, OM.microlitre),
 )
 transfer2 = protocol.primitive_step(
     "Transfer",
-    source=vortex_fluorescein.output_pin("mixed_samples"),
+    source=fluorescein_standard_solution_container.output_pin("samples"),
     destination=fluorescein_wells_B1.output_pin("samples"),
     amount=sbol3.Measure(200, OM.microlitre),
 )
 transfer3 = protocol.primitive_step(
     "Transfer",
-    source=vortex_sulforhodamine.output_pin("mixed_samples"),
+    source=sulforhodamine_standard_solution_container.output_pin("samples"),
     destination=sulforhodamine_wells_C1.output_pin("samples"),
     amount=sbol3.Measure(200, OM.microlitre),
 )
 transfer4 = protocol.primitive_step(
     "Transfer",
-    source=vortex_sulforhodamine.output_pin("mixed_samples"),
+    source=sulforhodamine_standard_solution_container.output_pin("samples"),
     destination=sulforhodamine_wells_D1.output_pin("samples"),
     amount=sbol3.Measure(200, OM.microlitre),
 )
 transfer5 = protocol.primitive_step(
     "Transfer",
-    source=vortex_cascade_blue.output_pin("mixed_samples"),
+    source=cascade_blue_standard_solution_container.output_pin("samples"),
     destination=cascade_blue_wells_E1.output_pin("samples"),
     amount=sbol3.Measure(200, OM.microlitre),
 )
 transfer6 = protocol.primitive_step(
     "Transfer",
-    source=vortex_cascade_blue.output_pin("mixed_samples"),
+    source=cascade_blue_standard_solution_container.output_pin("samples"),
     destination=cascade_blue_wells_F1.output_pin("samples"),
     amount=sbol3.Measure(200, OM.microlitre),
 )
 transfer7 = protocol.primitive_step(
     "Transfer",
-    source=vortex_silica_beads.output_pin("mixed_samples"),
+    source=microsphere_standard_solution_container.output_pin("samples"),
     destination=silica_beads_wells_G1.output_pin("samples"),
     amount=sbol3.Measure(200, OM.microlitre),
 )
 
 transfer8 = protocol.primitive_step(
     "Transfer",
-    source=vortex_silica_beads.output_pin("mixed_samples"),
+    source=microsphere_standard_solution_container.output_pin("samples"),
     destination=silica_beads_wells_H1.output_pin("samples"),
     amount=sbol3.Measure(200, OM.microlitre),
 )
@@ -481,14 +540,14 @@ samples_in_ddh2o = protocol.primitive_step(
 )
 btv1 = protocol.primitive_step(
     "Transfer",
-    source=pbs,
+    source=pbs_container.output_pin("samples"),
     destination=samples_in_pbs.output_pin("samples"),
     amount=sbol3.Measure(100, OM.microlitre),
 )
 btv1.description = " This will bring all wells to volume 200 microliter."
 btv2 = protocol.primitive_step(
     "Transfer",
-    source=ddh2o,
+    source=ddh2o_container.output_pin("samples"),
     destination=samples_in_ddh2o.output_pin("samples"),
     amount=sbol3.Measure(100, OM.microlitre),
 )
@@ -626,8 +685,17 @@ secrets_file = os.path.join(
 api = StrateosAPI(cfg=StrateosConfig.from_file(secrets_file))
 
 autoprotocol_output = os.path.join(OUT_DIR, "multicolor-particle-calibration.json")
-resolutions = {"container_id": "ct1g9qsg4wx6gcj"}
-autoprotocol_specialization = AutoprotocolSpecialization(autoprotocol_output, api)
+resolutions = {  # "container_id": "ct1g9qsg4wx6gcj",
+    ddh2o.identity: "cmpl1fwyxm3vbej2k",
+    pbs.identity: "cmpl1fwyxm3vbej2k",
+    fluorescein.identity: "cmpl1fwyxm3vbej2k",
+    cascade_blue.identity: "cmpl1fwyxm3vbej2k",
+    sulforhodamine.identity: "cmpl1fwyxm3vbej2k",
+    silica_beads.identity: "cmpl1fwyxm3vbej2k",
+}
+autoprotocol_specialization = AutoprotocolSpecialization(
+    autoprotocol_output, api, resolutions=resolutions
+)
 
 ee = ExecutionEngine(specializations=[autoprotocol_specialization], failsafe=False)
 execution = ee.execute(
