@@ -42,9 +42,7 @@ def protocol_execution_get_data(self):
     """
     Gather labop.SampleData outputs from all CallBehaviorExecutions into a dataset
     """
-    calls = [
-        e for e in self.executions if isinstance(e, labop.CallBehaviorExecution)
-    ]
+    calls = [e for e in self.executions if isinstance(e, labop.CallBehaviorExecution)]
     datasets = {
         o.value.get_value().identity: o.value.get_value().to_dataset()
         for e in calls
@@ -71,9 +69,7 @@ def sample_array_empty(self, geometry=None, sample_format=Strings.XARRAY):
     elif sample_format == Strings.JSON:
         sample_array = {s: None for s in samples}
     else:
-        raise Exception(
-            f"Cannot initialize contents of sample_format: {sample_format}"
-        )
+        raise Exception(f"Cannot initialize contents of sample_format: {sample_format}")
     self.initial_contents = serialize_sample_format(sample_array)
     return sample_array
 
@@ -85,9 +81,7 @@ def sample_array_to_data_array(self, sample_format=Strings.XARRAY):
     if not hasattr(self, "initial_contents") or self.initial_contents is None:
         sample_array = self.empty(sample_format=sample_format)
     else:
-        sample_array = deserialize_sample_format(
-            self.initial_contents, parent=self
-        )
+        sample_array = deserialize_sample_format(self.initial_contents, parent=self)
     return sample_array
 
 
@@ -143,10 +137,7 @@ def sample_array_to_dict(self, sample_format=Strings.XARRAY) -> dict:
     if sample_format == Strings.JSON:
         if not self.initial_contents:
             return {}
-        if (
-            self.initial_contents
-            == "https://github.com/synbiodex/pysbol3#missing"
-        ):
+        if self.initial_contents == "https://github.com/synbiodex/pysbol3#missing":
             return {}
         # De-serialize the initial_contents field of a SampleArray
         return json.loads(unquote(self.initial_contents))
@@ -260,6 +251,9 @@ def sample_array_from_container_spec(
         == "cont:Opentrons24TubeRackwithEppendorf1.5mLSafe-LockSnapcap"
     ):
         geometry = "A1:C8"
+    elif container_type.queryString == "cont:StockReagent":
+        geometry = "A1"
+
     else:
         geometry = "A1:H12"
 
@@ -328,9 +322,7 @@ def sample_data_from_table(self, table: List[List[Dict[str, str]]]):
     coords = {col_headers[i]: [] for i in coord_cols}
     data = []
     for row in table[1:]:
-        data.append(
-            [x["value"] for i, x in enumerate(row) if i not in coord_cols]
-        )
+        data.append([x["value"] for i, x in enumerate(row) if i not in coord_cols])
         for i, x in enumerate(row):
             if i in coord_cols:
                 coords[col_headers[i]].append(x["value"])
@@ -369,11 +361,7 @@ def sample_array_plot(self, out_dir="out"):
         sa = self.to_data_array()
         # p = sa.plot.scatter(col="aliquot", x="contents")
         p = sa.plot()
-        name = (
-            self.name
-            if (hasattr(self, "name") and self.name)
-            else self.identity
-        )
+        name = self.name if (hasattr(self, "name") and self.name) else self.identity
         plt.savefig(f"{os.path.join(out_dir, name)}.pdf")
         return p
     except Exception as e:
@@ -394,7 +382,7 @@ def sample_array_sample_coordinates(self, sample_format=Strings.XARRAY):
         if all([c in coords for c in plate_coords]):
             return "A1:H12"
         else:
-            return coords
+            return f"{coords[0]}:{coords[-1]}"
     else:
         return sample_array
 
@@ -406,7 +394,8 @@ def sample_mask_sample_coordinates(self, sample_format=Strings.XARRAY):
     sample_array = self.to_masked_data_array()
 
     if sample_format == Strings.XARRAY:
-        return sample_array.coords[Strings.SAMPLE].data.tolist()
+        coords = sample_array.coords[Strings.SAMPLE].data.tolist()
+        return f"{coords[0]}:{coords[-1]}"
     else:
         return sample_array
 
@@ -464,9 +453,7 @@ def sample_metadata_to_data_array(
     if not hasattr(self, "descriptions") or self.descriptions is None:
         metadata_array = self.empty(sample_format=sample_format)
     else:
-        metadata_array = deserialize_sample_format(
-            self.descriptions, parent=self
-        )
+        metadata_array = deserialize_sample_format(self.descriptions, parent=self)
     return metadata_array
 
 
@@ -574,16 +561,9 @@ def dataset_to_dataset(
     self : labop.Dataset
         Dataset comprising data and metadata.
     """
-    data = (
-        [self.data.to_data_array(sample_format=sample_format)]
-        if self.data
-        else []
-    )
+    data = [self.data.to_data_array(sample_format=sample_format)] if self.data else []
     datasets = (
-        [
-            d.lookup().to_dataset(sample_format=sample_format)
-            for d in self.dataset
-        ]
+        [d.lookup().to_dataset(sample_format=sample_format) for d in self.dataset]
         if self.dataset
         else []
     )
@@ -690,9 +670,7 @@ def sample_data_update_data_sheet(
                     )
                     if changed:
                         sample_array = sample_data_array
-                        self.values = labop.serialize_sample_format(
-                            sample_array
-                        )
+                        self.values = labop.serialize_sample_format(sample_array)
 
                 else:
                     raise Exception(
@@ -708,9 +686,7 @@ def sample_data_update_data_sheet(
             with pd.ExcelWriter(
                 data_file_path, mode=mode, engine="openpyxl", **kwargs
             ) as writer:
-                sample_array.to_dataframe().to_excel(
-                    writer, sheet_name=sheet_name
-                )
+                sample_array.to_dataframe().to_excel(writer, sheet_name=sheet_name)
 
 
 labop.SampleData.update_data_sheet = sample_data_update_data_sheet
@@ -785,9 +761,7 @@ labop.SampleData.humanize = sample_data_humanize
 def dataset_update_data_sheet(
     self, data_file_path, sheet_name, sample_format=Strings.XARRAY
 ):
-    dataset = sort_samples(
-        self.to_dataset(humanize=True), sample_format=sample_format
-    )
+    dataset = sort_samples(self.to_dataset(humanize=True), sample_format=sample_format)
 
     if len(dataset) > 0:
         mode = "a" if os.path.exists(data_file_path) else "w"
