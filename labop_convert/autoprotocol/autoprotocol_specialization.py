@@ -42,13 +42,15 @@ class AutoprotocolSpecialization(BehaviorSpecialization):
         self,
         out_path,
         api: StrateosAPI = None,
-        resolutions: Dict[sbol3.Identified, str] = None,
+        resolutions: Dict["sbol3.Identified.identity", str] = None,
     ) -> None:
         super().__init__()
         self.out_path = out_path
         self.resolutions = resolutions if resolutions else {}
         self.api = api
-        self.var_to_entity = {}
+        self.var_to_entity: typing.Dict[
+            "labop.SampleArray.identity", autoprotocol.Container
+        ] = {}
         self.container_api_addl_conditions = "(cont:availableAt value <https://sift.net/container-ontology/strateos-catalog#Strateos>)"
 
     def _init_behavior_func_map(self) -> dict:
@@ -86,6 +88,7 @@ class AutoprotocolSpecialization(BehaviorSpecialization):
             container_type = self.get_strateos_container_type(spec)
             container_name = f"{self.execution.protocol.lookup().name} Container {samples_var.display_id}"
             container_id = self.create_new_container(container_name, container_type)
+            self.resolutions[spec.identity] = container_id
 
         # container_id = tx.inventory("flat test")['results'][1]['id']
         # container_id = "ct1g9q3bndujat5"
@@ -100,7 +103,7 @@ class AutoprotocolSpecialization(BehaviorSpecialization):
             cont_type=tx_container.container_type,
             discard=True,
         )
-        self.var_to_entity[samples_var] = container
+        self.var_to_entity[samples_var.identity] = container
 
         l.debug(f"define_container:")
         l.debug(f" specification: {spec}")
@@ -176,6 +179,10 @@ class AutoprotocolSpecialization(BehaviorSpecialization):
             "volume": "100:microliter",  # FIXME where does this come from?
             "properties": [{"key": "concentration", "value": "10:millimolar"}],
         }
+        # container_spec = {
+        #    "name": name,
+        #    "cont_type": container_type,  # resolve with spec here
+        # }
         container_ids = self.api.make_containers([container_spec])
         container_id = container_ids[name]
         return container_id
@@ -188,19 +195,19 @@ class AutoprotocolSpecialization(BehaviorSpecialization):
         parameter_value_map = call.parameter_value_map()
 
         destination = parameter_value_map["destination"]["value"]
-        dest_wells = self.var_to_entity[destination]
-        value = parameter_value_map["amount"]["value"].value
-        units = parameter_value_map["amount"]["value"].unit
-        units = tyto.OM.get_term_by_uri(units)
+        value = measure_to_unit(parameter_value_map["amount"]["value"])
         resource = parameter_value_map["resource"]["value"]
-        resource = self.resolutions[resource]
-        l.debug(f"provision_container:")
-        l.debug(f" destination: {destination}")
-        l.debug(f" amount: {value} {units}")
-        l.debug(f" resource: {resource}")
-        [step] = self.protocol.provision(
-            resource, dest_wells, amounts=Unit(value, units)
+        if resource.identity not in self.resolutions:
+            raise ValueError(
+                f"{resource.identity} does not resolve to a known Strateos id"
+            )
+        resource = self.resolutions[resource.identity]
+
+        container = self.var_to_entity[destination.identity]
+        wells = pc.coordinate_rect_to_well_group(
+            container, destination.sample_coordinates()
         )
+        [step] = self.protocol.provision(resource, wells, amounts=value)
         # resource_term = UnresolvedTerm(step, "resource_id", resource)
         # self.unresolved_terms.append(resource_term)
         return results
@@ -208,21 +215,17 @@ class AutoprotocolSpecialization(BehaviorSpecialization):
     def plate_coordinates(
         self, record: labop.ActivityNodeExecution, execution: labop.ProtocolExecution
     ) -> WellGroup:
+
+        # TODO: I think this can all be removed because it is now handled in primitive_execution.py
         results = {}
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
 
         source = parameter_value_map["source"]["value"]
-        container = self.var_to_entity[source]
-        coords = parameter_value_map["coordinates"]["value"]
-        wells = pc.coordinate_rect_to_well_group(container, coords)
+        samples = parameter_value_map["samples"]["value"]
 
-        self.var_to_entity[parameter_value_map["samples"]["value"]] = wells
-        l.debug(f"plate_coordinates:")
-        l.debug(f"  source: {source}")
-        l.debug(f"  coordinates: {coords}")
-        # results[outputs['samples']] = ('samples', pc.coordinate_rect_to_well_group(source, coords))
-        return results
+        container = self.var_to_entity[source.identity]
+        self.var_to_entity[samples.identity] = container
 
     def measure_absorbance(
         self, record: labop.ActivityNodeExecution, execution: labop.ProtocolExecution
@@ -234,11 +237,11 @@ class AutoprotocolSpecialization(BehaviorSpecialization):
         wl = parameter_value_map["wavelength"]["value"]
         wl_units = tyto.OM.get_term_by_uri(wl.unit)
         samples = parameter_value_map["samples"]["value"]
-        wells = self.var_to_entity[samples]
+        container = self.var_to_entity[samples.identity]
+        wells = pc.coordinate_rect_to_well_group(
+            container, samples.sample_coordinates()
+        )
         measurements = parameter_value_map["measurements"]["value"]
-
-        # HACK extract contrainer from well group since we do not have it as input
-        container = wells[0].container
 
         l.debug(f"measure_absorbance:")
         l.debug(f"  container: {container}")
@@ -273,10 +276,10 @@ class AutoprotocolSpecialization(BehaviorSpecialization):
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
 
-        excitation = parameter_value_map["excitationWavelength"]["value"]
-        excitation = Unit(excitation.value, tyto.OM.get_term_by_uri(excitation.unit))
-        emission = parameter_value_map["emissionWavelength"]["value"]
-        emission = Unit(emission.value, tyto.OM.get_term_by_uri(emission.unit))
+        excitation = measure_to_unit(
+            parameter_value_map["excitationWavelength"]["value"]
+        )
+        emission = measure_to_unit(parameter_value_map["emissionWavelength"]["value"])
         bandpass = parameter_value_map["emissionBandpassWidth"]["value"]
         samples = parameter_value_map["samples"]["value"]
         timepoints = (
@@ -286,10 +289,10 @@ class AutoprotocolSpecialization(BehaviorSpecialization):
         )
         measurements = parameter_value_map["measurements"]["value"]
 
-        # HACK extract contrainer from well group since we do not have it as input
-        wells = self.var_to_entity[samples]
-        container = wells[0].container
-
+        container = self.var_to_entity[samples.identity]
+        wells = pc.coordinate_rect_to_well_group(
+            container, samples.sample_coordinates()
+        )
         self.protocol.spectrophotometry(
             dataref=str(uuid.uuid5(uuid.NAMESPACE_URL, measurements.identity)),
             obj=container,
@@ -318,7 +321,42 @@ class AutoprotocolSpecialization(BehaviorSpecialization):
     def transfer(
         self, record: labop.ActivityNodeExecution, execution: labop.ProtocolExecution
     ):
-        pass
+        results = {}
+        call = record.call.lookup()
+        parameter_value_map = call.parameter_value_map()
+
+        source = parameter_value_map["source"]["value"]
+        destination = parameter_value_map["destination"]["value"]
+        destination_coordinates = (
+            parameter_value_map["coordinates"]["value"]
+            if "coordinates" in parameter_value_map
+            else ""
+        )
+        replicates = (
+            parameter_value_map["replicates"]["value"]
+            if "replicates" in parameter_value_map
+            else 1
+        )
+        temperature = (
+            parameter_value_map["temperature"]["value"]
+            if "temperature" in parameter_value_map
+            else None
+        )
+        amount = measure_to_unit(parameter_value_map["amount"]["value"])
+        if "dispenseVelocity" in parameter_value_map:
+            dispense_velocity = parameter_value_map["dispenseVelocity"]["value"]
+
+        source_container = self.var_to_entity[source.identity]
+        source_wells = pc.coordinate_rect_to_well_group(
+            source_container, source.sample_coordinates()
+        )
+        dest_container = self.var_to_entity[destination.identity]
+        dest_wells = pc.coordinate_rect_to_well_group(
+            dest_container, destination.sample_coordinates()
+        )
+        self.protocol.transfer(
+            source=source_wells, destination=dest_wells, volume=amount
+        )
 
     def serial_dilution(
         self, record: labop.ActivityNodeExecution, execution: labop.ProtocolExecution
@@ -343,3 +381,7 @@ def check_strateos_container_ids():
     assert (
         len(unsupported_containers) == 0
     ), f"Found unsupported Strateos container types: {unsupported_containers})"
+
+
+def measure_to_unit(measure: sbol3.Measure) -> Unit:
+    return Unit(measure.value, tyto.OM.get_term_by_uri(measure.unit))
