@@ -5,11 +5,73 @@ Generic helper functions for dealing with plate coordinates
 import re
 from string import ascii_letters
 
+import numpy as np
+
 
 def get_sample_list(geometry="A1:H12"):
     row_col_pairs = coordinate_rect_to_row_col_pairs(geometry)
     aliquots = [f"{num2row(r+1)}{c+1}" for (r, c) in row_col_pairs]
     return aliquots
+
+
+def contiguous_coordinates(coords):
+    """
+    Summarize a list of well coordinates of the form ["A1", "A2", ...] with a rectangle of the form "A1:B2".  Ensure that the elements of the list are a rectangle without any missing wells.
+
+    Parameters
+    ----------
+    coords : List[str]
+        List of coordinates to summarize.
+
+    Returns
+    -------
+    Union[List[str], str]
+        The original list (if not a rectangle) or a summarized rectangle string.
+    """
+    # assumes that coords are sorted
+    if len(coords) == 0:
+        return ""
+    elif len(coords) == 1:
+        return coords[0]
+    else:
+        pairs = roboticize_2D(coords)
+        min_row = min([row for (row, _) in pairs])
+        max_row = max([row for (row, _) in pairs])
+        min_col = min([col for (_, col) in pairs])
+        max_col = max([col for (_, col) in pairs])
+        col_range = range(min_col, max_col + 1)
+        row_range = range(min_row, max_row + 1)
+        entries = np.array([[(x, y) in pairs for y in col_range] for x in row_range])
+        if all(
+            [
+                all([entries[x - min_row][y - min_col] for y in col_range])
+                for x in row_range
+            ]
+        ):
+            return f"{coords[0]}:{coords[-1]}"
+        else:
+            return coords
+
+
+def roboticize_2D(coords):
+    """
+    Convert a list strings or string representation of coordinates to a list of pairs of integers.  For example convert ["A1", "A2", ...] to [(0, 0), (0, 1), ...].  Similarly also convert rectangle coordinates of the form "A1:B12" to a list of pairs of integers.
+
+    Parameters
+    ----------
+    coords : Union[List[str], str]
+        Humanized coordinates
+
+    Returns
+    -------
+    List[Tuple[int, int]]
+        roboicized coordinates
+    """
+    if isinstance(coords, list):
+        return [y for x in coords for y in roboticize_2D(x)]
+    else:
+        pairs = coordinate_rect_to_row_col_pairs(coords)
+        return pairs
 
 
 def num2row(num: int):
@@ -66,7 +128,6 @@ def coordinate_rect_to_row_col_pairs(coords: str) -> list:
         parts = coords.split(":")
         frow, fcol = coordinate_to_row_col(parts[0])
         srow, scol = coordinate_to_row_col(parts[1])
-
         indices = []
         for i in range(fcol, scol + 1):
             for j in range(frow, srow + 1):

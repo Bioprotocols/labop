@@ -12,6 +12,7 @@ from itertools import islice
 from typing import Dict, List, Union
 from urllib.parse import quote, unquote
 
+import numpy as np
 import pandas as pd
 import sbol3
 import xarray as xr
@@ -20,7 +21,7 @@ from openpyxl import load_workbook
 import labop
 import uml
 from labop.strings import Strings
-from labop_convert.plate_coordinates import get_sample_list
+from labop_convert.plate_coordinates import contiguous_coordinates, get_sample_list
 
 l = logging.getLogger(__file__)
 l.setLevel(logging.ERROR)
@@ -253,7 +254,6 @@ def sample_array_from_container_spec(
         geometry = "A1:C8"
     elif container_type.queryString == "cont:StockReagent":
         geometry = "A1"
-
     else:
         geometry = "A1:H12"
 
@@ -374,15 +374,16 @@ def sample_array_plot(self, out_dir="out"):
 labop.SampleArray.plot = sample_array_plot
 
 
-def sample_array_sample_coordinates(self, sample_format=Strings.XARRAY):
+def sample_array_sample_coordinates(self, sample_format=Strings.XARRAY, as_list=False):
     sample_array = deserialize_sample_format(self.initial_contents, parent=self)
     if sample_format == Strings.XARRAY:
         coords = sample_array.coords[Strings.SAMPLE].data.tolist()
-        plate_coords = get_sample_list("A1:H12")
-        if all([c in coords for c in plate_coords]):
-            return "A1:H12"
-        else:
-            return f"{coords[0]}:{coords[-1]}"
+        return contiguous_coordinates(coords) if not as_list else coords
+        # plate_coords = get_sample_list("A1:H12")
+        # if all([c in coords for c in plate_coords]):
+        #     return "A1:H12"
+        # else:
+        #     return coords
     else:
         return sample_array
 
@@ -390,12 +391,12 @@ def sample_array_sample_coordinates(self, sample_format=Strings.XARRAY):
 labop.SampleArray.sample_coordinates = sample_array_sample_coordinates
 
 
-def sample_mask_sample_coordinates(self, sample_format=Strings.XARRAY):
+def sample_mask_sample_coordinates(self, sample_format=Strings.XARRAY, as_list=False):
     sample_array = self.to_masked_data_array()
 
     if sample_format == Strings.XARRAY:
         coords = sample_array.coords[Strings.SAMPLE].data.tolist()
-        return f"{coords[0]}:{coords[-1]}"
+        return contiguous_coordinates(coords) if not as_list else coords
     else:
         return sample_array
 
@@ -504,6 +505,20 @@ def sample_metadata_from_excel(
 labop.SampleMetadata.from_excel = sample_metadata_from_excel
 
 
+def sample_mask_container_type(self):
+    return self.source.lookup().get_container_type()
+
+
+labop.SampleMask.get_container_type = sample_mask_container_type
+
+
+def sample_array_container_type(self):
+    return self.container_type
+
+
+labop.SampleArray.get_container_type = sample_array_container_type
+
+
 def sample_metadata_for_primitive(
     primitive: labop.Primitive,
     inputs: Dict[str, sbol3.Identified],
@@ -511,7 +526,6 @@ def sample_metadata_for_primitive(
     sample_format=Strings.XARRAY,
     record_source=False,
 ):
-
     metadata = labop.SampleMetadata(for_samples=for_samples)
     # metadata_array = metadata.empty(sample_format=sample_format)
 
@@ -623,7 +637,6 @@ def deserialize_sample_format(data: str, parent: sbol3.Identified = None):
 
 
 def sort_samples(data, sample_format=Strings.XARRAY):
-
     if sample_format == Strings.XARRAY:
         if Strings.SAMPLE in data.coords:
             data = (
