@@ -84,8 +84,10 @@ def generate_protocol():
     protocol = labop.Protocol(PROTOCOL_NAME)
     protocol.name = "Multicolor fluorescence per bacterial particle calibration"
     protocol.version = "1.2"
-    protocol.description = """Plate readers report fluorescence values in arbitrary units that vary widely from instrument to instrument. Therefore absolute fluorescence values cannot be directly compared from one instrument to another. In order to compare fluorescence output of biological devices, it is necessary to create a standard fluorescence curve. This variant of the protocol uses two replicates of three colors of dye, plus beads.
-    Adapted from [https://dx.doi.org/10.17504/protocols.io.bht7j6rn](https://dx.doi.org/10.17504/protocols.io.bht7j6r) and [https://dx.doi.org/10.17504/protocols.io.6zrhf56](https://dx.doi.org/10.17504/protocols.io.6zrhf56)"""
+    protocol.description = """
+Plate readers report fluorescence values in arbitrary units that vary widely from instrument to instrument. Therefore absolute fluorescence values cannot be directly compared from one instrument to another. In order to compare fluorescence output of biological devices, it is necessary to create a standard fluorescence curve. This variant of the protocol uses two replicates of three colors of dye, plus beads.
+Adapted from [https://dx.doi.org/10.17504/protocols.io.bht7j6rn](https://dx.doi.org/10.17504/protocols.io.bht7j6r) and [https://dx.doi.org/10.17504/protocols.io.6zrhf56](https://dx.doi.org/10.17504/protocols.io.6zrhf56)
+    """
     doc.add(protocol)
 
     # Provision an empty Microfuge tube in which to mix the standard solution
@@ -455,7 +457,8 @@ def generate_protocol():
         "EmbeddedImage",
         image=os.path.join(
             # os.path.dirname(os.path.realpath(__file__)),
-            ".." "figures",
+            "..",
+            "figures",
             "serial_dilution.png",
         ),
         caption="Serial Dilution",
@@ -550,7 +553,7 @@ def generate_protocol():
         amount=sbol3.Measure(100, OM.microlitre),
     )
 
-    discard.description = " This step ensures that all wells contain an equivalent volume. Be sure to change pipette tips for every well to avoid cross-contamination"
+    discard.description = " This step ensures that all wells contain an equivalent volume. Be sure to change pipette tips for every well to avoid cross-contamination."
 
     # Bring to volume of 200 ul
     samples_in_pbs = protocol.primitive_step(
@@ -691,7 +694,8 @@ def generate_protocol():
     return protocol, doc
 
 
-def generate_markdown_specialization(doc, protocol):
+def generate_markdown_specialization(protocol, doc):
+    import labop
     from labop.execution_engine import ExecutionEngine
     from labop.strings import Strings
     from labop_convert import MarkdownSpecialization
@@ -727,7 +731,8 @@ def generate_markdown_specialization(doc, protocol):
             f.write(doc.write_string(sbol3.SORTED_NTRIPLES).strip())
 
 
-def generate_autoprotocol_specialization(doc, protocol):
+def generate_autoprotocol_specialization(protocol, doc):
+    import labop
     from labop.execution_engine import ExecutionEngine
     from labop_convert.autoprotocol.autoprotocol_specialization import (
         AutoprotocolSpecialization,
@@ -844,14 +849,11 @@ if __name__ == "__main__":
     ):
         print("Generating Protocol ...")
         protocol, doc = generate_protocol()
-    else:
-        print("Reading Protocol from file ...")
-        protocol, doc = read_protocol()
 
     if args.generate_markdown:
         print("Generating Markdown ...")
-        generate_markdown_specialization(doc, protocol)
+        generate_markdown_specialization(*read_protocol())
 
     if args.generate_autoprotocol:
         print("Generating Autoprotocol")
-        generate_autoprotocol_specialization(doc, protocol)
+        generate_autoprotocol_specialization(*read_protocol())
