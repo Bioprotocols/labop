@@ -3,6 +3,8 @@ http://2018.igem.org/wiki/images/0/09/2018_InterLab_Plate_Reader_Protocol.pdf
 """
 import argparse
 import os
+import shutil
+import subprocess
 import sys
 
 import sbol3
@@ -722,13 +724,26 @@ def generate_markdown_specialization(protocol, doc):
         id="test_execution",
         parameter_values=[],
     )
-
-    with open(os.path.join(OUT_DIR, filename + ".md"), "w", encoding="utf-8") as f:
+    md_file = os.path.join(OUT_DIR, filename + ".md")
+    with open(md_file, "w", encoding="utf-8") as f:
         f.write(execution.markdown)
 
     if REGENERATE_ARTIFACTS:
         with open(os.path.join(OUT_DIR, f"{filename}-execution.nt"), "w") as f:
             f.write(doc.write_string(sbol3.SORTED_NTRIPLES).strip())
+
+    # Change dir to get relative references in md file to resolve.
+    old_dir = os.getcwd()
+    os.chdir(OUT_DIR)
+
+    pandoc = shutil.which("pandoc")
+    if pandoc:
+        subprocess.run(
+            f"{pandoc} {md_file} -o {md_file}.pdf --pdf-engine=xelatex -V geometry:margin=1in -V linkcolor:blue",
+            shell=True,
+        )
+
+    os.chdir(old_dir)
 
 
 def generate_autoprotocol_specialization(protocol, doc):
