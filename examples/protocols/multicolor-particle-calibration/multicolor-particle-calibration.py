@@ -2,6 +2,7 @@
 http://2018.igem.org/wiki/images/0/09/2018_InterLab_Plate_Reader_Protocol.pdf
 """
 import argparse
+import json
 import os
 import shutil
 import subprocess
@@ -12,6 +13,7 @@ from tyto import OM
 
 NAMESPACE = "http://igem.org/engineering/"
 PROTOCOL_NAME = "interlab"
+PROTOCOL_LONG_NAME = "Multicolor fluorescence per bacterial particle calibration"
 
 if "unittest" in sys.modules:
     REGENERATE_ARTIFACTS = False
@@ -84,7 +86,7 @@ def generate_protocol():
     doc.add(sulforhodamine)
 
     protocol = labop.Protocol(PROTOCOL_NAME)
-    protocol.name = "Multicolor fluorescence per bacterial particle calibration"
+    protocol.name = PROTOCOL_LONG_NAME
     protocol.version = "1.2"
     protocol.description = """
 Plate readers report fluorescence values in arbitrary units that vary widely from instrument to instrument. Therefore absolute fluorescence values cannot be directly compared from one instrument to another. In order to compare fluorescence output of biological devices, it is necessary to create a standard fluorescence curve. This variant of the protocol uses two replicates of three colors of dye, plus beads.
@@ -177,6 +179,19 @@ Adapted from [https://dx.doi.org/10.17504/protocols.io.bht7j6rn](https://dx.doi.
         ),
     )
     pbs_container.name = "pbs_container"
+
+    discard_container = protocol.primitive_step(
+        "EmptyContainer",
+        specification=labop.ContainerSpec(
+            "discard_container",
+            name="discard",
+            queryString="cont:StockReagent",
+            prefixMap={
+                "cont": "https://sift.net/container-ontology/container-ontology#"
+            },
+        ),
+    )
+    discard_container.name = "discard_container"
 
     provision = protocol.primitive_step(
         "Provision",
@@ -444,6 +459,12 @@ Adapted from [https://dx.doi.org/10.17504/protocols.io.bht7j6rn](https://dx.doi.
         coordinates="H1:H11",
     )
 
+    discard_coordinates = protocol.primitive_step(
+        "PlateCoordinates",
+        source=discard_container.output_pin("samples"),
+        coordinates="A1",
+    )
+
     serial_dilution1 = protocol.primitive_step(
         "SerialDilution",
         source=fluorescein_wells_A1.output_pin("samples"),
@@ -550,9 +571,10 @@ Adapted from [https://dx.doi.org/10.17504/protocols.io.bht7j6rn](https://dx.doi.
     )
 
     discard = protocol.primitive_step(
-        "Discard",
-        samples=discard_wells.output_pin("samples"),
+        "Transfer",
+        source=discard_wells.output_pin("samples"),
         amount=sbol3.Measure(100, OM.microlitre),
+        destination=discard_container.output_pin("samples"),
     )
 
     discard.description = " This step ensures that all wells contain an equivalent volume. Be sure to change pipette tips for every well to avoid cross-contamination."
@@ -838,6 +860,27 @@ def generate_autoprotocol_specialization(protocol, doc):
             f.write(doc.write_string(sbol3.SORTED_NTRIPLES).strip())
 
 
+def test_autoprotocol():
+    from labop_convert.autoprotocol.strateos_api import StrateosAPI, StrateosConfig
+
+    secrets_file = os.path.join(
+        os.path.dirname(os.path.realpath(__file__)),
+        "../../../secrets/strateos_secrets.json",
+    )
+    api = StrateosAPI(cfg=StrateosConfig.from_file(secrets_file))
+
+    ap_file = os.path.join(OUT_DIR, f"{filename}-autoprotocol.json")
+    st = api.get_strateos_connection()
+    with open(ap_file, "r") as ap:
+        response = st.submit_run(
+            json.loads(ap.read()),
+            project_id=api.cfg.project_id,
+            title=PROTOCOL_LONG_NAME,
+            test_mode=True,
+        )
+    print(f"Received response:\n{response}")
+
+
 def read_protocol(filename=os.path.join(OUT_DIR, f"{filename}-protocol.nt")):
     import labop
 
@@ -853,10 +896,11 @@ def read_protocol(filename=os.path.join(OUT_DIR, f"{filename}-protocol.nt")):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("-g", "--generate-protocol", default=False, action="store_true")
-    parser.add_argument("-m", "--generate-markdown", default=True, action="store_true")
+    parser.add_argument("-m", "--generate-markdown", default=False, action="store_true")
     parser.add_argument(
         "-a", "--generate-autoprotocol", default=False, action="store_true"
     )
+    parser.add_argument("-t", "--test-autoprotocol", default=False, action="store_true")
     args = parser.parse_args()
 
     if args.generate_protocol or not os.path.exists(
@@ -872,3 +916,10 @@ if __name__ == "__main__":
     if args.generate_autoprotocol:
         print("Generating Autoprotocol")
         generate_autoprotocol_specialization(*read_protocol())
+
+    if args.test_autoprotocol:
+        print("Submitting Autoprotocol Test Run ...")
+        proceed = input("Proceed? y/[n]")
+        # proceed = "y"
+        if proceed and proceed == "y":
+            test_autoprotocol()
