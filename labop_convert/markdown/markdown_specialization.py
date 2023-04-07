@@ -668,7 +668,7 @@ class MarkdownSpecialization(BehaviorSpecialization):
         # if isinstance(source, labop.SampleMask):
         #     source_coordinates = source.mask
         #     source = source.source.lookup()
-        # source_contents = read_sample_contents(source)
+        source_contents = read_sample_contents(source)
         # if source_coordinates:
         #     source_contents = {source_coordinates: source_contents[source_coordinates]}
 
@@ -680,19 +680,28 @@ class MarkdownSpecialization(BehaviorSpecialization):
             if isinstance(destination, labop.SampleMask)
             else destination.sample_coordinates(sample_format=self.sample_format)
         )
-
-        # All possible sourcv coordinates (including those not part of the transfer)
-        all_source_coordinates = (
-            source.source.lookup().sample_coordinates(sample_format=self.sample_format)
-            if isinstance(source, labop.SampleMask)
-            else source.sample_coordinates(sample_format=self.sample_format)
-        )
-
         destination_coordinates = destination.sample_coordinates(
             sample_format=self.sample_format
         )
-
-        source_coordinates = source.sample_coordinates(sample_format=self.sample_format)
+        # All possible sourcv coordinates (including those not part of the transfer)
+        if isinstance(source, labop.SampleCollection):
+            all_source_coordinates = (
+                source.source.lookup().sample_coordinates(
+                    sample_format=self.sample_format
+                )
+                if isinstance(source, labop.SampleMask)
+                else source.sample_coordinates(sample_format=self.sample_format)
+            )
+            source_coordinates = source.sample_coordinates(
+                sample_format=self.sample_format
+            )
+        elif isinstance(source, sbol3.Component):
+            all_source_coordinates = list(source_contents.keys())
+            source_coordinates = all_source_coordinates
+        else:
+            raise Exception(
+                f"Don't know how to get all source coordinates of source type: {type(source)}"
+            )
 
         # destination_contents = read_sample_contents(destination)
         # print('-------')
