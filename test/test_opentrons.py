@@ -90,8 +90,8 @@ class TestProtocolEndToEnd(unittest.TestCase):
             "testfiles",
             nt_file,
         )
-        with open(comparison_file, "w") as f:
-            f.write(doc.write_string(sbol3.SORTED_NTRIPLES).strip())
+        # with open(comparison_file, "w") as f:
+        #     f.write(doc.write_string(sbol3.SORTED_NTRIPLES).strip())
         print(f"Comparing against {comparison_file}")
         diff = "".join(file_diff(comparison_file, temp_name))
         print(f"Difference:\n{diff}")

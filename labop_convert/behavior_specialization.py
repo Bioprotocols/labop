@@ -13,7 +13,8 @@ l = logging.getLogger(__file__)
 l.setLevel(logging.WARN)
 
 container_ontology_path = os.path.join(
-    os.path.dirname(os.path.realpath(__file__)), "../labop/container-ontology.ttl"
+    os.path.dirname(os.path.realpath(__file__)),
+    "../labop/container-ontology.ttl",
 )
 ContO = tyto.Ontology(
     path=container_ontology_path,
@@ -69,7 +70,8 @@ class BehaviorSpecialization(ABC):
         self.data = json.dumps(self.data)
         if self.out_dir:
             with open(
-                os.path.join(self.out_dir, f"{self.__class__.__name__}.json"), "w"
+                os.path.join(self.out_dir, f"{self.__class__.__name__}.json"),
+                "w",
             ) as f:
                 f.write(self.data)
 
@@ -158,9 +160,9 @@ class BehaviorSpecialization(ABC):
         )
         container_uri = validate_spec_query(spec.queryString)
         if container_uri.is_instance():
-            possible_container_types = container_uri.get_instances()
-        else:
             possible_container_types = [container_uri]
+        else:
+            possible_container_types = container_uri.get_instances()
         return possible_container_types
 
     def get_container_typename(self, container_uri: str) -> str:
