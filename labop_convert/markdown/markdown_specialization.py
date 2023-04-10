@@ -276,7 +276,7 @@ class MarkdownSpecialization(BehaviorSpecialization):
         # Timestamp the protocol version
         dt = datetime.now()
         ts = datetime.timestamp(dt)
-        execution.markdown += f"---\nTimestamp: {datetime.fromtimestamp(ts)}"
+        execution.markdown += f"\n---\nTimestamp: {datetime.fromtimestamp(ts)}"
 
         # Print document version
         # This is a little bit kludgey, because version is not an official LabOP property
@@ -442,7 +442,10 @@ class MarkdownSpecialization(BehaviorSpecialization):
         if type(destination) == labop.SampleMask:
             destination_coordinates = f"({destination.mask})"
             destination = destination.source.lookup()
-        destination_str = f"`{destination.name} {destination_coordinates}`"
+        destination_str_body = " ".join(
+            [x for x in [destination.name, destination_coordinates] if x != ""]
+        )
+        destination_str = f"`{destination_str_body}`"
         execution.markdown_steps += [
             f"Pipette {value} {units} of {resource_str} into {destination_str}."
         ]
@@ -588,8 +591,6 @@ class MarkdownSpecialization(BehaviorSpecialization):
             duration_scalar = duration_measure.value
             duration_units = tyto.OM.get_term_by_uri(duration_measure.unit)
         samples = parameter_value_map["samples"]["value"]
-        mixed_samples = parameter_value_map["mixed_samples"]["value"]
-        mixed_samples.name = samples.name
 
         # Add to markdown
         text = f"Vortex `{samples.name}`"
@@ -663,13 +664,13 @@ class MarkdownSpecialization(BehaviorSpecialization):
         if "dispenseVelocity" in parameter_value_map:
             dispense_velocity = parameter_value_map["dispenseVelocity"]["value"]
 
-        source_coordinates = ""
-        if isinstance(source, labop.SampleMask):
-            source_coordinates = source.mask
-            source = source.source.lookup()
+        # source_coordinates = ""
+        # if isinstance(source, labop.SampleMask):
+        #     source_coordinates = source.mask
+        #     source = source.source.lookup()
         source_contents = read_sample_contents(source)
-        if source_coordinates:
-            source_contents = {source_coordinates: source_contents[source_coordinates]}
+        # if source_coordinates:
+        #     source_contents = {source_coordinates: source_contents[source_coordinates]}
 
         # All possible destination coordinates (including those not part of the transfer)
         all_destination_coordinates = (
@@ -679,10 +680,28 @@ class MarkdownSpecialization(BehaviorSpecialization):
             if isinstance(destination, labop.SampleMask)
             else destination.sample_coordinates(sample_format=self.sample_format)
         )
-
         destination_coordinates = destination.sample_coordinates(
             sample_format=self.sample_format
         )
+        # All possible sourcv coordinates (including those not part of the transfer)
+        if isinstance(source, labop.SampleCollection):
+            all_source_coordinates = (
+                source.source.lookup().sample_coordinates(
+                    sample_format=self.sample_format
+                )
+                if isinstance(source, labop.SampleMask)
+                else source.sample_coordinates(sample_format=self.sample_format)
+            )
+            source_coordinates = source.sample_coordinates(
+                sample_format=self.sample_format
+            )
+        elif isinstance(source, sbol3.Component):
+            all_source_coordinates = list(source_contents.keys())
+            source_coordinates = all_source_coordinates
+        else:
+            raise Exception(
+                f"Don't know how to get all source coordinates of source type: {type(source)}"
+            )
 
         # destination_contents = read_sample_contents(destination)
         # print('-------')
@@ -734,7 +753,7 @@ class MarkdownSpecialization(BehaviorSpecialization):
             source,
             error_msg="Transfer execution failed. All source Components must specify a name.",
         )
-        if len(source_names) == 0:
+        if len(source_names) == 0 or all_source_coordinates == source_coordinates:
             text = f"Transfer {amount_scalar} {amount_units} of `{source.name}` sample to {destination_coordinates_str} {container_str} `{container_spec.name}`."
 
         elif len(source_names) == 1:
@@ -1362,11 +1381,13 @@ def get_sample_names(
             if coordinates:
                 input_names = {inputs.document.find(initial_contents[coordinates]).name}
             else:
-                input_names = {
-                    inputs.document.find(c).name
-                    for c in initial_contents.values()
-                    if c is not None
-                }
+                for c in initial_contents:
+                    if c is not None:
+                        input_name = inputs.document.find(c)
+                        if input_name is not None:
+                            input_names.append(input_name)
+                        else:
+                            input_names.append(c)
     elif isinstance(inputs, Iterable):
         input_names = {i.name for i in inputs}
     else:

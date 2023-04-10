@@ -13,7 +13,8 @@ l = logging.getLogger(__file__)
 l.setLevel(logging.WARN)
 
 container_ontology_path = os.path.join(
-    os.path.dirname(os.path.realpath(__file__)), "../labop/container-ontology.ttl"
+    os.path.dirname(os.path.realpath(__file__)),
+    "../labop/container-ontology.ttl",
 )
 ContO = tyto.Ontology(
     path=container_ontology_path,
@@ -69,7 +70,8 @@ class BehaviorSpecialization(ABC):
         self.data = json.dumps(self.data)
         if self.out_dir:
             with open(
-                os.path.join(self.out_dir, f"{self.__class__.__name__}.json"), "w"
+                os.path.join(self.out_dir, f"{self.__class__.__name__}.json"),
+                "w",
             ) as f:
                 f.write(self.data)
 
@@ -90,9 +92,13 @@ class BehaviorSpecialization(ABC):
                 return self.handle(record, execution)
             return self._behavior_func_map[str(node.behavior)](record, execution)
         except Exception as e:
+            # l.warn(
+            #    f"{self.__class__} Could not process() ActivityNodeException: {record}: {e}"
+            # )
             l.warn(
-                f"{self.__class__} Could not process() ActivityNodeException: {record}: {e}"
+                f"{self.__class__} Could not process {node.behavior.split('#')[-1]}: {e}"
             )
+
             self.handle_process_failure(record, e)
 
     def handle_process_failure(self, record, e):

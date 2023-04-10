@@ -39,9 +39,9 @@ class TestConvert(unittest.TestCase):
             protocol, agent, id="test_execution", parameter_values=parameter_values
         )
 
-    @pytest.mark.skip(
-        reason="need to put strateos_secrets.json credentials on github first"
-    )
+    # unittest.skip(
+    #    "need to put strateos_secrets.json credentials on github first"
+    # )
     def test_igem_ludox(self):
         #############################################
         # Set up the document
@@ -57,6 +57,7 @@ class TestConvert(unittest.TestCase):
             "igem_ludox_test.nt",
         )
         doc.read(protocol_file, "nt")
+        protocol = doc.find("https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018")
 
         #############################################
         # Autoprotocol and Strateos Configuration
@@ -79,7 +80,9 @@ class TestConvert(unittest.TestCase):
 
         #############################################
         # Execution Configuration
-        ee = ExecutionEngine(specializations=[autoprotocol_specialization])
+        ee = ExecutionEngine(
+            specializations=[autoprotocol_specialization], failsafe=False
+        )
         agent = sbol3.Agent("test_agent")
         parameter_values = [
             labop.ParameterValue(
@@ -115,6 +118,7 @@ class TestConvert(unittest.TestCase):
         ), "Autoprotocol files are not identical"
         print("File identical with test file")
 
+    @unittest.skip("need to put strateos_secrets.json credentials on github first")
     def test_igem_ludox_markdown(self):
         #############################################
         # Set up the document
@@ -158,6 +162,7 @@ class TestConvert(unittest.TestCase):
         ), "Markdown files are not identical"
         print("File identical with test file")
 
+    @unittest.skip("need to put strateos_secrets.json credentials on github first")
     def test_igem_ludox_opentrons(self):
         #############################################
         # Set up the document

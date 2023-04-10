@@ -35,10 +35,14 @@ p.description = "Move a measured volume taken from a collection of source sample
 p.add_input("source", "http://bioprotocols.org/labop#SampleCollection")
 p.add_input("destination", "http://bioprotocols.org/labop#SampleCollection")
 p.add_input(
-    "coordinates", "http://bioprotocols.org/uml#ValueSpecification", optional=True
+    "coordinates",
+    "http://bioprotocols.org/uml#ValueSpecification",
+    optional=True,
 )
 p.add_input(
-    "replicates", "http://bioprotocols.org/uml#ValueSpecification", optional=True
+    "replicates",
+    "http://bioprotocols.org/uml#ValueSpecification",
+    optional=True,
 )
 p.add_input("temperature", sbol3.OM_MEASURE, optional=True)
 p.add_input("amount", sbol3.OM_MEASURE)  # Must be volume
@@ -61,7 +65,9 @@ p.add_input("destination", "http://bioprotocols.org/labop#SampleCollection")
 p.add_input("amount", sbol3.OM_MEASURE)  # Must be volume
 p.add_input("diluent", sbol3.SBOL_COMPONENT)
 p.add_input(
-    "replicates", "http://bioprotocols.org/uml#ValueSpecification", optional=True
+    "replicates",
+    "http://bioprotocols.org/uml#ValueSpecification",
+    optional=True,
 )
 p.add_input("dilution_factor", sbol3.OM_MEASURE)
 p.add_input("temperature", sbol3.OM_MEASURE, optional=True)
@@ -112,7 +118,6 @@ p = labop.Primitive("Vortex")
 p.description = "Vortex a sample in order to homogeneously mix or suspend its contents"
 p.add_input("samples", "http://bioprotocols.org/labop#SampleCollection")
 p.add_input("duration", sbol3.OM_MEASURE)  # Must be time
-p.add_output("mixed_samples", "http://bioprotocols.org/labop#SampleCollection")
 doc.add(p)
 
 p = labop.Primitive("Discard")

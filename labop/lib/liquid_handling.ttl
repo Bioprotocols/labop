@@ -117,8 +117,7 @@
 <https://bioprotocols.org/labop/primitives/liquid_handling/Vortex> a <http://bioprotocols.org/labop#Primitive>,
         sbol:TopLevel ;
     ns1:ownedParameter <https://bioprotocols.org/labop/primitives/liquid_handling/Vortex/OrderedPropertyValue1>,
-        <https://bioprotocols.org/labop/primitives/liquid_handling/Vortex/OrderedPropertyValue2>,
-        <https://bioprotocols.org/labop/primitives/liquid_handling/Vortex/OrderedPropertyValue3> ;
+        <https://bioprotocols.org/labop/primitives/liquid_handling/Vortex/OrderedPropertyValue2> ;
     sbol:description "Vortex a sample in order to homogeneously mix or suspend its contents" ;
     sbol:displayId "Vortex" ;
     sbol:hasNamespace <https://bioprotocols.org/labop/primitives/liquid_handling> .
@@ -1550,33 +1549,6 @@
     sbol:displayId "LiteralInteger1" .
 
 <https://bioprotocols.org/labop/primitives/liquid_handling/Vortex/OrderedPropertyValue2/Parameter1/LiteralInteger2> a ns1:LiteralInteger,
-        sbol:Identified ;
-    ns1:integerValue 1 ;
-    sbol:displayId "LiteralInteger2" .
-
-<https://bioprotocols.org/labop/primitives/liquid_handling/Vortex/OrderedPropertyValue3> a ns1:OrderedPropertyValue,
-        sbol:Identified ;
-    ns1:indexValue 2 ;
-    ns1:propertyValue <https://bioprotocols.org/labop/primitives/liquid_handling/Vortex/OrderedPropertyValue3/Parameter1> ;
-    sbol:displayId "OrderedPropertyValue3" .
-
-<https://bioprotocols.org/labop/primitives/liquid_handling/Vortex/OrderedPropertyValue3/Parameter1> a ns1:Parameter,
-        sbol:Identified ;
-    ns1:direction ns1:out ;
-    ns1:isOrdered true ;
-    ns1:isUnique true ;
-    ns1:lowerValue <https://bioprotocols.org/labop/primitives/liquid_handling/Vortex/OrderedPropertyValue3/Parameter1/LiteralInteger2> ;
-    ns1:type <http://bioprotocols.org/labop#SampleCollection> ;
-    ns1:upperValue <https://bioprotocols.org/labop/primitives/liquid_handling/Vortex/OrderedPropertyValue3/Parameter1/LiteralInteger1> ;
-    sbol:displayId "Parameter1" ;
-    sbol:name "mixed_samples" .
-
-<https://bioprotocols.org/labop/primitives/liquid_handling/Vortex/OrderedPropertyValue3/Parameter1/LiteralInteger1> a ns1:LiteralInteger,
-        sbol:Identified ;
-    ns1:integerValue 1 ;
-    sbol:displayId "LiteralInteger1" .
-
-<https://bioprotocols.org/labop/primitives/liquid_handling/Vortex/OrderedPropertyValue3/Parameter1/LiteralInteger2> a ns1:LiteralInteger,
         sbol:Identified ;
     ns1:integerValue 1 ;
     sbol:displayId "LiteralInteger2" .

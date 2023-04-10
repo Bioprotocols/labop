@@ -8,7 +8,6 @@ import sbol3
 import labop
 import uml
 from labop.execution_engine import ExecutionEngine
-from labop_convert.behavior_specialization import BehaviorSpecialization
 
 l = logging.getLogger(__file__)
 l.setLevel(logging.ERROR)
@@ -544,7 +543,9 @@ uml.ActivityNode.execute_callback = activity_node_execute_callback
 
 
 def activity_node_execution_next_tokens(
-    self: labop.ActivityNodeExecution, engine: ExecutionEngine, node_outputs: Callable
+    self: labop.ActivityNodeExecution,
+    engine: ExecutionEngine,
+    node_outputs: Callable,
 ) -> List[labop.ActivityEdgeFlow]:
     node = self.node.lookup()
     protocol = node.protocol()
@@ -598,7 +599,6 @@ def call_behavior_execution_check_next_tokens(
     node_outputs: Callable,
     sample_format: str,
 ):
-
     # ## Add the output values to the call parameter-values
     linked_parameters = []
     if not isinstance(self.node.lookup().behavior.lookup(), labop.Protocol):
@@ -778,7 +778,6 @@ def initial_node_execute_callback(
     engine: ExecutionEngine,
     inputs: List[labop.ActivityEdgeFlow],
 ) -> labop.ActivityNodeExecution:
-
     non_call_edge_inputs = {
         i for i in inputs if i.edge.lookup() not in engine.ex.activity_call_edge
     }

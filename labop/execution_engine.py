@@ -14,10 +14,6 @@ import xarray as xr
 import labop
 import uml
 from labop.primitive_execution import initialize_primitive_compute_output
-from labop_convert.behavior_specialization import (
-    BehaviorSpecialization,
-    DefaultBehaviorSpecialization,
-)
 
 l = logging.getLogger(__file__)
 l.setLevel(logging.ERROR)
@@ -42,9 +38,7 @@ class ExecutionEngine(ABC):
 
     def __init__(
         self,
-        specializations: List[BehaviorSpecialization] = [
-            DefaultBehaviorSpecialization()
-        ],
+        specializations: List["BehaviorSpecialization"] = [],
         use_ordinal_time=False,
         failsafe=True,
         permissive=False,
@@ -83,6 +77,13 @@ class ExecutionEngine(ABC):
         self.data_id = 0
         self.data_id_map = {}
         self.candidate_clusters = {}
+
+        if self.specializations is None or (
+            isinstance(self.specializations, list) and len(self.specializations) == 0
+        ):
+            from labop_convert import DefaultBehaviorSpecialization
+
+            self.specializations = [DefaultBehaviorSpecialization()]
 
     def next_id(self):
         next = self.exec_counter
@@ -196,7 +197,6 @@ class ExecutionEngine(ABC):
         return self.ex
 
     def run(self, protocol: labop.Protocol, start_time: datetime.datetime = None):
-
         self.init_time(start_time)
         self.ex.start_time = (
             self.start_time
@@ -219,18 +219,14 @@ class ExecutionEngine(ABC):
         ]
         new_tokens = []
         # prefer executing non_call_nodes first
-        for node in non_call_nodes + [
-            n for n in ready if n not in non_call_nodes
-        ]:
+        for node in non_call_nodes + [n for n in ready if n not in non_call_nodes]:
             self.current_node = node
             try:
                 tokens_added, tokens_removed = node.execute(
                     self,
                     node_outputs=(node_outputs[node] if node in node_outputs else None),
                 )
-                self.tokens = [
-                    t for t in self.tokens if t not in tokens_removed
-                ]
+                self.tokens = [t for t in self.tokens if t not in tokens_removed]
 
                 new_tokens = new_tokens + tokens_added
                 record = self.ex.executions[-1]
@@ -291,9 +287,9 @@ class ExecutionEngine(ABC):
         updated_clusters = set({})
         for t in tokens_added:
             target = t.get_target()
-            self.candidate_clusters[
-                target.identity
-            ] = self.candidate_clusters.get(target.identity, []) + [t]
+            self.candidate_clusters[target.identity] = self.candidate_clusters.get(
+                target.identity, []
+            ) + [t]
             updated_clusters.add(target)
 
         enabled_nodes = [
@@ -354,9 +350,7 @@ class ExecutionEngine(ABC):
 
         for sd in sample_data:
             sheet_name = f"{record.node.lookup().behavior.lookup().display_id}_data_{self.data_id}"
-            sd.update_data_sheet(
-                path, sheet_name, sample_format=self.sample_format
-            )
+            sd.update_data_sheet(path, sheet_name, sample_format=self.sample_format)
             self.data_id += 1
 
 

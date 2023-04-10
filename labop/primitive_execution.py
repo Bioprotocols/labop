@@ -139,18 +139,20 @@ def empty_container_compute_output(self, inputs, parameter, sample_format):
     ):
         # Make a SampleArray
         input_map = input_parameter_map(inputs)
-        spec = input_map["specification"]
-        sample_array = (
-            input_map["sample_array"] if "sample_array" in input_map else None
-        )
-
-        if not sample_array:
-            sample_array = labop.SampleArray.from_container_spec(
-                spec, sample_format=sample_format
+        if "sample_array" in input_map:
+            sample_array = input_map["sample_array"]
+        else:
+            spec = input_map["specification"]
+            sample_array = (
+                input_map["sample_array"] if "sample_array" in input_map else None
             )
 
-        # This attribute isn't formally specified in the ontology yet, but supports handling of different sample formats by BehaviorSpecialiations
-        # sample_array.format = sample_format
+            if not sample_array:
+                sample_array = labop.SampleArray.from_container_spec(
+                    spec, sample_format=sample_format
+                )
+            sample_array.name = spec.name
+
         return sample_array
     else:
         return None
@@ -520,7 +522,10 @@ def declare_primitive(
             optional = input["optional"] if "optional" in input else False
             default_value = input["default_value"] if "default_value" in input else None
             primitive.add_input(
-                input["name"], input["type"], optional=optional, default_value=None
+                input["name"],
+                input["type"],
+                optional=optional,
+                default_value=None,
             )
         for output in outputs:
             primitive.add_output(output["name"], output["type"])

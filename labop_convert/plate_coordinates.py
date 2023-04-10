@@ -120,7 +120,7 @@ def coordinate_to_row_col(coord: str):
     return (row2num(m.group(1)) - 1), (int(m.group(2)) - 1)
 
 
-def coordinate_rect_to_row_col_pairs(coords: str):
+def coordinate_rect_to_row_col_pairs(coords: str) -> list:
     num_separators = coords.count(":")
     if num_separators == 0:
         return [coordinate_to_row_col(coords)]
