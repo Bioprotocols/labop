@@ -2,11 +2,12 @@
 The InputPin class defines the functions corresponding to the dynamically generated labop class InputPin
 """
 
-from typing import Callable, List
+from typing import Callable, Dict, List
 
 from . import inner
 from .activity_edge import ActivityEdge
 from .control_flow import ControlFlow
+from .literal_specification import LiteralSpecification
 from .object_flow import ObjectFlow
 from .pin import Pin
 from .utils import literal
@@ -27,28 +28,15 @@ class InputPin(inner.InputPin, Pin):
 
     def enabled(
         self,
-        engine: "ExecutionEngine",
-        tokens: List["ActivityEdgeFlow"],
+        edge_values: Dict[ActivityEdge, List[LiteralSpecification]],
+        permissive=False,
     ):
-        protocol = self.protocol()
-        incoming_controls = {
-            e for e in protocol.incoming_edges(self) if isinstance(e, ControlFlow)
-        }
-        incoming_objects = {
-            e for e in protocol.incoming_edges(self) if isinstance(e, ObjectFlow)
-        }
-
-        assert len(incoming_controls) == 0  # Pins do not receive control flow
-
-        # # Every incoming edge has a token
+        # protocol = self.protocol()
+        # Need all incoming control tokens
+        control_tokens_present = ActivityNode.enabled(self, edge_values, permissive)
 
         tokens_present = all(
-            [
-                any(
-                    [token.edge == in_edge.identity for token in tokens]
-                )  # tokens going from pins to activity
-                for in_edge in incoming_objects
-            ]
+            [len(edge_values[e]) > 0 for e in edge_values]
         )  # in_edges are going into pins
 
         return tokens_present or engine.permissive

@@ -26,10 +26,18 @@ class Action(inner.Action, ExecutableNode):
         return self.outputs
 
     def required_inputs(self):
-        return [i for i in self.get_inputs() if i.required()]
+        return [
+            i
+            for i in self.get_inputs()
+            if self.pin_parameter(i.name).property_value.required()
+        ]
 
     def required_outputs(self):
-        return [o for o in self.get_outputs() if o.required()]
+        return [
+            o
+            for o in self.get_outputs()
+            if self.pin_parameter(o.name).property_value.required()
+        ]
 
     def input_pin(self, pin_name: str):
         """Find an input pin on the action with the specified name
@@ -138,8 +146,10 @@ class Action(inner.Action, ExecutableNode):
             return (
                 all(
                     [
-                        p.enabled(edge_values, permissive=permissive)
+                        len(edge_values[e]) > 0
                         for p in required_inputs
+                        for e in edge_values
+                        if e.get_source() == p
                     ]
                 )
                 or permissive

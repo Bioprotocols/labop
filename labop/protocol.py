@@ -3,7 +3,7 @@ The Protocol class defines the functions corresponding to the dynamically genera
 """
 
 import logging
-from typing import List, Set, Tuple
+from typing import List, Tuple
 
 import sbol3
 
@@ -173,12 +173,3 @@ class Protocol(inner.Protocol, Activity):
         :return: str
         """
         return f'protocol = labop.Protocol(\n\t"Identity",\n\tname="Name",\n\tdescription="Description")'
-
-    def outgoing_edges(self, node: ActivityNode) -> Set[ActivityEdge]:
-        edges = super().outgoing_edges(node)
-
-        # Add edges with output pins as the source
-        edges = edges.union(
-            {e for e in self.edges if node == e.get_source().get_parent()}
-        )
-        return edges

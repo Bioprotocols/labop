@@ -11,7 +11,7 @@ from .control_flow import ControlFlow
 from .literal_specification import LiteralSpecification
 from .object_flow import ObjectFlow
 from .parameter import Parameter
-from .utils import literal
+from .utils import labop_hash, literal
 
 l = logging.getLogger(__file__)
 l.setLevel(logging.ERROR)
@@ -20,6 +20,9 @@ l.setLevel(logging.ERROR)
 class ActivityNode(inner.ActivityNode):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+
+    def __hash__(self):
+        return labop_hash(self.identity)
 
     def required(self):
         return (
@@ -154,6 +157,7 @@ class ActivityNode(inner.ActivityNode):
         parameter_value_map: Dict[str, List[LiteralSpecification]],
         node_outputs: Callable,
         sample_format: str,
+        invocation_hash: int,
     ):
         value = ""
         reference = False
@@ -164,19 +168,4 @@ class ActivityNode(inner.ActivityNode):
             raise Exception("ActivityNode cannot get_value of outgoing ObjectFlow")
 
         value = literal(value, reference=reference)
-        return value
-
-    def get_parameter_value(
-        self,
-        parameter: Parameter,
-        parameter_value_map: Dict[str, List[LiteralSpecification]],
-        node_outputs: Callable,
-        sample_format: str,
-    ):
-        if node_outputs:
-            value = node_outputs(self, parameter)
-        elif hasattr(self.get_behavior(), "compute_output"):
-            value = self.compute_output(parameter, parameter_value_map, sample_format)
-        else:
-            value = f"{parameter.name}"
         return value

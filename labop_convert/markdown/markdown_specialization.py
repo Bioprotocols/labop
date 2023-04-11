@@ -340,7 +340,7 @@ class MarkdownSpecialization(BehaviorSpecialization):
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
 
-        spec = parameter_value_map["specification"]["value"]
+        spec = parameter_value_map["specification"]
         # samples_var = parameter_value_map["samples"]['value']
 
         ## Define a container
@@ -390,11 +390,11 @@ class MarkdownSpecialization(BehaviorSpecialization):
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
 
-        containers = parameter_value_map["specification"]["value"]
-        samples = parameter_value_map["samples"]["value"]
-        quantity = parameter_value_map["quantity"]["value"]
+        containers = parameter_value_map["specification"]
+        samples = parameter_value_map["samples"]
+        quantity = parameter_value_map["quantity"]
         replicates = (
-            parameter_value_map["replicates"]["value"]
+            parameter_value_map["replicates"]
             if "replicates" in parameter_value_map
             else 1
         )
@@ -438,11 +438,11 @@ class MarkdownSpecialization(BehaviorSpecialization):
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
 
-        destination = parameter_value_map["destination"]["value"]
-        value = parameter_value_map["amount"]["value"].value
-        units = parameter_value_map["amount"]["value"].unit
+        destination = parameter_value_map["destination"]
+        value = parameter_value_map["amount"].value
+        units = parameter_value_map["amount"].unit
         units = tyto.OM.get_term_by_uri(units)
-        resource = parameter_value_map["resource"]["value"]
+        resource = parameter_value_map["resource"]
         l.debug(f"provision_container:")
         l.debug(f" destination: {destination}")
         l.debug(f" amount: {value} {units}")
@@ -467,14 +467,14 @@ class MarkdownSpecialization(BehaviorSpecialization):
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
 
-        source = parameter_value_map["source"]["value"]
+        source = parameter_value_map["source"]
         # container = self.var_to_entity[source]
-        coords = parameter_value_map["coordinates"]["value"]
-        samples = parameter_value_map["samples"]["value"]
+        coords = parameter_value_map["coordinates"]
+        samples = parameter_value_map["samples"]
         samples.name = source.name
         samples.initial_contents = source.initial_contents
 
-        self.var_to_entity[parameter_value_map["samples"]["value"]] = coords
+        self.var_to_entity[parameter_value_map["samples"]] = coords
         l.debug(f"plate_coordinates:")
         l.debug(f"  source: {source}")
         l.debug(f"  coordinates: {coords}")
@@ -488,12 +488,12 @@ class MarkdownSpecialization(BehaviorSpecialization):
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
 
-        wl = parameter_value_map["wavelength"]["value"]
+        wl = parameter_value_map["wavelength"]
         wl_units = tyto.OM.get_term_by_uri(wl.unit)
-        samples = parameter_value_map["samples"]["value"]
-        measurements = parameter_value_map["measurements"]["value"]
+        samples = parameter_value_map["samples"]
+        measurements = parameter_value_map["measurements"]
         timepoints = (
-            parameter_value_map["timepoints"]["value"]
+            parameter_value_map["timepoints"]
             if "timepoints" in parameter_value_map
             else None
         )
@@ -541,16 +541,16 @@ class MarkdownSpecialization(BehaviorSpecialization):
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
 
-        excitation = parameter_value_map["excitationWavelength"]["value"]
-        emission = parameter_value_map["emissionWavelength"]["value"]
-        bandpass = parameter_value_map["emissionBandpassWidth"]["value"]
-        samples = parameter_value_map["samples"]["value"]
+        excitation = parameter_value_map["excitationWavelength"]
+        emission = parameter_value_map["emissionWavelength"]
+        bandpass = parameter_value_map["emissionBandpassWidth"]
+        samples = parameter_value_map["samples"]
         timepoints = (
-            parameter_value_map["timepoints"]["value"]
+            parameter_value_map["timepoints"]
             if "timepoints" in parameter_value_map
             else None
         )
-        measurements = parameter_value_map["measurements"]["value"]
+        measurements = parameter_value_map["measurements"]
 
         # Lookup sample container to get the container name, and use that
         # as the sample label
@@ -585,11 +585,11 @@ class MarkdownSpecialization(BehaviorSpecialization):
         parameter_value_map = call.parameter_value_map()
         duration = None
         if "duration" in parameter_value_map:
-            duration_measure = parameter_value_map["duration"]["value"]
+            duration_measure = parameter_value_map["duration"]
             duration_scalar = duration_measure.value
             duration_units = tyto.OM.get_term_by_uri(duration_measure.unit)
-        samples = parameter_value_map["samples"]["value"]
-        mixed_samples = parameter_value_map["mixed_samples"]["value"]
+        samples = parameter_value_map["samples"]
+        mixed_samples = parameter_value_map["mixed_samples"]
         mixed_samples.name = samples.name
 
         # Add to markdown
@@ -602,8 +602,8 @@ class MarkdownSpecialization(BehaviorSpecialization):
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
 
-        samples = parameter_value_map["samples"]["value"]
-        amount = parameter_value_map["amount"]["value"]
+        samples = parameter_value_map["samples"]
+        amount = parameter_value_map["amount"]
 
         # Get coordinates if this is a plate
         coordinates = ""
@@ -627,33 +627,31 @@ class MarkdownSpecialization(BehaviorSpecialization):
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
 
-        source = parameter_value_map["source"]["value"]
-        destination = parameter_value_map["destination"]["value"]
+        source = parameter_value_map["source"]
+        destination = parameter_value_map["destination"]
         samples = (
-            parameter_value_map["samples"]["value"]
-            if "samples" in parameter_value_map
-            else None
+            parameter_value_map["samples"] if "samples" in parameter_value_map else None
         )
         destination_coordinates = (
-            parameter_value_map["coordinates"]["value"]
+            parameter_value_map["coordinates"]
             if "coordinates" in parameter_value_map
             else ""
         )
         replicates = (
-            parameter_value_map["replicates"]["value"]
+            parameter_value_map["replicates"]
             if "replicates" in parameter_value_map
             else 1
         )
         temperature = (
-            parameter_value_map["temperature"]["value"]
+            parameter_value_map["temperature"]
             if "temperature" in parameter_value_map
             else None
         )
-        amount_measure = parameter_value_map["amount"]["value"]
+        amount_measure = parameter_value_map["amount"]
         amount_scalar = amount_measure.value
         amount_units = tyto.OM.get_term_by_uri(amount_measure.unit)
         if "dispenseVelocity" in parameter_value_map:
-            dispense_velocity = parameter_value_map["dispenseVelocity"]["value"]
+            dispense_velocity = parameter_value_map["dispenseVelocity"]
 
         source_coordinates = ""
         if isinstance(source, SampleMask):
@@ -739,19 +737,19 @@ class MarkdownSpecialization(BehaviorSpecialization):
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
 
-        source = parameter_value_map["source"]["value"]
-        destination = parameter_value_map["destination"]["value"]
+        source = parameter_value_map["source"]
+        destination = parameter_value_map["destination"]
         temperature = (
-            parameter_value_map["temperature"]["value"]
+            parameter_value_map["temperature"]
             if "temperature" in parameter_value_map
             else None
         )
-        amount_measure = parameter_value_map["amount"]["value"]
+        amount_measure = parameter_value_map["amount"]
         amount_scalar = amount_measure.value
         amount_units = tyto.OM.get_term_by_uri(amount_measure.unit)
         if "dispenseVelocity" in parameter_value_map:
-            dispense_velocity = parameter_value_map["dispenseVelocity"]["value"]
-        plan = parameter_value_map["plan"]["value"]
+            dispense_velocity = parameter_value_map["dispenseVelocity"]
+        plan = parameter_value_map["plan"]
         if plan:
             map = json.loads(unquote(plan.values))
 
@@ -815,24 +813,24 @@ class MarkdownSpecialization(BehaviorSpecialization):
     def culture(self, record: ActivityNodeExecution, execution: ProtocolExecution):
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
-        inocula = parameter_value_map["inoculum"]["value"]
-        growth_medium = parameter_value_map["growth_medium"]["value"]
-        volume = parameter_value_map["volume"]["value"]
+        inocula = parameter_value_map["inoculum"]
+        growth_medium = parameter_value_map["growth_medium"]
+        volume = parameter_value_map["volume"]
         volume_scalar = volume.value
         volume_units = tyto.OM.get_term_by_uri(volume.unit)
-        duration = parameter_value_map["duration"]["value"]
+        duration = parameter_value_map["duration"]
         duration_scalar = duration.value
         duration_units = tyto.OM.get_term_by_uri(duration.unit)
         orbital_shake_speed = parameter_value_map["orbital_shake_speed"]["value"]
-        temperature = parameter_value_map["temperature"]["value"]
+        temperature = parameter_value_map["temperature"]
         temperature_scalar = temperature.value
         temperature_units = tyto.OM.get_term_by_uri(temperature.unit)
         replicates = (
-            parameter_value_map["replicates"]["value"]
+            parameter_value_map["replicates"]
             if "replicates" in parameter_value_map
             else 1
         )
-        container = parameter_value_map["container"]["value"]
+        container = parameter_value_map["container"]
 
         # Generate markdown
         container_str = record.document.find(container.container_type).name
@@ -863,10 +861,10 @@ class MarkdownSpecialization(BehaviorSpecialization):
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
 
-        location = parameter_value_map["location"]["value"]
-        duration = parameter_value_map["duration"]["value"]
-        shakingFrequency = parameter_value_map["shakingFrequency"]["value"]
-        temperature = parameter_value_map["temperature"]["value"]
+        location = parameter_value_map["location"]
+        duration = parameter_value_map["duration"]
+        shakingFrequency = parameter_value_map["shakingFrequency"]
+        temperature = parameter_value_map["temperature"]
 
         sample_names = get_sample_names(
             location,
@@ -883,8 +881,8 @@ class MarkdownSpecialization(BehaviorSpecialization):
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
 
-        location = parameter_value_map["location"]["value"]
-        temperature = parameter_value_map["temperature"]["value"]
+        location = parameter_value_map["location"]
+        temperature = parameter_value_map["temperature"]
 
         if len(read_sample_contents(location)) > 1:
             text = f"Hold all `{location.name}` samples at {measurement_to_text(temperature)}."
@@ -897,7 +895,7 @@ class MarkdownSpecialization(BehaviorSpecialization):
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
 
-        location = parameter_value_map["location"]["value"]
+        location = parameter_value_map["location"]
 
         if len(read_sample_contents(location)) > 1:
             text = f"Hold all `{location.name}` samples on ice."
@@ -912,13 +910,13 @@ class MarkdownSpecialization(BehaviorSpecialization):
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
 
-        source = parameter_value_map["source"]["value"]
-        destination = parameter_value_map["destination"]["value"]
-        diluent = parameter_value_map["diluent"]["value"]
-        amount = parameter_value_map["amount"]["value"]
-        target_od = parameter_value_map["target_od"]["value"]
+        source = parameter_value_map["source"]
+        destination = parameter_value_map["destination"]
+        diluent = parameter_value_map["diluent"]
+        amount = parameter_value_map["amount"]
+        target_od = parameter_value_map["target_od"]
         temperature = (
-            parameter_value_map["temperature"]["value"]
+            parameter_value_map["temperature"]
             if "temperature" in parameter_value_map
             else None
         )
@@ -949,18 +947,18 @@ class MarkdownSpecialization(BehaviorSpecialization):
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
 
-        source = parameter_value_map["source"]["value"]
-        destination = parameter_value_map["destination"]["value"]
-        diluent = parameter_value_map["diluent"]["value"]
-        amount = parameter_value_map["amount"]["value"]
+        source = parameter_value_map["source"]
+        destination = parameter_value_map["destination"]
+        diluent = parameter_value_map["diluent"]
+        amount = parameter_value_map["amount"]
         replicates = (
-            parameter_value_map["replicates"]["value"]
+            parameter_value_map["replicates"]
             if "replicates" in parameter_value_map
             else 1
         )
-        dilution_factor = parameter_value_map["dilution_factor"]["value"]
+        dilution_factor = parameter_value_map["dilution_factor"]
         temperature = (
-            parameter_value_map["temperature"]["value"]
+            parameter_value_map["temperature"]
             if "temperature" in parameter_value_map
             else None
         )
@@ -995,13 +993,13 @@ class MarkdownSpecialization(BehaviorSpecialization):
     def transform(self, record: ActivityNodeExecution, execution: ProtocolExecution):
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
-        host = parameter_value_map["host"]["value"]
-        dna = parameter_value_map["dna"]["value"]
-        medium = parameter_value_map["selection_medium"]["value"]
-        destination = parameter_value_map["destination"]["value"]
-        transformants = parameter_value_map["transformants"]["value"]
+        host = parameter_value_map["host"]
+        dna = parameter_value_map["dna"]
+        medium = parameter_value_map["selection_medium"]
+        destination = parameter_value_map["destination"]
+        transformants = parameter_value_map["transformants"]
         if "amount" in parameter_value_map:
-            amount_measure = parameter_value_map["amount"]["value"]
+            amount_measure = parameter_value_map["amount"]
             amount_scalar = amount_measure.value
             amount_units = tyto.OM.get_term_by_uri(amount_measure.unit)
 
@@ -1053,12 +1051,12 @@ class MarkdownSpecialization(BehaviorSpecialization):
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
 
-        source = parameter_value_map["source"]["value"]
-        destination = parameter_value_map["destination"]["value"]
-        diluent = parameter_value_map["diluent"]["value"]
-        amount = parameter_value_map["amount"]["value"]
-        dilution_factor = parameter_value_map["dilution_factor"]["value"]
-        series = parameter_value_map["series"]["value"]
+        source = parameter_value_map["source"]
+        destination = parameter_value_map["destination"]
+        diluent = parameter_value_map["diluent"]
+        amount = parameter_value_map["amount"]
+        dilution_factor = parameter_value_map["dilution_factor"]
+        series = parameter_value_map["series"]
 
         destination_coordinates = ""
         if isinstance(destination, SampleMask):
@@ -1100,8 +1098,8 @@ class MarkdownSpecialization(BehaviorSpecialization):
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
 
-        location = parameter_value_map["location"]["value"]
-        specification = parameter_value_map["specification"]["value"]
+        location = parameter_value_map["location"]
+        specification = parameter_value_map["specification"]
 
         # Get destination container type
         container_spec = record.document.find(location.container_type)
@@ -1117,7 +1115,7 @@ class MarkdownSpecialization(BehaviorSpecialization):
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
 
-        location = parameter_value_map["location"]["value"]
+        location = parameter_value_map["location"]
 
         # Get destination container type
         container_spec = record.document.find(location.container_type)
@@ -1133,10 +1131,10 @@ class MarkdownSpecialization(BehaviorSpecialization):
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
 
-        source = parameter_value_map["source"]["value"]
-        samples = parameter_value_map["samples"]["value"]
-        destination = parameter_value_map["destination"]["value"]
-        volume = parameter_value_map["volume"]["value"]
+        source = parameter_value_map["source"]
+        samples = parameter_value_map["samples"]
+        destination = parameter_value_map["destination"]
+        volume = parameter_value_map["volume"]
         source_contents = read_sample_contents(source)
 
         # Get destination container type
@@ -1164,7 +1162,7 @@ class MarkdownSpecialization(BehaviorSpecialization):
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
 
-        location = parameter_value_map["location"]["value"]
+        location = parameter_value_map["location"]
 
         # Get destination container type
         container_spec = record.document.find(location.container_type)
@@ -1188,8 +1186,8 @@ class MarkdownSpecialization(BehaviorSpecialization):
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
 
-        image = parameter_value_map["image"]["value"]
-        caption = parameter_value_map["caption"]["value"]
+        image = parameter_value_map["image"]
+        caption = parameter_value_map["caption"]
 
         text = f'\n\n![]({image})\n<p align="center">{caption}</p>\n'
 
@@ -1200,10 +1198,10 @@ class MarkdownSpecialization(BehaviorSpecialization):
     ):
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
-        container = parameter_value_map["specification"]["value"]
-        quantity = parameter_value_map["quantity"]["value"]
-        growth_medium = parameter_value_map["growth_medium"]["value"]
-        samples = parameter_value_map["samples"]["value"]
+        container = parameter_value_map["specification"]
+        quantity = parameter_value_map["quantity"]
+        growth_medium = parameter_value_map["growth_medium"]
+        samples = parameter_value_map["samples"]
 
         # Get destination container type
         container_uri = (
@@ -1221,10 +1219,10 @@ class MarkdownSpecialization(BehaviorSpecialization):
     ):
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
-        colonies = parameter_value_map["colonies"]["value"]
-        quantity = parameter_value_map["quantity"]["value"]
-        replicates = parameter_value_map["replicates"]["value"]
-        samples = parameter_value_map["samples"]["value"]
+        colonies = parameter_value_map["colonies"]
+        quantity = parameter_value_map["quantity"]
+        replicates = parameter_value_map["replicates"]
+        samples = parameter_value_map["samples"]
 
         # Copy input SampleArray properties to output
         # TODO: maybe this should be abstracted out into a convenience method
@@ -1240,9 +1238,9 @@ class MarkdownSpecialization(BehaviorSpecialization):
     ):
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
-        filename = parameter_value_map["filename"]["value"]
-        for_samples = parameter_value_map["for_samples"]["value"]
-        metadata = parameter_value_map["metadata"]["value"]
+        filename = parameter_value_map["filename"]
+        for_samples = parameter_value_map["for_samples"]
+        metadata = parameter_value_map["metadata"]
         df = pd.read_excel(filename, index_col=0, header=0)
         x = xr.Dataset.from_dataframe(df)
         metadata.descriptions = json.dumps(x.to_dict())
@@ -1253,9 +1251,9 @@ class MarkdownSpecialization(BehaviorSpecialization):
     ):
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
-        metadata = parameter_value_map["metadata"]["value"]
-        dataset = parameter_value_map["dataset"]["value"]
-        enhanced_dataset = parameter_value_map["enhanced_dataset"]["value"]
+        metadata = parameter_value_map["metadata"]
+        dataset = parameter_value_map["dataset"]
+        enhanced_dataset = parameter_value_map["enhanced_dataset"]
 
     def dataset_to_text(self, dataset: Dataset):
         # Assumes that the data file is the same name as the markdown file, aside from the extension

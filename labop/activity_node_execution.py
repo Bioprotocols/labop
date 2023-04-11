@@ -23,6 +23,7 @@ from uml import (
     OutputPin,
     Parameter,
     flow_final_node,
+    labop_hash,
     literal,
 )
 
@@ -30,6 +31,9 @@ from uml import (
 class ActivityNodeExecution(inner.ActivityNodeExecution):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+
+    def __hash__(self):
+        return labop_hash(self.identity) + hash(self.get_node())
 
     def get_node(self) -> ActivityNode:
         return self.node.lookup()
@@ -46,8 +50,11 @@ class ActivityNodeExecution(inner.ActivityNodeExecution):
         pass
 
     def parameter_value_map(self):
-        # This is an abstract function that shouldn't be called directly.
-        return {}
+        values = [t.value for t in self.get_incoming_flows()]
+        values = None if len(values) == 0 else values
+        values = values[0] if values and len(values) == 1 else values
+
+        return {self.get_node().name: values}
 
     def get_token_source(
         self,

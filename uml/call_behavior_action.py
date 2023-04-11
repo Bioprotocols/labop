@@ -8,6 +8,8 @@ from typing import Callable, Dict, List
 
 import sbol3
 
+from uml.parameter import Parameter
+
 from . import inner
 from .activity_edge import ActivityEdge
 from .activity_node import ActivityNode
@@ -18,13 +20,16 @@ from .initial_node import InitialNode
 from .invocation_action import InvocationAction
 from .literal_specification import LiteralSpecification
 from .object_flow import ObjectFlow
-from .utils import inner_to_outer, literal
+from .utils import inner_to_outer, labop_hash, literal
 from .value_pin import ValuePin
 
 
 class CallBehaviorAction(inner.CallBehaviorAction, CallAction):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+
+    def __hash__(self):
+        return labop_hash(self.identity)
 
     def get_behavior(self):
         return self.behavior.lookup()
@@ -54,19 +59,48 @@ class CallBehaviorAction(inner.CallBehaviorAction, CallAction):
         parameter_value_map: Dict[str, List[LiteralSpecification]],
         node_outputs: Callable,
         sample_format: str,
+        invocation_hash: int,
     ):
         if isinstance(edge, ControlFlow):
             return ActivityNode.get_value(
-                self, edge, parameter_value_map, node_outputs, sample_format
+                self,
+                edge,
+                parameter_value_map,
+                node_outputs,
+                sample_format,
+                invocation_hash,
             )
         elif isinstance(edge, ObjectFlow):
             parameter = self.pin_parameter(edge.get_target().name).property_value
             value = self.get_parameter_value(
-                parameter, parameter_value_map, node_outputs, sample_format
+                parameter,
+                parameter_value_map,
+                node_outputs,
+                sample_format,
+                invocation_hash,
             )
+
             reference = isinstance(value, sbol3.Identified) and value.identity != None
 
         value = literal(value, reference=reference)
+        return value
+
+    def get_parameter_value(
+        self,
+        parameter: Parameter,
+        parameter_value_map: Dict[str, List[LiteralSpecification]],
+        node_outputs: Callable,
+        sample_format: str,
+        invocation_hash: int,
+    ):
+        if node_outputs:
+            value = node_outputs(self, parameter)
+        elif hasattr(self.get_behavior(), "compute_output"):
+            value = self.get_behavior().compute_output(
+                parameter_value_map, parameter, sample_format, invocation_hash
+            )
+        else:
+            value = f"{parameter.name}"
         return value
 
     def next_tokens_callback(

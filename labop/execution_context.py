@@ -85,6 +85,15 @@ class ExecutionContext(object):
             nodes_to_initialize += self.call_pins
         else:
             nodes_to_initialize += self.activity.nodes
+            nodes_to_initialize += [
+                o
+                for n in self.activity.nodes
+                if hasattr(n, "outputs")
+                for o in n.outputs
+            ]
+            nodes_to_initialize += [
+                i for n in self.activity.nodes if hasattr(n, "inputs") for i in n.inputs
+            ]
 
         # Setup incoming edge map for each node
         for node in nodes_to_initialize:
@@ -151,8 +160,8 @@ class ExecutionContext(object):
 
     def outgoing_edges(self, node):
         out_edges = []
-        if node in self.activity.nodes:
-            out_edges += self.activity.outgoing_edges(node)
+        # if node in self.activity.nodes:
+        out_edges += self.activity.outgoing_edges(node)
         out_edges += [
             e for e in self.execution_trace.activity_call_edge if e.get_source() == node
         ]
@@ -160,8 +169,8 @@ class ExecutionContext(object):
 
     def incoming_edges(self, node):
         in_edges = []
-        if node in self.activity.nodes:
-            in_edges += self.activity.incoming_edges(node)
+        # if node in self.activity.nodes:
+        in_edges += self.activity.incoming_edges(node)
         in_edges += [
             e for e in self.execution_trace.activity_call_edge if e.get_target() == node
         ]

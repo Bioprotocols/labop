@@ -30,7 +30,11 @@ class CallBehaviorExecution(inner.CallBehaviorExecution, ActivityNodeExecution):
         super().__init__(*args, **kwargs)
 
     def __hash__(self):
-        return labop_hash(self.identity)
+        return (
+            labop_hash(self.identity)
+            + hash(self.get_node())
+            + sum([hash(pv) for pv in self.parameter_values()])
+        )
 
     def behavior(self):
         return self.node.lookup().behavior.lookup()
@@ -38,7 +42,7 @@ class CallBehaviorExecution(inner.CallBehaviorExecution, ActivityNodeExecution):
     def get_call(self):
         return self.call.lookup()
 
-    def parameter_values() -> List[ParameterValue]:
+    def parameter_values(self) -> List[ParameterValue]:
         return self.call.lookup().parameter_values
 
     def parameter_value_map(self):
@@ -186,6 +190,7 @@ class CallBehaviorExecution(inner.CallBehaviorExecution, ActivityNodeExecution):
                 parameter_value_map,
                 node_outputs,
                 sample_format,
+                hash(self),
             )
             reference = hasattr(value, "document") and value.document is not None
             possible_output_parameter_values.append(

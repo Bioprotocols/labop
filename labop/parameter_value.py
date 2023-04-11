@@ -2,20 +2,25 @@
 The ParameterValue class defines the functions corresponding to the dynamically generated labop class ParameterValue
 """
 
-from typing import List
+from typing import Dict, List, Union
 
 import sbol3
 
 import labop.inner as inner
-from uml import LiteralSpecification
+from uml import LiteralSpecification, labop_hash
 
 
 class ParameterValue(inner.ParameterValue):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
+    def __hash__(self):
+        return labop_hash(self.identity)
+
     @staticmethod
-    def parameter_value_map(parameter_values: List["ParameterValue"]):
+    def parameter_value_map(
+        parameter_values: List["ParameterValue"],
+    ) -> Dict[str, Union[List[LiteralSpecification], LiteralSpecification]]:
         """
         Return a dictionary mapping parameter names to value or (value, unit)
         :param self:
@@ -49,4 +54,7 @@ class ParameterValue(inner.ParameterValue):
                     parameter_value_map[name] += [value]
                 else:
                     parameter_value_map[name] = [value]
+        parameter_value_map = {
+            k: (v[0] if len(v) == 1 else v) for k, v in parameter_value_map.items()
+        }
         return parameter_value_map

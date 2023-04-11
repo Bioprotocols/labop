@@ -388,7 +388,7 @@ class ExecutionEngine(ABC):
         node = record.get_node()
         outgoing_edges = execution_context.outgoing_edges(node)
         parameter_value_map = record.parameter_value_map()
-
+        invocation_hash = hash(record)
         new_tokens: Dict[ExecutionContext, List[ActivityEdgeFlow]] = {
             execution_context: [
                 ActivityEdgeFlow(
@@ -399,6 +399,7 @@ class ExecutionEngine(ABC):
                         parameter_value_map,
                         node_outputs,
                         self.sample_format,
+                        invocation_hash,
                     ),
                 )
                 for edge in outgoing_edges
