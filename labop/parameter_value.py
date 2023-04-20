@@ -17,6 +17,9 @@ class ParameterValue(inner.ParameterValue):
     def __hash__(self):
         return labop_hash(self.identity)
 
+    def get_parameter(self):
+        return self.parameter.lookup().property_value
+
     @staticmethod
     def parameter_value_map(
         parameter_values: List["ParameterValue"],
@@ -29,7 +32,7 @@ class ParameterValue(inner.ParameterValue):
 
         parameter_value_map = {}
         for pv in parameter_values:
-            name = pv.parameter.lookup().property_value.name
+            name = pv.get_parameter().name
             ref = pv.value
 
             # Done dereferencing, now get the actual parameter values

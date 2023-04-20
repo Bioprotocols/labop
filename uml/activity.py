@@ -5,7 +5,7 @@ The Activity class defines the functions corresponding to the dynamically genera
 import html
 import logging
 from collections import Counter
-from typing import Dict, Iterable, List, Set, Type
+from typing import Iterable, List, Set, Type
 
 import graphviz
 import sbol3
@@ -103,7 +103,7 @@ class Activity(inner.Activity, Behavior):
             optional=optional,
             default_value=default_value,
         )
-        node = ActivityParameterNode(parameter=parameter)
+        node = ActivityParameterNode(parameter=parameter, name=parameter.name)
         self.nodes.append(node)
         return node
 
@@ -119,7 +119,7 @@ class Activity(inner.Activity, Behavior):
         :return: ActivityParameterNode associated with the output
         """
         parameter = self.add_output(name=name, param_type=param_type)
-        node = ActivityParameterNode(parameter=parameter)
+        node = ActivityParameterNode(parameter=parameter, name=parameter.name)
         self.nodes.append(node)
         if source:
             self.use_value(source, node)
@@ -547,16 +547,6 @@ class Activity(inner.Activity, Behavior):
             legend.edge("b", "c", _attributes={"style": "invis"})
             return legend
 
-        def _label(object: sbol3.Identified):
-            truncated = _gv_sanitize(object.identity.replace(f"{self.namespace}", ""))
-            in_struct = "_".join(truncated.split("/", 1)).replace(
-                "/", ":"
-            )  # Replace last "/" with "_"
-            return in_struct  # _gv_sanitize(object.identity.replace(f'{self.identity}/', ''))
-
-        def _param_str(param: Parameter) -> str:
-            return f"{param.name}"
-
         def _inpin_str(pin: InputPin) -> str:
             if isinstance(pin, ValuePin):
                 if isinstance(pin.value, LiteralReference):
@@ -608,121 +598,6 @@ class Activity(inner.Activity, Behavior):
                 color = "black"
             return color
 
-        def _type_attrs(object: ActivityNode, ready, done) -> Dict[str, str]:
-            """Get an appropriate set of properties for rendering a GraphViz node.
-            Note that while these try to stay close to UML, the limits of GraphViz make us deviate in some cases
-
-            :param object: object to be rendered
-            :return: dict of attribute/value pairs
-            """
-            node_attrs = None
-            subgraph = None
-
-            color = _fill_color(object, ready, done)
-
-            if isinstance(object, InitialNode):
-                node_attrs = {
-                    "label": "",
-                    "shape": "circle",
-                    "style": "filled",
-                    "fillcolor": color,
-                }
-            elif isinstance(object, FinalNode):
-                node_attrs = {
-                    "label": "",
-                    "shape": "doublecircle",
-                    "style": "filled",
-                    "fillcolor": color,
-                }
-            elif isinstance(object, ForkNode) or isinstance(object, JoinNode):
-                node_attrs = {
-                    "label": "",
-                    "shape": "rectangle",
-                    "height": "0.02",
-                    "style": "filled",
-                    "fillcolor": color,
-                }
-            elif isinstance(object, MergeNode) or isinstance(object, DecisionNode):
-                node_attrs = {
-                    "label": "",
-                    "shape": "diamond",
-                    "fillcolor": color,
-                }
-            elif isinstance(object, ObjectNode):
-                if isinstance(object, ActivityParameterNode):
-                    label = object.parameter.lookup().property_value.name
-                else:
-                    raise ValueError(
-                        f"Do not know what GraphViz label to use for {object}"
-                    )
-                node_attrs = {
-                    "label": label,
-                    "shape": "rectangle",
-                    "peripheries": "2",
-                    "fillcolor": color,
-                }
-            elif isinstance(object, ExecutableNode):
-                if isinstance(
-                    object, CallBehaviorAction
-                ):  # render as an HMTL table with pins above/below call
-                    port_row = '  <tr><td><table border="0" cellspacing="-2"><tr><td> </td>{}<td> </td></tr></table></td></tr>\n'
-                    required_inputs = object.behavior.lookup().get_required_inputs()
-                    used_inputs = [
-                        o
-                        for o in object.inputs
-                        if isinstance(o, ValuePin) or self.incoming_edges(o)
-                    ]
-                    unsat_inputs = [
-                        o.property_value
-                        for o in required_inputs
-                        if o.property_value.name not in [i.name for i in used_inputs]
-                    ]
-                    in_ports = "<td> </td>".join(
-                        f'<td port="{i.display_id}" border="1">{_inpin_str(i)}</td>'
-                        for i in used_inputs
-                    )
-                    unsat_in_ports = "<td> </td>".join(
-                        f'<td port="{i.display_id}" bgcolor="red" border="1">{_param_str(i)}</td>'
-                        for i in unsat_inputs
-                    )
-                    in_row = (
-                        port_row.format(in_ports + "<td> </td>" + unsat_in_ports)
-                        if in_ports or unsat_in_ports
-                        else ""
-                    )
-                    out_ports = "<td> </td>".join(
-                        f'<td port="{o.display_id}" border="1">{o.name}</td>'
-                        for o in object.outputs
-                    )
-                    out_row = port_row.format(out_ports) if out_ports else ""
-
-                    node_row = f'  <tr><td port="node" bgcolor="{color}" border="1">{object.behavior.lookup().display_id}</td></tr>\n'
-                    table_template = (
-                        '<<table border="0" cellspacing="0">\n{}{}{}</table>>'
-                    )
-                    label = table_template.format(in_row, node_row, out_row)
-                    shape = "none"
-
-                    behavior = object.behavior.lookup()
-                    if isinstance(behavior, Activity):
-                        subgraph = behavior.to_dot(done=done, ready=ready)
-                else:
-                    raise ValueError(
-                        f"Do not know what GraphViz label to use for {object}"
-                    )
-                node_attrs = {
-                    "label": label,
-                    "shape": shape,
-                    "style": "rounded",
-                    "fillcolor": color,
-                }
-            else:
-                raise ValueError(
-                    f"Do not know what GraphViz attributes to use for {object}"
-                )
-
-            return node_attrs, subgraph
-
         parent = None
         try:
             parent = graphviz.Digraph(name="_root")
@@ -735,58 +610,19 @@ class Activity(inner.Activity, Behavior):
             if legend:
                 dot.subgraph(_legend())
 
-            for edge in self.edges:
-                src_id = _label(edge.get_source())  # edge.source.replace(":", "_")
-                dest_id = _label(edge.target.lookup())  # edge.target.replace(":", "_")
-                edge_id = _label(edge)  # edge.identity.replace(":", "_")
-                if isinstance(edge.target.lookup(), CallBehaviorAction):
-                    dest_id = f"{dest_id}:node"
-                if isinstance(edge.get_source(), CallBehaviorAction):
-                    src_id = f"{src_id}:node"
+            for edge in [e for e in self.edges if e.dot_plottable()]:
+                edge.to_dot(dot, namespace=self.namespace)
 
-                source = self.document.find(edge.source)
-                if isinstance(source, Pin):
-                    try:
-                        src_activity = source.get_parent()
-                        # dot.edge(_label(src_activity), src_id, label=f"{source.name}")
-                        # src_activity = source.identity.rsplit('/', 1)[0] # Assumes pin is owned by activity
-                        # dot.edge(src_activity.replace(":", "_"), src_id, label=f"{source.name}")
-                    except Exception as e:
-                        print(f"Cannot find source activity for {source.identity}")
-                target = self.document.find(edge.target)
-                if isinstance(target, Pin):
-                    try:
-                        dest_activity = target.get_parent()
-                        # dot.edge(dest_id, _label(dest_activity), label=f"{target.name}")
-                        # dest_activity = target.identity.rsplit('/', 1)[0] # Assumes pin is owned by activity
-                        # dot.edge(dest_id, dest_activity.replace(":", "_"), label=f"{target.name}")
-                    except Exception as e:
-                        print(f"Cannot find source activity for {source.identity}")
-
-                # dot.node(src_id, label=_name_to_label(src_id))
-                # dot.node(dest_id, label=_name_to_label(dest_id))
-                # dot.node(edge_id, label=edge_id)
-                color = "blue" if isinstance(edge, ControlFlow) else "black"
-                if isinstance(source, DecisionNode) and hasattr(edge, "guard"):
-                    label = (
-                        edge.guard.value
-                        if edge.guard
-                        and not isinstance(edge.guard, LiteralNull)
-                        and edge.guard.value is not None
-                        else "None"
-                    )
-                    label = (
-                        "Else"
-                        if label == "http://bioprotocols.org/uml#else"
-                        else str(label)
-                    )
-                    dot.edge(src_id, dest_id, label=label, color=color)
-                else:
-                    dot.edge(src_id, dest_id, color=color)
             for node in self.nodes:
-                node_id = _label(node)
-                type_attrs, subgraph = _type_attrs(node, ready, done)
-                dot.node(node_id, **type_attrs)
+                color = _fill_color(node, ready, done)
+                subgraph = node.to_dot(
+                    dot,
+                    color=color,
+                    incoming_edges=self.incoming_edges(node),
+                    done=done,
+                    ready=ready,
+                    namespace=self.namespace,
+                )
                 if subgraph:
                     parent.subgraph(subgraph)
             parent.subgraph(dot)

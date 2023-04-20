@@ -2,7 +2,7 @@
 The MergeNode class defines the functions corresponding to the dynamically generated labop class MergeNode
 """
 
-from typing import List
+from typing import Dict, List
 
 from . import inner
 from .control_node import ControlNode
@@ -12,7 +12,10 @@ class MergeNode(inner.MergeNode, ControlNode):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-    def dot_attrs(self):
+    def dot_attrs(
+        self,
+        incoming_edges: Dict["InputPin", List["ActivityEdge"]] = None,
+    ):
         return {"label": "", "shape": "diamond"}
 
     def enabled(

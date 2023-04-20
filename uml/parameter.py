@@ -34,6 +34,9 @@ class Parameter(inner.Parameter):
         default_value_str = f"= {self.default_value}" if self.default_value else ""
         return f"""{self.name}: {self.type} {default_value_str}"""
 
+    def label(self):
+        return f"{self.name}"
+
     def template(self):
         """
         Create a template for a parameter. Used for populating UI elements.

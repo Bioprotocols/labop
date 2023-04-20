@@ -211,9 +211,9 @@ class ExecutionEngine(ABC):
         self.initialize(protocol, agent, id, parameter_values)
 
         if execution_context is None:
-            execution_content = ExecutionContext(self.ex, protocol, parameter_values)
+            execution_context = ExecutionContext(self.ex, protocol, parameter_values)
 
-        self.run(execution_content, start_time=start_time)
+        self.run(execution_context, start_time=start_time)
         self.finalize(protocol)
 
         return self.ex
@@ -261,16 +261,16 @@ class ExecutionEngine(ABC):
                     ) = self.execute_node(ec, node, node_outputs)
 
                     ec.tokens = [t for t in ec.tokens if t not in tokens_consumed[ec]]
-                    for _, created in tokens_created.items():
-                        self.ex.flows += created
-                    new_tokens[ec] += tokens_created[ec]
 
                     # new_execution_context will have tokens and ready nodes initialized
-                    if new_execution_context is not None:
+                    if (new_execution_context is not None) and not (
+                        new_execution_context in active_contexts
+                    ):
                         new_execution_contexts.append(new_execution_context)
-                        new_tokens[new_execution_context] = tokens_created[
-                            new_execution_context
-                        ]
+                        new_tokens[new_execution_context] = []
+
+                    for ec, tokens in tokens_created.items():
+                        new_tokens[ec] += tokens
 
                 except Exception as e:
                     if self.permissive:
@@ -315,8 +315,17 @@ class ExecutionEngine(ABC):
             ExecutionContext, List[ActivityEdgeFlow]
         ] = self.next_tokens(execution_context, record, node_outputs)
 
+        for _, created in tokens_created.items():
+            self.ex.flows += created
+
         # from ActivityNode.next_tokens()
-        # self.check_next_tokens(new_tokens, node_outputs, self.sample_format, self.permissive)
+        all_tokens_created = [t for _, ts in tokens_created.items() for t in ts]
+        record.check_next_tokens(
+            all_tokens_created,
+            node_outputs,
+            self.sample_format,
+            self.permissive,
+        )
 
         # tokens_added = [
         #     ActivityEdgeFlow(edge=edge, token_source=node, value=value)
@@ -403,10 +412,32 @@ class ExecutionEngine(ABC):
                     ),
                 )
                 for edge in outgoing_edges
+                if edge.get_target() in execution_context.nodes
             ]
         }
+        if execution_context.parent_context:
+            # Handle return values
+            parent_tokens = [
+                ActivityEdgeFlow(
+                    edge=edge,
+                    token_source=record,
+                    value=node.get_value(
+                        edge,
+                        parameter_value_map,
+                        node_outputs,
+                        self.sample_format,
+                        invocation_hash,
+                    ),
+                )
+                for edge in outgoing_edges
+                if execution_context.parent_context
+                and edge.get_target() in execution_context.parent_context.nodes
+            ]
+            if len(parent_tokens) > 0:
+                new_tokens[execution_context.parent_context] = parent_tokens
 
         if isinstance(node, CallBehaviorAction):
+            # FIXME add output tokens to call
             behavior = node.get_behavior()
             if isinstance(behavior, Activity):
                 new_execution_context = execution_context.invoke_activity(record)
@@ -511,7 +542,7 @@ class ExecutionEngine(ABC):
 
         parameter_values = [
             ParameterValue(
-                parameter=node.pin_parameter(pin.name),
+                parameter=node.pin_parameter(pin.name, ordered=True),
                 value=pin_values[pin.identity],
             )
             for pin in node.get_inputs()
@@ -597,12 +628,21 @@ class ExecutionEngine(ABC):
     ):
         node = record.get_node()
         if isinstance(node, ActivityParameterNode) and node.get_parameter().is_output():
+            value = record.get_incoming_flows()[0].value
             execution_context.parameter_values += [
                 ParameterValue(
-                    parameter=node.get_parameter(),
-                    value=literal(node.value(), reference=True),
+                    parameter=node.get_parameter(ordered=True),
+                    value=literal(value, reference=True),
                 )
             ]
+        # elif isinstance(node, CallBehaviorAction):
+        #     # Add outputs to the call
+        #     call: BehaviorExecution = record.get_call()
+        #     call.parameter_values += [
+        #         t.get_value()
+        #         for t in new_tokens
+        #         if isinstance(t.get_edge(), ObjectFlow)
+        #     ]
 
         if self.dataset_file is not None:
             self.write_data_templates(record, new_tokens)

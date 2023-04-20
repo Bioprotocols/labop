@@ -5,6 +5,7 @@ import sbol3
 from labop import parameter_value
 from labop.call_behavior_execution import CallBehaviorExecution
 from uml import (
+    Action,
     Activity,
     ActivityEdge,
     ActivityNode,
@@ -19,10 +20,11 @@ from uml import (
 )
 from uml.activity import Activity
 from uml.activity_edge import ActivityEdge
+from uml.behavior import Behavior
 from uml.final_node import FinalNode
 from uml.initial_node import InitialNode
 
-from . import ParameterValue, ProtocolExecution
+from .parameter_value import ParameterValue
 
 
 class ExecutionContext(object):
@@ -32,13 +34,13 @@ class ExecutionContext(object):
 
     def __init__(
         self,
-        execution_trace: ProtocolExecution,
+        execution_trace: "ProtocolExecution",
         activity: Activity,
         parameter_values: List[ParameterValue],
         parent_context: Optional["ExecutionContext"] = None,
     ):
         self.parent_context = parent_context
-        self.activity = activity
+
         self.parameter_values = parameter_values
         self.candidate_clusters = {}
         self.incoming_edge_tokens: Dict[
@@ -48,7 +50,7 @@ class ExecutionContext(object):
         self.output_edges = []  # FIXME remove?
         self.tokens = []  # no tokens to start
         self.ready = []
-
+        self.nodes = []
         """Reference to the shared execution_trace """
         self.execution_trace = execution_trace
         self.call_pins = []  # FIXME remove?
@@ -56,10 +58,12 @@ class ExecutionContext(object):
         nodes_to_initialize: List[ActivityNode] = []
 
         if parent_context is None:
+            self.execution_trace.execution_context = self  # Needed for to_dot()
+            self.activity = None
             # If there is no parent context, then initialize a CallBehaviorAction that is calling the Activity
             # This CallBehaviorAction will later be expanded into a new ExecutionContext that includes the Activity ActivityNodes with ExecutionContext.invoke_activity.
             self.initial_node = InitialNode()
-            self.invoke_activity_node = CallBehaviorAction(behavior=self.activity)
+            self.invoke_activity_node = CallBehaviorAction(behavior=activity)
             self.final_node = FinalNode()
             execution_trace.activity_call_node.append(self.invoke_activity_node)
             execution_trace.activity_call_node.append(self.initial_node)
@@ -79,11 +83,17 @@ class ExecutionContext(object):
             # self.return_activity.is_return = True
             # execution_trace.activity_call_node.append(self.return_activity)
             # # execution_trace.executions.append(ActivityNodeExecution(node=self.call_protocol_node))
-            self.create_invocation_pins()
+            self.create_invocation_pins(activity)
             self.ready.append(self.initial_node)
             nodes_to_initialize += execution_trace.activity_call_node
             nodes_to_initialize += self.call_pins
+            self.nodes = [
+                self.initial_node,
+                self.final_node,
+                self.invoke_activity_node,
+            ] + self.call_pins
         else:
+            self.activity = activity
             nodes_to_initialize += self.activity.nodes
             nodes_to_initialize += [
                 o
@@ -93,6 +103,11 @@ class ExecutionContext(object):
             ]
             nodes_to_initialize += [
                 i for n in self.activity.nodes if hasattr(n, "inputs") for i in n.inputs
+            ]
+            self.nodes = list(self.activity.nodes) + [
+                p
+                for n in [cba for cba in self.activity.nodes if isinstance(cba, Action)]
+                for p in list(n.get_inputs()) + list(n.get_outputs())
             ]
 
         # Setup incoming edge map for each node
@@ -112,11 +127,11 @@ class ExecutionContext(object):
             #             pv.get_parameter()
             #         ] = pv.value()
 
-    def create_invocation_pins(self):
+    def create_invocation_pins(self, activity: Behavior):
         # Make pins for the activity
 
         input_map = ParameterValue.parameter_value_map(self.parameter_values)
-        for i in self.activity.get_inputs():
+        for i in activity.get_inputs():
             if i.name in input_map:
                 values = input_map[i.name]
                 # TODO: type check relationship between value and parameter type specification
@@ -128,7 +143,7 @@ class ExecutionContext(object):
                 # Now create pins for all the input values
                 for value in values:
                     if isinstance(value, sbol3.TopLevel) and not value.document:
-                        self.activity.document.add(value)
+                        activity.document.add(value)
                     value_pin = ValuePin(
                         name=i.property_value.name,
                         is_ordered=i.property_value.is_ordered,
@@ -144,7 +159,7 @@ class ExecutionContext(object):
                     )
                     self.execution_trace.activity_call_edge.append(input)
                     self.input_edges.append(input)  # FIXME remove?
-        for o in self.activity.get_outputs():
+        for o in activity.get_outputs():
             output_pin = OutputPin(
                 name=o.name,
                 is_ordered=o.is_ordered,
@@ -161,7 +176,8 @@ class ExecutionContext(object):
     def outgoing_edges(self, node):
         out_edges = []
         # if node in self.activity.nodes:
-        out_edges += self.activity.outgoing_edges(node)
+        if self.activity:
+            out_edges += self.activity.outgoing_edges(node)
         out_edges += [
             e for e in self.execution_trace.activity_call_edge if e.get_source() == node
         ]
@@ -170,7 +186,8 @@ class ExecutionContext(object):
     def incoming_edges(self, node):
         in_edges = []
         # if node in self.activity.nodes:
-        in_edges += self.activity.incoming_edges(node)
+        if self.activity:
+            in_edges += self.activity.incoming_edges(node)
         in_edges += [
             e for e in self.execution_trace.activity_call_edge if e.get_target() == node
         ]
@@ -251,8 +268,6 @@ class ExecutionContext(object):
                 ] = []
                 self.input_edges.append(input_flow)
 
-        activity_context.incoming_edge_tokens[activity_context.activity.final()] = {}
-
         # parent.CBA -> child.InitialNode
         init = activity_context.activity.initial()
         start = ControlFlow(
@@ -260,7 +275,6 @@ class ExecutionContext(object):
             target=init,
         )
         activity_context.execution_trace.activity_call_edge.append(start)
-        activity_context.incoming_edge_tokens[init][start] = {}
         activity_context.incoming_edge_tokens[init][start] = []
 
         # Control edges with call_behavior_action as source are replicated with the activity_context.activity as source
@@ -274,7 +288,7 @@ class ExecutionContext(object):
                         target=t,
                     )
                     activity_context.execution_trace.activity_call_edge.append(end)
-                    self.incoming_edge_tokens[t][end] = {}
+                    self.incoming_edge_tokens[t][end] = []
 
             elif isinstance(edge, ObjectFlow):
                 try:
@@ -302,6 +316,15 @@ class ExecutionContext(object):
                     ),
                 )
                 self.execution_trace.activity_call_edge.append(output)
-                self.incoming_edge_tokens[output.get_target()][output] = {}
+                self.incoming_edge_tokens[output.get_target()][output] = []
                 self.output_edges.append(output)
         return activity_context
+
+    def to_dot(
+        self,
+        execution_engine=None,
+        ready: List[ActivityNode] = [],
+        done=set([]),
+        out_dir="out",
+    ):
+        pass

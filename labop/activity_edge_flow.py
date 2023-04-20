@@ -3,8 +3,12 @@ The ActivityEdgeFlow class defines the functions corresponding to the dynamicall
 """
 
 
+import graphviz
+import sbol3
+
 from labop import inner
-from uml import CallBehaviorAction, InputPin, Parameter
+from labop.activity_node_execution import ActivityNodeExecution
+from uml import CallBehaviorAction, InputPin, LiteralReference, Parameter
 
 from .protocol import Protocol
 
@@ -18,6 +22,9 @@ class ActivityEdgeFlow(inner.ActivityEdgeFlow):
 
     def get_value(self):
         return self.value
+
+    def get_source(self):
+        return self.token_source.lookup()
 
     def get_target(self):
         """Find the target node of an edge flow
@@ -73,3 +80,41 @@ class ActivityEdgeFlow(inner.ActivityEdgeFlow):
             return self.token_source.lookup().get_token_source(None, target=target)
         else:
             return None
+
+    def to_dot(
+        self,
+        dot: graphviz.Graph,
+        target_node_execution: ActivityNodeExecution,
+        namespace,
+        dest_parameter=None,
+        out_dir=".",
+        color="orange",
+    ):
+        source_node_execution = self.get_source()
+        source_node = self.get_edge().get_source()
+        edge_value = self.get_value().get_value()
+        is_ref = isinstance(self.get_value(), LiteralReference)
+
+        source_id = source_node.dot_label(namespace=namespace)
+        if isinstance(source_node, CallBehaviorAction):
+            source_id = f"{source_id}:node"
+        target_id = target_node_execution.dot_label(namespace=namespace)
+        if isinstance(target_node_execution, CallBehaviorAction):
+            target_id = f"{target_id}:node"
+
+        if isinstance(edge_value, sbol3.Identified):
+            edge_label = edge_value.display_id  # value.identity
+        else:
+            edge_label = f"{edge_value}"
+
+        if hasattr(edge_value, "to_dot") and not is_ref:
+            # Make node for value and connect to source
+            value_node_id = edge_value.to_dot(dot, out_dir=out_dir)
+            dot.edge(source_id, value_node_id)
+
+        edge_index = self.identity.split("ActivityEdgeFlow")[-1]
+
+        edge_label = f"{edge_index}: {edge_label}"
+
+        attrs = {"color": color}
+        dot.edge(target_id, source_id, edge_label, _attributes=attrs)

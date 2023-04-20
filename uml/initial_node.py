@@ -4,6 +4,8 @@ The InitialNode class defines the functions corresponding to the dynamically gen
 
 from typing import Dict, List
 
+import graphviz
+
 from uml.control_flow import ControlFlow
 
 from . import inner
@@ -16,7 +18,10 @@ class InitialNode(inner.InitialNode, ControlNode):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-    def dot_attrs(self):
+    def dot_attrs(
+        self,
+        incoming_edges: Dict["InputPin", List["ActivityEdge"]] = None,
+    ):
         return {
             "label": "",
             "shape": "circle",

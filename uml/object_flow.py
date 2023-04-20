@@ -2,6 +2,8 @@
 The ObjectFlow class defines the functions corresponding to the dynamically generated labop class ObjectFlow
 """
 
+import graphviz
+
 from . import inner
 from .activity_edge import ActivityEdge
 

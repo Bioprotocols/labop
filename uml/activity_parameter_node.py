@@ -5,7 +5,6 @@ The ActivityParameterNode class defines the functions corresponding to the dynam
 from typing import Callable, Dict, List
 
 from . import inner
-from .activity_edge import ActivityEdge
 from .control_flow import ControlFlow
 from .invocation_action import InvocationAction
 from .literal_specification import LiteralSpecification
@@ -18,13 +17,17 @@ from .utils import literal
 class ActivityParameterNode(inner.ActivityParameterNode, ObjectNode):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        # self.name = self.parameter.name
 
-    def dot_attrs(self):
+    def dot_attrs(self, incoming_edges: Dict["InputPin", List["ActivityEdge"]] = None):
         label = self.parameter.lookup().name
         return {"label": label, "shape": "rectangle", "peripheries": "2"}
 
-    def get_parameter(self):
-        return self.parameter.lookup().property_value
+    def get_parameter(self, ordered=False):
+        if ordered:
+            return self.parameter.lookup()
+        else:
+            return self.parameter.lookup().property_value
 
     def is_output(self):
         return self.get_parameter().is_output()
@@ -32,27 +35,29 @@ class ActivityParameterNode(inner.ActivityParameterNode, ObjectNode):
     def is_input(self):
         return self.get_parameter().is_input()
 
-    def get_value(self) -> Dict[Parameter, LiteralSpecification]:
-        values = [
-            i.value.get_value()
-            for i in self.incoming_flows
-            if isinstance(i.edge.lookup(), ObjectFlow)
-        ]
-        assert len(values) < 2, "ActivityParameterNode has too many incoming values"
-        if len(values) == 1:
-            return values[0]
-        else:
-            return None
+    # def get_value(self) -> Dict[Parameter, LiteralSpecification]:
+    #     values = [
+    #         i.value.get_value()
+    #         for i in self.incoming_flows
+    #         if isinstance(i.edge.lookup(), ObjectFlow)
+    #     ]
+    #     assert len(values) < 2, "ActivityParameterNode has too many incoming values"
+    #     if len(values) == 1:
+    #         return values[0]
+    #     else:
+    #         return None
 
     def next_tokens_callback(
         self,
-        node_inputs: Dict[ActivityEdge, LiteralSpecification],
-        outgoing_edges: List[ActivityEdge],
+        node_inputs: Dict["ActivityEdge", LiteralSpecification],
+        outgoing_edges: List["ActivityEdge"],
         node_outputs: Callable,
         calling_behavior: InvocationAction,
         sample_format: str,
         permissive: bool,
-    ) -> Dict[ActivityEdge, LiteralSpecification]:
+    ) -> Dict["ActivityEdge", LiteralSpecification]:
+        from .activity_edge import ActivityEdge
+
         if self.get_parameter().get_input():
             try:
                 parameter_value = next(
@@ -98,10 +103,11 @@ class ActivityParameterNode(inner.ActivityParameterNode, ObjectNode):
 
     def get_value(
         self,
-        edge: ActivityEdge,
-        node_inputs: Dict[ActivityEdge, LiteralSpecification],
+        edge: "ActivityEdge",
+        parameter_value_map: Dict[str, List[LiteralSpecification]],
         node_outputs: Callable,
         sample_format: str,
+        invocation_hash: int,
     ):
         value = ""
         reference = False
@@ -110,7 +116,7 @@ class ActivityParameterNode(inner.ActivityParameterNode, ObjectNode):
             value = "uml.ControlFlow"
         elif isinstance(edge, ObjectFlow):
             if self.is_output():
-                value = node_inputs[edge]
+                value = parameter_value_map[self.name]
                 reference = True
 
         value = literal(value, reference=reference)

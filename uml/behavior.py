@@ -145,12 +145,11 @@ class Behavior(inner.Behavior):
         Iterator over Parameters
         """
         # return (p for p in self.get_inputs() if p.property_value.lower_value.value > 0)
-        return (
+        return [
             p
             for p in self.get_inputs()
-            if p.property_value.lower_value is not None
-            and p.property_value.lower_value.value > 0
-        )
+            if p.lower_value is not None and p.lower_value.value > 0
+        ]
 
     def get_ordered_outputs(self):
         """Return all Parameters of type output for this Behavior

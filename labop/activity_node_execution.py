@@ -7,7 +7,6 @@ from typing import Callable, List
 import sbol3
 
 from labop import inner
-from labop.activity_edge_flow import ActivityEdgeFlow
 from uml import (
     PARAMETER_OUT,
     ActivityEdge,
@@ -38,13 +37,14 @@ class ActivityNodeExecution(inner.ActivityNodeExecution):
     def get_node(self) -> ActivityNode:
         return self.node.lookup()
 
-    def get_incoming_flows(self) -> List[ActivityEdgeFlow]:
+    def get_incoming_flows(self) -> List["ActivityEdgeFlow"]:
         return [flow.lookup() for flow in self.incoming_flows]
 
     def check_next_tokens(
         self,
         tokens: List["ActivityEdgeFlow"],
         node_outputs: Callable,
+        perimssive: bool,
         sample_format: str,
     ):
         pass
@@ -54,7 +54,10 @@ class ActivityNodeExecution(inner.ActivityNodeExecution):
         values = None if len(values) == 0 else values
         values = values[0] if values and len(values) == 1 else values
 
-        return {self.get_node().name: values}
+        if values is None:
+            return {}
+        else:
+            return {self.get_node().name: values}
 
     def get_token_source(
         self,

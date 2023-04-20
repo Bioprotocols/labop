@@ -7,17 +7,18 @@ from typing import Callable, Dict, List
 import sbol3
 
 from . import inner
-from .activity_edge import ActivityEdge
-from .control_flow import ControlFlow
+from .activity_node import ActivityNode
 from .executable_node import ExecutableNode
 from .literal_specification import LiteralSpecification
-from .object_flow import ObjectFlow
-from .utils import inner_to_outer, literal
+from .value_pin import ValuePin
 
 
 class Action(inner.Action, ExecutableNode):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+
+    def get_parameter(self):
+        return None
 
     def get_inputs(self):
         return self.inputs
@@ -26,18 +27,10 @@ class Action(inner.Action, ExecutableNode):
         return self.outputs
 
     def required_inputs(self):
-        return [
-            i
-            for i in self.get_inputs()
-            if self.pin_parameter(i.name).property_value.required()
-        ]
+        return [i for i in self.get_inputs() if self.pin_parameter(i.name).required()]
 
     def required_outputs(self):
-        return [
-            o
-            for o in self.get_outputs()
-            if self.pin_parameter(o.name).property_value.required()
-        ]
+        return [o for o in self.get_outputs() if self.pin_parameter(o.name).required()]
 
     def input_pin(self, pin_name: str):
         """Find an input pin on the action with the specified name
@@ -82,7 +75,7 @@ class Action(inner.Action, ExecutableNode):
             raise ValueError(f"Found more than one output pin named {pin_name}")
         return pin_set.pop()
 
-    def pin_parameter(self, pin_name: str):
+    def pin_parameter(self, pin_name: str, ordered=False):
         """Find the behavior parameter corresponding to the pin
 
         :param pin_name:
@@ -118,11 +111,11 @@ class Action(inner.Action, ExecutableNode):
         #     )
         # except:
         #     pass
-        return parameter
+        return parameter if ordered else parameter.property_value
 
     def enabled(
         self,
-        edge_values: Dict[ActivityEdge, List[LiteralSpecification]],
+        edge_values: Dict["ActivityEdge", List[LiteralSpecification]],
         permissive=False,
     ):
         """Check whether all incoming edges have values defined by a token in tokens and that all value pin values are
@@ -143,35 +136,52 @@ class Action(inner.Action, ExecutableNode):
 
         if not permissive and control_tokens_present:
             required_inputs = self.required_inputs()
+            required_value_pins = [
+                p for p in required_inputs if isinstance(p, ValuePin)
+            ]
+            required_input_pins = [
+                p for p in required_inputs if p not in required_value_pins
+            ]
             return (
+                # ValuePin will not produce a token, so check if enabled
+                all(
+                    [
+                        p.enabled(None, permissive=permissive)
+                        for p in required_value_pins
+                    ]
+                )
+                and
+                # InputPin will have a token on the edge
                 all(
                     [
                         len(edge_values[e]) > 0
-                        for p in required_inputs
+                        for p in required_input_pins
                         for e in edge_values
                         if e.get_source() == p
                     ]
                 )
-                or permissive
-            )
+            ) or permissive
 
         else:
             return control_tokens_present
 
     def get_value(
         self,
-        edge: ActivityEdge,
+        edge: "ActivityEdge",
         parameter_value_map: Dict[str, List[LiteralSpecification]],
         node_outputs: Callable,
         sample_format: str,
     ):
+        from .control_flow import ControlFlow
+        from .object_flow import ObjectFlow
+
         value = ""
         reference = False
 
         if isinstance(edge, ControlFlow):
             value = "uml.ControlFlow"
         elif isinstance(edge, ObjectFlow):
-            parameter = self.pin_parameter(edge.get_source().name).property_value
+            parameter = self.pin_parameter(edge.get_source().name)
             value = self.get_parameter_value(
                 parameter, parameter_value_map, node_outputs, sample_format
             )

@@ -2,7 +2,7 @@
 The FinalNode class defines the functions corresponding to the dynamically generated labop class FinalNode
 """
 
-from typing import Callable, List
+from typing import Callable, Dict, List
 
 import uml
 from uml.activity_edge import ActivityEdge
@@ -15,7 +15,10 @@ class FinalNode(inner.FinalNode, ControlNode):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-    def dot_attrs(self):
+    def dot_attrs(
+        self,
+        incoming_edges: Dict["InputPin", List["ActivityEdge"]] = None,
+    ):
         return {
             "label": "",
             "shape": "doublecircle",

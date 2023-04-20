@@ -4,8 +4,6 @@ The ValuePin class defines the functions corresponding to the dynamically genera
 
 from typing import Dict, List
 
-from uml.activity_edge import ActivityEdge
-
 from . import inner
 from .input_pin import InputPin
 from .literal_specification import LiteralSpecification
@@ -24,7 +22,7 @@ class ValuePin(inner.ValuePin, InputPin):
 
     def enabled(
         self,
-        edge_values: Dict[ActivityEdge, List[LiteralSpecification]],
+        edge_values: Dict["ActivityEdge", List[LiteralSpecification]],
         permissive=False,
     ):
         return self.value is not None or permissive

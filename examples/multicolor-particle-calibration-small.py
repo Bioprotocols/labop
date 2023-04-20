@@ -2,6 +2,9 @@
 http://2018.igem.org/wiki/images/0/09/2018_InterLab_Plate_Reader_Protocol.pdf
 """
 
+import os
+import sys
+
 import sbol3
 from tyto import OM
 
@@ -9,8 +12,16 @@ import labop
 from labop.execution_engine import ExecutionEngine
 from labop_convert.markdown.markdown_specialization import MarkdownSpecialization
 
-filename = "".join(__file__.split(".py")[0].split("/")[-1:])
+if "unittest" in sys.modules:
+    REGENERATE_ARTIFACTS = False
+else:
+    REGENERATE_ARTIFACTS = True
 
+OUT_DIR = os.path.join(os.path.dirname(__file__), "artifacts")
+if not os.path.exists(OUT_DIR):
+    os.mkdir(OUT_DIR)
+
+filename = "".join(__file__.split(".py")[0].split("/")[-1:])
 doc = sbol3.Document()
 sbol3.set_namespace("http://igem.org/engineering/")
 
@@ -115,9 +126,11 @@ activity.designate_output(
 
 
 ee = ExecutionEngine(
-    specializations=[MarkdownSpecialization(__file__.split(".")[0] + ".md")],
+    specializations=[
+        # MarkdownSpecialization(__file__.split(".")[0] + ".md")
+    ],
     failsafe=False,
-    sample_format="json",
+    sample_format=labop.Strings.XARRAY,
 )
 execution = ee.execute(
     activity,
@@ -125,12 +138,17 @@ execution = ee.execute(
     id="test_execution",
     parameter_values=[],
 )
-print(execution.markdown)
 
-# Dress up the markdown to make it pretty and more readable
-execution.markdown = execution.markdown.replace(" milliliter", "mL")
-execution.markdown = execution.markdown.replace(" nanometer", "nm")
-execution.markdown = execution.markdown.replace(" microliter", "uL")
+execution.to_dot().view()
+with open(os.path.join(OUT_DIR, f"{filename}.nt"), "w") as f:
+    f.write(doc.write_string(sbol3.SORTED_NTRIPLES).strip())
 
-with open(__file__.split(".")[0] + ".md", "w", encoding="utf-8") as f:
-    f.write(execution.markdown)
+# print(execution.markdown)
+
+# # Dress up the markdown to make it pretty and more readable
+# execution.markdown = execution.markdown.replace(" milliliter", "mL")
+# execution.markdown = execution.markdown.replace(" nanometer", "nm")
+# execution.markdown = execution.markdown.replace(" microliter", "uL")
+
+# with open(__file__.split(".")[0] + ".md", "w", encoding="utf-8") as f:
+#     f.write(execution.markdown)

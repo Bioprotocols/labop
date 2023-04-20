@@ -2,10 +2,9 @@
 The DecisionNode class defines the functions corresponding to the dynamically generated labop class DecisionNode
 """
 
-from typing import Callable, List
+from typing import Callable, Dict, List
 
 from . import inner
-from .activity_edge import ActivityEdge
 from .control_flow import ControlFlow
 from .control_node import ControlNode
 from .literal_null import LiteralNull
@@ -20,7 +19,7 @@ class DecisionNode(inner.DecisionNode, ControlNode):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-    def dot_attrs(self):
+    def dot_attrs(self, incoming_edges: Dict["InputPin", List["ActivityEdge"]] = None):
         return {"label": "", "shape": "diamond"}
 
     def add_decision_output(self, protocol, guard, target):
@@ -126,7 +125,7 @@ class DecisionNode(inner.DecisionNode, ControlNode):
         self,
         source: "ActivityNodeExecution",
         engine: "ExecutionEngine",
-        out_edges: List[ActivityEdge],
+        out_edges: List["ActivityEdge"],
         node_outputs: Callable,
     ) -> List["ActivityEdgeFlow"]:
         try:

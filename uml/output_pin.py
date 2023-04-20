@@ -5,9 +5,7 @@ The OutputPin class defines the functions corresponding to the dynamically gener
 from typing import Callable, Dict, List, Union
 
 from . import inner
-from .control_flow import ControlFlow
 from .literal_specification import LiteralSpecification
-from .object_flow import ObjectFlow
 from .pin import Pin
 from .utils import literal
 
@@ -27,6 +25,9 @@ class OutputPin(inner.OutputPin, Pin):
         sample_format: str,
         invocation_hash: int,
     ):
+        from .control_flow import ControlFlow
+        from .object_flow import ObjectFlow
+
         value = ""
         reference = False
 

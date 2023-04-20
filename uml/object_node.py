@@ -5,7 +5,6 @@ The ObjectNode class defines the functions corresponding to the dynamically gene
 from typing import Dict, List
 
 from . import inner
-from .activity_edge import ActivityEdge
 from .activity_node import ActivityNode
 from .literal_specification import LiteralSpecification
 
@@ -14,12 +13,15 @@ class ObjectNode(inner.ObjectNode, ActivityNode):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-    def dot_attrs(self):
+    def dot_attrs(
+        self,
+        incoming_edges: Dict["InputPin", List["ActivityEdge"]] = None,
+    ):
         raise ValueError(f"Do not know what GraphViz label to use for {self}")
 
     def enabled(
         self,
-        edge_values: Dict[ActivityEdge, List[LiteralSpecification]],
+        edge_values: Dict["ActivityEdge", List[LiteralSpecification]],
         permissive=False,
     ):
         """Check whether all incoming edges have values defined by a token in tokens and that all value pin values are

@@ -2,13 +2,11 @@
 The InputPin class defines the functions corresponding to the dynamically generated labop class InputPin
 """
 
-from typing import Callable, Dict, List
+from typing import Callable, Dict, List, Union
 
 from . import inner
-from .activity_edge import ActivityEdge
-from .control_flow import ControlFlow
+from .activity_node import ActivityNode
 from .literal_specification import LiteralSpecification
-from .object_flow import ObjectFlow
 from .pin import Pin
 from .utils import literal
 
@@ -20,15 +18,12 @@ class InputPin(inner.InputPin, Pin):
     def dot_node_name(self):
         return self.name
 
-    def dot_attrs(self):
-        return {}
-
     def __str__(self):
         return self.name
 
     def enabled(
         self,
-        edge_values: Dict[ActivityEdge, List[LiteralSpecification]],
+        edge_values: Dict["ActivityEdge", List[LiteralSpecification]],
         permissive=False,
     ):
         # protocol = self.protocol()
@@ -45,7 +40,7 @@ class InputPin(inner.InputPin, Pin):
         self,
         source: "ActivityNodeExecution",
         engine: "ExecutionEngine",
-        out_edges: List[ActivityEdge],
+        out_edges: List["ActivityEdge"],
         node_outputs: Callable,
     ) -> List["ActivityEdgeFlow"]:
         assert len(source.incoming_flows) == len(
@@ -58,3 +53,25 @@ class InputPin(inner.InputPin, Pin):
         ]
         edge_tokens = [(None, source, pin_value) for pin_value in pin_values]
         return edge_tokens
+
+    def get_value(
+        self,
+        edge: "ActivityEdge",
+        node_inputs: Dict[str, Union[List[LiteralSpecification], LiteralSpecification]],
+        node_outputs: Callable,
+        sample_format: str,
+        invocation_hash: int,
+    ):
+        value = ""
+        reference = False
+        from .control_flow import ControlFlow
+        from .object_flow import ObjectFlow
+
+        if isinstance(edge, ControlFlow):
+            value = "uml.ControlFlow"
+        elif isinstance(edge, ObjectFlow):
+            value = node_inputs[self.name]
+            reference = True
+
+        value = literal(value, reference=reference)
+        return value

@@ -2,7 +2,7 @@
 The CallBehaviorExecution class defines the functions corresponding to the dynamically generated labop class CallBehaviorExecution
 """
 
-from typing import Callable, List, Protocol
+from typing import Callable, List, Union
 
 import sbol3
 
@@ -18,11 +18,14 @@ from uml import (
     labop_hash,
     literal,
 )
+from uml.ordered_property_value import OrderedPropertyValue
+from uml.output_pin import OutputPin
 
 from .activity_edge_flow import ActivityEdgeFlow
 from .activity_node_execution import ActivityNodeExecution
 from .behavior_execution import BehaviorExecution
 from .parameter_value import ParameterValue
+from .protocol import Protocol
 
 
 class CallBehaviorExecution(inner.CallBehaviorExecution, ActivityNodeExecution):
@@ -36,7 +39,7 @@ class CallBehaviorExecution(inner.CallBehaviorExecution, ActivityNodeExecution):
             + sum([hash(pv) for pv in self.parameter_values()])
         )
 
-    def behavior(self):
+    def get_behavior(self):
         return self.node.lookup().behavior.lookup()
 
     def get_call(self):
@@ -70,8 +73,8 @@ class CallBehaviorExecution(inner.CallBehaviorExecution, ActivityNodeExecution):
         :return: value
         """
         node: CallBehaviorAction = self.node.lookup()
-        behavior: Behavior = node.behavior.lookup()
-        call: BehaviorExecution = self.call.lookup()
+        behavior: Behavior = self.get_behavior()
+        call: BehaviorExecution = self.get_call()
         # call_parameter_value_inputs: List[ParameterValue] = self.get_inputs()
 
         # input_parameter_values = self.input_parameter_values(
@@ -151,56 +154,31 @@ class CallBehaviorExecution(inner.CallBehaviorExecution, ActivityNodeExecution):
         map = {k: (v[0] if len(v) == 1 else v) for k, v in map.items()}
         return map
 
+    def pin_parameter(
+        self, pin_name: str, ordered=False
+    ) -> Union[OrderedPropertyValue, Parameter]:
+        return self.get_node().pin_parameter(pin_name, ordered=ordered)
+
     def check_next_tokens(
         self,
         tokens: List[ActivityEdgeFlow],
         node_outputs: Callable,
+        perimssive: bool,
         sample_format: str,
     ):
+        call = self.get_call()
+        behavior: Behavior = self.get_behavior()
         # ## Add the output values to the call parameter-values
-        linked_parameters = []
-        if not isinstance(self.node.lookup().behavior.lookup(), Protocol):
-            # Protocol invocation's use output values for the linkage from
-            # protocol-input to subprotocol-input, so don't add as an output
-            # parameter-value
-            for token in tokens:
-                edge = token.edge.lookup()
-                if isinstance(edge, ObjectFlow):
-                    source = edge.get_source()
-                    parameter = self.node.lookup().pin_parameter(source.name)
-                    linked_parameters.append(parameter)
-                    parameter_value = literal(token.value.get_value(), reference=True)
-                    pv = ParameterValue(parameter=parameter, value=parameter_value)
-                    self.call.lookup().parameter_values += [pv]
-
-        # Assume that unlinked output pins to the parameter values of the call
-        unlinked_output_parameters = [
-            p
-            for p in self.node.lookup().behavior.lookup().parameters
-            if p.property_value.direction == PARAMETER_OUT
-            and p.property_value.name
-            not in {lp.property_value.name for lp in linked_parameters}
-        ]
-
-        # Handle unlinked output pins by attaching them to the call
-        possible_output_parameter_values = []
-        for p in unlinked_output_parameters:
-            value = self.get_parameter_value(
-                p.property_value,
-                parameter_value_map,
-                node_outputs,
-                sample_format,
-                hash(self),
-            )
-            reference = hasattr(value, "document") and value.document is not None
-            possible_output_parameter_values.append(
-                ParameterValue(
-                    parameter=p,
-                    value=literal(value, reference=reference),
-                )
-            )
-
-        self.call.lookup().parameter_values.extend(possible_output_parameter_values)
+        for token in tokens:
+            edge = token.get_edge()
+            if isinstance(edge, ObjectFlow):
+                target: OutputPin = edge.get_target()  # target is an OutputPin
+                call.parameter_values += [
+                    ParameterValue(
+                        parameter=self.pin_parameter(target.name, ordered=True),
+                        value=literal(token.value.get_value(), reference=True),
+                    )
+                ]
 
         ### Check that the same parameter names are sane:
         # 1. unbounded parameters can appear 0+ times
@@ -208,15 +186,17 @@ class CallBehaviorExecution(inner.CallBehaviorExecution, ActivityNodeExecution):
         # 3. required parameters are present
 
         pin_sets = {}
-        for pv in self.call.lookup().parameter_values:
-            name = pv.parameter.lookup().property_value.name
+        for pv in call.parameter_values:
+            name = pv.get_parameter().name
             value = pv.value.get_value() if pv.value else None
             if name not in pin_sets:
                 pin_sets[name] = []
             pin_sets[name].append(value)
 
-        for p in self.node.lookup().behavior.lookup().parameters:
-            param = p.property_value
+        parameter_value_map = call.parameter_value_map()
+
+        for p, v in parameter_value_map.items():
+            param = self.pin_parameter(p)
 
             if (
                 param.lower_value

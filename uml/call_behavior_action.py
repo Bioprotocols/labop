@@ -6,17 +6,18 @@ dynamically generated labop class CallBehaviorAction
 import uuid
 from typing import Callable, Dict, List
 
+import graphviz
 import sbol3
 
 from uml.parameter import Parameter
 
 from . import inner
-from .activity_edge import ActivityEdge
 from .activity_node import ActivityNode
 from .activity_parameter_node import ActivityParameterNode
 from .call_action import CallAction
 from .control_flow import ControlFlow
 from .initial_node import InitialNode
+from .input_pin import InputPin
 from .invocation_action import InvocationAction
 from .literal_specification import LiteralSpecification
 from .object_flow import ObjectFlow
@@ -34,13 +35,56 @@ class CallBehaviorAction(inner.CallBehaviorAction, CallAction):
     def get_behavior(self):
         return self.behavior.lookup()
 
-    def dot_attrs(self):
+    def to_dot(
+        self,
+        dot: graphviz.Graph,
+        color=None,
+        incoming_edges: List["ActivityEdge"] = None,
+        done=None,
+        ready=None,
+        namespace=None,
+    ):
+        from .activity import Activity
+
+        ActivityNode.to_dot(
+            self,
+            dot,
+            color=color,
+            incoming_edges=incoming_edges,
+            done=done,
+            ready=ready,
+            namespace=namespace,
+        )
+        behavior = self.get_behavior()
+        subgraph = None
+        if isinstance(behavior, Activity):
+            subgraph = behavior.to_dot(done=done, ready=ready)
+        return subgraph
+
+    def dot_attrs(self, incoming_edges: List["ActivityEdge"]):
         port_row = '  <tr><td><table border="0" cellspacing="-2"><tr><td> </td>{}<td> </td></tr></table></td></tr>\n'
+        required_inputs = self.get_behavior().get_required_inputs()
+        used_inputs = [
+            o
+            for o in self.inputs
+            if isinstance(o, ValuePin) or o in [e.get_source() for e in incoming_edges]
+        ]
+        unsat_inputs = [
+            o for o in required_inputs if o.name not in [i.name for i in used_inputs]
+        ]
         in_ports = "<td> </td>".join(
             f'<td port="{i.display_id}" border="1">{i.dot_node_name()}</td>'
-            for i in self.get_inputs()
+            for i in used_inputs
         )
-        in_row = port_row.format(in_ports) if in_ports else ""
+        unsat_in_ports = "<td> </td>".join(
+            f'<td port="{i.display_id}" bgcolor="red" border="1">{i.label()}</td>'
+            for i in unsat_inputs
+        )
+        in_row = (
+            port_row.format(in_ports + "<td> </td>" + unsat_in_ports)
+            if in_ports or unsat_in_ports
+            else ""
+        )
         out_ports = "<td> </td>".join(
             f'<td port="{o.display_id}" border="1">{o.name}</td>'
             for o in self.get_outputs()
@@ -55,7 +99,7 @@ class CallBehaviorAction(inner.CallBehaviorAction, CallAction):
 
     def get_value(
         self,
-        edge: ActivityEdge,
+        edge: "ActivityEdge",
         parameter_value_map: Dict[str, List[LiteralSpecification]],
         node_outputs: Callable,
         sample_format: str,
@@ -71,7 +115,7 @@ class CallBehaviorAction(inner.CallBehaviorAction, CallAction):
                 invocation_hash,
             )
         elif isinstance(edge, ObjectFlow):
-            parameter = self.pin_parameter(edge.get_target().name).property_value
+            parameter = self.pin_parameter(edge.get_target().name)
             value = self.get_parameter_value(
                 parameter,
                 parameter_value_map,
@@ -105,13 +149,13 @@ class CallBehaviorAction(inner.CallBehaviorAction, CallAction):
 
     def next_tokens_callback(
         self,
-        node_inputs: Dict[ActivityEdge, LiteralSpecification],
-        outgoing_edges: List[ActivityEdge],
+        node_inputs: Dict["ActivityEdge", LiteralSpecification],
+        outgoing_edges: List["ActivityEdge"],
         node_outputs: Callable,
         calling_behavior: InvocationAction,
         sample_format: str,
         permissive: bool,
-    ) -> Dict[ActivityEdge, LiteralSpecification]:
+    ) -> Dict["ActivityEdge", LiteralSpecification]:
         if isinstance(self.get_behavior(), Activity):
             if engine.is_asynchronous:
                 # Push record onto blocked nodes to complete

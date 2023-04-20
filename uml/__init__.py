@@ -73,9 +73,19 @@ from .value_pin import *
 
 from .uml_graphviz import *
 
+
+def label(object: sbol3.Identified):
+    truncated = _gv_sanitize(object.identity.replace(f"{self.namespace}", ""))
+    in_struct = "_".join(truncated.split("/", 1)).replace(
+        "/", ":"
+    )  # Replace last "/" with "_"
+    return in_struct  # _gv_sanitize(object.identity.replace(f'{self.identity}/', ''))
+
+
 for symbol in dir():
     if isinstance(symbol, sbol3.Identified):
         symbol.__str__ = __str__
+        symbol.label = label
 
 
 def assign_outer_class_builders(module_name):

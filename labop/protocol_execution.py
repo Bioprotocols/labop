@@ -25,6 +25,7 @@ from uml import (
     ControlNode,
     DecisionNode,
     InitialNode,
+    InputPin,
     LiteralReference,
     ObjectFlow,
     Pin,
@@ -165,65 +166,28 @@ class ProtocolExecution(inner.ProtocolExecution, BehaviorExecution):
         :param self:
         :return: graphviz.Digraph
         """
-        dot = graphviz.Digraph(
-            comment=self.protocol,
-            strict=True,
-            graph_attr={"rankdir": "TB", "concentrate": "true"},
-            node_attr={"ordering": "out"},
-        )
-
-        def _make_object_edge(dot, incoming_flow, target, dest_parameter=None):
-            flow_source = incoming_flow.lookup().token_source.lookup()
-            source = incoming_flow.lookup().edge.lookup().get_source()
-            value = incoming_flow.lookup().value.get_value()
-            is_ref = isinstance(incoming_flow.lookup().value, LiteralReference)
-            # value = value.value.lookup() if isinstance(value, LiteralReference) else value.value
-
-            if isinstance(source, Pin):
-                src_parameter = (
-                    source.get_parent().pin_parameter(source.name).property_value
-                )
-                src_var = src_parameter.name
-            else:
-                src_var = ""
-
-            dest_var = dest_parameter.name if dest_parameter else ""
-
-            source_id = source.dot_label(parent_identity=self.protocol)
-            if isinstance(source, CallBehaviorAction):
-                source_id = f"{source_id}:node"
-            target_id = target.dot_label(parent_identity=self.protocol)
-            if isinstance(target, CallBehaviorAction):
-                target_id = f"{target_id}:node"
-
-            if isinstance(value, sbol3.Identified):
-                edge_label = value.display_id  # value.identity
-            else:
-                edge_label = f"{value}"
-
-            if False and hasattr(value, "to_dot") and not is_ref:
-                # Make node for value and connect to source
-                value_node_id = value.to_dot(dot, out_dir=out_dir)
-                dot.edge(source_id, value_node_id)
-
-            edge_index = incoming_flow.split("ActivityEdgeFlow")[-1]
-
-            edge_label = f"{edge_index}: {edge_label}"
-
-            attrs = {"color": "orange"}
-            dot.edge(target_id, source_id, edge_label, _attributes=attrs)
+        # dot = graphviz.Digraph(
+        #     comment=self.protocol,
+        #     strict=True,
+        #     graph_attr={"rankdir": "TB", "concentrate": "true"},
+        #     node_attr={"ordering": "out"},
+        # )
 
         dot = graphviz.Digraph(
             name=f"cluster_{self.identity}", graph_attr={"label": self.identity}
         )
 
+        # Protocol Invocation
+        execution_context = self.execution_context
+
         # Protocol graph
-        protocol_graph = self.protocol.lookup().to_dot(ready=ready, done=done)
+        protocol = self.protocol.lookup()
+        protocol_graph = protocol.to_dot(ready=ready, done=done)
         dot.subgraph(protocol_graph)
 
         if execution_engine and execution_engine.current_node:
             current_node_id = execution_engine.current_node.dot_label(
-                parent_identity=self.protocol
+                namespace=self.namespace
             )
             current_node_id = f"{current_node_id}:node"
             dot.edge(
@@ -239,8 +203,58 @@ class ProtocolExecution(inner.ProtocolExecution, BehaviorExecution):
 
         # Execution graph
         for execution in self.executions:
-            exec_target = execution.node.lookup()
+            execution_node = execution.get_node()
             execution_label = ""
+
+            if execution_node.get_parent() == self or (
+                isinstance(execution_node, Pin)
+                and execution_node.get_parent().get_parent() == self
+            ):
+                # If node is not part of protocol, then its part of the invocation of the protocol and isn't drawn by the protocol to_dot()
+                incoming_edges = execution_context.incoming_edges(execution_node)
+
+                # Pins are drawn as part of CallBehaviorAction
+                if not isinstance(execution_node, Pin):
+                    _ = execution_node.to_dot(
+                        dot,
+                        namespace=self.namespace,
+                        done=done,
+                        ready=ready,
+                        incoming_edges=incoming_edges,
+                    )
+
+                # Add incoming edges to execution_node
+
+                for edge in incoming_edges:
+                    if edge.dot_plottable():
+                        edge.to_dot(dot, namespace=self.namespace)
+
+                # Add outgoing edges from execution_node
+                outgoing_edges = execution_context.outgoing_edges(execution_node)
+                for edge in outgoing_edges:
+                    if edge.dot_plottable() and not (
+                        edge.get_target() in execution_context.nodes
+                    ):
+                        edge.to_dot(dot, namespace=self.namespace)
+
+                # Add incoming edges to execution_node
+                for incoming_flow in execution.get_incoming_flows():
+                    # Executable Nodes have incoming flow from their input pins and ControlFlows
+                    # parameter = target_node.get_parameter()
+                    if isinstance(incoming_flow.get_edge(), ObjectFlow):
+                        if (
+                            isinstance(execution_node, ActivityParameterNode)
+                            or isinstance(execution_node, ControlNode)
+                            or isinstance(execution_node, InputPin)
+                        ):
+                            incoming_flow.to_dot(
+                                dot,
+                                execution_node,
+                                self.namespace,
+                                out_dir=out_dir,
+                                color="orange"
+                                # dest_parameter=parameter,
+                            )
 
             # Make a self loop that includes the and start and end time.
             if isinstance(execution, CallBehaviorExecution):
@@ -255,7 +269,7 @@ class ProtocolExecution(inner.ProtocolExecution, BehaviorExecution):
                     execution_label += f"[{start_time}]"
                 else:
                     execution_label += f"[{start_time},\n  {end_time}]"
-                target_id = exec_target.dot_label(parent_identity=self.protocol)
+                target_id = execution_node.dot_label(namespace=self.namespace)
                 target_id = f"{target_id}:node"
                 dot.edge(
                     target_id,
@@ -268,43 +282,32 @@ class ProtocolExecution(inner.ProtocolExecution, BehaviorExecution):
                     },
                 )
 
-            for incoming_flow in execution.incoming_flows:
+            for incoming_flow in execution.get_incoming_flows():
                 # Executable Nodes have incoming flow from their input pins and ControlFlows
-                flow_source = incoming_flow.lookup().token_source.lookup()
-                exec_source = flow_source.node.lookup()
-                edge_ref = incoming_flow.lookup().edge
-                if edge_ref and isinstance(edge_ref.lookup(), ObjectFlow):
-                    if isinstance(exec_target, ActivityParameterNode):
-                        # ActivityParameterNodes are ObjectNodes that have a parameter
-                        _make_object_edge(
+                source_execution = incoming_flow.get_source()
+                source_node = source_execution.get_node()
+                edge_ref = incoming_flow.get_edge()
+                parameter = execution_node.get_parameter()
+                if isinstance(edge_ref, ObjectFlow):
+                    if (
+                        isinstance(execution_node, ActivityParameterNode)
+                        or isinstance(execution_node, ControlNode)
+                        or isinstance(execution_node, InputPin)
+                    ):
+                        incoming_flow.to_dot(
                             dot,
-                            incoming_flow,
-                            exec_target,
-                            dest_parameter=exec_target.parameter.lookup(),
+                            execution_node,
+                            self.namespace,
+                            dest_parameter=parameter,
+                            out_dir=out_dir,
                         )
-                    elif isinstance(exec_target, ControlNode):
-                        # This in an object flow into the node itself, which happens for ControlNodes
-                        _make_object_edge(dot, incoming_flow, exec_target)
-                elif isinstance(exec_source, Pin):
-                    # This incoming_flow is from an input pin, and need the flow into the pin
-                    for into_pin_flow in flow_source.incoming_flows:
-                        # source = src_to_pin_edge.get_source()
-                        # target = src_to_pin_edge.target.lookup()
-                        dest_parameter = exec_target.pin_parameter(
-                            exec_source.name
-                        ).property_value
-                        _make_object_edge(
-                            dot,
-                            into_pin_flow,
-                            into_pin_flow.lookup().edge.lookup().target.lookup(),
-                            dest_parameter=dest_parameter,
-                        )
-                elif (
-                    isinstance(exec_source, DecisionNode)
-                    and edge_ref
-                    and isinstance(edge_ref.lookup(), ControlFlow)
+
+                elif isinstance(source_node, DecisionNode) and isinstance(
+                    edge_ref, ControlFlow
                 ):
-                    _make_object_edge(dot, incoming_flow, exec_target)
+                    incoming_flow.to_dot(
+                        dot, execution_node, self.namespace, out_dir=out_dir
+                    )
 
         return dot
 

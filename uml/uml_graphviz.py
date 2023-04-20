@@ -8,10 +8,8 @@ def _gv_sanitize(id: str):
     return html.escape(id.replace(":", "_"))
 
 
-def identified_dot_label(self, parent_identity=None):
-    truncated = _gv_sanitize(
-        self.identity.replace(f"{parent_identity.lookup().namespace}", "")
-    )
+def identified_dot_label(self, namespace=None):
+    truncated = _gv_sanitize(self.identity.replace(f"{namespace}", ""))
     in_struct = "_".join(truncated.split("/", 1)).replace("/", ":")
     return in_struct
 

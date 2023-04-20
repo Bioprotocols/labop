@@ -2,7 +2,7 @@
 The ForkNode class defines the functions corresponding to the dynamically generated labop class ForkNode
 """
 
-from typing import Callable, List
+from typing import Callable, Dict, List
 
 import uml
 from uml.activity_edge import ActivityEdge
@@ -18,7 +18,9 @@ class ForkNode(inner.ForkNode, ControlNode):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-    def dot_attrs(self):
+    def dot_attrs(
+        selfincoming_edges: Dict["InputPin", List["ActivityEdge"]] = None,
+    ):
         return {
             "label": "",
             "shape": "rectangle",

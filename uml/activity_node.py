@@ -2,15 +2,14 @@
 The ActivityNode class defines the functions corresponding to the dynamically generated labop class ActivityNode
 """
 
+import html
 import logging
 from typing import Callable, Dict, List
 
+import graphviz
+
 from . import inner
-from .activity_edge import ActivityEdge
-from .control_flow import ControlFlow
 from .literal_specification import LiteralSpecification
-from .object_flow import ObjectFlow
-from .parameter import Parameter
 from .utils import labop_hash, literal
 
 l = logging.getLogger(__file__)
@@ -20,6 +19,41 @@ l.setLevel(logging.ERROR)
 class ActivityNode(inner.ActivityNode):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+
+    def to_dot(
+        self,
+        dot: graphviz.Graph,
+        color=None,
+        incoming_edges: List["ActivityEdge"] = None,
+        done=None,
+        ready=None,
+        namespace=None,
+    ):
+        node_id = self.label(namespace=namespace)
+        type_attrs = self.dot_attrs(incoming_edges=incoming_edges)
+
+        if color is not None:
+            type_attrs["fillcolor"] = color
+        dot.node(node_id, **type_attrs)
+        return None
+
+    # def label(self):
+    #     return f"{self.name}"
+
+    def gv_sanitize(self, id: str):
+        return html.escape(id.replace(":", "_"))
+
+    def label(self, namespace=None):
+        if namespace:
+            truncated = self.gv_sanitize(self.identity.replace(f"{namespace}", ""))
+        else:
+            truncated = self.gv_sanitize(self.identity)
+        in_struct = "_".join(truncated.split("/", 1)).replace(
+            "/", ":"
+        )  # Replace last "/" with "_"
+        return (
+            in_struct  # _gv_sanitize(object.identity.replace(f'{self.identity}/', ''))
+        )
 
     def __hash__(self):
         return labop_hash(self.identity)
@@ -44,35 +78,30 @@ class ActivityNode(inner.ActivityNode):
         """
         return self
 
-    def dot_attrs(self):
+    def dot_attrs(self, incoming_edges: Dict["InputPin", List["ActivityEdge"]] = None):
         return {"label": "", "shape": "circle"}
 
     def enabled(
         self,
-        edge_values: Dict[ActivityEdge, List[LiteralSpecification]],
+        edge_values: Dict["ActivityEdge", List[LiteralSpecification]],
         permissive=False,
     ):
+        from .control_flow import ControlFlow
+
         incoming_controls = {e for e in edge_values if isinstance(e, ControlFlow)}
-        if len(incoming_controls) > 0:
-            # Need all incoming control tokens
-            control_tokens_present = all(
-                [len(edge_values[ic]) > 0 for ic in incoming_controls]
-            )
-            return control_tokens_present
-        else:
-            return False  # Cannot execute a node with no incoming controls unless its an InitialNode
+        return all([len(edge_values[ic]) > 0 for ic in incoming_controls])
 
     # def execute(
     #     self,
-    #     edge_values: Dict[ActivityEdge, List[LiteralSpecification]],
-    #     outgoing_edges: List[ActivityEdge],
+    #     edge_values: Dict["ActivityEdge", List[LiteralSpecification]],
+    #     outgoing_edges: List["ActivityEdge"],
     #     node_outputs: Callable,
     #     calling_behavior: InvocationAction,
     #     sample_format: str,
     #     permissive: bool,
     # ) -> Tuple[
-    #     Dict[ActivityEdge, List[LiteralSpecification]],  # consumed values for record
-    #     Dict[ActivityEdge, LiteralSpecification],  # produced values for tokens
+    #     Dict["ActivityEdge", List[LiteralSpecification]],  # consumed values for record
+    #     Dict["ActivityEdge", LiteralSpecification],  # produced values for tokens
     # ]:
     #     """Execute a node in an activity, consuming the incoming flows and recording execution and outgoing flows
 
@@ -87,7 +116,7 @@ class ActivityNode(inner.ActivityNode):
     #     # Extract the relevant set of incoming flow values
 
     #     node_inputs = self.consume_tokens(edge_values)
-    #     new_tokens: Dict[ActivityEdge, LiteralSpecification] = self.next_tokens(
+    #     new_tokens: Dict["ActivityEdge", LiteralSpecification] = self.next_tokens(
     #         node_inputs,
     #         outgoing_edges,
     #         node_outputs,
@@ -101,13 +130,13 @@ class ActivityNode(inner.ActivityNode):
 
     # def next_tokens(
     #     self,
-    #     node_inputs: Dict[ActivityEdge, List[LiteralSpecification]],
-    #     outgoing_edges: List[ActivityEdge],
+    #     node_inputs: Dict["ActivityEdge", List[LiteralSpecification]],
+    #     outgoing_edges: List["ActivityEdge"],
     #     node_outputs: Callable,
     #     calling_behavior: InvocationAction,
     #     sample_format: str,
     #     permissive: bool,
-    # ) -> Dict[ActivityEdge, LiteralSpecification]:
+    # ) -> Dict["ActivityEdge", LiteralSpecification]:
     #     edge_tokens = self.next_tokens_callback(
     #         node_inputs,
     #         outgoing_edges,
@@ -120,8 +149,8 @@ class ActivityNode(inner.ActivityNode):
     #     return edge_tokens
 
     def consume_tokens(
-        self, edge_values: Dict[ActivityEdge, List[LiteralSpecification]]
-    ) -> Dict[ActivityEdge, List[LiteralSpecification]]:
+        self, edge_values: Dict["ActivityEdge", List[LiteralSpecification]]
+    ) -> Dict["ActivityEdge", List[LiteralSpecification]]:
         consumed_tokens = {
             e: next(vals) for e, vals in edge_values.items() if len(vals) > 0
         }
@@ -129,13 +158,15 @@ class ActivityNode(inner.ActivityNode):
 
     def next_tokens_callback(
         self,
-        node_inputs: Dict[ActivityEdge, LiteralSpecification],
-        outgoing_edges: List[ActivityEdge],
+        node_inputs: Dict["ActivityEdge", LiteralSpecification],
+        outgoing_edges: List["ActivityEdge"],
         node_outputs: Callable,
         calling_behavior: "InvocationAction",
         sample_format: str,
         permissive: bool,
-    ) -> Dict[ActivityEdge, LiteralSpecification]:
+    ) -> Dict["ActivityEdge", LiteralSpecification]:
+        from .control_flow import ControlFlow
+
         edge_tokens = {}
         for edge in outgoing_edges:
             try:
@@ -153,12 +184,15 @@ class ActivityNode(inner.ActivityNode):
 
     def get_value(
         self,
-        edge: ActivityEdge,
+        edge: "ActivityEdge",
         parameter_value_map: Dict[str, List[LiteralSpecification]],
         node_outputs: Callable,
         sample_format: str,
         invocation_hash: int,
     ):
+        from .control_flow import ControlFlow
+        from .object_flow import ObjectFlow
+
         value = ""
         reference = False
 
