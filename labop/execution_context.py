@@ -131,7 +131,7 @@ class ExecutionContext(object):
         # Make pins for the activity
 
         input_map = ParameterValue.parameter_value_map(self.parameter_values)
-        for i in activity.get_inputs():
+        for i in activity.get_parameters(input_only=True):
             if i.name in input_map:
                 values = input_map[i.name]
                 # TODO: type check relationship between value and parameter type specification
@@ -159,7 +159,7 @@ class ExecutionContext(object):
                     )
                     self.execution_trace.activity_call_edge.append(input)
                     self.input_edges.append(input)  # FIXME remove?
-        for o in activity.get_outputs():
+        for o in activity.get_parameters(output_only=True):
             output_pin = OutputPin(
                 name=o.name,
                 is_ordered=o.is_ordered,

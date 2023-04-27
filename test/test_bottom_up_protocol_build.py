@@ -2,13 +2,13 @@ import os
 import unittest
 
 import sbol3
+from numpy import source
 
 from labop import (
     CallBehaviorAction,
     ControlFlow,
     ExecutionEngine,
     InitialNode,
-    Parameter,
     Primitive,
     Protocol,
 )
@@ -22,7 +22,9 @@ from uml import (
     OutputPin,
     ValuePin,
 )
+from uml.final_node import FinalNode
 from uml.ordered_property_value import OrderedPropertyValue
+from uml.parameter import Parameter
 
 PARAMETER_IN = "http://bioprotocols.org/uml#in"
 PARAMETER_OUT = "http://bioprotocols.org/uml#out"
@@ -213,12 +215,15 @@ class TestParameters(unittest.TestCase):
         protocol.edges.append(ControlFlow(source=start_action, target=step1_action))
         protocol.edges.append(ControlFlow(source=step1_action, target=step2_action))
 
+        op1 = OutputPin(name="samples", is_ordered=True, is_unique=True)
+        step1_action.get_outputs().append(op1)
+        protocol.edges.append(ObjectFlow(source=step1_action, target=op1))
+
+        op2 = OutputPin(name="samples", is_ordered=True, is_unique=True)
         step1_action.get_outputs().append(
             OutputPin(name="samples", is_ordered=True, is_unique=True)
         )
-        step1_action.get_outputs().append(
-            OutputPin(name="samples", is_ordered=True, is_unique=True)
-        )
+        protocol.edges.append(ObjectFlow(source=step1_action, target=op2))
 
         ## Need to define an output for the "samples" output, otherwise ee will compute unique values for each: "samples0", "samples1", etc.
         def step1_compute_output(inputs, parameter, sample_format, record_hash):
@@ -278,9 +283,12 @@ class TestParameters(unittest.TestCase):
 
         start_action = InitialNode()
         step1_action = CallBehaviorAction(behavior=step1)
+        final_node = FinalNode()
         protocol.nodes.append(start_action)
         protocol.nodes.append(step1_action)
         protocol.edges.append(ControlFlow(source=start_action, target=step1_action))
+        protocol.nodes.append(final_node)
+        protocol.edges.append(ControlFlow(source=step1_action, target=final_node))
 
         # Execute without specifying InputPins, this should work fine, since the Parameters are optional
         agent = sbol3.Agent("test_agent")
@@ -316,8 +324,8 @@ class TestParameters(unittest.TestCase):
 
         # Now that Pins have a valid ValueSpecification, we should be able to execute
         # successfully
-        step1_action.get_inputs[0].value = LiteralReference(value=input_component)
-        step1_action.get_inputs[1].value = LiteralReference(value=input_component)
+        step1_action.get_inputs()[0].value = LiteralReference(value=input_component)
+        step1_action.get_inputs()[1].value = LiteralReference(value=input_component)
         x = ee.execute(protocol, agent, id="test_execution5", parameter_values=[])
 
     def test_bad_ordered_property_value(self):

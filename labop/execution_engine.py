@@ -19,7 +19,7 @@ from uml.input_pin import InputPin
 from uml.object_flow import ObjectFlow
 from uml.output_pin import OutputPin
 from uml.pin import Pin
-from uml.utils import literal
+from uml.utils import WellFormednessIssue, literal
 from uml.value_pin import ValuePin
 
 from .activity_edge_flow import ActivityEdgeFlow
@@ -71,8 +71,14 @@ class ExecutionEngine(ABC):
 
         if self.specializations is None:
             self.specializations = []
-        if DefaultBehaviorSpecialization not in specializations:
-            specializations += [DefaultBehaviorSpecialization()]
+        if not any(
+            [
+                s
+                for s in self.specializations
+                if isinstance(s, DefaultBehaviorSpecialization)
+            ]
+        ):
+            self.specializations += [DefaultBehaviorSpecialization()]
 
         # The EE uses a configurable start_time as the reference time.
         # Because the start_time is not always the actual time, then
@@ -170,13 +176,17 @@ class ExecutionEngine(ABC):
     def finalize(
         self,
         protocol: Protocol,
+        execution_context: ExecutionContext,
     ):
         self.ex.end_time = self.get_current_time()
 
+        # Add top execution_context parameter_values to execution_trace
+        self.ex.parameter_values += execution_context.parameter_values
+
         # A Protocol has completed normally if all of its required output parameters have values
-        self.ex.completed_normally = set(protocol.get_required_inputs()).issubset(
-            set([p.parameter.lookup() for p in self.ex.parameter_values])
-        )
+        self.ex.completed_normally = set(
+            protocol.get_parameters(required=True, input_only=True)
+        ).issubset(set([p.get_parameter() for p in self.ex.parameter_values]))
 
         # aggregate consumed material records from all behaviors executed within, mark end time, and return
         self.ex.aggregate_child_materials()
@@ -208,15 +218,51 @@ class ExecutionEngine(ABC):
         -------
         ProtocolExecution containing a record of the execution
         """
+        issues = protocol.is_well_formed()
+        if len(issues) > 0:
+            self.report_well_formedness_issues(issues)
+
         self.initialize(protocol, agent, id, parameter_values)
 
         if execution_context is None:
             execution_context = ExecutionContext(self.ex, protocol, parameter_values)
 
         self.run(execution_context, start_time=start_time)
-        self.finalize(protocol)
+        self.finalize(protocol, execution_context)
 
         return self.ex
+
+    def report_well_formedness_issues(self, issues: List[WellFormednessIssue]):
+        infos = [issue for issue in issues if issue.level == WellFormednessIssue.INFO]
+        warnings = [
+            issue for issue in issues if issue.level == WellFormednessIssue.WARNING
+        ]
+        errors = [issue for issue in issues if issue.level == WellFormednessIssue.ERROR]
+
+        infos_str = (
+            "\nInfo:\n" + "\n".join(["- " + str(i) for i in infos])
+            if len(infos) > 0
+            else ""
+        )
+        warnings_str = (
+            "\nWarnings:\n" + "\n".join(["- " + str(w) for w in warnings])
+            if len(warnings) > 0
+            else ""
+        )
+        errors_str = (
+            "\nErrors:\n" + "\n".join(["- " + str(e) for e in errors])
+            if len(errors) > 0
+            else ""
+        )
+
+        report_str = f"The protocol has the following well formedness issues.{infos_str}{warnings_str}{errors_str}"
+
+        if len(errors) > 0:
+            raise ValueError(
+                f"Could not execute protocol because it has well formedness errors.\n{report_str}"
+            )
+        else:
+            print(report_str)
 
     def run(
         self,
@@ -269,8 +315,8 @@ class ExecutionEngine(ABC):
                         new_execution_contexts.append(new_execution_context)
                         new_tokens[new_execution_context] = []
 
-                    for ec, tokens in tokens_created.items():
-                        new_tokens[ec] += tokens
+                    for ec1, tokens in tokens_created.items():
+                        new_tokens[ec1] += tokens
 
                 except Exception as e:
                     if self.permissive:
@@ -327,45 +373,8 @@ class ExecutionEngine(ABC):
             self.permissive,
         )
 
-        # tokens_added = [
-        #     ActivityEdgeFlow(edge=edge, token_source=node, value=value)
-        #     for edge, value in tokens_added.items()
-        # ]
-
         # Side Effects / Bookkeeping
         self.post_process(execution_context, record, tokens_created[execution_context])
-
-        # Consume the tokens used by the node that caused the exception
-        # Produce control tokens
-        # incoming_flows = [
-        #     t for t in self.tokens if node == t.get_target()
-        # ]
-        # exec = CallBehaviorExecution(
-        #     node=node, incoming_flows=incoming_flows
-        # )
-        # self.ex.document.add(exec)
-        # self.ex.executions.append(exec)
-        # control_edges = [
-        #     edge
-        #     for edge in self.ex.protocol.lookup().edges
-        #     if (
-        #         node.identity == edge.source
-        #         or node.identity
-        #         == edge.get_source().get_parent().identity
-        #     )
-        #     and (isinstance(edge, ControlFlow))
-        # ]
-
-        # self.tokens = [
-        #     t for t in self.tokens if t.get_target() != node
-        # ] + [
-        #     ActivityEdgeFlow(
-        #         token_source=exec: ExecutionContext,
-        #         edge=edge, List[ActivityEdgeFlow],
-        #         value=literal("uml.ControlFlow"),
-        #     )
-        #     for edge in control_edges
-        # ]
 
         new_ecs = [ec for ec in tokens_created.keys() if ec != execution_context]
         if new_ecs is not None and len(new_ecs) == 1:
@@ -512,9 +521,9 @@ class ExecutionEngine(ABC):
     ) -> List[ParameterValue]:
         # Get the parameter values from input tokens for input pins
         input_pin_values = {
-            token.token_source.lookup()
-            .node.lookup()
-            .identity: literal(token.value, reference=True)
+            token.get_source()
+            .get_node()
+            .identity: literal(token.get_value(), reference=True)
             for token in inputs
         }
         # Get Input value pins

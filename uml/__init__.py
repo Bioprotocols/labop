@@ -1,5 +1,3 @@
-import logging
-
 import inspect
 import sys
 from sbol_factory import SBOLFactory

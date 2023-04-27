@@ -23,3 +23,5 @@ container-ontology
 test/out
 .env
 out
+.coverage
+cov.xml

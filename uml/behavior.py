@@ -2,13 +2,13 @@
 The Behavior class defines the functions corresponding to the dynamically generated labop class Behavior
 """
 
-from typing import Iterable
+from typing import Iterable, List, Union
 
 from . import inner
 from .ordered_property_value import OrderedPropertyValue
 from .parameter import Parameter
 from .strings import PARAMETER_IN, PARAMETER_OUT
-from .utils import literal
+from .utils import WellFormednessIssue, literal
 from .value_specification import ValueSpecification
 
 
@@ -90,32 +90,6 @@ class Behavior(inner.Behavior):
         """
         return self.add_parameter(name, param_type, PARAMETER_OUT)
 
-    def get_inputs(self) -> Iterable[Parameter]:
-        """Return all Parameters of type input for this Behavior
-
-        Note: assumes that type is all either in or out
-        Returns
-        -------
-        Iterator over Parameters
-        """
-        return (
-            p.property_value
-            for p in self.parameters
-            if p.property_value.direction == PARAMETER_IN
-        )
-
-    def get_ordered_inputs(self) -> Iterable[OrderedPropertyValue]:
-        """Return all Parameters of type input for this Behavior
-
-        Note: assumes that type is all either in or out
-        Returns
-        -------
-        Iterator over Parameters
-        """
-        return (
-            p for p in self.parameters if p.property_value.direction == PARAMETER_IN
-        )
-
     def get_input(self, name) -> Parameter:
         """Return a specific input Parameter for this Behavior
 
@@ -124,7 +98,11 @@ class Behavior(inner.Behavior):
         -------
         Parameter, or Value error
         """
-        found = [p for p in self.get_inputs() if p.property_value.name == name]
+        found = [
+            p
+            for p in self.get_parameters(ordered=True, input_only=True)
+            if p.property_value.name == name
+        ]
         if len(found) == 0:
             raise ValueError(
                 f"Behavior {self.identity} has no input parameter named {name}"
@@ -135,47 +113,6 @@ class Behavior(inner.Behavior):
             )
         else:
             return found[0]
-
-    def get_required_inputs(self):
-        """Return all required Parameters of type input for this Behavior
-
-        Note: assumes that type is all either in or out
-        Returns
-        -------
-        Iterator over Parameters
-        """
-        # return (p for p in self.get_inputs() if p.property_value.lower_value.value > 0)
-        return [
-            p
-            for p in self.get_inputs()
-            if p.lower_value is not None and p.lower_value.value > 0
-        ]
-
-    def get_ordered_outputs(self):
-        """Return all Parameters of type output for this Behavior
-
-        Note: assumes that type is all either in or out
-        Returns
-        -------
-        Iterator over Parameters
-        """
-        return (
-            p for p in self.parameters if p.property_value.direction == PARAMETER_OUT
-        )
-
-    def get_outputs(self):
-        """Return all Parameters of type output for this Behavior
-
-        Note: assumes that type is all either in or out
-        Returns
-        -------
-        Iterator over Parameters
-        """
-        return (
-            p.property_value
-            for p in self.parameters
-            if p.property_value.direction == PARAMETER_OUT
-        )
 
     def get_output(self, name) -> Parameter:
         """Return a specific input Parameter for this Behavior
@@ -201,12 +138,28 @@ class Behavior(inner.Behavior):
         else:
             return found[0]
 
-    def get_required_outputs(self):
-        """Return all required Parameters of type output for this Behavior
+    def get_parameters(
+        self, ordered=False, required=False, input_only=False, output_only=False
+    ) -> Iterable[Union[Parameter, OrderedPropertyValue]]:
+        # return [p.property_value for p in self.parameters]
+        assert not (input_only and output_only)
+        return (
+            (p if ordered else p.property_value)
+            for p in self.parameters
+            if (not input_only or p.property_value.direction == PARAMETER_IN)
+            and (not output_only or p.property_value.direction == PARAMETER_OUT)
+            and (not required or p.property_value.required())
+        )
 
-        Note: assumes that type is all either in or out
-        Returns
-        -------
-        Iterator over Parameters
+    def get_ordered_parameters(self) -> List[Parameter]:
+        return self.parameters
+
+    def is_well_formed(self) -> List[WellFormednessIssue]:
         """
-        return (p for p in self.get_outputs() if p.property_value.lower_value.value > 0)
+        A Behavior is well formed if:
+        - each parameter is well formed
+        """
+        issues = []
+        for p in self.get_parameters(ordered=False):
+            issues += p.is_well_formed()
+        return issues

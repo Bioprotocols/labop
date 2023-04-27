@@ -10,7 +10,7 @@ import graphviz
 
 from . import inner
 from .literal_specification import LiteralSpecification
-from .utils import labop_hash, literal
+from .utils import WellFormednessIssue, labop_hash, literal
 
 l = logging.getLogger(__file__)
 l.setLevel(logging.ERROR)
@@ -203,3 +203,6 @@ class ActivityNode(inner.ActivityNode):
 
         value = literal(value, reference=reference)
         return value
+
+    def is_well_formed(self) -> List[WellFormednessIssue]:
+        return []

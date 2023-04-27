@@ -29,34 +29,33 @@ class ForkNode(inner.ForkNode, ControlNode):
             "fillcolor": "black",
         }
 
-    def get_decision_input_node(self):
-        [fork_input_edge] = [
-            e for e in self.protocol().edges if e.target.lookup() == self
-        ]
-        decision_input_node = fork_input_edge.get_source().get_decision_input_node()
-        return decision_input_node
+    # def enabled(
+    #     self,
+    #     tokens: List["ActivityEdgeFlow"],
+    #     permissive: bool = False,
+    # ):
+    #     protocol = self.protocol()
+    #     incoming_controls = {
+    #         e
+    #         for e in protocol.incoming_edges(self)
+    #         if isinstance(e, ControlFlow)
+    #     }
+    #     incoming_objects = {
+    #         e
+    #         for e in protocol.incoming_edges(self)
+    #         if isinstance(e, ObjectFlow)
+    #     }
 
-    def enabled(
-        self,
-        engine: "ExecutionEngine",
-        tokens: List["ActivityEdgeFlow"],
-    ):
-        protocol = self.protocol()
-        incoming_controls = {
-            e for e in protocol.incoming_edges(self) if isinstance(e, ControlFlow)
-        }
-        incoming_objects = {
-            e for e in protocol.incoming_edges(self) if isinstance(e, ObjectFlow)
-        }
+    #     assert (len(incoming_controls) + len(incoming_objects)) == 1 and len(
+    #         tokens
+    #     ) < 2  # At least one flow and no more than one token
 
-        assert (len(incoming_controls) + len(incoming_objects)) == 1 and len(
-            tokens
-        ) < 2  # At least one flow and no more than one token
+    #     # Need at least one incoming control token
+    #     tokens_present = {
+    #         t.edge.lookup() for t in tokens if t.edge
+    #     } == incoming_objects
 
-        # Need at least one incoming control token
-        tokens_present = {t.edge.lookup() for t in tokens if t.edge} == incoming_objects
-
-        return tokens_present
+    #     return tokens_present
 
     def next_tokens_callback(
         self,

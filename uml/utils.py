@@ -121,3 +121,25 @@ def convert_to_outer_class(inner_class, package="uml"):
     except:
         pass
     return inner_class
+
+
+class WellFormednessIssue:
+    ERROR = "error"
+    WARNING = "warning"
+    INFO = "info"
+    REPORT_ISSUE = "Report the issue at: https://github.com/Bioprotocols/labop/issues."
+
+    def __init__(
+        self,
+        object: Union[sbol3.Identified, sbol3.TopLevel],
+        description: str,
+        suggestion: str,
+        level: str = ERROR,
+    ):
+        self.object = object
+        self.description = description
+        self.suggestion = suggestion
+        self.level = level
+
+    def __str__(self):
+        return f"{self.level}({self.object}): {self.description} [{self.suggestion}]"

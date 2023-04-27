@@ -154,8 +154,8 @@ class TestProtocolEndToEnd(unittest.TestCase):
                         e.get_source()
                         for e in protocol.edges
                         if measure.identity in e.target
-                        and isinstance(e.target.lookup(), InputPin)
-                        and e.target.lookup().name == "samples"
+                        and isinstance(e.get_target(), InputPin)
+                        and e.get_target().name == "samples"
                     ]
                 )
             )

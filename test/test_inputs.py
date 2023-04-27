@@ -70,9 +70,9 @@ class TestProtocolInputs(unittest.TestCase):
         def container_set_execution(record):
             call = record.call.lookup()
             parameter_value_map = call.parameter_value_map()
-            sources = parameter_value_map["sources"]["value"]
-            container = parameter_value_map["specification"]["value"]
-            samples = parameter_value_map["samples"]["value"]
+            sources = parameter_value_map["sources"]
+            container = parameter_value_map["specification"]
+            samples = parameter_value_map["samples"]
 
         ee = ExecutionEngine()
         ee.specializations[0]._behavior_func_map[p.identity] = lambda record, ex: None
@@ -88,7 +88,7 @@ class TestProtocolInputs(unittest.TestCase):
             x for x in ex.executions if x.node == container_set.identity
         ]
         call = container_execution.call.lookup()
-        self.assertEqual(len(call.parameter_value_map()["inputs"]["value"]), 2)
+        self.assertEqual(len(call.parameter_value_map()["inputs"]), 2)
 
 
 if __name__ == "__main__":

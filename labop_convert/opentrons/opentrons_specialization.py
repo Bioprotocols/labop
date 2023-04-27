@@ -20,7 +20,7 @@ from labop import (
     SampleMask,
     get_sample_list,
 )
-from labop_convert.behavior_specialization import BehaviorSpecialization
+from labop_convert.behavior_specialization import DefaultBehaviorSpecialization
 from uml import CallBehaviorAction, ForkNode, InputPin, LiteralReference, ValuePin
 
 l = logging.getLogger(__file__)
@@ -87,7 +87,7 @@ LABWARE_MAP = {
 REVERSE_LABWARE_MAP = LABWARE_MAP.__class__(map(reversed, LABWARE_MAP.items()))
 
 
-class OT2Specialization(BehaviorSpecialization):
+class OT2Specialization(DefaultBehaviorSpecialization):
     EQUIPMENT = {
         "p20_single_gen2": sbol3.Agent("p20_single_gen2", name="P20 Single GEN2"),
         "p300_single_gen2": sbol3.Agent("p300_single_gen2", name="P300 Single GEN2"),
@@ -140,20 +140,24 @@ class OT2Specialization(BehaviorSpecialization):
         This function redirects processing of each primitive to the functions
         defined below.  Adding additional mappings here is most likely required.
         """
-        return {
-            "https://bioprotocols.org/labop/primitives/sample_arrays/EmptyContainer": self.define_container,
-            "https://bioprotocols.org/labop/primitives/liquid_handling/Provision": self.provision,
-            "https://bioprotocols.org/labop/primitives/liquid_handling/Transfer": self.transfer_to,
-            "https://bioprotocols.org/labop/primitives/liquid_handling/TransferByMap": self.transfer_by_map,
-            "https://bioprotocols.org/labop/primitives/sample_arrays/PlateCoordinates": self.plate_coordinates,
-            "https://bioprotocols.org/labop/primitives/spectrophotometry/MeasureAbsorbance": self.measure_absorbance,
-            "https://bioprotocols.org/labop/primitives/sample_arrays/EmptyRack": self.define_rack,
-            "https://bioprotocols.org/labop/primitives/sample_arrays/LoadContainerInRack": self.load_container_in_rack,
-            "https://bioprotocols.org/labop/primitives/sample_arrays/LoadContainerOnInstrument": self.load_container_on_instrument,
-            "https://bioprotocols.org/labop/primitives/sample_arrays/LoadRackOnInstrument": self.load_racks,
-            "https://bioprotocols.org/labop/primitives/sample_arrays/ConfigureRobot": self.configure_robot,
-            "https://bioprotocols.org/labop/primitives/pcr/PCR": self.pcr,
-        }
+        behavior_func_map = DefaultBehaviorSpecialization._init_behavior_func_map(self)
+        behavior_func_map.update(
+            {
+                "https://bioprotocols.org/labop/primitives/sample_arrays/EmptyContainer": self.define_container,
+                "https://bioprotocols.org/labop/primitives/liquid_handling/Provision": self.provision,
+                "https://bioprotocols.org/labop/primitives/liquid_handling/Transfer": self.transfer_to,
+                "https://bioprotocols.org/labop/primitives/liquid_handling/TransferByMap": self.transfer_by_map,
+                "https://bioprotocols.org/labop/primitives/sample_arrays/PlateCoordinates": self.plate_coordinates,
+                "https://bioprotocols.org/labop/primitives/spectrophotometry/MeasureAbsorbance": self.measure_absorbance,
+                "https://bioprotocols.org/labop/primitives/sample_arrays/EmptyRack": self.define_rack,
+                "https://bioprotocols.org/labop/primitives/sample_arrays/LoadContainerInRack": self.load_container_in_rack,
+                "https://bioprotocols.org/labop/primitives/sample_arrays/LoadContainerOnInstrument": self.load_container_on_instrument,
+                "https://bioprotocols.org/labop/primitives/sample_arrays/LoadRackOnInstrument": self.load_racks,
+                "https://bioprotocols.org/labop/primitives/sample_arrays/ConfigureRobot": self.configure_robot,
+                "https://bioprotocols.org/labop/primitives/pcr/PCR": self.pcr,
+            }
+        )
+        return behavior_func_map
 
     def handle_process_failure(self, record, exception):
         super().handle_process_failure(record, exception)
@@ -302,28 +306,28 @@ class OT2Specialization(BehaviorSpecialization):
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
 
-        spec = parameter_value_map["specification"]["value"]
-        samples = parameter_value_map["samples"]["value"]
+        spec = parameter_value_map["specification"]
+        samples = parameter_value_map["samples"]
         # SampleArray fields are initialized in primitive_execution.py
 
     def time_wait(self, record: ActivityNodeExecution, ex: ProtocolExecution):
         results = {}
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
-        value = parameter_value_map["amount"]["value"].value
-        units = parameter_value_map["amount"]["value"].unit
+        value = parameter_value_map["amount"].value
+        units = parameter_value_map["amount"].unit
         self.script_steps += [f"time.sleep(value)"]
 
     def provision(self, record: ActivityNodeExecution, ex: ProtocolExecution):
         results = {}
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
-        destination = parameter_value_map["destination"]["value"]
-        value = parameter_value_map["amount"]["value"].value
-        units = parameter_value_map["amount"]["value"].unit
+        destination = parameter_value_map["destination"]
+        value = parameter_value_map["amount"].value
+        units = parameter_value_map["amount"].unit
         units = tyto.OM.get_term_by_uri(units)
-        resource = parameter_value_map["resource"]["value"]
-        amount = parameter_value_map["amount"]["value"]
+        resource = parameter_value_map["resource"]
+        amount = parameter_value_map["amount"]
         amount = measurement_to_text(amount)
         coords = ""
         coords = (
@@ -335,19 +339,17 @@ class OT2Specialization(BehaviorSpecialization):
             .value.value
         )
         upstream_execution = get_token_source("destination", record)
-        container = upstream_execution.call.lookup().parameter_value_map()["container"][
-            "value"
-        ]
+        container = upstream_execution.call.lookup().parameter_value_map()["container"]
 
         behavior_type = get_behavior_type(upstream_execution)
         if behavior_type == "LoadContainerInRack":
             coords = upstream_execution.call.lookup().parameter_value_map()[
                 "coordinates"
-            ]["value"]
+            ]
             upstream_execution = get_token_source("slots", upstream_execution)
             rack = upstream_execution.call.lookup().parameter_value_map()[
                 "specification"
-            ]["value"]
+            ]
         else:
             raise NotImplementedError(
                 f'A "Provision" call cannot follow a "{behavior_type}" call'
@@ -364,10 +366,10 @@ class OT2Specialization(BehaviorSpecialization):
         results = {}
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
-        destination = parameter_value_map["destination"]["value"]
-        source = parameter_value_map["source"]["value"]
-        value = parameter_value_map["amount"]["value"].value
-        units = parameter_value_map["amount"]["value"].unit
+        destination = parameter_value_map["destination"]
+        source = parameter_value_map["source"]
+        value = parameter_value_map["amount"].value
+        units = parameter_value_map["amount"].unit
         units = tyto.OM.get_term_by_uri(units)
         OT2Pipette = "left"
 
@@ -379,26 +381,26 @@ class OT2Specialization(BehaviorSpecialization):
         behavior_type = get_behavior_type(upstream_execution)
         if behavior_type == "PlateCoordinates":
             upstream_map = upstream_execution.call.lookup().parameter_value_map()
-            coordinates = upstream_map["coordinates"]["value"]
+            coordinates = upstream_map["coordinates"]
             upstream_execution = upstream_execution.get_token_source(
                 upstream_map["source"]["parameter"].property_value
             )  # EmptyContainer
             parameter_value_map = upstream_execution.call.lookup().parameter_value_map()
-            source_container = parameter_value_map["specification"]["value"]
+            source_container = parameter_value_map["specification"]
         elif behavior_type == "LoadContainerInRack":
             upstream_execution = upstream_execution.get_token_source(
                 upstream_map["slots"]["parameter"].property_value
             )  # EmptyRack
             parameter_value_map = upstream_execution.call.lookup().parameter_value_map()
-            source_container = parameter_value_map["specification"]["value"]
+            source_container = parameter_value_map["specification"]
         elif behavior_type == "LoadContainerOnInstrument":
             upstream_map = upstream_execution.call.lookup().parameter_value_map()
-            coordinates = upstream_map["slots"]["value"]
+            coordinates = upstream_map["slots"]
             upstream_execution = upstream_execution.get_token_source(
                 upstream_map["container"]["parameter"].property_value
             )  # EmptyContainer
             parameter_value_map = upstream_execution.call.lookup().parameter_value_map()
-            source_container = parameter_value_map["specification"]["value"]
+            source_container = parameter_value_map["specification"]
 
         else:
             raise Exception(f'Invalid input pin "source" for Transfer.')
@@ -421,7 +423,7 @@ class OT2Specialization(BehaviorSpecialization):
         behavior_type = get_behavior_type(upstream_execution)
         if behavior_type == "PlateCoordinates":
             upstream_map = upstream_execution.call.lookup().parameter_value_map()
-            coordinates = upstream_map["coordinates"]["value"]
+            coordinates = upstream_map["coordinates"]
             upstream_execution = upstream_execution.get_token_source(
                 upstream_map["source"]["parameter"].property_value
             )  # EmptyContainer
@@ -430,7 +432,7 @@ class OT2Specialization(BehaviorSpecialization):
 
         elif behavior_type == "LoadContainerOnInstrument":
             upstream_map = upstream_execution.call.lookup().parameter_value_map()
-            coordinates = upstream_map["slots"]["value"]
+            coordinates = upstream_map["slots"]
             upstream_execution = upstream_execution.get_token_source(
                 upstream_map["container"]["parameter"].property_value
             )  # EmptyContainer
@@ -479,12 +481,12 @@ class OT2Specialization(BehaviorSpecialization):
         results = {}
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
-        destination = parameter_value_map["destination"]["value"]
-        source = parameter_value_map["source"]["value"]
-        plan = parameter_value_map["plan"]["value"]
-        temperature = parameter_value_map["temperature"]["value"]
-        value = parameter_value_map["amount"]["value"].value
-        units = parameter_value_map["amount"]["value"].unit
+        destination = parameter_value_map["destination"]
+        source = parameter_value_map["source"]
+        plan = parameter_value_map["plan"]
+        temperature = parameter_value_map["temperature"]
+        value = parameter_value_map["amount"].value
+        units = parameter_value_map["amount"].unit
         units = tyto.OM.get_term_by_uri(units)
         OT2Pipette = "left"
 
@@ -497,7 +499,7 @@ class OT2Specialization(BehaviorSpecialization):
                 "slots"
             )  # EmptyRack
             parameter_value_map = upstream_execution.call.lookup().parameter_value_map()
-            source_container = parameter_value_map["specification"]["value"]
+            source_container = parameter_value_map["specification"]
         else:
             raise Exception(f'Invalid input pin "source" for Transfer.')
 
@@ -548,18 +550,18 @@ class OT2Specialization(BehaviorSpecialization):
     def plate_coordinates(self, record: ActivityNodeExecution, ex: ProtocolExecution):
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
-        source = parameter_value_map["source"]["value"]
-        coords = parameter_value_map["coordinates"]["value"]
-        samples = parameter_value_map["samples"]["value"]
+        source = parameter_value_map["source"]
+        coords = parameter_value_map["coordinates"]
+        samples = parameter_value_map["samples"]
         samples.mask = coords
 
     def measure_absorbance(self, record: ActivityNodeExecution, ex: ProtocolExecution):
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
 
-        wl = parameter_value_map["wavelength"]["value"]
+        wl = parameter_value_map["wavelength"]
         wl_units = tyto.OM.get_term_by_uri(wl.unit)
-        samples = parameter_value_map["samples"]["value"]
+        samples = parameter_value_map["samples"]
 
         measurements = parameter_value_map["measurements"].name
         samples_str = (
@@ -573,8 +575,8 @@ class OT2Specialization(BehaviorSpecialization):
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
 
-        spec = parameter_value_map["specification"]["value"]
-        slots = parameter_value_map["slots"]["value"]
+        spec = parameter_value_map["specification"]
+        slots = parameter_value_map["slots"]
 
         # FIXME the protocol var_to_entity mapping links variables created in
         # the execution trace with real values assigned here, such as
@@ -591,14 +593,14 @@ class OT2Specialization(BehaviorSpecialization):
     ):
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
-        container: ContainerSpec = parameter_value_map["container"]["value"]
+        container: ContainerSpec = parameter_value_map["container"]
         coords: str = (
-            parameter_value_map["coordinates"]["value"]
+            parameter_value_map["coordinates"]
             if "coordinates" in parameter_value_map
             else "A1"
         )
-        slots: SampleCollection = parameter_value_map["slots"]["value"]
-        samples: SampleMask = parameter_value_map["samples"]["value"]
+        slots: SampleCollection = parameter_value_map["slots"]
+        samples: SampleMask = parameter_value_map["samples"]
 
         # TODO: validate coordinates for the given container spec
         samples.source = slots
@@ -637,12 +639,10 @@ class OT2Specialization(BehaviorSpecialization):
         parameter_value_map = call.parameter_value_map()
         container_spec: ContainerSpec = parameter_value_map["specification"]["value"]
         slots: str = (
-            parameter_value_map["slots"]["value"]
-            if "slots" in parameter_value_map
-            else "A1"
+            parameter_value_map["slots"] if "slots" in parameter_value_map else "A1"
         )
-        instrument: sbol3.Agent = parameter_value_map["instrument"]["value"]
-        samples: SampleArray = parameter_value_map["samples"]["value"]
+        instrument: sbol3.Agent = parameter_value_map["instrument"]
+        samples: SampleArray = parameter_value_map["samples"]
 
         # Assume 96 well plate
         aliquots = get_sample_list(geometry="A1:H12")
@@ -678,11 +678,11 @@ class OT2Specialization(BehaviorSpecialization):
         node = record.node.lookup()
         parameter_value_map = call.parameter_value_map()
         coords: str = (
-            parameter_value_map["coordinates"]["value"]
+            parameter_value_map["coordinates"]
             if "coordinates" in parameter_value_map
             else "1"
         )
-        rack: ContainerSpec = parameter_value_map["rack"]["value"]
+        rack: ContainerSpec = parameter_value_map["rack"]
 
         container_types = self.resolve_container_spec(rack)
         selected_container_type = self.check_lims_inventory(container_types)
@@ -723,8 +723,8 @@ class OT2Specialization(BehaviorSpecialization):
     def configure_robot(self, record: ActivityNodeExecution, ex: ProtocolExecution):
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
-        instrument = parameter_value_map["instrument"]["value"]
-        mount = parameter_value_map["mount"]["value"]
+        instrument = parameter_value_map["instrument"]
+        mount = parameter_value_map["mount"]
 
         allowed_mounts = ["left", "right"]
         allowed_decks = [
@@ -797,13 +797,13 @@ class OT2Specialization(BehaviorSpecialization):
     ):
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
-        cycles = parameter_value_map["cycles"]["value"]
-        annealing_temp = parameter_value_map["annealing_temp"]["value"]
-        extension_temp = parameter_value_map["extension_temp"]["value"]
-        denaturation_temp = parameter_value_map["denaturation_temp"]["value"]
-        annealing_time = parameter_value_map["annealing_time"]["value"]
-        extension_time = parameter_value_map["extension_time"]["value"]
-        denaturation_time = parameter_value_map["denaturation_time"]["value"]
+        cycles = parameter_value_map["cycles"]
+        annealing_temp = parameter_value_map["annealing_temp"]
+        extension_temp = parameter_value_map["extension_temp"]
+        denaturation_temp = parameter_value_map["denaturation_temp"]
+        annealing_time = parameter_value_map["annealing_time"]
+        extension_time = parameter_value_map["extension_time"]
+        denaturation_time = parameter_value_map["denaturation_time"]
 
         self.script_steps += ["thermocycler_module.close_lid()"]
         profile = [

@@ -45,6 +45,10 @@ l.setLevel(logging.INFO)
 class Activity(inner.Activity, Behavior):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self._initial = None
+        self._final = None
+        self._initial = self.initial()
+        self._final = self.final()
 
     def initial(self):
         """Find or create an initial node in an Activity.
@@ -53,10 +57,14 @@ class Activity(inner.Activity, Behavior):
         :return: InitialNode for Activity
         """
 
+        if self._initial is not None:
+            return self._initial
+
         initial = [a for a in self.nodes if isinstance(a, InitialNode)]
         if not initial:
-            self.nodes.append(InitialNode())
-            return self.initial()
+            self._initial = InitialNode()
+            self.nodes.append(self._initial)
+            return self._initial
         elif len(initial) == 1:
             return initial[0]
         else:
@@ -70,10 +78,14 @@ class Activity(inner.Activity, Behavior):
         Note that while UML allows multiple final nodes, use of this routine assumes a single is sufficient.
         :return: FinalNode for Activity
         """
+        if self._final is not None:
+            return self._final
+
         final = [a for a in self.nodes if isinstance(a, FinalNode)]
         if not final:
-            self.nodes.append(FinalNode())
-            return self.final()
+            self._final = FinalNode()
+            self.nodes.append(self._final)
+            return self._final
         elif len(final) == 1:
             return final[0]
         else:
@@ -306,7 +318,11 @@ class Activity(inner.Activity, Behavior):
         unmatched_keys = [
             key
             for key in input_pin_literals.keys()
-            if key not in (i.property_value.name for i in behavior.get_ordered_inputs())
+            if key
+            not in (
+                i.property_value.name
+                for i in behavior.get_parameters(ordered=True, input_only=True)
+            )
         ]
         if unmatched_keys:
             raise ValueError(
@@ -318,7 +334,7 @@ class Activity(inner.Activity, Behavior):
         self.nodes.append(action)
 
         # Instantiate input pins
-        for i in id_sort(behavior.get_ordered_inputs()):
+        for i in id_sort(behavior.get_parameters(ordered=True, input_only=True)):
             if i.property_value.name in input_pin_literals:
                 # input values might be a collection or singleton
                 values = input_pin_literals[i.property_value.name]
@@ -351,7 +367,7 @@ class Activity(inner.Activity, Behavior):
                 self.edges.append(ObjectFlow(source=input_pin, target=action))
 
         # Instantiate output pins
-        for o in id_sort(behavior.get_ordered_outputs()):
+        for o in id_sort(behavior.get_parameters(ordered=True, output_only=True)):
             output_pin = OutputPin(
                 name=o.property_value.name,
                 is_ordered=o.property_value.is_ordered,
@@ -637,4 +653,12 @@ class Activity(inner.Activity, Behavior):
             for n in self.nodes
             if (node_type is None or isinstance(n, node_type))
             and (name is None or n.get_parameter().name == name)
+        ]
+
+    def get_edges(self, name: str = None, edge_type: Type = None) -> List[ActivityNode]:
+        return [
+            n
+            for n in self.edges
+            if (edge_type is None or isinstance(n, edge_type))
+            and (name is None or n.name == name)
         ]

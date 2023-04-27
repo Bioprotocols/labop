@@ -4,6 +4,9 @@ The ValuePin class defines the functions corresponding to the dynamically genera
 
 from typing import Dict, List
 
+from uml.pin import Pin
+from uml.utils import WellFormednessIssue
+
 from . import inner
 from .input_pin import InputPin
 from .literal_specification import LiteralSpecification
@@ -26,3 +29,22 @@ class ValuePin(inner.ValuePin, InputPin):
         permissive=False,
     ):
         return self.value is not None or permissive
+
+    def is_well_formed(self) -> List[WellFormednessIssue]:
+        """
+        A ValuePin is well formed if:
+        - super.is_well_formed()
+        - it has a value
+        """
+        issues = Pin.is_well_formed(self)
+
+        if not hasattr(self, "value") or self.value is None:
+            issues += [
+                WellFormednessIssue(
+                    self,
+                    "ValuePin must have a value that is not None.",
+                    WellFormednessIssue.REPORT_ISSUE,
+                    level=WellFormednessIssue.ERROR,
+                )
+            ]
+        return issues

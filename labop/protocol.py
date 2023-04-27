@@ -16,10 +16,13 @@ from uml import (
     ControlFlow,
     ControlNode,
     DecisionNode,
+    FinalNode,
+    InitialNode,
     ObjectFlow,
     ObjectNode,
     ValueSpecification,
 )
+from uml.utils import WellFormednessIssue
 
 from .library import import_library
 from .primitive import Primitive
@@ -173,3 +176,39 @@ class Protocol(inner.Protocol, Activity):
         :return: str
         """
         return f'protocol = labop.Protocol(\n\t"Identity",\n\tname="Name",\n\tdescription="Description")'
+
+    def is_well_formed(self) -> List[WellFormednessIssue]:
+        """
+        A protocol is well formed if:
+        - each ActivityNode is well formed
+        - each ActivityEdge is well formed
+        - has an initial node
+        - has a final node
+        """
+        issues = []
+
+        for node in self.get_nodes():
+            issues += node.is_well_formed()
+
+        for edge in self.get_edges():
+            issues += edge.is_well_formed()
+
+        if not any([isinstance(node, InitialNode) for node in self.nodes]):
+            issues += [
+                WellFormednessIssue(
+                    self,
+                    f"Protocol does not include an InitialNode",
+                    f"Calling protocol.initial() will add an InitialNode to protocol.",
+                )
+            ]
+
+        if not any([isinstance(node, FinalNode) for node in self.nodes]):
+            issues += [
+                WellFormednessIssue(
+                    self,
+                    f"Protocol does not include an FinalNode",
+                    f"Calling protocol.final() will add an FinalNode to protocol.",
+                )
+            ]
+
+        return issues

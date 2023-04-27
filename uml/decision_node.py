@@ -4,10 +4,13 @@ The DecisionNode class defines the functions corresponding to the dynamically ge
 
 from typing import Callable, Dict, List
 
+from uml.activity_edge import ActivityEdge
+
 from . import inner
 from .control_flow import ControlFlow
 from .control_node import ControlNode
 from .literal_null import LiteralNull
+from .literal_specification import LiteralSpecification
 from .object_flow import ObjectFlow
 from .object_node import ObjectNode
 from .output_pin import OutputPin
@@ -28,98 +31,130 @@ class DecisionNode(inner.DecisionNode, ControlNode):
         Args:
             protocol (Protocol): The protocol with the self DecisionNode.
             guard (primitive type): edge guard
-            target (.ActivityNode): edge target
+            target (ActivityNode): edge target
         """
 
         kwargs = {"source": self, "target": target}
         kwargs["guard"] = literal(guard)
-        outgoing_edge = (
-            ObjectFlow(**kwargs)
-            if isinstance(self.get_primary_incoming_flow(protocol).source, ObjectNode)
-            else ControlFlow(**kwargs)
+        primary_incoming_edge = next(
+            e for e in protocol.incoming_edges(self) if self.is_primary_incoming_flow(e)
         )
+        incoming_flow_type = (
+            ObjectFlow
+            if isinstance(primary_incoming_edge.get_source(), ObjectNode)
+            else ControlFlow
+        )
+        outgoing_edge = incoming_flow_type(**kwargs)
         protocol.edges.append(outgoing_edge)
 
-    def get_primary_incoming_flow(self, protocol):
-        try:
-            primary_incoming_flow = next(
-                e
-                for e in protocol.edges
-                if e.target is not None
-                and e.target.lookup() == self
-                and e != self.decision_input_flow
-                and not (
-                    isinstance(e.get_source(), OutputPin)
-                    and e.get_source().get_parent().behavior == self.decision_input
-                )
-            )
-            return primary_incoming_flow
-        except StopIteration as e:
-            raise Exception(
-                f"Could not find primary_incoming edge for DecisionNode: {self.identity}"
-            )
+    def is_primary_incoming_flow(self, edge: "ActivityEdge") -> bool:
+        """
+        Determine if an edge is the primary incoming flow for a decision node.  It must:
+        - edge target is self
+        - edge is not the decision input flow
+        - edge source is not an output pin of the decision input activity node
 
-    def get_decision_input_node(self):
-        if hasattr(self, "decision_input") and self.decision_input:
-            return self.decision_input
-        else:
-            # primary input flow leads to decision
-            primary_incoming_flow = self.get_primary_incoming_flow(self.protocol())
-            return primary_incoming_flow.get_source().get_decision_input_node()
+        Parameters
+        ----------
+        edge : ActivityEdge
+            edge to check
+
+        Returns
+        -------
+        bool
+            whether the edit is the primary incoming flow edge
+        """
+        source = edge.get_source()
+        target = edge.get_target()
+        return (
+            target == self
+            and edge != self.decision_input_flow
+            and not (
+                isinstance(source, OutputPin)
+                and source.get_parent().behavior == self.decision_input
+            )
+        )
+
+    def is_decision_input_edge(self, edge: "ActivityEdge") -> bool:
+        """
+        Determine if an edge is the decision input edge a decision node.  It must:
+        - edge target is self
+        - edge is not the decision input flow
+        - edge source is not an output pin of the decision input activity node
+
+        Parameters
+        ----------
+        edge : ActivityEdge
+            edge to check
+
+        Returns
+        -------
+        bool
+            whether the edit is the decision input flow edge
+        """
+        source = edge.get_source()
+        target = edge.get_target()
+        return (
+            target == self
+            and isinstance(source, OutputPin)
+            and source.get_parent().behavior == self.decision_input
+        )
 
     def enabled(
         self,
-        engine: "ExecutionEngine",
-        tokens: List["ActivityEdgeFlow"],
+        tokens: Dict["ActivityEdge", List[LiteralSpecification]],
+        permissive: bool = False,
     ):
         # Cases:
         # - primary is control, input_flow, no decision_input
         # - primary is control, decision_input flow,
         # - primary is object, no decision_input
         # - primary is object, decision_input
-        protocol = self.protocol()
-        primary_flow = self.get_primary_incoming_flow(protocol)
-        primary_token = None
+        primary_edge = None
         try:
-            primary_token = next(t for t in tokens if t.edge.lookup() == primary_flow)
-        except StopIteration:
-            pass
-
-        decision_input_token = None
-        try:
-            decision_input_token = next(
-                t
-                for t in tokens
-                if isinstance(t.edge.lookup().get_source(), OutputPin)
-                and t.edge.lookup().get_source().get_parent().behavior
-                == self.decision_input
+            primary_edge = next(
+                e
+                for e in tokens
+                if self.is_primary_incoming_flow(e) and len(tokens[e]) > 0
             )
         except StopIteration:
             pass
 
-        decision_input_flow_token = None
+        decision_input_edge = None
         try:
-            decision_input_flow_token = next(
-                t for t in tokens if t.edge.lookup() == self.decision_input_flow
+            decision_input_edge = next(
+                edge
+                for edge in tokens
+                if self.is_decision_input_edge(edge) and len(tokens[edge]) > 0
             )
         except StopIteration:
             pass
 
-        if isinstance(primary_flow, ControlFlow):
+        decision_input_flow_edge = None
+        try:
+            decision_input_flow_edge = next(
+                edge
+                for edge in tokens
+                if edge == self.decision_input_flow and len(tokens[edge]) > 0
+            )
+        except StopIteration:
+            pass
+
+        if isinstance(primary_edge, ControlFlow):
             # Need either decision_input_flow (if no decision_input) or flow from decision_input
             if hasattr(self, "decision_input") and self.decision_input:
                 # Get flow from decision_input return
-                return primary_token is not None and decision_input_token is not None
+                return primary_edge is not None and decision_input_edge is not None
             else:
                 # Get flow from decision_input_flow
-                return primary_token and decision_input_flow_token
+                return primary_edge is not None and decision_input_flow_edge is not None
         else:  # primary is an object flow
             if hasattr(self, "decision_input") and self.decision_input:
                 # Get flow from decision_input return
-                return decision_input_token
+                return decision_input_edge is not None
             else:
                 # Get flow from primary
-                return primary_token
+                return primary_edge is not None
 
     def next_tokens_callback(
         self,

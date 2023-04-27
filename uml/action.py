@@ -5,11 +5,18 @@ The Action class defines the functions corresponding to the dynamically generate
 from typing import Callable, Dict, List
 
 import sbol3
+from matplotlib.dates import WE
+
+from uml.behavior import Behavior
+from uml.input_pin import InputPin
 
 from . import inner
-from .activity_node import ActivityNode
 from .executable_node import ExecutableNode
 from .literal_specification import LiteralSpecification
+from .output_pin import OutputPin
+from .parameter import Parameter
+from .pin import Pin
+from .utils import WellFormednessIssue
 from .value_pin import ValuePin
 
 
@@ -112,6 +119,49 @@ class Action(inner.Action, ExecutableNode):
         # except:
         #     pass
         return parameter if ordered else parameter.property_value
+
+    def is_well_formed(self) -> List[WellFormednessIssue]:
+        """
+        A CallBehaviorAction is well formed if:
+        - the behavior is well formed
+        - there is exactly one pin per required parameter
+        - required parameters either have a default value or either correspond to a ValuePin with a value or an InputPin with an incoming edge
+        - each pin is well formed
+        """
+        pins: List[Pin] = []
+        pins += self.get_inputs()
+        pins += self.get_outputs()
+        behavior: Behavior = self.get_behavior()
+
+        issues = []
+
+        issues += behavior.is_well_formed()
+
+        required_parameters: List[Parameter] = []
+        required_parameters += behavior.get_parameters(ordered=False, required=True)
+
+        for param in required_parameters:
+            matching_pin = None
+            for pin in pins:
+                if pin.name == param.name and (
+                    (param.is_input() and isinstance(pin, InputPin))
+                    or (param.is_output() and isinstance(pin, OutputPin))
+                ):
+                    matching_pin = pin
+                    break
+            if matching_pin is None:
+                issues += [
+                    WellFormednessIssue(
+                        self,
+                        f"Action does not have a pin for required parameter {param}.",
+                        WellFormednessIssue.REPORT_ISSUE,
+                        level=WellFormednessIssue.ERROR,
+                    )
+                ]
+            else:
+                issues += matching_pin.is_well_formed()
+
+        return issues
 
     def enabled(
         self,

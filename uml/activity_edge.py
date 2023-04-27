@@ -3,6 +3,7 @@ The ActivityEdge class defines the functions corresponding to the dynamically ge
 """
 
 import html
+from typing import List
 
 import graphviz
 
@@ -12,6 +13,7 @@ from .input_pin import InputPin
 from .literal_null import LiteralNull
 from .output_pin import OutputPin
 from .pin import Pin
+from .utils import WellFormednessIssue
 
 
 class ActivityEdge(inner.ActivityEdge):
@@ -96,3 +98,6 @@ class ActivityEdge(inner.ActivityEdge):
         else:
             label = ""
         return {"color": "black", "label": label}
+
+    def is_well_formed(self) -> List[WellFormednessIssue]:
+        return []

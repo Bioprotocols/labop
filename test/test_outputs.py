@@ -115,7 +115,7 @@ class TestProtocolOutputs(unittest.TestCase):
             parameter_values=[],
         )
 
-        self.assertTrue(ex.parameter_values[1].value.value.lookup(), sbol3.Component)
+        self.assertTrue(ex.parameter_values[1].value.get_value(), sbol3.Component)
 
 
 if __name__ == "__main__":
