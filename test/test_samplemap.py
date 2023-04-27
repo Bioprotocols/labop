@@ -4,6 +4,7 @@ import logging
 import os
 import tempfile
 import unittest
+import sys
 
 import xarray as xr
 
@@ -16,6 +17,8 @@ from labop_convert.behavior_specialization import DefaultBehaviorSpecialization
 xr.set_options(display_expand_data=False)
 import json
 from typing import Tuple
+
+logger: logging.Logger = logging.getLogger("samplemap_protocol")
 
 
 # Third party packages
