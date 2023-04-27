@@ -100,7 +100,7 @@ class TestProtocolEndToEnd(unittest.TestCase):
                             dims=(Strings.CONTAINER, Strings.LOCATION, Strings.REAGENT),
                         ),
                         Strings.SAMPLE_LOCATION: xr.DataArray(
-                            [[f"target_sample_{a}" for a in aliquot_ids]],
+                            [[f"source_sample_{a}" for a in aliquot_ids]],
                             dims=(Strings.CONTAINER, Strings.LOCATION),
                         ),
                     },
