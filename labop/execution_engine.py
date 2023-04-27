@@ -141,7 +141,9 @@ class ExecutionEngine(ABC):
         self.ex = labop.ProtocolExecution(id, protocol=protocol)
         doc.add(self.ex)
 
-        self.ex.association.append(sbol3.Association(agent=agent, plan=protocol))
+        self.ex.association.append(
+            sbol3.Association(agent=agent, plan=protocol)
+        )
         self.ex.parameter_values = parameter_values
 
         # Initialize specializations
@@ -471,7 +473,9 @@ def sum_measures(measure_list):
             f"Can only merge measures with identical units and types: {([m.value, m.unit, m.types] for m in measure_list)}"
         )
     total = sum(m.value for m in measure_list)
-    return sbol3.Measure(value=total, unit=prototype.unit, types=prototype.types)
+    return sbol3.Measure(
+        value=total, unit=prototype.unit, types=prototype.types
+    )
 
 
 def protocol_execution_aggregate_child_materials(self):
