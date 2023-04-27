@@ -346,7 +346,7 @@ class TransferByMapUpdater(BaseUpdater):
         # source_array = source_array.swap_dims({Strings.SAMPLE: "source_location"}).set_coords(["source_location", "source_container", "contents"]).set_xindex(["source_container"]).reset_coords()
         # target_array = target_array.swap_dims({Strings.SAMPLE: "target_location"}).set_coords(["target_location", "target_container", "contents"]).set_xindex(["target_container"])
         # # target_array = target_array.swap_dims({Strings.SAMPLE: "target_location"}).reset_coords().set_coords(("target_container"))
-
+        # source_array["volume"] = source_array.location.where(source_array.location == sample_location, sample_location.reagent)
         source_array["volume"] = xr.DataArray(
             [
                 [

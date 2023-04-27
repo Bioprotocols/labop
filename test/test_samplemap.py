@@ -263,6 +263,51 @@ class TestProtocolEndToEnd(unittest.TestCase):
         assert filecmp.cmp(temp_name, comparison_file), "Files are not identical"
         print("File identical with test file")
 
+    def test_xarray_graph(self):
+        # Setup Nodes
+        current_samples = ["s1", "s2"]
+        next_samples = ["s3", "s4"]
+        current_vol = xr.DataArray(
+            [1.0, 3.0], dims=("volume"), coords={"volume": current_samples}
+        )
+        next_vol = xr.DataArray(
+            [2.0, 4.0], dims=("volume"), coords={"volume": next_samples}
+        )
+        all_vol = xr.concat([current_vol, next_vol], dim="volume")
+
+        # Setup Edges
+        edges = xr.DataArray(
+            [["s1", "s3"], ["s2", "s4"]],
+            dims=("edge", "node"),
+            coords={"node": ["source", "target"]},
+        )
+
+        # Make the graph
+        ds = xr.Dataset({"nodes": all_vol, "edges": edges})
+
+        # Extend the graph
+        new_nodes = xr.DataArray(
+            [4.0, 6.0], dims=("volume"), coords={"volume": ["s6", "s7"]}
+        )
+        new_edges = xr.DataArray(
+            [["s3", "s6"], ["s4", "s7"]],
+            dims=("edge", "node"),
+            coords={"node": ["source", "target"]},
+        )
+
+        nodes = xr.concat([ds.nodes, new_nodes], dim="volume")
+        edges = xr.concat([ds.edges, new_edges], dim="edge")
+
+        ds1 = xr.Dataset({"nodes": nodes, "edges": edges})
+
+        # Query the graph
+        t = ds1.edges.sel(node="target")
+        s = ds1.edges.sel(node="source")
+
+        # Get targets where the target is not in the sources
+        leaves = t.where(t.where(t.isin(s)).isnull(), drop=True)
+        pass
+
     def test_mask(self):
         self.assertNotEqual(
             get_sample_list("A1:H12"),
