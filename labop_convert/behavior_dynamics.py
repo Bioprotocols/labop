@@ -5,58 +5,15 @@ import logging
 import typing as tp
 
 # 3rd party packages
-import networkx as nx
 import xarray as xr
 
-import uml
 
 # Project packages
+import uml
 from labop import ActivityNodeExecution, SampleMap
 from labop.data import deserialize_sample_format, serialize_sample_format
 from labop.primitive_execution import input_parameter_map
 from labop.strings import Strings
-
-
-class _AliquotTransfer:
-    @staticmethod
-    def apply(op: "_AliquotTransfer", src_idx: int, target_idx: int) -> None:
-        for _type, amount in op.contents.items():
-            op.graph.nodes[target_idx][Strings.CONTENTS].setdefault(_type, 0)
-            op.graph.nodes[target_idx][Strings.CONTENTS][_type] += amount
-            op.graph.nodes[src_idx][Strings.CONTENTS][_type] -= amount
-
-    @staticmethod
-    def drain(op: "_AliquotTransfer", src_idx: int) -> None:
-        for _type, amount in op.contents.items():
-            op.graph.nodes[src_idx][Strings.CONTENTS][_type] -= amount
-
-    def __init__(self, contents: tp.Dict[str, float], graph: nx.DiGraph) -> None:
-        self.contents = contents
-        self.graph = graph
-
-    def __str__(self) -> str:
-        items = list(self.contents.items())
-        return (
-            "{"
-            + "".join(f"{k}:{v}\n" for k, v in items[:-1])
-            + str(items[-1][0])
-            + ":"
-            + str(items[-1][1])
-            + "}"
-        )
-
-
-class _AliquotContents(collections.UserDict):
-    def __str__(self) -> str:
-        items = list(self.data.items())
-        return (
-            "{"
-            + "".join(f"{k}:{v}\n" for k, v in items[:-1])
-            + str(items[-1][0])
-            + ":"
-            + str(items[-1][1])
-            + "}"
-        )
 
 
 class SampleProvenanceObserver:
@@ -72,7 +29,8 @@ class SampleProvenanceObserver:
     """
 
     def __init__(self) -> None:
-        self.graph = nx.DiGraph()
+        self.graph = None
+
         self.logger = logging.getLogger(__name__)
         self.logger.setLevel(logging.DEBUG)
         self.exec_tick = 0
@@ -93,12 +51,20 @@ class SampleProvenanceObserver:
 
         if behavior.identity in self.handlers:
             updater = self.handlers[behavior.identity](self.graph, self.exec_tick)
-            self.exec_tick = updater.update(iparams)
-            self.graph = updater.graph
+            new_nodes = updater.update(iparams)
+            if self.graph:
+                self.graph = xr.concat([new_nodes, self.graph], dim="tick")
+            else:
+                self.graph = new_nodes
+            self.exec_tick = updater.exec_tick
         else:
             self.logger.info(
-                f"Behavior {behavior} is not handled by {self.__class__}, skipping ..."
+                "Behavior %s is not handled by %s, skipping ...",
+                behavior,
+                self.__class__,
             )
+
+        # self.draw()
 
     def metadata(self, sources: xr.DataArray, tick: int) -> xr.Dataset:
         """Return metadata about aliquots at the specified tick.
@@ -162,107 +128,54 @@ class SampleProvenanceObserver:
 
 
 class BaseUpdater:
-    def __init__(self, graph: nx.DiGraph, exec_tick: int) -> None:
+    def __init__(self, graph: tp.Optional[xr.Dataset], exec_tick: int) -> None:
         self.graph = graph
         self.exec_tick = exec_tick
         self.logger = logging.getLogger(__name__)
 
-    def _create_sample_nodes(self, sarr: xr.Dataset) -> tp.List[int]:
-        # Source aliquot data is on dimension 2 (3 total).
-        src_indices = []
-        for source in sarr[Strings.SAMPLE]:
-            source_data = sarr.sel({Strings.SAMPLE: source})
-            if idx := self.sample_tracked(source_data, self.exec_tick):
-                self.logger.debug("Reference tracked source aliquot=%d", idx)
-                src_indices.append(idx)
+    def create_sample_nodes(self, sarr: xr.Dataset) -> xr.Dataset:
+        nodes = []
+        for loc in sarr[Strings.LOCATION]:
+            if tracked := self.sample_tracked(loc, self.exec_tick):
+                self.logger.debug(
+                    "Aliquot=%d already tracked", tracked.location.data.item()
+                )
+                nodes.append(tracked)
                 continue
 
-            # For a hash, you can't just use the aliquot+tick, because those are
-            # the same for both source and target.
-            idx = hash("source" + str(source))
-            amounts = sarr.sel({Strings.SAMPLE: source})
-            # contents = _AliquotContents(
-            #     dict(
-            #         zip(
-            #             sarr[Strings.CONTENTS].data,
-            #             amounts / len(sarr[Strings.CONTENTS].data),
-            #         )
-            #     )
-            # )
-
-            # label = f"aliquot={source},tick={self.exec_tick},{contents}"
-
-            # 'layer' attribute is required by the bipartite graph layout we use
-            # for drawing. This is a new node which doesn't have any parents, so
-            # we use the empty set.
-            self.logger.debug("Add source aliquot %d=%s", idx, amounts)
-            self.graph.add_node(
-                idx,
-                sample=amounts,
-                # aliquot=source,
-                parents=set(),
-                tick=self.exec_tick,
-                layer=self.exec_tick,
-                # label=label,
-                # contents=contents,
+            # For a hash, use the aliquot ID+parents list. The parents list is
+            # an empty set since we are creating a new node.
+            idx = hash(f"sample_{loc}" + str(self.exec_tick))
+            contents = sarr[Strings.CONTENTS].sel({Strings.LOCATION: loc})
+            self.logger.debug("Add aliquot %d=%s", idx, contents)
+            uuid = xr.DataArray(
+                [[idx]],
+                dims=["location", "tick"],
+                coords={"location": [loc.data], "tick": [self.exec_tick]},
             )
-            src_indices.append(idx)
+            nodes.append(xr.merge([{"UUID": uuid}, contents]))
 
-        return src_indices
+        return xr.concat(nodes, dim="location")
 
-    def flow_to_targets(self, target_indices: tp.List[int]) -> None:
-        # Flow contents+amounts from source->target nodes
-        for target_idx in target_indices:
-            target_v = self.graph.nodes[target_idx]
-            in_edges = self.graph.in_edges(target_idx, data=True)
+    def sample_tracked(
+        self, sample: xr.DataArray, tick: int
+    ) -> tp.Optional[xr.Dataset]:
+        if self.graph is None:
+            return None
 
-            for otheridx, thisidx, data in in_edges:
-                _AliquotTransfer.apply(data["transfer"], otheridx, thisidx)
+        # Can't do these with compound conditions--raises errors if there is
+        # more than 1 tick
+        match = self.graph.where(
+            self.graph.tick == tick,
+            drop=True,
+        ).where(self.graph.location == sample.location, drop=True)
 
-            # If we initialized a target node from an existing source node
-            # because they both had the same aliquot, the target node got a copy
-            # of the source's contents *before* any transfers out happened. So,
-            # we drain out the extra contents to avoid double counting.
-            if target_v["init_idx"]:
-                self.logger.debug("Draining extra contents from %d", target_idx)
-                for u, v, data in self.graph.out_edges(target_v["init_idx"], data=True):
-                    _AliquotTransfer.drain(data["transfer"], target_idx)
+        # Check any of the variables in the dataset to see if they are empty,
+        # meaning no such sample is tracked.
+        if match.UUID.size == 0:
+            return None
 
-            # After flowing, update label with new contents
-            target_v["label"] = str(target_v[Strings.CONTENTS])
-
-            # The node's parents are the nodes which are at the other edge
-            # of edges terminating at the node.
-            parents = set()
-            for otheridx, thisxidx, _ in in_edges:
-                parents |= self.graph.nodes[otheridx]["parents"]
-                parents.add(otheridx)
-
-            target_v["parents"] = parents
-
-    def sample_tracked(self, sample: xr.Dataset, tick: int) -> tp.Optional[int]:
-        matches = [
-            x
-            for x, y in self.graph.nodes(data=True)
-            if Strings.SAMPLE in y
-            and y[Strings.SAMPLE][Strings.SAMPLE] == sample[Strings.SAMPLE]
-            # and y["tick"] == tick
-        ]
-
-        # There can only be a single aliquot with a given ID tracked per
-        # tick. If this isn't true, there's a bug.
-        if matches:
-            if len(matches) != 1:
-                raise RuntimeError(
-                    (
-                        "Exactly 1 tracked sample expected for "
-                        f"aliquot={sample} at tick={tick}, got "
-                        f"{len(matches)}"
-                    )
-                )
-            return matches[0]
-
-        return None
+        return match
 
 
 class EmptyContainerUpdater(BaseUpdater):
@@ -275,15 +188,13 @@ class EmptyContainerUpdater(BaseUpdater):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
-    def update(self, iparams: dict) -> int:
-        src_indices = self._create_sample_nodes(iparams["sample_array"].to_data_array())
-
-        # For nicer visual representations of graphs, the space is split into
-        # two before/after spaces by using different ticks: one for source
-        # aliquots and one for target aliquots.
+    def update(self, iparams: dict) -> xr.Dataset:
+        # Since this is a no-op, nothing to do but create the nodes for each
+        # sample in the sample array.
+        graph = self.create_sample_nodes(iparams["sample_array"].to_data_array())
         self.exec_tick += 1
 
-        return self.exec_tick
+        return graph
 
 
 class TransferByMapUpdater(BaseUpdater):
@@ -306,15 +217,16 @@ class TransferByMapUpdater(BaseUpdater):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
-    def update(self, iparams: dict) -> int:
+    def update(self, iparams: dict) -> xr.Dataset:
         source_array = iparams["source"].to_data_array()
         target_array = iparams["destination"].to_data_array()
         source_name = iparams["source"].name
         target_name = iparams["destination"].name
-        current_src_indices = self._create_sample_nodes(source_array)
-        current_target_indices = self._create_sample_nodes(target_array)
+        current_source_nodes = self.create_sample_nodes(source_array)
+        current_target_nodes = self.create_sample_nodes(target_array)
 
         transfer_plan = iparams["plan"].get_map()
+
         # Modify plan to refer to source_array and target_array
         source_containers = list(set(source_array[Strings.CONTAINER].data))
         target_containers = list(set(target_array[Strings.CONTAINER].data))
@@ -341,64 +253,10 @@ class TransferByMapUpdater(BaseUpdater):
             }
         )
 
-        # To multiply source_array by transfer_plan, it needs to have an index (source_container, source_location, contents).  It will initially have (sample, contents).  We need to replace the sample index by the multiindex (source_container, source_location)
-        # Swap dimensions to match tranfer_plan dimensions
-        # source_array = source_array.swap_dims({Strings.SAMPLE: "source_location"}).set_coords(["source_location", "source_container", "contents"]).set_xindex(["source_container"]).reset_coords()
-        # target_array = target_array.swap_dims({Strings.SAMPLE: "target_location"}).set_coords(["target_location", "target_container", "contents"]).set_xindex(["target_container"])
-        # # target_array = target_array.swap_dims({Strings.SAMPLE: "target_location"}).reset_coords().set_coords(("target_container"))
-        # source_array["volume"] = source_array.location.where(source_array.location == sample_location, sample_location.reagent)
-        # source_array["volume"] = xr.DataArray(
-        #     [
-        #         [
-        #             source_array.contents.sel(
-        #                 sample=source_array.sample_location.sel(
-        #                     source_location=l, source_container=c
-        #                 )
-        #             )
-        #             for l in source_array.source_location
-        #         ]
-        #         for c in source_array.source_container
-        #     ],
-        #     dims=["source_container", "source_location", "reagent"],
-        #     coords={
-        #         "source_container": source_array.coords["source_container"],
-        #         "source_location": source_array.coords["source_location"],
-        #         "reagent": source_array.coords["reagent"],
-        #     },
-        # )
-
-        # target_array["volume"] = xr.DataArray(
-        #     [
-        #         [
-        #             target_array.contents.sel(
-        #                 sample=target_array.sample_location.sel(
-        #                     target_location=l, target_container=c
-        #                 )
-        #             )
-        #             for l in target_array.target_location
-        #         ]
-        #         for c in target_array.target_container
-        #     ],
-        #     dims=["target_container", "target_location", "reagent"],
-        #     coords={
-        #         "target_container": target_array.coords["target_container"],
-        #         "target_location": target_array.coords["target_location"],
-        #         "reagent": target_array.coords["reagent"],
-        #     },
-        # )
-
         # Get concentration of the aliquot contents
         source_array[
             Strings.CONCENTRATION
         ] = source_array.contents / source_array.contents.sum(dim=Strings.REAGENT)
-
-        # Plan
-        #   d d d d
-        # s 1   1
-        # s 1 1
-
-        #  d
-        # s
 
         # Get amount of each aliquot's contents that is transferred
         amount_transferred = source_array.concentration * transfer_plan
@@ -423,14 +281,6 @@ class TransferByMapUpdater(BaseUpdater):
             }
         )
 
-        # For nicer visual representations of graphs, the space is split into
-        # two before/after spaces by using different ticks: one for source
-        # aliquots and one for target aliquots.
-        self.exec_tick += 1
-
-        next_source_indices = self._create_sample_nodes(source_array)
-        next_target_indices = self._create_sample_nodes(target_array)
-
         next_source_array = xr.Dataset(
             {
                 "sample_location": xr.DataArray(
@@ -450,7 +300,6 @@ class TransferByMapUpdater(BaseUpdater):
                 Strings.LOCATION: source_array.coords["source_location"].data,
             },
         )
-
         next_target_array = xr.Dataset(
             {
                 "sample_location": xr.DataArray(
@@ -470,129 +319,88 @@ class TransferByMapUpdater(BaseUpdater):
                 Strings.LOCATION: target_array.coords["target_location"].data,
             },
         )
+        next_source_nodes = self.create_sample_nodes(next_source_array)
 
-        self.flow_to_targets(target_indices)
+        # For nicer visual representations of graphs, the space is split into
+        # two before/after spaces by using different ticks: one for source
+        # aliquots and one for target aliquots.
+        self.exec_tick += 1
 
-        return self.exec_tick
+        next_target_nodes = self.create_sample_nodes(next_target_array)
 
-    def _create_src_nodes(self, iparams: SampleMap) -> tp.List[int]:
-        sarr = iparams["source"].to_data_array()
-
-        # Source aliquot data is on dimension 2 (3 total).
-        src_indices = []
-        source_samples = sarr[Strings.SAMPLE]
-        for source in sarr[Strings.SAMPLE]:
-            source_data = sarr.sel({Strings.SAMPLE: source})
-            if idx := self.sample_tracked(source_data, self.exec_tick):
-                self.logger.debug("Reference tracked source aliquot=%d", idx)
-                src_indices.append(idx)
-                continue
-
-            # For a hash, you can't just use the aliquot+tick, because those are
-            # the same for both source and target.
-            idx = hash("source" + str(source))
-            amounts = sarr.sel({Strings.SAMPLE: source})
-            # contents = _AliquotContents(
-            #     dict(
-            #         zip(
-            #             sarr[Strings.CONTENTS].data,
-            #             amounts / len(sarr[Strings.CONTENTS].data),
-            #         )
-            #     )
-            # )
-
-            # label = f"aliquot={source},tick={self.exec_tick},{contents}"
-
-            # 'layer' attribute is required by the bipartite graph layout we use
-            # for drawing. This is a new node which doesn't have any parents, so
-            # we use the empty set.
-            self.logger.debug("Add source aliquot %d=%s", idx, amounts)
-            self.graph.add_node(
-                idx,
-                sample=amounts,
-                # aliquot=source,
-                parents=set(),
-                tick=self.exec_tick,
-                layer=self.exec_tick,
-                # label=label,
-                # contents=contents,
-            )
-            src_indices.append(idx)
-
-        return src_indices
-
-    def _create_target_nodes(
-        self, transfer_plan: xr.DataArray, src_indices: tp.List[int]
-    ) -> tp.List[int]:
-        # Create target nodes and edges with the transfer amounts from each
-        # source aliquot
-        target_indices = []
-        for src_idx in src_indices:
-            src_v = self.graph.nodes[src_idx]
-
-            for target in transfer_plan["target_aliquot"]:
-                aliquot = target.data.item()
-
-                # ########################################
-                # Target nodes are always "new" in the sense that they are
-                # created as the result of an operation, so we don't need to
-                # check if they already tracked. We DO
-                # need to check if they exist in the graph, because multiple
-                # source nodes can transfer to a single target node.
-
-                # For a hash, you can't just use the aliquot+tick, because those
-                # are the same for both source and target.
-                target_idx = hash("target" + str(aliquot))
-                label = f"aliquot={aliquot},tick={self.exec_tick}"
-
-                if init_idx := self.sample_tracked(aliquot, self.exec_tick - 1):
-                    contents_init = copy.deepcopy(
-                        self.graph.nodes[init_idx][Strings.SAMPLE]
-                    )
-
-                else:
-                    contents_init = _AliquotContents()
-
-                # 'layer' attribute is required by the bipartite graph layout we
-                # use for drawing. This is a new node which doesn't have any
-                # parents, so we use the empty set.
-                if target_idx not in self.graph.nodes:
-                    self.logger.debug(
-                        "Add target aliquot %d=%s,contents=%s",
-                        target_idx,
-                        label,
-                        contents_init,
-                    )
-
-                    self.graph.add_node(
-                        target_idx,
-                        # aliquot=aliquot,
-                        sample=contents_init,
-                        parents=set(),
-                        tick=self.exec_tick,
-                        layer=self.exec_tick,
-                        init_idx=init_idx,
-                        # contents=contents_init,
-                        # label=label,
-                    )
-                self.logger.debug("Add edge: %s -> %s", src_idx, target_idx)
-
-                transfer = _AliquotTransfer(
-                    {
-                        ctype: transfer_plan.data[src_v[Strings.SAMPLE]][target]
-                        for ctype in src_v[Strings.CONTENTS].keys()
+        # One-to-one connectivity between the (now) old source nodes and the new
+        # ones: same contents, minus what was transferred out. Same for old/new
+        # target nodes.
+        connectivity1 = xr.Dataset(
+            {
+                "connectivity": xr.DataArray(
+                    [
+                        [l1 in l2 for l1 in current_source_nodes.location.data]
+                        for l2 in next_source_nodes.location.data
+                    ],
+                    dims=["source", "target"],
+                    coords={
+                        "source": current_source_nodes.location.rename(
+                            {"location": "source"}
+                        ),
+                        "target": next_source_nodes.location.rename(
+                            {"location": "target"}
+                        ),
                     },
-                    self.graph,
                 )
+            }
+        )
+        current_source_nodes.update(connectivity1)
 
-                self.graph.add_edge(
-                    src_idx,
-                    target_idx,
-                    transfer=transfer,
-                    label=f"transfer={transfer}",
+        connectivity2 = xr.Dataset(
+            {
+                "connectivity": xr.DataArray(
+                    [
+                        [l1 in l2 for l1 in current_target_nodes.location.data]
+                        for l2 in next_target_nodes.location.data
+                    ],
+                    dims=["source", "target"],
+                    coords={
+                        "source": current_target_nodes.location.rename(
+                            {"location": "source"}
+                        ),
+                        "target": next_target_nodes.location.rename(
+                            {"location": "target"}
+                        ),
+                    },
                 )
+            }
+        )
+        current_target_nodes.update(connectivity2)
 
-                if target_idx not in target_indices:
-                    target_indices.append(target_idx)
+        # One-to-many connectivity from each source node to all target nodes.
+        connectivity3 = xr.Dataset(
+            {
+                "connectivity": xr.DataArray(
+                    [
+                        [True for l2 in next_target_nodes.location.data]
+                        for l1 in next_source_nodes.location
+                    ],
+                    coords={
+                        "source": current_source_nodes.location.rename(
+                            {"location": "source"}
+                        ),
+                        "target": next_target_nodes.location.rename(
+                            {"location": "target"}
+                        ),
+                    },
+                )
+            }
+        )
+        current_source_nodes.update(connectivity3)
 
-        return target_indices
+        all_nodes = xr.concat(
+            [
+                next_source_nodes,
+                next_target_nodes,
+            ],
+            dim="tick",
+        )
+
+        self.exec_tick += 1
+        return all_nodes

@@ -59,8 +59,8 @@ LABWARE_MAP = {
         "Opentrons 24 Tube Rack with Eppendorf 1.5 mL Safe-Lock Snapcap"
     ]: "opentrons_24_tuberack_eppendorf_1.5ml_safelock_snapcap",
     ContO["Corning 96 Well Plate"]: "corning_96_wellplate_360ul_flat",
-    ContO["Bio-Rad 96 Well PCR Plate"]: "biorad_96_wellplate_200ul_pcr",
-    ContO["NEST 96 Well Plate"]: "nest_96_wellplate_200ul_flat",
+    ContO["Bio-Rad 96 Well Plate 200 µL PCR"]: "biorad_96_wellplate_200ul_pcr",
+    # ContO["NEST 96 Well Plate"]: "nest_96_wellplate_200ul_flat",
 }
 
 REVERSE_LABWARE_MAP = LABWARE_MAP.__class__(map(reversed, LABWARE_MAP.items()))

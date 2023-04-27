@@ -1,10 +1,19 @@
 # Core packages
+from labop.utils.plate_coordinates import (
+    coordinate_rect_to_row_col_pairs,
+    coordinate_to_row_col,
+    get_sample_list,
+)
+from labop.execution_engine import ExecutionEngine
+import uml
+import labop
+import tyto
+import sbol3
 import filecmp
 import logging
 import os
 import tempfile
 import unittest
-import sys
 
 import xarray as xr
 
@@ -20,17 +29,7 @@ logger: logging.Logger = logging.getLogger("samplemap_protocol")
 
 
 # Third party packages
-import sbol3
-import tyto
 
-import labop
-import uml
-from labop.execution_engine import ExecutionEngine
-from labop.utils.plate_coordinates import (
-    coordinate_rect_to_row_col_pairs,
-    coordinate_to_row_col,
-    get_sample_list,
-)
 
 OUT_DIR = os.path.join(os.path.dirname(__file__), "out")
 if not os.path.exists(OUT_DIR):
@@ -38,11 +37,6 @@ if not os.path.exists(OUT_DIR):
 
 filename = "".join(__file__.split(".py")[0].split("/")[-1:])
 
-# Project packages
-from labop_convert.plate_coordinates import get_aliquot_list, coordinate_rect_to_row_col_pairs, coordinate_to_row_col
-from labop_convert.behavior_specialization import DefaultBehaviorSpecialization
-from labop.execution_engine import ExecutionEngine
-from helpers import file_diff, OUT_DIR
 
 logger: logging.Logger = logging.Logger(__file__)
 logger.setLevel(logging.INFO)
@@ -137,9 +131,14 @@ class TestProtocolEndToEnd(unittest.TestCase):
                             dims=(Strings.CONTAINER, Strings.LOCATION),
                         ),
                         Strings.CONTENTS: xr.DataArray(
-                            [[0.0 for r in reagents] for sample in aliquot_ids],
-                            dims=(Strings.SAMPLE, Strings.REAGENT),
+                            # [[f"source_sample_{a}" for a in aliquot_ids]],
+                            [[[0.0 for r in reagents] for a in aliquot_ids]],
+                            dims=(Strings.CONTAINER, Strings.LOCATION, Strings.REAGENT),
                         ),
+                        # Strings.CONTENTS: xr.DataArray(
+                        #                             [[0.0 for r in reagents] for sample in aliquot_ids],
+                        #                             dims=(Strings.SAMPLE, Strings.REAGENT),
+                        #                         ),
                     },
                     coords={
                         Strings.SAMPLE: [f"target_sample_{a}" for a in aliquot_ids],
@@ -229,6 +228,7 @@ class TestProtocolEndToEnd(unittest.TestCase):
         # where each timepoint is one second after the previous time point
         ee = ExecutionEngine(
             use_ordinal_time=True,
+            failsafe=False,
             out_dir=OUT_DIR,
             specializations=[
                 DefaultBehaviorSpecialization(),

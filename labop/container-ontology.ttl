@@ -1181,6 +1181,11 @@ cont:Biorad96WellPCRPlate rdf:type owl:NamedIndividual ,
 ###  https://sift.net/container-ontology/container-ontology#Centrifuge
 cont:Centrifuge rdf:type owl:NamedIndividual .
 
+###  https://sift.net/container-ontology/container-ontology#Corning96WellPlate360uLFlat
+cont:Corning96WellPlate360uLFlat rdf:type owl:NamedIndividual ,
+                                          cont:Plate96Well ;
+                                 rdfs:label "Corning 96 Well Plate" .
+
 
 ###  https://sift.net/container-ontology/container-ontology#Corning96WellPlate360uLFlat
 cont:Corning96WellPlate360uLFlat rdf:type owl:NamedIndividual ,

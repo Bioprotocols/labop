@@ -86,19 +86,13 @@ class BehaviorSpecialization(ABC):
             # Subprotocol specializations
             behavior = node.behavior.lookup()
             if isinstance(behavior, labop.Protocol):
-                return self._behavior_func_map[behavior.type_uri](
-                    record, execution
-                )
+                return self._behavior_func_map[behavior.type_uri](record, execution)
 
             # Individual Primitive specializations
             elif str(node.behavior) not in self._behavior_func_map:
-                l.warning(
-                    f"Failed to find handler for behavior: {node.behavior}"
-                )
+                l.warning(f"Failed to find handler for behavior: {node.behavior}")
                 return self.handle(record, execution)
-            return self._behavior_func_map[str(node.behavior)](
-                record, execution
-            )
+            return self._behavior_func_map[str(node.behavior)](record, execution)
         except Exception as e:
             # l.warn(
             #    f"{self.__class__} Could not process() ActivityNodeException: {record}: {e}"
@@ -116,7 +110,7 @@ class BehaviorSpecialization(ABC):
     def handle(self, record, execution):
         # Save basic information about the execution record
         node = record.node.lookup()
-        params = inout_parameter_map(
+        params = input_parameter_map(
             [
                 pv
                 for pv in record.call.lookup().parameter_values
@@ -137,9 +131,7 @@ class BehaviorSpecialization(ABC):
             from container_api import matching_containers
 
             if "container_api" not in sys.modules:
-                raise Exception(
-                    "Could not import container_api, is it installed?"
-                )
+                raise Exception("Could not import container_api, is it installed?")
 
             if addl_conditions:
                 possible_container_types = matching_containers(
