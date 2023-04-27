@@ -21,7 +21,7 @@ from openpyxl import load_workbook
 import labop
 import uml
 from labop.strings import Strings
-from labop_convert.plate_coordinates import contiguous_coordinates, get_sample_list
+from labop.utils.plate_coordinates import contiguous_coordinates, get_sample_list
 
 l = logging.getLogger(__file__)
 l.setLevel(logging.ERROR)

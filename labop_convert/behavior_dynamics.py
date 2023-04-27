@@ -24,6 +24,7 @@ class SampleProvenanceObserver:
     Supported operations are:
 
     - TransferByMap
+    - EmptyContainer
     """
 
     def __init__(self) -> None:
@@ -35,9 +36,13 @@ class SampleProvenanceObserver:
         self.handlers = {
             "https://bioprotocols.org/labop/primitives/liquid_handling/TransferByMap": TransferByMapUpdater,
             "https://bioprotocols.org/labop/primitives/sample_arrays/EmptyContainer": EmptyContainerUpdater,
+            "https://bioprotocols.org/labop/primitives/culturing/CulturePlates": CulturePlatesUpdater
         }
 
-    def update(self, record: ActivityNodeExecution):
+    def update(self, record: ActivityNodeExecution) -> None:
+        """
+        Hook to update the provenance graph after each step of execution.
+        """
         call = record.call.lookup()
         behavior = record.node.lookup().behavior.lookup()
         inputs = [
@@ -61,8 +66,6 @@ class SampleProvenanceObserver:
                 behavior,
                 self.__class__,
             )
-
-        # self.draw()
 
     def metadata(self, sources: xr.DataArray, tick: int) -> xr.Dataset:
         """Return metadata about aliquots at the specified tick.
@@ -102,36 +105,22 @@ class SampleProvenanceObserver:
             },
         )
 
-    def draw(self) -> None:
-        """
-        Draw the provenance graph in its current state.
-
-        Mainly for debugging purposes.
-        """
-        import matplotlib.pyplot as plt
-
-        pos = nx.multipartite_layout(self.graph, subset_key="layer")
-        nx.draw(
-            self.graph,
-            pos,
-            with_labels=True,
-            labels={n: self.graph.nodes[n]["label"] for n in self.graph.nodes},
-        )
-
-        edge_labels = {
-            (u, v): data["label"] for u, v, data in self.graph.edges(data=True)
-        }
-        nx.draw_networkx_edge_labels(self.graph, pos, edge_labels=edge_labels)
-        plt.show()
-
 
 class BaseUpdater:
+    """
+    Base class with common functionality for updating the sample provenance graph.
+    """
+
     def __init__(self, graph: tp.Optional[xr.Dataset], exec_tick: int) -> None:
         self.graph = graph
         self.exec_tick = exec_tick
         self.logger = logging.getLogger(__name__)
 
     def create_sample_nodes(self, sarr: xr.Dataset) -> xr.Dataset:
+        """Create or return nodes in the sample provenance graph from ``sarr``.
+
+        Matching is based on sample location.
+        """
         nodes = []
         for loc in sarr[Strings.LOCATION]:
             if tracked := self.sample_tracked(loc, self.exec_tick):
@@ -158,6 +147,11 @@ class BaseUpdater:
     def sample_tracked(
         self, sample: xr.DataArray, tick: int
     ) -> tp.Optional[xr.Dataset]:
+        """
+        Determine if a sample is currently tracked in the provenance graph.
+
+        Tracking is determined based on the sample's tick+location.
+        """
         if self.graph is None:
             return None
 
@@ -178,9 +172,9 @@ class BaseUpdater:
 
 class EmptyContainerUpdater(BaseUpdater):
     """
-    Updater sample states as a result of an EmptyContainer operation.
+    Update sample states as a result of an EmptyContainer operation.
 
-    This creates new samples that correspond to the initial_contents of the SampleArray
+    This creates new samples that correspond to the initial_contents of the SampleArray.
     """
 
     def __init__(self, *args, **kwargs) -> None:
@@ -189,10 +183,29 @@ class EmptyContainerUpdater(BaseUpdater):
     def update(self, iparams: dict) -> xr.Dataset:
         # Since this is a no-op, nothing to do but create the nodes for each
         # sample in the sample array.
-        graph = self.create_sample_nodes(iparams["sample_array"].to_data_array())
+        nodes = self.create_sample_nodes(iparams["sample_array"].to_data_array())
         self.exec_tick += 1
 
-        return graph
+        return nodes
+
+
+class CulturePlatesUpdater(BaseUpdater):
+    """
+    Update sample states as a result of a CulturePlates operation.
+
+    This creates new samples that correspond to the initial_contents of the SampleArray.
+    """
+
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
+    def update(self, iparams: dict) -> xr.Dataset:
+        # Since this is a no-op, nothing to do but create the nodes for each
+        # sample in the sample array.
+        nodes = self.create_sample_nodes(iparams["sample_array"].to_data_array())
+        self.exec_tick += 1
+
+        return nodes
 
 
 class TransferByMapUpdater(BaseUpdater):
@@ -202,14 +215,6 @@ class TransferByMapUpdater(BaseUpdater):
     Each source aliquot has the specified amount removed and put in ALL
     target aliquots, so the resulting graph is bipartite between one tick and
     the next.
-
-    Assumption: all types of 'contents' appear in all source aliquots.
-
-    Flow:
-    - Add source aliquots to graph
-    - Add target aliquots to graph
-    - Add edges from each source aliquot to all target aliquots
-    - Flow contents along edges from sources to targets
     """
 
     def __init__(self, *args, **kwargs) -> None:
@@ -285,7 +290,8 @@ class TransferByMapUpdater(BaseUpdater):
         )
 
         transfer_source = transfer_source.assign_coords(
-            {Strings.SAMPLE: [f"sample_{uuid.uuid1()}" for _ in transfer_source.sample]}
+            {Strings.SAMPLE: [
+                f"sample_{uuid.uuid1()}" for _ in transfer_source.sample]}
         )
 
         next_source_sample_ids = [
