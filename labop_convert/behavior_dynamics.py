@@ -1,12 +1,10 @@
 # Core packages
-import collections
-import copy
 import logging
 import typing as tp
+import uuid
 
 # 3rd party packages
 import xarray as xr
-
 
 # Project packages
 import uml
@@ -218,6 +216,10 @@ class TransferByMapUpdater(BaseUpdater):
         super().__init__(*args, **kwargs)
 
     def update(self, iparams: dict) -> xr.Dataset:
+        # 1. Rename source and target arrays for applying transfer plan
+        # 2. Compute concentrations and apply transfer to source and target
+        #    next_source_contents:
+
         source_array = iparams["source"].to_data_array()
         target_array = iparams["destination"].to_data_array()
         source_name = iparams["source"].name
@@ -240,29 +242,30 @@ class TransferByMapUpdater(BaseUpdater):
         ].where(False, target_containers[0])
 
         # Rename array locations and containers to align with transfer plan
-        source_array = source_array.rename(
+        transfer_source = source_array.rename(
             {
                 Strings.LOCATION: f"{source_name}_location",
                 Strings.CONTAINER: f"{source_name}_container",
             }
         )
-        target_array = target_array.rename(
+        transfer_target = target_array.rename(
             {
                 Strings.LOCATION: f"{target_name}_location",
                 Strings.CONTAINER: f"{target_name}_container",
             }
         )
 
+        # 2.
         # Get concentration of the aliquot contents
-        source_array[
+        transfer_source[
             Strings.CONCENTRATION
-        ] = source_array.contents / source_array.contents.sum(dim=Strings.REAGENT)
+        ] = transfer_source.contents / transfer_source.contents.sum(dim=Strings.REAGENT)
 
         # Get amount of each aliquot's contents that is transferred
-        amount_transferred = source_array.concentration * transfer_plan
+        amount_transferred = transfer_source.concentration * transfer_plan
 
         # Get total amount transferred to all targets
-        next_source_contents = source_array.contents - amount_transferred.sum(
+        next_source_contents = transfer_source.contents - amount_transferred.sum(
             dim=["target_location", "target_container"]
         )
         next_source_contents = next_source_contents.rename(
@@ -271,7 +274,7 @@ class TransferByMapUpdater(BaseUpdater):
                 f"{source_name}_container": Strings.CONTAINER,
             }
         )
-        next_target_contents = target_array.contents + amount_transferred.sum(
+        next_target_contents = transfer_target.contents + amount_transferred.sum(
             dim=["source_location", "source_container"]
         )
         next_target_contents = next_target_contents.rename(
@@ -281,126 +284,226 @@ class TransferByMapUpdater(BaseUpdater):
             }
         )
 
+        transfer_source = transfer_source.assign_coords(
+            {Strings.SAMPLE: [f"sample_{uuid.uuid1()}" for _ in transfer_source.sample]}
+        )
+
+        next_source_sample_ids = [
+            [f"sample_{uuid.uuid1()}" for loc in transfer_source.source_location]
+            for c in transfer_source.source_container
+        ]
         next_source_array = xr.Dataset(
             {
                 "sample_location": xr.DataArray(
-                    [
-                        [
-                            f"{source_array.sample_location.sel(source_container=c, source_location=loc).data}_new"
-                            for loc in source_array.source_location
-                        ]
-                        for c in source_array.source_container
-                    ],
+                    next_source_sample_ids,
                     dims=(Strings.CONTAINER, Strings.LOCATION),
                 ),
                 "contents": next_source_contents,
             },
             coords={
-                Strings.CONTAINER: source_array.coords["source_container"].data,
-                Strings.LOCATION: source_array.coords["source_location"].data,
+                Strings.CONTAINER: transfer_source.coords["source_container"].data,
+                Strings.LOCATION: transfer_source.coords["source_location"].data,
+                Strings.SAMPLE: [s for c in next_source_sample_ids for s in c],
             },
         )
+
+        next_target_sample_ids = [
+            [f"sample_{uuid.uuid1()}" for loc in transfer_target.target_location]
+            for c in transfer_target.target_container
+        ]
         next_target_array = xr.Dataset(
             {
                 "sample_location": xr.DataArray(
-                    [
-                        [
-                            f"{target_array.sample_location.sel(target_container=c, target_location=loc).data}_new"
-                            for loc in target_array.target_location
-                        ]
-                        for c in target_array.target_container
-                    ],
+                    next_target_sample_ids,
                     dims=(Strings.CONTAINER, Strings.LOCATION),
                 ),
                 "contents": next_target_contents,
             },
             coords={
-                Strings.CONTAINER: target_array.coords["target_container"].data,
-                Strings.LOCATION: target_array.coords["target_location"].data,
+                Strings.CONTAINER: transfer_target.coords["target_container"].data,
+                Strings.LOCATION: transfer_target.coords["target_location"].data,
+                Strings.SAMPLE: [s for c in next_target_sample_ids for s in c],
             },
         )
-        next_source_nodes = self.create_sample_nodes(next_source_array)
+
+        source_map = xr.merge(
+            [
+                source_array.sample_location,
+                next_source_array.rename(
+                    {"sample_location": "next_sample_location"}
+                ).next_sample_location,
+            ]
+        )
+        source_edges = (
+            source_map.to_array()
+            .rename({"variable": "node"})
+            .transpose("container", "location", "node")
+        ).rename({"container": "source_container", "location": "source_location"})
+        source_edges.name = "s"
+        target_map = xr.merge(
+            [
+                target_array.sample_location,
+                next_target_array.rename(
+                    {"sample_location": "next_sample_location"}
+                ).next_sample_location,
+            ]
+        )
+        target_edges = (
+            target_map.to_array()
+            .rename({"variable": "node"})
+            .transpose("container", "location", "node")
+        ).rename({"container": "target_container", "location": "target_location"})
+        target_edges.name = "t"
+        transfer_map = xr.merge(
+            [
+                transfer_source.sample_location,
+                transfer_target.rename(
+                    {"sample_location": "next_sample_location"}
+                ).next_sample_location,
+            ]
+        )
+        transfer_plan_map = xr.where(transfer_plan > 0, transfer_map, False)
+        transfer_edges = (
+            transfer_plan_map.to_array().rename({"variable": "node"})
+            # .stack(
+            #     container=["source_container", "target_container"],
+            #     location=["source_location", "target_location"],
+            # )
+            # .transpose("container", "location", "edge")
+            .transpose(
+                "source_container",
+                "source_location",
+                "target_container",
+                "target_location",
+                "node",
+            )
+        )
+        transfer_edges.name = "tr"
+
+        all_edges = (
+            xr.merge([source_edges, target_edges, transfer_edges])
+            .transpose(
+                "source_container",
+                "source_location",
+                "target_container",
+                "target_location",
+                "node",
+            )
+            .stack(
+                edge=[
+                    "source_container",
+                    "source_location",
+                    "target_container",
+                    "target_location",
+                ]
+            )
+        )
+
+        concat_edges = xr.concat(
+            [all_edges.s, all_edges.t, all_edges.tr], dim="edge"
+        ).transpose("edge", "node")
+
+        edges = concat_edges.reset_index("edge").reset_coords(
+            names=[
+                "source_container",
+                "source_location",
+                "target_container",
+                "target_location",
+            ],
+            drop=True,
+        )
+        edges.name = "edges"
+
+        graph_addition = xr.merge(
+            [next_source_array, next_target_array, edges]
+        ).expand_dims(dim={"tick": [self.exec_tick]})
+
+        # # FIXME add container dimension to result
+        # # TODO need sample_location?
+        # next_source_nodes = self.create_sample_nodes(next_source_array)
 
         # For nicer visual representations of graphs, the space is split into
         # two before/after spaces by using different ticks: one for source
         # aliquots and one for target aliquots.
         self.exec_tick += 1
 
-        next_target_nodes = self.create_sample_nodes(next_target_array)
+        # # FIXME add container dimension to result
+        # next_target_nodes = self.create_sample_nodes(next_target_array)
 
-        # One-to-one connectivity between the (now) old source nodes and the new
-        # ones: same contents, minus what was transferred out. Same for old/new
-        # target nodes.
-        connectivity1 = xr.Dataset(
-            {
-                "connectivity": xr.DataArray(
-                    [
-                        [l1 in l2 for l1 in current_source_nodes.location.data]
-                        for l2 in next_source_nodes.location.data
-                    ],
-                    dims=["source", "target"],
-                    coords={
-                        "source": current_source_nodes.location.rename(
-                            {"location": "source"}
-                        ),
-                        "target": next_source_nodes.location.rename(
-                            {"location": "target"}
-                        ),
-                    },
-                )
-            }
-        )
-        current_source_nodes.update(connectivity1)
+        # # One-to-one connectivity between the (now) old source nodes and the new
+        # # ones: same contents, minus what was transferred out. Same for old/new
+        # # target nodes.
+        # connectivity1 = xr.Dataset(
+        #     {
+        #         "connectivity": xr.DataArray(
+        #             [
+        #                 [l1 in l2 for l1 in current_source_nodes.location.data]
+        #                 for l2 in next_source_nodes.location.data
+        #             ],
+        #             dims=["source", "target"],
+        #             coords={
+        #                 "source": current_source_nodes.location.rename(
+        #                     {"location": "source"}
+        #                 ),
+        #                 "target": next_source_nodes.location.rename(
+        #                     {"location": "target"}
+        #                 ),
+        #             },
+        #         )
+        #     }
+        # )
+        # current_source_nodes.update(connectivity1)
 
-        connectivity2 = xr.Dataset(
-            {
-                "connectivity": xr.DataArray(
-                    [
-                        [l1 in l2 for l1 in current_target_nodes.location.data]
-                        for l2 in next_target_nodes.location.data
-                    ],
-                    dims=["source", "target"],
-                    coords={
-                        "source": current_target_nodes.location.rename(
-                            {"location": "source"}
-                        ),
-                        "target": next_target_nodes.location.rename(
-                            {"location": "target"}
-                        ),
-                    },
-                )
-            }
-        )
-        current_target_nodes.update(connectivity2)
+        # connectivity2 = xr.Dataset(
+        #     {
+        #         "connectivity": xr.DataArray(
+        #             [
+        #                 [l1 in l2 for l1 in current_target_nodes.location.data]
+        #                 for l2 in next_target_nodes.location.data
+        #             ],
+        #             dims=["source", "target"],
+        #             coords={
+        #                 "source": current_target_nodes.location.rename(
+        #                     {"location": "source"}
+        #                 ),
+        #                 "target": next_target_nodes.location.rename(
+        #                     {"location": "target"}
+        #                 ),
+        #             },
+        #         )
+        #     }
+        # )
+        # current_target_nodes.update(connectivity2)
 
-        # One-to-many connectivity from each source node to all target nodes.
-        connectivity3 = xr.Dataset(
-            {
-                "connectivity": xr.DataArray(
-                    [
-                        [True for l2 in next_target_nodes.location.data]
-                        for l1 in next_source_nodes.location
-                    ],
-                    coords={
-                        "source": current_source_nodes.location.rename(
-                            {"location": "source"}
-                        ),
-                        "target": next_target_nodes.location.rename(
-                            {"location": "target"}
-                        ),
-                    },
-                )
-            }
-        )
-        current_source_nodes.update(connectivity3)
+        # # One-to-many connectivity from each source node to all target nodes.
+        # connectivity3 = xr.Dataset(
+        #     {
+        #         "connectivity": xr.DataArray(
+        #             [
+        #                 [True for l2 in next_target_nodes.location.data]
+        #                 for l1 in next_source_nodes.location
+        #             ],
+        #             coords={
+        #                 "source": current_source_nodes.location.rename(
+        #                     {"location": "source"}
+        #                 ),
+        #                 "target": next_target_nodes.location.rename(
+        #                     {"location": "target"}
+        #                 ),
+        #             },
+        #         )
+        #     }
+        # )
+        # current_source_nodes.update(connectivity3)
 
-        all_nodes = xr.concat(
-            [
-                next_source_nodes,
-                next_target_nodes,
-            ],
-            dim="tick",
-        )
+        # # FIXME return new stuff; nextsource next target, connectivity
+        # all_nodes = xr.concat(
+        #     [
+        #         next_source_nodes,
+        #         next_target_nodes,
+        #     ],
+        #     dim="tick",
+        # )
 
-        self.exec_tick += 1
-        return all_nodes
+        # self.exec_tick += 1
+        return graph_addition

@@ -1,25 +1,26 @@
 # Core packages
-from labop.utils.plate_coordinates import (
-    coordinate_rect_to_row_col_pairs,
-    coordinate_to_row_col,
-    get_sample_list,
-)
-from labop.execution_engine import ExecutionEngine
-import uml
-import labop
-import tyto
-import sbol3
 import filecmp
 import logging
 import os
 import tempfile
 import unittest
+import uuid
 
+import sbol3
+import tyto
 import xarray as xr
 
+import labop
+import uml
 from labop.data import serialize_sample_format
+from labop.execution_engine import ExecutionEngine
 from labop.strings import Strings
 from labop.utils.helpers import file_diff, initialize_protocol
+from labop.utils.plate_coordinates import (
+    coordinate_rect_to_row_col_pairs,
+    coordinate_to_row_col,
+    get_sample_list,
+)
 from labop_convert import MarkdownSpecialization
 from labop_convert.behavior_specialization import DefaultBehaviorSpecialization
 
@@ -83,6 +84,7 @@ class TestProtocolEndToEnd(unittest.TestCase):
             for r in reagents
         }
 
+        source_sample_ids = [f"sample_{uuid.uuid1()}" for a in aliquot_ids]
         source_array = labop.SampleArray(
             name="source",
             container_type=source_spec,
@@ -97,10 +99,14 @@ class TestProtocolEndToEnd(unittest.TestCase):
                                     for a in aliquot_ids
                                 ]
                             ],
-                            dims=(Strings.CONTAINER, Strings.LOCATION, Strings.REAGENT),
+                            dims=(
+                                Strings.CONTAINER,
+                                Strings.LOCATION,
+                                Strings.REAGENT,
+                            ),
                         ),
                         Strings.SAMPLE_LOCATION: xr.DataArray(
-                            [[f"source_sample_{a}" for a in aliquot_ids]],
+                            [source_sample_ids],
                             dims=(Strings.CONTAINER, Strings.LOCATION),
                         ),
                     },
@@ -120,6 +126,7 @@ class TestProtocolEndToEnd(unittest.TestCase):
             sample_array=source_array,
         )
 
+        target_sample_ids = [f"sample_{uuid.uuid1()}" for a in aliquot_ids]
         target_array = labop.SampleArray(
             name="target",
             container_type=target_spec,
@@ -127,13 +134,17 @@ class TestProtocolEndToEnd(unittest.TestCase):
                 xr.Dataset(
                     {
                         Strings.SAMPLE_LOCATION: xr.DataArray(
-                            [[f"target_sample_{a}" for a in aliquot_ids]],
+                            [target_sample_ids],
                             dims=(Strings.CONTAINER, Strings.LOCATION),
                         ),
                         Strings.CONTENTS: xr.DataArray(
                             # [[f"source_sample_{a}" for a in aliquot_ids]],
                             [[[0.0 for r in reagents] for a in aliquot_ids]],
-                            dims=(Strings.CONTAINER, Strings.LOCATION, Strings.REAGENT),
+                            dims=(
+                                Strings.CONTAINER,
+                                Strings.LOCATION,
+                                Strings.REAGENT,
+                            ),
                         ),
                         # Strings.CONTENTS: xr.DataArray(
                         #                             [[0.0 for r in reagents] for sample in aliquot_ids],
@@ -141,7 +152,7 @@ class TestProtocolEndToEnd(unittest.TestCase):
                         #                         ),
                     },
                     coords={
-                        Strings.SAMPLE: [f"target_sample_{a}" for a in aliquot_ids],
+                        Strings.SAMPLE: target_sample_ids,
                         Strings.REAGENT: [r.identity for r in reagents],
                         Strings.CONTAINER: [target_spec.name],
                         Strings.LOCATION: aliquot_ids,
