@@ -89,16 +89,24 @@ class TestProtocolEndToEnd(unittest.TestCase):
             initial_contents=serialize_sample_format(
                 xr.Dataset(
                     {
-                        "sample_location": xr.DataArray(
-                            [[f"source_sample_{a}" for a in aliquot_ids]],
-                            dims=(Strings.CONTAINER, Strings.LOCATION),
-                        ),
                         Strings.CONTENTS: xr.DataArray(
+                            # [[f"source_sample_{a}" for a in aliquot_ids]],
                             [
-                                [default_volume.value for r in reagents]
-                                for sample in aliquot_ids
+                                [
+                                    [default_volume.value for r in reagents]
+                                    for a in aliquot_ids
+                                ]
                             ],
-                            dims=(Strings.SAMPLE, Strings.REAGENT),
+                            dims=(Strings.CONTAINER, Strings.LOCATION, Strings.REAGENT),
+                        ),
+                        Strings.LOCATION: xr.DataArray(
+                            [
+                                [
+                                    [default_volume.value for r in reagents]
+                                    for sample in aliquot_ids
+                                ]
+                            ],
+                            dims=(Strings.SAMPLE, Strings.CONTAINER, Strings.LOCATION),
                         ),
                     },
                     coords={

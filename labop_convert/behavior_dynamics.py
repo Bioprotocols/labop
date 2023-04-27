@@ -416,8 +416,28 @@ class TransferByMapUpdater(BaseUpdater):
         # aliquots and one for target aliquots.
         self.exec_tick += 1
 
-        next_source_indices = self._create_target_nodes(transfer_plan, src_indices)
-        next_target_indices = self._create_target_nodes(transfer_plan, src_indices)
+        next_source_indices = self._create_sample_nodes(source_array)
+        next_target_indices = self._create_sample_nodes(target_array)
+
+        next_source_array = xr.Dataset(
+            {
+                "sample_location": xr.DataArray(
+                    [
+                        [
+                            f"{source_array.sample_location.sel(source_container=c, source_location=loc).data}_new"
+                            for loc in source_array.source_location
+                        ]
+                        for c in source_array.source_container
+                    ],
+                    dims=(Strings.CONTAINER, Strings.LOCATION),
+                ),
+                "contents": next_source_contents,
+            },
+            coords={
+                Strings.CONTAINER: source_array.coords["source_container"].data,
+                Strings.LOCATION: source_array.coords["source_location"].data,
+            },
+        )
 
         self.flow_to_targets(target_indices)
 
