@@ -770,9 +770,7 @@ class OT2Specialization(BehaviorSpecialization):
         for deck, rack in self.configuration.items():
             if type(rack) is not labop.ContainerSpec:
                 continue
-            container_types = self.resolve_container_spec(rack)
-            selected_container_type = self.check_lims_inventory(container_types)
-            api_name = LABWARE_MAP[selected_container_type]
+            api_name = LABWARE_MAP[rack.queryString]
             if api_name in COMPATIBLE_TIPS[instrument.display_id]:
                 tiprack_selection = rack
                 break

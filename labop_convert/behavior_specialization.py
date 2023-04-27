@@ -127,10 +127,15 @@ class BehaviorSpecialization(ABC):
         self.data.append(node_data)
 
     def resolve_container_spec(self, spec, addl_conditions=None):
-        # Attempt to infer container instances using the remote container ontology
-        # server, otherwise use tyto to look it up from a local copy of the ontology
         try:
             from container_api import matching_containers
+            if "container_api" not in sys.modules:
+                raise Exception("Could not import container_api, is it installed?")
+
+            if addl_conditions:
+                possible_container_types = matching_containers(spec, addl_conditions=addl_conditions)
+            else:
+                possible_container_types = matching_containers(spec)
         except:
             l.warning("Could not import container_api, is it installed?")
         else:
