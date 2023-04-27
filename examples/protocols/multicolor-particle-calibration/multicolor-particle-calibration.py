@@ -720,6 +720,33 @@ Adapted from [https://dx.doi.org/10.17504/protocols.io.bht7j6rn](https://dx.doi.
     return protocol, doc
 
 
+def compute_sample_trajectory(protocol, doc):
+    import labop
+    from labop.execution_engine import ExecutionEngine
+    from labop.strings import Strings
+    from labop_convert import DefaultBehaviorSpecialization
+
+    if REGENERATE_ARTIFACTS:
+        dataset_file = f"{filename}_template"  # name of xlsx
+    else:
+        dataset_file = None
+
+    ee = ExecutionEngine(
+        out_dir=OUT_DIR,
+        specializations=[DefaultBehaviorSpecialization()],
+        failsafe=False,
+        sample_format="xarray",
+        dataset_file=dataset_file,
+    )
+
+    execution = ee.execute(
+        protocol,
+        sbol3.Agent("test_agent"),
+        id="test_execution",
+        parameter_values=[],
+    )
+
+
 def generate_markdown_specialization(protocol, doc):
     import labop
     from labop.execution_engine import ExecutionEngine
@@ -934,6 +961,13 @@ if __name__ == "__main__":
         help=f"Generate the artifacts/{filename}-protocol.nt LabOP protocol file.",
     )
     parser.add_argument(
+        "-c",
+        "--compute-sample-trajectory",
+        default=True,
+        action="store_true",
+        help=f"Execute the protocol to generate the sample trajectory of the LabOP protocol.",
+    )
+    parser.add_argument(
         "-m",
         "--generate-markdown",
         default=False,
@@ -961,6 +995,9 @@ if __name__ == "__main__":
     ):
         print("Generating Protocol ...")
         protocol, doc = generate_protocol()
+
+    if args.compute_sample_trajectory:
+        compute_sample_trajectory(*read_protocol())
 
     if args.generate_markdown:
         print("Generating Markdown ...")
