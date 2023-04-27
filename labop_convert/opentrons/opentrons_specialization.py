@@ -9,8 +9,8 @@ import xarray as xr
 
 import labop
 import uml
+from labop.utils.plate_coordinates import get_sample_list
 from labop_convert.behavior_specialization import BehaviorSpecialization
-from labop_convert.plate_coordinates import get_sample_list
 
 l = logging.getLogger(__file__)
 l.setLevel(logging.ERROR)

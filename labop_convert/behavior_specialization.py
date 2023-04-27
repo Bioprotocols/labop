@@ -8,7 +8,6 @@ import tyto
 import labop
 import uml
 from labop.primitive_execution import input_parameter_map
-import json
 from labop_convert.behavior_dynamics import SampleProvenanceObserver
 
 l = logging.getLogger(__file__)
@@ -50,9 +49,7 @@ class BehaviorSpecialization(ABC):
         # This data field holds the results of the specialization
         self.data = []
 
-    def initialize_protocol(
-        self, execution: labop.ProtocolExecution, out_dir=None
-    ):
+    def initialize_protocol(self, execution: labop.ProtocolExecution, out_dir=None):
         self.execution = execution
         self.out_dir = out_dir
 
@@ -89,19 +86,13 @@ class BehaviorSpecialization(ABC):
             # Subprotocol specializations
             behavior = node.behavior.lookup()
             if isinstance(behavior, labop.Protocol):
-                return self._behavior_func_map[behavior.type_uri](
-                    record, execution
-                )
+                return self._behavior_func_map[behavior.type_uri](record, execution)
 
             # Individual Primitive specializations
             elif str(node.behavior) not in self._behavior_func_map:
-                l.warning(
-                    f"Failed to find handler for behavior: {node.behavior}"
-                )
+                l.warning(f"Failed to find handler for behavior: {node.behavior}")
                 return self.handle(record, execution)
-            return self._behavior_func_map[str(node.behavior)](
-                record, execution
-            )
+            return self._behavior_func_map[str(node.behavior)](record, execution)
         except Exception as e:
             # l.warn(
             #    f"{self.__class__} Could not process() ActivityNodeException: {record}: {e}"
@@ -119,12 +110,11 @@ class BehaviorSpecialization(ABC):
     def handle(self, record, execution):
         # Save basic information about the execution record
         node = record.node.lookup()
-        params = inout_parameter_map(
+        params = input_parameter_map(
             [
                 pv
                 for pv in record.call.lookup().parameter_values
-                if pv.parameter.lookup().property_value.direction
-                == uml.PARAMETER_IN
+                if pv.parameter.lookup().property_value.direction == uml.PARAMETER_IN
             ]
         )
         params = {p: str(v) for p, v in params.items()}

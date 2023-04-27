@@ -38,6 +38,7 @@ setup(
         "uml",
         "examples",
         "owl_rdf_utils",
+        "networkx",
     ],
     package_data={
         "labop": ["labop.ttl", "lib/*.ttl", "container-ontology.ttl"],

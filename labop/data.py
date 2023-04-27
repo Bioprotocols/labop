@@ -43,7 +43,8 @@ def protocol_execution_get_data(self):
     """
     Gather labop.SampleData outputs from all CallBehaviorExecutions into a dataset
     """
-    calls = [e for e in self.executions if isinstance(e, labop.CallBehaviorExecution)]
+    calls = [e for e in self.executions if isinstance(
+        e, labop.CallBehaviorExecution)]
     datasets = {
         o.value.get_value().identity: o.value.get_value().to_dataset()
         for e in calls
@@ -70,7 +71,8 @@ def sample_array_empty(self, geometry=None, sample_format=Strings.XARRAY):
     elif sample_format == Strings.JSON:
         sample_array = {s: None for s in samples}
     else:
-        raise Exception(f"Cannot initialize contents of sample_format: {sample_format}")
+        raise Exception(
+            f"Cannot initialize contents of sample_format: {sample_format}")
     self.initial_contents = serialize_sample_format(sample_array)
     return sample_array
 
@@ -575,7 +577,8 @@ def dataset_to_dataset(
     self : labop.Dataset
         Dataset comprising data and metadata.
     """
-    data = [self.data.to_data_array(sample_format=sample_format)] if self.data else []
+    data = [self.data.to_data_array(
+        sample_format=sample_format)] if self.data else []
     datasets = (
         [d.lookup().to_dataset(sample_format=sample_format) for d in self.dataset]
         if self.dataset
@@ -774,7 +777,8 @@ labop.SampleData.humanize = sample_data_humanize
 def dataset_update_data_sheet(
     self, data_file_path, sheet_name, sample_format=Strings.XARRAY
 ):
-    dataset = sort_samples(self.to_dataset(humanize=True), sample_format=sample_format)
+    dataset = sort_samples(self.to_dataset(humanize=True),
+                           sample_format=sample_format)
 
     if len(dataset) > 0:
         mode = "a" if os.path.exists(data_file_path) else "w"

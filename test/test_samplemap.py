@@ -4,7 +4,6 @@ import logging
 import os
 import tempfile
 import unittest
-import sys
 
 import xarray as xr
 
@@ -15,8 +14,6 @@ from labop_convert import MarkdownSpecialization
 from labop_convert.behavior_specialization import DefaultBehaviorSpecialization
 
 xr.set_options(display_expand_data=False)
-import json
-from typing import Tuple
 
 logger: logging.Logger = logging.getLogger("samplemap_protocol")
 
@@ -28,7 +25,7 @@ import tyto
 import labop
 import uml
 from labop.execution_engine import ExecutionEngine
-from labop_convert.plate_coordinates import (
+from labop.utils.plate_coordinates import (
     coordinate_rect_to_row_col_pairs,
     coordinate_to_row_col,
     get_sample_list,
@@ -79,21 +76,36 @@ class TestProtocolEndToEnd(unittest.TestCase):
         # Arbitrary volume to use in specifying the reagents in the container.
         default_volume = sbol3.Measure(600, tyto.OM.microliter)
 
+        reagent_arrays = {
+            r: xr.DataArray(
+                [default_volume.value] * len(aliquot_ids), dims=(Strings.SAMPLE)
+            )
+            for r in reagents
+        }
+
         source_array = labop.SampleArray(
             name="source",
             container_type=source_spec,
             initial_contents=serialize_sample_format(
-                xr.DataArray(
-                    [
-                        [default_volume.value for reagent in reagents]
-                        for id in aliquot_ids
-                    ],
-                    name="source",
-                    dims=(Strings.SAMPLE, "contents"),
-                    attrs={"units": "uL"},
+                xr.Dataset(
+                    {
+                        "sample_location": xr.DataArray(
+                            [[f"source_sample_{a}" for a in aliquot_ids]],
+                            dims=(Strings.CONTAINER, Strings.LOCATION),
+                        ),
+                        Strings.CONTENTS: xr.DataArray(
+                            [
+                                [default_volume.value for r in reagents]
+                                for sample in aliquot_ids
+                            ],
+                            dims=(Strings.SAMPLE, Strings.REAGENT),
+                        ),
+                    },
                     coords={
-                        Strings.SAMPLE: aliquot_ids,
-                        "contents": [r.identity for r in reagents],
+                        Strings.SAMPLE: [f"source_sample_{a}" for a in aliquot_ids],
+                        Strings.REAGENT: [r.identity for r in reagents],
+                        Strings.CONTAINER: [source_spec.name],
+                        Strings.LOCATION: aliquot_ids,
                     },
                 )
             ),
@@ -109,14 +121,22 @@ class TestProtocolEndToEnd(unittest.TestCase):
             name="target",
             container_type=target_spec,
             initial_contents=serialize_sample_format(
-                xr.DataArray(
-                    [[0.0 for reagent in reagents] for id in aliquot_ids],
-                    name="target",
-                    dims=(Strings.SAMPLE, "contents"),
-                    attrs={"units": "uL"},
+                xr.Dataset(
+                    {
+                        "sample_location": xr.DataArray(
+                            [[f"target_sample_{a}" for a in aliquot_ids]],
+                            dims=(Strings.CONTAINER, Strings.LOCATION),
+                        ),
+                        Strings.CONTENTS: xr.DataArray(
+                            [[0.0 for r in reagents] for sample in aliquot_ids],
+                            dims=(Strings.SAMPLE, Strings.REAGENT),
+                        ),
+                    },
                     coords={
-                        Strings.SAMPLE: aliquot_ids,
-                        "contents": [r.identity for r in reagents],
+                        Strings.SAMPLE: [f"target_sample_{a}" for a in aliquot_ids],
+                        Strings.REAGENT: [r.identity for r in reagents],
+                        Strings.CONTAINER: [target_spec.name],
+                        Strings.LOCATION: aliquot_ids,
                     },
                 )
             ),
@@ -146,17 +166,17 @@ class TestProtocolEndToEnd(unittest.TestCase):
                     for source_array in [source_array.name]
                 ],
                 dims=(
-                    "source_array",
-                    "source_aliquot",
-                    "target_array",
-                    "target_aliquot",
+                    f"source_{Strings.CONTAINER}",
+                    f"source_{Strings.LOCATION}",
+                    f"target_{Strings.CONTAINER}",
+                    f"target_{Strings.LOCATION}",
                 ),
                 attrs={"units": "uL"},
                 coords={
-                    "source_array": [source_array.name],
-                    "source_aliquot": aliquot_ids,
-                    "target_array": [target_array.name],
-                    "target_aliquot": aliquot_ids,
+                    f"source_{Strings.CONTAINER}": [source_array.name],
+                    f"source_{Strings.LOCATION}": aliquot_ids,
+                    f"target_{Strings.CONTAINER}": [target_array.name],
+                    f"target_{Strings.LOCATION}": aliquot_ids,
                 },
             )
         )
@@ -232,9 +252,7 @@ class TestProtocolEndToEnd(unittest.TestCase):
         diff = "".join(file_diff(comparison_file, temp_name))
         print(f"Difference:\n{diff}")
 
-        assert filecmp.cmp(
-            temp_name, comparison_file
-        ), "Files are not identical"
+        assert filecmp.cmp(temp_name, comparison_file), "Files are not identical"
         print("File identical with test file")
 
     def test_mask(self):
@@ -440,9 +458,7 @@ class TestProtocolEndToEnd(unittest.TestCase):
                 "H12",
             ],
         )
-        self.assertEqual(
-            coordinate_rect_to_row_col_pairs("H11:H12")[1], (7, 11)
-        )
+        self.assertEqual(coordinate_rect_to_row_col_pairs("H11:H12")[1], (7, 11))
         self.assertEqual(coordinate_to_row_col("H12"), (7, 11))
 
 

@@ -9,3 +9,7 @@ class Strings:
     MEASUREMENT = "measurement"
     CONTENTS = "contents"
     SOURCE = "source"
+    CONTAINER = "container"
+    LOCATION = "location"
+    CONCENTRATION = "concentration"
+    REAGENT = "reagent"
