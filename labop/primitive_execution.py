@@ -42,6 +42,7 @@ labop.CallBehaviorExecution.compute_output = (
 )
 
 
+
 def call_behavior_action_compute_output(self, inputs, parameter, sample_format):
     """
     Get parameter value from call behavior action
@@ -367,13 +368,14 @@ def compute_metadata_compute_output(self, inputs, parameter, sample_format):
         return metadata
 
 
+
 def transfer_by_map_compute_output(self, inputs, parameter, sample_format):
     if parameter.name == "sourceResult" and \
        parameter.type == 'http://bioprotocols.org/labop#SampleCollection':
-        input_map = input_parameter_map(inputs)
+        input_map = inout_parameter_map(inputs)
         source = input_map["source"]
         target = input_map["destination"]
-        plan  = input_map["plan"]
+        plan = input_map["plan"]
         spec = source.container_type
         contents = self.transfer_out(source, target, plan, sample_format)
         name = f"{parameter.name}"
@@ -381,11 +383,11 @@ def transfer_by_map_compute_output(self, inputs, parameter, sample_format):
                                    container_type=spec,
                                    contents=contents)
     elif parameter.name == "destinationResult" and \
-         parameter.type == 'http://bioprotocols.org/labop#SampleCollection':
-        input_map = input_parameter_map(inputs)
+            parameter.type == 'http://bioprotocols.org/labop#SampleCollection':
+        input_map = inout_parameter_map(inputs)
         source = input_map["source"]
         target = input_map["destination"]
-        plan  = input_map["plan"]
+        plan = input_map["plan"]
         spec = source.container_type
         contents = self.transfer_in(source, target, plan, sample_format)
         name = f"{parameter.name}"
@@ -552,27 +554,36 @@ def transfer(self, source, target, plan, sample_format):
 labop.Primitive.transfer = transfer
 
 
+
 def transfer_out(self, source, target, plan, sample_format):
     if sample_format == 'xarray':
-        sourceResult, targetResult = self.transfer(source, target, plan, sample_format)
+        sourceResult, targetResult = self.transfer(
+            source, target, plan, sample_format)
         return json.dumps(sourceResult.to_dict())
     elif sample_format == 'json':
         contents = quote(json.dumps({c: None for c in aliquots}))
     else:
         raise Exception(f"Cannot initialize contents of: {self.identity}")
     return contents
+
+
 labop.Primitive.transfer_out = transfer_out
+
 
 def transfer_in(self, source, target, plan, sample_format):
     if sample_format == 'xarray':
-        sourceResult, targetResult = self.transfer(source, target, plan, sample_format)
+        sourceResult, targetResult = self.transfer(
+            source, target, plan, sample_format)
         return json.dumps(targetResult.to_dict())
     elif sample_format == 'json':
         contents = quote(json.dumps({c: None for c in aliquots}))
     else:
         raise Exception(f"Cannot initialize contents of: {self.identity}")
     return contents
+
+
 labop.Primitive.transfer_in = transfer_in
+
 
 def transfer(self, source, target, plan, sample_format):
     if sample_format == 'xarray':
@@ -580,14 +591,18 @@ def transfer(self, source, target, plan, sample_format):
         target_contents = target.to_data_array()
         transfer = plan.get_map()
         if source.name in transfer.source_array and target.name in transfer.target_array:
-            source_result = source_contents.rename({"aliquot": "source_aliquot", "array": "source_array"})
-            target_result = target_contents.rename({"aliquot": "target_aliquot", "array": "target_array"})
+            source_result = source_contents.rename(
+                {"aliquot": "source_aliquot", "array": "source_array"})
+            target_result = target_contents.rename(
+                {"aliquot": "target_aliquot", "array": "target_array"})
             source_concentration = source_result / source_result.sum(dim="contents")
 
             amount_transferred = source_concentration * transfer
 
-            source_result = source_result - amount_transferred.sum(dim=["target_aliquot", "target_array"])
-            target_result = target_result + amount_transferred.sum(dim=["source_aliquot", "source_array"])
+            source_result = source_result - \
+                amount_transferred.sum(dim=["target_aliquot", "target_array"])
+            target_result = target_result + \
+                amount_transferred.sum(dim=["source_aliquot", "source_array"])
 
             return source_result, target_result
         else:
@@ -598,7 +613,10 @@ def transfer(self, source, target, plan, sample_format):
     else:
         raise Exception(f"Cannot initialize contents of: {self.identity}")
     return contents
+
+
 labop.Primitive.transfer = transfer
+
 
 def declare_primitive(
     document: sbol3.Document,

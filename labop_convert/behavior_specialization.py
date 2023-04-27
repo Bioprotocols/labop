@@ -116,7 +116,7 @@ class BehaviorSpecialization(ABC):
     def handle(self, record, execution):
         # Save basic information about the execution record
         node = record.node.lookup()
-        params = input_parameter_map(
+        params = inout_parameter_map(
             [
                 pv
                 for pv in record.call.lookup().parameter_values

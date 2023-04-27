@@ -37,6 +37,11 @@ if not os.path.exists(OUT_DIR):
 
 filename = "".join(__file__.split(".py")[0].split("/")[-1:])
 
+# Project packages
+from labop_convert.plate_coordinates import get_aliquot_list, coordinate_rect_to_row_col_pairs, coordinate_to_row_col
+from labop_convert.behavior_specialization import DefaultBehaviorSpecialization
+from labop.execution_engine import ExecutionEngine
+from helpers import file_diff, OUT_DIR
 
 logger: logging.Logger = logging.Logger(__file__)
 logger.setLevel(logging.INFO)
