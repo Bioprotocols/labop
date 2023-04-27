@@ -418,3 +418,5 @@ def primitive_inherit_parameters(self, parent_primitive):
 
 
 labop.Primitive.inherit_parameters = primitive_inherit_parameters
+
+labop.SampleArray.__repr__ = labop.SampleArray.__str__

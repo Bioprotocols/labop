@@ -1,3 +1,4 @@
+# Core packages
 import filecmp
 import logging
 import os
@@ -13,7 +14,11 @@ from labop_convert import MarkdownSpecialization
 from labop_convert.behavior_specialization import DefaultBehaviorSpecialization
 
 xr.set_options(display_expand_data=False)
+import json
+from typing import Tuple
 
+
+# Third party packages
 import sbol3
 import tyto
 
@@ -31,6 +36,7 @@ if not os.path.exists(OUT_DIR):
     os.mkdir(OUT_DIR)
 
 filename = "".join(__file__.split(".py")[0].split("/")[-1:])
+
 
 logger: logging.Logger = logging.Logger(__file__)
 logger.setLevel(logging.INFO)
@@ -223,7 +229,9 @@ class TestProtocolEndToEnd(unittest.TestCase):
         diff = "".join(file_diff(comparison_file, temp_name))
         print(f"Difference:\n{diff}")
 
-        assert filecmp.cmp(temp_name, comparison_file), "Files are not identical"
+        assert filecmp.cmp(
+            temp_name, comparison_file
+        ), "Files are not identical"
         print("File identical with test file")
 
     def test_mask(self):
@@ -429,7 +437,9 @@ class TestProtocolEndToEnd(unittest.TestCase):
                 "H12",
             ],
         )
-        self.assertEqual(coordinate_rect_to_row_col_pairs("H11:H12")[1], (7, 11))
+        self.assertEqual(
+            coordinate_rect_to_row_col_pairs("H11:H12")[1], (7, 11)
+        )
         self.assertEqual(coordinate_to_row_col("H12"), (7, 11))
 
 

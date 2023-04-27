@@ -9,7 +9,7 @@ import labop
 import uml
 from labop.primitive_execution import input_parameter_map
 import json
-from labop_convert.behavior_dynamics import StateTrajectory
+from labop_convert.behavior_dynamics import SampleProvenanceObserver
 
 l = logging.getLogger(__file__)
 l.setLevel(logging.WARN)
@@ -45,7 +45,7 @@ class BehaviorSpecialization(ABC):
         self.execution = None
         self.issues = []
         self.out_dir = None
-        self.state_trajectory = StateTrajectory()
+        self.prov_observer = SampleProvenanceObserver()
 
         # This data field holds the results of the specialization
         self.data = []
@@ -83,7 +83,8 @@ class BehaviorSpecialization(ABC):
         try:
             node = record.node.lookup()
             if not isinstance(node, uml.CallBehaviorAction):
-                return  # raise BehaviorSpecializationException(f"Cannot handle node type: {type(node)}")
+                # raise BehaviorSpecializationException(f"Cannot handle node type: {type(node)}")
+                return
 
             # Subprotocol specializations
             behavior = node.behavior.lookup()
@@ -118,7 +119,7 @@ class BehaviorSpecialization(ABC):
     def handle(self, record, execution):
         # Save basic information about the execution record
         node = record.node.lookup()
-        params = input_parameter_map(
+        params = inout_parameter_map(
             [
                 pv
                 for pv in record.call.lookup().parameter_values
@@ -132,7 +133,7 @@ class BehaviorSpecialization(ABC):
             "behavior": node.behavior,
             "parameters": params,
         }
-        self.state_trajectory.advance(record)
+        self.prov_observer.update(record)
         self.data.append(node_data)
 
     def resolve_container_spec(self, spec, addl_conditions=None):

@@ -37,7 +37,9 @@ def call_behavior_execution_compute_output(self, parameter, sample_format):
     return value
 
 
-labop.CallBehaviorExecution.compute_output = call_behavior_execution_compute_output
+labop.CallBehaviorExecution.compute_output = (
+    call_behavior_execution_compute_output
+)
 
 
 def call_behavior_action_compute_output(self, inputs, parameter, sample_format):
@@ -164,7 +166,7 @@ def empty_rack_compute_output(self, inputs, parameter, sample_format):
         and parameter.type == "http://bioprotocols.org/labop#SampleArray"
     ):
         # Make a SampleArray
-        input_map = input_parameter_map(inputs)
+        input_map = inout_parameter_map(inputs)
         spec = input_map["specification"]
         sample_array = labop.SampleArray.from_container_spec(
             spec, sample_format=sample_format
@@ -174,13 +176,15 @@ def empty_rack_compute_output(self, inputs, parameter, sample_format):
         return None
 
 
-def load_container_on_instrument_compute_output(self, inputs, parameter, sample_format):
+def load_container_on_instrument_compute_output(
+    self, inputs, parameter, sample_format
+):
     if (
         parameter.name == "samples"
         and parameter.type == "http://bioprotocols.org/labop#SampleArray"
     ):
         # Make a SampleArray
-        input_map = input_parameter_map(inputs)
+        input_map = inout_parameter_map(inputs)
         spec = input_map["specification"]
         sample_array = labop.SampleArray.from_container_spec(
             spec, sample_format=sample_format
@@ -225,7 +229,9 @@ def get_short_uuid(obj):
             pass
         if isinstance(thing, datetime.datetime):
             return thing.isoformat(timespec="microseconds")
-        raise TypeError(f"object of type {type(thing).__name__} not serializable")
+        raise TypeError(
+            f"object of type {type(thing).__name__} not serializable"
+        )
 
     def json_dumps(thing):
         return json.dumps(
@@ -237,7 +243,10 @@ def get_short_uuid(obj):
             separators=(",", ":"),
         )
 
-    j = int(hashlib.md5(json_dumps(obj).encode("utf-8")).digest().hex(), 16) % 1000
+    j = (
+        int(hashlib.md5(json_dumps(obj).encode("utf-8")).digest().hex(), 16)
+        % 1000
+    )
     return j
 
 
@@ -260,7 +269,9 @@ def measure_absorbance_compute_output(self, inputs, parameter, sample_format):
         sample_metadata = labop.SampleMetadata.for_primitive(
             self, input_map, samples, sample_format=sample_format
         )
-        sample_dataset = labop.Dataset(data=sample_data, metadata=[sample_metadata])
+        sample_dataset = labop.Dataset(
+            data=sample_data, metadata=[sample_metadata]
+        )
         return sample_dataset
 
 
@@ -289,7 +300,9 @@ def measure_fluorescence_compute_output(self, inputs, parameter, sample_format):
         sample_metadata = labop.SampleMetadata.for_primitive(
             self, input_map, samples, sample_format=sample_format
         )
-        sample_dataset = labop.Dataset(data=sample_data, metadata=[sample_metadata])
+        sample_dataset = labop.Dataset(
+            data=sample_data, metadata=[sample_metadata]
+        )
         return sample_dataset
 
 
@@ -301,7 +314,9 @@ def join_metadata_compute_output(self, inputs, parameter, sample_format):
         input_map = input_parameter_map(inputs)
         dataset = input_map["dataset"]
         metadata = input_map["metadata"]
-        enhanced_dataset = labop.Dataset(dataset=[dataset], linked_metadata=[metadata])
+        enhanced_dataset = labop.Dataset(
+            dataset=[dataset], linked_metadata=[metadata]
+        )
         return enhanced_dataset
 
 
@@ -317,7 +332,9 @@ def join_datasets_compute_output(self, inputs, parameter, sample_format):
             if "metadata" in input_map and input_map["metadata"]
             else []
         )
-        joint_dataset = labop.Dataset(dataset=datasets, linked_metadata=metadata)
+        joint_dataset = labop.Dataset(
+            dataset=datasets, linked_metadata=metadata
+        )
         return joint_dataset
 
 
@@ -383,7 +400,10 @@ def primitive_compute_output(self, inputs, parameter, sample_format):
     :param parameter: Parameter needing value
     :return: value
     """
-    if hasattr(parameter, "type") and parameter.type in sbol3.Document._uri_type_map:
+    if (
+        hasattr(parameter, "type")
+        and parameter.type in sbol3.Document._uri_type_map
+    ):
         # Generalized handler for output tokens, see #125
         # TODO: This currently assumes the output token is an sbol3.TopLevel
         # Still needs special handling for non-toplevel tokens
@@ -432,7 +452,9 @@ labop.Primitive.compute_output = primitive_compute_output
 
 def transfer_out(self, source, target, plan, sample_format):
     if sample_format == "xarray":
-        sourceResult, targetResult = self.transfer(source, target, plan, sample_format)
+        sourceResult, targetResult = self.transfer(
+            source, target, plan, sample_format
+        )
         return json.dumps(sourceResult.to_dict())
     elif sample_format == "json":
         contents = quote(json.dumps({c: None for c in aliquots}))
@@ -446,7 +468,9 @@ labop.Primitive.transfer_out = transfer_out
 
 def transfer_in(self, source, target, plan, sample_format):
     if sample_format == "xarray":
-        sourceResult, targetResult = self.transfer(source, target, plan, sample_format)
+        sourceResult, targetResult = self.transfer(
+            source, target, plan, sample_format
+        )
         return json.dumps(targetResult.to_dict())
     elif sample_format == "json":
         contents = quote(json.dumps({c: None for c in aliquots}))
@@ -473,7 +497,9 @@ def transfer(self, source, target, plan, sample_format):
             target_result = target_contents.rename(
                 {"aliquot": "target_aliquot", "array": "target_array"}
             )
-            source_concentration = source_result / source_result.sum(dim="contents")
+            source_concentration = source_result / source_result.sum(
+                dim="contents"
+            )
 
             amount_transferred = source_concentration * transfer
 
@@ -520,7 +546,9 @@ def declare_primitive(
             primitive.inherit_parameters(template)
         for input in inputs:
             optional = input["optional"] if "optional" in input else False
-            default_value = input["default_value"] if "default_value" in input else None
+            default_value = (
+                input["default_value"] if "default_value" in input else None
+            )
             primitive.add_input(
                 input["name"],
                 input["type"],
