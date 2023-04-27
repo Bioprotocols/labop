@@ -98,7 +98,9 @@
         <https://bioprotocols.org/labop/primitives/liquid_handling/TransferByMap/OrderedPropertyValue3>,
         <https://bioprotocols.org/labop/primitives/liquid_handling/TransferByMap/OrderedPropertyValue4>,
         <https://bioprotocols.org/labop/primitives/liquid_handling/TransferByMap/OrderedPropertyValue5>,
-        <https://bioprotocols.org/labop/primitives/liquid_handling/TransferByMap/OrderedPropertyValue6> ;
+        <https://bioprotocols.org/labop/primitives/liquid_handling/TransferByMap/OrderedPropertyValue6>,
+        <https://bioprotocols.org/labop/primitives/liquid_handling/TransferByMap/OrderedPropertyValue7>,
+        <https://bioprotocols.org/labop/primitives/liquid_handling/TransferByMap/OrderedPropertyValue8> ;
     sbol:description "Move volumes from a collection of source samples to a collection of destination samples following a plan of value given for each location" ;
     sbol:displayId "TransferByMap" ;
     sbol:hasNamespace <https://bioprotocols.org/labop/primitives/liquid_handling> .
@@ -1362,6 +1364,60 @@
 <https://bioprotocols.org/labop/primitives/liquid_handling/TransferByMap/OrderedPropertyValue6/Parameter1/LiteralInteger2> a ns1:LiteralInteger,
         sbol:Identified ;
     ns1:integerValue 0 ;
+    sbol:displayId "LiteralInteger2" .
+
+<https://bioprotocols.org/labop/primitives/liquid_handling/TransferByMap/OrderedPropertyValue7> a ns1:OrderedPropertyValue,
+        sbol:Identified ;
+    ns1:indexValue 6 ;
+    ns1:propertyValue <https://bioprotocols.org/labop/primitives/liquid_handling/TransferByMap/OrderedPropertyValue7/Parameter1> ;
+    sbol:displayId "OrderedPropertyValue7" .
+
+<https://bioprotocols.org/labop/primitives/liquid_handling/TransferByMap/OrderedPropertyValue7/Parameter1> a ns1:Parameter,
+        sbol:Identified ;
+    ns1:direction ns1:out ;
+    ns1:isOrdered true ;
+    ns1:isUnique true ;
+    ns1:lowerValue <https://bioprotocols.org/labop/primitives/liquid_handling/TransferByMap/OrderedPropertyValue7/Parameter1/LiteralInteger2> ;
+    ns1:type <http://bioprotocols.org/labop#SampleCollection> ;
+    ns1:upperValue <https://bioprotocols.org/labop/primitives/liquid_handling/TransferByMap/OrderedPropertyValue7/Parameter1/LiteralInteger1> ;
+    sbol:displayId "Parameter1" ;
+    sbol:name "sourceResult" .
+
+<https://bioprotocols.org/labop/primitives/liquid_handling/TransferByMap/OrderedPropertyValue7/Parameter1/LiteralInteger1> a ns1:LiteralInteger,
+        sbol:Identified ;
+    ns1:integerValue 1 ;
+    sbol:displayId "LiteralInteger1" .
+
+<https://bioprotocols.org/labop/primitives/liquid_handling/TransferByMap/OrderedPropertyValue7/Parameter1/LiteralInteger2> a ns1:LiteralInteger,
+        sbol:Identified ;
+    ns1:integerValue 1 ;
+    sbol:displayId "LiteralInteger2" .
+
+<https://bioprotocols.org/labop/primitives/liquid_handling/TransferByMap/OrderedPropertyValue8> a ns1:OrderedPropertyValue,
+        sbol:Identified ;
+    ns1:indexValue 7 ;
+    ns1:propertyValue <https://bioprotocols.org/labop/primitives/liquid_handling/TransferByMap/OrderedPropertyValue8/Parameter1> ;
+    sbol:displayId "OrderedPropertyValue8" .
+
+<https://bioprotocols.org/labop/primitives/liquid_handling/TransferByMap/OrderedPropertyValue8/Parameter1> a ns1:Parameter,
+        sbol:Identified ;
+    ns1:direction ns1:out ;
+    ns1:isOrdered true ;
+    ns1:isUnique true ;
+    ns1:lowerValue <https://bioprotocols.org/labop/primitives/liquid_handling/TransferByMap/OrderedPropertyValue8/Parameter1/LiteralInteger2> ;
+    ns1:type <http://bioprotocols.org/labop#SampleCollection> ;
+    ns1:upperValue <https://bioprotocols.org/labop/primitives/liquid_handling/TransferByMap/OrderedPropertyValue8/Parameter1/LiteralInteger1> ;
+    sbol:displayId "Parameter1" ;
+    sbol:name "destinationResult" .
+
+<https://bioprotocols.org/labop/primitives/liquid_handling/TransferByMap/OrderedPropertyValue8/Parameter1/LiteralInteger1> a ns1:LiteralInteger,
+        sbol:Identified ;
+    ns1:integerValue 1 ;
+    sbol:displayId "LiteralInteger1" .
+
+<https://bioprotocols.org/labop/primitives/liquid_handling/TransferByMap/OrderedPropertyValue8/Parameter1/LiteralInteger2> a ns1:LiteralInteger,
+        sbol:Identified ;
+    ns1:integerValue 1 ;
     sbol:displayId "LiteralInteger2" .
 
 <https://bioprotocols.org/labop/primitives/liquid_handling/TransferInto/OrderedPropertyValue1> a ns1:OrderedPropertyValue,
