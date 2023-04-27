@@ -347,50 +347,50 @@ class TransferByMapUpdater(BaseUpdater):
         # target_array = target_array.swap_dims({Strings.SAMPLE: "target_location"}).set_coords(["target_location", "target_container", "contents"]).set_xindex(["target_container"])
         # # target_array = target_array.swap_dims({Strings.SAMPLE: "target_location"}).reset_coords().set_coords(("target_container"))
         # source_array["volume"] = source_array.location.where(source_array.location == sample_location, sample_location.reagent)
-        source_array["volume"] = xr.DataArray(
-            [
-                [
-                    source_array.contents.sel(
-                        sample=source_array.sample_location.sel(
-                            source_location=l, source_container=c
-                        )
-                    )
-                    for l in source_array.source_location
-                ]
-                for c in source_array.source_container
-            ],
-            dims=["source_container", "source_location", "reagent"],
-            coords={
-                "source_container": source_array.coords["source_container"],
-                "source_location": source_array.coords["source_location"],
-                "reagent": source_array.coords["reagent"],
-            },
-        )
+        # source_array["volume"] = xr.DataArray(
+        #     [
+        #         [
+        #             source_array.contents.sel(
+        #                 sample=source_array.sample_location.sel(
+        #                     source_location=l, source_container=c
+        #                 )
+        #             )
+        #             for l in source_array.source_location
+        #         ]
+        #         for c in source_array.source_container
+        #     ],
+        #     dims=["source_container", "source_location", "reagent"],
+        #     coords={
+        #         "source_container": source_array.coords["source_container"],
+        #         "source_location": source_array.coords["source_location"],
+        #         "reagent": source_array.coords["reagent"],
+        #     },
+        # )
 
-        target_array["volume"] = xr.DataArray(
-            [
-                [
-                    target_array.contents.sel(
-                        sample=target_array.sample_location.sel(
-                            target_location=l, target_container=c
-                        )
-                    )
-                    for l in target_array.target_location
-                ]
-                for c in target_array.target_container
-            ],
-            dims=["target_container", "target_location", "reagent"],
-            coords={
-                "target_container": target_array.coords["target_container"],
-                "target_location": target_array.coords["target_location"],
-                "reagent": target_array.coords["reagent"],
-            },
-        )
+        # target_array["volume"] = xr.DataArray(
+        #     [
+        #         [
+        #             target_array.contents.sel(
+        #                 sample=target_array.sample_location.sel(
+        #                     target_location=l, target_container=c
+        #                 )
+        #             )
+        #             for l in target_array.target_location
+        #         ]
+        #         for c in target_array.target_container
+        #     ],
+        #     dims=["target_container", "target_location", "reagent"],
+        #     coords={
+        #         "target_container": target_array.coords["target_container"],
+        #         "target_location": target_array.coords["target_location"],
+        #         "reagent": target_array.coords["reagent"],
+        #     },
+        # )
 
         # Get concentration of the aliquot contents
         source_array[
             Strings.CONCENTRATION
-        ] = source_array.volume / source_array.volume.sum(dim=Strings.REAGENT)
+        ] = source_array.contents / source_array.contents.sum(dim=Strings.REAGENT)
 
         # Plan
         #   d d d d
@@ -404,11 +404,23 @@ class TransferByMapUpdater(BaseUpdater):
         amount_transferred = source_array.concentration * transfer_plan
 
         # Get total amount transferred to all targets
-        next_source_contents = source_array.volume - amount_transferred.sum(
+        next_source_contents = source_array.contents - amount_transferred.sum(
             dim=["target_location", "target_container"]
         )
-        next_target_contents = target_array.volume + amount_transferred.sum(
+        next_source_contents = next_source_contents.rename(
+            {
+                f"{source_name}_location": Strings.LOCATION,
+                f"{source_name}_container": Strings.CONTAINER,
+            }
+        )
+        next_target_contents = target_array.contents + amount_transferred.sum(
             dim=["source_location", "source_container"]
+        )
+        next_target_contents = next_target_contents.rename(
+            {
+                f"{target_name}_location": Strings.LOCATION,
+                f"{target_name}_container": Strings.CONTAINER,
+            }
         )
 
         # For nicer visual representations of graphs, the space is split into
@@ -436,6 +448,26 @@ class TransferByMapUpdater(BaseUpdater):
             coords={
                 Strings.CONTAINER: source_array.coords["source_container"].data,
                 Strings.LOCATION: source_array.coords["source_location"].data,
+            },
+        )
+
+        next_target_array = xr.Dataset(
+            {
+                "sample_location": xr.DataArray(
+                    [
+                        [
+                            f"{target_array.sample_location.sel(target_container=c, target_location=loc).data}_new"
+                            for loc in target_array.target_location
+                        ]
+                        for c in target_array.target_container
+                    ],
+                    dims=(Strings.CONTAINER, Strings.LOCATION),
+                ),
+                "contents": next_target_contents,
+            },
+            coords={
+                Strings.CONTAINER: target_array.coords["target_container"].data,
+                Strings.LOCATION: target_array.coords["target_location"].data,
             },
         )
 

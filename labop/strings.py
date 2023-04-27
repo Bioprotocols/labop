@@ -11,5 +11,6 @@ class Strings:
     SOURCE = "source"
     CONTAINER = "container"
     LOCATION = "location"
+    SAMPLE_LOCATION = "sample_location"
     CONCENTRATION = "concentration"
     REAGENT = "reagent"
