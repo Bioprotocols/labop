@@ -14,6 +14,7 @@ SBOLFactory(
 )
 
 
+
 # Import symbols into the top-level labop module
 from labop_submodule import *
 
