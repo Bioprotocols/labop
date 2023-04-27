@@ -208,6 +208,11 @@ class TestParameters(unittest.TestCase):
 
         step1.compute_output = step1_compute_output
 
+        ## Need to define an output for the "samples" output, otherwise ee will compute unique values for each: "samples0", "samples1", etc.
+        def step1_compute_output(inputs, parameter, sample_format):
+            return "samples_value"
+        step1.compute_output = step1_compute_output
+
         agent = sbol3.Agent("test_agent")
         ee = ExecutionEngine(
             specializations=[MarkdownSpecialization("test_LUDOX_markdown.md")]
@@ -217,6 +222,7 @@ class TestParameters(unittest.TestCase):
             x = ee.execute(
                 protocol, agent, id="test_execution", parameter_values=parameter_values
             )
+
 
     def test_optional_and_required_parameters(self):
         doc = sbol3.Document()
