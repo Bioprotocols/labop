@@ -1,5 +1,6 @@
 import os
 import unittest
+import os
 
 import sbol3
 import tyto

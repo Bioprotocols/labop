@@ -132,6 +132,17 @@ class BehaviorSpecialization(ABC):
         self.prov_observer.update(record)
         self.data.append(node_data)
 
+    def update_objects(self, record: labop.ActivityNodeExecution):
+        """
+        Update the objects processed by the record.
+
+        Parameters
+        ----------
+        record : labop.ActivityNodeExecution
+            A step that modifies objects.
+        """
+        pass
+
     def resolve_container_spec(self, spec, addl_conditions=None):
         try:
             from container_api import matching_containers
