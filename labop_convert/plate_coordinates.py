@@ -134,3 +134,22 @@ def coordinate_rect_to_row_col_pairs(coords: str) -> list:
                 indices.append((j, i))
         return indices
     raise Exception(f"Invalid coordinates: {coords}")
+
+
+def flatten_coordinates(coords: str):
+    """
+    Convert a list strings, e.g. ["A1", "A2", ...]  or string representation of coordinate rectange, e.g., "A1:H12"  to a list of flat indices, e.g., (1, 2, ..., 96).
+
+    Parameters
+    ----------
+    coords : Union[List[str], str]
+        Humanized coordinates
+
+    Returns
+    -------
+    List
+        well coordinates converted to flat indices
+    """
+
+    pairs = roboticize_2D(coords)
+    return [i_row * 12 + i_col + 1 for i_row, i_col in pairs]
