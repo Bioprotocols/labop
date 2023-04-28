@@ -8,7 +8,7 @@ import xarray as xr
 
 # Project packages
 import uml
-from labop import ActivityNodeExecution, SampleMap
+from labop import ActivityNodeExecution, SampleMap, SampleArray
 from labop.data import deserialize_sample_format, serialize_sample_format
 from labop.primitive_execution import input_parameter_map
 from labop.strings import Strings
@@ -36,7 +36,6 @@ class SampleProvenanceObserver:
         self.handlers = {
             "https://bioprotocols.org/labop/primitives/liquid_handling/TransferByMap": TransferByMapUpdater,
             "https://bioprotocols.org/labop/primitives/sample_arrays/EmptyContainer": EmptyContainerUpdater,
-            "https://bioprotocols.org/labop/primitives/culturing/CulturePlates": CulturePlatesUpdater
         }
 
     def update(self, record: ActivityNodeExecution) -> None:
@@ -55,10 +54,8 @@ class SampleProvenanceObserver:
         if behavior.identity in self.handlers:
             updater = self.handlers[behavior.identity](self.graph, self.exec_tick)
             new_nodes = updater.update(iparams)
-            if self.graph:
+            if self.graph is not None and new_nodes is not None:
                 self.graph = xr.concat([new_nodes, self.graph], dim="tick")
-            else:
-                self.graph = new_nodes
             self.exec_tick = updater.exec_tick
         else:
             self.logger.info(
@@ -183,26 +180,13 @@ class EmptyContainerUpdater(BaseUpdater):
     def update(self, iparams: dict) -> xr.Dataset:
         # Since this is a no-op, nothing to do but create the nodes for each
         # sample in the sample array.
-        nodes = self.create_sample_nodes(iparams["sample_array"].to_data_array())
-        self.exec_tick += 1
+        if "sample_array" in iparams:
+            nodes = self.create_sample_nodes(iparams["sample_array"].to_data_array())
+        else:
+            self.logger.info(("Cannot create sample nodes for EmptyContainer "
+                             "without 'sample_array' field, skipping ..."))
+            return None
 
-        return nodes
-
-
-class CulturePlatesUpdater(BaseUpdater):
-    """
-    Update sample states as a result of a CulturePlates operation.
-
-    This creates new samples that correspond to the initial_contents of the SampleArray.
-    """
-
-    def __init__(self, *args, **kwargs) -> None:
-        super().__init__(*args, **kwargs)
-
-    def update(self, iparams: dict) -> xr.Dataset:
-        # Since this is a no-op, nothing to do but create the nodes for each
-        # sample in the sample array.
-        nodes = self.create_sample_nodes(iparams["sample_array"].to_data_array())
         self.exec_tick += 1
 
         return nodes
