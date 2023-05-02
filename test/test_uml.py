@@ -1,9 +1,15 @@
 import unittest
 
 import sbol3
-import tyto
 
-import uml
+from uml import (
+    Behavior,
+    Constraint,
+    LiteralInteger,
+    LiteralNull,
+    OrderedPropertyValue,
+    Parameter,
+)
 
 
 class TestUML(unittest.TestCase):

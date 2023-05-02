@@ -15,8 +15,9 @@ from uml import (
     LiteralSpecification,
     ObjectFlow,
     OutputPin,
+    Pin,
     ValuePin,
-    call_behavior_action,
+    literal,
 )
 from uml.activity import Activity
 from uml.activity_edge import ActivityEdge
@@ -207,6 +208,41 @@ class ExecutionContext(object):
         except StopIteration:
             raise Exception(f"Could not find invocation edge from {source}")
 
+    def get_nodes(self):
+        nodes = []
+        if self.activity:
+            nodes += self.activity.get_nodes()
+        else:
+            nodes += [
+                self.initial_node,
+                self.final_node,
+                self.invoke_activity_node,
+            ]
+        return nodes
+
+    def get_parameter_values(self):
+        # Add top execution_context parameter_values to execution_trace
+        invocation_pin_executions = [
+            e
+            for e in self.execution_trace.executions
+            if e.get_node().get_parent() == self.invoke_activity_node
+            and isinstance(e.get_node(), Pin)
+        ]
+        parameter_values = [
+            ParameterValue(
+                value=literal(f.get_value(), reference=True),
+                parameter=pin_execution.get_node().get_parameter(
+                    ordered=True
+                ),  # f.get_edge().get_source().get_parameter(),
+            )
+            for pin_execution in invocation_pin_executions
+            for f in pin_execution.get_incoming_flows()
+            if isinstance(f.get_edge(), ObjectFlow)
+            and isinstance(f.get_edge().get_source(), ActivityParameterNode)
+        ]
+        self.parameter_values += parameter_values
+        return self.parameter_values
+
     def invoke_activity(self, call_behavior_execution: CallBehaviorExecution):
         activity: Activity = call_behavior_execution.get_node().get_behavior()
         parameter_values: List[
@@ -219,7 +255,7 @@ class ExecutionContext(object):
         if hasattr(activity, "last_step"):
             activity.order(activity.last_step, activity.final())
         else:
-            activity.final()
+            activity.order(activity.initial(), activity.final())
 
         activity_context = ExecutionContext(
             self.execution_trace,
@@ -281,13 +317,16 @@ class ExecutionContext(object):
         for edge in self.outgoing_edges(call_behavior_action):
             if isinstance(edge, ControlFlow):
                 t = edge.get_target()
-                if isinstance(t, FinalNode):
-                    # child.FinalNode -> parent.cba.controlflow.target
+                # if isinstance(t, FinalNode):
+                # child.FinalNode -> parent.cba.controlflow.target
+                if t in self.get_nodes():
                     end = ControlFlow(
                         source=activity_context.activity.final(),
                         target=t,
                     )
                     activity_context.execution_trace.activity_call_edge.append(end)
+                    if t not in self.incoming_edge_tokens:
+                        self.incoming_edge_tokens[t] = {}
                     self.incoming_edge_tokens[t][end] = []
 
             elif isinstance(edge, ObjectFlow):

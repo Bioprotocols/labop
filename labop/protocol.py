@@ -22,7 +22,7 @@ from uml import (
     ObjectNode,
     ValueSpecification,
 )
-from uml.utils import WellFormednessIssue
+from uml.utils import WellFormednessError, WellFormednessIssue
 
 from .library import import_library
 from .primitive import Primitive
@@ -35,12 +35,18 @@ logger.setLevel(logging.INFO)
 class Protocol(inner.Protocol, Activity):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self._initial = self.initial()
+        self._final = self.final()
 
     def create_protocol(display_id="demo_protocol", name="DemonstrationProtocol"):
         logger.info("Creating protocol")
         protocol: Protocol = Protocol(display_id)
         protocol.name = name
         protocol.description = protocol.name
+
+        # Ensure that protocol has an InitialNode and a FinalNode in the correct order
+        protocol.order(protocol.initial(), protocol.final())
+
         return protocol
 
     def initialize_protocol(
@@ -187,6 +193,17 @@ class Protocol(inner.Protocol, Activity):
         """
         issues = []
 
+        validation_report = self.validate()
+
+        issues += [
+            WellFormednessError(self.document.find(e.object_id), e.message)
+            for e in validation_report.errors
+        ]
+        issues += [
+            WellFormednessError(self.document.find(e.object_id), e.message)
+            for e in validation_report.warnings
+        ]
+
         for node in self.get_nodes():
             issues += node.is_well_formed()
 
@@ -195,7 +212,7 @@ class Protocol(inner.Protocol, Activity):
 
         if not any([isinstance(node, InitialNode) for node in self.nodes]):
             issues += [
-                WellFormednessIssue(
+                WellFormednessError(
                     self,
                     f"Protocol does not include an InitialNode",
                     f"Calling protocol.initial() will add an InitialNode to protocol.",
@@ -204,7 +221,7 @@ class Protocol(inner.Protocol, Activity):
 
         if not any([isinstance(node, FinalNode) for node in self.nodes]):
             issues += [
-                WellFormednessIssue(
+                WellFormednessError(
                     self,
                     f"Protocol does not include an FinalNode",
                     f"Calling protocol.final() will add an FinalNode to protocol.",

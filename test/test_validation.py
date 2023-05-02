@@ -9,15 +9,12 @@ from uml import ActivityParameterNode, ObjectFlow
 class TestValidationErrorChecking(unittest.TestCase):
     def test_activity_multiflow(self):
         """Test whether validator can detect nondeterminism due to activity multiple outflows"""
-        # set up the document
-        print("Setting up document")
-        doc = sbol3.Document()
-        sbol3.set_namespace("https://bbn.com/scratch/")
-        labop.import_library("sample_arrays")
-        # Create the protocol
-        print("Creating protocol")
-        protocol = labop.Protocol("broken")
-        doc.add(protocol)
+        protocol, doc = labop.Protocol.initialize_protocol(
+            display_id="broken",
+            name="broken",
+            namespace="https://bbn.com/scratch/",
+        )
+
         # get a plate
         plate = protocol.primitive_step("EmptyContainer", specification="placeholder")
         # use it in three places

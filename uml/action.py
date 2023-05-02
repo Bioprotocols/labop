@@ -5,7 +5,6 @@ The Action class defines the functions corresponding to the dynamically generate
 from typing import Callable, Dict, List
 
 import sbol3
-from matplotlib.dates import WE
 
 from uml.behavior import Behavior
 from uml.input_pin import InputPin
@@ -16,28 +15,64 @@ from .literal_specification import LiteralSpecification
 from .output_pin import OutputPin
 from .parameter import Parameter
 from .pin import Pin
-from .utils import WellFormednessIssue
+from .utils import WellFormednessError, WellFormednessIssue
 from .value_pin import ValuePin
 
 
 class Action(inner.Action, ExecutableNode):
     def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+        super(Action, self).__init__(*args, **kwargs)
+        self.pin_parameters = {}
+        self.pin_ordered_parameters = {}
+        behavior = self.get_behavior()
+        # parameters = behavior.get_parameters()
+        ordered_parameters = behavior.get_parameters(ordered=True)
+        for i in self.inputs:
+            if i.name not in self.pin_parameters:
+                self.pin_parameters[i.name] = []
+            if i.name not in self.pin_ordered_parameters:
+                self.pin_ordered_parameters[i.name] = []
 
-    def get_parameter(self):
-        return None
+            self.pin_ordered_parameters[i.name] += [
+                p
+                for p in ordered_parameters
+                if p.property_value.name == i.name and p.property_value.is_input()
+            ]
+            self.pin_parameters[i.name] += [
+                p.property_value
+                for p in ordered_parameters
+                if p.property_value.name == i.name and p.property_value.is_input()
+            ]
 
-    def get_inputs(self):
+        for o in self.outputs:
+            if o.name not in self.pin_parameters:
+                self.pin_parameters[o.name] = []
+            if o.name not in self.pin_ordered_parameters:
+                self.pin_ordered_parameters[o.name] = []
+
+            self.pin_parameters[o.name] += [
+                p for p in parameters if p.name == o.name and p.is_output()
+            ]
+            self.pin_ordered_parameters[i.name] += [
+                p.property_value
+                for p in ordered_parameters
+                if p.property_value.name == o.name and p.property_value.is_input()
+            ]
+
+    def get_inputs(self) -> List[InputPin]:
         return self.inputs
 
-    def get_outputs(self):
+    def get_outputs(self) -> List[OutputPin]:
         return self.outputs
 
-    def required_inputs(self):
-        return [i for i in self.get_inputs() if self.pin_parameter(i.name).required()]
+    def get_pins(self) -> List[Pin]:
+        return self.inputs + self.outputs
 
-    def required_outputs(self):
-        return [o for o in self.get_outputs() if self.pin_parameter(o.name).required()]
+    def required_inputs(self) -> List[InputPin]:
+        return [i for i in self.get_inputs() if self.get_parameter(i.name).required()]
+
+    def required_outputs(self) -> List[OutputPin]:
+        return [o for o in self.get_outputs() if self.get_parameter(o.name).required()]
 
     def input_pin(self, pin_name: str):
         """Find an input pin on the action with the specified name
@@ -82,43 +117,34 @@ class Action(inner.Action, ExecutableNode):
             raise ValueError(f"Found more than one output pin named {pin_name}")
         return pin_set.pop()
 
-    def pin_parameter(self, pin_name: str, ordered=False):
-        """Find the behavior parameter corresponding to the pin
+    def get_behavior(self) -> Behavior:
+        return self.behavior.lookup()
+
+    def get_parameter(self, name: str, ordered=False):
+        """Find the behavior parameter corresponding to the pin with the name
 
         :param pin_name:
         :return: Parameter with specified name
         """
-        try:
-            pins = self.input_pins(pin_name)
-        except:
-            try:
-                pin = self.output_pin(pin_name)
-            except:
-                raise ValueError(f"Could not find pin named {pin_name}")
-        behavior = self.behavior.lookup()
-        parameters = [
-            p for p in behavior.parameters if p.property_value.name == pin_name
-        ]
-        if len(parameters) == 0:
-            raise ValueError(
-                f"Invalid parameter {pin_name} provided for Primitive {behavior.display_id}"
+        if name in self.pin_ordered_parameters:
+            params = (
+                self.pin_ordered_parameters[name]
+                if ordered
+                else self.pin_parameters[name]
             )
-        elif len(parameters) > 1:
+            if len(params) > 1:
+                raise ValueError(
+                    f"Primitive {behavior.display_id} has multiple Parameters with the same name"
+                )
+            elif len(params) == 0:
+                raise ValueError(
+                    f"The pin with name {name} exists, but does not match a parameter for Primitive {self.get_behavior().display_id}"
+                )
+            return next(params)
+        else:
             raise ValueError(
-                f"Primitive {behavior.display_id} has multiple Parameters with the same name"
+                f"Invalid parameter {name} provided for Primitive {behavior.display_id}"
             )
-        parameter = parameters[0]
-        # try:
-        #     parameter.__class__ = inner_to_outer(parameter)
-        # except:
-        #     pass
-        # try:
-        #     parameter.property_value.__class__ = inner_to_outer(
-        #         parameter.property_value
-        #     )
-        # except:
-        #     pass
-        return parameter if ordered else parameter.property_value
 
     def is_well_formed(self) -> List[WellFormednessIssue]:
         """
@@ -151,11 +177,9 @@ class Action(inner.Action, ExecutableNode):
                     break
             if matching_pin is None:
                 issues += [
-                    WellFormednessIssue(
+                    WellFormednessError(
                         self,
                         f"Action does not have a pin for required parameter {param}.",
-                        WellFormednessIssue.REPORT_ISSUE,
-                        level=WellFormednessIssue.ERROR,
                     )
                 ]
             else:
@@ -231,7 +255,7 @@ class Action(inner.Action, ExecutableNode):
         if isinstance(edge, ControlFlow):
             value = "uml.ControlFlow"
         elif isinstance(edge, ObjectFlow):
-            parameter = self.pin_parameter(edge.get_source().name)
+            parameter = self.get_parameter(edge.get_source().name)
             value = self.get_parameter_value(
                 parameter, parameter_value_map, node_outputs, sample_format
             )

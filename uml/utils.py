@@ -3,6 +3,7 @@ import datetime
 import hashlib
 import importlib
 import json
+from inspect import currentframe, getframeinfo
 from typing import Union
 
 import sbol3
@@ -123,23 +124,62 @@ def convert_to_outer_class(inner_class, package="uml"):
     return inner_class
 
 
-class WellFormednessIssue:
+class WellformednessLevels:
     ERROR = "error"
     WARNING = "warning"
     INFO = "info"
+
+
+class WellformednessSuggestions:
     REPORT_ISSUE = "Report the issue at: https://github.com/Bioprotocols/labop/issues."
 
+
+class WellFormednessIssue:
     def __init__(
         self,
         object: Union[sbol3.Identified, sbol3.TopLevel],
         description: str,
-        suggestion: str,
-        level: str = ERROR,
+        suggestion: str = WellformednessSuggestions.REPORT_ISSUE,
     ):
         self.object = object
         self.description = description
         self.suggestion = suggestion
-        self.level = level
+        frameinfo = getframeinfo(currentframe())
+        self.location = f"{frameinfo.filename}:{frameinfo.lineno}"
+        self.level = WellformednessLevels.ERROR
 
     def __str__(self):
-        return f"{self.level}({self.object}): {self.description} [{self.suggestion}]"
+        return f"{self.level}({self.object})[{self.location}]: {self.description} [{self.suggestion}]"
+
+
+class WellFormednessError(WellFormednessIssue):
+    def __init__(
+        self,
+        object: Union[sbol3.Identified, sbol3.TopLevel],
+        description: str,
+        suggestion: str = WellformednessSuggestions.REPORT_ISSUE,
+    ):
+        super().__init__(object, description, suggestion)
+        self.level = WellformednessLevels.ERROR
+
+
+class WellFormednessWarning(WellFormednessIssue):
+    def __init__(
+        self,
+        object: Union[sbol3.Identified, sbol3.TopLevel],
+        description: str,
+        suggestion: str = WellformednessSuggestions.REPORT_ISSUE,
+    ):
+        super().__init__(object, description, suggestion)
+        self.level = WellformednessLevels.WARNING
+
+
+class WellFormednessInfo(WellFormednessIssue):
+    def __init__(
+        self,
+        object: Union[sbol3.Identified, sbol3.TopLevel],
+        description: str,
+        suggestion: str = WellformednessSuggestions.REPORT_ISSUE,
+    ):
+        super().__init__(object, description, suggestion)
+        self.level = WellformednessLevels.INFO

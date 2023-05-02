@@ -8,16 +8,16 @@ from typing import Dict, List
 from . import inner
 from .object_node import ObjectNode
 from .parameter import Parameter
-from .utils import WellFormednessIssue
+from .utils import WellFormednessError, WellFormednessIssue
 
 
 class Pin(inner.Pin, ObjectNode):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-    def get_parameter(self):
+    def get_parameter(self, ordered=False):
         action = self.get_parent()
-        parameter = action.pin_parameter(self.name)
+        parameter = action.get_parameter(self.name, ordered=ordered)
         return parameter
 
     def dot_attrs(
@@ -34,21 +34,19 @@ class Pin(inner.Pin, ObjectNode):
         issues = []
 
         try:
-            parameter = self.get_parent().pin_parameter(self.name)
+            parameter = self.get_parent().get_parameter(self.name)
             if parameter is None:
                 issues += [
-                    WellFormednessIssue(
+                    WellFormednessError(
                         self,
                         "Pin must correspond to a Parameter of the same name.",
-                        "Report the issue at: https://github.com/Bioprotocols/labop/issues.",
                     )
                 ]
         except Exception as e:
             issues += [
-                WellFormednessIssue(
+                WellFormednessError(
                     self,
                     "Could not find a Parameter corresponding to the Pin.",
-                    WellFormednessIssue.REPORT_ISSUE,
                 )
             ]
         return issues

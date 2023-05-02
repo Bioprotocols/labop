@@ -8,7 +8,7 @@ from . import inner
 from .activity_node import ActivityNode
 from .literal_specification import LiteralSpecification
 from .pin import Pin
-from .utils import WellFormednessIssue, literal
+from .utils import WellFormednessError, WellFormednessIssue, literal
 
 
 class InputPin(inner.InputPin, Pin):
@@ -92,11 +92,10 @@ class InputPin(inner.InputPin, Pin):
 
         if not any([e for e in incoming_edges if isinstance(e, ObjectFlow)]):
             issues += [
-                WellFormednessIssue(
+                WellFormednessError(
                     self,
                     "InputPin must have an incoming ObjectFlow edge to ensure that it can be assigned.",
-                    "Ensure that the invocation of the associated Behavior assigns the value of the Parameter.",
-                    level=WellFormednessIssue.ERROR,
+                    suggestion="Ensure that the invocation of the associated Behavior assigns the value of the Parameter.",
                 )
             ]
         return issues

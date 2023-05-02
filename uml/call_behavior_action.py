@@ -3,7 +3,6 @@ The CallBehaviorAction class defines the functions corresponding to the
 dynamically generated labop class CallBehaviorAction
 """
 
-import uuid
 from typing import Callable, Dict, List
 
 import graphviz
@@ -27,7 +26,7 @@ from .value_pin import ValuePin
 
 class CallBehaviorAction(inner.CallBehaviorAction, CallAction):
     def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+        super(CallBehaviorAction, self).__init__(*args, **kwargs)
 
     def __hash__(self):
         return labop_hash(self.identity)
@@ -63,7 +62,9 @@ class CallBehaviorAction(inner.CallBehaviorAction, CallAction):
 
     def dot_attrs(self, incoming_edges: List["ActivityEdge"]):
         port_row = '  <tr><td><table border="0" cellspacing="-2"><tr><td> </td>{}<td> </td></tr></table></td></tr>\n'
-        required_inputs = self.get_behavior().get_required_inputs()
+        required_inputs = self.get_behavior().get_parameters(
+            required=True, input_only=True
+        )
         used_inputs = [
             o
             for o in self.inputs
@@ -105,6 +106,8 @@ class CallBehaviorAction(inner.CallBehaviorAction, CallAction):
         sample_format: str,
         invocation_hash: int,
     ):
+        from .activity import Activity
+
         if isinstance(edge, ControlFlow):
             return ActivityNode.get_value(
                 self,
@@ -115,16 +118,24 @@ class CallBehaviorAction(inner.CallBehaviorAction, CallAction):
                 invocation_hash,
             )
         elif isinstance(edge, ObjectFlow):
-            parameter = self.pin_parameter(edge.get_target().name)
-            value = self.get_parameter_value(
-                parameter,
-                parameter_value_map,
-                node_outputs,
-                sample_format,
-                invocation_hash,
-            )
+            if isinstance(self.get_behavior(), Activity):
+                # Activity Invocations do not send objects to their output pins
+                # The activity output parameters will send object to the output pins.
+                value = "uml.ControlFlow"
+                reference = False
+            else:
+                parameter = self.get_parameter(edge.get_target().name)
+                value = self.get_parameter_value(
+                    parameter,
+                    parameter_value_map,
+                    node_outputs,
+                    sample_format,
+                    invocation_hash,
+                )
 
-            reference = isinstance(value, sbol3.Identified) and value.identity != None
+                reference = (
+                    isinstance(value, sbol3.Identified) and value.identity != None
+                )
 
         value = literal(value, reference=reference)
         return value
@@ -146,107 +157,3 @@ class CallBehaviorAction(inner.CallBehaviorAction, CallAction):
         else:
             value = f"{parameter.name}"
         return value
-
-    def next_tokens_callback(
-        self,
-        node_inputs: Dict["ActivityEdge", LiteralSpecification],
-        outgoing_edges: List["ActivityEdge"],
-        node_outputs: Callable,
-        calling_behavior: InvocationAction,
-        sample_format: str,
-        permissive: bool,
-    ) -> Dict["ActivityEdge", LiteralSpecification]:
-        if isinstance(self.get_behavior(), Activity):
-            if engine.is_asynchronous:
-                # Push record onto blocked nodes to complete
-                engine.blocked_nodes.add(source)
-                # new_tokens are those corresponding to the subprotocol
-                # initiating_nodes
-                init_nodes = self.behavior.lookup().initiating_nodes()
-
-                def get_invocation_edge(r, n):
-                    invocation = {}
-                    value = None
-                    if isinstance(n, InitialNode):
-                        try:
-                            invocation["edge"] = ControlFlow(source=r.node, target=n)
-                            engine.ex.activity_call_edge += [invocation["edge"]]
-                            source = next(
-                                i
-                                for i in r.incoming_flows
-                                if hasattr(i.lookup(), "edge")
-                                and i.lookup().edge
-                                and isinstance(i.lookup().edge.lookup(), ControlFlow)
-                            )
-                            invocation["value"] = literal(
-                                source.lookup().value, reference=True
-                            )
-
-                        except StopIteration as e:
-                            pass
-
-                    elif isinstance(n, ActivityParameterNode):
-                        # if ActivityParameterNode is a ValuePin of the calling
-                        # behavior, then it won't be an incoming flow
-                        source = self.input_pin(
-                            n.parameter.lookup().property_value.name
-                        )
-                        invocation["edge"] = ObjectFlow(source=source, target=n)
-                        engine.ex.activity_call_edge += [invocation["edge"]]
-                        # ex.protocol.lookup().edges.append(invocation['edge'])
-                        if isinstance(source, ValuePin):
-                            invocation["value"] = literal(source.value, reference=True)
-                        else:
-                            try:
-                                source = next(
-                                    iter(
-                                        [
-                                            i
-                                            for i in r.incoming_flows
-                                            if i.lookup()
-                                            .token_source.lookup()
-                                            .node.lookup()
-                                            .name
-                                            == n.parameter.lookup().property_value.name
-                                        ]
-                                    )
-                                )
-                                # invocation['edge'] =
-                                # ObjectFlow(source=source.lookup().token_source.lookup().node.lookup(),
-                                # target=n) engine.ex.activity_call_edge +=
-                                # [invocation['edge']]
-                                # ex.protocol.lookup().edges.append(invocation['edge'])
-                                invocation["value"] = literal(
-                                    source.lookup().value, reference=True
-                                )
-                            except StopIteration as e:
-                                pass
-
-                    return invocation
-
-                new_tokens = {
-                    source: get_invocation_edge(source, init_node)
-                    for init_node in init_nodes
-                }
-                # engine.ex.flows += new_tokens
-
-                if len(new_tokens) == 0:
-                    # Subprotocol does not have a body, so need to complete the
-                    # CallBehaviorAction here, otherwise would have seen a
-                    # FinalNode.
-                    new_tokens = source.complete_subprotocol(engine)
-
-            else:  # is synchronous execution
-                # Execute subprotocol
-                self.execute(
-                    self.behavior.lookup(),
-                    engine.ex.association[0].agent.lookup(),
-                    id=f"{engine.display_id}{uuid.uuid4()}".replace("-", "_"),
-                    parameter_values=[],
-                )
-        else:
-            new_tokens = self.next_tokens_callback(
-                source, engine, out_edges, node_outputs
-            )
-
-        return new_tokens

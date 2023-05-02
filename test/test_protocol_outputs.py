@@ -19,9 +19,10 @@ labop.import_library("spectrophotometry")
 
 class TestProtocolOutputs(unittest.TestCase):
     def setUp(self):
-        doc = sbol3.Document()
-        protocol = labop.Protocol("foo")
-        doc.add(protocol)
+        protocol_name = "test_protocol"
+        protocol, doc = labop.Protocol.initialize_protocol(
+            display_id=protocol_name, name=protocol_name
+        )
 
         plate_spec = labop.ContainerSpec(
             "my_absorbance_measurement_plate",

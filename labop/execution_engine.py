@@ -19,7 +19,7 @@ from uml.input_pin import InputPin
 from uml.object_flow import ObjectFlow
 from uml.output_pin import OutputPin
 from uml.pin import Pin
-from uml.utils import WellFormednessIssue, literal
+from uml.utils import WellFormednessIssue, WellformednessLevels, literal
 from uml.value_pin import ValuePin
 
 from .activity_edge_flow import ActivityEdgeFlow
@@ -180,8 +180,7 @@ class ExecutionEngine(ABC):
     ):
         self.ex.end_time = self.get_current_time()
 
-        # Add top execution_context parameter_values to execution_trace
-        self.ex.parameter_values += execution_context.parameter_values
+        self.ex.parameter_values += execution_context.get_parameter_values()
 
         # A Protocol has completed normally if all of its required output parameters have values
         self.ex.completed_normally = set(
@@ -233,11 +232,13 @@ class ExecutionEngine(ABC):
         return self.ex
 
     def report_well_formedness_issues(self, issues: List[WellFormednessIssue]):
-        infos = [issue for issue in issues if issue.level == WellFormednessIssue.INFO]
+        infos = [issue for issue in issues if issue.level == WellformednessLevels.INFO]
         warnings = [
-            issue for issue in issues if issue.level == WellFormednessIssue.WARNING
+            issue for issue in issues if issue.level == WellformednessLevels.WARNING
         ]
-        errors = [issue for issue in issues if issue.level == WellFormednessIssue.ERROR]
+        errors = [
+            issue for issue in issues if issue.level == WellformednessLevels.ERROR
+        ]
 
         infos_str = (
             "\nInfo:\n" + "\n".join(["- " + str(i) for i in infos])
@@ -422,8 +423,26 @@ class ExecutionEngine(ABC):
                 )
                 for edge in outgoing_edges
                 if edge.get_target() in execution_context.nodes
+                # Do not create normal object flow for CBA to output pins
+                and (
+                    not isinstance(node, CallBehaviorAction)
+                    or not isinstance(node.get_behavior(), Activity)
+                )
             ]
         }
+        # If CallBehaviorAction.behavior is an Activity, then the output parameters will define the values of the CallBehaviorAction output pins.  Any tokens flowing to the output pins from the CallBehaviorAction will be control tokens instead of object tokens.  This code below adds these control tokens.
+        new_tokens[execution_context] += [
+            ActivityEdgeFlow(
+                edge=edge,
+                token_source=record,
+                value=literal("uml.ControlFlow"),
+            )
+            for edge in outgoing_edges
+            if edge.get_target() in execution_context.nodes
+            and isinstance(edge, ObjectFlow)
+            and isinstance(node, CallBehaviorAction)
+            and isinstance(node.get_behavior(), Activity)
+        ]
         if execution_context.parent_context:
             # Handle return values
             parent_tokens = [
@@ -540,7 +559,7 @@ class ExecutionEngine(ABC):
                     )
                 value_pin_values[pin.identity] = pin.value
             # Check that pin corresponds to an input parameter.  Will cause Exception if does not exist.
-            parameter = node.pin_parameter(pin.name)
+            parameter = node.get_parameter(pin.name)
 
         # Convert References
         value_pin_values = {
@@ -551,7 +570,7 @@ class ExecutionEngine(ABC):
 
         parameter_values = [
             ParameterValue(
-                parameter=node.pin_parameter(pin.name, ordered=True),
+                parameter=node.get_parameter(pin.name, ordered=True),
                 value=pin_values[pin.identity],
             )
             for pin in node.get_inputs()

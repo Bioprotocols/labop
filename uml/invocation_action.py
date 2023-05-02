@@ -8,4 +8,4 @@ from .action import Action
 
 class InvocationAction(inner.InvocationAction, Action):
     def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+        super(InvocationAction, self).__init__(*args, **kwargs)

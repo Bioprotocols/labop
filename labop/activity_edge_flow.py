@@ -89,6 +89,7 @@ class ActivityEdgeFlow(inner.ActivityEdgeFlow):
         dest_parameter=None,
         out_dir=".",
         color="orange",
+        reverse=False,
     ):
         source_node_execution = self.get_source()
         source_node = self.get_edge().get_source()
@@ -117,4 +118,7 @@ class ActivityEdgeFlow(inner.ActivityEdgeFlow):
         edge_label = f"{edge_index}: {edge_label}"
 
         attrs = {"color": color}
-        dot.edge(target_id, source_id, edge_label, _attributes=attrs)
+        if reverse:
+            dot.edge(source_id, target_id, edge_label, _attributes=attrs)
+        else:
+            dot.edge(target_id, source_id, edge_label, _attributes=attrs)

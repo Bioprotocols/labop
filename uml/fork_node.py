@@ -5,6 +5,7 @@ The ForkNode class defines the functions corresponding to the dynamically genera
 from typing import Callable, Dict, List
 
 import uml
+from uml import LiteralSpecification
 from uml.activity_edge import ActivityEdge
 from uml.control_flow import ControlFlow
 from uml.object_flow import ObjectFlow
@@ -19,7 +20,8 @@ class ForkNode(inner.ForkNode, ControlNode):
         super().__init__(*args, **kwargs)
 
     def dot_attrs(
-        selfincoming_edges: Dict["InputPin", List["ActivityEdge"]] = None,
+        self,
+        incoming_edges: Dict["InputPin", List["ActivityEdge"]] = None,
     ):
         return {
             "label": "",
@@ -75,3 +77,27 @@ class ForkNode(inner.ForkNode, ControlNode):
             for edge in out_edges
         ]
         return edge_tokens
+
+    def get_value(
+        self,
+        edge: "ActivityEdge",
+        parameter_value_map: Dict[str, List[LiteralSpecification]],
+        node_outputs: Callable,
+        sample_format: str,
+        invocation_hash: int,
+    ):
+        if isinstance(edge, ControlFlow):
+            return ActivityNode.get_value(
+                self,
+                edge,
+                parameter_value_map,
+                node_outputs,
+                sample_format,
+                invocation_hash,
+            )
+        elif isinstance(edge, ObjectFlow):
+            value = next(iter(parameter_value_map.values()))
+            reference = True
+
+        value = literal(value, reference=reference)
+        return value

@@ -2,13 +2,14 @@ import filecmp
 import os
 import tempfile
 import unittest
+from ast import Expression
 
 import sbol3
 import tyto
 
 import labop
 import labop_time as labopt
-import uml
+from uml import Duration, DurationObservation, Expression
 
 # from labop_check.labop_check import check_doc, get_minimum_duration
 
@@ -94,6 +95,7 @@ class TestTime(unittest.TestCase):
         # Create the Protocol
         print("Creating Protocol")
         protocol = labop.Protocol("test_protocol")
+        protocol.order(protocol.initial(), protocol.final())
 
         # Protocol starts at time zero
         start = labopt.startTime(protocol, 0, units=tyto.OM.hour)

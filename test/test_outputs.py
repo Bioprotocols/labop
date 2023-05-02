@@ -24,9 +24,7 @@ labop.import_library("spectrophotometry")
 
 class TestProtocolOutputs(unittest.TestCase):
     def setUp(self):
-        doc = sbol3.Document()
-        protocol = labop.Protocol("foo")
-        doc.add(protocol)
+        protocol, doc = labop.Protocol.initialize_protocol()
 
         plate = protocol.primitive_step(
             "EmptyContainer",

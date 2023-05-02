@@ -39,9 +39,7 @@ class ExampleProtocol(unittest.TestCase):
     def test_bottom_up_protocol(self):
         # Provides a minimal, working example of a Protocol built from
         # the bottom-up without using any of the library's convenience methods
-        doc = sbol3.Document()
-        protocol = Protocol("foo")
-        doc.add(protocol)
+        protocol, doc = Protocol.initialize_protocol(display_id="foo")
 
         step1 = Primitive("step1")
         step2 = Primitive("step2")
@@ -172,10 +170,8 @@ class TestParameters(unittest.TestCase):
 
     def test_duplicate_parameters(self):
         # Verify exception-handling for name collisions between Parameters
-        doc = sbol3.Document()
-        protocol = Protocol("foo")
-        doc.add(protocol)
 
+        protocol, doc = Protocol.initialize_protocol(display_id="foo")
         step1 = Primitive("step1")
         step2 = Primitive("step2")
 
@@ -245,9 +241,7 @@ class TestParameters(unittest.TestCase):
             )
 
     def test_optional_and_required_parameters(self):
-        doc = sbol3.Document()
-        protocol = Protocol("foo")
-        doc.add(protocol)
+        protocol, doc = Protocol.initialize_protocol(display_id="foo")
 
         input_component = sbol3.Component("input_component", sbol3.SBO_DNA)
         doc.add(input_component)

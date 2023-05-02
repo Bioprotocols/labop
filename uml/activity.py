@@ -47,8 +47,6 @@ class Activity(inner.Activity, Behavior):
         super().__init__(*args, **kwargs)
         self._initial = None
         self._final = None
-        self._initial = self.initial()
-        self._final = self.final()
 
     def initial(self):
         """Find or create an initial node in an Activity.
@@ -409,9 +407,9 @@ class Activity(inner.Activity, Behavior):
         # Check that incoming flow counts obey constraints:
         target_counts = Counter(
             [
-                e.target.lookup().unpin()
+                e.get_target().unpin()
                 for e in self.edges
-                if isinstance(e.target.lookup(), ActivityNode)
+                if isinstance(e.get_target(), ActivityNode)
             ]
         )
         # No InitialNode should have an incoming flow (though an ActivityParameterNode may)

@@ -18,7 +18,7 @@ l.setLevel(logging.ERROR)
 
 class ActivityNode(inner.ActivityNode):
     def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+        super(ActivityNode, self).__init__(*args, **kwargs)
 
     def to_dot(
         self,

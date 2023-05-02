@@ -32,7 +32,7 @@ class OutputPin(inner.OutputPin, Pin):
             value = "uml.ControlFlow"
         elif isinstance(edge, ObjectFlow):
             call_node = self.get_parent()
-            # parameter = call_node.pin_parameter(
+            # parameter = call_node.get_parameter(
             #     edge.get_source().name
             # ).property_value
             value = node_inputs[self.name]

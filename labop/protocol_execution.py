@@ -24,6 +24,7 @@ from uml import (
     ControlFlow,
     ControlNode,
     DecisionNode,
+    FinalNode,
     InitialNode,
     InputPin,
     LiteralReference,
@@ -45,24 +46,26 @@ class ProtocolExecution(inner.ProtocolExecution, BehaviorExecution):
     def get_ordered_executions(self):
         protocol = self.protocol.lookup()
         try:
-            [start_node] = [n for n in protocol.nodes if type(n) is InitialNode]
+            start_node = next(n for n in protocol.nodes if type(n) is InitialNode)
         except Exception as e:
             raise Exception(f"Protocol {protocol.identity} has no InitialNode")
-        [execution_start_node] = [
+        execution_start_node = next(
             x for x in self.executions if x.node == start_node.identity
-        ]  # ActivityNodeExecution
+        )  # ActivityNodeExecution
         ordered_execution_nodes = []
         current_execution_node = execution_start_node
         while current_execution_node:
             try:
-                [current_execution_node] = [
+                current_execution_node = next(
                     x
                     for x in self.executions
                     for f in x.incoming_flows
                     if f.lookup().token_source == current_execution_node.identity
-                ]
+                )
                 ordered_execution_nodes.append(current_execution_node)
             except ValueError:
+                current_execution_node = None
+            except StopIteration:
                 current_execution_node = None
         return ordered_execution_nodes
 
@@ -206,11 +209,15 @@ class ProtocolExecution(inner.ProtocolExecution, BehaviorExecution):
             execution_node = execution.get_node()
             execution_label = ""
 
-            if execution_node.get_parent() == self or (
-                isinstance(execution_node, Pin)
-                and execution_node.get_parent().get_parent() == self
-            ):
+            if (
+                execution_node.get_parent() == self
+                or (
+                    isinstance(execution_node, Pin)
+                    and execution_node.get_parent().get_parent() == self
+                )
+            ) and not isinstance(execution_node, FinalNode):
                 # If node is not part of protocol, then its part of the invocation of the protocol and isn't drawn by the protocol to_dot()
+                # This is only needed for the InitialNode because the other nodes are handled outside of this block as execution records
                 incoming_edges = execution_context.incoming_edges(execution_node)
 
                 # Pins are drawn as part of CallBehaviorAction
@@ -229,32 +236,34 @@ class ProtocolExecution(inner.ProtocolExecution, BehaviorExecution):
                     if edge.dot_plottable():
                         edge.to_dot(dot, namespace=self.namespace)
 
-                # Add outgoing edges from execution_node
-                outgoing_edges = execution_context.outgoing_edges(execution_node)
-                for edge in outgoing_edges:
-                    if edge.dot_plottable() and not (
-                        edge.get_target() in execution_context.nodes
-                    ):
-                        edge.to_dot(dot, namespace=self.namespace)
+            #     # Add outgoing edges from execution_node
+            #     outgoing_edges = execution_context.outgoing_edges(
+            #         execution_node
+            #     )
+            #     for edge in outgoing_edges:
+            #         if edge.dot_plottable() and not (
+            #             edge.get_target() in execution_context.nodes
+            #         ):
+            #             edge.to_dot(dot, namespace=self.namespace)
 
-                # Add incoming edges to execution_node
-                for incoming_flow in execution.get_incoming_flows():
-                    # Executable Nodes have incoming flow from their input pins and ControlFlows
-                    # parameter = target_node.get_parameter()
-                    if isinstance(incoming_flow.get_edge(), ObjectFlow):
-                        if (
-                            isinstance(execution_node, ActivityParameterNode)
-                            or isinstance(execution_node, ControlNode)
-                            or isinstance(execution_node, InputPin)
-                        ):
-                            incoming_flow.to_dot(
-                                dot,
-                                execution_node,
-                                self.namespace,
-                                out_dir=out_dir,
-                                color="orange"
-                                # dest_parameter=parameter,
-                            )
+            # # Add incoming edges to execution_node
+            # for incoming_flow in execution.get_incoming_flows():
+            #     # Executable Nodes have incoming flow from their input pins and ControlFlows
+            #     # parameter = target_node.get_parameter()
+            #     if isinstance(incoming_flow.get_edge(), ObjectFlow):
+            #         if (
+            #             isinstance(execution_node, ActivityParameterNode)
+            #             or isinstance(execution_node, ControlNode)
+            #             or isinstance(execution_node, InputPin)
+            #         ):
+            #             incoming_flow.to_dot(
+            #                 dot,
+            #                 execution_node,
+            #                 self.namespace,
+            #                 out_dir=out_dir,
+            #                 color="orange"
+            #                 # dest_parameter=parameter,
+            #             )
 
             # Make a self loop that includes the and start and end time.
             if isinstance(execution, CallBehaviorExecution):
@@ -307,6 +316,19 @@ class ProtocolExecution(inner.ProtocolExecution, BehaviorExecution):
                 ):
                     incoming_flow.to_dot(
                         dot, execution_node, self.namespace, out_dir=out_dir
+                    )
+                elif (
+                    isinstance(edge_ref, ControlFlow)
+                    and source_node.get_parent() != execution_node.get_parent()
+                ):
+                    # Plot ControlFlow for subprotocol invocation
+                    incoming_flow.to_dot(
+                        dot,
+                        execution_node,
+                        self.namespace,
+                        out_dir=out_dir,
+                        color="blue",
+                        reverse=True,
                     )
 
         return dot

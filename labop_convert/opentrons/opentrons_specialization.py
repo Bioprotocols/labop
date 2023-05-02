@@ -6,6 +6,7 @@ from typing import Dict
 import sbol3
 import tyto
 import xarray as xr
+from responses import CallList
 
 import labop
 from labop import (
@@ -303,7 +304,7 @@ class OT2Specialization(DefaultBehaviorSpecialization):
             return f"* `{parameter.name}` = {value}"
 
     def define_container(self, record: ActivityNodeExecution, ex: ProtocolExecution):
-        call = record.call.lookup()
+        call = record.get_call()
         parameter_value_map = call.parameter_value_map()
 
         spec = parameter_value_map["specification"]
@@ -312,7 +313,7 @@ class OT2Specialization(DefaultBehaviorSpecialization):
 
     def time_wait(self, record: ActivityNodeExecution, ex: ProtocolExecution):
         results = {}
-        call = record.call.lookup()
+        call = record.get_call()
         parameter_value_map = call.parameter_value_map()
         value = parameter_value_map["amount"].value
         units = parameter_value_map["amount"].unit
@@ -320,7 +321,7 @@ class OT2Specialization(DefaultBehaviorSpecialization):
 
     def provision(self, record: ActivityNodeExecution, ex: ProtocolExecution):
         results = {}
-        call = record.call.lookup()
+        call = record.get_call()
         parameter_value_map = call.parameter_value_map()
         destination = parameter_value_map["destination"]
         value = parameter_value_map["amount"].value
@@ -334,22 +335,18 @@ class OT2Specialization(DefaultBehaviorSpecialization):
             destination.get_parent()
             .get_parent()
             .token_source.lookup()
-            .node.lookup()
+            .get_node()
             .input_pin("coordinates")
             .value.value
         )
         upstream_execution = get_token_source("destination", record)
-        container = upstream_execution.call.lookup().parameter_value_map()["container"]
+        container = upstream_execution.get_call().parameter_value_map()["container"]
 
         behavior_type = get_behavior_type(upstream_execution)
         if behavior_type == "LoadContainerInRack":
-            coords = upstream_execution.call.lookup().parameter_value_map()[
-                "coordinates"
-            ]
+            coords = upstream_execution.get_call().parameter_value_map()["coordinates"]
             upstream_execution = get_token_source("slots", upstream_execution)
-            rack = upstream_execution.call.lookup().parameter_value_map()[
-                "specification"
-            ]
+            rack = upstream_execution.get_call().parameter_value_map()["specification"]
         else:
             raise NotImplementedError(
                 f'A "Provision" call cannot follow a "{behavior_type}" call'
@@ -362,9 +359,9 @@ class OT2Specialization(DefaultBehaviorSpecialization):
         text = f"Fill {amount} of {resource.name} into {container_str} located in {coords} of {rack_str}"
         self.markdown_steps += [text]
 
-    def transfer_to(self, record: ActivityNodeExecution, ex: ProtocolExecution):
+    def transfer_to(self, record: CallBehaviorExecution, ex: ProtocolExecution):
         results = {}
-        call = record.call.lookup()
+        call: CallBehaviorAction = record.get_call()
         parameter_value_map = call.parameter_value_map()
         destination = parameter_value_map["destination"]
         source = parameter_value_map["source"]
@@ -375,31 +372,29 @@ class OT2Specialization(DefaultBehaviorSpecialization):
 
         # Trace the "source" pin back to the EmptyContainer to retrieve the
         # ContainerSpec for the destination container
-        upstream_execution = record.get_token_source(
-            parameter_value_map["source"]["parameter"].property_value
-        )
+        upstream_execution = record.get_token_source(record.get_parameter("source"))
         behavior_type = get_behavior_type(upstream_execution)
         if behavior_type == "PlateCoordinates":
-            upstream_map = upstream_execution.call.lookup().parameter_value_map()
+            upstream_map = upstream_execution.get_call().parameter_value_map()
             coordinates = upstream_map["coordinates"]
             upstream_execution = upstream_execution.get_token_source(
-                upstream_map["source"]["parameter"].property_value
+                upstream_execution.get_parameter("source")
             )  # EmptyContainer
-            parameter_value_map = upstream_execution.call.lookup().parameter_value_map()
+            parameter_value_map = upstream_execution.get_call().parameter_value_map()
             source_container = parameter_value_map["specification"]
         elif behavior_type == "LoadContainerInRack":
             upstream_execution = upstream_execution.get_token_source(
-                upstream_map["slots"]["parameter"].property_value
+                upstream_execution.get_parameter("slots")
             )  # EmptyRack
-            parameter_value_map = upstream_execution.call.lookup().parameter_value_map()
+            parameter_value_map = upstream_execution.get_call().parameter_value_map()
             source_container = parameter_value_map["specification"]
         elif behavior_type == "LoadContainerOnInstrument":
-            upstream_map = upstream_execution.call.lookup().parameter_value_map()
+            upstream_map = upstream_execution.get_call().parameter_value_map()
             coordinates = upstream_map["slots"]
             upstream_execution = upstream_execution.get_token_source(
-                upstream_map["container"]["parameter"].property_value
+                upstream_execution.get_parameter("container")
             )  # EmptyContainer
-            parameter_value_map = upstream_execution.call.lookup().parameter_value_map()
+            parameter_value_map = upstream_execution.get_call().parameter_value_map()
             source_container = parameter_value_map["specification"]
 
         else:
@@ -417,27 +412,25 @@ class OT2Specialization(DefaultBehaviorSpecialization):
         # Trace the "destination" pin back to the EmptyContainer execution
         # to retrieve the ContainerSpec for the destination container
         parameter_value_map = call.parameter_value_map()
-        upstream_execution = record.get_token_source(
-            parameter_value_map["destination"]["parameter"].property_value
-        )
+        upstream_execution = record.get_token_source(call.get_parameter("destination"))
         behavior_type = get_behavior_type(upstream_execution)
         if behavior_type == "PlateCoordinates":
-            upstream_map = upstream_execution.call.lookup().parameter_value_map()
+            upstream_map = upstream_execution.get_call().parameter_value_map()
             coordinates = upstream_map["coordinates"]
             upstream_execution = upstream_execution.get_token_source(
-                upstream_map["source"]["parameter"].property_value
+                upstream_execution.get_call().get_parameter("source")
             )  # EmptyContainer
-            parameter_value_map = upstream_execution.call.lookup().parameter_value_map()
-            destination_container = parameter_value_map["specification"]["value"]
+            parameter_value_map = upstream_execution.parameter_value_map()
+            destination_container = parameter_value_map["specification"]
 
         elif behavior_type == "LoadContainerOnInstrument":
-            upstream_map = upstream_execution.call.lookup().parameter_value_map()
+            upstream_map = upstream_execution.get_call().parameter_value_map()
             coordinates = upstream_map["slots"]
             upstream_execution = upstream_execution.get_token_source(
-                upstream_map["container"]["parameter"].property_value
+                upstream_execution.get_call().get_parameter("container")
             )  # EmptyContainer
-            parameter_value_map = upstream_execution.call.lookup().parameter_value_map()
-            destination_container = parameter_value_map["specification"]["value"]
+            parameter_value_map = upstream_execution.get_call().parameter_value_map()
+            destination_container = parameter_value_map["specification"]
 
         else:
             raise Exception(f'Invalid input pin "destination" for Transfer.')
@@ -462,7 +455,7 @@ class OT2Specialization(DefaultBehaviorSpecialization):
             )
         pipette = self.configuration["left"]
 
-        comment = record.node.lookup().name
+        comment = record.get_node().name
         comment = (
             "# " + comment
             if comment
@@ -479,7 +472,7 @@ class OT2Specialization(DefaultBehaviorSpecialization):
 
     def transfer_by_map(self, record: ActivityNodeExecution, ex: ProtocolExecution):
         results = {}
-        call = record.call.lookup()
+        call = record.get_call()
         parameter_value_map = call.parameter_value_map()
         destination = parameter_value_map["destination"]
         source = parameter_value_map["source"]
@@ -498,7 +491,7 @@ class OT2Specialization(DefaultBehaviorSpecialization):
             upstream_execution = upstream_execution.get_token_source(
                 "slots"
             )  # EmptyRack
-            parameter_value_map = upstream_execution.call.lookup().parameter_value_map()
+            parameter_value_map = upstream_execution.get_call().parameter_value_map()
             source_container = parameter_value_map["specification"]
         else:
             raise Exception(f'Invalid input pin "source" for Transfer.')
@@ -520,7 +513,7 @@ class OT2Specialization(DefaultBehaviorSpecialization):
             upstream_execution = get_token_source(
                 "source", upstream_execution
             )  # EmptyContainer
-            parameter_value_map = upstream_execution.call.lookup().parameter_value_map()
+            parameter_value_map = upstream_execution.get_call().parameter_value_map()
             destination_container = parameter_value_map["specification"]["value"]
         else:
             raise Exception(f'Invalid input pin "destination" for Transfer.')
@@ -548,7 +541,7 @@ class OT2Specialization(DefaultBehaviorSpecialization):
                 ]
 
     def plate_coordinates(self, record: ActivityNodeExecution, ex: ProtocolExecution):
-        call = record.call.lookup()
+        call = record.get_call()
         parameter_value_map = call.parameter_value_map()
         source = parameter_value_map["source"]
         coords = parameter_value_map["coordinates"]
@@ -556,7 +549,7 @@ class OT2Specialization(DefaultBehaviorSpecialization):
         samples.mask = coords
 
     def measure_absorbance(self, record: ActivityNodeExecution, ex: ProtocolExecution):
-        call = record.call.lookup()
+        call = record.get_call()
         parameter_value_map = call.parameter_value_map()
 
         wl = parameter_value_map["wavelength"]
@@ -572,7 +565,7 @@ class OT2Specialization(DefaultBehaviorSpecialization):
         ]
 
     def define_rack(self, record: ActivityNodeExecution, ex: ProtocolExecution):
-        call = record.call.lookup()
+        call = record.get_call()
         parameter_value_map = call.parameter_value_map()
 
         spec = parameter_value_map["specification"]
@@ -591,7 +584,7 @@ class OT2Specialization(DefaultBehaviorSpecialization):
     def load_container_in_rack(
         self, record: ActivityNodeExecution, ex: ProtocolExecution
     ):
-        call = record.call.lookup()
+        call = record.get_call()
         parameter_value_map = call.parameter_value_map()
         container: ContainerSpec = parameter_value_map["container"]
         coords: str = (
@@ -614,7 +607,7 @@ class OT2Specialization(DefaultBehaviorSpecialization):
                 slots.get_parent()
                 .get_parent()
                 .token_source.lookup()
-                .node.lookup()
+                .get_node()
                 .input_pin("specification")
                 .value.value.lookup()
             )
@@ -635,7 +628,7 @@ class OT2Specialization(DefaultBehaviorSpecialization):
     def load_container_on_instrument(
         self, record: ActivityNodeExecution, ex: ProtocolExecution
     ):
-        call = record.call.lookup()
+        call = record.get_call()
         parameter_value_map = call.parameter_value_map()
         container_spec: ContainerSpec = parameter_value_map["specification"]["value"]
         slots: str = (
@@ -651,7 +644,7 @@ class OT2Specialization(DefaultBehaviorSpecialization):
         )
 
         # upstream_ex = get_token_source('container', record)
-        # container_spec = upstream_ex.call.lookup().parameter_value_map()['specification']['value']
+        # container_spec = upstream_ex.get_call().parameter_value_map()['specification']['value']
 
         container_types = self.resolve_container_spec(container_spec)
         selected_container_type = self.check_lims_inventory(container_types)
@@ -674,8 +667,8 @@ class OT2Specialization(DefaultBehaviorSpecialization):
                 instrument.configuration[c] = container_spec
 
     def load_racks(self, record: ActivityNodeExecution, ex: ProtocolExecution):
-        call = record.call.lookup()
-        node = record.node.lookup()
+        call = record.get_call()
+        node = record.get_node()
         parameter_value_map = call.parameter_value_map()
         coords: str = (
             parameter_value_map["coordinates"]
@@ -721,7 +714,7 @@ class OT2Specialization(DefaultBehaviorSpecialization):
                 ]
 
     def configure_robot(self, record: ActivityNodeExecution, ex: ProtocolExecution):
-        call = record.call.lookup()
+        call = record.get_call()
         parameter_value_map = call.parameter_value_map()
         instrument = parameter_value_map["instrument"]
         mount = parameter_value_map["mount"]
@@ -795,7 +788,7 @@ class OT2Specialization(DefaultBehaviorSpecialization):
         record: ActivityNodeExecution,
         execution: ProtocolExecution,
     ):
-        call = record.call.lookup()
+        call = record.get_call()
         parameter_value_map = call.parameter_value_map()
         cycles = parameter_value_map["cycles"]
         annealing_temp = parameter_value_map["annealing_temp"]
@@ -869,7 +862,7 @@ def get_token_source(
     upstream_execution_nodes = [flow.token_source.lookup() for flow in input_flows]
     target_node = None
     for node in upstream_execution_nodes:
-        pin = node.node.lookup()
+        pin = node.get_node()
         assert type(pin) is InputPin
         if pin.name == input_name:
             target_node = node
@@ -878,7 +871,7 @@ def get_token_source(
         raise Exception(f"{input_name} not found")
     assert len(target_node.incoming_flows) == 1
     token_source = target_node.incoming_flows[0].lookup().token_source.lookup()
-    if type(token_source.node.lookup()) is ForkNode:
+    if type(token_source.get_node()) is ForkNode:
         # Go one more step upstream to get the source CallBehaviorExecution
         return token_source.incoming_flows[0].lookup().token_source.lookup()
     assert (
@@ -891,4 +884,4 @@ def get_behavior_type(ex: CallBehaviorExecution) -> str:
     # Look up the type of Primitive that a CallBehaviorExecution
     # represents.  Strips the namespace out of the Primitive's URI
     # and returns just the local name, e.g., "PlateCoordinates"
-    return ex.node.lookup().behavior.split("/")[-1]
+    return ex.get_node().behavior.split("/")[-1]

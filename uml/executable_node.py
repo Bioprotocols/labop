@@ -10,7 +10,7 @@ from .activity_node import ActivityNode
 
 class ExecutableNode(inner.ExecutableNode, ActivityNode):
     def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+        super(ExecutableNode, self).__init__(*args, **kwargs)
 
     def dot_attrs(
         self,
