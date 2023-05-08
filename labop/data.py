@@ -7,6 +7,7 @@ This file monkey-patches the imported labop classes with data handling functions
 import json
 import logging
 import os
+import uuid
 from cmath import nan
 from itertools import islice
 from typing import Dict, List, Union
@@ -27,6 +28,10 @@ l = logging.getLogger(__file__)
 l.setLevel(logging.ERROR)
 
 
+def new_sample_id() -> int:
+    return f"{Strings.SAMPLE}_{uuid.uuid1()}"
+
+
 def protocol_execution_set_data(self, dataset):
     """
     Overwrite execution trace values based upon values provided in data
@@ -43,8 +48,7 @@ def protocol_execution_get_data(self):
     """
     Gather labop.SampleData outputs from all CallBehaviorExecutions into a dataset
     """
-    calls = [e for e in self.executions if isinstance(
-        e, labop.CallBehaviorExecution)]
+    calls = [e for e in self.executions if isinstance(e, labop.CallBehaviorExecution)]
     datasets = {
         o.value.get_value().identity: o.value.get_value().to_dataset()
         for e in calls
@@ -59,20 +63,36 @@ labop.ProtocolExecution.get_data = protocol_execution_get_data
 
 
 def sample_array_empty(self, geometry=None, sample_format=Strings.XARRAY):
-    samples = get_sample_list(geometry) if geometry else []
+    locations = get_sample_list(geometry) if geometry else []
+    samples = [new_sample_id() for l in locations]
 
     if sample_format == Strings.XARRAY:
-        sample_array = xr.DataArray(
-            samples,
-            name=self.identity,
-            dims=(Strings.SAMPLE),
-            coords={Strings.SAMPLE: samples},
+        sample_array = xr.Dataset(
+            {
+                Strings.CONTENTS: xr.DataArray(
+                    [[[]] * len(locations)],
+                    dims=(
+                        Strings.CONTAINER,
+                        Strings.LOCATION,
+                        Strings.REAGENT,
+                    ),
+                ),
+                Strings.SAMPLE_LOCATION: xr.DataArray(
+                    [samples],
+                    dims=(Strings.CONTAINER, Strings.LOCATION),
+                ),
+            },
+            coords={
+                Strings.SAMPLE: samples,
+                Strings.REAGENT: [],
+                Strings.CONTAINER: [self.container_type],
+                Strings.LOCATION: locations,
+            },
         )
     elif sample_format == Strings.JSON:
-        sample_array = {s: None for s in samples}
+        sample_array = {s: None for s in locations}
     else:
-        raise Exception(
-            f"Cannot initialize contents of sample_format: {sample_format}")
+        raise Exception(f"Cannot initialize contents of sample_format: {sample_format}")
     self.initial_contents = serialize_sample_format(sample_array)
     return sample_array
 
@@ -103,17 +123,21 @@ def sample_array_mask(self, mask, sample_format=Strings.XARRAY):
             masked_array = mask.to_data_array(sample_format=sample_format)
         else:
             mask_coordinates = get_sample_list(mask)
-            mask_array = xr.DataArray(
-                [
-                    m in mask_coordinates
-                    for m in initial_contents_array[Strings.SAMPLE].data
-                ],
-                name="mask",
-                dims=("sample"),
-                coords={"sample": initial_contents_array[Strings.SAMPLE].data},
+            # Mask the data variables
+            mask_array = initial_contents_array.where(
+                initial_contents_array.location.isin(mask_coordinates),
+                drop=True,
             )
-            masked_array = initial_contents_array.where(mask_array, drop=True)
-        return masked_array
+            # Remove unused coordinates
+            mask_array = mask_array.assign_coords(
+                {
+                    Strings.SAMPLE: mask_array.sample.where(
+                        mask_array.sample.isin(mask_array.sample_location),
+                        drop=True,
+                    )
+                }
+            )
+        return mask_array
     else:
         raise Exception(
             f"Sample format {self.sample_format} is not currently supported by the mask method"
@@ -199,7 +223,6 @@ def sample_mask_from_coordinates(
 ):
     mask = labop.SampleMask(source=source)
     mask_array = source.mask(coordinates, sample_format=sample_format)
-    mask_array.name = mask.identity
     mask.mask = serialize_sample_format(mask_array)
     return mask
 
@@ -210,7 +233,7 @@ labop.SampleMask.from_coordinates = sample_mask_from_coordinates
 def sample_mask_get_coordinates(self, sample_format=Strings.XARRAY):
     if sample_format == "xarray":
         mask = self.to_data_array()
-        return [c for c in mask[Strings.SAMPLE].data if mask.loc[c]]
+        return list(mask.location.data)
     elif sample_format == "json":
         return json.loads(deserialize_sample_format(self.mask)).keys()
 
@@ -577,8 +600,7 @@ def dataset_to_dataset(
     self : labop.Dataset
         Dataset comprising data and metadata.
     """
-    data = [self.data.to_data_array(
-        sample_format=sample_format)] if self.data else []
+    data = [self.data.to_data_array(sample_format=sample_format)] if self.data else []
     datasets = (
         [d.lookup().to_dataset(sample_format=sample_format) for d in self.dataset]
         if self.dataset
@@ -777,8 +799,7 @@ labop.SampleData.humanize = sample_data_humanize
 def dataset_update_data_sheet(
     self, data_file_path, sheet_name, sample_format=Strings.XARRAY
 ):
-    dataset = sort_samples(self.to_dataset(humanize=True),
-                           sample_format=sample_format)
+    dataset = sort_samples(self.to_dataset(humanize=True), sample_format=sample_format)
 
     if len(dataset) > 0:
         mode = "a" if os.path.exists(data_file_path) else "w"

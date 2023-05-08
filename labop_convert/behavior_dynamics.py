@@ -2,14 +2,27 @@
 import logging
 import typing as tp
 import uuid
+from abc import abstractmethod
+from random import sample
+
+import graphviz
 
 # 3rd party packages
 import xarray as xr
+from numpy import nan
+from pint import UnitRegistry
+from sbol3 import Measure
+from tyto import OM
 
 # Project packages
 import uml
-from labop import ActivityNodeExecution, SampleMap, SampleArray
-from labop.data import deserialize_sample_format, serialize_sample_format
+from labop import ActivityNodeExecution, SampleArray, SampleMap
+from labop.data import (
+    deserialize_sample_format,
+    new_sample_id,
+    sample_array_container_type,
+    serialize_sample_format,
+)
 from labop.primitive_execution import input_parameter_map
 from labop.strings import Strings
 
@@ -28,41 +41,212 @@ class SampleProvenanceObserver:
     """
 
     def __init__(self) -> None:
-        self.graph = None
+        self.graph = xr.Dataset()
 
         self.logger = logging.getLogger(__name__)
         self.logger.setLevel(logging.DEBUG)
         self.exec_tick = 0
         self.handlers = {
             "https://bioprotocols.org/labop/primitives/liquid_handling/TransferByMap": TransferByMapUpdater,
+            "https://bioprotocols.org/labop/primitives/liquid_handling/Transfer": TransferUpdater,
+            "https://bioprotocols.org/labop/primitives/liquid_handling/Vortex": VortexUpdater,
             "https://bioprotocols.org/labop/primitives/sample_arrays/EmptyContainer": EmptyContainerUpdater,
+            "https://bioprotocols.org/labop/primitives/liquid_handling/Provision": ProvisionUpdater,
         }
+        self.ureg = UnitRegistry()
 
     def update(self, record: ActivityNodeExecution) -> None:
         """
         Hook to update the provenance graph after each step of execution.
         """
-        call = record.call.lookup()
+        # call = record.call.lookup()
         behavior = record.node.lookup().behavior.lookup()
-        inputs = [
-            x
-            for x in call.parameter_values
-            if x.parameter.lookup().property_value.direction == uml.PARAMETER_IN
-        ]
-        iparams = input_parameter_map(inputs)
+        # inputs = [
+        #     x
+        #     for x in call.parameter_values
+        #     if x.parameter.lookup().property_value.direction == uml.PARAMETER_IN
+        # ]
+        # iparams = input_parameter_map(inputs)
 
         if behavior.identity in self.handlers:
-            updater = self.handlers[behavior.identity](self.graph, self.exec_tick)
-            new_nodes = updater.update(iparams)
-            if self.graph is not None and new_nodes is not None:
-                self.graph = xr.concat([new_nodes, self.graph], dim="tick")
-            self.exec_tick = updater.exec_tick
+            updater = self.handlers[behavior.identity](self)
+            new_nodes = updater.update(record)
+            self.graph = self.update_graph(new_nodes)
+            self.exec_tick += 1
         else:
             self.logger.info(
                 "Behavior %s is not handled by %s, skipping ...",
                 behavior,
                 self.__class__,
             )
+
+    def update_graph(self, graph_addition):
+        """
+        Add new_nodes and associated edges to the graph.
+
+        Parameters
+        ----------
+        new_nodes : xr.Dataset
+            new samples to add to graph
+        """
+        # New Edges
+        new_edges = (
+            graph_addition.edges if "edges" in graph_addition else xr.DataArray()
+        )
+
+        # New Nodes
+        new_nodes = (
+            graph_addition.drop("edges")
+            if "edges" in graph_addition
+            else graph_addition
+        )
+
+        # Add new nodes to the graph
+        if "tick" in self.graph and "tick" in new_nodes:
+            graph_nodes = xr.concat([new_nodes, self.graph], dim="tick")
+        else:
+            graph_nodes = xr.merge([new_nodes, self.graph])
+
+        # Add new edges to the graph
+        if "edges" in self.graph:
+            graph_edges = xr.concat(
+                xr.concat([new_edges, self.graph.edges], dim="edge"), dim="edge"
+            ).dropna("edge")
+        else:
+            graph_edges = new_edges
+        graph_edges.name = "edges"
+
+        # Combine nodes and edges
+        if "edges" in graph_nodes:
+            graph_nodes = graph_nodes.drop("edges")
+        new_graph = xr.merge([graph_nodes, graph_edges])
+        return new_graph
+
+    def to_dot(self):
+        """
+        Plot graph of samples
+        """
+
+        def _container_name(container):
+            c = str(container.data).split("/")[-1]
+            if c.endswith("]"):
+                c = c[:-2]
+            return c
+
+        def _contents_str(contents):
+            # Assumes contents is 4D: tick, container, location, reagent
+            # print(contents)
+            if 0 in contents.data.shape:
+                return "empty contents"
+
+            content = contents[0][0][0]
+            if content.data.shape[0] > 0:
+                reagents = list(
+                    content.reagent.str.rsplit(sep="/", dim="name", maxsplit=1)[
+                        :, 1:2
+                    ].data
+                )
+                return "\n".join(
+                    [f"{r[0][0]}: {r[1]}" for r in zip(reagents, content.data)]
+                )
+            else:
+                return "empty contents"
+
+        dot = graphviz.Digraph(
+            name=f"sample_graph",
+            strict=True,
+            graph_attr={
+                "label": "SampleGraph",
+                # "rankdir": "TB",
+                # "concentrate": "true",
+            },
+            node_attr={"ordering": "out"},
+        )
+        container_groups = self.graph.sample_location.groupby("container")
+        location_subgraphs = {
+            _container_name(container): {
+                str(location.data): graphviz.Digraph(
+                    name=f"cluster_{_container_name(container)}_{location.data}",
+                    graph_attr={
+                        "label": f"{_container_name(container)}_{location.data}",
+                        # "shape": "rectangle",
+                        # "color": "black",
+                        # "rank": "TB",
+                    },
+                )
+                for location in container_groups[str(container.data)]
+                .dropna("location", how="all")
+                .location
+            }
+            for c, container in enumerate(self.graph.container)
+        }
+
+        container_subgraphs = {
+            _container_name(container): graphviz.Digraph(
+                name=f"cluster_{_container_name(container)}",
+                graph_attr={
+                    "label": f"{_container_name(container)}",
+                    # "shape": "rectangle",
+                    # "color": "black",
+                    # "rank": "TB",
+                },
+            )
+            for c, container in enumerate(self.graph.container)
+        }
+
+        # g_edges = (
+        #     self.graph.edges.stack(i=["edge", "tick"])
+        #     .transpose("i", ...)
+        #     .dropna(dim="i", how="all")
+        # )
+
+        sample_info = self.get_sample_info()
+        for sample in sample_info:
+            contents = (
+                self.graph.where(self.graph.container.isin(sample.container), drop=True)
+                .where(self.graph.location.isin(sample.location), drop=True)
+                .where(self.graph.tick.isin(sample.tick), drop=True)
+                .contents
+            )
+            contents_str = _contents_str(contents)
+            container_name = _container_name(sample.container)
+            sample_str = f"{sample.sample.data} @{sample.tick.data}\n{contents_str}"
+            g = location_subgraphs[container_name][str(sample.location.data)]
+            g.node(str(sample.sample.data), label=sample_str)
+
+            # contents = self.graph.where(self.graph.container.isin(sample.container), drop=True).where(self.graph.location.isin(sample.location), drop=True).where(self.graph.tick.isin(sample.tick), drop=True).contents.squeeze().dropna("tick", how="all").dropna("reagent", how="all")
+
+            # self.graph.contents.groupby("container")['http://igem.org/engineering/cascade_blue_calibrant'].dropna("location", how="all").dropna("reagent", how="all").dropna("tick", how="all")
+            # self.graph.where(self.graph.sample=='sample_b85671ee-ecd2-11ed-964a-3e437a74df79', drop=True).dropna("container", how="all").contents.dropna("location", how="all").dropna("tick", how="all")
+
+        if len(self.graph.edges.dims) > 0:
+            for edge in self.graph.edges:
+                dot.edge(edge.data[0], edge.data[1])
+
+        for c, ls in location_subgraphs.items():
+            csg = container_subgraphs[c]
+            for l, sg in ls.items():
+                csg.subgraph(sg)
+            dot.subgraph(csg)
+
+        return dot
+
+    def get_sample_info(self):
+        sample_info = (
+            self.graph.sample_location.where(
+                self.graph.sample_location == self.graph.sample
+            )
+            .stack(
+                index=[
+                    Strings.CONTAINER,
+                    Strings.LOCATION,
+                    Strings.TICK,
+                    Strings.SAMPLE,
+                ]
+            )
+            .dropna("index", how="all")
+        )
+        return sample_info
 
     def metadata(self, sources: xr.DataArray, tick: int) -> xr.Dataset:
         """Return metadata about aliquots at the specified tick.
@@ -102,23 +286,40 @@ class SampleProvenanceObserver:
             },
         )
 
+    def standardize(self, amount: Measure):
+        term = OM.get_term_by_uri(amount.unit)
+        u = amount.value * self.ureg(term)
+        return u.to_base_units().m
 
-class BaseUpdater:
-    """
-    Base class with common functionality for updating the sample provenance graph.
-    """
+    def time_stamp(self, samples: xr.Dataset) -> xr.Dataset:
+        return samples.expand_dims("tick").assign_coords({"tick": [self.exec_tick]})
 
-    def __init__(self, graph: tp.Optional[xr.Dataset], exec_tick: int) -> None:
-        self.graph = graph
-        self.exec_tick = exec_tick
-        self.logger = logging.getLogger(__name__)
+    def drop_graph_edges(self):
+        return self.graph.drop("edges") if "edges" in self.graph else self.graph
 
-    def create_sample_nodes(self, sarr: xr.Dataset) -> xr.Dataset:
+    def select_samples_from_graph(self, sample_array):
+        sample_array_subgraph = (
+            self.drop_graph_edges()
+            .where(  # self.graph.sample.isin(sample_array.sample),
+                self.graph.container.isin(sample_array.container), drop=True
+            )
+            .where(self.graph.location.isin(sample_array.location), drop=True)
+            .dropna(Strings.LOCATION, how="all")
+            .dropna(dim="tick", how="all")
+        )
+        last_relevant_tick = sample_array_subgraph.where(
+            sample_array_subgraph.tick == max(sample_array_subgraph.tick),
+            drop=True,
+        ).squeeze(Strings.TICK)
+        return last_relevant_tick
+
+    def create_sample_nodes(self, sample_array: SampleArray) -> xr.Dataset:
         """Create or return nodes in the sample provenance graph from ``sarr``.
 
         Matching is based on sample location.
         """
         nodes = []
+        sarr = sample_array.to_data_array()
         for loc in sarr[Strings.LOCATION]:
             if tracked := self.sample_tracked(loc, self.exec_tick):
                 self.logger.debug(
@@ -133,13 +334,17 @@ class BaseUpdater:
             contents = sarr[Strings.CONTENTS].sel({Strings.LOCATION: loc})
             self.logger.debug("Add aliquot %d=%s", idx, contents)
             uuid = xr.DataArray(
-                [[idx]],
-                dims=["location", "tick"],
-                coords={"location": [loc.data], "tick": [self.exec_tick]},
+                [[[idx]]],
+                dims=[Strings.CONTAINER, Strings.LOCATION, "tick"],
+                coords={
+                    Strings.CONTAINER: sarr.container,
+                    Strings.LOCATION: [loc.data],
+                    "tick": [self.exec_tick],
+                },
             )
             nodes.append(xr.merge([{"UUID": uuid}, contents]))
 
-        return xr.concat(nodes, dim="location")
+        return xr.concat(nodes, dim=Strings.LOCATION)
 
     def sample_tracked(
         self, sample: xr.DataArray, tick: int
@@ -166,6 +371,288 @@ class BaseUpdater:
 
         return match
 
+    def create_persistence_edges(
+        self, sample_array: xr.Dataset, next_sample_array: xr.Dataset
+    ) -> xr.Dataset:
+        # source_map has two variables: Strings.SAMPLE_LOCATION, Strings.NEXT_SAMPLE_LOCATION
+        # these correspond to parallel arrays of the sample ids that will have edges
+        source_map = xr.merge(
+            [
+                sample_array.sample_location,
+                next_sample_array.rename(
+                    {Strings.SAMPLE_LOCATION: Strings.NEXT_SAMPLE_LOCATION}
+                ).next_sample_location,
+            ]
+        )
+
+        # Converting the parallel arrays in the dataset to a dataarray, and creating a node dimension
+        # will provide a list of edges
+        source_edges = (
+            source_map.to_array()
+            .rename({Strings.VARIABLE: Strings.NODE})
+            .transpose(Strings.CONTAINER, Strings.LOCATION, Strings.NODE)
+        )
+        source_edges.name = "s"
+
+        # Stacking the container and location will become a new dimension edges
+        all_edges = (
+            source_edges.transpose(
+                Strings.CONTAINER,
+                Strings.LOCATION,
+                Strings.NODE,
+            )
+            .stack(
+                edge=[
+                    Strings.CONTAINER,
+                    Strings.LOCATION,
+                ]
+            )
+            .transpose(Strings.EDGE, Strings.NODE)
+        )
+
+        # reindex using edge and drop the container and location coords
+        edges = all_edges.reset_index(Strings.EDGE).reset_coords(
+            names=[
+                Strings.CONTAINER,
+                Strings.LOCATION,
+            ],
+            drop=True,
+        )
+        edges.name = Strings.EDGES
+
+        return edges
+
+    def compute_transfer(
+        self,
+        source_array: xr.Dataset,
+        target_array: xr.Dataset,
+        transfer: xr.DataArray,
+    ) -> xr.Dataset:
+        # Rename array locations and containers to align with transfer plan
+        transfer_source = source_array.fillna(0).rename(
+            {
+                Strings.CONTAINER: Strings.SOURCE_CONTAINER,
+                Strings.LOCATION: Strings.SOURCE_LOCATION,
+            }
+        )
+        transfer_target = target_array.fillna(0).rename(
+            {
+                Strings.CONTAINER: Strings.TARGET_CONTAINER,
+                Strings.LOCATION: Strings.TARGET_LOCATION,
+            }
+        )
+
+        # 2.
+        # Get concentration of the aliquot contents
+        transfer_source[
+            Strings.CONCENTRATION
+        ] = transfer_source.contents / transfer_source.contents.sum(dim=Strings.REAGENT)
+        # Get amount of each aliquot's contents that is transferred
+        amount_transferred = transfer_source.concentration * transfer
+
+        # Get total amount transferred to all targets
+        next_source_contents = transfer_source[
+            Strings.CONTENTS
+        ] - amount_transferred.sum(
+            dim=[Strings.TARGET_LOCATION, Strings.TARGET_CONTAINER]
+        )
+        next_source_contents = next_source_contents.rename(
+            {
+                Strings.SOURCE_LOCATION: Strings.LOCATION,
+                Strings.SOURCE_CONTAINER: Strings.CONTAINER,
+            }
+        )
+        next_source_contents = next_source_contents.where(
+            next_source_contents != 0.0, nan
+        )
+
+        next_target_contents = transfer_target[
+            Strings.CONTENTS
+        ] + amount_transferred.sum(
+            dim=[Strings.SOURCE_LOCATION, Strings.SOURCE_CONTAINER]
+        )
+        next_target_contents = next_target_contents.rename(
+            {
+                Strings.TARGET_LOCATION: Strings.LOCATION,
+                Strings.TARGET_CONTAINER: Strings.CONTAINER,
+            }
+        )
+        next_target_contents = next_target_contents.where(
+            next_target_contents != 0.0, nan
+        )
+
+        transfer_source = transfer_source.assign_coords(
+            {Strings.SAMPLE: [new_sample_id() for _ in transfer_source.sample]}
+        )
+
+        next_source_sample_ids = [
+            [new_sample_id() for loc in transfer_source.source_location]
+            for c in transfer_source.source_container
+        ]
+        next_source_array = xr.Dataset(
+            {
+                Strings.SAMPLE_LOCATION: xr.DataArray(
+                    next_source_sample_ids,
+                    dims=(Strings.CONTAINER, Strings.LOCATION),
+                ),
+                Strings.CONTENTS: next_source_contents,
+            },
+            coords={
+                Strings.CONTAINER: transfer_source.coords[
+                    Strings.SOURCE_CONTAINER
+                ].data,
+                Strings.LOCATION: transfer_source.coords[Strings.SOURCE_LOCATION].data,
+                Strings.SAMPLE: [s for c in next_source_sample_ids for s in c],
+            },
+        )
+
+        next_target_sample_ids = [
+            [new_sample_id() for loc in transfer_target.target_location]
+            for c in transfer_target.target_container
+        ]
+        next_target_array = xr.Dataset(
+            {
+                Strings.SAMPLE_LOCATION: xr.DataArray(
+                    next_target_sample_ids,
+                    dims=(Strings.CONTAINER, Strings.LOCATION),
+                ),
+                Strings.CONTENTS: next_target_contents,
+            },
+            coords={
+                Strings.CONTAINER: transfer_target.coords[
+                    Strings.TARGET_CONTAINER
+                ].data,
+                Strings.LOCATION: transfer_target.coords[Strings.TARGET_LOCATION].data,
+                Strings.SAMPLE: [s for c in next_target_sample_ids for s in c],
+            },
+        )
+
+        source_map = xr.merge(
+            [
+                source_array.sample_location,
+                next_source_array.rename(
+                    {Strings.SAMPLE_LOCATION: Strings.NEXT_SAMPLE_LOCATION}
+                ).next_sample_location,
+            ]
+        )
+        source_edges = (
+            source_map.to_array()
+            .rename({Strings.VARIABLE: Strings.NODE})
+            .transpose(Strings.CONTAINER, Strings.LOCATION, Strings.NODE)
+        ).rename(
+            {
+                Strings.CONTAINER: Strings.SOURCE_CONTAINER,
+                Strings.LOCATION: Strings.SOURCE_LOCATION,
+            }
+        )
+        source_edges.name = "s"
+        target_map = xr.merge(
+            [
+                target_array.sample_location,
+                next_target_array.rename(
+                    {Strings.SAMPLE_LOCATION: Strings.NEXT_SAMPLE_LOCATION}
+                ).next_sample_location,
+            ]
+        )
+        target_edges = (
+            target_map.to_array()
+            .rename({Strings.VARIABLE: Strings.NODE})
+            .transpose(Strings.CONTAINER, Strings.LOCATION, Strings.NODE)
+        ).rename(
+            {
+                Strings.CONTAINER: Strings.TARGET_CONTAINER,
+                Strings.LOCATION: Strings.TARGET_LOCATION,
+            }
+        )
+        target_edges.name = "t"
+        transfer_map = xr.merge(
+            [
+                transfer_source.sample_location,
+                next_target_array.rename(
+                    {
+                        Strings.SAMPLE_LOCATION: Strings.NEXT_SAMPLE_LOCATION,
+                        Strings.CONTAINER: Strings.TARGET_CONTAINER,
+                        Strings.LOCATION: Strings.TARGET_LOCATION,
+                    }
+                ).next_sample_location,
+            ]
+        )
+        transfer_plan_map = xr.where(transfer > 0, transfer_map, False)
+        transfer_edges = (
+            transfer_plan_map.to_array().rename({Strings.VARIABLE: Strings.NODE})
+            # .stack(
+            #     container=[Strings.SOURCE_CONTAINER, Strings.TARGET_CONTAINER],
+            #     location=[Strings.SOURCE_LOCATION, Strings.TARGET_LOCATION],
+            # )
+            # .transpose(Strings.CONTAINER, Strings.LOCATION, Strings.EDGE)
+            .transpose(
+                Strings.SOURCE_CONTAINER,
+                Strings.SOURCE_LOCATION,
+                Strings.TARGET_CONTAINER,
+                Strings.TARGET_LOCATION,
+                Strings.NODE,
+            )
+        )
+        transfer_edges.name = "tr"
+
+        all_edges = (
+            xr.merge([source_edges, target_edges, transfer_edges])
+            .transpose(
+                Strings.SOURCE_CONTAINER,
+                Strings.SOURCE_LOCATION,
+                Strings.TARGET_CONTAINER,
+                Strings.TARGET_LOCATION,
+                Strings.NODE,
+            )
+            .stack(
+                edge=[
+                    Strings.SOURCE_CONTAINER,
+                    Strings.SOURCE_LOCATION,
+                    Strings.TARGET_CONTAINER,
+                    Strings.TARGET_LOCATION,
+                ]
+            )
+        )
+
+        concat_edges = xr.concat(
+            [all_edges.s, all_edges.t, all_edges.tr], dim=Strings.EDGE
+        ).transpose(Strings.EDGE, Strings.NODE)
+
+        edges = concat_edges.reset_index(Strings.EDGE).reset_coords(
+            names=[
+                Strings.SOURCE_CONTAINER,
+                Strings.SOURCE_LOCATION,
+                Strings.TARGET_CONTAINER,
+                Strings.TARGET_LOCATION,
+            ],
+            drop=True,
+        )
+        edges.name = Strings.EDGES
+
+        graph_addition = xr.merge([next_source_array, next_target_array]).expand_dims(
+            dim={"tick": [self.exec_tick]}
+        )
+        graph_addition = xr.merge([graph_addition, edges])
+
+        return graph_addition
+
+
+class BaseUpdater:
+    """
+    Base class with common functionality for updating the sample provenance graph.
+    """
+
+    def __init__(self, observer: SampleProvenanceObserver) -> None:
+        self.observer = observer
+        # self.graph = graph
+        # self.exec_tick = exec_tick
+        self.logger = logging.getLogger(__name__)
+        # self.ureg = ureg
+
+    @abstractmethod
+    def update(self, record: ActivityNodeExecution):
+        pass
+
 
 class EmptyContainerUpdater(BaseUpdater):
     """
@@ -177,19 +664,16 @@ class EmptyContainerUpdater(BaseUpdater):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
-    def update(self, iparams: dict) -> xr.Dataset:
+    def update(self, record: ActivityNodeExecution) -> xr.Dataset:
         # Since this is a no-op, nothing to do but create the nodes for each
         # sample in the sample array.
-        if "sample_array" in iparams:
-            nodes = self.create_sample_nodes(iparams["sample_array"].to_data_array())
-        else:
-            self.logger.info(("Cannot create sample nodes for EmptyContainer "
-                             "without 'sample_array' field, skipping ..."))
-            return None
 
-        self.exec_tick += 1
+        parameter_values = record.call.lookup().parameter_value_map()
+        samples = parameter_values["samples"]["value"]
 
-        return nodes
+        graph_addition = self.observer.time_stamp(samples.to_data_array())
+
+        return graph_addition
 
 
 class TransferByMapUpdater(BaseUpdater):
@@ -204,17 +688,18 @@ class TransferByMapUpdater(BaseUpdater):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
-    def update(self, iparams: dict) -> xr.Dataset:
+    def update(self, record: ActivityNodeExecution) -> xr.Dataset:
         # 1. Rename source and target arrays for applying transfer plan
         # 2. Compute concentrations and apply transfer to source and target
         #    next_source_contents:
 
-        source_array = iparams["source"].to_data_array()
-        target_array = iparams["destination"].to_data_array()
-        source_name = iparams["source"].name
-        target_name = iparams["destination"].name
-        current_source_nodes = self.create_sample_nodes(source_array)
-        current_target_nodes = self.create_sample_nodes(target_array)
+        parameter_values = record.call.lookup().parameter_value_map()
+        samples = parameter_values["samples"]["value"]
+
+        source_array = parameter_values["source"]["value"].to_data_array()
+        target_array = parameter_values["destination"]["value"].to_data_array()
+        source_name = parameter_values["source"]["value"].name
+        target_name = parameter_values["destination"]["value"].name
 
         transfer_plan = iparams["plan"].get_map()
 
@@ -223,277 +708,202 @@ class TransferByMapUpdater(BaseUpdater):
         target_containers = list(set(target_array[Strings.CONTAINER].data))
         assert len(source_containers) == 1
         assert len(target_containers) == 1
-        transfer_plan.coords["source_container"] = transfer_plan.coords[
-            "source_container"
+        transfer_plan.coords[Strings.SOURCE_CONTAINER] = transfer_plan.coords[
+            Strings.SOURCE_CONTAINER
         ].where(False, source_containers[0])
-        transfer_plan.coords["target_container"] = transfer_plan.coords[
-            "target_container"
+        transfer_plan.coords[Strings.TARGET_CONTAINER] = transfer_plan.coords[
+            Strings.TARGET_CONTAINER
         ].where(False, target_containers[0])
 
-        # Rename array locations and containers to align with transfer plan
-        transfer_source = source_array.rename(
-            {
-                Strings.LOCATION: f"{source_name}_location",
-                Strings.CONTAINER: f"{source_name}_container",
-            }
-        )
-        transfer_target = target_array.rename(
-            {
-                Strings.LOCATION: f"{target_name}_location",
-                Strings.CONTAINER: f"{target_name}_container",
-            }
+        return self.observer.compute_transfer(source_array, target_array, transfer_plan)
+
+
+class ProvisionUpdater(BaseUpdater):
+    """
+    Update sample states as a result of an Provision operation.
+
+    This creates new samples that correspond to the initial_contents of the SampleArray.
+    """
+
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
+    def update(self, record: ActivityNodeExecution) -> xr.Dataset:
+        # Since this is a no-op, nothing to do but create the nodes for each
+        # sample in the sample array.
+
+        parameter_values = record.call.lookup().parameter_value_map()
+        resource = parameter_values["resource"]["value"]
+        amount = parameter_values["amount"]["value"]
+        destination = parameter_values["destination"]["value"]
+        sample_array = self.observer.select_samples_from_graph(
+            destination.to_data_array()
         )
 
-        # 2.
-        # Get concentration of the aliquot contents
-        transfer_source[
-            Strings.CONCENTRATION
-        ] = transfer_source.contents / transfer_source.contents.sum(dim=Strings.REAGENT)
+        standard_value = self.observer.standardize(amount)
 
-        # Get amount of each aliquot's contents that is transferred
-        amount_transferred = transfer_source.concentration * transfer_plan
-
-        # Get total amount transferred to all targets
-        next_source_contents = transfer_source.contents - amount_transferred.sum(
-            dim=["target_location", "target_container"]
-        )
-        next_source_contents = next_source_contents.rename(
-            {
-                f"{source_name}_location": Strings.LOCATION,
-                f"{source_name}_container": Strings.CONTAINER,
-            }
-        )
-        next_target_contents = transfer_target.contents + amount_transferred.sum(
-            dim=["source_location", "source_container"]
-        )
-        next_target_contents = next_target_contents.rename(
-            {
-                f"{target_name}_location": Strings.LOCATION,
-                f"{target_name}_container": Strings.CONTAINER,
-            }
-        )
-
-        transfer_source = transfer_source.assign_coords(
-            {Strings.SAMPLE: [
-                f"sample_{uuid.uuid1()}" for _ in transfer_source.sample]}
-        )
-
-        next_source_sample_ids = [
-            [f"sample_{uuid.uuid1()}" for loc in transfer_source.source_location]
-            for c in transfer_source.source_container
-        ]
-        next_source_array = xr.Dataset(
-            {
-                "sample_location": xr.DataArray(
-                    next_source_sample_ids,
-                    dims=(Strings.CONTAINER, Strings.LOCATION),
-                ),
-                "contents": next_source_contents,
-            },
-            coords={
-                Strings.CONTAINER: transfer_source.coords["source_container"].data,
-                Strings.LOCATION: transfer_source.coords["source_location"].data,
-                Strings.SAMPLE: [s for c in next_source_sample_ids for s in c],
-            },
-        )
-
-        next_target_sample_ids = [
-            [f"sample_{uuid.uuid1()}" for loc in transfer_target.target_location]
-            for c in transfer_target.target_container
-        ]
-        next_target_array = xr.Dataset(
-            {
-                "sample_location": xr.DataArray(
-                    next_target_sample_ids,
-                    dims=(Strings.CONTAINER, Strings.LOCATION),
-                ),
-                "contents": next_target_contents,
-            },
-            coords={
-                Strings.CONTAINER: transfer_target.coords["target_container"].data,
-                Strings.LOCATION: transfer_target.coords["target_location"].data,
-                Strings.SAMPLE: [s for c in next_target_sample_ids for s in c],
-            },
-        )
-
-        source_map = xr.merge(
+        # setup addition to the contents
+        new_contents = xr.DataArray(
             [
-                source_array.sample_location,
-                next_source_array.rename(
-                    {"sample_location": "next_sample_location"}
-                ).next_sample_location,
-            ]
-        )
-        source_edges = (
-            source_map.to_array()
-            .rename({"variable": "node"})
-            .transpose("container", "location", "node")
-        ).rename({"container": "source_container", "location": "source_location"})
-        source_edges.name = "s"
-        target_map = xr.merge(
-            [
-                target_array.sample_location,
-                next_target_array.rename(
-                    {"sample_location": "next_sample_location"}
-                ).next_sample_location,
-            ]
-        )
-        target_edges = (
-            target_map.to_array()
-            .rename({"variable": "node"})
-            .transpose("container", "location", "node")
-        ).rename({"container": "target_container", "location": "target_location"})
-        target_edges.name = "t"
-        transfer_map = xr.merge(
-            [
-                transfer_source.sample_location,
-                transfer_target.rename(
-                    {"sample_location": "next_sample_location"}
-                ).next_sample_location,
-            ]
-        )
-        transfer_plan_map = xr.where(transfer_plan > 0, transfer_map, False)
-        transfer_edges = (
-            transfer_plan_map.to_array().rename({"variable": "node"})
-            # .stack(
-            #     container=["source_container", "target_container"],
-            #     location=["source_location", "target_location"],
-            # )
-            # .transpose("container", "location", "edge")
-            .transpose(
-                "source_container",
-                "source_location",
-                "target_container",
-                "target_location",
-                "node",
-            )
-        )
-        transfer_edges.name = "tr"
-
-        all_edges = (
-            xr.merge([source_edges, target_edges, transfer_edges])
-            .transpose(
-                "source_container",
-                "source_location",
-                "target_container",
-                "target_location",
-                "node",
-            )
-            .stack(
-                edge=[
-                    "source_container",
-                    "source_location",
-                    "target_container",
-                    "target_location",
-                ]
-            )
-        )
-
-        concat_edges = xr.concat(
-            [all_edges.s, all_edges.t, all_edges.tr], dim="edge"
-        ).transpose("edge", "node")
-
-        edges = concat_edges.reset_index("edge").reset_coords(
-            names=[
-                "source_container",
-                "source_location",
-                "target_container",
-                "target_location",
+                [[standard_value] for l in sample_array.location]
+                for c in sample_array.container
             ],
-            drop=True,
+            coords={
+                Strings.CONTAINER: sample_array.container,
+                Strings.LOCATION: sample_array.location,
+                Strings.REAGENT: [resource.identity],
+            },
+            dims=(Strings.CONTAINER, Strings.LOCATION, Strings.REAGENT),
         )
-        edges.name = "edges"
 
-        graph_addition = xr.merge(
-            [next_source_array, next_target_array, edges]
-        ).expand_dims(dim={"tick": [self.exec_tick]})
+        # update the contents of sample_array with new contents
+        if resource.identity in sample_array[Strings.REAGENT]:
+            # Need to add the amount to contents
+            updated_contents = sample_array.contents + new_contents
+        else:
+            # Need to concat the reagent to the contents
+            updated_contents = xr.concat(
+                [sample_array.contents, new_contents],
+                dim=Strings.REAGENT,
+            )
 
-        # # FIXME add container dimension to result
-        # # TODO need sample_location?
-        # next_source_nodes = self.create_sample_nodes(next_source_array)
+        # Construct next sample array using updated contents of sample array
+        # Create new sample ids for the updated array
+        new_samples = [
+            [new_sample_id() for l in sample_array.location]
+            for c in sample_array.container
+        ]
 
-        # For nicer visual representations of graphs, the space is split into
-        # two before/after spaces by using different ticks: one for source
-        # aliquots and one for target aliquots.
-        self.exec_tick += 1
+        next_sample_array = xr.Dataset(
+            {
+                Strings.CONTENTS: updated_contents,
+                Strings.SAMPLE_LOCATION: xr.DataArray(
+                    new_samples,
+                    coords={
+                        Strings.CONTAINER: sample_array.container,
+                        Strings.LOCATION: sample_array.location,
+                    },
+                    dims=(Strings.CONTAINER, Strings.LOCATION),
+                ),
+            },
+            coords={
+                Strings.SAMPLE: [l for c in new_samples for l in c],
+            },
+        )
 
-        # # FIXME add container dimension to result
-        # next_target_nodes = self.create_sample_nodes(next_target_array)
+        edges = self.observer.create_persistence_edges(sample_array, next_sample_array)
 
-        # # One-to-one connectivity between the (now) old source nodes and the new
-        # # ones: same contents, minus what was transferred out. Same for old/new
-        # # target nodes.
-        # connectivity1 = xr.Dataset(
+        # # Set the contents
+        # next_sample_array = xr.Dataset(
         #     {
-        #         "connectivity": xr.DataArray(
-        #             [
-        #                 [l1 in l2 for l1 in current_source_nodes.location.data]
-        #                 for l2 in next_source_nodes.location.data
-        #             ],
-        #             dims=["source", "target"],
-        #             coords={
-        #                 "source": current_source_nodes.location.rename(
-        #                     {"location": "source"}
-        #                 ),
-        #                 "target": next_source_nodes.location.rename(
-        #                     {"location": "target"}
-        #                 ),
-        #             },
-        #         )
+        #         Strings.CONTENTS: updated_contents,
+        #         Strings.SAM
+        #         **{
+        #             k: v
+        #             for k, v in sample_array.items()
+        #             if k != Strings.CONTENTS
+        #         },
         #     }
         # )
-        # current_source_nodes.update(connectivity1)
 
-        # connectivity2 = xr.Dataset(
-        #     {
-        #         "connectivity": xr.DataArray(
-        #             [
-        #                 [l1 in l2 for l1 in current_target_nodes.location.data]
-        #                 for l2 in next_target_nodes.location.data
-        #             ],
-        #             dims=["source", "target"],
-        #             coords={
-        #                 "source": current_target_nodes.location.rename(
-        #                     {"location": "source"}
-        #                 ),
-        #                 "target": next_target_nodes.location.rename(
-        #                     {"location": "target"}
-        #                 ),
-        #             },
-        #         )
-        #     }
-        # )
-        # current_target_nodes.update(connectivity2)
+        graph_addition = self.observer.time_stamp(xr.merge([next_sample_array, edges]))
 
-        # # One-to-many connectivity from each source node to all target nodes.
-        # connectivity3 = xr.Dataset(
-        #     {
-        #         "connectivity": xr.DataArray(
-        #             [
-        #                 [True for l2 in next_target_nodes.location.data]
-        #                 for l1 in next_source_nodes.location
-        #             ],
-        #             coords={
-        #                 "source": current_source_nodes.location.rename(
-        #                     {"location": "source"}
-        #                 ),
-        #                 "target": next_target_nodes.location.rename(
-        #                     {"location": "target"}
-        #                 ),
-        #             },
-        #         )
-        #     }
-        # )
-        # current_source_nodes.update(connectivity3)
-
-        # # FIXME return new stuff; nextsource next target, connectivity
-        # all_nodes = xr.concat(
-        #     [
-        #         next_source_nodes,
-        #         next_target_nodes,
-        #     ],
-        #     dim="tick",
-        # )
-
-        # self.exec_tick += 1
         return graph_addition
+
+
+class TransferUpdater(BaseUpdater):
+    """
+    Update sample states as a result of an Transfer operation.
+
+    This creates new samples that correspond to the initial_contents of the SampleArray.
+    """
+
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
+    def update(self, record: ActivityNodeExecution) -> xr.Dataset:
+        # Since this is a no-op, nothing to do but create the nodes for each
+        # sample in the sample array.
+
+        parameter_values = record.call.lookup().parameter_value_map()
+        source = parameter_values["source"]["value"]
+        amount = parameter_values["amount"]["value"]
+        destination = parameter_values["destination"]["value"]
+
+        standard_value = self.observer.standardize(amount)
+
+        source_array = self.observer.select_samples_from_graph(
+            source.to_data_array()
+        ).reset_coords(drop=True)
+        target_array = self.observer.select_samples_from_graph(
+            destination.to_data_array()
+        ).reset_coords(drop=True)
+
+        transfer = xr.DataArray(
+            [
+                [
+                    [
+                        [
+                            # f"{source_array}:{source_aliquot}->{target_array}:{target_aliquot}"
+                            # rand(0.0, 10.0)
+                            standard_value
+                            for target_aliquot in target_array.sel(container=target)[
+                                Strings.LOCATION
+                            ]
+                        ]
+                        for target in target_array[Strings.CONTAINER]
+                    ]
+                    for source_aliquot in source_array.sel(container=source)[
+                        Strings.LOCATION
+                    ]
+                ]
+                for source in source_array[Strings.CONTAINER]
+            ],
+            dims=(
+                Strings.SOURCE_CONTAINER,
+                Strings.SOURCE_LOCATION,
+                Strings.TARGET_CONTAINER,
+                Strings.TARGET_LOCATION,
+            ),
+            attrs={"units": amount.unit},
+            coords={
+                Strings.SOURCE_CONTAINER: source_array[Strings.CONTAINER].rename(
+                    {Strings.CONTAINER: Strings.SOURCE_CONTAINER}
+                ),
+                Strings.SOURCE_LOCATION: source_array[Strings.LOCATION].rename(
+                    {Strings.LOCATION: Strings.SOURCE_LOCATION}
+                ),
+                Strings.TARGET_CONTAINER: target_array[Strings.CONTAINER].rename(
+                    {Strings.CONTAINER: Strings.TARGET_CONTAINER}
+                ),
+                Strings.TARGET_LOCATION: target_array[Strings.LOCATION].rename(
+                    {Strings.LOCATION: Strings.TARGET_LOCATION}
+                ),
+            },
+        )
+
+        graph_addition = self.observer.compute_transfer(
+            source_array, target_array, transfer
+        )
+
+        return graph_addition
+
+
+class VortexUpdater(BaseUpdater):
+    """
+    Update sample states as a result of an Provision operation.
+
+    This creates new samples that correspond to the initial_contents of the SampleArray.
+    """
+
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
+    def update(self, record: ActivityNodeExecution) -> xr.Dataset:
+        # Since this is a no-op, nothing to do but create the nodes for each
+        # sample in the sample array.
+
+        parameter_values = record.call.lookup().parameter_value_map()
+        samples = parameter_values["samples"]["value"]
+
+        return xr.Dataset()

@@ -195,6 +195,20 @@ Adapted from [https://dx.doi.org/10.17504/protocols.io.bht7j6rn](https://dx.doi.
 
     provision = protocol.primitive_step(
         "Provision",
+        resource=ddh2o,
+        destination=ddh2o_container.output_pin("samples"),
+        amount=sbol3.Measure(5000, OM.microliter),
+    )
+
+    provision = protocol.primitive_step(
+        "Provision",
+        resource=pbs,
+        destination=pbs_container.output_pin("samples"),
+        amount=sbol3.Measure(5000, OM.microliter),
+    )
+
+    provision = protocol.primitive_step(
+        "Provision",
         resource=fluorescein,
         destination=fluorescein_standard_solution_container.output_pin("samples"),
         amount=sbol3.Measure(500, OM.microliter),
@@ -227,6 +241,9 @@ Adapted from [https://dx.doi.org/10.17504/protocols.io.bht7j6rn](https://dx.doi.
         source=pbs_container.output_pin("samples"),
         destination=fluorescein_standard_solution_container.output_pin("samples"),
         amount=sbol3.Measure(1, OM.millilitre),
+    )
+    print(
+        f"The reconstituted `{fluorescein.name}` should have a final concentration of 10 uM in `{pbs.name}`."
     )
     suspend_fluorescein.description = f"The reconstituted `{fluorescein.name}` should have a final concentration of 10 uM in `{pbs.name}`."
 

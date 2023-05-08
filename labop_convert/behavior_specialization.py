@@ -7,6 +7,7 @@ import tyto
 
 import labop
 import uml
+from labop.data import new_sample_id
 from labop.primitive_execution import input_parameter_map
 from labop_convert.behavior_dynamics import SampleProvenanceObserver
 
