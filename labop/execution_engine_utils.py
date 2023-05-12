@@ -563,7 +563,7 @@ def activity_node_execution_next_tokens(
     else:
         pass
 
-    self.check_next_tokens(edge_tokens, node_outputs, engine.sample_format)
+    self.check_next_tokens(edge_tokens, node_outputs, engine)
 
     # # Assume that unlinked output pins are possible output parameters for the protocol
     # if isinstance(self, labop.CallBehaviorExecution):
@@ -583,7 +583,7 @@ def activity_node_execution_check_next_tokens(
     self: labop.ActivityNodeExecution,
     tokens: List[labop.ActivityEdgeFlow],
     node_outputs: Callable,
-    sample_format: str,
+    engine: ExecutionEngine,
 ):
     pass
 
@@ -597,7 +597,7 @@ def call_behavior_execution_check_next_tokens(
     self: labop.CallBehaviorExecution,
     tokens: List[labop.ActivityEdgeFlow],
     node_outputs: Callable,
-    sample_format: str,
+    engine: ExecutionEngine,
 ):
     # ## Add the output values to the call parameter-values
     linked_parameters = []
@@ -627,7 +627,7 @@ def call_behavior_execution_check_next_tokens(
     # Handle unlinked output pins by attaching them to the call
     possible_output_parameter_values = []
     for p in unlinked_output_parameters:
-        value = self.get_parameter_value(p.property_value, node_outputs, sample_format)
+        value = self.get_parameter_value(p.property_value, node_outputs, engine)
         reference = hasattr(value, "document") and value.document is not None
         possible_output_parameter_values.append(
             labop.ParameterValue(
@@ -694,7 +694,7 @@ def activity_node_next_tokens_callback(
     edge_tokens = []
     for edge in out_edges:
         try:
-            edge_value = source.get_value(edge, node_outputs, engine.sample_format)
+            edge_value = source.get_value(edge, node_outputs, engine)
         except Exception as e:
             if engine.permissive:
                 edge_value = uml.literal(str(e))
@@ -718,12 +718,12 @@ def activity_node_execution_get_parameter_value(
     self: labop.ActivityNodeExecution,
     parameter: uml.Parameter,
     node_outputs: Callable,
-    sample_format: str,
+    engine: ExecutionEngine,
 ):
     if node_outputs:
         value = node_outputs(self, parameter)
     elif hasattr(self.node.lookup().behavior.lookup(), "compute_output"):
-        value = self.compute_output(parameter, sample_format)
+        value = self.compute_output(parameter, engine)
     else:
         value = f"{parameter.name}"
     return value
@@ -738,7 +738,7 @@ def activity_node_execution_get_value(
     self: labop.ActivityNodeExecution,
     edge: uml.ActivityEdge,
     node_outputs: Callable,
-    sample_format: str,
+    engine: ExecutionEngine,
 ):
     value = ""
     node = self.node.lookup()
@@ -763,7 +763,7 @@ def activity_node_execution_get_value(
             reference = True
         else:
             parameter = node.pin_parameter(edge.source.lookup().name).property_value
-            value = self.get_parameter_value(parameter, node_outputs, sample_format)
+            value = self.get_parameter_value(parameter, node_outputs, engine)
             reference = isinstance(value, sbol3.Identified) and value.identity != None
 
     value = uml.literal(value, reference=reference)
@@ -1229,9 +1229,7 @@ def activity_parameter_node_next_tokens_callback(
                 labop.ActivityEdgeFlow(
                     edge=return_edge,
                     token_source=source,
-                    value=source.get_value(
-                        return_edge, node_outputs, engine.sample_format
-                    )
+                    value=source.get_value(return_edge, node_outputs, engine)
                     # uml.literal(source.incoming_flows[0].lookup().value)
                 )
             ]

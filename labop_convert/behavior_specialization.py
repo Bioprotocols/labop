@@ -8,8 +8,6 @@ import tyto
 import labop
 import uml
 from labop.data import new_sample_id
-from labop.primitive_execution import input_parameter_map
-from labop_convert.behavior_dynamics import SampleProvenanceObserver
 
 l = logging.getLogger(__file__)
 l.setLevel(logging.WARN)
@@ -45,7 +43,6 @@ class BehaviorSpecialization(ABC):
         self.execution = None
         self.issues = []
         self.out_dir = None
-        self.prov_observer = SampleProvenanceObserver()
 
         # This data field holds the results of the specialization
         self.data = []
@@ -109,6 +106,8 @@ class BehaviorSpecialization(ABC):
         raise e
 
     def handle(self, record, execution):
+        from labop.primitive_execution import input_parameter_map
+
         # Save basic information about the execution record
         node = record.node.lookup()
         params = input_parameter_map(
@@ -124,7 +123,6 @@ class BehaviorSpecialization(ABC):
             "behavior": node.behavior,
             "parameters": params,
         }
-        self.prov_observer.update(record)
         self.data.append(node_data)
 
     def resolve_container_spec(self, spec, addl_conditions=None):

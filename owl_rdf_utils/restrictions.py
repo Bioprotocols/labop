@@ -255,7 +255,6 @@ def main(
     dry_run: bool = False,
     outfile: Optional[str] = None,
 ):
-
     if verbose == 1:
         LOGGER.setLevel(logging.INFO)
     elif verbose >= 2:

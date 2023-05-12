@@ -1,10 +1,10 @@
 import os
 import posixpath
+
 import sbol3
 from sbol_factory import SBOLFactory
 
 import uml
-
 
 # Load the ontology and create a Python module called labop_submodule
 SBOLFactory(
@@ -12,7 +12,6 @@ SBOLFactory(
     posixpath.join(os.path.dirname(os.path.realpath(__file__)), "labop.ttl"),
     "http://bioprotocols.org/labop#",
 )
-
 
 
 # Import symbols into the top-level labop module
@@ -80,9 +79,7 @@ def protocol_execute_primitive(self, primitive, **input_pin_map):
     return self.call_behavior(primitive, **input_pin_map)
 
 
-Protocol.execute_primitive = (
-    protocol_execute_primitive  # Add to class via monkey patch
-)
+Protocol.execute_primitive = protocol_execute_primitive  # Add to class via monkey patch
 
 
 def protocol_primitive_step(self, primitive: Primitive, **input_pin_map):
@@ -100,9 +97,7 @@ def protocol_primitive_step(self, primitive: Primitive, **input_pin_map):
     return pe
 
 
-Protocol.primitive_step = (
-    protocol_primitive_step  # Add to class via monkey patch
-)
+Protocol.primitive_step = protocol_primitive_step  # Add to class via monkey patch
 
 ###############################################################################
 #
@@ -225,9 +220,7 @@ def behavior_execution_parameter_value_map(self):
         elif isinstance(ref, sbol3.Identified):
             value = ref
         else:
-            raise TypeError(
-                f"Invalid value for Parameter {name} of type {type(ref)}"
-            )
+            raise TypeError(f"Invalid value for Parameter {name} of type {type(ref)}")
 
         # TODO: Refactor the parameter_value_map to better support
         # multi-valued parameters. However, refactoring will have
@@ -277,9 +270,7 @@ def protocol_execution_get_ordered_executions(self):
     return ordered_execution_nodes
 
 
-ProtocolExecution.get_ordered_executions = (
-    protocol_execution_get_ordered_executions
-)
+ProtocolExecution.get_ordered_executions = protocol_execution_get_ordered_executions
 
 
 def protocol_execution_get_subprotocol_executions(self):
@@ -382,19 +373,13 @@ def get_primitive(doc: sbol3.Document, name: str, copy_to_doc: bool = True):
     """
     found = doc.find(name)
     if not found:
-        found = {
-            n: l.find(name)
-            for (n, l) in loaded_libraries.items()
-            if l.find(name)
-        }
+        found = {n: l.find(name) for (n, l) in loaded_libraries.items() if l.find(name)}
         if len(found) >= 2:
             raise ValueError(
                 f'Ambiguous primitive: found "{name}" in multiple libraries: {found.keys()}'
             )
         if len(found) == 0:
-            raise ValueError(
-                f'Could not find primitive "{name}" in any library'
-            )
+            raise ValueError(f'Could not find primitive "{name}" in any library')
         found = next(iter(found.values()))
         if copy_to_doc:
             found = found.copy(doc)

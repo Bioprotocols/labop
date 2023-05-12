@@ -67,7 +67,6 @@ REVERSE_LABWARE_MAP = LABWARE_MAP.__class__(map(reversed, LABWARE_MAP.items()))
 
 
 class OT2Specialization(BehaviorSpecialization):
-
     EQUIPMENT = {
         "p20_single_gen2": sbol3.Agent("p20_single_gen2", name="P20 Single GEN2"),
         "p300_single_gen2": sbol3.Agent("p300_single_gen2", name="P300 Single GEN2"),
@@ -140,7 +139,6 @@ class OT2Specialization(BehaviorSpecialization):
         self.script_steps.append(f"# Failure processing record: {record.identity}")
 
     def on_begin(self, ex: labop.ProtocolExecution):
-
         protocol = self.execution.protocol.lookup()
         apilevel = self.apilevel
         self.markdown += f"# {protocol.name}\n"
@@ -350,7 +348,6 @@ class OT2Specialization(BehaviorSpecialization):
     def transfer_to(
         self, record: labop.ActivityNodeExecution, ex: labop.ProtocolExecution
     ):
-
         results = {}
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
@@ -468,7 +465,6 @@ class OT2Specialization(BehaviorSpecialization):
     def transfer_by_map(
         self, record: labop.ActivityNodeExecution, ex: labop.ProtocolExecution
     ):
-
         results = {}
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()

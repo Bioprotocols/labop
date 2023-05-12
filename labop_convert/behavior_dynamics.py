@@ -1,11 +1,13 @@
 # Core packages
 import logging
+import os
 import typing as tp
 import uuid
 from abc import abstractmethod
 from random import sample
 
 import graphviz
+import numpy as np
 
 # 3rd party packages
 import xarray as xr
@@ -40,18 +42,21 @@ class SampleProvenanceObserver:
     - EmptyContainer
     """
 
-    def __init__(self) -> None:
+    def __init__(self, outdir, name="sample_graph") -> None:
         self.graph = xr.Dataset()
 
         self.logger = logging.getLogger(__name__)
         self.logger.setLevel(logging.DEBUG)
         self.exec_tick = 0
+        self.outdir = outdir
+        self.name = name
         self.handlers = {
             "https://bioprotocols.org/labop/primitives/liquid_handling/TransferByMap": TransferByMapUpdater,
             "https://bioprotocols.org/labop/primitives/liquid_handling/Transfer": TransferUpdater,
             "https://bioprotocols.org/labop/primitives/liquid_handling/Vortex": VortexUpdater,
             "https://bioprotocols.org/labop/primitives/sample_arrays/EmptyContainer": EmptyContainerUpdater,
             "https://bioprotocols.org/labop/primitives/liquid_handling/Provision": ProvisionUpdater,
+            "https://bioprotocols.org/labop/primitives/liquid_handling/SerialDilution": SerialDilutionUpdater,
         }
         self.ureg = UnitRegistry()
 
@@ -72,6 +77,9 @@ class SampleProvenanceObserver:
             updater = self.handlers[behavior.identity](self)
             new_nodes = updater.update(record)
             self.graph = self.update_graph(new_nodes)
+            self.to_dot().render(
+                os.path.join(self.outdir, f"{self.name}_{self.exec_tick}")
+            )
             self.exec_tick += 1
         else:
             self.logger.info(
@@ -80,7 +88,7 @@ class SampleProvenanceObserver:
                 self.__class__,
             )
 
-    def update_graph(self, graph_addition):
+    def update_graph(self, graph_addition, graph=None):
         """
         Add new_nodes and associated edges to the graph.
 
@@ -89,6 +97,9 @@ class SampleProvenanceObserver:
         new_nodes : xr.Dataset
             new samples to add to graph
         """
+        if graph is None:
+            graph = self.graph
+
         # New Edges
         new_edges = (
             graph_addition.edges if "edges" in graph_addition else xr.DataArray()
@@ -102,15 +113,15 @@ class SampleProvenanceObserver:
         )
 
         # Add new nodes to the graph
-        if "tick" in self.graph and "tick" in new_nodes:
-            graph_nodes = xr.concat([new_nodes, self.graph], dim="tick")
+        if "tick" in graph and "tick" in new_nodes:
+            graph_nodes = xr.concat([new_nodes, graph], dim="tick")
         else:
-            graph_nodes = xr.merge([new_nodes, self.graph])
+            graph_nodes = xr.merge([new_nodes, graph])
 
         # Add new edges to the graph
-        if "edges" in self.graph:
+        if "edges" in graph:
             graph_edges = xr.concat(
-                xr.concat([new_edges, self.graph.edges], dim="edge"), dim="edge"
+                xr.concat([new_edges, graph.edges], dim="edge"), dim="edge"
             ).dropna("edge")
         else:
             graph_edges = new_edges
@@ -122,13 +133,33 @@ class SampleProvenanceObserver:
         new_graph = xr.merge([graph_nodes, graph_edges])
         return new_graph
 
-    def to_dot(self):
+    def sample_provenance(self, sample_id: str, depth: int = None):
+        samples = xr.DataArray([sample_id], dims=("edge"))
+        all_samples = samples
+        updated = True
+        count = 0
+        while updated:
+            prev_samples = self.graph.edges.where(
+                self.graph.edges.loc[:, "next_sample_location"].isin(samples)
+            ).dropna("edge", how="all")[:, 0:1][:, 0]
+            updated = len(prev_samples) > 0
+            all_samples = xr.DataArray(
+                np.unique(xr.concat([all_samples, prev_samples], dim="edge").data),
+                dims=("edge"),
+            )
+            samples = prev_samples
+            count += 1
+            if depth is not None and count >= depth:
+                break
+        return all_samples
+
+    def to_dot(self, dpi=600, for_samples: xr.DataArray = None, draw_transitions=False):
         """
         Plot graph of samples
         """
 
         def _container_name(container):
-            c = str(container.data).split("/")[-1]
+            c = str(container).split("/")[-1]
             if c.endswith("]"):
                 c = c[:-2]
             return c
@@ -156,42 +187,59 @@ class SampleProvenanceObserver:
             name=f"sample_graph",
             strict=True,
             graph_attr={
+                "dpi": f"{dpi}",
                 "label": "SampleGraph",
-                # "rankdir": "TB",
+                "rankdir": "TB",
                 # "concentrate": "true",
             },
             node_attr={"ordering": "out"},
         )
-        container_groups = self.graph.sample_location.groupby("container")
+
+        sample_info = self.get_sample_info()
+        sample_info = (
+            sample_info.where(sample_info.isin(for_samples)).dropna("index")
+            if for_samples is not None
+            else sample_info
+        )
+        subgraph = (
+            self.graph
+            # .where(self.graph.isin(sample_info))
+            # .dropna("tick", how="all")
+            # .dropna("location", how="all")
+            # .dropna("edge", how="all")
+        )
+
+        containers = np.unique(sample_info.container.data)
+        container_groups = subgraph.sample_location.groupby("container")
         location_subgraphs = {
-            _container_name(container): {
+            _container_name(c): {
                 str(location.data): graphviz.Digraph(
-                    name=f"cluster_{_container_name(container)}_{location.data}",
+                    name=f"cluster_{_container_name(c)}_{location.data}",
                     graph_attr={
-                        "label": f"{_container_name(container)}_{location.data}",
+                        "label": f"{_container_name(c)}_{location.data}",
                         # "shape": "rectangle",
                         # "color": "black",
                         # "rank": "TB",
                     },
                 )
-                for location in container_groups[str(container.data)]
+                for location in container_groups[c]
                 .dropna("location", how="all")
                 .location
             }
-            for c, container in enumerate(self.graph.container)
+            for c in containers
         }
 
         container_subgraphs = {
-            _container_name(container): graphviz.Digraph(
-                name=f"cluster_{_container_name(container)}",
+            _container_name(c): graphviz.Digraph(
+                name=f"cluster_{_container_name(c)}",
                 graph_attr={
-                    "label": f"{_container_name(container)}",
+                    "label": f"{_container_name(c)}",
                     # "shape": "rectangle",
                     # "color": "black",
                     # "rank": "TB",
                 },
             )
-            for c, container in enumerate(self.graph.container)
+            for c in containers
         }
 
         # g_edges = (
@@ -200,16 +248,15 @@ class SampleProvenanceObserver:
         #     .dropna(dim="i", how="all")
         # )
 
-        sample_info = self.get_sample_info()
         for sample in sample_info:
             contents = (
-                self.graph.where(self.graph.container.isin(sample.container), drop=True)
-                .where(self.graph.location.isin(sample.location), drop=True)
-                .where(self.graph.tick.isin(sample.tick), drop=True)
+                subgraph.where(subgraph.container.isin(sample.container), drop=True)
+                .where(subgraph.location.isin(sample.location), drop=True)
+                .where(subgraph.tick.isin(sample.tick), drop=True)
                 .contents
             )
             contents_str = _contents_str(contents)
-            container_name = _container_name(sample.container)
+            container_name = _container_name(sample.container.data)
             sample_str = f"{sample.sample.data} @{sample.tick.data}\n{contents_str}"
             g = location_subgraphs[container_name][str(sample.location.data)]
             g.node(str(sample.sample.data), label=sample_str)
@@ -219,9 +266,22 @@ class SampleProvenanceObserver:
             # self.graph.contents.groupby("container")['http://igem.org/engineering/cascade_blue_calibrant'].dropna("location", how="all").dropna("reagent", how="all").dropna("tick", how="all")
             # self.graph.where(self.graph.sample=='sample_b85671ee-ecd2-11ed-964a-3e437a74df79', drop=True).dropna("container", how="all").contents.dropna("location", how="all").dropna("tick", how="all")
 
-        if len(self.graph.edges.dims) > 0:
-            for edge in self.graph.edges:
-                dot.edge(edge.data[0], edge.data[1])
+        if len(subgraph.edges.dims) > 0 and len(subgraph.edges) > 0:
+            subgraph_edges = subgraph.edges.where(
+                subgraph.edges[:, 0].isin(sample_info)
+                & subgraph.edges[:, 1].isin(sample_info)
+            ).dropna("edge", how="any")
+            for edge in subgraph_edges:
+                if draw_transitions:
+                    dot.edge(edge.data[0], edge.data[2])
+                    dot.edge(edge.data[2], edge.data[1])
+                    dot.node(
+                        edge.data[2],
+                        label=edge.data[2],
+                        _attributes={"shape": "box"},
+                    )
+                else:
+                    dot.edge(edge.data[0], edge.data[1])
 
         for c, ls in location_subgraphs.items():
             csg = container_subgraphs[c]
@@ -231,19 +291,13 @@ class SampleProvenanceObserver:
 
         return dot
 
-    def get_sample_info(self):
+    def get_sample_info(self, graph=None):
+        if graph is None:
+            graph = self.graph
+
         sample_info = (
-            self.graph.sample_location.where(
-                self.graph.sample_location == self.graph.sample
-            )
-            .stack(
-                index=[
-                    Strings.CONTAINER,
-                    Strings.LOCATION,
-                    Strings.TICK,
-                    Strings.SAMPLE,
-                ]
-            )
+            graph.sample_location.where(graph.sample_location == graph.sample)
+            .stack(index=graph.sample_location.dims + (Strings.SAMPLE,))
             .dropna("index", how="all")
         )
         return sample_info
@@ -289,28 +343,57 @@ class SampleProvenanceObserver:
     def standardize(self, amount: Measure):
         term = OM.get_term_by_uri(amount.unit)
         u = amount.value * self.ureg(term)
-        return u.to_base_units().m
+
+        if self.ureg.liter in u.units.compatible_units():
+            base = u.to("microliter")
+        else:
+            base = u
+
+        return base.magnitude, base.units
 
     def time_stamp(self, samples: xr.Dataset) -> xr.Dataset:
         return samples.expand_dims("tick").assign_coords({"tick": [self.exec_tick]})
 
-    def drop_graph_edges(self):
-        return self.graph.drop("edges") if "edges" in self.graph else self.graph
+    def drop_graph_edges(self, graph=None):
+        if graph is None:
+            graph = self.graph
+        return graph.drop("edges") if "edges" in graph else graph
 
-    def select_samples_from_graph(self, sample_array):
+    def select_samples_from_graph(self, sample_array, graph=None):
+        if graph is None:
+            graph = self.graph
         sample_array_subgraph = (
-            self.drop_graph_edges()
+            self.drop_graph_edges(graph=graph)
             .where(  # self.graph.sample.isin(sample_array.sample),
-                self.graph.container.isin(sample_array.container), drop=True
+                graph.container.isin(sample_array.container), drop=True
             )
-            .where(self.graph.location.isin(sample_array.location), drop=True)
+            .where(graph.location.isin(sample_array.location), drop=True)
             .dropna(Strings.LOCATION, how="all")
             .dropna(dim="tick", how="all")
         )
-        last_relevant_tick = sample_array_subgraph.where(
-            sample_array_subgraph.tick == max(sample_array_subgraph.tick),
+        samples_by_tick = sample_array_subgraph.sample_location.transpose(
+            "container", "location", ...
+        )
+        # latest_sample_index = samples_by_tick.argmax("tick", skipna=True)
+        latest_sample_index = samples_by_tick.where(
+            samples_by_tick.isnull(), samples_by_tick.tick
+        ).max("tick")
+        latest_samples = samples_by_tick.where(
+            latest_sample_index == samples_by_tick.tick, drop=True
+        )
+        groups = sample_array_subgraph.where(
+            sample_array_subgraph.sample_location.isin(latest_samples),
             drop=True,
-        ).squeeze(Strings.TICK)
+        ).groupby("tick")
+        # last_relevant_tick = xr.merge(
+        #     [g[1].squeeze("tick", drop=True) for g in groups]
+        # )
+        last_relevant_tick = xr.merge(
+            [
+                (g[1].squeeze("tick", drop=True) if "tick" in g[1].dims else g[1])
+                for g in groups
+            ]
+        )
         return last_relevant_tick
 
     def create_sample_nodes(self, sample_array: SampleArray) -> xr.Dataset:
@@ -422,11 +505,56 @@ class SampleProvenanceObserver:
 
         return edges
 
+    def make_transfer_array(
+        self, source_array: xr.Dataset, target_array: xr.Dataset, amount: float
+    ) -> xr.DataArray:
+        transfer = xr.DataArray(
+            [
+                [
+                    [
+                        [
+                            amount
+                            for target_aliquot in target_array.sel(container=target)[
+                                Strings.LOCATION
+                            ]
+                        ]
+                        for target in target_array[Strings.CONTAINER]
+                    ]
+                    for source_aliquot in source_array.sel(container=source)[
+                        Strings.LOCATION
+                    ]
+                ]
+                for source in source_array[Strings.CONTAINER]
+            ],
+            dims=(
+                Strings.SOURCE_CONTAINER,
+                Strings.SOURCE_LOCATION,
+                Strings.TARGET_CONTAINER,
+                Strings.TARGET_LOCATION,
+            ),
+            coords={
+                Strings.SOURCE_CONTAINER: source_array[Strings.CONTAINER].rename(
+                    {Strings.CONTAINER: Strings.SOURCE_CONTAINER}
+                ),
+                Strings.SOURCE_LOCATION: source_array[Strings.LOCATION].rename(
+                    {Strings.LOCATION: Strings.SOURCE_LOCATION}
+                ),
+                Strings.TARGET_CONTAINER: target_array[Strings.CONTAINER].rename(
+                    {Strings.CONTAINER: Strings.TARGET_CONTAINER}
+                ),
+                Strings.TARGET_LOCATION: target_array[Strings.LOCATION].rename(
+                    {Strings.LOCATION: Strings.TARGET_LOCATION}
+                ),
+            },
+        )
+        return transfer
+
     def compute_transfer(
         self,
         source_array: xr.Dataset,
         target_array: xr.Dataset,
         transfer: xr.DataArray,
+        label: str = None,
     ) -> xr.Dataset:
         # Rename array locations and containers to align with transfer plan
         transfer_source = source_array.fillna(0).rename(
@@ -629,12 +757,28 @@ class SampleProvenanceObserver:
         )
         edges.name = Strings.EDGES
 
+        if label is not None:
+            edges = self.label_edges(edges, label)
+
         graph_addition = xr.merge([next_source_array, next_target_array]).expand_dims(
             dim={"tick": [self.exec_tick]}
         )
         graph_addition = xr.merge([graph_addition, edges])
 
         return graph_addition
+
+    def label_edges(self, edges: xr.DataArray, label: str) -> xr.DataArray:
+        return xr.concat(
+            [
+                edges,
+                xr.DataArray(
+                    [[label] for e in edges],
+                    coords={"node": ["label"]},
+                    dims=["edge", "node"],
+                ),
+            ],
+            dim="node",
+        )
 
 
 class BaseUpdater:
@@ -728,6 +872,9 @@ class ProvisionUpdater(BaseUpdater):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
+    def label(self, resource, quantity, units):
+        return f"Provision({quantity}, {units}, {resource})@{self.observer.exec_tick}"
+
     def update(self, record: ActivityNodeExecution) -> xr.Dataset:
         # Since this is a no-op, nothing to do but create the nodes for each
         # sample in the sample array.
@@ -740,7 +887,8 @@ class ProvisionUpdater(BaseUpdater):
             destination.to_data_array()
         )
 
-        standard_value = self.observer.standardize(amount)
+        standard_value, standard_units = self.observer.standardize(amount)
+        label = self.label(resource, standard_value, standard_units)
 
         # setup addition to the contents
         new_contents = xr.DataArray(
@@ -793,6 +941,8 @@ class ProvisionUpdater(BaseUpdater):
 
         edges = self.observer.create_persistence_edges(sample_array, next_sample_array)
 
+        labeled_edges = self.observer.label_edges(edges, label)
+
         # # Set the contents
         # next_sample_array = xr.Dataset(
         #     {
@@ -806,7 +956,9 @@ class ProvisionUpdater(BaseUpdater):
         #     }
         # )
 
-        graph_addition = self.observer.time_stamp(xr.merge([next_sample_array, edges]))
+        graph_addition = self.observer.time_stamp(
+            xr.merge([next_sample_array, labeled_edges])
+        )
 
         return graph_addition
 
@@ -821,6 +973,9 @@ class TransferUpdater(BaseUpdater):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
+    def label(self, quantity, units):
+        return f"Transfer({quantity}, {units})@{self.observer.exec_tick}"
+
     def update(self, record: ActivityNodeExecution) -> xr.Dataset:
         # Since this is a no-op, nothing to do but create the nodes for each
         # sample in the sample array.
@@ -830,7 +985,9 @@ class TransferUpdater(BaseUpdater):
         amount = parameter_values["amount"]["value"]
         destination = parameter_values["destination"]["value"]
 
-        standard_value = self.observer.standardize(amount)
+        standard_value, standard_units = self.observer.standardize(amount)
+
+        label = self.label(standard_value, standard_units)
 
         source_array = self.observer.select_samples_from_graph(
             source.to_data_array()
@@ -839,51 +996,16 @@ class TransferUpdater(BaseUpdater):
             destination.to_data_array()
         ).reset_coords(drop=True)
 
-        transfer = xr.DataArray(
-            [
-                [
-                    [
-                        [
-                            # f"{source_array}:{source_aliquot}->{target_array}:{target_aliquot}"
-                            # rand(0.0, 10.0)
-                            standard_value
-                            for target_aliquot in target_array.sel(container=target)[
-                                Strings.LOCATION
-                            ]
-                        ]
-                        for target in target_array[Strings.CONTAINER]
-                    ]
-                    for source_aliquot in source_array.sel(container=source)[
-                        Strings.LOCATION
-                    ]
-                ]
-                for source in source_array[Strings.CONTAINER]
-            ],
-            dims=(
-                Strings.SOURCE_CONTAINER,
-                Strings.SOURCE_LOCATION,
-                Strings.TARGET_CONTAINER,
-                Strings.TARGET_LOCATION,
-            ),
-            attrs={"units": amount.unit},
-            coords={
-                Strings.SOURCE_CONTAINER: source_array[Strings.CONTAINER].rename(
-                    {Strings.CONTAINER: Strings.SOURCE_CONTAINER}
-                ),
-                Strings.SOURCE_LOCATION: source_array[Strings.LOCATION].rename(
-                    {Strings.LOCATION: Strings.SOURCE_LOCATION}
-                ),
-                Strings.TARGET_CONTAINER: target_array[Strings.CONTAINER].rename(
-                    {Strings.CONTAINER: Strings.TARGET_CONTAINER}
-                ),
-                Strings.TARGET_LOCATION: target_array[Strings.LOCATION].rename(
-                    {Strings.LOCATION: Strings.TARGET_LOCATION}
-                ),
-            },
+        assert (
+            0 not in source_array.contents.dropna("reagent", how="all").reagent.shape
+        ), f"Cannot transfer from source {source.identity} with no contents: {source_array}"
+
+        transfer = self.observer.make_transfer_array(
+            source_array, target_array, standard_value
         )
 
         graph_addition = self.observer.compute_transfer(
-            source_array, target_array, transfer
+            source_array, target_array, transfer, label=label
         )
 
         return graph_addition
@@ -899,6 +1021,9 @@ class VortexUpdater(BaseUpdater):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
+    def label(self, quantity, units):
+        return f"Vortex()@{self.observer.exec_tick}"
+
     def update(self, record: ActivityNodeExecution) -> xr.Dataset:
         # Since this is a no-op, nothing to do but create the nodes for each
         # sample in the sample array.
@@ -906,4 +1031,88 @@ class VortexUpdater(BaseUpdater):
         parameter_values = record.call.lookup().parameter_value_map()
         samples = parameter_values["samples"]["value"]
 
+        series_array = self.observer.select_samples_from_graph(
+            samples.to_data_array(), graph=self.observer.graph
+        ).reset_coords(drop=True)
+
         return xr.Dataset()
+
+
+class SerialDilutionUpdater(BaseUpdater):
+    """
+    Update sample states as a result of an SerialDilution operation.
+
+    This creates new samples that correspond to the initial_contents of the SampleArray.
+    """
+
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
+    def label(self, quantity, units):
+        return f"DiluteTransfer({quantity}, {units})@{self.observer.exec_tick}"
+
+    def update(self, record: ActivityNodeExecution) -> xr.Dataset:
+        call = record.call.lookup()
+        parameter_value_map = call.parameter_value_map()
+
+        # source = parameter_value_map["source"]["value"]
+        destination = parameter_value_map["destination"]["value"]
+        # diluent = parameter_value_map["diluent"]["value"]
+        amount = parameter_value_map["amount"]["value"]
+        dilution_factor = parameter_value_map["dilution_factor"]["value"]
+        # series = parameter_value_map["series"]["value"]
+        coordinates = destination.get_coordinates()
+        standard_value, standard_unit = self.observer.standardize(amount)
+        standard_value /= dilution_factor
+
+        # source_array = self.observer.select_samples_from_graph(
+        #     source.to_data_array()
+        # ).reset_coords(drop=True)
+        series_array = self.observer.select_samples_from_graph(
+            destination.to_data_array(), graph=self.observer.graph
+        ).reset_coords(drop=True)
+
+        graph_addition = None
+        for i in range(len(coordinates) - 1):
+            s_coord = series_array.where(
+                series_array.location == coordinates[i], drop=True
+            )
+            t_coord = series_array.where(
+                series_array.location == coordinates[i + 1], drop=True
+            )
+            source_array = (
+                s_coord
+                if not graph_addition
+                else self.observer.select_samples_from_graph(
+                    s_coord, graph=graph_addition
+                ).reset_coords(drop=True)
+            )
+            target_array = (
+                t_coord
+                if not graph_addition or coordinates[i + 1] not in graph_addition
+                else self.observer.select_samples_from_graph(
+                    t_coord, graph=graph_addition
+                ).reset_coords(drop=True)
+            )
+
+            assert (
+                0
+                not in source_array.contents.dropna("reagent", how="all").reagent.shape
+            ), f"Cannot transfer from source {coordinates[i]} with no contents: {source_array}"
+
+            transfer = self.observer.make_transfer_array(
+                source_array, target_array, standard_value
+            )
+
+            label = self.label(standard_value, standard_unit)
+            transfer_diff = self.observer.compute_transfer(
+                source_array, target_array, transfer, label=label
+            )
+            graph_addition = (
+                transfer_diff
+                if not graph_addition
+                else self.observer.update_graph(transfer_diff, graph=graph_addition)
+            )
+            self.observer.exec_tick += 1
+
+        return graph_addition

@@ -10,10 +10,11 @@ import graphviz
 import pandas as pd
 import sbol3
 import xarray as xr
+from numpy import record
 
 import labop
 import uml
-from labop.primitive_execution import initialize_primitive_compute_output
+from labop_convert.behavior_dynamics import SampleProvenanceObserver
 
 l = logging.getLogger(__file__)
 l.setLevel(logging.ERROR)
@@ -77,6 +78,7 @@ class ExecutionEngine(ABC):
         self.data_id = 0
         self.data_id_map = {}
         self.candidate_clusters = {}
+        self.prov_observer = SampleProvenanceObserver(self.out_dir)
 
         if self.specializations is None or (
             isinstance(self.specializations, list) and len(self.specializations) == 0
@@ -134,6 +136,8 @@ class ExecutionEngine(ABC):
         self.issues[id] = []
 
         if self.use_defined_primitives:
+            from labop.primitive_execution import initialize_primitive_compute_output
+
             # Define the compute_output function for known primitives
             initialize_primitive_compute_output(doc)
 
@@ -141,9 +145,7 @@ class ExecutionEngine(ABC):
         self.ex = labop.ProtocolExecution(id, protocol=protocol)
         doc.add(self.ex)
 
-        self.ex.association.append(
-            sbol3.Association(agent=agent, plan=protocol)
-        )
+        self.ex.association.append(sbol3.Association(agent=agent, plan=protocol))
         self.ex.parameter_values = parameter_values
 
         # Initialize specializations
@@ -313,6 +315,9 @@ class ExecutionEngine(ABC):
         if self.dataset_file is not None:
             self.write_data_templates(record, new_tokens)
 
+        if isinstance(record.node.lookup(), uml.CallBehaviorAction):
+            self.prov_observer.update(record)
+
     def write_data_templates(
         self,
         record: labop.ActivityNodeExecution,
@@ -473,9 +478,7 @@ def sum_measures(measure_list):
             f"Can only merge measures with identical units and types: {([m.value, m.unit, m.types] for m in measure_list)}"
         )
     total = sum(m.value for m in measure_list)
-    return sbol3.Measure(
-        value=total, unit=prototype.unit, types=prototype.types
-    )
+    return sbol3.Measure(value=total, unit=prototype.unit, types=prototype.types)
 
 
 def protocol_execution_aggregate_child_materials(self):

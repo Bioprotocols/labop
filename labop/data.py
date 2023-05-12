@@ -129,7 +129,7 @@ def sample_array_mask(self, mask, sample_format=Strings.XARRAY):
                 drop=True,
             )
             # Remove unused coordinates
-            mask_array = mask_array.assign_coords(
+            masked_array = mask_array.assign_coords(
                 {
                     Strings.SAMPLE: mask_array.sample.where(
                         mask_array.sample.isin(mask_array.sample_location),
@@ -137,7 +137,7 @@ def sample_array_mask(self, mask, sample_format=Strings.XARRAY):
                     )
                 }
             )
-        return mask_array
+        return masked_array
     else:
         raise Exception(
             f"Sample format {self.sample_format} is not currently supported by the mask method"
@@ -233,7 +233,7 @@ labop.SampleMask.from_coordinates = sample_mask_from_coordinates
 def sample_mask_get_coordinates(self, sample_format=Strings.XARRAY):
     if sample_format == "xarray":
         mask = self.to_data_array()
-        return list(mask.location.data)
+        return mask.location.data.tolist()
     elif sample_format == "json":
         return json.loads(deserialize_sample_format(self.mask)).keys()
 
@@ -296,12 +296,8 @@ def sample_data_empty(self: labop.SampleData, sample_format=Strings.XARRAY):
     if sample_format == "xarray":
         from_samples = self.from_samples.lookup()
         sample_array = from_samples.to_data_array(sample_format=sample_format)
-        sample_data = xr.DataArray(
-            [nan] * len(sample_array[Strings.SAMPLE]),
-            name=self.identity,
-            dims=(Strings.SAMPLE),
-            coords={Strings.SAMPLE: sample_array.coords[Strings.SAMPLE].data},
-        )
+        sample_data = fs.sample_location.where(fs.sample_location.isnull(), nan)
+        sample_data.name = self.identity
         self.values = serialize_sample_format(sample_data)
     else:
         raise NotImplementedError()
@@ -402,7 +398,7 @@ labop.SampleArray.plot = sample_array_plot
 def sample_array_sample_coordinates(self, sample_format=Strings.XARRAY, as_list=False):
     sample_array = deserialize_sample_format(self.initial_contents, parent=self)
     if sample_format == Strings.XARRAY:
-        coords = sample_array.coords[Strings.SAMPLE].data.tolist()
+        coords = sample_array.coords[Strings.LOCATION].data.tolist()
         return contiguous_coordinates(coords) if not as_list else coords
         # plate_coords = get_sample_list("A1:H12")
         # if all([c in coords for c in plate_coords]):
@@ -420,7 +416,7 @@ def sample_mask_sample_coordinates(self, sample_format=Strings.XARRAY, as_list=F
     sample_array = self.to_masked_data_array()
 
     if sample_format == Strings.XARRAY:
-        coords = sample_array.coords[Strings.SAMPLE].data.tolist()
+        coords = sample_array.coords[Strings.LOCATION].data.tolist()
         return contiguous_coordinates(coords) if not as_list else coords
     else:
         return sample_array
@@ -559,10 +555,8 @@ def sample_metadata_for_primitive(
 
         # Create new metadata for each input to primitive, aside from for_samples
         inputs_meta = {
-            k: xr.DataArray(
-                [v.identity] * len(sample_array.coords[Strings.SAMPLE]),
-                dims=Strings.SAMPLE,
-                coords={Strings.SAMPLE: sample_array.coords[Strings.SAMPLE]},
+            k: sample_array.sample_location.where(
+                sample_array.sample_location.isnull(), v.identity
             )
             for k, v in inputs.items()
             if v != for_samples
@@ -663,14 +657,14 @@ def deserialize_sample_format(data: str, parent: sbol3.Identified = None):
 
 def sort_samples(data, sample_format=Strings.XARRAY):
     if sample_format == Strings.XARRAY:
-        if Strings.SAMPLE in data.coords:
+        if Strings.LOCATION in data.coords:
             data = (
                 data.assign_coords(
                     samplez=(
-                        "sample",
+                        "location",
                         [
                             (f"{s[:1]}0{s[1:]}" if len(s) == 2 else s)
-                            for s in data.coords["sample"].data
+                            for s in data.coords["location"].data
                         ],
                     )
                 )
@@ -750,8 +744,17 @@ def dataset_humanize(self, dataset=None, sample_format=Strings.XARRAY):
             if var_obj is not None:
                 var_map[var] = str(var_obj.name)
             values = dataset[var]
-            if values.dtype.str == "<U102" or values.dtype.str == "|O":
-                unique_values = set(values.data.tolist())
+            if (
+                values.dtype.str == "<U102"
+                or values.dtype.str == "|O"
+                or values.dtype.str == "<U95"
+            ):
+                # unique_values = set(
+                #     values.stack(i=values.coords._names)
+                #     .dropna("i")
+                #     .data.tolist()
+                # )
+                unique_values = np.unique(dataset[var].data).tolist()
                 for old in unique_values:
                     val_obj = self.document.find(old)
                     if val_obj is not None:
@@ -760,6 +763,13 @@ def dataset_humanize(self, dataset=None, sample_format=Strings.XARRAY):
                 dataset = dataset.assign({var: values})
 
         dataset = dataset.rename(var_map)
+        for c in dataset.coords._names:
+            unique_values = np.unique(dataset[c].data).tolist()
+            for old in unique_values:
+                val_obj = self.document.find(old)
+                if val_obj is not None:
+                    new = str(val_obj)
+                    dataset[c] = dataset[c].str.replace(old, str(new))
         return dataset
     else:
         return dataset
@@ -781,6 +791,7 @@ def sample_data_humanize(self, sample_format=Strings.XARRAY):
         if var_obj is not None:
             sample_array.name = str(var_obj.name)
 
+        # humanize the data
         if sample_array.dtype.str == "<U102" or sample_array.dtype.str == "|O":
             unique_values = set(sample_array.data.tolist())
             for old in unique_values:
@@ -788,6 +799,13 @@ def sample_data_humanize(self, sample_format=Strings.XARRAY):
                 if val_obj is not None:
                     new = str(val_obj)
                     sample_array = sample_array.str.replace(old, str(new))
+        for c in sample_array.coords:
+            unique_values = set(sample_array[c].data.tolist())
+            for old in unique_values:
+                val_obj = self.document.find(old)
+                if val_obj is not None:
+                    new = str(val_obj)
+                    sample_array[c] = sample_array[c].str.replace(old, str(new))
         return sample_array
     else:
         return sample_array
@@ -807,7 +825,93 @@ def dataset_update_data_sheet(
         with pd.ExcelWriter(
             data_file_path, mode=mode, engine="openpyxl", **kwargs
         ) as writer:
-            dataset.to_dataframe().to_excel(writer, sheet_name=sheet_name)
+            drop_list = [x for x in ["reagent", "sample", "node"] if x in dataset]
+            if "contents" in dataset:
+                contents_df = (
+                    dataset.contents.to_dataset("reagent")
+                    .to_dataframe()
+                    .reset_index()
+                    .set_index(["container", "location"])
+                )
+                drop_list += ["contents"]
+            else:
+                contents_df = None
+            if "sample_location" in dataset:
+                sample_df = (
+                    dataset.sample_location.to_dataset()
+                    .to_dataframe()
+                    .reset_index()
+                    .set_index(["container", "location"])
+                )
+                drop_list += ["sample_location"]
+            else:
+                sample_df = None
+            meta_df = (
+                dataset.drop(drop_list)
+                .to_dataframe()
+                .reset_index()
+                .set_index(["container", "location"])
+            )
+            all_df = (
+                meta_df.join(
+                    (
+                        contents_df.join(
+                            sample_df, lsuffix="_contents", rsuffix="_sample"
+                        )
+                        if sample_df is not None
+                        else contents_df
+                    ),
+                    lsuffix="meta",
+                )
+                if contents_df is not None
+                else meta_df
+            )
+            all_df.to_excel(writer, sheet_name=sheet_name)
+            # if Strings.CONTENTS in dataset:
+            #     dataset.contents.to_dataset(
+            #         Strings.REAGENT
+            #     ).to_dataframe().reset_index().to_excel(
+            #         writer, sheet_name=sheet_name
+            #     )
+            # else:
+            #     dataset.to_array().transpose("container", "location", ...).drop(
+            #         ["reagent", "sample"]
+            #     ).to_dataset(
+            #         "variable", "contents"
+            #     ).to_dataframe().reset_index().to_excel(
+            #         writer, sheet_name=sheet_name
+            #     )
 
 
 labop.Dataset.update_data_sheet = dataset_update_data_sheet
+
+
+def sample_metadata_from_sample_graph(for_samples, engine, record_source=False):
+    metadata = labop.SampleMetadata(for_samples=for_samples)
+
+    if engine.sample_format == Strings.XARRAY:
+        # Convert pd.DataFrame into xr.DataArray
+        samples = for_samples.to_data_array()
+
+        # Get most current sample in each container/location apppearing in samples
+        metadata_array = engine.prov_observer.select_samples_from_graph(
+            samples
+        ).reset_coords(drop=True)
+        if record_source:
+            metadata_array = metadata_array.expand_dims(
+                {"source": [metadata.identity]}
+            )  # Will be replaced when deserilialized by parent.identity
+        metadata.descriptions = serialize_sample_format(metadata_array)
+
+        # The metadata_array is now a 2D xr.DataArray with dimensions (sample, metadata)
+        # The sample coordinates are sample ids, and the metadata coordinates are metadata attributes
+        # The name is the identity of the labop.SampleMetadata holding the metadata_array
+    else:
+        raise NotImplementedError(
+            f"Cannot represent Excel SampleMetadata as sample_format: {sample_format}"
+        )
+
+    return metadata
+
+
+labop.SampleMetadata.from_sample_graph = sample_metadata_from_sample_graph

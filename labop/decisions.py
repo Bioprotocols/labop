@@ -73,7 +73,7 @@ def protocol_make_decision_node(
 
     # Make edges for outgoing_targets
     if outgoing_targets:
-        for (guard, target) in outgoing_targets:
+        for guard, target in outgoing_targets:
             decision.add_decision_output(self, guard, target)
 
     return decision

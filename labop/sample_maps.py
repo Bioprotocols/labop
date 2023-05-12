@@ -44,7 +44,6 @@ def many_to_one_sample_map_get_map(self):
     Get the XArray Dataset from the values field.
     """
     if not hasattr(self, "values") or not self.values:
-
         sources = [source.lookup() for source in self.sources]
         target = self.targets.lookup()
 
@@ -74,7 +73,6 @@ def one_to_many_sample_map_get_map(self):
     Get the XArray Dataset from the values field.
     """
     if not hasattr(self, "values") or not self.values:
-
         source = self.sources
         targets = self.targets
 

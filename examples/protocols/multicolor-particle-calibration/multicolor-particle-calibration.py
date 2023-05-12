@@ -677,37 +677,65 @@ Adapted from [https://dx.doi.org/10.17504/protocols.io.bht7j6rn](https://dx.doi.
         wavelength=sbol3.Measure(600, OM.nanometer),
     )
 
-    load_excel = protocol.primitive_step(
-        "ExcelMetadata",
-        for_samples=calibration_plate.output_pin("samples"),
-        filename=os.path.join(
-            os.path.dirname(os.path.realpath(__file__)),
-            "metadata/sample_metadata.xlsx",
-        ),
+    # load_excel = protocol.primitive_step(
+    #     "ExcelMetadata",
+    #     for_samples=calibration_plate.output_pin("samples"),
+    #     filename=os.path.join(
+    #         os.path.dirname(os.path.realpath(__file__)),
+    #         "metadata/sample_metadata.xlsx",
+    #     ),
+    # )
+
+    # meta1 = protocol.primitive_step(
+    #     "JoinMetadata",
+    #     dataset=measure_fluorescence1.output_pin("measurements"),
+    #     metadata=load_excel.output_pin("metadata"),
+    # )
+
+    # meta2 = protocol.primitive_step(
+    #     "JoinMetadata",
+    #     dataset=measure_fluorescence2.output_pin("measurements"),
+    #     metadata=load_excel.output_pin("metadata"),
+    # )
+
+    # meta3 = protocol.primitive_step(
+    #     "JoinMetadata",
+    #     dataset=measure_fluorescence3.output_pin("measurements"),
+    #     metadata=load_excel.output_pin("metadata"),
+    # )
+
+    # meta4 = protocol.primitive_step(
+    #     "JoinMetadata",
+    #     dataset=measure_absorbance.output_pin("measurements"),
+    #     metadata=load_excel.output_pin("metadata"),
+    # )
+
+    compute_metadata = protocol.primitive_step(
+        "ComputeMetadata", for_samples=calibration_plate.output_pin("samples")
     )
 
     meta1 = protocol.primitive_step(
         "JoinMetadata",
         dataset=measure_fluorescence1.output_pin("measurements"),
-        metadata=load_excel.output_pin("metadata"),
+        metadata=compute_metadata.output_pin("metadata"),
     )
 
     meta2 = protocol.primitive_step(
         "JoinMetadata",
         dataset=measure_fluorescence2.output_pin("measurements"),
-        metadata=load_excel.output_pin("metadata"),
+        metadata=compute_metadata.output_pin("metadata"),
     )
 
     meta3 = protocol.primitive_step(
         "JoinMetadata",
         dataset=measure_fluorescence3.output_pin("measurements"),
-        metadata=load_excel.output_pin("metadata"),
+        metadata=compute_metadata.output_pin("metadata"),
     )
 
     meta4 = protocol.primitive_step(
         "JoinMetadata",
         dataset=measure_absorbance.output_pin("measurements"),
-        metadata=load_excel.output_pin("metadata"),
+        metadata=compute_metadata.output_pin("metadata"),
     )
 
     final_dataset = protocol.primitive_step(
@@ -973,7 +1001,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "-g",
         "--generate-protocol",
-        default=False,
+        default=True,
         action="store_true",
         help=f"Generate the artifacts/{filename}-protocol.nt LabOP protocol file.",
     )
