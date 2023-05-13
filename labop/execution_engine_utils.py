@@ -1,5 +1,4 @@
 import logging
-import uuid
 from abc import abstractmethod
 from typing import Callable, List, Set
 
@@ -1416,7 +1415,7 @@ def call_behavior_action_next_tokens_callback(
             self.execute(
                 self.behavior.lookup(),
                 engine.ex.association[0].agent.lookup(),
-                id=f"{engine.display_id}{uuid.uuid4()}".replace("-", "_"),
+                id=f"{engine.display_id}{labop.new_uuid()}".replace("-", "_"),
                 parameter_values=[],
             )
     else:

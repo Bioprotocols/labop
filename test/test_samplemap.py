@@ -4,7 +4,6 @@ import logging
 import os
 import tempfile
 import unittest
-import uuid
 
 import sbol3
 import tyto
@@ -12,7 +11,7 @@ import xarray as xr
 
 import labop
 import uml
-from labop.data import serialize_sample_format
+from labop.data import new_sample_id, serialize_sample_format
 from labop.execution_engine import ExecutionEngine
 from labop.strings import Strings
 from labop.utils.helpers import file_diff, initialize_protocol
@@ -84,7 +83,7 @@ class TestProtocolEndToEnd(unittest.TestCase):
             for r in reagents
         }
 
-        source_sample_ids = [f"sample_{uuid.uuid1()}" for a in aliquot_ids]
+        source_sample_ids = [new_sample_id() for a in aliquot_ids]
         source_array = labop.SampleArray(
             name="source",
             container_type=source_spec,
@@ -126,7 +125,7 @@ class TestProtocolEndToEnd(unittest.TestCase):
             sample_array=source_array,
         )
 
-        target_sample_ids = [f"sample_{uuid.uuid1()}" for a in aliquot_ids]
+        target_sample_ids = [new_sample_id() for a in aliquot_ids]
         target_array = labop.SampleArray(
             name="target",
             container_type=target_spec,
@@ -259,7 +258,8 @@ class TestProtocolEndToEnd(unittest.TestCase):
         assert len(v) == 0, "".join(f"\n {e}" for e in v)
 
         temp_name = os.path.join(tempfile.gettempdir(), f"{filename}.nt")
-        doc.write(temp_name, sbol3.SORTED_NTRIPLES)
+        with open(temp_name, "w") as f:
+            f.write(doc.write_string(sbol3.SORTED_NTRIPLES).strip())
         print(f"Wrote file as {temp_name}")
 
         comparison_file = os.path.join(
@@ -267,7 +267,8 @@ class TestProtocolEndToEnd(unittest.TestCase):
             "testfiles",
             filename + ".nt",
         )
-        # doc.write(comparison_file, sbol3.SORTED_NTRIPLES)
+        # with open(comparison_file, "w") as f:
+        # f.write(doc.write_string(sbol3.SORTED_NTRIPLES).strip())
         print(f"Comparing against {comparison_file}")
         diff = "".join(file_diff(comparison_file, temp_name))
         print(f"Difference:\n{diff}")

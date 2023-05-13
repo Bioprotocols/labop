@@ -204,7 +204,10 @@ class TestProtocolEndToEnd(unittest.TestCase):
             )
         ]
         execution = ee.execute(
-            protocol, agent, id="test_execution", parameter_values=parameter_values
+            protocol,
+            agent,
+            id="test_execution",
+            parameter_values=parameter_values,
         )
 
         # Get the SampleData objects and attach values

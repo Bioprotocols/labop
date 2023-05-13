@@ -1,8 +1,6 @@
 # Core packages
 import logging
 import os
-import typing as tp
-import uuid
 from abc import abstractmethod
 from random import sample
 
@@ -359,7 +357,9 @@ class SampleProvenanceObserver:
             graph = self.graph
         return graph.drop("edges") if "edges" in graph else graph
 
-    def select_samples_from_graph(self, sample_array, graph=None):
+    def select_samples_from_graph(
+        self, sample_array: xr.DataArray, graph: xr.Dataset = None
+    ):
         if graph is None:
             graph = self.graph
         sample_array_subgraph = (
@@ -395,64 +395,6 @@ class SampleProvenanceObserver:
             ]
         )
         return last_relevant_tick
-
-    def create_sample_nodes(self, sample_array: SampleArray) -> xr.Dataset:
-        """Create or return nodes in the sample provenance graph from ``sarr``.
-
-        Matching is based on sample location.
-        """
-        nodes = []
-        sarr = sample_array.to_data_array()
-        for loc in sarr[Strings.LOCATION]:
-            if tracked := self.sample_tracked(loc, self.exec_tick):
-                self.logger.debug(
-                    "Aliquot=%d already tracked", tracked.location.data.item()
-                )
-                nodes.append(tracked)
-                continue
-
-            # For a hash, use the aliquot ID+parents list. The parents list is
-            # an empty set since we are creating a new node.
-            idx = hash(f"sample_{loc}" + str(self.exec_tick))
-            contents = sarr[Strings.CONTENTS].sel({Strings.LOCATION: loc})
-            self.logger.debug("Add aliquot %d=%s", idx, contents)
-            uuid = xr.DataArray(
-                [[[idx]]],
-                dims=[Strings.CONTAINER, Strings.LOCATION, "tick"],
-                coords={
-                    Strings.CONTAINER: sarr.container,
-                    Strings.LOCATION: [loc.data],
-                    "tick": [self.exec_tick],
-                },
-            )
-            nodes.append(xr.merge([{"UUID": uuid}, contents]))
-
-        return xr.concat(nodes, dim=Strings.LOCATION)
-
-    def sample_tracked(
-        self, sample: xr.DataArray, tick: int
-    ) -> tp.Optional[xr.Dataset]:
-        """
-        Determine if a sample is currently tracked in the provenance graph.
-
-        Tracking is determined based on the sample's tick+location.
-        """
-        if self.graph is None:
-            return None
-
-        # Can't do these with compound conditions--raises errors if there is
-        # more than 1 tick
-        match = self.graph.where(
-            self.graph.tick == tick,
-            drop=True,
-        ).where(self.graph.location == sample.location, drop=True)
-
-        # Check any of the variables in the dataset to see if they are empty,
-        # meaning no such sample is tracked.
-        if match.UUID.size == 0:
-            return None
-
-        return match
 
     def create_persistence_edges(
         self, sample_array: xr.Dataset, next_sample_array: xr.Dataset
@@ -838,14 +780,14 @@ class TransferByMapUpdater(BaseUpdater):
         #    next_source_contents:
 
         parameter_values = record.call.lookup().parameter_value_map()
-        samples = parameter_values["samples"]["value"]
+        # samples = parameter_values["samples"]["value"]
 
         source_array = parameter_values["source"]["value"].to_data_array()
         target_array = parameter_values["destination"]["value"].to_data_array()
         source_name = parameter_values["source"]["value"].name
         target_name = parameter_values["destination"]["value"].name
 
-        transfer_plan = iparams["plan"].get_map()
+        transfer_plan = parameter_values["plan"]["value"].get_map()
 
         # Modify plan to refer to source_array and target_array
         source_containers = list(set(source_array[Strings.CONTAINER].data))

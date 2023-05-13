@@ -41,13 +41,15 @@ ContainerOntology = tyto.Ontology(
 
 
 class MarkdownSpecialization(BehaviorSpecialization):
-    def __init__(self, out_file, sample_format=Strings.JSON) -> None:
+    def __init__(
+        self, out_file, sample_format=Strings.JSON, propagate_objects=False
+    ) -> None:
         super().__init__()
         self.out_file = out_file
         self.var_to_entity = {}
         self.markdown_converter = None
         self.doc = None
-        self.propagate_objects = False
+        self.propagate_objects = propagate_objects
         self.sample_format = sample_format
 
     def initialize_protocol(self, execution: labop.ProtocolExecution, out_dir=None):

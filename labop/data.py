@@ -7,7 +7,6 @@ This file monkey-patches the imported labop classes with data handling functions
 import json
 import logging
 import os
-import uuid
 from cmath import nan
 from itertools import islice
 from typing import Dict, List, Union
@@ -29,7 +28,7 @@ l.setLevel(logging.ERROR)
 
 
 def new_sample_id() -> int:
-    return f"{Strings.SAMPLE}_{uuid.uuid1()}"
+    return f"{Strings.SAMPLE}_{labop.new_uuid()}"
 
 
 def protocol_execution_set_data(self, dataset):

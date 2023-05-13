@@ -119,7 +119,7 @@ class TestProtocolEndToEnd(unittest.TestCase):
         measurment_is_nominal.description = (
             "Determine if the measurments are acceptable."
         )
-        measurment_is_nominal.add_input("primary_input", labop.SampleData)
+        measurment_is_nominal.add_input("decision_input", labop.SampleData)
         measurment_is_nominal.add_output(
             "return", "http://www.w3.org/2001/XMLSchema#boolean"
         )

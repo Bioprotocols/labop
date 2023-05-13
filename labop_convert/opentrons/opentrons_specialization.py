@@ -17,7 +17,8 @@ l.setLevel(logging.ERROR)
 
 
 container_ontology_path = os.path.join(
-    os.path.dirname(os.path.realpath(__file__)), "../../labop/container-ontology.ttl"
+    os.path.dirname(os.path.realpath(__file__)),
+    "../../labop/container-ontology.ttl",
 )
 ContO = tyto.Ontology(
     path=container_ontology_path,
@@ -26,7 +27,10 @@ ContO = tyto.Ontology(
 
 # Map OT2 pipette names to compatible tipracks
 COMPATIBLE_TIPS = {
-    "p20_single_gen2": ["opentrons_96_tiprack_10ul", "opentrons_96_filtertiprack_10ul"],
+    "p20_single_gen2": [
+        "opentrons_96_tiprack_10ul",
+        "opentrons_96_filtertiprack_10ul",
+    ],
     "p300_single_gen2": ["opentrons_96_tiprack_300ul"],
     "p1000_single_gen2": [
         "opentrons_96_tiprack_1000ul",
@@ -34,8 +38,14 @@ COMPATIBLE_TIPS = {
     ],
     "p300_multi_gen2": [],
     "p20_multi_gen2": [],
-    "p10_single": ["opentrons_96_tiprack_10ul", "opentrons_96_filtertiprack_10ul"],
-    "p10_multi": ["opentrons_96_tiprack_10ul", "opentrons_96_filtertiprack_10ul"],
+    "p10_single": [
+        "opentrons_96_tiprack_10ul",
+        "opentrons_96_filtertiprack_10ul",
+    ],
+    "p10_multi": [
+        "opentrons_96_tiprack_10ul",
+        "opentrons_96_filtertiprack_10ul",
+    ],
     "p50_single": [],
     "p50_multi": [],
     "p300_single": ["opentrons_96_tiprack_300ul"],
@@ -542,7 +552,8 @@ class OT2Specialization(BehaviorSpecialization):
         source = parameter_value_map["source"]["value"]
         coords = parameter_value_map["coordinates"]["value"]
         samples = parameter_value_map["samples"]["value"]
-        samples.mask = coords
+        if not hasattr(samples, "mask") or samples.mask is None:
+            samples.mask = coords
 
     def measure_absorbance(
         self, record: labop.ActivityNodeExecution, ex: labop.ProtocolExecution
@@ -727,7 +738,20 @@ class OT2Specialization(BehaviorSpecialization):
         mount = parameter_value_map["mount"]["value"]
 
         allowed_mounts = ["left", "right"]
-        allowed_decks = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"]
+        allowed_decks = [
+            "1",
+            "2",
+            "3",
+            "4",
+            "5",
+            "6",
+            "7",
+            "8",
+            "9",
+            "10",
+            "11",
+            "12",
+        ]
         if mount not in allowed_mounts and mount not in allowed_decks:
             raise Exception(
                 "ConfigureInstrument call failed: mount must be either 'left' or 'right' or a deck number from 1-12"
@@ -776,7 +800,9 @@ class OT2Specialization(BehaviorSpecialization):
             ]
 
     def pcr(
-        self, record: labop.ActivityNodeExecution, execution: labop.ProtocolExecution
+        self,
+        record: labop.ActivityNodeExecution,
+        execution: labop.ProtocolExecution,
     ):
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
