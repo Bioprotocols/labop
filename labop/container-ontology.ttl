@@ -527,7 +527,19 @@ cont:LabMachinery rdf:type owl:Class ;
 ###  https://sift.net/container-ontology/container-ontology#MicrofugeTube
 cont:MicrofugeTube rdf:type owl:Class ;
                    rdfs:subClassOf cont:Container ;
+                   rdfs:label "microfuge tube" .
+
+
+###  https://sift.net/container-ontology/container-ontology#MicrofugeTube1.5mL
+cont:MicrofugeTube1.5mL rdf:type owl:Class ;
+                   rdfs:subClassOf cont:Container ;
                    rdfs:label "1.5 mL microfuge tube" .
+
+
+###  https://sift.net/container-ontology/container-ontology#MicrofugeTube2mL
+cont:MicrofugeTube2mL rdf:type owl:Class ;
+                   rdfs:subClassOf cont:MicrofugeTube ;
+                   rdfs:label "2 mL microfuge tube" .
 
 
 ###  https://sift.net/container-ontology/container-ontology#MicrofugeTubeRack
@@ -1148,6 +1160,11 @@ cont:VendorFirm rdf:type owl:Class ;
                                 ] ;
                 rdfs:label "VendorFirm" .
 
+
+###  https://sift.net/container-ontology/container-ontology#WasteContainer
+cont:WasteContainer rdf:type owl:Class ;
+                    rdfs:subClassOf cont:Container ;
+                    rdfs:label "waste container" .
 
 ###  https://sift.net/container-ontology/container-ontology#Well
 cont:Well rdf:type owl:Class ;
