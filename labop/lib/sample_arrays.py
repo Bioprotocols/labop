@@ -28,6 +28,12 @@ p.add_input("coordinates", "http://bioprotocols.org/uml#ValueSpecification")
 p.add_output("samples", "http://bioprotocols.org/labop#SampleCollection")
 doc.add(p)
 
+p = labop.Primitive("OrderLocations")
+p.description = "Specify an order to the locations in a SampleArray"
+p.add_input("samples", "http://bioprotocols.org/labop#SampleCollection")
+p.add_input("order", "http://bioprotocols.org/uml#SampleCollection")
+doc.add(p)
+
 p = labop.Primitive("Rows")
 p.description = "Select only the samples with specified rows from a sample collection"
 p.add_input("source", "http://bioprotocols.org/labop#SampleCollection")
@@ -70,7 +76,9 @@ p.description = "Create a new sample collection containing a set of replicate sl
 p.add_input("quantity", "http://bioprotocols.org/uml#ValueSpecification")
 p.add_input("specification", "http://bioprotocols.org/labop#ContainerSpec")
 p.add_input(
-    "replicates", "http://bioprotocols.org/uml#ValueSpecification", optional=True
+    "replicates",
+    "http://bioprotocols.org/uml#ValueSpecification",
+    optional=True,
 )
 p.add_output("samples", "http://bioprotocols.org/labop#SampleArray")
 doc.add(p)
@@ -125,7 +133,9 @@ p = labop.Primitive("LoadRackOnInstrument")
 p.description = "Insert a tube rack, pipette tip rack, or microwell plate into an addressed location on a robotic platform"
 p.add_input("rack", "http://bioprotocols.org/uml#ValueSpecification")
 p.add_input(
-    "coordinates", "http://bioprotocols.org/uml#ValueSpecification", optional=True
+    "coordinates",
+    "http://bioprotocols.org/uml#ValueSpecification",
+    optional=True,
 )
 doc.add(p)
 

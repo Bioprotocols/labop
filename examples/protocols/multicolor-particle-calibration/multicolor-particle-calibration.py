@@ -842,6 +842,36 @@ def generate_markdown_specialization(protocol, doc):
     os.chdir(old_dir)
 
 
+def generate_ecl_specialization(protocol, doc):
+    import labop
+    from labop.execution_engine import ExecutionEngine
+    from labop.strings import Strings
+    from labop_convert import ECLSpecialization
+
+    if REGENERATE_ARTIFACTS:
+        ecl_file = filename + ".nb"
+    else:
+        ecl_file = None
+
+    ee = ExecutionEngine(
+        out_dir=OUT_DIR,
+        specializations=[ECLSpecialization(ecl_file, sample_format=Strings.XARRAY)],
+        failsafe=False,
+        sample_format=Strings.XARRAY,
+        dataset_file=None,
+    )
+
+    execution = ee.execute(
+        protocol,
+        sbol3.Agent("test_agent"),
+        id="test_execution",
+        parameter_values=[],
+    )
+    ecl_file = os.path.join(OUT_DIR, filename)
+    with open(ecl_file, "w", encoding="utf-8") as f:
+        f.write(execution.markdown)
+
+
 def generate_autoprotocol_specialization(protocol, doc):
     blockPrint()
     import labop
@@ -1027,6 +1057,13 @@ if __name__ == "__main__":
         help=f"Execute the protocol to generate the artifacts/{filename}-autoprotocol.json Autoprotocol specialization of the LabOP protocol.",
     )
     parser.add_argument(
+        "-e",
+        "--generate-ecl",
+        default=True,
+        action="store_true",
+        help=f"Execute the protocol to generate the artifacts/{filename}-ecl.json ECL specialization of the LabOP protocol.",
+    )
+    parser.add_argument(
         "-t",
         "--test-autoprotocol",
         default=False,
@@ -1058,3 +1095,7 @@ if __name__ == "__main__":
         # proceed = "y"
         if proceed and proceed == "y":
             test_autoprotocol()
+
+    if args.generate_ecl:
+        print("Generating ECL ...")
+        generate_ecl_specialization(*read_protocol())
