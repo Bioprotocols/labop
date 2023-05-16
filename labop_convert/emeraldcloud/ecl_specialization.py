@@ -8,8 +8,8 @@ import xarray as xr
 
 import labop
 import uml
+from labop.utils.plate_coordinates import flatten_coordinates, get_sample_list
 from labop_convert.behavior_specialization import BehaviorSpecialization, ContO
-from labop_convert.plate_coordinates import flatten_coordinates, get_sample_list
 
 l = logging.getLogger(__file__)
 l.setLevel(logging.ERROR)
@@ -60,7 +60,6 @@ class ECLSpecialization(BehaviorSpecialization):
         self.script_steps.append(f"# Failure processing record: {record.identity}")
 
     def on_begin(self, ex: labop.ProtocolExecution):
-
         protocol = self.execution.protocol.lookup()
         apilevel = self.apilevel
         self.data = []
@@ -267,7 +266,6 @@ class ECLSpecialization(BehaviorSpecialization):
     def transfer_to(
         self, record: labop.ActivityNodeExecution, ex: labop.ProtocolExecution
     ):
-
         results = {}
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
@@ -385,7 +383,6 @@ class ECLSpecialization(BehaviorSpecialization):
     def transfer_by_map(
         self, record: labop.ActivityNodeExecution, ex: labop.ProtocolExecution
     ):
-
         results = {}
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
@@ -648,7 +645,20 @@ class ECLSpecialization(BehaviorSpecialization):
         mount = parameter_value_map["mount"]["value"]
 
         allowed_mounts = ["left", "right"]
-        allowed_decks = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"]
+        allowed_decks = [
+            "1",
+            "2",
+            "3",
+            "4",
+            "5",
+            "6",
+            "7",
+            "8",
+            "9",
+            "10",
+            "11",
+            "12",
+        ]
         if mount not in allowed_mounts and mount not in allowed_decks:
             raise Exception(
                 "ConfigureInstrument call failed: mount must be either 'left' or 'right' or a deck number from 1-12"
@@ -699,7 +709,9 @@ class ECLSpecialization(BehaviorSpecialization):
             ]
 
     def pcr(
-        self, record: labop.ActivityNodeExecution, execution: labop.ProtocolExecution
+        self,
+        record: labop.ActivityNodeExecution,
+        execution: labop.ProtocolExecution,
     ):
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
@@ -741,7 +753,9 @@ class ECLSpecialization(BehaviorSpecialization):
         )
 
     def serial_dilution(
-        self, record: labop.ActivityNodeExecution, execution: labop.ProtocolExecution
+        self,
+        record: labop.ActivityNodeExecution,
+        execution: labop.ProtocolExecution,
     ):
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
