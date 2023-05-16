@@ -4,6 +4,8 @@ The InputPin class defines the functions corresponding to the dynamically genera
 
 from typing import Callable, Dict, List, Union
 
+import sbol3
+
 from . import inner
 from .activity_node import ActivityNode
 from .literal_specification import LiteralSpecification
@@ -24,11 +26,11 @@ class InputPin(inner.InputPin, Pin):
     def enabled(
         self,
         edge_values: Dict["ActivityEdge", List[LiteralSpecification]],
-        permissive=False,
+        engine: "ExecutionEngine",
     ):
         # protocol = self.protocol()
         # Need all incoming control tokens
-        control_tokens_present = ActivityNode.enabled(self, edge_values, permissive)
+        control_tokens_present = ActivityNode.enabled(self, edge_values, engine)
 
         tokens_present = all(
             [len(edge_values[e]) > 0 for e in edge_values]
@@ -73,7 +75,12 @@ class InputPin(inner.InputPin, Pin):
             value = node_inputs[self.name]
             reference = True
 
-        value = literal(value, reference=reference)
+        if isinstance(value, list) or isinstance(
+            value, sbol3.ownedobject.OwnedObjectListProperty
+        ):
+            value = [literal(v, reference=reference) for v in value]
+        else:
+            value = [literal(value, reference=reference)]
         return value
 
     def is_well_formed(self) -> List[WellFormednessIssue]:

@@ -40,6 +40,9 @@ class ActivityNode(inner.ActivityNode):
     # def label(self):
     #     return f"{self.name}"
 
+    def get_behavior(self) -> "Behavior":
+        pass
+
     def gv_sanitize(self, id: str):
         return html.escape(id.replace(":", "_"))
 
@@ -84,7 +87,7 @@ class ActivityNode(inner.ActivityNode):
     def enabled(
         self,
         edge_values: Dict["ActivityEdge", List[LiteralSpecification]],
-        permissive=False,
+        engine: "ExecutionEngine",
     ):
         from .control_flow import ControlFlow
 
@@ -201,7 +204,7 @@ class ActivityNode(inner.ActivityNode):
         elif isinstance(edge, ObjectFlow):
             raise Exception("ActivityNode cannot get_value of outgoing ObjectFlow")
 
-        value = literal(value, reference=reference)
+        value = [literal(value, reference=reference)]
         return value
 
     def is_well_formed(self) -> List[WellFormednessIssue]:

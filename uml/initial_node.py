@@ -32,7 +32,7 @@ class InitialNode(inner.InitialNode, ControlNode):
     def enabled(
         self,
         edge_values: Dict[ActivityEdge, List[LiteralSpecification]],
-        permissive=False,
+        engine: "ExecutionEngine",
     ):
         incoming_controls = {e for e in edge_values if isinstance(e, ControlFlow)}
         if len(incoming_controls) > 0:

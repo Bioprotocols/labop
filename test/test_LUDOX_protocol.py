@@ -67,7 +67,8 @@ class TestProtocolEndToEnd(unittest.TestCase):
             "testfiles",
             "igem_ludox_test.nt",
         )
-        # doc.write(comparison_file, sbol3.SORTED_NTRIPLES)
+        # with open(comparison_file, "w") as f:
+        #     f.write(doc.write_string(sbol3.SORTED_NTRIPLES).strip())
         print(f"Comparing against {comparison_file}")
         diff = "".join(file_diff(comparison_file, temp_name))
         print(f"Difference: {diff}")

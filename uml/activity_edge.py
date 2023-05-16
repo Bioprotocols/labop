@@ -80,6 +80,9 @@ class ActivityEdge(inner.ActivityEdge):
 
         dot.edge(src_id, dest_id, **attrs)
 
+    def dot_color(self):
+        return "black"
+
     def dot_attrs(self):
         from .decision_node import DecisionNode
 
@@ -97,7 +100,7 @@ class ActivityEdge(inner.ActivityEdge):
             )
         else:
             label = ""
-        return {"color": "black", "label": label}
+        return {"color": self.dot_color(), "label": label}
 
     def is_well_formed(self) -> List[WellFormednessIssue]:
         return []

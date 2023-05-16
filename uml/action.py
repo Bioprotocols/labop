@@ -22,11 +22,13 @@ from .value_pin import ValuePin
 class Action(inner.Action, ExecutableNode):
     def __init__(self, *args, **kwargs):
         super(Action, self).__init__(*args, **kwargs)
+
+    def initialize_parameter_maps(self):
         self.pin_parameters = {}
         self.pin_ordered_parameters = {}
         behavior = self.get_behavior()
         # parameters = behavior.get_parameters()
-        ordered_parameters = behavior.get_parameters(ordered=True)
+        ordered_parameters = list(behavior.get_parameters(ordered=True))
         for i in self.inputs:
             if i.name not in self.pin_parameters:
                 self.pin_parameters[i.name] = []
@@ -51,13 +53,20 @@ class Action(inner.Action, ExecutableNode):
                 self.pin_ordered_parameters[o.name] = []
 
             self.pin_parameters[o.name] += [
-                p for p in parameters if p.name == o.name and p.is_output()
-            ]
-            self.pin_ordered_parameters[i.name] += [
                 p.property_value
                 for p in ordered_parameters
-                if p.property_value.name == o.name and p.property_value.is_input()
+                if p.property_value.name == o.name and p.property_value.is_output()
             ]
+            self.pin_ordered_parameters[o.name] += [
+                p
+                for p in ordered_parameters
+                if p.property_value.name == o.name and p.property_value.is_output()
+            ]
+
+        self.pin_parameters = {k: list(set(v)) for k, v in self.pin_parameters.items()}
+        self.pin_ordered_parameters = {
+            k: list(set(v)) for k, v in self.pin_ordered_parameters.items()
+        }
 
     def get_inputs(self) -> List[InputPin]:
         return self.inputs
@@ -69,10 +78,14 @@ class Action(inner.Action, ExecutableNode):
         return self.inputs + self.outputs
 
     def required_inputs(self) -> List[InputPin]:
-        return [i for i in self.get_inputs() if self.get_parameter(i.name).required()]
+        return [
+            i for i in self.get_inputs() if self.get_parameter(name=i.name).required()
+        ]
 
     def required_outputs(self) -> List[OutputPin]:
-        return [o for o in self.get_outputs() if self.get_parameter(o.name).required()]
+        return [
+            o for o in self.get_outputs() if self.get_parameter(name=o.name).required()
+        ]
 
     def input_pin(self, pin_name: str):
         """Find an input pin on the action with the specified name
@@ -120,12 +133,16 @@ class Action(inner.Action, ExecutableNode):
     def get_behavior(self) -> Behavior:
         return self.behavior.lookup()
 
-    def get_parameter(self, name: str, ordered=False):
+    def get_parameter(self, name: str = None, ordered=False):
         """Find the behavior parameter corresponding to the pin with the name
 
         :param pin_name:
         :return: Parameter with specified name
         """
+        if name is None:
+            return None
+        if not hasattr(self, "pin_ordered_parameters"):
+            self.initialize_parameter_maps()
         if name in self.pin_ordered_parameters:
             params = (
                 self.pin_ordered_parameters[name]
@@ -140,7 +157,7 @@ class Action(inner.Action, ExecutableNode):
                 raise ValueError(
                     f"The pin with name {name} exists, but does not match a parameter for Primitive {self.get_behavior().display_id}"
                 )
-            return next(params)
+            return next(iter(params))
         else:
             raise ValueError(
                 f"Invalid parameter {name} provided for Primitive {behavior.display_id}"
@@ -190,7 +207,7 @@ class Action(inner.Action, ExecutableNode):
     def enabled(
         self,
         edge_values: Dict["ActivityEdge", List[LiteralSpecification]],
-        permissive=False,
+        engine: "ExecutionEngine",
     ):
         """Check whether all incoming edges have values defined by a token in tokens and that all value pin values are
         defined.
@@ -206,9 +223,9 @@ class Action(inner.Action, ExecutableNode):
         """
 
         # Need all incoming control tokens
-        control_tokens_present = super().enabled(edge_values, permissive=permissive)
+        control_tokens_present = super().enabled(edge_values, engine)
 
-        if not permissive and control_tokens_present:
+        if not engine.permissive and control_tokens_present:
             required_inputs = self.required_inputs()
             required_value_pins = [
                 p for p in required_inputs if isinstance(p, ValuePin)
@@ -218,12 +235,7 @@ class Action(inner.Action, ExecutableNode):
             ]
             return (
                 # ValuePin will not produce a token, so check if enabled
-                all(
-                    [
-                        p.enabled(None, permissive=permissive)
-                        for p in required_value_pins
-                    ]
-                )
+                all([p.enabled(None, engine) for p in required_value_pins])
                 and
                 # InputPin will have a token on the edge
                 all(
@@ -234,7 +246,7 @@ class Action(inner.Action, ExecutableNode):
                         if e.get_source() == p
                     ]
                 )
-            ) or permissive
+            ) or engine.permissive
 
         else:
             return control_tokens_present
@@ -255,11 +267,11 @@ class Action(inner.Action, ExecutableNode):
         if isinstance(edge, ControlFlow):
             value = "uml.ControlFlow"
         elif isinstance(edge, ObjectFlow):
-            parameter = self.get_parameter(edge.get_source().name)
+            parameter = self.get_parameter(name=edge.get_source().name)
             value = self.get_parameter_value(
                 parameter, parameter_value_map, node_outputs, sample_format
             )
             reference = isinstance(value, sbol3.Identified) and value.identity != None
 
-        value = literal(value, reference=reference)
+        value = [literal(value, reference=reference)]
         return value

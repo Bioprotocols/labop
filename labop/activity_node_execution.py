@@ -7,6 +7,7 @@ from typing import Callable, List
 import sbol3
 
 from labop import inner
+from labop.behavior_execution import BehaviorExecution
 from uml import (
     PARAMETER_OUT,
     ActivityEdge,
@@ -50,7 +51,9 @@ class ActivityNodeExecution(inner.ActivityNodeExecution):
         pass
 
     def parameter_value_map(self):
-        values = [t.value for t in self.get_incoming_flows()]
+        values = [
+            v for t in self.get_incoming_flows() if t.value is not None for v in t.value
+        ]
         values = None if len(values) == 0 else values
         values = values[0] if values and len(values) == 1 else values
 
@@ -67,7 +70,7 @@ class ActivityNodeExecution(inner.ActivityNodeExecution):
         # Get a ActivityNodeExecution that produced this token assigned to this ActivityNodeExecution parameter.
         # The immediate predecessor will be the token_source
 
-        node = self.node.lookup()
+        node = self.get_node()
         print(self.identity + " " + node.identity + " param = " + str(parameter))
         if (
             isinstance(node, InputPin)

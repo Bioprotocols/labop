@@ -5,6 +5,8 @@ The Pin class defines the functions corresponding to the dynamically generated l
 
 from typing import Dict, List
 
+from uml.behavior import Behavior
+
 from . import inner
 from .object_node import ObjectNode
 from .parameter import Parameter
@@ -17,7 +19,7 @@ class Pin(inner.Pin, ObjectNode):
 
     def get_parameter(self, ordered=False):
         action = self.get_parent()
-        parameter = action.get_parameter(self.name, ordered=ordered)
+        parameter = action.get_parameter(name=self.name, ordered=ordered)
         return parameter
 
     def dot_attrs(
@@ -34,7 +36,7 @@ class Pin(inner.Pin, ObjectNode):
         issues = []
 
         try:
-            parameter = self.get_parent().get_parameter(self.name)
+            parameter = self.get_parent().get_parameter(name=self.name)
             if parameter is None:
                 issues += [
                     WellFormednessError(
@@ -46,7 +48,10 @@ class Pin(inner.Pin, ObjectNode):
             issues += [
                 WellFormednessError(
                     self,
-                    "Could not find a Parameter corresponding to the Pin.",
+                    f"Could not find a Parameter corresponding to the Pin, named: {self.name}.",
                 )
             ]
         return issues
+
+    def get_behavior(self) -> Behavior:
+        return self.get_parent().get_behavior()

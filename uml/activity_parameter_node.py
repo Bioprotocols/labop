@@ -20,7 +20,7 @@ class ActivityParameterNode(inner.ActivityParameterNode, ObjectNode):
         # self.name = self.parameter.name
 
     def dot_attrs(self, incoming_edges: Dict["InputPin", List["ActivityEdge"]] = None):
-        label = self.parameter.lookup().name
+        label = self.get_parameter().name
         return {"label": label, "shape": "rectangle", "peripheries": "2"}
 
     def get_parameter(self, ordered=False):
@@ -119,5 +119,5 @@ class ActivityParameterNode(inner.ActivityParameterNode, ObjectNode):
                 value = parameter_value_map[self.name]
                 reference = True
 
-        value = literal(value, reference=reference)
+        value = [literal(value, reference=reference)]
         return value

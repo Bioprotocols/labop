@@ -22,7 +22,7 @@ class ObjectNode(inner.ObjectNode, ActivityNode):
     def enabled(
         self,
         edge_values: Dict["ActivityEdge", List[LiteralSpecification]],
-        permissive=False,
+        engine: "ExecutionEngine",
     ):
         """Check whether all incoming edges have values defined by a token in tokens and that all value pin values are
         defined.
@@ -36,4 +36,4 @@ class ObjectNode(inner.ObjectNode, ActivityNode):
         -------
         bool if self is enabled
         """
-        return all([len(edge_values[e]) > 0 for e in edge_values]) or permissive
+        return all([len(edge_values[e]) > 0 for e in edge_values]) or engine.permissive

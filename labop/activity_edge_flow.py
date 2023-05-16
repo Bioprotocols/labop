@@ -93,8 +93,8 @@ class ActivityEdgeFlow(inner.ActivityEdgeFlow):
     ):
         source_node_execution = self.get_source()
         source_node = self.get_edge().get_source()
-        edge_value = self.get_value().get_value()
-        is_ref = isinstance(self.get_value(), LiteralReference)
+        edge_value = [v.get_value() for v in self.get_value()]
+        is_ref = [isinstance(v, LiteralReference) for v in self.get_value()]
 
         source_id = source_node.dot_label(namespace=namespace)
         if isinstance(source_node, CallBehaviorAction):
@@ -103,15 +103,17 @@ class ActivityEdgeFlow(inner.ActivityEdgeFlow):
         if isinstance(target_node_execution, CallBehaviorAction):
             target_id = f"{target_id}:node"
 
-        if isinstance(edge_value, sbol3.Identified):
-            edge_label = edge_value.display_id  # value.identity
-        else:
-            edge_label = f"{edge_value}"
+        edge_label = ""
+        for i, v in enumerate(edge_value):
+            if isinstance(v, sbol3.Identified):
+                edge_label += v.display_id  # value.identity
+            else:
+                edge_label += f"{v}"
 
-        if hasattr(edge_value, "to_dot") and not is_ref:
-            # Make node for value and connect to source
-            value_node_id = edge_value.to_dot(dot, out_dir=out_dir)
-            dot.edge(source_id, value_node_id)
+            if hasattr(v, "to_dot") and not is_ref[i]:
+                # Make node for value and connect to source
+                value_node_id = v.to_dot(dot, out_dir=out_dir)
+                dot.edge(source_id, value_node_id)
 
         edge_index = self.identity.split("ActivityEdgeFlow")[-1]
 

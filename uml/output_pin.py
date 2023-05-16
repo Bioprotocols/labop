@@ -29,7 +29,7 @@ class OutputPin(inner.OutputPin, Pin):
         reference = False
 
         if isinstance(edge, ControlFlow):
-            value = "uml.ControlFlow"
+            value = ["uml.ControlFlow"]
         elif isinstance(edge, ObjectFlow):
             call_node = self.get_parent()
             # parameter = call_node.get_parameter(
@@ -38,5 +38,8 @@ class OutputPin(inner.OutputPin, Pin):
             value = node_inputs[self.name]
             reference = True
 
-        value = literal(value, reference=reference)
+        if isinstance(value, list):
+            value = [literal(v, reference=reference) for v in value]
+        else:
+            value = [literal(value, reference=reference)]
         return value

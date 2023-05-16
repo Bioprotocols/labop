@@ -195,3 +195,6 @@ class SampleArray(inner.SampleArray, SampleCollection):
         Render the sample array using a matplotlib plot
         """
         self.plot()
+
+    def get_container_type(self):
+        return self.container_type.lookup()

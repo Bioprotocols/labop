@@ -102,10 +102,11 @@ class ProtocolExecution(inner.ProtocolExecution, BehaviorExecution):
         """
         calls = [e for e in self.executions if isinstance(e, CallBehaviorExecution)]
         datasets = {
-            o.value.get_value().identity: o.value.get_value().to_dataset()
+            val.get_value().identity: val.get_value().to_dataset()
             for e in calls
             for o in e.get_outputs()
-            if isinstance(o.value.get_value(), SampleData)
+            for val in o.get_value()
+            if isinstance(val.get_value(), SampleData)
         }
 
         return datasets
@@ -209,15 +210,12 @@ class ProtocolExecution(inner.ProtocolExecution, BehaviorExecution):
             execution_node = execution.get_node()
             execution_label = ""
 
-            if (
-                execution_node.get_parent() == self
-                or (
-                    isinstance(execution_node, Pin)
-                    and execution_node.get_parent().get_parent() == self
-                )
-            ) and not isinstance(execution_node, FinalNode):
+            node_in_outer_context = execution_node.get_parent() == self or (
+                isinstance(execution_node, Pin)
+                and execution_node.get_parent().get_parent() == self
+            )
+            if node_in_outer_context:
                 # If node is not part of protocol, then its part of the invocation of the protocol and isn't drawn by the protocol to_dot()
-                # This is only needed for the InitialNode because the other nodes are handled outside of this block as execution records
                 incoming_edges = execution_context.incoming_edges(execution_node)
 
                 # Pins are drawn as part of CallBehaviorAction
@@ -231,9 +229,20 @@ class ProtocolExecution(inner.ProtocolExecution, BehaviorExecution):
                     )
 
                 # Add incoming edges to execution_node
-
+                # if not isinstance(execution_node, FinalNode):
                 for edge in incoming_edges:
-                    if edge.dot_plottable():
+                    edge_source_in_outer_context = (
+                        edge.get_source().get_parent() == self
+                        or (
+                            isinstance(execution_node, Pin)
+                            and edge.get_source().get_parent().get_parent() == self
+                        )
+                    )
+                    if (
+                        edge.dot_plottable()
+                        and edge.get_parent() == self
+                        and edge_source_in_outer_context
+                    ):
                         edge.to_dot(dot, namespace=self.namespace)
 
             #     # Add outgoing edges from execution_node

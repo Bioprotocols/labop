@@ -763,9 +763,6 @@ labop:ActivityEdgeFlow a owl:Class ;
             owl:minCardinality "1"^^xsd:nonNegativeInteger ;
             owl:onProperty labop:tokenSource ],
         [ a owl:Restriction ;
-            owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
-            owl:onProperty labop:edgeValue ],
-        [ a owl:Restriction ;
             owl:minCardinality "1"^^xsd:nonNegativeInteger ;
             owl:onProperty labop:edgeValue ],
         [ a owl:Restriction ;

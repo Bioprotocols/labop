@@ -230,13 +230,14 @@ class ExecutionContext(object):
         ]
         parameter_values = [
             ParameterValue(
-                value=literal(f.get_value(), reference=True),
+                value=literal(v, reference=True),
                 parameter=pin_execution.get_node().get_parameter(
                     ordered=True
                 ),  # f.get_edge().get_source().get_parameter(),
             )
             for pin_execution in invocation_pin_executions
             for f in pin_execution.get_incoming_flows()
+            for v in f.get_value()
             if isinstance(f.get_edge(), ObjectFlow)
             and isinstance(f.get_edge().get_source(), ActivityParameterNode)
         ]

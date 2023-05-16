@@ -52,9 +52,6 @@ class CallBehaviorExecution(inner.CallBehaviorExecution, ActivityNodeExecution):
     def parameter_value_map(self):
         return self.get_call().parameter_value_map()
 
-    def get_parameter(self, name: str):
-        return self.get_node().get_parameter(name)
-
     def get_outputs(self) -> List[ParameterValue]:
         return [
             x
@@ -106,9 +103,13 @@ class CallBehaviorExecution(inner.CallBehaviorExecution, ActivityNodeExecution):
         return map
 
     def get_parameter(
-        self, pin_name: str, ordered=False
+        self, name: str = None, ordered=False
     ) -> Union[OrderedPropertyValue, Parameter]:
-        return self.get_node().get_parameter(pin_name, ordered=ordered)
+        return (
+            None
+            if name is None
+            else self.get_node().get_parameter(name=name, ordered=ordered)
+        )
 
     def check_next_tokens(
         self,
@@ -126,9 +127,10 @@ class CallBehaviorExecution(inner.CallBehaviorExecution, ActivityNodeExecution):
                 target: OutputPin = edge.get_target()  # target is an OutputPin
                 call.parameter_values += [
                     ParameterValue(
-                        parameter=self.get_parameter(target.name, ordered=True),
-                        value=literal(token.value.get_value(), reference=True),
+                        parameter=self.get_parameter(name=target.name, ordered=True),
+                        value=literal(v.get_value(), reference=True),
                     )
+                    for v in token.get_value()
                 ]
 
         ### Check that the same parameter names are sane:
@@ -147,7 +149,7 @@ class CallBehaviorExecution(inner.CallBehaviorExecution, ActivityNodeExecution):
         parameter_value_map = call.parameter_value_map()
 
         for p, v in parameter_value_map.items():
-            param = self.get_parameter(p)
+            param = self.get_parameter(name=p)
 
             if (
                 param.lower_value
@@ -178,7 +180,7 @@ class CallBehaviorExecution(inner.CallBehaviorExecution, ActivityNodeExecution):
         parameter: Parameter,
         target: ActivityNodeExecution = None,
     ):
-        node = self.node.lookup()
+        node = self.get_node()
         print(self.identity + " " + node.identity + " param = " + str(parameter))
         if parameter:
             return ActivityNodeExecution.get_token_source(

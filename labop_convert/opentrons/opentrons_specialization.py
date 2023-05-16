@@ -370,35 +370,7 @@ class OT2Specialization(DefaultBehaviorSpecialization):
         units = tyto.OM.get_term_by_uri(units)
         OT2Pipette = "left"
 
-        # Trace the "source" pin back to the EmptyContainer to retrieve the
-        # ContainerSpec for the destination container
-        upstream_execution = record.get_token_source(record.get_parameter("source"))
-        behavior_type = get_behavior_type(upstream_execution)
-        if behavior_type == "PlateCoordinates":
-            upstream_map = upstream_execution.get_call().parameter_value_map()
-            coordinates = upstream_map["coordinates"]
-            upstream_execution = upstream_execution.get_token_source(
-                upstream_execution.get_parameter("source")
-            )  # EmptyContainer
-            parameter_value_map = upstream_execution.get_call().parameter_value_map()
-            source_container = parameter_value_map["specification"]
-        elif behavior_type == "LoadContainerInRack":
-            upstream_execution = upstream_execution.get_token_source(
-                upstream_execution.get_parameter("slots")
-            )  # EmptyRack
-            parameter_value_map = upstream_execution.get_call().parameter_value_map()
-            source_container = parameter_value_map["specification"]
-        elif behavior_type == "LoadContainerOnInstrument":
-            upstream_map = upstream_execution.get_call().parameter_value_map()
-            coordinates = upstream_map["slots"]
-            upstream_execution = upstream_execution.get_token_source(
-                upstream_execution.get_parameter("container")
-            )  # EmptyContainer
-            parameter_value_map = upstream_execution.get_call().parameter_value_map()
-            source_container = parameter_value_map["specification"]
-
-        else:
-            raise Exception(f'Invalid input pin "source" for Transfer.')
+        source_container = source.get_container_type()
 
         # Map the source container to a variable name in the OT2 api script
         source_name = None
@@ -409,31 +381,8 @@ class OT2Specialization(DefaultBehaviorSpecialization):
         if not source_name:
             raise Exception(f"{source_container} is not loaded.")
 
-        # Trace the "destination" pin back to the EmptyContainer execution
-        # to retrieve the ContainerSpec for the destination container
-        parameter_value_map = call.parameter_value_map()
-        upstream_execution = record.get_token_source(call.get_parameter("destination"))
-        behavior_type = get_behavior_type(upstream_execution)
-        if behavior_type == "PlateCoordinates":
-            upstream_map = upstream_execution.get_call().parameter_value_map()
-            coordinates = upstream_map["coordinates"]
-            upstream_execution = upstream_execution.get_token_source(
-                upstream_execution.get_call().get_parameter("source")
-            )  # EmptyContainer
-            parameter_value_map = upstream_execution.parameter_value_map()
-            destination_container = parameter_value_map["specification"]
+        destination_container = destination.get_container_type()
 
-        elif behavior_type == "LoadContainerOnInstrument":
-            upstream_map = upstream_execution.get_call().parameter_value_map()
-            coordinates = upstream_map["slots"]
-            upstream_execution = upstream_execution.get_token_source(
-                upstream_execution.get_call().get_parameter("container")
-            )  # EmptyContainer
-            parameter_value_map = upstream_execution.get_call().parameter_value_map()
-            destination_container = parameter_value_map["specification"]
-
-        else:
-            raise Exception(f'Invalid input pin "destination" for Transfer.')
         destination_name = None
         for deck, labware in self.configuration.items():
             if type(labware) is sbol3.Agent and hasattr(labware, "configuration"):
@@ -884,4 +833,4 @@ def get_behavior_type(ex: CallBehaviorExecution) -> str:
     # Look up the type of Primitive that a CallBehaviorExecution
     # represents.  Strips the namespace out of the Primitive's URI
     # and returns just the local name, e.g., "PlateCoordinates"
-    return ex.get_node().behavior.split("/")[-1]
+    return ex.get_node().get_behavior().identity.split("/")[-1]

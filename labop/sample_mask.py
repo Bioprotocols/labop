@@ -93,3 +93,6 @@ class SampleMask(inner.SampleMask, SampleCollection):
         :return: str
         """
         return f"SampleMask(name={self.name}, source={self.source}, mask={self.mask})"
+
+    def get_container_type(self):
+        return self.get_source().get_container_type()

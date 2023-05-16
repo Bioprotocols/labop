@@ -103,7 +103,7 @@ class DecisionNode(inner.DecisionNode, ControlNode):
     def enabled(
         self,
         tokens: Dict["ActivityEdge", List[LiteralSpecification]],
-        permissive: bool = False,
+        engine: "ExecutionEngine",
     ):
         # Cases:
         # - primary is control, input_flow, no decision_input

@@ -20,7 +20,6 @@ class TestProtocolInputs(unittest.TestCase):
     def test_input_object_not_contained_in_document(self):
         # Automatically add input objects to a Document #157
         protocol, doc = labop.Protocol.initialize_protocol()
-        doc = sbol3.Document()
 
         # Create the input, but don't add it to the Document yet
         input = sbol3.Component("input", sbol3.SBO_DNA)
@@ -48,18 +47,18 @@ class TestProtocolInputs(unittest.TestCase):
 
     def test_unbounded_inputs(self):
         protocol, doc = labop.Protocol.initialize_protocol()
-        doc = sbol3.Document()
 
         p = labop.Primitive("ContainerSet")
         p.add_input("inputs", sbol3.SBOL_COMPONENT, unbounded=True)
         self.assertIsNone(p.parameters[0].property_value.upper_value)
+        doc.add(p)
 
         input1 = sbol3.Component("input1", sbol3.SBO_DNA, name="input1")
         input2 = sbol3.Component("input2", sbol3.SBO_DNA, name="input2")
         doc.add(input1)
         doc.add(input2)
 
-        container_set = protocol.primitive_step("ContainerSet", inputs=[input1, input2])
+        container_set = protocol.primitive_step(p, inputs=[input1, input2])
         self.assertEqual(len(container_set.input_pins("inputs")), 2)
         # assert(len([p for p in container_set.inputs if p.name=='sources']) == 2)
 

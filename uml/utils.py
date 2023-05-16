@@ -144,12 +144,18 @@ class WellFormednessIssue:
         self.object = object
         self.description = description
         self.suggestion = suggestion
-        frameinfo = getframeinfo(currentframe())
+        frameinfo = getframeinfo(currentframe().f_back.f_back)
         self.location = f"{frameinfo.filename}:{frameinfo.lineno}"
         self.level = WellformednessLevels.ERROR
 
     def __str__(self):
-        return f"{self.level}({self.object})[{self.location}]: {self.description} [{self.suggestion}]"
+        try:
+            object_str = str(self.object)
+        except Exception as e:
+            object_str = (
+                f"Error converting object of type {type(self.object)} to string: {e}"
+            )
+        return f"{self.level}({object_str})[{self.location}]: {self.description} [{self.suggestion}]"
 
 
 class WellFormednessError(WellFormednessIssue):

@@ -26,9 +26,9 @@ class ValuePin(inner.ValuePin, InputPin):
     def enabled(
         self,
         edge_values: Dict["ActivityEdge", List[LiteralSpecification]],
-        permissive=False,
+        engine: "ExecutionEngine",
     ):
-        return self.value is not None or permissive
+        return self.value is not None or engine.permissive
 
     def is_well_formed(self) -> List[WellFormednessIssue]:
         """

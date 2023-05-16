@@ -4,6 +4,8 @@ The ForkNode class defines the functions corresponding to the dynamically genera
 
 from typing import Callable, Dict, List
 
+import sbol3
+
 import uml
 from uml import LiteralSpecification
 from uml.activity_edge import ActivityEdge
@@ -99,5 +101,10 @@ class ForkNode(inner.ForkNode, ControlNode):
             value = next(iter(parameter_value_map.values()))
             reference = True
 
-        value = literal(value, reference=reference)
+        if isinstance(value, list) or isinstance(
+            value, sbol3.ownedobject.OwnedObjectListProperty
+        ):
+            value = [literal(v, reference=reference) for v in value]
+        else:
+            value = [literal(value, reference=reference)]
         return value

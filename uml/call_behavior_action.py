@@ -124,7 +124,7 @@ class CallBehaviorAction(inner.CallBehaviorAction, CallAction):
                 value = "uml.ControlFlow"
                 reference = False
             else:
-                parameter = self.get_parameter(edge.get_target().name)
+                parameter = self.get_parameter(name=edge.get_target().name)
                 value = self.get_parameter_value(
                     parameter,
                     parameter_value_map,
@@ -136,8 +136,12 @@ class CallBehaviorAction(inner.CallBehaviorAction, CallAction):
                 reference = (
                     isinstance(value, sbol3.Identified) and value.identity != None
                 )
-
-        value = literal(value, reference=reference)
+        if isinstance(value, list) or isinstance(
+            value, sbol3.ownedobject.OwnedObjectListProperty
+        ):
+            value = [literal(v, reference=reference) for v in value]
+        else:
+            value = [literal(value, reference=reference)]
         return value
 
     def get_parameter_value(

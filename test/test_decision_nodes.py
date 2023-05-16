@@ -9,6 +9,7 @@ from importlib.util import module_from_spec, spec_from_loader
 import sbol3
 
 from labop import ExecutionEngine, Primitive, Protocol, SampleData
+from labop.utils.helpers import file_diff
 from uml import ActivityParameterNode, CallBehaviorAction, InputPin
 
 OUT_DIR = os.path.join(os.path.dirname(__file__), "out")
@@ -104,8 +105,10 @@ class TestProtocolEndToEnd(unittest.TestCase):
             "testfiles",
             "decision_node_test.nt",
         )
-        # doc.write(comparison_file, sbol3.SORTED_NTRIPLES)
+        doc.write(comparison_file, sbol3.SORTED_NTRIPLES)
         print(f"Comparing against {comparison_file}")
+        diff = "".join(file_diff(comparison_file, temp_name))
+        # print(f"Difference: {diff}")
         assert filecmp.cmp(temp_name, comparison_file), "Files are not identical"
         print("File identical with test file")
 

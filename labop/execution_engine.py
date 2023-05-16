@@ -406,6 +406,7 @@ class ExecutionEngine(ABC):
         # Process outputs
         node = record.get_node()
         outgoing_edges = execution_context.outgoing_edges(node)
+        outgoing_edges.sort(key=lambda x: x.identity)
         parameter_value_map = record.parameter_value_map()
         invocation_hash = hash(record)
         new_tokens: Dict[ExecutionContext, List[ActivityEdgeFlow]] = {
@@ -425,7 +426,8 @@ class ExecutionEngine(ABC):
                 if edge.get_target() in execution_context.nodes
                 # Do not create normal object flow for CBA to output pins
                 and (
-                    not isinstance(node, CallBehaviorAction)
+                    not isinstance(edge.get_target(), OutputPin)
+                    # not isinstance(node, CallBehaviorAction)
                     or not isinstance(node.get_behavior(), Activity)
                 )
             ]
@@ -435,7 +437,7 @@ class ExecutionEngine(ABC):
             ActivityEdgeFlow(
                 edge=edge,
                 token_source=record,
-                value=literal("uml.ControlFlow"),
+                value=[literal("uml.ControlFlow")],
             )
             for edge in outgoing_edges
             if edge.get_target() in execution_context.nodes
@@ -480,7 +482,7 @@ class ExecutionEngine(ABC):
                             token_consumed.get_edge().get_source(),
                         ),
                         token_source=token_consumed.token_source,
-                        value=literal(token_consumed.value, reference=True),
+                        value=[literal(token_consumed.value, reference=True)],
                     )
                     for token_consumed in record.get_incoming_flows()
                     if isinstance(token_consumed.get_edge().get_source(), Pin)
@@ -494,7 +496,7 @@ class ExecutionEngine(ABC):
                             node, behavior.initial()
                         ),
                         token_source=record,
-                        value=literal("uml.ControlFlow", reference=True),
+                        value=[literal("uml.ControlFlow", reference=True)],
                     )
                 ]
 
@@ -542,7 +544,9 @@ class ExecutionEngine(ABC):
         input_pin_values = {
             token.get_source()
             .get_node()
-            .identity: literal(token.get_value(), reference=True)
+            .identity: [
+                literal(v.get_value(), reference=True) for v in token.get_value()
+            ]
             for token in inputs
         }
         # Get Input value pins
@@ -557,24 +561,26 @@ class ExecutionEngine(ABC):
                     raise ValueError(
                         f"{self.behavior.lookup().display_id} Action has no ValueSpecification for Pin {pin.name}"
                     )
-                value_pin_values[pin.identity] = pin.value
+                value_pin_values[pin.identity] = [pin.value]
             # Check that pin corresponds to an input parameter.  Will cause Exception if does not exist.
-            parameter = node.get_parameter(pin.name)
+            parameter = node.get_parameter(name=pin.name)
 
         # Convert References
         value_pin_values = {
-            k: literal(value=v.get_value(), reference=True)
+            k: [literal(value=val.get_value(), reference=True)]
             for k, v in value_pin_values.items()
+            for val in v
         }
         pin_values = {**input_pin_values, **value_pin_values}  # merge the dicts
 
         parameter_values = [
             ParameterValue(
-                parameter=node.get_parameter(pin.name, ordered=True),
-                value=pin_values[pin.identity],
+                parameter=node.get_parameter(name=pin.name, ordered=True),
+                value=value,
             )
             for pin in node.get_inputs()
             if pin.identity in pin_values
+            for value in pin_values[pin.identity]
         ]
         return parameter_values
 
@@ -637,10 +643,7 @@ class ExecutionEngine(ABC):
         enabled_nodes = [
             n
             for n in updated_clusters
-            if n.enabled(
-                execution_context.incoming_edge_tokens[n],
-                permissive=self.permissive,
-            )
+            if n.enabled(execution_context.incoming_edge_tokens[n], self)
         ]
         enabled_nodes.sort(
             key=lambda x: x.identity
@@ -660,8 +663,9 @@ class ExecutionEngine(ABC):
             execution_context.parameter_values += [
                 ParameterValue(
                     parameter=node.get_parameter(ordered=True),
-                    value=literal(value, reference=True),
+                    value=literal(v, reference=True),
                 )
+                for v in value
             ]
         # elif isinstance(node, CallBehaviorAction):
         #     # Add outputs to the call
@@ -702,10 +706,11 @@ class ExecutionEngine(ABC):
 
         # Find all Dataset objects produced by record
         datasets = [
-            token.value.get_value()
+            val.get_value()
             for token in new_tokens
+            for val in token.get_value()
             if token.token_source == record.identity
-            and isinstance(token.value.get_value(), Dataset)
+            and isinstance(val.get_value(), Dataset)
         ]
         sample_data = [
             dataset.data for dataset in datasets if isinstance(dataset.data, SampleData)
