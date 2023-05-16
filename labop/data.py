@@ -261,6 +261,7 @@ def sample_array_from_container_spec(
         geometry=geometry, sample_format=sample_format
     )
     sample_array.initial_contents = serialize_sample_format(initial_contents)
+    sample_array.container_type = container_type
     return sample_array
 
 
