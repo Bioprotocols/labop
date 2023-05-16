@@ -32,6 +32,7 @@ setup(
         "labop_convert.autoprotocol",
         "labop_convert.markdown",
         "labop_convert.opentrons",
+        "labop_convert.emeraldcloud",
         "labop.lib",
         "labop.utils",
         "labop_time",
