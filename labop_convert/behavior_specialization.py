@@ -158,11 +158,16 @@ class BehaviorSpecialization(ABC):
         l.warning(
             f"Cannot resolve container specification using remote ontology server. Defaulting to static ontology copy"
         )
+
         container_uri = validate_spec_query(spec.queryString)
-        if container_uri.is_instance():
+
+        try:
+            # If a class of container is specified, get all explicit instances
+            possible_container_types = [
+                tyto.URI(c, ContO) for c in container_uri.get_instances()
+            ]
+        except:
             possible_container_types = [container_uri]
-        else:
-            possible_container_types = container_uri.get_instances()
         return possible_container_types
 
     def get_container_typename(self, container_uri: str) -> str:
