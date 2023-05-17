@@ -1,4 +1,3 @@
-import json
 import logging
 from typing import Dict
 
@@ -8,19 +7,31 @@ import xarray as xr
 
 import labop
 import uml
-from labop_convert.behavior_specialization import BehaviorSpecialization, ContO
+from labop.strings import Strings
+from labop_convert.behavior_specialization import (
+    BehaviorSpecialization,
+    ContO,
+    validate_spec_query,
+)
 from labop_convert.plate_coordinates import flatten_coordinates, get_sample_list
 
 l = logging.getLogger(__file__)
-l.setLevel(logging.ERROR)
+l.setLevel(logging.INFO)
 
 
 class ECLSpecialization(BehaviorSpecialization):
+
+    # Map terms in the Container ontology to OT2 API names
+    LABWARE_MAP = {
+        ContO["96 well plate"]: "96-well Polystyrene Flat-Bottom Plate, Clear",
+        ContO["2 mL microfuge tube"]: "2mL Tube",
+    }
+
     def __init__(
         self, filename, resolutions: Dict[sbol3.Identified, str] = None
     ) -> None:
         super().__init__()
-        self.resolutions = resolutions
+        self.resolutions = resolutions if resolutions else {}
         self.var_to_entity = {}
         self.script = ""
         self.script_steps = []
@@ -30,6 +41,7 @@ class ECLSpecialization(BehaviorSpecialization):
         if len(filename.split(".")) == 1:
             filename += ".ecl"
         self.filename = filename
+        self.sample_format = Strings.XARRAY
 
         # Needed for using container ontology
         self.container_api_addl_conditions = "(cont:availableAt value <https://sift.net/container-ontology/strateos-catalog#Strateos>)"
@@ -62,7 +74,6 @@ class ECLSpecialization(BehaviorSpecialization):
     def on_begin(self, ex: labop.ProtocolExecution):
 
         protocol = self.execution.protocol.lookup()
-        apilevel = self.apilevel
         self.data = []
 
     def on_end(self, ex):
@@ -147,7 +158,7 @@ class ECLSpecialization(BehaviorSpecialization):
                 container = cba.input_pin("container").value.value.lookup()
             else:
                 continue
-            container_type = container.queryString
+            container_type = validate_spec_query(container.queryString)
             container_name = container.name if container.name else "unnamed"
             qty = cba.input_pin("quantity") if "quantity" in input_names else 1
 
@@ -201,10 +212,11 @@ class ECLSpecialization(BehaviorSpecialization):
         name = spec.name if spec.name else spec.display_id
 
         # SampleArray fields are initialized in primitive_execution.py
-        text = f"""LabelContainer[
+        text = f"""{spec.display_id} = LabelContainer[
     Label -> "{name}",
     Container -> Model[Container, Plate, "96-well Polystyrene Flat-Bottom Plate, Clear"]
 ]"""
+        self.script_steps += [text]
 
     def time_wait(
         self, record: labop.ActivityNodeExecution, ex: labop.ProtocolExecution
@@ -228,41 +240,6 @@ class ECLSpecialization(BehaviorSpecialization):
         units = tyto.OM.get_term_by_uri(units)
         resource = parameter_value_map["resource"]["value"]
         amount = parameter_value_map["amount"]["value"]
-        amount = measurement_to_text(amount)
-        coords = ""
-        coords = (
-            destination.get_parent()
-            .get_parent()
-            .token_source.lookup()
-            .node.lookup()
-            .input_pin("coordinates")
-            .value.value
-        )
-        upstream_execution = get_token_source("destination", record)
-        container = upstream_execution.call.lookup().parameter_value_map()["container"][
-            "value"
-        ]
-
-        behavior_type = get_behavior_type(upstream_execution)
-        if behavior_type == "LoadContainerInRack":
-            coords = upstream_execution.call.lookup().parameter_value_map()[
-                "coordinates"
-            ]["value"]
-            upstream_execution = get_token_source("slots", upstream_execution)
-            rack = upstream_execution.call.lookup().parameter_value_map()[
-                "specification"
-            ]["value"]
-        else:
-            raise NotImplementedError(
-                f'A "Provision" call cannot follow a "{behavior_type}" call'
-            )
-
-        container_str = (
-            f"`{container.name}`" if container.name else container.queryString
-        )
-        rack_str = f"`{rack.name}`" if rack.name else rack.queryString
-        text = f"Fill {amount} of {resource.name} into {container_str} located in {coords} of {rack_str}"
-        self.markdown_steps += [text]
 
     def transfer_to(
         self, record: labop.ActivityNodeExecution, ex: labop.ProtocolExecution
@@ -273,114 +250,26 @@ class ECLSpecialization(BehaviorSpecialization):
         parameter_value_map = call.parameter_value_map()
         destination = parameter_value_map["destination"]["value"]
         source = parameter_value_map["source"]["value"]
-        value = parameter_value_map["amount"]["value"].value
-        units = parameter_value_map["amount"]["value"].unit
-        units = tyto.OM.get_term_by_uri(units)
-        OT2Pipette = "left"
+        if type(source) is labop.SampleMask:
+            source = source.source.lookup()
+        print(f"Transfer from {source.container_type.lookup().display_id}")
+        source = self.resolutions[
+            source.container_type.lookup().identity
+        ]  # Map to ECL reagent identifier
+        amount = ecl_measure(parameter_value_map["amount"]["value"])
 
-        # Trace the "source" pin back to the EmptyContainer to retrieve the
-        # ContainerSpec for the destination container
-        upstream_execution = record.get_token_source(
-            parameter_value_map["source"]["parameter"].property_value
-        )
-        behavior_type = get_behavior_type(upstream_execution)
-        if behavior_type == "PlateCoordinates":
-            upstream_map = upstream_execution.call.lookup().parameter_value_map()
-            coordinates = upstream_map["coordinates"]["value"]
-            upstream_execution = upstream_execution.get_token_source(
-                upstream_map["source"]["parameter"].property_value
-            )  # EmptyContainer
-            parameter_value_map = upstream_execution.call.lookup().parameter_value_map()
-            source_container = parameter_value_map["specification"]["value"]
-        elif behavior_type == "LoadContainerInRack":
-            upstream_execution = upstream_execution.get_token_source(
-                upstream_map["slots"]["parameter"].property_value
-            )  # EmptyRack
-            parameter_value_map = upstream_execution.call.lookup().parameter_value_map()
-            source_container = parameter_value_map["specification"]["value"]
-        elif behavior_type == "LoadContainerOnInstrument":
-            upstream_map = upstream_execution.call.lookup().parameter_value_map()
-            coordinates = upstream_map["slots"]["value"]
-            upstream_execution = upstream_execution.get_token_source(
-                upstream_map["container"]["parameter"].property_value
-            )  # EmptyContainer
-            parameter_value_map = upstream_execution.call.lookup().parameter_value_map()
-            source_container = parameter_value_map["specification"]["value"]
-
-        else:
-            raise Exception(f'Invalid input pin "source" for Transfer.')
-
-        # Map the source container to a variable name in the OT2 api script
-        source_name = None
-        for deck, labware in self.configuration.items():
-            if labware == source_container:
-                source_name = f"labware{deck}"
-                break
-        if not source_name:
-            raise Exception(f"{source_container} is not loaded.")
-
-        # Trace the "destination" pin back to the EmptyContainer execution
-        # to retrieve the ContainerSpec for the destination container
-        parameter_value_map = call.parameter_value_map()
         upstream_execution = record.get_token_source(
             parameter_value_map["destination"]["parameter"].property_value
         )
         behavior_type = get_behavior_type(upstream_execution)
-        if behavior_type == "PlateCoordinates":
-            upstream_map = upstream_execution.call.lookup().parameter_value_map()
-            coordinates = upstream_map["coordinates"]["value"]
-            upstream_execution = upstream_execution.get_token_source(
-                upstream_map["source"]["parameter"].property_value
-            )  # EmptyContainer
-            parameter_value_map = upstream_execution.call.lookup().parameter_value_map()
-            destination_container = parameter_value_map["specification"]["value"]
+        print(behavior_type)
 
-        elif behavior_type == "LoadContainerOnInstrument":
-            upstream_map = upstream_execution.call.lookup().parameter_value_map()
-            coordinates = upstream_map["slots"]["value"]
-            upstream_execution = upstream_execution.get_token_source(
-                upstream_map["container"]["parameter"].property_value
-            )  # EmptyContainer
-            parameter_value_map = upstream_execution.call.lookup().parameter_value_map()
-            destination_container = parameter_value_map["specification"]["value"]
-
-        else:
-            raise Exception(f'Invalid input pin "destination" for Transfer.')
-        destination_name = None
-        for deck, labware in self.configuration.items():
-            if type(labware) is sbol3.Agent and hasattr(labware, "configuration"):
-                # If labware is a hardware module (i.e. Agent),
-                # then we need to look further to find out what conta
-                coordinate = get_sample_list(destination.mask)[0]
-                if coordinate in labware.configuration:
-                    labware = labware.configuration[coordinate]
-            if labware == destination_container:
-                destination_name = f"labware{deck}"
-                break
-        if not destination_name:
-            raise Exception(f"{destination_container} is not loaded.")
-
-        # TODO: automatically choose pipette based on transferred volume
-        if not self.configuration:
-            raise Exception(
-                "Transfer call failed. Use ConfigureInstrument to configure a pipette"
-            )
-        pipette = self.configuration["left"]
-
-        comment = record.node.lookup().name
-        comment = (
-            "# " + comment
-            if comment
-            else "# Transfer ActivityNode name is not defined."
-        )
-
-        source_str = source.mask
-        destination_str = destination.mask
-        for c_source in get_sample_list(source.mask):
-            for c_destination in get_sample_list(destination.mask):
-                self.script_steps += [
-                    f"{pipette.display_id}.transfer({value}, {source_name}['{c_source}'], {destination_name}['{c_destination}'])  {comment}"
-                ]
+        text = f"""Transfer[
+      Source -> Model[Sample, StockSolution, {source}],
+      Amount -> {amount},
+      Destination -> {ecl_coordinates(destination)}
+      ]"""
+        self.script_steps += [text]
 
     def transfer_by_map(
         self, record: labop.ActivityNodeExecution, ex: labop.ProtocolExecution
@@ -394,66 +283,6 @@ class ECLSpecialization(BehaviorSpecialization):
         plan = parameter_value_map["plan"]["value"]
         temperature = parameter_value_map["temperature"]["value"]
         value = parameter_value_map["amount"]["value"].value
-        units = parameter_value_map["amount"]["value"].unit
-        units = tyto.OM.get_term_by_uri(units)
-        OT2Pipette = "left"
-
-        # Trace the "source" pin back to the EmptyContainer to retrieve the
-        # ContainerSpec for the destination container
-        upstream_execution = record.get_token_source("source")
-        behavior_type = get_behavior_type(upstream_execution)
-        if behavior_type == "LoadContainerInRack":
-            upstream_execution = upstream_execution.get_token_source(
-                "slots"
-            )  # EmptyRack
-            parameter_value_map = upstream_execution.call.lookup().parameter_value_map()
-            source_container = parameter_value_map["specification"]["value"]
-        else:
-            raise Exception(f'Invalid input pin "source" for Transfer.')
-
-        # Map the source container to a variable name in the OT2 api script
-        source_name = None
-        for deck, labware in self.configuration.items():
-            if labware == source_container:
-                source_name = f"labware{deck}"
-                break
-        if not source_name:
-            raise Exception(f"{source_container} is not loaded.")
-
-        # Trace the "destination" pin back to the EmptyContainer execution
-        # to retrieve the ContainerSpec for the destination container
-        upstream_execution = record.get_token_source("destination")
-        behavior_type = get_behavior_type(upstream_execution)
-        if behavior_type == "PlateCoordinates":
-            upstream_execution = get_token_source(
-                "source", upstream_execution
-            )  # EmptyContainer
-            parameter_value_map = upstream_execution.call.lookup().parameter_value_map()
-            destination_container = parameter_value_map["specification"]["value"]
-        else:
-            raise Exception(f'Invalid input pin "destination" for Transfer.')
-        destination_name = None
-        for deck, labware in self.configuration.items():
-            if labware == destination_container:
-                destination_name = f"labware{deck}"
-                break
-        if not destination_name:
-            raise Exception(f"{destination_container} is not loaded.")
-
-        # TODO: automatically choose pipette based on transferred volume
-        if not self.configuration:
-            raise Exception(
-                "Transfer call failed. Use ConfigureInstrument to configure a pipette"
-            )
-        pipette = self.configuration["left"]
-
-        source_str = source.mask
-        destination_str = destination.mask
-        for c_source in get_sample_list(source.mask):
-            for c_destination in get_sample_list(destination.mask):
-                self.script_steps += [
-                    f"{pipette.display_id}.transfer({value}, {source_name}['{c_source}'], {destination_name}['{c_destination}'])"
-                ]
 
     def plate_coordinates(
         self, record: labop.ActivityNodeExecution, ex: labop.ProtocolExecution
@@ -463,7 +292,7 @@ class ECLSpecialization(BehaviorSpecialization):
         source = parameter_value_map["source"]["value"]
         coords = parameter_value_map["coordinates"]["value"]
         samples = parameter_value_map["samples"]["value"]
-        samples.mask = coords
+        # samples.mask = coords
 
     def measure_absorbance(
         self, record: labop.ActivityNodeExecution, ex: labop.ProtocolExecution
@@ -471,16 +300,22 @@ class ECLSpecialization(BehaviorSpecialization):
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
 
-        wl = parameter_value_map["wavelength"]["value"]
-        wl_units = tyto.OM.get_term_by_uri(wl.unit)
+        wavelength = ecl_measure(parameter_value_map["wavelength"]["value"])
         samples = parameter_value_map["samples"]["value"]
 
-        samples_str = (
-            f"`{samples.source.lookup().value.lookup().value.name}({samples.mask})`"
-        )
-        self.script_steps += [
-            f"protocol.comment('Make absorbance measurements (named `{measurements}`) of {samples_str} at {wl.value} {wl_units}.')"
-        ]
+        if type(samples) is labop.SampleMask:
+            samples = samples.source.lookup()
+        container = samples.container_type.lookup()
+        container_name = container.name if container.name else container.display_id
+
+        text = f"""AbsorbanceIntensity[
+      Sample -> "{container_name}",
+      Wavelength -> {wavelength},
+      PlateReaderMix -> True,
+      PlateReaderMixRate -> 700 RPM,
+      BlankAbsorbance -> False
+      ]"""
+        self.script_steps += [text]
 
     def define_rack(
         self, record: labop.ActivityNodeExecution, ex: labop.ProtocolExecution
@@ -515,36 +350,6 @@ class ECLSpecialization(BehaviorSpecialization):
         slots: labop.SampleCollection = parameter_value_map["slots"]["value"]
         samples: labop.SampleMask = parameter_value_map["samples"]["value"]
 
-        # TODO: validate coordinates for the given container spec
-        samples.source = slots
-        samples.mask = coords
-        container_str = get_container_name(container)
-
-        rack_str = ""
-        try:
-            # TODO: replace this lookup with a call to get_token_source()
-            rack = (
-                slots.get_parent()
-                .get_parent()
-                .token_source.lookup()
-                .node.lookup()
-                .input_pin("specification")
-                .value.value.lookup()
-            )
-            rack_str = get_container_name(rack)
-        except Exception as e:
-            print(e)
-
-        aliquots = get_sample_list(coords)
-        if len(aliquots) == 1:
-            self.markdown_steps += [
-                f"Load {container_str} in slot {coords} of {rack_str}"
-            ]
-        elif len(aliquots) > 1:
-            self.markdown_steps += [
-                f"Load {container_str}s in slots {coords} of {rack_str}"
-            ]
-
     def load_container_on_instrument(
         self, record: labop.ActivityNodeExecution, ex: labop.ProtocolExecution
     ):
@@ -560,35 +365,6 @@ class ECLSpecialization(BehaviorSpecialization):
         )
         instrument: sbol3.Agent = parameter_value_map["instrument"]["value"]
         samples: labop.SampleArray = parameter_value_map["samples"]["value"]
-
-        # Assume 96 well plate
-        aliquots = get_sample_list(geometry="A1:H12")
-        samples.initial_contents = json.dumps(
-            xr.DataArray(aliquots, dims=("aliquot")).to_dict()
-        )
-
-        # upstream_ex = get_token_source('container', record)
-        # container_spec = upstream_ex.call.lookup().parameter_value_map()['specification']['value']
-
-        container_types = self.resolve_container_spec(container_spec)
-        selected_container_type = self.check_lims_inventory(container_types)
-        container_api_name = LABWARE_MAP[selected_container_type]
-        container_str = get_container_name(container_spec)
-
-        # TODO: need to specify instrument
-        deck = self.get_instrument_deck(instrument)
-        self.markdown_steps += [
-            f"Load {container_str} in {slots} of Deck of OT2 instrument"
-        ]
-        self.script_steps += [
-            f"labware{deck} = {instrument.display_id}.load_labware('{container_api_name}')"
-        ]
-
-        # Keep track of instrument configuration
-        if not hasattr(instrument, "configuration"):
-            instrument.configuration = {}
-            for c in get_sample_list(slots):
-                instrument.configuration[c] = container_spec
 
     def load_racks(
         self, record: labop.ActivityNodeExecution, ex: labop.ProtocolExecution
@@ -761,35 +537,30 @@ class ECLSpecialization(BehaviorSpecialization):
                 )
             )
             destination = destination.source.lookup()
-        source_coordinates = flatten_coordinates(
-            source.sample_coordinates(sample_format=self.sample_format)
-        )
-        if isinstance(source, labop.SampleMask):
-            source = source.source.lookup()
 
         # Get destination container type
-        container_spec = record.document.find(destination.container_type)
-        container_class = (
-            ContainerOntology.uri + "#" + container_spec.queryString.split(":")[-1]
-        )
-        container_str = ContainerOntology.get_term_by_uri(container_class)
+        destination_container = destination.container_type.lookup()
+        container_types = self.resolve_container_spec(destination_container)
+        selected_container_type = self.check_lims_inventory(container_types)
+        destination_container = ecl_container(selected_container_type)
+
         sources = destination_coordinates[:-1]
         destinations = destination_coordinates[1:]
         start_well = destination_coordinates[0]
         end_well = destination_coordinates[-1]
-        execution.script += [f"startWell = {start_well}"]
-        execution.script += [f"endWell = {end_well}"]
-        execution.script += [
+        self.script_steps += [f"startWell = {start_well}"]
+        self.script_steps += [f"endWell = {end_well}"]
+        self.script_steps += [
             f"serialDilutionSourceWells = Flatten[Transpose[AllWells[]]][startWell ;; endWell - 2]];"
         ]
-        execution.script += [
+        self.script_steps += [
             f"serialDilutionDestinationWells = Flatten[Transpose[AllWells[]]][startWell + 1 ;; endWell - 1]];"
         ]
-        execution.script += [
+        self.script_steps += [
             f"""
 serialDilutionTransfers1 = MapThread[
    Transfer[
-     Source -> "{source_container}",
+     Source -> "{destination_container}",
      Destination -> "{destination_container}",
      SourceWell -> #1,
      DestinationWell -> #2,
@@ -797,15 +568,49 @@ serialDilutionTransfers1 = MapThread[
      SlurryTransfer -> True,
      DispenseMix -> True
      ] &,
-   {serialDilutionSourceWells1, serialDilutionDestinationWells1}];"""
+   {{serialDilutionSourceWells1, serialDilutionDestinationWells1}}];"""
         ]
+
+
+def ecl_container(container_type: tyto.URI):
+    if container_type in ECLSpecialization.LABWARE_MAP:
+        return ECLSpecialization.LABWARE_MAP[container_type]
+    if container_type in ContO["96 well plate"].get_instances():
+        container = ECLSpecialization.LABWARE_MAP[ContO["96 well plate"]]
+        return f'Model[Container, Plate, "{container}"]'
+    if container_type in ContO["2 mL microfuge tube"].get_instances():
+        container = ECLSpecialization.LABWARE_MAP[ContO["2 mL microfuge tube"]]
+        return f'Model[Container, Vessel, "{container}"]'
+    raise Exception(
+        f"Load failed. Container {container_type} is not supported labware."
+    )
 
 
 def ecl_measure(measure: sbol3.Measure):
     text = str(measure.value)
     if measure.unit == tyto.OM.microliter:
         return text + " Microliter"
-    raise ValueError(tyto.get_term_by_uri(measure.unit) + " is not a supported unit")
+    elif measure.unit == tyto.OM.nanometer:
+        return text + " Nanometer"
+    elif measure.unit == tyto.OM.milliliter:
+        return text + " Milliliter"
+    raise ValueError(tyto.OM.get_term_by_uri(measure.unit) + " is not a supported unit")
+
+
+def ecl_coordinates(samples: labop.SampleCollection, sample_format=Strings.XARRAY):
+    coordinates = flatten_coordinates(
+        samples.sample_coordinates(sample_format=sample_format, as_list=True)
+    )
+    start = coordinates[0]
+    end = coordinates[-1]
+
+    # Get destination container type
+    if type(samples) is labop.SampleMask:
+        samples = samples.source.lookup()
+    container = samples.container_type.lookup()
+    container_name = container.name if container.name else container.display_id
+
+    return f"""{{#, "{container_name}"}} & /@  Flatten[Transpose[AllWells[]]][[ {start} ;; {end}]];"""
 
 
 def get_container_name(container: labop.ContainerSpec):
@@ -816,48 +621,6 @@ def get_container_name(container: labop.ContainerSpec):
     except:
         raise Exception(f"Container specification {qname} is invalid.")
     return ContO.get_term_by_uri(f"{ContO.uri}#{local}")
-
-
-def measurement_to_text(measure: sbol3.Measure):
-    measurement_scalar = measure.value
-    measurement_units = tyto.OM.get_term_by_uri(measure.unit)
-    return f"{measurement_scalar} {measurement_units}"
-
-
-def get_token_source(
-    input_name: str, record: labop.CallBehaviorExecution
-) -> labop.CallBehaviorExecution:
-    # Find the target flow carrying the token for the specified input pin
-    input_flows = [
-        flow.lookup()
-        for flow in record.incoming_flows
-        if type(flow.lookup().token_source.lookup()) is labop.ActivityNodeExecution
-    ]  # Input tokens flow between ActivityNodeExecutions and CallBehaviorExecutions
-    input_flows2 = [
-        flow.lookup()
-        for flow in record.incoming_flows
-        if type(flow.lookup()) is labop.ActivityEdgeFlow
-    ]
-    assert input_flows != input_flows2
-    upstream_execution_nodes = [flow.token_source.lookup() for flow in input_flows]
-    target_node = None
-    for node in upstream_execution_nodes:
-        pin = node.node.lookup()
-        assert type(pin) is uml.InputPin
-        if pin.name == input_name:
-            target_node = node
-            break
-    if not target_node:
-        raise Exception(f"{input_name} not found")
-    assert len(target_node.incoming_flows) == 1
-    token_source = target_node.incoming_flows[0].lookup().token_source.lookup()
-    if type(token_source.node.lookup()) is uml.ForkNode:
-        # Go one more step upstream to get the source CallBehaviorExecution
-        return token_source.incoming_flows[0].lookup().token_source.lookup()
-    assert (
-        type(token_source) is labop.CallBehaviorExecution
-    ), f"Handler for token source of {type(token_source)} is not implemented yet"
-    return token_source
 
 
 def get_behavior_type(ex: labop.CallBehaviorExecution) -> str:

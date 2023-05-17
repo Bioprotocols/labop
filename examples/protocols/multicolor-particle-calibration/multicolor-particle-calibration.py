@@ -185,7 +185,7 @@ Adapted from [https://dx.doi.org/10.17504/protocols.io.bht7j6rn](https://dx.doi.
         specification=labop.ContainerSpec(
             "discard_container",
             name="discard",
-            queryString="cont:StockReagent",
+            queryString="cont:WasteContainer",
             prefixMap={
                 "cont": "https://sift.net/container-ontology/container-ontology#"
             },
@@ -873,6 +873,96 @@ def generate_autoprotocol_specialization(protocol, doc):
             f.write(doc.write_string(sbol3.SORTED_NTRIPLES).strip())
 
 
+def generate_emeraldcloud_specialization(protocol, doc):
+    blockPrint()
+    import labop
+    from labop.execution_engine import ExecutionEngine
+    from labop_convert.emeraldcloud.ecl_specialization import ECLSpecialization
+
+    ecl_output = os.path.join(OUT_DIR, f"{filename}-emeraldcloud.nb")
+
+    ddh2o = doc.find(f"{NAMESPACE}ddH2O")
+    pbs = doc.find(f"{NAMESPACE}pbs")
+    fluorescein = doc.find(f"{NAMESPACE}fluorescein")
+    cascade_blue = doc.find(f"{NAMESPACE}cascade_blue")
+    sulforhodamine = doc.find(f"{NAMESPACE}sulforhodamine")
+    silica_beads = doc.find(f"{NAMESPACE}silica_beads")
+    discard_container = [x for x in protocol.nodes if x.name == "discard_container"][0]
+    fluorescein_standard_solution_container = [
+        x for x in protocol.nodes if x.name == "fluroscein_calibrant"
+    ][0]
+    sulforhodamine_standard_solution_container = [
+        x
+        for x in protocol.nodes
+        if x.name == "sulforhodamine_standard_solution_container"
+    ][0]
+    cascade_blue_standard_solution_container = [
+        x
+        for x in protocol.nodes
+        if x.name == "cascade_blue_standard_solution_container"
+    ][0]
+    microsphere_standard_solution_container = [
+        x for x in protocol.nodes if x.name == "microsphere_standard_solution_container"
+    ][0]
+    ddh2o_container = [x for x in protocol.nodes if x.name == "ddh2o_container"][0]
+    pbs_container = [x for x in protocol.nodes if x.name == "pbs_container"][0]
+    calibration_plate = [x for x in protocol.nodes if x.name == "calibration_plate"][0]
+
+    resolutions = {
+        ddh2o.identity: "Nuclease-free Water",
+        pbs.identity: "1x PBS from 10X stock",
+        fluorescein.identity: "1x PBS, 10uM Fluorescein",
+        cascade_blue.identity: "1x PBS, 10uM Fluorescein",
+        sulforhodamine.identity: "1x PBS, 10uM Fluorescein",
+        silica_beads.identity: "Silica beads 2g/ml 950nm",
+        discard_container.input_pin("specification")
+        .value.value.lookup()
+        .identity: "2mL Tube",
+        fluorescein_standard_solution_container.input_pin("specification")
+        .value.value.lookup()
+        .identity: "1x PBS, 10uM Fluorescein",
+        sulforhodamine_standard_solution_container.input_pin("specification")
+        .value.value.lookup()
+        .identity: "1x PBS, 10uM Fluorescein",
+        cascade_blue_standard_solution_container.input_pin("specification")
+        .value.value.lookup()
+        .identity: "1x PBS, 10uM Fluorescein",
+        microsphere_standard_solution_container.input_pin("specification")
+        .value.value.lookup()
+        .identity: "Silica beads 2g/ml 950nm",
+        ddh2o_container.input_pin("specification")
+        .value.value.lookup()
+        .identity: "Nuclease-free Water",
+        pbs_container.input_pin("specification")
+        .value.value.lookup()
+        .identity: "1x PBS from 10X stock",
+        calibration_plate.input_pin("specification")
+        .value.value.lookup()
+        .identity: "96-well Polystyrene Flat-Bottom Plate, Clear",
+    }
+    ecl_specialization = ECLSpecialization(ecl_output, resolutions=resolutions)
+
+    ee = ExecutionEngine(specializations=[ecl_specialization], failsafe=False)
+    execution = ee.execute(
+        protocol,
+        sbol3.Agent("test_agent"),
+        id="test_execution",
+        parameter_values=[],
+    )
+
+    enablePrint()
+
+    print(f"Saving EmeraldCloud [{ecl_output}].")
+
+    print(f"Analyzing Protocol ...")
+
+    if REGENERATE_ARTIFACTS:
+        execution_filename = os.path.join(OUT_DIR, f"{filename}-execution.nt")
+        print(f"Saving Execution Record [{execution_filename}]")
+        with open(filename, "w") as f:
+            f.write(doc.write_string(sbol3.SORTED_NTRIPLES).strip())
+
+
 def test_autoprotocol():
     from labop_convert.autoprotocol.strateos_api import StrateosAPI, StrateosConfig
 
@@ -916,7 +1006,8 @@ def read_protocol(filename=os.path.join(OUT_DIR, f"{filename}-protocol.nt")):
 
 # Disable
 def blockPrint():
-    sys.stdout = open(os.devnull, "w")
+    pass
+    # sys.stdout = open(os.devnull, "w")
 
 
 # Restore
@@ -954,6 +1045,13 @@ if __name__ == "__main__":
         action="store_true",
         help=f"Submit the artifacts/{filename}-autoprotocol.json Autoprotocol file to the Strateos run queue.",
     )
+    parser.add_argument(
+        "-e",
+        "--generate-emeraldcloud",
+        default=False,
+        action="store_true",
+        help=f"Execute the protocol to generate the Emerald Cloud notebook at artifacts/{filename}-emeraldcloud.nb.",
+    )
     args = parser.parse_args()
 
     if args.generate_protocol or not os.path.exists(
@@ -976,3 +1074,7 @@ if __name__ == "__main__":
         # proceed = "y"
         if proceed and proceed == "y":
             test_autoprotocol()
+
+    if args.generate_emeraldcloud:
+        print("Generating EmeraldCloud ...")
+        generate_emeraldcloud_specialization(*read_protocol())
