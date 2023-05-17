@@ -6,6 +6,11 @@ http://2018.igem.org/wiki/images/0/09/2018_InterLab_Plate_Reader_Protocol.pdf
 import os
 import sys
 
+import xarray as xr
+
+import uml
+from labop.data import serialize_sample_format
+
 if "unittest" in sys.modules:
     REGENERATE_ARTIFACTS = False
 else:
@@ -15,6 +20,7 @@ import sbol3
 from tyto import OM
 
 import labop
+from labop import SampleArray
 from labop.execution_engine import ExecutionEngine
 from labop.strings import Strings
 from labop_convert.markdown.markdown_specialization import MarkdownSpecialization
@@ -144,14 +150,14 @@ print(
 suspend_fluorescein.description = f"The reconstituted `{fluorescein.name}` should have a final concentration of 10 uM in `{pbs.name}`."
 
 # Transfer to plate
+calibration_plate_spec = labop.ContainerSpec(
+    "calibration_plate",
+    name="calibration plate",
+    queryString="cont:Plate96Well",
+    prefixMap={"cont": "https://sift.net/container-ontology/container-ontology#"},
+)
 calibration_plate = protocol.primitive_step(
-    "EmptyContainer",
-    specification=labop.ContainerSpec(
-        "calibration_plate",
-        name="calibration plate",
-        queryString="cont:Plate96Well",
-        prefixMap={"cont": "https://sift.net/container-ontology/container-ontology#"},
-    ),
+    "EmptyContainer", specification=calibration_plate_spec
 )
 calibration_plate.name = "calibration_plate"
 
@@ -188,10 +194,34 @@ dilution_series1 = protocol.primitive_step(
     coordinates="A1:A11",
 )
 
+locations = labop.get_sample_list("A1:A11")
+locations.reverse()
+ordered_samples = protocol.primitive_step(
+    "OrderSamples",
+    samples=dilution_series1.output_pin("samples"),
+    order=uml.literal(
+        serialize_sample_format(
+            xr.Dataset(
+                {
+                    "sort_order": xr.DataArray(
+                        [[[l1 == l for l1 in locations]] for l in locations],
+                        dims=("order", Strings.CONTAINER, Strings.LOCATION),
+                    )
+                },
+                coords={
+                    Strings.CONTAINER: [calibration_plate_spec.identity],
+                    Strings.LOCATION: locations,
+                    "order": list(range(len(locations))),
+                },
+            )
+        )
+    ),
+)
+
 serial_dilution1 = protocol.primitive_step(
     "SerialDilution",
     source=fluorescein_wells_A1.output_pin("samples"),
-    destination=dilution_series1.output_pin("samples"),
+    destination=ordered_samples.output_pin("ordered_samples"),
     amount=sbol3.Measure(200, OM.microlitre),
     diluent=pbs,
     dilution_factor=2,
