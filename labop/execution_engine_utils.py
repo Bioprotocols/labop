@@ -1476,7 +1476,6 @@ def activity_node_execution_get_token_source(
     # The immediate predecessor will be the token_source
 
     node = self.node.lookup()
-    print(self.identity + " " + node.identity + " param = " + str(parameter))
     if (
         isinstance(node, uml.InputPin)
         or isinstance(node, uml.ForkNode)
@@ -1492,7 +1491,6 @@ def activity_node_execution_get_token_source(
         return self
 
     node = self.node.lookup()
-    print(self.identity + " " + node.identity + " param = " + str(parameter))
     if (
         isinstance(node, uml.InputPin)
         or isinstance(node, uml.ForkNode)
@@ -1517,7 +1515,6 @@ def call_behavior_execution_get_token_source(
     target: labop.ActivityNodeExecution = None,
 ) -> labop.CallBehaviorExecution:
     node = self.node.lookup()
-    print(self.identity + " " + node.identity + " param = " + str(parameter))
     if parameter:
         return labop.ActivityNodeExecution.get_token_source(
             self, parameter, target=target
@@ -1535,7 +1532,6 @@ def activity_edge_flow_get_token_source(
     target: labop.ActivityNodeExecution = None,
 ) -> labop.CallBehaviorExecution:
     node = self.token_source.lookup().node.lookup()
-    print(self.identity + " src = " + node.identity + " param = " + str(parameter))
     if parameter and isinstance(node, uml.InputPin):
         if node == target.node.lookup().input_pin(parameter.name):
             return self.token_source.lookup().get_token_source(None, target=target)
