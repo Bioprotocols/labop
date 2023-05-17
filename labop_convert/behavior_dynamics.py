@@ -1003,35 +1003,42 @@ class SerialDilutionUpdater(BaseUpdater):
         amount = parameter_value_map["amount"]["value"]
         dilution_factor = parameter_value_map["dilution_factor"]["value"]
         # series = parameter_value_map["series"]["value"]
-        coordinates = destination.get_coordinates()
+        # coordinates = destination.get_coordinates()
         standard_value, standard_unit = self.observer.standardize(amount)
         standard_value /= dilution_factor
 
         # source_array = self.observer.select_samples_from_graph(
         #     source.to_data_array()
         # ).reset_coords(drop=True)
+        destination_array = destination.to_data_array()
         series_array = self.observer.select_samples_from_graph(
-            destination.to_data_array(), graph=self.observer.graph
+            destination_array, graph=self.observer.graph
         ).reset_coords(drop=True)
+        if "sort_order" in destination_array:
+            so = destination_array.sort_order.stack(i=destination_array.sort_order.dims)
+            so = so.where(so, drop=True).sortby("order")
+        else:
+            so = destination_array.sample_location.stack(
+                i=destination_array.sample_location.dims
+            )
 
         graph_addition = None
         for i in range(len(coordinates) - 1):
-            s_coord = series_array.where(
-                series_array.location == coordinates[i], drop=True
-            )
-            t_coord = series_array.where(
-                series_array.location == coordinates[i + 1], drop=True
-            )
+            src_coord = so[i].expand_dims([Strings.CONTAINER, Strings.LOCATION])
+            tgt_coord = so[i + 1].expand_dims([Strings.CONTAINER, Strings.LOCATION])
+            s_coord = series_array.where(src_coord, drop=True)
+            t_coord = series_array.where(tgt_coord, drop=True)
             source_array = (
-                s_coord
+                s_coord.drop("order").drop("i")
                 if not graph_addition
                 else self.observer.select_samples_from_graph(
                     s_coord, graph=graph_addition
                 ).reset_coords(drop=True)
             )
             target_array = (
-                t_coord
-                if not graph_addition or coordinates[i + 1] not in graph_addition
+                t_coord.drop("order").drop("i")
+                if not graph_addition
+                or not tgt_coord.isin(graph_addition.sample_location).any()
                 else self.observer.select_samples_from_graph(
                     t_coord, graph=graph_addition
                 ).reset_coords(drop=True)
@@ -1040,7 +1047,7 @@ class SerialDilutionUpdater(BaseUpdater):
             assert (
                 0
                 not in source_array.contents.dropna("reagent", how="all").reagent.shape
-            ), f"Cannot transfer from source {coordinates[i]} with no contents: {source_array}"
+            ), f"Cannot transfer from source {src_coord} with no contents: {source_array}"
 
             transfer = self.observer.make_transfer_array(
                 source_array, target_array, standard_value

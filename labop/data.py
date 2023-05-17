@@ -176,6 +176,23 @@ def sample_array_to_dict(self, sample_format=Strings.XARRAY) -> dict:
 labop.SampleArray.to_dict = sample_array_to_dict
 
 
+def sample_array_from_ordering(samples: labop.SampleCollection, order: str):
+    return labop.SampleArray(
+        container_type=samples.get_container_type(),
+        initial_contents=serialize_sample_format(
+            xr.merge(
+                [
+                    samples.to_data_array(),
+                    deserialize_sample_format(order, parent=samples),
+                ]
+            )
+        ),
+    )
+
+
+labop.SampleArray.from_ordering = sample_array_from_ordering
+
+
 def sample_mask_empty(self, sample_format=Strings.XARRAY):
     if sample_format == "xarray":
         source_samples = self.source.lookup()
@@ -245,7 +262,7 @@ def sample_array_get_coordinates(self, sample_format=Strings.XARRAY):
         return self.to_dict(Strings.JSON).values()
     elif sample_format == Strings.XARRAY:
         initial_contents = self.to_data_array()
-        return [c for c in initial_contents[Strings.SAMPLE].data]
+        return [c for c in initial_contents[Strings.LOCATION].data]
     else:
         raise ValueError(f"Unsupported sample format: {self.sample_format}")
 
@@ -397,8 +414,15 @@ labop.SampleArray.plot = sample_array_plot
 def sample_array_sample_coordinates(self, sample_format=Strings.XARRAY, as_list=False):
     sample_array = deserialize_sample_format(self.initial_contents, parent=self)
     if sample_format == Strings.XARRAY:
-        coords = sample_array.coords[Strings.LOCATION].data.tolist()
-        return contiguous_coordinates(coords) if not as_list else coords
+        if "sort_order" in sample_array:
+            sorted = sample_array.sort_order.stack(i=sample_array.sort_order.dims)
+            sorted = sorted.where(sorted).dropna("i").sortby("order")
+            coords = list(zip(sorted.container.data, sorted.location.data))
+            l.warning("Cannot get sample_coordinates() as rectangles when ordered.")
+            return coords
+        else:
+            coords = sample_array.coords[Strings.LOCATION].data.tolist()
+            return contiguous_coordinates(coords) if not as_list else coords
         # plate_coords = get_sample_list("A1:H12")
         # if all([c in coords for c in plate_coords]):
         #     return "A1:H12"

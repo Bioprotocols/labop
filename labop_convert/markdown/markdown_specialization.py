@@ -1128,10 +1128,9 @@ class MarkdownSpecialization(BehaviorSpecialization):
         dilution_factor = parameter_value_map["dilution_factor"]["value"]
         series = parameter_value_map["series"]["value"]
 
-        destination_coordinates = ""
+        destination_coordinates = f"wells {destination.sample_coordinates(sample_format=self.sample_format)} of"
+        last_destination_coordinate = f"{destination.sample_coordinates(sample_format=self.sample_format, as_list=True)[-1]}"
         if isinstance(destination, labop.SampleMask):
-            destination_coordinates = f"wells {destination.sample_coordinates(sample_format=self.sample_format)} of"
-            last_destination_coordinate = f"{destination.sample_coordinates(sample_format=self.sample_format, as_list=True)[-1]}"
             destination = destination.source.lookup()
         source_coordinates = source.sample_coordinates(sample_format=self.sample_format)
         if isinstance(source, labop.SampleMask):
