@@ -25,6 +25,8 @@ class ECLSpecialization(BehaviorSpecialization):
     LABWARE_MAP = {
         ContO["96 well plate"]: "96-well Polystyrene Flat-Bottom Plate, Clear",
         ContO["2 mL microfuge tube"]: "2mL Tube",
+        ContO["stock reagent container"]: "2mL Tube",
+        ContO["waste container"]: "2mL Tube",
     }
 
     def __init__(
@@ -104,11 +106,14 @@ class ECLSpecialization(BehaviorSpecialization):
         samples = parameter_value_map["samples"]["value"]
 
         name = spec.name if spec.name else spec.display_id
+        container_types = self.resolve_container_spec(spec)
+        selected_container_type = self.check_lims_inventory(container_types)
+        container = ecl_container(selected_container_type)
 
         # SampleArray fields are initialized in primitive_execution.py
         text = f"""{spec.display_id} = LabelContainer[
     Label -> "{name}",
-    Container -> Model[Container, Plate, "96-well Polystyrene Flat-Bottom Plate, Clear"]
+    Container -> {container}]
 ]"""
         self.script_steps += [text]
 
@@ -297,7 +302,11 @@ class ECLSpecialization(BehaviorSpecialization):
         dilution_factor = parameter_value_map["dilution_factor"]["value"]
         series = parameter_value_map["series"]["value"]
 
-        destination_coordinates = ""
+        if isinstance(source, labop.SampleMask):
+            source = source.source.lookup()
+        source_container = source.container_type.lookup()
+        source_container = source_container.name
+
         if isinstance(destination, labop.SampleMask):
             destination_coordinates = flatten_coordinates(
                 destination.sample_coordinates(
@@ -307,10 +316,12 @@ class ECLSpecialization(BehaviorSpecialization):
             destination = destination.source.lookup()
 
         # Get destination container type
+        # destination_container = destination.container_type.lookup()
+        # container_types = self.resolve_container_spec(destination_container)
+        # selected_container_type = self.check_lims_inventory(container_types)
+        # destination_container = ecl_container(selected_container_type)
         destination_container = destination.container_type.lookup()
-        container_types = self.resolve_container_spec(destination_container)
-        selected_container_type = self.check_lims_inventory(container_types)
-        destination_container = ecl_container(selected_container_type)
+        destination_container = destination_container.name
 
         sources = destination_coordinates[:-1]
         destinations = destination_coordinates[1:]
@@ -328,7 +339,7 @@ class ECLSpecialization(BehaviorSpecialization):
             f"""
 serialDilutionTransfers1 = MapThread[
    Transfer[
-     Source -> "{destination_container}",
+     Source -> "{source_container}",
      Destination -> "{destination_container}",
      SourceWell -> #1,
      DestinationWell -> #2,
@@ -342,7 +353,8 @@ serialDilutionTransfers1 = MapThread[
 
 def ecl_container(container_type: tyto.URI):
     if container_type in ECLSpecialization.LABWARE_MAP:
-        return ECLSpecialization.LABWARE_MAP[container_type]
+        container = ECLSpecialization.LABWARE_MAP[container_type]
+        return f'Model[Container, Vessel, "{container}"]'
     if container_type in ContO["96 well plate"].get_instances():
         container = ECLSpecialization.LABWARE_MAP[ContO["96 well plate"]]
         return f'Model[Container, Plate, "{container}"]'
@@ -366,16 +378,22 @@ def ecl_measure(measure: sbol3.Measure):
 
 
 def ecl_coordinates(samples: labop.SampleCollection, sample_format=Strings.XARRAY):
-    coordinates = flatten_coordinates(
-        samples.sample_coordinates(sample_format=sample_format, as_list=True)
-    )
-    start = coordinates[0]
-    end = coordinates[-1]
-
-    # Get destination container type
     if type(samples) is labop.SampleMask:
-        samples = samples.source.lookup()
-    container = samples.container_type.lookup()
-    container_name = container.name if container.name else container.display_id
+        coordinates = flatten_coordinates(
+            samples.sample_coordinates(sample_format=sample_format, as_list=True)
+        )
+        start = coordinates[0]
+        end = coordinates[-1]
 
-    return f"""{{#, "{container_name}"}} & /@  Flatten[Transpose[AllWells[]]][[ {start} ;; {end}]];"""
+        # Get destination container type
+        samples = samples.source.lookup()
+        container = samples.container_type.lookup()
+        container_name = container.name if container.name else container.display_id
+
+        return f"""{{#, "{container_name}"}} & /@  Flatten[Transpose[AllWells[]]][[ {start} ;; {end}]];"""
+    if type(samples) is labop.SampleArray:
+        container = samples.container_type.lookup()
+        container_name = container.name if container.name else container.display_id
+        return f'"{container_name}"'
+
+    raise TypeError()
