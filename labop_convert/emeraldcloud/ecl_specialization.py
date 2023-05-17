@@ -78,7 +78,6 @@ class ECLSpecialization(BehaviorSpecialization):
 
     def on_end(self, ex):
         self.script += self._compile_script()
-        self.markdown += self._compile_markdown()
         if self.filename:
             with open(self.filename, "w") as f:
                 f.write(self.script)
@@ -94,111 +93,6 @@ class ECLSpecialization(BehaviorSpecialization):
         for step in self.script_steps:
             script += f"{step}\n"
         return script
-
-    def _compile_markdown(self):
-        markdown = self._materials()
-        markdown += "\n## Steps\n"
-        for i, step in enumerate(self.markdown_steps):
-            markdown += str(i + 1) + ". " + step + "\n"
-        return markdown
-
-    def _tipracks(self, left, right):
-        leftTipID = left["pipette"]
-        rightTipID = right["pipette"]
-        tipCount = 0
-        tipList = ""
-        markdown = ""
-        for tiprack in left["tipracks"]:
-            tiprackID = tiprack["id"]
-            tiprackDeck = tiprack["deck"]
-            tipList += f"leftTiprack{tipCount},"
-            markdown += f"leftTiprack{tipCount} = protocol.load_labware('{tiprackID}', {tiprackDeck})\n"
-            tipCount += 1
-        markdown += f"left = protocol.load_instrument('{leftTipID}', 'left', tip_rack={tipList[:-1]})\n"
-        tipCount = 0
-        tipList = ""
-        for tiprack in right["tipracks"]:
-            tiprackID = tiprack["id"]
-            tiprackDeck = tiprack["deck"]
-            tipList += f"rightTiprack{tipCount},"
-            markdown += f"rightTiprack{tipCount} = protocol.load_labware('{tiprackID}', {tiprackDeck})\n"
-            tipCount += 1
-        markdown += f"right = protocol.load_instrument('{rightTipID}', 'right', tip_rack={tipList[:-1]})\n"
-        # return markdown
-
-    def _materials(self):
-        protocol = self.execution.protocol.lookup()
-
-        materials = {
-            obj.name: obj
-            for obj in protocol.document.objects
-            if type(obj) is sbol3.Component
-        }
-        markdown = "\n\n## Protocol Materials:\n"
-        for name, material in materials.items():
-            markdown += f"* [{name}]({material.types[0]})\n"
-
-        # Compute container types and quantities
-        document_objects = []
-        protocol.document.traverse(lambda obj: document_objects.append(obj))
-        call_behavior_actions = [
-            obj for obj in document_objects if type(obj) is uml.CallBehaviorAction
-        ]
-        containers = {}
-        for cba in call_behavior_actions:
-            input_names = [input.name for input in cba.inputs]
-            if "specification" in input_names:
-                container = cba.input_pin("specification").value.value.lookup()
-            elif "rack" in input_names:
-                container = cba.input_pin("rack").value.value.lookup()
-            elif (
-                "container" in input_names
-                and type(cba.input_pin("container")) is uml.ValuePin
-            ):
-                container = cba.input_pin("container").value.value.lookup()
-            else:
-                continue
-            container_type = validate_spec_query(container.queryString)
-            container_name = container.name if container.name else "unnamed"
-            qty = cba.input_pin("quantity") if "quantity" in input_names else 1
-
-            if container_type not in containers:
-                containers[container_type] = {}
-            containers[container_type][container_name] = qty
-
-        for container_type, container_name_map in containers.items():
-            for container_name, qty in container_name_map.items():
-                container_str = ContO.get_term_by_uri(container_type)
-                if "TipRack" in container_type:
-                    text = f"* {container_str}"
-                elif container_name == "unnamed":
-                    text = f"* unnamed {container_str}"
-                else:
-                    text = f"* `{container_name}` ({container_str})"
-                if qty > 1:
-                    text += f" (x {qty})"
-                text += "\n"
-                markdown += text
-
-        return markdown
-
-    def _parameter_value_markdown(self, pv: labop.ParameterValue, is_output=False):
-        parameter = pv.parameter.lookup().property_value
-        value = (
-            pv.value.lookup().value
-            if isinstance(pv.value, uml.LiteralReference)
-            else pv.value.value
-        )
-        units = (
-            tyto.OM.get_term_by_uri(value.unit)
-            if isinstance(value, sbol3.om_unit.Measure)
-            else None
-        )
-        value = str(f"{value.value} {units}") if units else str(value)
-        if is_output:
-            return f"* `{parameter.name}`"
-        else:
-            return f"* `{parameter.name}` = {value}"
 
     def define_container(
         self, record: labop.ActivityNodeExecution, ex: labop.ProtocolExecution
@@ -252,17 +146,10 @@ class ECLSpecialization(BehaviorSpecialization):
         source = parameter_value_map["source"]["value"]
         if type(source) is labop.SampleMask:
             source = source.source.lookup()
-        print(f"Transfer from {source.container_type.lookup().display_id}")
         source = self.resolutions[
             source.container_type.lookup().identity
         ]  # Map to ECL reagent identifier
         amount = ecl_measure(parameter_value_map["amount"]["value"])
-
-        upstream_execution = record.get_token_source(
-            parameter_value_map["destination"]["parameter"].property_value
-        )
-        behavior_type = get_behavior_type(upstream_execution)
-        print(behavior_type)
 
         text = f"""Transfer[
       Source -> Model[Sample, StockSolution, {source}],
@@ -292,7 +179,6 @@ class ECLSpecialization(BehaviorSpecialization):
         source = parameter_value_map["source"]["value"]
         coords = parameter_value_map["coordinates"]["value"]
         samples = parameter_value_map["samples"]["value"]
-        # samples.mask = coords
 
     def measure_absorbance(
         self, record: labop.ActivityNodeExecution, ex: labop.ProtocolExecution
@@ -325,16 +211,6 @@ class ECLSpecialization(BehaviorSpecialization):
 
         spec = parameter_value_map["specification"]["value"]
         slots = parameter_value_map["slots"]["value"]
-
-        # FIXME the protocol var_to_entity mapping links variables created in
-        # the execution trace with real values assigned here, such as
-        # container below.  This mapping can be used in later processing to
-        # reuse bindings.
-        #
-        # self.var_to_entity[samples_var] = container
-
-        # OT2Props = json.loads(spec.OT2SpecificProps)
-        # OT2Deck = OT2Props["deck"]
 
     def load_container_in_rack(
         self, record: labop.ActivityNodeExecution, ex: labop.ProtocolExecution
@@ -379,42 +255,6 @@ class ECLSpecialization(BehaviorSpecialization):
         )
         rack: labop.ContainerSpec = parameter_value_map["rack"]["value"]
 
-        container_types = self.resolve_container_spec(rack)
-        selected_container_type = self.check_lims_inventory(container_types)
-        if selected_container_type not in LABWARE_MAP:
-            raise Exception(
-                f"Load failed. {selected_container_type} is not recognized as compatible labware for OT2 machine."
-            )
-
-        if coords in self.configuration:
-            raise Exception(
-                f"Failed to load {rack_str} in Deck {coords}. The Deck is already occupied by {self.configuration[coords]}"
-            )
-        self.configuration[coords] = rack
-
-        api_name = LABWARE_MAP[selected_container_type]
-        self.script_steps += [
-            f"labware{coords} = protocol.load_labware('{api_name}', '{coords}')"
-        ]
-        rack_str = get_container_name(rack)
-        self.markdown_steps += [f"Load {rack_str} in Deck {coords} of OT2 instrument"]
-
-        # If the loaded labware is a tiprack, check if any compatible pipettes
-        # are currently loaded
-        if "TipRack" in rack.queryString:
-            select_pipette = None
-            for pipette in self.configuration.values():
-                if (
-                    pipette.display_id in COMPATIBLE_TIPS
-                    and api_name in COMPATIBLE_TIPS[pipette.display_id]
-                ):
-                    select_pipette = pipette.display_id
-                    break
-            if select_pipette:
-                self.script_steps += [
-                    f"{select_pipette}.tip_racks.append(labware{coords})"
-                ]
-
     def configure_robot(
         self, record: labop.ActivityNodeExecution, ex: labop.ProtocolExecution
     ):
@@ -422,57 +262,6 @@ class ECLSpecialization(BehaviorSpecialization):
         parameter_value_map = call.parameter_value_map()
         instrument = parameter_value_map["instrument"]["value"]
         mount = parameter_value_map["mount"]["value"]
-
-        allowed_mounts = ["left", "right"]
-        allowed_decks = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"]
-        if mount not in allowed_mounts and mount not in allowed_decks:
-            raise Exception(
-                "ConfigureInstrument call failed: mount must be either 'left' or 'right' or a deck number from 1-12"
-            )
-
-        self.configuration[mount] = instrument
-
-        if mount in allowed_mounts:
-            self.markdown_steps += [
-                f"Mount `{instrument.name}` in {mount} mount of the OT2 instrument"
-            ]
-            self.script_steps += [
-                f"{instrument.display_id} = protocol.load_instrument('{instrument.display_id}', '{mount}')"
-            ]
-            if instrument.display_id not in COMPATIBLE_TIPS:
-                raise Exception(
-                    f"ConfigureInstrument call failed: instrument must be one of {list(COMPATIBLE_TIPS.keys())}"
-                )
-
-        else:
-            self.markdown_steps += [
-                f"Mount `{instrument.name}` in Deck {mount} of the OT2 instrument"
-            ]
-            instrument_id = instrument.display_id.replace(
-                "_", " "
-            )  # OT2 api name uses spaces instead of underscores
-            self.script_steps += [
-                f"{instrument.display_id} = protocol.load_module('{instrument_id}', '{mount}')"
-            ]
-            if instrument.name == "Thermocycler Module":
-                self.script_steps += [f"{instrument.display_id}.open_lid()"]
-
-        # Check if a compatible tiprack has been loaded and configure the pipette
-        # to use it
-        tiprack_selection = None
-        for deck, rack in self.configuration.items():
-            if type(rack) is not labop.ContainerSpec:
-                continue
-            container_types = self.resolve_container_spec(rack)
-            selected_container_type = self.check_lims_inventory(container_types)
-            api_name = LABWARE_MAP[selected_container_type]
-            if api_name in COMPATIBLE_TIPS[instrument.display_id]:
-                tiprack_selection = rack
-                break
-        if tiprack_selection:
-            self.script_steps += [
-                f"{instrument.display_id}.tip_racks.append(labware{deck})"
-            ]
 
     def pcr(
         self, record: labop.ActivityNodeExecution, execution: labop.ProtocolExecution
@@ -486,27 +275,6 @@ class ECLSpecialization(BehaviorSpecialization):
         annealing_time = parameter_value_map["annealing_time"]["value"]
         extension_time = parameter_value_map["extension_time"]["value"]
         denaturation_time = parameter_value_map["denaturation_time"]["value"]
-
-        self.script_steps += ["thermocycler_module.close_lid()"]
-        profile = [
-            {
-                "temperature": denaturation_temp.value,
-                "hold_time_seconds": denaturation_time.value,
-            },
-            {
-                "temperature": annealing_temp.value,
-                "hold_time_seconds": annealing_temp.value,
-            },
-            {
-                "temperature": extension_temp.value,
-                "hold_time_seconds": extension_time.value,
-            },
-        ]
-        self.script_steps += [f"profile = {profile}"]
-        self.script_steps += [
-            f"thermocycler_module.execute_profile(steps=profile, repetitions={cycles})"
-        ]
-        self.script_steps += ["thermocycler_module.set_block_temperature(4)"]
 
     def get_instrument_deck(self, instrument: sbol3.Agent) -> str:
         for deck, agent in self.configuration.items():
@@ -611,20 +379,3 @@ def ecl_coordinates(samples: labop.SampleCollection, sample_format=Strings.XARRA
     container_name = container.name if container.name else container.display_id
 
     return f"""{{#, "{container_name}"}} & /@  Flatten[Transpose[AllWells[]]][[ {start} ;; {end}]];"""
-
-
-def get_container_name(container: labop.ContainerSpec):
-    if container.name:
-        return f"`{container.name}`"
-    try:
-        prefix, local = container.queryString.split(":")
-    except:
-        raise Exception(f"Container specification {qname} is invalid.")
-    return ContO.get_term_by_uri(f"{ContO.uri}#{local}")
-
-
-def get_behavior_type(ex: labop.CallBehaviorExecution) -> str:
-    # Look up the type of Primitive that a CallBehaviorExecution
-    # represents.  Strips the namespace out of the Primitive's URI
-    # and returns just the local name, e.g., "PlateCoordinates"
-    return ex.node.lookup().behavior.split("/")[-1]
