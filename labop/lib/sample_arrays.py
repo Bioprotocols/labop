@@ -110,7 +110,7 @@ p.description = "Insert cont:Containers into a rack at the indicated rack coordi
 p.add_input("slots", "http://bioprotocols.org/labop#SampleCollection")
 p.add_input("container", "http://bioprotocols.org/labop#ContainerSpec")
 p.add_input("coordinates", "http://bioprotocols.org/uml#ValueSpecification")
-p.add_output("samples", "http://bioprotocols.org/labop#SampleArray")
+p.add_output("samples", "http://bioprotocols.org/labop#SampleMask")
 doc.add(p)
 
 p = labop.Primitive("LoadContainerOnInstrument")
