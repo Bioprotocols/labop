@@ -159,9 +159,10 @@ class OT2Specialization(labop_convert.behavior_specialization.BehaviorSpecializa
         self.script += self._compile_script()
         self.markdown += self._compile_markdown()
         if self.filename:
-            with open(self.filename + ".py", "w") as f:
+            filename = self.filename.split(".")[0]
+            with open(filename + ".py", "w") as f:
                 f.write(self.script)
-            with open(self.filename + ".md", "w") as f:
+            with open(filename + ".md", "w") as f:
                 f.write(self.markdown)
             print(f"Successful execution. Script dumped to {self.filename}.")
         else:

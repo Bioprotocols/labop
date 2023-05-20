@@ -24,6 +24,12 @@ OUT_DIR = os.path.join(os.path.dirname(__file__), "out")
 if not os.path.exists(OUT_DIR):
     os.mkdir(OUT_DIR)
 
+CWD = os.path.split(os.path.realpath(__file__))[0]
+protocol_def_file = os.path.join(
+    CWD, "..", "examples", "protocols", "opentrons_toy", "opentrons_toy_protocol.py"
+)
+protocol_def = load_protocol("opentrons_toy_protocol", protocol_def_file)
+
 
 def load_protocol(protocol_def_fn, protocol_filename):
     loader = SourceFileLoader(protocol_def_fn, protocol_filename)
@@ -31,11 +37,6 @@ def load_protocol(protocol_def_fn, protocol_filename):
     module = module_from_spec(spec)
     loader.exec_module(module)
     return module
-
-
-CWD = os.path.split(os.path.realpath(__file__))[0]
-protocol_def_file = os.path.join(CWD, "../examples/opentrons_toy_protocol.py")
-protocol_def = load_protocol("opentrons_toy_protocol", protocol_def_file)
 
 
 class TestProtocolEndToEnd(unittest.TestCase):
