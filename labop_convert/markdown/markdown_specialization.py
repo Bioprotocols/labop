@@ -1120,11 +1120,14 @@ class MarkdownSpecialization(BehaviorSpecialization):
     ):
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
+        samples = parameter_value_map["samples"]["value"]
+        direction = parameter_value_map["direction"]["value"]
+        amount = parameter_value_map["amount"]["value"]
+        return
 
         source = parameter_value_map["source"]["value"]
         destination = parameter_value_map["destination"]["value"]
         diluent = parameter_value_map["diluent"]["value"]
-        amount = parameter_value_map["amount"]["value"]
         dilution_factor = parameter_value_map["dilution_factor"]["value"]
         series = parameter_value_map["series"]["value"]
 

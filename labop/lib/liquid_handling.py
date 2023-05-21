@@ -85,12 +85,9 @@ doc.add(p)
 
 p = labop.Primitive("SerialDilution")
 p.description = "Serial Dilution"
-p.add_input("source", "http://bioprotocols.org/labop#SampleCollection")
-p.add_input("destination", "http://bioprotocols.org/labop#SampleCollection")
+p.add_input("samples", "http://bioprotocols.org/labop#SampleCollection")
+p.add_input("direction", "http://bioprotocols.org/uml#ValueSpecification")
 p.add_input("amount", sbol3.OM_MEASURE)  # Must be volume
-p.add_input("diluent", sbol3.SBOL_COMPONENT)
-p.add_input("dilution_factor", "http://bioprotocols.org/uml#ValueSpecification")
-p.add_input("series", "http://bioprotocols.org/uml#ValueSpecification")
 doc.add(p)
 
 

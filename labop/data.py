@@ -99,7 +99,9 @@ def sample_array_empty(self, geometry=None, sample_format=Strings.XARRAY):
 labop.SampleArray.empty = sample_array_empty
 
 
-def sample_array_to_data_array(self, sample_format=Strings.XARRAY):
+def sample_array_to_data_array(
+    self, sample_format=Strings.XARRAY, order=Strings.ROW_DIRECTION
+):
     if not hasattr(self, "initial_contents") or self.initial_contents is None:
         sample_array = self.empty(sample_format=sample_format)
     else:
@@ -176,23 +178,6 @@ def sample_array_to_dict(self, sample_format=Strings.XARRAY) -> dict:
 labop.SampleArray.to_dict = sample_array_to_dict
 
 
-def sample_array_from_ordering(samples: labop.SampleCollection, order: str):
-    return labop.SampleArray(
-        container_type=samples.get_container_type(),
-        initial_contents=serialize_sample_format(
-            xr.merge(
-                [
-                    samples.to_data_array(),
-                    deserialize_sample_format(order, parent=samples),
-                ]
-            )
-        ),
-    )
-
-
-labop.SampleArray.from_ordering = sample_array_from_ordering
-
-
 def sample_mask_empty(self, sample_format=Strings.XARRAY):
     if sample_format == "xarray":
         source_samples = self.source.lookup()
@@ -212,11 +197,13 @@ def sample_mask_empty(self, sample_format=Strings.XARRAY):
 labop.SampleMask.empty = sample_mask_empty
 
 
-def sample_mask_to_data_array(self, sample_format=Strings.XARRAY):
+def sample_mask_to_data_array(
+    self, sample_format=Strings.XARRAY, order=Strings.ROW_DIRECTION
+):
     if not hasattr(self, "mask") or self.mask is None:
         sample_mask = self.empty(sample_format=sample_format)
     else:
-        sample_mask = deserialize_sample_format(self.mask, parent=self)
+        sample_mask = deserialize_sample_format(self.mask, parent=self, order=order)
     return sample_mask
 
 
@@ -414,15 +401,8 @@ labop.SampleArray.plot = sample_array_plot
 def sample_array_sample_coordinates(self, sample_format=Strings.XARRAY, as_list=False):
     sample_array = deserialize_sample_format(self.initial_contents, parent=self)
     if sample_format == Strings.XARRAY:
-        if "sort_order" in sample_array:
-            sorted = sample_array.sort_order.stack(i=sample_array.sort_order.dims)
-            sorted = sorted.where(sorted).dropna("i").sortby("order")
-            coords = list(zip(sorted.container.data, sorted.location.data))
-            l.warning("Cannot get sample_coordinates() as rectangles when ordered.")
-            return coords
-        else:
-            coords = sample_array.coords[Strings.LOCATION].data.tolist()
-            return contiguous_coordinates(coords) if not as_list else coords
+        coords = sample_array.coords[Strings.LOCATION].data.tolist()
+        return contiguous_coordinates(coords) if not as_list else coords
         # plate_coords = get_sample_list("A1:H12")
         # if all([c in coords for c in plate_coords]):
         #     return "A1:H12"
@@ -658,42 +638,54 @@ def serialize_sample_format(data):
     return quote(json.dumps(data_dict))
 
 
-def deserialize_sample_format(data: str, parent: sbol3.Identified = None):
+def deserialize_sample_format(
+    data: str, parent: sbol3.Identified = None, order=Strings.ROW_DIRECTION
+):
     try:
         json_data = json.loads(unquote(data))
         try:
             xarray_data = xr.DataArray.from_dict(json_data)
             if parent:
                 xarray_data.name = parent.identity
-            return sort_samples(xarray_data, sample_format=Strings.XARRAY)
+            return sort_samples(xarray_data, sample_format=Strings.XARRAY, order=order)
         except:
             try:
                 xarray_data = xr.Dataset.from_dict(json_data)
                 if Strings.SOURCE in xarray_data.coords:
                     xarray_data.coords[Strings.SOURCE] = [parent.identity]
-                return sort_samples(xarray_data, sample_format=Strings.XARRAY)
+                return sort_samples(
+                    xarray_data, sample_format=Strings.XARRAY, order=order
+                )
             except:
-                return sort_samples(json_data, sample_format=Strings.JSON)
+                return sort_samples(json_data, sample_format=Strings.JSON, order=order)
     except Exception as e:
         raise Exception(f"Could not determine format of data: {e}")
 
 
-def sort_samples(data, sample_format=Strings.XARRAY):
+def sort_samples(data, sample_format=Strings.XARRAY, order=Strings.ROW_DIRECTION):
     if sample_format == Strings.XARRAY:
         if Strings.LOCATION in data.coords:
-            data = (
-                data.assign_coords(
-                    samplez=(
-                        "location",
-                        [
-                            (f"{s[:1]}0{s[1:]}" if len(s) == 2 else s)
-                            for s in data.coords["location"].data
-                        ],
-                    )
-                )
-                .sortby("samplez")
-                .reset_coords("samplez", drop=True)
-            )
+            data["row"] = data.coords["location"].str.slice(0, 1)
+            data["col"] = data.coords["location"].str.slice(1).str.pad(2, fillchar="0")
+            if order == Strings.ROW_DIRECTION:
+                # for each row, for each col
+                # A1->A12, B1->B12, ...
+                data = data.sortby(["row", "col"])
+            elif order == Strings.REVERSE_ROW_DIRECTION:
+                # for each reverse(row) for each col
+                # A12->A1, B12->B1, ...
+                data = data.sortby("col", ascending=False).sortby("row")
+
+            elif order == Strings.COLUMN_DIRECTION:
+                # for each col for each row
+                # A1->H1, A2->H2, ...
+                data = data.sortby("row").sortby("col")
+            elif order == Strings.REVERSE_COLUMN_DIRECTION:
+                # for each reverse(col) for each row
+                # H1->A1, H2->A2, ...
+                data = data.sortby("row", ascending=False).sortby("col")
+            data = data.drop(["row", "col"])
+
     return data
 
 

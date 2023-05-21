@@ -6,11 +6,6 @@ http://2018.igem.org/wiki/images/0/09/2018_InterLab_Plate_Reader_Protocol.pdf
 import os
 import sys
 
-import xarray as xr
-
-import uml
-from labop.data import serialize_sample_format
-
 if "unittest" in sys.modules:
     REGENERATE_ARTIFACTS = False
 else:
@@ -20,7 +15,7 @@ import sbol3
 from tyto import OM
 
 import labop
-from labop import SampleArray
+from labop import SampleArray, SampleMask
 from labop.execution_engine import ExecutionEngine
 from labop.strings import Strings
 from labop_convert.markdown.markdown_specialization import MarkdownSpecialization
@@ -178,7 +173,7 @@ transfer1 = protocol.primitive_step(
 blank_wells1 = protocol.primitive_step(
     "PlateCoordinates",
     source=calibration_plate.output_pin("samples"),
-    coordinates="A2:D12",
+    coordinates="B1:H1,A2:C2",
 )
 
 transfer_blanks1 = protocol.primitive_step(
@@ -191,41 +186,13 @@ transfer_blanks1 = protocol.primitive_step(
 dilution_series1 = protocol.primitive_step(
     "PlateCoordinates",
     source=calibration_plate.output_pin("samples"),
-    coordinates="A1:A11",
+    coordinates="A1:H1,A2:C2",
 )
-
-locations = labop.get_sample_list("A1:A11")
-locations.reverse()
-ordered_samples = protocol.primitive_step(
-    "OrderSamples",
-    samples=dilution_series1.output_pin("samples"),
-    order=uml.literal(
-        serialize_sample_format(
-            xr.Dataset(
-                {
-                    "sort_order": xr.DataArray(
-                        [[[l1 == l for l1 in locations]] for l in locations],
-                        dims=("order", Strings.CONTAINER, Strings.LOCATION),
-                    )
-                },
-                coords={
-                    Strings.CONTAINER: [calibration_plate_spec.identity],
-                    Strings.LOCATION: locations,
-                    "order": list(range(len(locations))),
-                },
-            )
-        )
-    ),
-)
-
 serial_dilution1 = protocol.primitive_step(
     "SerialDilution",
-    source=fluorescein_wells_A1.output_pin("samples"),
-    destination=ordered_samples.output_pin("ordered_samples"),
-    amount=sbol3.Measure(200, OM.microlitre),
-    diluent=pbs,
-    dilution_factor=2,
-    series=10,
+    samples=dilution_series1.output_pin("samples"),
+    direction=labop.Strings.COLUMN_DIRECTION,
+    amount=sbol3.Measure(100, OM.microlitre),
 )
 serial_dilution1.description = "For each 100.0 microliter transfer, pipette up and down 3X to ensure the dilution is mixed homogeneously."
 
@@ -233,7 +200,7 @@ serial_dilution1.description = "For each 100.0 microliter transfer, pipette up a
 read_wells1 = protocol.primitive_step(
     "PlateCoordinates",
     source=calibration_plate.output_pin("samples"),
-    coordinates="A1:B12",
+    coordinates="A1:H1,A2:C2",
 )
 
 measure_fluorescence1 = protocol.primitive_step(

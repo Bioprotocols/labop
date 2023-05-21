@@ -28,13 +28,6 @@ p.add_input("coordinates", "http://bioprotocols.org/uml#ValueSpecification")
 p.add_output("samples", "http://bioprotocols.org/labop#SampleCollection")
 doc.add(p)
 
-p = labop.Primitive("OrderSamples")
-p.description = "Specify an order to the locations in a SampleArray"
-p.add_input("samples", "http://bioprotocols.org/labop#SampleCollection")
-p.add_input("order", "http://bioprotocols.org/uml#ValueSpecification")
-p.add_output("ordered_samples", "http://bioprotocols.org/labop#SampleCollection")
-doc.add(p)
-
 p = labop.Primitive("Rows")
 p.description = "Select only the samples with specified rows from a sample collection"
 p.add_input("source", "http://bioprotocols.org/labop#SampleCollection")

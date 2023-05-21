@@ -436,19 +436,6 @@ def transfer_by_map_compute_output(
     return result
 
 
-def ordered_samples_compute_output(self, inputs, parameter, sample_format):
-    if (
-        parameter.name == "ordered_samples"
-        and parameter.type == "http://bioprotocols.org/labop#SampleCollection"
-    ):
-        input_map = input_parameter_map(inputs)
-        samples = input_map["samples"]
-        order = input_map["order"]
-
-        ordered_samples = labop.SampleArray.from_ordering(samples, order)
-        return ordered_samples
-
-
 primitive_to_output_function = {
     "EmptyContainer": empty_container_compute_output,
     "PlateCoordinates": plate_coordinates_compute_output,
@@ -461,7 +448,6 @@ primitive_to_output_function = {
     "JoinDatasets": join_datasets_compute_output,
     "ExcelMetadata": excel_metadata_compute_output,
     "ComputeMetadata": compute_metadata_compute_output,
-    "OrderSamples": ordered_samples_compute_output,
 }
 
 

@@ -996,66 +996,59 @@ class SerialDilutionUpdater(BaseUpdater):
     def update(self, record: ActivityNodeExecution) -> xr.Dataset:
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
-
-        # source = parameter_value_map["source"]["value"]
-        destination = parameter_value_map["destination"]["value"]
-        # diluent = parameter_value_map["diluent"]["value"]
+        samples = parameter_value_map["samples"]["value"]
+        direction = parameter_value_map["direction"]["value"]
         amount = parameter_value_map["amount"]["value"]
-        dilution_factor = parameter_value_map["dilution_factor"]["value"]
-        # series = parameter_value_map["series"]["value"]
+
+        sample_array = samples.to_data_array(order=direction)
+        coordinates = sample_array.sample_location.stack(
+            i=sample_array.sample_location.dims
+        )
+
         # coordinates = destination.get_coordinates()
         standard_value, standard_unit = self.observer.standardize(amount)
-        standard_value /= dilution_factor
+        # standard_value /= dilution_factor
 
         # source_array = self.observer.select_samples_from_graph(
         #     source.to_data_array()
         # ).reset_coords(drop=True)
-        destination_array = destination.to_data_array()
-        series_array = self.observer.select_samples_from_graph(
-            destination_array, graph=self.observer.graph
-        ).reset_coords(drop=True)
-        if "sort_order" in destination_array:
-            so = destination_array.sort_order.stack(i=destination_array.sort_order.dims)
-            so = so.where(so, drop=True).sortby("order")
-        else:
-            so = destination_array.sample_location.stack(
-                i=destination_array.sample_location.dims
-            )
+        # series_array = self.observer.select_samples_from_graph(
+        #     destination.to_data_array(), graph=self.observer.graph
+        # ).reset_coords(drop=True)
 
         graph_addition = None
         for i in range(len(coordinates) - 1):
-            src_coord = so[i].expand_dims([Strings.CONTAINER, Strings.LOCATION])
-            tgt_coord = so[i + 1].expand_dims([Strings.CONTAINER, Strings.LOCATION])
-            s_coord = series_array.where(src_coord, drop=True)
-            t_coord = series_array.where(tgt_coord, drop=True)
-            source_array = (
-                s_coord.drop("order").drop("i")
-                if not graph_addition
-                else self.observer.select_samples_from_graph(
-                    s_coord, graph=graph_addition
-                ).reset_coords(drop=True)
+            # s_coord = series_array.where(
+            #     series_array.location == coordinates[i], drop=True
+            # )
+            # t_coord = series_array.where(
+            #     series_array.location == coordinates[i + 1], drop=True
+            # )
+            source_graph = graph_addition if graph_addition else self.observer.graph
+            source_loc = self.observer.select_samples_from_graph(
+                coordinates[i], graph=source_graph
+            ).reset_coords(drop=True)
+            target_graph = (
+                graph_addition
+                if graph_addition
+                and coordinates[i + 1].isin(graph_addition.sample_location).data[()]
+                else self.observer.graph
             )
-            target_array = (
-                t_coord.drop("order").drop("i")
-                if not graph_addition
-                or not tgt_coord.isin(graph_addition.sample_location).any()
-                else self.observer.select_samples_from_graph(
-                    t_coord, graph=graph_addition
-                ).reset_coords(drop=True)
-            )
+            target_loc = self.observer.select_samples_from_graph(
+                coordinates[i + 1], graph=target_graph
+            ).reset_coords(drop=True)
 
             assert (
-                0
-                not in source_array.contents.dropna("reagent", how="all").reagent.shape
-            ), f"Cannot transfer from source {src_coord} with no contents: {source_array}"
+                0 not in source_loc.contents.dropna("reagent", how="all").reagent.shape
+            ), f"Cannot transfer from source {coordinates[i]} with no contents: {source_loc}"
 
             transfer = self.observer.make_transfer_array(
-                source_array, target_array, standard_value
+                source_loc, target_loc, standard_value
             )
 
             label = self.label(standard_value, standard_unit)
             transfer_diff = self.observer.compute_transfer(
-                source_array, target_array, transfer, label=label
+                source_loc, target_loc, transfer, label=label
             )
             graph_addition = (
                 transfer_diff

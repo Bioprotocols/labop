@@ -25,3 +25,7 @@ class Strings:
     VARIABLE = "variable"
     NODE = "node"
     TICK = "tick"
+    ROW_DIRECTION = "row_direction"
+    COLUMN_DIRECTION = "column_direction"
+    REVERSE_ROW_DIRECTION = "reverse_row_direction"
+    REVERSE_COLUMN_DIRECTION = "reverse_column_direction"
