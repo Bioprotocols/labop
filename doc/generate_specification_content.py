@@ -24,7 +24,6 @@ SPEC_OUT = os.path.join(dirname, "../LabOP-specification")
 
 
 def generate_spec(spec_file, spec_name, spec_namespace):
-
     print(f"Loading {spec_name}")
     module = UMLFactory(
         os.path.join(os.path.dirname(os.path.realpath(__file__)), spec_file),

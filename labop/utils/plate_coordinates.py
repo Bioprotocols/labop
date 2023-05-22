@@ -9,7 +9,10 @@ import numpy as np
 
 
 def get_sample_list(geometry="A1:H12"):
-    row_col_pairs = coordinate_rect_to_row_col_pairs(geometry)
+    rects = geometry.split(",")
+    row_col_pairs = []
+    for rect in rects:
+        row_col_pairs += coordinate_rect_to_row_col_pairs(rect)
     aliquots = [f"{num2row(r+1)}{c+1}" for (r, c) in row_col_pairs]
     return aliquots
 

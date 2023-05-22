@@ -41,13 +41,15 @@ ContainerOntology = tyto.Ontology(
 
 
 class MarkdownSpecialization(BehaviorSpecialization):
-    def __init__(self, out_file, sample_format=Strings.JSON) -> None:
+    def __init__(
+        self, out_file, sample_format=Strings.JSON, propagate_objects=False
+    ) -> None:
         super().__init__()
         self.out_file = out_file
         self.var_to_entity = {}
         self.markdown_converter = None
         self.doc = None
-        self.propagate_objects = False
+        self.propagate_objects = propagate_objects
         self.sample_format = sample_format
 
     def initialize_protocol(self, execution: labop.ProtocolExecution, out_dir=None):
@@ -1118,18 +1120,20 @@ class MarkdownSpecialization(BehaviorSpecialization):
     ):
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
+        samples = parameter_value_map["samples"]["value"]
+        direction = parameter_value_map["direction"]["value"]
+        amount = parameter_value_map["amount"]["value"]
+        return
 
         source = parameter_value_map["source"]["value"]
         destination = parameter_value_map["destination"]["value"]
         diluent = parameter_value_map["diluent"]["value"]
-        amount = parameter_value_map["amount"]["value"]
         dilution_factor = parameter_value_map["dilution_factor"]["value"]
         series = parameter_value_map["series"]["value"]
 
-        destination_coordinates = ""
+        destination_coordinates = f"wells {destination.sample_coordinates(sample_format=self.sample_format)} of"
+        last_destination_coordinate = f"{destination.sample_coordinates(sample_format=self.sample_format, as_list=True)[-1]}"
         if isinstance(destination, labop.SampleMask):
-            destination_coordinates = f"wells {destination.sample_coordinates(sample_format=self.sample_format)} of"
-            last_destination_coordinate = f"{destination.sample_coordinates(sample_format=self.sample_format, as_list=True)[-1]}"
             destination = destination.source.lookup()
         source_coordinates = source.sample_coordinates(sample_format=self.sample_format)
         if isinstance(source, labop.SampleMask):

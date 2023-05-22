@@ -23,21 +23,9 @@
 om:abbreviation rdf:type owl:AnnotationProperty .
 
 
-###  http://www.w3.org/2002/07/owl#maxCardinality
-owl:maxCardinality rdf:type owl:AnnotationProperty .
-
-
-###  http://www.w3.org/2002/07/owl#minCardinality
-owl:minCardinality rdf:type owl:AnnotationProperty .
-
-
 #################################################################
 #    Object Properties
 #################################################################
-
-###  http://www.ontology-of-units-of-measure.org/resource/om-2/hasDimension
-om:hasDimension rdf:type owl:ObjectProperty .
-
 
 ###  http://www.ontology-of-units-of-measure.org/resource/om-2/hasQuantity
 om:hasQuantity rdf:type owl:ObjectProperty .
@@ -286,8 +274,7 @@ cont:width rdf:type owl:ObjectProperty ;
 #################################################################
 
 ###  http://www.ontology-of-units-of-measure.org/resource/om-2/hasNumericalValue
-om:hasNumericalValue rdf:type owl:DatatypeProperty ;
-                     rdfs:range xsd:decimal .
+om:hasNumericalValue rdfs:range xsd:decimal .
 
 
 ###  https://sift.net/container-ontology/container-ontology#catalogNumber
@@ -377,14 +364,6 @@ cont:wellCount rdf:type owl:DatatypeProperty ;
 #    Classes
 #################################################################
 
-###  http://org.semanticweb.owlapi/error#Error1
-<http://org.semanticweb.owlapi/error#Error1> rdf:type owl:Class .
-
-
-###  http://org.semanticweb.owlapi/error#Error2
-<http://org.semanticweb.owlapi/error#Error2> rdf:type owl:Class .
-
-
 ###  http://purl.obolibrary.org/obo/NCIT_C96142
 <http://purl.obolibrary.org/obo/NCIT_C96142> rdf:type owl:Class ;
                                              owl:equivalentClass cont:Plate ;
@@ -397,21 +376,19 @@ Small volume multi-chambered plate (e.g. 96 well).""" ;
                                              rdfs:label "Microwell plate" .
 
 
-###  http://www.ontology-of-units-of-measure.org/resource/om-2/Diameter
-om:Diameter rdf:type owl:Class .
-
-
 ###  http://www.ontology-of-units-of-measure.org/resource/om-2/Force
 om:Force rdf:type owl:Class .
 
 
-###  http://www.ontology-of-units-of-measure.org/resource/om-2/Height
-om:Height rdf:type owl:Class .
-
-
 ###  http://www.ontology-of-units-of-measure.org/resource/om-2/Measure
-om:Measure rdfs:subClassOf [ owl:intersectionOf ( <http://org.semanticweb.owlapi/error#Error1>
-                                                  <http://org.semanticweb.owlapi/error#Error2>
+om:Measure rdfs:subClassOf [ owl:intersectionOf ( [ rdf:type owl:Restriction ;
+                                                    owl:onProperty om:hasDimension ;
+                                                    owl:minCardinality "1"^^xsd:nonNegativeInteger
+                                                  ]
+                                                  [ rdf:type owl:Restriction ;
+                                                    owl:onProperty om:hasDimension ;
+                                                    owl:maxCardinality "1"^^xsd:nonNegativeInteger
+                                                  ]
                                                 ) ;
                              rdf:type owl:Class
                            ] ,
@@ -423,10 +400,6 @@ om:Measure rdfs:subClassOf [ owl:intersectionOf ( <http://org.semanticweb.owlapi
                              owl:onProperty om:hasNumericalValue ;
                              owl:maxCardinality "1"^^xsd:nonNegativeInteger
                            ] .
-
-
-###  http://www.ontology-of-units-of-measure.org/resource/om-2/Quantity
-om:Quantity rdf:type owl:Class .
 
 
 ###  https://identifiers.org/http://purl.obolibrary.org/obo/http://purl.obolibrary.org/obo/NCIT_C43377
@@ -597,7 +570,7 @@ cont:PetriDish rdf:type owl:Class ;
 cont:Plate rdf:type owl:Class ;
            rdfs:subClassOf cont:Container ;
            owl:disjointWith cont:Well ;
-           rdfs:label "plate" .
+           rdfs:label "Plate" .
 
 
 ###  https://sift.net/container-ontology/container-ontology#Plate1536Well
@@ -638,7 +611,7 @@ cont:Plate96Well rdf:type owl:Class ;
                                        rdf:type owl:Class
                                      ] ;
                  rdfs:subClassOf cont:Plate ;
-                 rdfs:label "96 well plate" .
+                 rdfs:label "96 well microplate" .
 
 
 ###  https://sift.net/container-ontology/container-ontology#PlateReader
@@ -1123,8 +1096,7 @@ cont:Thermocycler rdf:type owl:Class ;
 
 ###  https://sift.net/container-ontology/container-ontology#TipRack
 cont:TipRack rdf:type owl:Class ;
-             rdfs:subClassOf cont:Rack ;
-             rdfs:label "pipette tip rack" .
+             rdfs:subClassOf cont:Rack .
 
 
 ###  https://sift.net/container-ontology/container-ontology#VWRCentrifugePCRPlateSpec
@@ -1212,35 +1184,30 @@ cont:96WellPCRPlate rdf:type owl:Class ;
 om:Depth rdf:type owl:NamedIndividual .
 
 
-###  http://www.ontology-of-units-of-measure.org/resource/om-2/millimetre
-om:millimetre rdf:type owl:NamedIndividual .
-
-
 ###  https://sift.net/container-ontology/container-ontology#BeckmanCoulter
 cont:BeckmanCoulter rdf:type owl:NamedIndividual ,
                              cont:VendorFirm .
 
 
-###  https://sift.net/container-ontology/container-ontology#NEST96WellPlate
-cont:NEST96WellPlate rdf:type owl:NamedIndividual ,
-                                cont:Plate96Well ;
-                                rdfs:label "NEST 96 Well Plate" .
-
-
-###  https://sift.net/container-ontology/container-ontology#BioRad96WellPCRPlate
-cont:BioRad96WellPCRPlate rdf:type owl:NamedIndividual ,
+###  https://sift.net/container-ontology/container-ontology#Biorad96WellPCRPlate
+cont:Biorad96WellPCRPlate rdf:type owl:NamedIndividual ,
                                    <https://sift.net/container-ontology/container-ontology#96WellPCRPlate> ;
-                          rdfs:label "Bio-Rad 96 well PCR plate" .
+                          rdfs:label "Bio-Rad 96 Well Plate 200 µL PCR" .
 
 
 ###  https://sift.net/container-ontology/container-ontology#Centrifuge
 cont:Centrifuge rdf:type owl:NamedIndividual .
 
+###  https://sift.net/container-ontology/container-ontology#Corning96WellPlate360uLFlat
+cont:Corning96WellPlate360uLFlat rdf:type owl:NamedIndividual ,
+                                          cont:Plate96Well ;
+                                 rdfs:label "Corning 96 Well Plate" .
+
 
 ###  https://sift.net/container-ontology/container-ontology#Corning96WellPlate360uLFlat
 cont:Corning96WellPlate360uLFlat rdf:type owl:NamedIndividual ,
                                           cont:Plate96Well ;
-                                 rdfs:label "Corning 96 well plate" .
+                                 rdfs:label "Corning 96 Well Plate 360 uL Flat" .
 
 
 ###  https://sift.net/container-ontology/container-ontology#EnduraPlate_96Well_Blue
@@ -1334,9 +1301,9 @@ cont:PlateReader rdf:type owl:NamedIndividual .
 ###  https://sift.net/container-ontology/container-ontology#TFEPWD
 cont:TFEPWD rdf:type owl:NamedIndividual ,
                      om:Measure ;
+            om:hasUnit om:millimetre ;
             cont:measureType om:Depth ;
             om:hasNumericalValue 20.1 ;
-            om:hasUnit om:millimetre ;
             rdfs:comment "The measure corresponding to the well height of the ThermoFisher EnduraPlate 96 well" .
 
 
@@ -1466,18 +1433,12 @@ cont:yellow rdf:type owl:NamedIndividual ,
             cont:colorName "yellow" .
 
 
-[ owl:maxCardinality "1"^^xsd:nonNegativeInteger
-] .
-
-[ owl:minCardinality "1"^^xsd:nonNegativeInteger
- ] .
-
 #################################################################
 #    Annotations
 #################################################################
 
 cont:Centrifuge rdfs:label "Centrifuge" ;
-                 rdfs:comment "Likely this should actually be imported from another ontology of lab equipment, if one is available." .
+                rdfs:comment "Likely this should actually be imported from another ontology of lab equipment, if one is available." .
 
 
 cont:PlateReader rdfs:comment "Likely this should actually be imported from another ontology of lab equipment, if one is available." ;

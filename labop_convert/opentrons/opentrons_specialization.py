@@ -9,15 +9,16 @@ import xarray as xr
 
 import labop
 import uml
+from labop.utils.plate_coordinates import get_sample_list
 from labop_convert.behavior_specialization import BehaviorSpecialization
-from labop_convert.plate_coordinates import get_sample_list
 
 l = logging.getLogger(__file__)
 l.setLevel(logging.ERROR)
 
 
 container_ontology_path = os.path.join(
-    os.path.dirname(os.path.realpath(__file__)), "../../labop/container-ontology.ttl"
+    os.path.dirname(os.path.realpath(__file__)),
+    "../../labop/container-ontology.ttl",
 )
 ContO = tyto.Ontology(
     path=container_ontology_path,
@@ -26,7 +27,10 @@ ContO = tyto.Ontology(
 
 # Map OT2 pipette names to compatible tipracks
 COMPATIBLE_TIPS = {
-    "p20_single_gen2": ["opentrons_96_tiprack_10ul", "opentrons_96_filtertiprack_10ul"],
+    "p20_single_gen2": [
+        "opentrons_96_tiprack_10ul",
+        "opentrons_96_filtertiprack_10ul",
+    ],
     "p300_single_gen2": ["opentrons_96_tiprack_300ul"],
     "p1000_single_gen2": [
         "opentrons_96_tiprack_1000ul",
@@ -34,8 +38,14 @@ COMPATIBLE_TIPS = {
     ],
     "p300_multi_gen2": [],
     "p20_multi_gen2": [],
-    "p10_single": ["opentrons_96_tiprack_10ul", "opentrons_96_filtertiprack_10ul"],
-    "p10_multi": ["opentrons_96_tiprack_10ul", "opentrons_96_filtertiprack_10ul"],
+    "p10_single": [
+        "opentrons_96_tiprack_10ul",
+        "opentrons_96_filtertiprack_10ul",
+    ],
+    "p10_multi": [
+        "opentrons_96_tiprack_10ul",
+        "opentrons_96_filtertiprack_10ul",
+    ],
     "p50_single": [],
     "p50_multi": [],
     "p300_single": ["opentrons_96_tiprack_300ul"],
@@ -59,15 +69,14 @@ LABWARE_MAP = {
         "Opentrons 24 Tube Rack with Eppendorf 1.5 mL Safe-Lock Snapcap"
     ]: "opentrons_24_tuberack_eppendorf_1.5ml_safelock_snapcap",
     ContO["Corning 96 Well Plate"]: "corning_96_wellplate_360ul_flat",
-    ContO["Bio-Rad 96 Well PCR Plate"]: "biorad_96_wellplate_200ul_pcr",
-    ContO["NEST 96 Well Plate"]: "nest_96_wellplate_200ul_flat",
+    ContO["Bio-Rad 96 Well Plate 200 µL PCR"]: "biorad_96_wellplate_200ul_pcr",
+    # ContO["NEST 96 Well Plate"]: "nest_96_wellplate_200ul_flat",
 }
 
 REVERSE_LABWARE_MAP = LABWARE_MAP.__class__(map(reversed, LABWARE_MAP.items()))
 
 
 class OT2Specialization(BehaviorSpecialization):
-
     EQUIPMENT = {
         "p20_single_gen2": sbol3.Agent("p20_single_gen2", name="P20 Single GEN2"),
         "p300_single_gen2": sbol3.Agent("p300_single_gen2", name="P300 Single GEN2"),
@@ -140,7 +149,6 @@ class OT2Specialization(BehaviorSpecialization):
         self.script_steps.append(f"# Failure processing record: {record.identity}")
 
     def on_begin(self, ex: labop.ProtocolExecution):
-
         protocol = self.execution.protocol.lookup()
         apilevel = self.apilevel
         self.markdown += f"# {protocol.name}\n"
@@ -350,7 +358,6 @@ class OT2Specialization(BehaviorSpecialization):
     def transfer_to(
         self, record: labop.ActivityNodeExecution, ex: labop.ProtocolExecution
     ):
-
         results = {}
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
@@ -459,8 +466,8 @@ class OT2Specialization(BehaviorSpecialization):
 
         source_str = source.mask
         destination_str = destination.mask
-        for c_source in get_sample_list(source.mask):
-            for c_destination in get_sample_list(destination.mask):
+        for c_source in source.get_coordinates():
+            for c_destination in destination.get_coordinates():
                 self.script_steps += [
                     f"{pipette.display_id}.transfer({value}, {source_name}['{c_source}'], {destination_name}['{c_destination}'])  {comment}"
                 ]
@@ -468,7 +475,6 @@ class OT2Specialization(BehaviorSpecialization):
     def transfer_by_map(
         self, record: labop.ActivityNodeExecution, ex: labop.ProtocolExecution
     ):
-
         results = {}
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
@@ -546,7 +552,8 @@ class OT2Specialization(BehaviorSpecialization):
         source = parameter_value_map["source"]["value"]
         coords = parameter_value_map["coordinates"]["value"]
         samples = parameter_value_map["samples"]["value"]
-        samples.mask = coords
+        if not hasattr(samples, "mask") or samples.mask is None:
+            samples.mask = coords
 
     def measure_absorbance(
         self, record: labop.ActivityNodeExecution, ex: labop.ProtocolExecution
@@ -731,7 +738,20 @@ class OT2Specialization(BehaviorSpecialization):
         mount = parameter_value_map["mount"]["value"]
 
         allowed_mounts = ["left", "right"]
-        allowed_decks = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"]
+        allowed_decks = [
+            "1",
+            "2",
+            "3",
+            "4",
+            "5",
+            "6",
+            "7",
+            "8",
+            "9",
+            "10",
+            "11",
+            "12",
+        ]
         if mount not in allowed_mounts and mount not in allowed_decks:
             raise Exception(
                 "ConfigureInstrument call failed: mount must be either 'left' or 'right' or a deck number from 1-12"
@@ -770,9 +790,7 @@ class OT2Specialization(BehaviorSpecialization):
         for deck, rack in self.configuration.items():
             if type(rack) is not labop.ContainerSpec:
                 continue
-            container_types = self.resolve_container_spec(rack)
-            selected_container_type = self.check_lims_inventory(container_types)
-            api_name = LABWARE_MAP[selected_container_type]
+            api_name = LABWARE_MAP[rack.queryString]
             if api_name in COMPATIBLE_TIPS[instrument.display_id]:
                 tiprack_selection = rack
                 break
@@ -782,7 +800,9 @@ class OT2Specialization(BehaviorSpecialization):
             ]
 
     def pcr(
-        self, record: labop.ActivityNodeExecution, execution: labop.ProtocolExecution
+        self,
+        record: labop.ActivityNodeExecution,
+        execution: labop.ProtocolExecution,
     ):
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()

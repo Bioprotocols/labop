@@ -13,6 +13,7 @@ SBOLFactory(
     "http://bioprotocols.org/labop#",
 )
 
+
 # Import symbols into the top-level labop module
 from labop_submodule import *
 
@@ -338,7 +339,8 @@ def import_library(library: str, extension: str = "ttl", nickname: str = None):
         nickname = library
     if not os.path.isfile(library):
         library = posixpath.join(
-            os.path.dirname(os.path.realpath(__file__)), f"lib/{library}.{extension}"
+            os.path.dirname(os.path.realpath(__file__)),
+            f"lib/{library}.{extension}",
         )
     # read in the library and put the document in the library collection
     lib = sbol3.Document()
@@ -418,3 +420,37 @@ def primitive_inherit_parameters(self, parent_primitive):
 
 
 labop.Primitive.inherit_parameters = primitive_inherit_parameters
+
+labop.SampleArray.__repr__ = labop.SampleArray.__str__
+
+
+def init_logging_config() -> None:
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(asctime)s %(levelname)s %(name)s - %(message)s",
+        force=True,
+    )
+
+
+def init_logging() -> None:
+    # TODO: SBOLFactory permanently disables all DEBUG,INFO logging when it
+    # runs. This is a bug tracked in SynbioDex/sbol_factory#77. If that is fixed,
+    # this can be removed.
+    logging.disable(logging.NOTSET)
+
+    # Set the base logging level. We use force=True to override any other
+    # packages/places where a logger was created BEFORE setting this up, and may not
+    # have the necessary handlers configured to get stuff to print as a result.
+    try:
+        import coloredlogs
+
+        coloredlogs.install(
+            fmt="%(asctime)s %(levelname)s %(name)s - %(message)s",
+            level=logging.INFO,
+        )
+    except ModuleNotFoundError:
+        init_logging_config()
+
+
+# Initialize logging
+init_logging()

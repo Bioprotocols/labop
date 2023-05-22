@@ -8,6 +8,7 @@ import uml
 ###########################################
 # Functions for reasoning about ranges
 
+
 # Transform an Excel-style range (col:row, inclusive, alpha-numeric) to numpy-style (row:col, start/stop, numeric)
 def excel_to_numpy_range(excel_range):
     bounds = openpyxl.utils.cell.range_boundaries(excel_range)

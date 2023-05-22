@@ -74,7 +74,6 @@ class ECLSpecialization(BehaviorSpecialization):
         self.script_steps.append(f"# Failure processing record: {record.identity}")
 
     def on_begin(self, ex: labop.ProtocolExecution):
-
         protocol = self.execution.protocol.lookup()
         self.data = []
 
@@ -143,7 +142,6 @@ class ECLSpecialization(BehaviorSpecialization):
     def transfer_to(
         self, record: labop.ActivityNodeExecution, ex: labop.ProtocolExecution
     ):
-
         results = {}
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
@@ -166,7 +164,6 @@ class ECLSpecialization(BehaviorSpecialization):
     def transfer_by_map(
         self, record: labop.ActivityNodeExecution, ex: labop.ProtocolExecution
     ):
-
         results = {}
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
@@ -269,7 +266,9 @@ class ECLSpecialization(BehaviorSpecialization):
         mount = parameter_value_map["mount"]["value"]
 
     def pcr(
-        self, record: labop.ActivityNodeExecution, execution: labop.ProtocolExecution
+        self,
+        record: labop.ActivityNodeExecution,
+        execution: labop.ProtocolExecution,
     ):
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
@@ -290,7 +289,9 @@ class ECLSpecialization(BehaviorSpecialization):
         )
 
     def serial_dilution(
-        self, record: labop.ActivityNodeExecution, execution: labop.ProtocolExecution
+        self,
+        record: labop.ActivityNodeExecution,
+        execution: labop.ProtocolExecution,
     ):
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
