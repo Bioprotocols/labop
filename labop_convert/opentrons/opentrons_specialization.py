@@ -466,8 +466,8 @@ class OT2Specialization(BehaviorSpecialization):
 
         source_str = source.mask
         destination_str = destination.mask
-        for c_source in get_sample_list(source.mask):
-            for c_destination in get_sample_list(destination.mask):
+        for c_source in source.get_coordinates():
+            for c_destination in destination.get_coordinates():
                 self.script_steps += [
                     f"{pipette.display_id}.transfer({value}, {source_name}['{c_source}'], {destination_name}['{c_destination}'])  {comment}"
                 ]

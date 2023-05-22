@@ -11,7 +11,7 @@ import xarray as xr
 
 import labop
 import uml
-from labop.data import new_sample_id, serialize_sample_format
+from labop.data import serialize_sample_format
 from labop.execution_engine import ExecutionEngine
 from labop.strings import Strings
 from labop.utils.helpers import file_diff, initialize_protocol
@@ -83,105 +83,23 @@ class TestProtocolEndToEnd(unittest.TestCase):
             for r in reagents
         }
 
-        source_sample_ids = [new_sample_id() for a in aliquot_ids]
-        source_array = labop.SampleArray(
-            name="source",
-            container_type=source_spec,
-            initial_contents=serialize_sample_format(
-                xr.Dataset(
-                    {
-                        Strings.CONTENTS: xr.DataArray(
-                            # [[f"source_sample_{a}" for a in aliquot_ids]],
-                            [
-                                [
-                                    [default_volume.value for r in reagents]
-                                    for a in aliquot_ids
-                                ]
-                            ],
-                            dims=(
-                                Strings.CONTAINER,
-                                Strings.LOCATION,
-                                Strings.REAGENT,
-                            ),
-                        ),
-                        Strings.SAMPLE_LOCATION: xr.DataArray(
-                            [source_sample_ids],
-                            dims=(Strings.CONTAINER, Strings.LOCATION),
-                        ),
-                    },
-                    coords={
-                        Strings.SAMPLE: [f"source_sample_{a}" for a in aliquot_ids],
-                        Strings.REAGENT: [r.identity for r in reagents],
-                        Strings.CONTAINER: [source_spec.name],
-                        Strings.LOCATION: aliquot_ids,
-                    },
-                )
-            ),
-        )
-
         create_source = protocol.primitive_step(
             "EmptyContainer",
             specification=source_spec,
-            sample_array=source_array,
-        )
-
-        target_sample_ids = [new_sample_id() for a in aliquot_ids]
-        target_array = labop.SampleArray(
-            name="target",
-            container_type=target_spec,
-            initial_contents=serialize_sample_format(
-                xr.Dataset(
-                    {
-                        Strings.SAMPLE_LOCATION: xr.DataArray(
-                            [target_sample_ids],
-                            dims=(Strings.CONTAINER, Strings.LOCATION),
-                        ),
-                        Strings.CONTENTS: xr.DataArray(
-                            # [[f"source_sample_{a}" for a in aliquot_ids]],
-                            [[[0.0 for r in reagents] for a in aliquot_ids]],
-                            dims=(
-                                Strings.CONTAINER,
-                                Strings.LOCATION,
-                                Strings.REAGENT,
-                            ),
-                        ),
-                        # Strings.CONTENTS: xr.DataArray(
-                        #                             [[0.0 for r in reagents] for sample in aliquot_ids],
-                        #                             dims=(Strings.SAMPLE, Strings.REAGENT),
-                        #                         ),
-                    },
-                    coords={
-                        Strings.SAMPLE: target_sample_ids,
-                        Strings.REAGENT: [r.identity for r in reagents],
-                        Strings.CONTAINER: [target_spec.name],
-                        Strings.LOCATION: aliquot_ids,
-                    },
-                )
-            ),
         )
 
         create_target = protocol.primitive_step(
             "EmptyContainer",
             specification=target_spec,
-            sample_array=target_array,
         )
 
         plan_mapping = serialize_sample_format(
             xr.DataArray(
                 [
                     [
-                        [
-                            [
-                                # f"{source_array}:{source_aliquot}->{target_array}:{target_aliquot}"
-                                # rand(0.0, 10.0)
-                                10.0
-                                for target_aliquot in aliquot_ids
-                            ]
-                            for target_array in [target_array.name]
-                        ]
+                        [[10.0 for target_aliquot in aliquot_ids]]
                         for source_aliquot in aliquot_ids
                     ]
-                    for source_array in [source_array.name]
                 ],
                 dims=(
                     f"source_{Strings.CONTAINER}",
@@ -191,9 +109,9 @@ class TestProtocolEndToEnd(unittest.TestCase):
                 ),
                 attrs={"units": "uL"},
                 coords={
-                    f"source_{Strings.CONTAINER}": [source_array.name],
+                    f"source_{Strings.CONTAINER}": [source_spec.name],
                     f"source_{Strings.LOCATION}": aliquot_ids,
-                    f"target_{Strings.CONTAINER}": [target_array.name],
+                    f"target_{Strings.CONTAINER}": [target_spec.name],
                     f"target_{Strings.LOCATION}": aliquot_ids,
                 },
             )
@@ -201,7 +119,9 @@ class TestProtocolEndToEnd(unittest.TestCase):
 
         # The SampleMap specifies the sources and targets, along with the mappings.
         plan = labop.SampleMap(
-            sources=[source_array], targets=[target_array], values=plan_mapping
+            sources=[create_source.output_pin("samples")],
+            targets=[create_target.output_pin("samples")],
+            values=plan_mapping,
         )
 
         # The outputs of the create_source and create_target calls will be identical
@@ -268,7 +188,7 @@ class TestProtocolEndToEnd(unittest.TestCase):
             filename + ".nt",
         )
         # with open(comparison_file, "w") as f:
-        # f.write(doc.write_string(sbol3.SORTED_NTRIPLES).strip())
+        #     f.write(doc.write_string(sbol3.SORTED_NTRIPLES).strip())
         print(f"Comparing against {comparison_file}")
         diff = "".join(file_diff(comparison_file, temp_name))
         print(f"Difference:\n{diff}")

@@ -26,9 +26,19 @@ from labop.utils.plate_coordinates import contiguous_coordinates, get_sample_lis
 l = logging.getLogger(__file__)
 l.setLevel(logging.ERROR)
 
+sample_counter = 0
 
-def new_sample_id() -> int:
-    return f"{Strings.SAMPLE}_{labop.new_uuid()}"
+
+def new_sample_id(self) -> str:
+    if not hasattr(self, "sample_counter"):
+        self.sample_counter = 0
+
+    id = self.sample_counter
+    self.sample_counter += 1
+    return f"{Strings.SAMPLE}_{self.name}_{id}"
+
+
+labop.SampleCollection.new_sample_id = new_sample_id
 
 
 def protocol_execution_set_data(self, dataset):
@@ -63,7 +73,7 @@ labop.ProtocolExecution.get_data = protocol_execution_get_data
 
 def sample_array_empty(self, geometry=None, sample_format=Strings.XARRAY):
     locations = get_sample_list(geometry) if geometry else []
-    samples = [new_sample_id() for l in locations]
+    samples = [self.new_sample_id() for l in locations]
 
     if sample_format == Strings.XARRAY:
         sample_array = xr.Dataset(
@@ -684,7 +694,7 @@ def sort_samples(data, sample_format=Strings.XARRAY, order=Strings.ROW_DIRECTION
                 # for each reverse(col) for each row
                 # H1->A1, H2->A2, ...
                 data = data.sortby("row", ascending=False).sortby("col")
-            data = data.drop(["row", "col"])
+            data = data.drop_vars(["row", "col"])
 
     return data
 

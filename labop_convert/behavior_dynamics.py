@@ -16,10 +16,9 @@ from tyto import OM
 
 # Project packages
 import uml
-from labop import ActivityNodeExecution, SampleArray, SampleMap
+from labop import ActivityNodeExecution, SampleArray, SampleCollection, SampleMap
 from labop.data import (
     deserialize_sample_format,
-    new_sample_id,
     sample_array_container_type,
     serialize_sample_format,
 )
@@ -74,10 +73,11 @@ class SampleProvenanceObserver:
         if behavior.identity in self.handlers:
             updater = self.handlers[behavior.identity](self)
             new_nodes = updater.update(record)
-            self.graph = self.update_graph(new_nodes)
-            self.to_dot().render(
-                os.path.join(self.outdir, f"{self.name}_{self.exec_tick}")
-            )
+            if new_nodes:
+                self.graph = self.update_graph(new_nodes)
+                self.to_dot().render(
+                    os.path.join(self.outdir, f"{self.name}_{self.exec_tick}")
+                )
             self.exec_tick += 1
         else:
             self.logger.info(
@@ -105,7 +105,7 @@ class SampleProvenanceObserver:
 
         # New Nodes
         new_nodes = (
-            graph_addition.drop("edges")
+            graph_addition.drop_vars("edges")
             if "edges" in graph_addition
             else graph_addition
         )
@@ -127,7 +127,7 @@ class SampleProvenanceObserver:
 
         # Combine nodes and edges
         if "edges" in graph_nodes:
-            graph_nodes = graph_nodes.drop("edges")
+            graph_nodes = graph_nodes.drop_vars("edges")
         new_graph = xr.merge([graph_nodes, graph_edges])
         return new_graph
 
@@ -493,7 +493,9 @@ class SampleProvenanceObserver:
 
     def compute_transfer(
         self,
+        source_samples: SampleCollection,
         source_array: xr.Dataset,
+        target_samples: SampleCollection,
         target_array: xr.Dataset,
         transfer: xr.DataArray,
         label: str = None,
@@ -551,12 +553,12 @@ class SampleProvenanceObserver:
             next_target_contents != 0.0, nan
         )
 
-        transfer_source = transfer_source.assign_coords(
-            {Strings.SAMPLE: [new_sample_id() for _ in transfer_source.sample]}
-        )
+        # transfer_source = transfer_source.assign_coords(
+        #     {Strings.SAMPLE: [new_sample_id() for _ in transfer_source.sample]}
+        # )
 
         next_source_sample_ids = [
-            [new_sample_id() for loc in transfer_source.source_location]
+            [source_samples.new_sample_id() for loc in transfer_source.source_location]
             for c in transfer_source.source_container
         ]
         next_source_array = xr.Dataset(
@@ -577,7 +579,7 @@ class SampleProvenanceObserver:
         )
 
         next_target_sample_ids = [
-            [new_sample_id() for loc in transfer_target.target_location]
+            [target_samples.new_sample_id() for loc in transfer_target.target_location]
             for c in transfer_target.target_container
         ]
         next_target_array = xr.Dataset(
@@ -647,7 +649,9 @@ class SampleProvenanceObserver:
                 ).next_sample_location,
             ]
         )
-        transfer_plan_map = xr.where(transfer > 0, transfer_map, False)
+        transfer_plan_map = transfer_map.where(
+            transfer > 0
+        )  # xr.where(transfer > 0, transfer_map, False)
         transfer_edges = (
             transfer_plan_map.to_array().rename({Strings.VARIABLE: Strings.NODE})
             # .stack(
@@ -781,9 +785,10 @@ class TransferByMapUpdater(BaseUpdater):
 
         parameter_values = record.call.lookup().parameter_value_map()
         # samples = parameter_values["samples"]["value"]
-
-        source_array = parameter_values["source"]["value"].to_data_array()
-        target_array = parameter_values["destination"]["value"].to_data_array()
+        source_samples = parameter_values["source"]["value"]
+        source_array = source_samples.to_data_array()
+        target_samples = parameter_values["destination"]["value"]
+        target_array = target_samples.to_data_array()
         source_name = parameter_values["source"]["value"].name
         target_name = parameter_values["destination"]["value"].name
 
@@ -801,7 +806,13 @@ class TransferByMapUpdater(BaseUpdater):
             Strings.TARGET_CONTAINER
         ].where(False, target_containers[0])
 
-        return self.observer.compute_transfer(source_array, target_array, transfer_plan)
+        return self.observer.compute_transfer(
+            source_samples,
+            source_array,
+            target_samples,
+            target_array,
+            transfer_plan,
+        )
 
 
 class ProvisionUpdater(BaseUpdater):
@@ -860,7 +871,7 @@ class ProvisionUpdater(BaseUpdater):
         # Construct next sample array using updated contents of sample array
         # Create new sample ids for the updated array
         new_samples = [
-            [new_sample_id() for l in sample_array.location]
+            [destination.new_sample_id() for l in sample_array.location]
             for c in sample_array.container
         ]
 
@@ -938,17 +949,24 @@ class TransferUpdater(BaseUpdater):
             destination.to_data_array()
         ).reset_coords(drop=True)
 
-        assert (
-            0 not in source_array.contents.dropna("reagent", how="all").reagent.shape
-        ), f"Cannot transfer from source {source.identity} with no contents: {source_array}"
+        if 0 in source_array.contents.dropna("reagent", how="all").reagent.shape:
+            self.logger.warning(
+                f"Transfer from source {source.identity} with no contents: {source_array}"
+            )
+            graph_addition = None
+        else:
+            transfer = self.observer.make_transfer_array(
+                source_array, target_array, standard_value
+            )
 
-        transfer = self.observer.make_transfer_array(
-            source_array, target_array, standard_value
-        )
-
-        graph_addition = self.observer.compute_transfer(
-            source_array, target_array, transfer, label=label
-        )
+            graph_addition = self.observer.compute_transfer(
+                source,
+                source_array,
+                destination,
+                target_array,
+                transfer,
+                label=label,
+            )
 
         return graph_addition
 
@@ -1048,7 +1066,7 @@ class SerialDilutionUpdater(BaseUpdater):
 
             label = self.label(standard_value, standard_unit)
             transfer_diff = self.observer.compute_transfer(
-                source_loc, target_loc, transfer, label=label
+                samples, source_loc, samples, target_loc, transfer, label=label
             )
             graph_addition = (
                 transfer_diff
