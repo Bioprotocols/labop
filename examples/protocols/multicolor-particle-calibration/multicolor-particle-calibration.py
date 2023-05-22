@@ -1048,7 +1048,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "-e",
         "--generate-emeraldcloud",
-        default=False,
+        default=True,
         action="store_true",
         help=f"Execute the protocol to generate the Emerald Cloud notebook at artifacts/{filename}-emeraldcloud.nb.",
     )

@@ -2,14 +2,15 @@
 http://2018.igem.org/wiki/images/0/09/2018_InterLab_Plate_Reader_Protocol.pdf
 """
 
+import os
+
 import sbol3
 from tyto import OM
 
 import labop
 from labop.execution_engine import ExecutionEngine
-from labop_convert.markdown.markdown_specialization import (
-    MarkdownSpecialization,
-)
+from labop_convert.emeraldcloud.ecl_specialization import ECLSpecialization
+from labop_convert.markdown.markdown_specialization import MarkdownSpecialization
 
 filename = "".join(__file__.split(".py")[0].split("/")[-1:])
 
@@ -103,8 +104,8 @@ measure_fluorescence1 = protocol.primitive_step(
 measure_fluorescence1.name = "fluorescein and bead fluorescence"
 
 meta1 = protocol.primitive_step(
-    "AttachMetadata",
-    data=measure_fluorescence1.output_pin("measurements"),
+    "JoinMetadata",
+    dataset=measure_fluorescence1.output_pin("measurements"),
     metadata=labop.SampleMetadata(
         for_samples=read_wells1.output_pin("samples"), descriptions=""
     ),
@@ -112,14 +113,76 @@ meta1 = protocol.primitive_step(
 protocol.designate_output(
     "dataset",
     "http://bioprotocols.org/labop#Dataset",
-    source=meta1.output_pin("dataset"),
+    source=meta1.output_pin("enhanced_dataset"),
 )
+
+ecl_output = os.path.join(OUT_DIR, f"{filename}-emeraldcloud.nb")
+
+ddh2o = doc.find(f"{NAMESPACE}ddH2O")
+pbs = doc.find(f"{NAMESPACE}pbs")
+fluorescein = doc.find(f"{NAMESPACE}fluorescein")
+cascade_blue = doc.find(f"{NAMESPACE}cascade_blue")
+sulforhodamine = doc.find(f"{NAMESPACE}sulforhodamine")
+silica_beads = doc.find(f"{NAMESPACE}silica_beads")
+discard_container = [x for x in protocol.nodes if x.name == "discard_container"][0]
+fluorescein_standard_solution_container = [
+    x for x in protocol.nodes if x.name == "fluroscein_calibrant"
+][0]
+sulforhodamine_standard_solution_container = [
+    x for x in protocol.nodes if x.name == "sulforhodamine_standard_solution_container"
+][0]
+cascade_blue_standard_solution_container = [
+    x for x in protocol.nodes if x.name == "cascade_blue_standard_solution_container"
+][0]
+microsphere_standard_solution_container = [
+    x for x in protocol.nodes if x.name == "microsphere_standard_solution_container"
+][0]
+ddh2o_container = [x for x in protocol.nodes if x.name == "ddh2o_container"][0]
+pbs_container = [x for x in protocol.nodes if x.name == "pbs_container"][0]
+calibration_plate = [x for x in protocol.nodes if x.name == "calibration_plate"][0]
+
+resolutions = {
+    ddh2o.identity: "Nuclease-free Water",
+    pbs.identity: "1x PBS from 10X stock",
+    fluorescein.identity: "1x PBS, 10uM Fluorescein",
+    cascade_blue.identity: "1x PBS, 10uM Fluorescein",
+    sulforhodamine.identity: "1x PBS, 10uM Fluorescein",
+    silica_beads.identity: "Silica beads 2g/ml 950nm",
+    discard_container.input_pin("specification")
+    .value.value.lookup()
+    .identity: "2mL Tube",
+    fluorescein_standard_solution_container.input_pin("specification")
+    .value.value.lookup()
+    .identity: "1x PBS, 10uM Fluorescein",
+    sulforhodamine_standard_solution_container.input_pin("specification")
+    .value.value.lookup()
+    .identity: "1x PBS, 10uM Fluorescein",
+    cascade_blue_standard_solution_container.input_pin("specification")
+    .value.value.lookup()
+    .identity: "1x PBS, 10uM Fluorescein",
+    microsphere_standard_solution_container.input_pin("specification")
+    .value.value.lookup()
+    .identity: "Silica beads 2g/ml 950nm",
+    ddh2o_container.input_pin("specification")
+    .value.value.lookup()
+    .identity: "Nuclease-free Water",
+    pbs_container.input_pin("specification")
+    .value.value.lookup()
+    .identity: "1x PBS from 10X stock",
+    calibration_plate.input_pin("specification")
+    .value.value.lookup()
+    .identity: "96-well Polystyrene Flat-Bottom Plate, Clear",
+}
+ecl_specialization = ECLSpecialization(ecl_output, resolutions=resolutions)
 
 
 ee = ExecutionEngine(
-    specializations=[MarkdownSpecialization(__file__.split(".")[0] + ".md")],
+    specializations=[
+        ecl_specialization,
+        MarkdownSpecialization(__file__.split(".")[0] + ".md"),
+    ],
     failsafe=False,
-    sample_format="json",
+    sample_format="xarray",
 )
 execution = ee.execute(
     protocol, sbol3.Agent("test_agent"), id="test_execution", parameter_values=[]
