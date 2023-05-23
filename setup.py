@@ -20,7 +20,7 @@ setup(
         "openpyxl",
         "autoprotocol",
         "transcriptic",
-        "pint>=0.21",
+        "pint>=0.18",
         "requests_html",
         "container-ontology @ https://github.com/rpgoldman/container-ontology/tarball/main",
         "xarray",
