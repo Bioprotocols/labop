@@ -1147,13 +1147,7 @@ if __name__ == "__main__":
         action="store_true",
         help=f"Execute the protocol to generate the artifacts/{filename}-autoprotocol.json Autoprotocol specialization of the LabOP protocol.",
     )
-    parser.add_argument(
-        "-e",
-        "--generate-ecl",
-        default=True,
-        action="store_true",
-        help=f"Execute the protocol to generate the artifacts/{filename}-ecl.json ECL specialization of the LabOP protocol.",
-    )
+
     parser.add_argument(
         "-t",
         "--test-autoprotocol",

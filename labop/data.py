@@ -26,8 +26,6 @@ from labop.utils.plate_coordinates import contiguous_coordinates, get_sample_lis
 l = logging.getLogger(__file__)
 l.setLevel(logging.ERROR)
 
-sample_counter = 0
-
 
 def new_sample_id(self) -> str:
     if not hasattr(self, "sample_counter"):
@@ -38,7 +36,14 @@ def new_sample_id(self) -> str:
     return f"{Strings.SAMPLE}_{self.name}_{id}"
 
 
-labop.SampleCollection.new_sample_id = new_sample_id
+labop.SampleArray.new_sample_id = new_sample_id
+
+
+def new_sample_id(self) -> str:
+    return self.source.lookup().new_sample_id()
+
+
+labop.SampleMask.new_sample_id = new_sample_id
 
 
 def protocol_execution_set_data(self, dataset):

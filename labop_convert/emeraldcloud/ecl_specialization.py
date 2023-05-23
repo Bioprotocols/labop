@@ -8,25 +8,28 @@ import xarray as xr
 import labop
 import uml
 from labop.strings import Strings
+from labop.utils.plate_coordinates import flatten_coordinates, get_sample_list
 from labop_convert.behavior_specialization import (
     BehaviorSpecialization,
     ContO,
     validate_spec_query,
 )
-from labop_convert.plate_coordinates import flatten_coordinates, get_sample_list
 
 l = logging.getLogger(__file__)
 l.setLevel(logging.INFO)
 
 
 class ECLSpecialization(BehaviorSpecialization):
-
+    MICROPLATE = "96 well microplate"
+    MICROFUGE = "2 mL microfuge tube"
+    STOCK_REAGENT = "stock reagent container"
+    WASTE = "waste container"
     # Map terms in the Container ontology to OT2 API names
     LABWARE_MAP = {
-        ContO["96 well plate"]: "96-well Polystyrene Flat-Bottom Plate, Clear",
-        ContO["2 mL microfuge tube"]: "2mL Tube",
-        ContO["stock reagent container"]: "2mL Tube",
-        ContO["waste container"]: "2mL Tube",
+        ContO[MICROPLATE]: "96-well Polystyrene Flat-Bottom Plate, Clear",
+        ContO[MICROFUGE]: "2mL Tube",
+        ContO[STOCK_REAGENT]: "2mL Tube",
+        ContO[WASTE]: "2mL Tube",
     }
 
     def __init__(
@@ -296,12 +299,12 @@ class ECLSpecialization(BehaviorSpecialization):
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
 
-        source = parameter_value_map["source"]["value"]
-        destination = parameter_value_map["destination"]["value"]
-        diluent = parameter_value_map["diluent"]["value"]
+        source = parameter_value_map["samples"]["value"]
+        destination = parameter_value_map["samples"]["value"]
+        # diluent = parameter_value_map["diluent"]["value"]
         amount = ecl_measure(parameter_value_map["amount"]["value"])
-        dilution_factor = parameter_value_map["dilution_factor"]["value"]
-        series = parameter_value_map["series"]["value"]
+        # dilution_factor = parameter_value_map["dilution_factor"]["value"]
+        # series = parameter_value_map["series"]["value"]
 
         if isinstance(source, labop.SampleMask):
             source = source.source.lookup()
@@ -356,11 +359,11 @@ def ecl_container(container_type: tyto.URI):
     if container_type in ECLSpecialization.LABWARE_MAP:
         container = ECLSpecialization.LABWARE_MAP[container_type]
         return f'Model[Container, Vessel, "{container}"]'
-    if container_type in ContO["96 well plate"].get_instances():
-        container = ECLSpecialization.LABWARE_MAP[ContO["96 well plate"]]
+    if container_type in ContO[ECLSpecialization.MICROPLATE].get_instances():
+        container = ECLSpecialization.LABWARE_MAP[ContO[ECLSpecialization.MICROPLATE]]
         return f'Model[Container, Plate, "{container}"]'
-    if container_type in ContO["2 mL microfuge tube"].get_instances():
-        container = ECLSpecialization.LABWARE_MAP[ContO["2 mL microfuge tube"]]
+    if container_type in ContO[ECLSpecialization.MICROFUGE].get_instances():
+        container = ECLSpecialization.LABWARE_MAP[ContO[ECLSpecialization.MICROFUGE]]
         return f'Model[Container, Vessel, "{container}"]'
     raise Exception(
         f"Load failed. Container {container_type} is not supported labware."
