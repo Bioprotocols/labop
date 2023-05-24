@@ -8,6 +8,7 @@ setup(
     name="labop",
     description="Laboratory Open Procotol Language",
     version="1.0a2",
+    python_requires=">=3.8",
     install_requires=[
         "sbol3",
         "sparqlwrapper",
