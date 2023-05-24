@@ -113,8 +113,7 @@ class ECLSpecialization(BehaviorSpecialization):
         # SampleArray fields are initialized in primitive_execution.py
         text = f"""{spec.display_id} = LabelContainer[
     Label -> "{name}",
-    Container -> {container}]
-]"""
+    Container -> {container}]"""
         self.script_steps += [text]
 
     def time_wait(
