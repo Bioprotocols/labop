@@ -7,7 +7,7 @@ import tyto
 
 import labop
 import uml
-from labop.primitive_execution import input_parameter_map
+from labop.data import new_sample_id
 
 l = logging.getLogger(__file__)
 l.setLevel(logging.WARN)
@@ -43,7 +43,6 @@ class BehaviorSpecialization(ABC):
         self.execution = None
         self.issues = []
         self.out_dir = None
-        self.objects = {}
 
         # This data field holds the results of the specialization
         self.data = []
@@ -79,7 +78,8 @@ class BehaviorSpecialization(ABC):
         try:
             node = record.node.lookup()
             if not isinstance(node, uml.CallBehaviorAction):
-                return  # raise BehaviorSpecializationException(f"Cannot handle node type: {type(node)}")
+                # raise BehaviorSpecializationException(f"Cannot handle node type: {type(node)}")
+                return
 
             # Subprotocol specializations
             behavior = node.behavior.lookup()
@@ -106,6 +106,8 @@ class BehaviorSpecialization(ABC):
         raise e
 
     def handle(self, record, execution):
+        from labop.primitive_execution import input_parameter_map
+
         # Save basic information about the execution record
         node = record.node.lookup()
         params = input_parameter_map(
@@ -121,25 +123,21 @@ class BehaviorSpecialization(ABC):
             "behavior": node.behavior,
             "parameters": params,
         }
-        self.update_objects(record)
         self.data.append(node_data)
 
-    def update_objects(self, record: labop.ActivityNodeExecution):
-        """
-        Update the objects processed by the record.
-
-        Parameters
-        ----------
-        record : labop.ActivityNodeExecution
-            A step that modifies objects.
-        """
-        pass
-
     def resolve_container_spec(self, spec, addl_conditions=None):
-        # Attempt to infer container instances using the remote container ontology
-        # server, otherwise use tyto to look it up from a local copy of the ontology
         try:
             from container_api import matching_containers
+
+            if "container_api" not in sys.modules:
+                raise Exception("Could not import container_api, is it installed?")
+
+            if addl_conditions:
+                possible_container_types = matching_containers(
+                    spec, addl_conditions=addl_conditions
+                )
+            else:
+                possible_container_types = matching_containers(spec)
         except:
             l.warning("Could not import container_api, is it installed?")
         else:

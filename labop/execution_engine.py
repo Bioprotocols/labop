@@ -1,4 +1,5 @@
 import datetime
+import hashlib
 import logging
 import os
 import uuid
@@ -10,13 +11,22 @@ import graphviz
 import pandas as pd
 import sbol3
 import xarray as xr
+from numpy import record
 
 import labop
 import uml
-from labop.primitive_execution import initialize_primitive_compute_output
+from labop_convert.behavior_dynamics import SampleProvenanceObserver
 
 l = logging.getLogger(__file__)
 l.setLevel(logging.ERROR)
+
+UUID_SEED = "LabOP"
+m = hashlib.md5()
+
+
+def new_uuid():
+    m.update(UUID_SEED.encode("utf-8"))
+    return uuid.UUID(m.hexdigest())
 
 
 failsafe = True  # When set to True, a protocol execution will proceed through to the end, even if a CallBehaviorAction raises an exception.  Set to False for debugging
@@ -46,6 +56,7 @@ class ExecutionEngine(ABC):
         sample_format="xarray",
         out_dir="out",
         dataset_file=None,
+        track_samples=True,
     ):
         self.exec_counter = 0
         self.variable_counter = 0
@@ -77,6 +88,11 @@ class ExecutionEngine(ABC):
         self.data_id = 0
         self.data_id_map = {}
         self.candidate_clusters = {}
+        self.track_samples = track_samples
+
+        self.prov_observer = (
+            SampleProvenanceObserver(self.out_dir) if self.track_samples else None
+        )
 
         if self.specializations is None or (
             isinstance(self.specializations, list) and len(self.specializations) == 0
@@ -124,7 +140,7 @@ class ExecutionEngine(ABC):
         self,
         protocol: labop.Protocol,
         agent: sbol3.Agent,
-        id: str = uuid.uuid4(),
+        id: str = new_uuid(),
         parameter_values: List[labop.ParameterValue] = {},
     ):
         # Record in the document containing the protocol
@@ -134,6 +150,8 @@ class ExecutionEngine(ABC):
         self.issues[id] = []
 
         if self.use_defined_primitives:
+            from labop.primitive_execution import initialize_primitive_compute_output
+
             # Define the compute_output function for known primitives
             initialize_primitive_compute_output(doc)
 
@@ -172,7 +190,7 @@ class ExecutionEngine(ABC):
         protocol: labop.Protocol,
         agent: sbol3.Agent,
         parameter_values: List[labop.ParameterValue] = {},
-        id: str = uuid.uuid4(),
+        id: str = new_uuid(),
         start_time: datetime.datetime = None,
     ) -> labop.ProtocolExecution:
         """Execute the given protocol against the provided parameters
@@ -310,6 +328,11 @@ class ExecutionEngine(ABC):
     ):
         if self.dataset_file is not None:
             self.write_data_templates(record, new_tokens)
+
+        if self.track_samples and isinstance(
+            record.node.lookup(), uml.CallBehaviorAction
+        ):
+            self.prov_observer.update(record)
 
     def write_data_templates(
         self,

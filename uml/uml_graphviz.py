@@ -376,6 +376,9 @@ def activity_to_dot(self, legend=False, ready=[], done=[]):
     def _param_str(param: Parameter) -> str:
         return f"{param.name}"
 
+    def _param_str(param: Parameter) -> str:
+        return f"{param.name}"
+
     def _inpin_str(pin: InputPin) -> str:
         if isinstance(pin, ValuePin):
             if isinstance(pin.value, LiteralReference):

@@ -195,6 +195,20 @@ Adapted from [https://dx.doi.org/10.17504/protocols.io.bht7j6rn](https://dx.doi.
 
     provision = protocol.primitive_step(
         "Provision",
+        resource=ddh2o,
+        destination=ddh2o_container.output_pin("samples"),
+        amount=sbol3.Measure(5000, OM.microliter),
+    )
+
+    provision = protocol.primitive_step(
+        "Provision",
+        resource=pbs,
+        destination=pbs_container.output_pin("samples"),
+        amount=sbol3.Measure(5000, OM.microliter),
+    )
+
+    provision = protocol.primitive_step(
+        "Provision",
         resource=fluorescein,
         destination=fluorescein_standard_solution_container.output_pin("samples"),
         amount=sbol3.Measure(500, OM.microliter),
@@ -227,6 +241,9 @@ Adapted from [https://dx.doi.org/10.17504/protocols.io.bht7j6rn](https://dx.doi.
         source=pbs_container.output_pin("samples"),
         destination=fluorescein_standard_solution_container.output_pin("samples"),
         amount=sbol3.Measure(1, OM.millilitre),
+    )
+    print(
+        f"The reconstituted `{fluorescein.name}` should have a final concentration of 10 uM in `{pbs.name}`."
     )
     suspend_fluorescein.description = f"The reconstituted `{fluorescein.name}` should have a final concentration of 10 uM in `{pbs.name}`."
 
@@ -660,37 +677,65 @@ Adapted from [https://dx.doi.org/10.17504/protocols.io.bht7j6rn](https://dx.doi.
         wavelength=sbol3.Measure(600, OM.nanometer),
     )
 
-    load_excel = protocol.primitive_step(
-        "ExcelMetadata",
-        for_samples=calibration_plate.output_pin("samples"),
-        filename=os.path.join(
-            os.path.dirname(os.path.realpath(__file__)),
-            "metadata/sample_metadata.xlsx",
-        ),
+    # load_excel = protocol.primitive_step(
+    #     "ExcelMetadata",
+    #     for_samples=calibration_plate.output_pin("samples"),
+    #     filename=os.path.join(
+    #         os.path.dirname(os.path.realpath(__file__)),
+    #         "metadata/sample_metadata.xlsx",
+    #     ),
+    # )
+
+    # meta1 = protocol.primitive_step(
+    #     "JoinMetadata",
+    #     dataset=measure_fluorescence1.output_pin("measurements"),
+    #     metadata=load_excel.output_pin("metadata"),
+    # )
+
+    # meta2 = protocol.primitive_step(
+    #     "JoinMetadata",
+    #     dataset=measure_fluorescence2.output_pin("measurements"),
+    #     metadata=load_excel.output_pin("metadata"),
+    # )
+
+    # meta3 = protocol.primitive_step(
+    #     "JoinMetadata",
+    #     dataset=measure_fluorescence3.output_pin("measurements"),
+    #     metadata=load_excel.output_pin("metadata"),
+    # )
+
+    # meta4 = protocol.primitive_step(
+    #     "JoinMetadata",
+    #     dataset=measure_absorbance.output_pin("measurements"),
+    #     metadata=load_excel.output_pin("metadata"),
+    # )
+
+    compute_metadata = protocol.primitive_step(
+        "ComputeMetadata", for_samples=calibration_plate.output_pin("samples")
     )
 
     meta1 = protocol.primitive_step(
         "JoinMetadata",
         dataset=measure_fluorescence1.output_pin("measurements"),
-        metadata=load_excel.output_pin("metadata"),
+        metadata=compute_metadata.output_pin("metadata"),
     )
 
     meta2 = protocol.primitive_step(
         "JoinMetadata",
         dataset=measure_fluorescence2.output_pin("measurements"),
-        metadata=load_excel.output_pin("metadata"),
+        metadata=compute_metadata.output_pin("metadata"),
     )
 
     meta3 = protocol.primitive_step(
         "JoinMetadata",
         dataset=measure_fluorescence3.output_pin("measurements"),
-        metadata=load_excel.output_pin("metadata"),
+        metadata=compute_metadata.output_pin("metadata"),
     )
 
     meta4 = protocol.primitive_step(
         "JoinMetadata",
         dataset=measure_absorbance.output_pin("measurements"),
-        metadata=load_excel.output_pin("metadata"),
+        metadata=compute_metadata.output_pin("metadata"),
     )
 
     final_dataset = protocol.primitive_step(
@@ -718,6 +763,33 @@ Adapted from [https://dx.doi.org/10.17504/protocols.io.bht7j6rn](https://dx.doi.
             f.write(doc.write_string(sbol3.SORTED_NTRIPLES).strip())
 
     return protocol, doc
+
+
+def compute_sample_trajectory(protocol, doc):
+    import labop
+    from labop.execution_engine import ExecutionEngine
+    from labop.strings import Strings
+    from labop_convert import DefaultBehaviorSpecialization
+
+    if REGENERATE_ARTIFACTS:
+        dataset_file = f"{filename}_template"  # name of xlsx
+    else:
+        dataset_file = None
+
+    ee = ExecutionEngine(
+        out_dir=OUT_DIR,
+        specializations=[DefaultBehaviorSpecialization()],
+        failsafe=False,
+        sample_format="xarray",
+        dataset_file=dataset_file,
+    )
+
+    execution = ee.execute(
+        protocol,
+        sbol3.Agent("test_agent"),
+        id="test_execution",
+        parameter_values=[],
+    )
 
 
 def generate_markdown_specialization(protocol, doc):
@@ -768,6 +840,36 @@ def generate_markdown_specialization(protocol, doc):
         )
 
     os.chdir(old_dir)
+
+
+def generate_ecl_specialization(protocol, doc):
+    import labop
+    from labop.execution_engine import ExecutionEngine
+    from labop.strings import Strings
+    from labop_convert import ECLSpecialization
+
+    if REGENERATE_ARTIFACTS:
+        ecl_file = filename + ".nb"
+    else:
+        ecl_file = None
+
+    ee = ExecutionEngine(
+        out_dir=OUT_DIR,
+        specializations=[ECLSpecialization(ecl_file, sample_format=Strings.XARRAY)],
+        failsafe=False,
+        sample_format=Strings.XARRAY,
+        dataset_file=None,
+    )
+
+    execution = ee.execute(
+        protocol,
+        sbol3.Agent("test_agent"),
+        id="test_execution",
+        parameter_values=[],
+    )
+    ecl_file = os.path.join(OUT_DIR, filename)
+    with open(ecl_file, "w", encoding="utf-8") as f:
+        f.write(execution.markdown)
 
 
 def generate_autoprotocol_specialization(protocol, doc):
@@ -1020,9 +1122,16 @@ if __name__ == "__main__":
     parser.add_argument(
         "-g",
         "--generate-protocol",
-        default=False,
+        default=True,
         action="store_true",
         help=f"Generate the artifacts/{filename}-protocol.nt LabOP protocol file.",
+    )
+    parser.add_argument(
+        "-c",
+        "--compute-sample-trajectory",
+        default=True,
+        action="store_true",
+        help=f"Execute the protocol to generate the sample trajectory of the LabOP protocol.",
     )
     parser.add_argument(
         "-m",
@@ -1038,6 +1147,7 @@ if __name__ == "__main__":
         action="store_true",
         help=f"Execute the protocol to generate the artifacts/{filename}-autoprotocol.json Autoprotocol specialization of the LabOP protocol.",
     )
+
     parser.add_argument(
         "-t",
         "--test-autoprotocol",
@@ -1048,7 +1158,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "-e",
         "--generate-emeraldcloud",
-        default=False,
+        default=True,
         action="store_true",
         help=f"Execute the protocol to generate the Emerald Cloud notebook at artifacts/{filename}-emeraldcloud.nb.",
     )
@@ -1059,6 +1169,9 @@ if __name__ == "__main__":
     ):
         print("Generating Protocol ...")
         protocol, doc = generate_protocol()
+
+    if args.compute_sample_trajectory:
+        compute_sample_trajectory(*read_protocol())
 
     if args.generate_markdown:
         print("Generating Markdown ...")

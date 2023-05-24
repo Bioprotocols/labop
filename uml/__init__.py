@@ -456,7 +456,6 @@ def add_call_behavior_action(
     # Instantiate input pins
     for i in id_sort(behavior.get_inputs()):
         if i.property_value.name in input_pin_literals:
-
             # input values might be a collection or singleton
             values = input_pin_literals[i.property_value.name]
             # TODO: type check relationship between value and parameter type specification

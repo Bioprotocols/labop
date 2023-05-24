@@ -4,7 +4,6 @@ Functions related to sample map get and set.
 This file monkey-patches the imported labop classes with data handling functions.
 """
 
-import json
 import logging
 from cmath import nan
 
@@ -13,7 +12,8 @@ import xarray as xr
 import labop
 import uml
 from labop import SampleArray, SampleData, SampleMask
-from labop_convert.plate_coordinates import (
+from labop.data import deserialize_sample_format, serialize_sample_format
+from labop.utils.plate_coordinates import (
     coordinate_rect_to_row_col_pairs,
     coordinate_to_row_col,
     get_sample_list,
@@ -32,7 +32,7 @@ def sample_map_get_map(self):
             "Don't know how to initialize a generic SampleMap.  Try a subclass."
         )
     else:
-        sample_map = xr.DataArray.from_dict(json.loads(self.values))
+        sample_map = deserialize_sample_format(self.values, parent=self)
     return sample_map
 
 
@@ -44,7 +44,6 @@ def many_to_one_sample_map_get_map(self):
     Get the XArray Dataset from the values field.
     """
     if not hasattr(self, "values") or not self.values:
-
         sources = [source.lookup() for source in self.sources]
         target = self.targets.lookup()
 
@@ -74,7 +73,6 @@ def one_to_many_sample_map_get_map(self):
     Get the XArray Dataset from the values field.
     """
     if not hasattr(self, "values") or not self.values:
-
         source = self.sources
         targets = self.targets
 
@@ -103,7 +101,7 @@ def sample_map_set_map(self, sample_map):
     """
     Set the XArray Dataset to the values field.
     """
-    self.values = json.dumps(sample_map.to_dict())
+    self.values = serialize_sample_format(sample_map)
 
 
 labop.SampleMap.set_map = sample_map_set_map
