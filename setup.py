@@ -23,7 +23,7 @@ setup(
         "pint>=0.18",
         "requests_html",
         "container-ontology @ https://github.com/rpgoldman/container-ontology/tarball/main",
-        "xarray>=0.21.1",
+        "xarray>=0.20.2",
     ],
     tests_require=test_deps,
     extras_require=extras,
