@@ -151,7 +151,9 @@ class SampleProvenanceObserver:
                 break
         return all_samples
 
-    def to_dot(self, dpi=600, for_samples: xr.DataArray = None, draw_transitions=False):
+    def to_dot(
+        self, dpi=None, for_samples: xr.DataArray = None, draw_transitions=False
+    ):
         """
         Plot graph of samples
         """
@@ -181,15 +183,18 @@ class SampleProvenanceObserver:
             else:
                 return "empty contents"
 
+        attrs = {
+            "label": "SampleGraph",
+            "rankdir": "TB",
+            # "concentrate": "true",
+        }
+        if dpi is not None:
+            attrs["dpi"] = f"{dpi}"
+
         dot = graphviz.Digraph(
             name=f"sample_graph",
             strict=True,
-            graph_attr={
-                "dpi": f"{dpi}",
-                "label": "SampleGraph",
-                "rankdir": "TB",
-                # "concentrate": "true",
-            },
+            graph_attr=attrs,
             node_attr={"ordering": "out"},
         )
 

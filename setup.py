@@ -25,6 +25,7 @@ setup(
         "container-ontology @ https://github.com/rpgoldman/container-ontology/tarball/main",
         "xarray",
     ],
+    python_requires=">=3.8",
     tests_require=test_deps,
     extras_require=extras,
     packages=[

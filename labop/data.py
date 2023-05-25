@@ -785,7 +785,9 @@ def dataset_humanize(self, dataset=None, sample_format=Strings.XARRAY):
                 #     .dropna("i")
                 #     .data.tolist()
                 # )
-                unique_values = np.unique(dataset[var].data).tolist()
+                unique_values = np.unique(
+                    dataset[var].dropna(dim=Strings.LOCATION).data
+                ).tolist()
                 for old in unique_values:
                     val_obj = self.document.find(old)
                     if val_obj is not None:
