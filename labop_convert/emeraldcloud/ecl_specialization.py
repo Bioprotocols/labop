@@ -93,9 +93,10 @@ class ECLSpecialization(BehaviorSpecialization):
             self.data = self.script
 
     def _compile_script(self):
-        script = ""
-        for step in self.script_steps:
-            script += f"{step}\n"
+        script = "protocol = RoboticSamplePreparation[\n"
+        self.script_steps = [f"  {step}" for step in self.script_steps]  # Indent
+        script += ",\n".join(self.script_steps)
+        script += "]"
         return script
 
     def define_container(
@@ -115,8 +116,7 @@ class ECLSpecialization(BehaviorSpecialization):
         # SampleArray fields are initialized in primitive_execution.py
         text = f"""{spec.display_id} = LabelContainer[
     Label -> "{name}",
-    Container -> {container}]
-]"""
+    Container -> {container}]"""
         self.script_steps += [text]
 
     def time_wait(
@@ -158,10 +158,10 @@ class ECLSpecialization(BehaviorSpecialization):
         amount = ecl_measure(parameter_value_map["amount"]["value"])
 
         text = f"""Transfer[
-      Source -> Model[Sample, StockSolution, {source}],
-      Amount -> {amount},
-      Destination -> {ecl_coordinates(destination)}
-      ]"""
+    Source -> Model[Sample, StockSolution, {source}],
+    Amount -> {amount},
+    Destination -> {ecl_coordinates(destination)}
+    ]"""
         self.script_steps += [text]
 
     def transfer_by_map(
@@ -301,10 +301,7 @@ class ECLSpecialization(BehaviorSpecialization):
 
         source = parameter_value_map["samples"]["value"]
         destination = parameter_value_map["samples"]["value"]
-        # diluent = parameter_value_map["diluent"]["value"]
         amount = ecl_measure(parameter_value_map["amount"]["value"])
-        # dilution_factor = parameter_value_map["dilution_factor"]["value"]
-        # series = parameter_value_map["series"]["value"]
 
         if isinstance(source, labop.SampleMask):
             source = source.source.lookup()
@@ -320,10 +317,6 @@ class ECLSpecialization(BehaviorSpecialization):
             destination = destination.source.lookup()
 
         # Get destination container type
-        # destination_container = destination.container_type.lookup()
-        # container_types = self.resolve_container_spec(destination_container)
-        # selected_container_type = self.check_lims_inventory(container_types)
-        # destination_container = ecl_container(selected_container_type)
         destination_container = destination.container_type.lookup()
         destination_container = destination_container.name
 
@@ -331,14 +324,12 @@ class ECLSpecialization(BehaviorSpecialization):
         destinations = destination_coordinates[1:]
         start_well = destination_coordinates[0]
         end_well = destination_coordinates[-1]
-        self.script_steps += [f"startWell = {start_well}"]
-        self.script_steps += [f"endWell = {end_well}"]
-        self.script_steps += [
-            f"serialDilutionSourceWells = Flatten[Transpose[AllWells[]]][startWell ;; endWell - 2]];"
-        ]
-        self.script_steps += [
-            f"serialDilutionDestinationWells = Flatten[Transpose[AllWells[]]][startWell + 1 ;; endWell - 1]];"
-        ]
+        source_wells = (
+            f"Flatten[Transpose[AllWells[]]][{start_well} ;; {end_well} - 2]]"
+        )
+        destination_wells = (
+            f"Flatten[Transpose[AllWells[]]][{start_well} + 1 ;; {end_well} - 1]]"
+        )
         self.script_steps += [
             f"""
 serialDilutionTransfers1 = MapThread[
@@ -351,7 +342,8 @@ serialDilutionTransfers1 = MapThread[
      SlurryTransfer -> True,
      DispenseMix -> True
      ] &,
-   {{serialDilutionSourceWells1, serialDilutionDestinationWells1}}];"""
+   {{{source_wells},
+     {destination_wells}}}]"""
         ]
 
 
@@ -394,7 +386,7 @@ def ecl_coordinates(samples: labop.SampleCollection, sample_format=Strings.XARRA
         container = samples.container_type.lookup()
         container_name = container.name if container.name else container.display_id
 
-        return f"""{{#, "{container_name}"}} & /@  Flatten[Transpose[AllWells[]]][[ {start} ;; {end}]];"""
+        return f"""{{#, "{container_name}"}} & /@  Flatten[Transpose[AllWells[]]][[ {start} ;; {end}]]"""
     if type(samples) is labop.SampleArray:
         container = samples.container_type.lookup()
         container_name = container.name if container.name else container.display_id

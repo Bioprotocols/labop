@@ -1098,14 +1098,14 @@ if __name__ == "__main__":
     parser.add_argument(
         "-g",
         "--generate-protocol",
-        default=True,
+        default=False,
         action="store_true",
         help=f"Generate the artifacts/{filename}-protocol.nt LabOP protocol file.",
     )
     parser.add_argument(
         "-c",
         "--compute-sample-trajectory",
-        default=True,
+        default=False,
         action="store_true",
         help=f"Execute the protocol to generate the sample trajectory of the LabOP protocol.",
     )
@@ -1134,7 +1134,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "-e",
         "--generate-emeraldcloud",
-        default=True,
+        default=False,
         action="store_true",
         help=f"Execute the protocol to generate the Emerald Cloud notebook at artifacts/{filename}-emeraldcloud.nb.",
     )
