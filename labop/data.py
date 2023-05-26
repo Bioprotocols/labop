@@ -295,7 +295,10 @@ def sample_array_from_container_spec(
         == "cont:Opentrons24TubeRackwithEppendorf1.5mLSafe-LockSnapcap"
     ):
         geometry = "A1:C8"
-    elif container_type.queryString == "cont:StockReagent":
+    elif (
+        container_type.queryString == "cont:StockReagent"
+        or container_type.queryString == "cont:WasteContainer"
+    ):
         geometry = "A1"
     else:
         geometry = "A1:H12"
