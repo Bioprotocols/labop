@@ -138,11 +138,19 @@ class ECLSpecialization(BehaviorSpecialization):
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
         destination = parameter_value_map["destination"]["value"]
-        value = parameter_value_map["amount"]["value"].value
-        units = parameter_value_map["amount"]["value"].unit
-        units = tyto.OM.get_term_by_uri(units)
-        resource = parameter_value_map["resource"]["value"]
-        amount = parameter_value_map["amount"]["value"]
+        resource = source = self.resolutions[
+            parameter_value_map["resource"]["value"].identity
+        ]
+
+        amount = ecl_measure(parameter_value_map["amount"]["value"])
+
+        text = f"""Transfer[
+    Source -> {resource},
+    Destination -> {ecl_coordinates(destination)},
+    Amount -> {amount}
+    ]
+        """
+        self.script_steps += [text]
 
     def transfer_to(
         self, record: labop.ActivityNodeExecution, ex: labop.ProtocolExecution
