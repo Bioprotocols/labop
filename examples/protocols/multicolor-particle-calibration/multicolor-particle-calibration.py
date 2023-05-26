@@ -220,14 +220,14 @@ Adapted from [https://dx.doi.org/10.17504/protocols.io.bht7j6rn](https://dx.doi.
         "Provision",
         resource=ddh2o,
         destination=ddh2o_container.output_pin("samples"),
-        amount=sbol3.Measure(5000, OM.microliter),
+        amount=sbol3.Measure(12, OM.milliliter),
     )
 
     provision = protocol.primitive_step(
         "Provision",
         resource=pbs,
         destination=pbs_container.output_pin("samples"),
-        amount=sbol3.Measure(5000, OM.microliter),
+        amount=sbol3.Measure(12, OM.milliliter),
     )
 
     provision = protocol.primitive_step(
