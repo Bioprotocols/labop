@@ -72,6 +72,7 @@ class ECLSpecialization(BehaviorSpecialization):
             "https://bioprotocols.org/labop/primitives/pcr/PCR": self.pcr,
             "https://bioprotocols.org/labop/primitives/liquid_handling/SerialDilution": self.serial_dilution,
             "http://igem.org/engineering/Resuspend": self.resuspend,
+            "https://bioprotocols.org/labop/primitives/spectrophotometry/MeasureFluorescence": self.measure_fluorescence,
         }
 
     def handle_process_failure(self, record, exception):
@@ -215,6 +216,35 @@ class ECLSpecialization(BehaviorSpecialization):
       PlateReaderMix -> True,
       PlateReaderMixRate -> 700 RPM,
       BlankAbsorbance -> False
+      ]"""
+        self.script_steps += [text]
+
+    def measure_fluorescence(
+        self, record: labop.ActivityNodeExecution, ex: labop.ProtocolExecution
+    ):
+        call = record.call.lookup()
+        parameter_value_map = call.parameter_value_map()
+
+        excitation = ecl_measure(parameter_value_map["excitationWavelength"]["value"])
+        emission = ecl_measure(parameter_value_map["emissionWavelength"]["value"])
+        bandpass = ecl_measure(parameter_value_map["emissionBandpassWidth"]["value"])
+        samples = parameter_value_map["samples"]["value"]
+        timepoints = (
+            parameter_value_map["timepoints"]["value"]
+            if "timepoints" in parameter_value_map
+            else None
+        )
+        measurements = parameter_value_map["measurements"]["value"]
+
+        if type(samples) is labop.SampleMask:
+            samples = samples.source.lookup()
+        container = samples.container_type.lookup()
+        container_name = container.name if container.name else container.display_id
+
+        text = f"""FluorescenceIntensity[
+      Sample -> "{container_name}",
+      ExcitationWavelength -> {excitation},
+      EmissionWavelength -> {emission},
       ]"""
         self.script_steps += [text]
 
