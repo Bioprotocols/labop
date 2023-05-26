@@ -3,7 +3,7 @@
 
 Plate readers report fluorescence values in arbitrary units that vary widely from instrument to instrument. Therefore absolute fluorescence values cannot be directly compared from one instrument to another. In order to compare fluorescence output of biological devices, it is necessary to create a standard fluorescence curve. This variant of the protocol uses two replicates of three colors of dye, plus beads.
 Adapted from [https://dx.doi.org/10.17504/protocols.io.bht7j6rn](https://dx.doi.org/10.17504/protocols.io.bht7j6r) and [https://dx.doi.org/10.17504/protocols.io.6zrhf56](https://dx.doi.org/10.17504/protocols.io.6zrhf56)
-    
+
 
 
 ## Protocol Outputs:
@@ -22,17 +22,17 @@ Adapted from [https://dx.doi.org/10.17504/protocols.io.bht7j6rn](https://dx.doi.
 
 
 ## Protocol Steps:
-1. Provision a container named `Fluorescein calibrant` such as: 
+1. Provision a container named `Fluorescein calibrant` such as:
 	[StockReagent](https://sift.net/container-ontology/container-ontology#StockReagent).
-2. Provision a container named `Sulforhodamine 101 calibrant` such as: 
+2. Provision a container named `Sulforhodamine 101 calibrant` such as:
 	[StockReagent](https://sift.net/container-ontology/container-ontology#StockReagent).
-3. Provision a container named `Cascade blue calibrant` such as: 
+3. Provision a container named `Cascade blue calibrant` such as:
 	[StockReagent](https://sift.net/container-ontology/container-ontology#StockReagent).
-4. Provision a container named `microspheres` such as: 
+4. Provision a container named `microspheres` such as:
 	[StockReagent](https://sift.net/container-ontology/container-ontology#StockReagent).
-5. Provision a container named `molecular grade H2O` such as: 
+5. Provision a container named `molecular grade H2O` such as:
 	[StockReagent](https://sift.net/container-ontology/container-ontology#StockReagent).
-6. Provision a container named `PBS` such as: 
+6. Provision a container named `PBS` such as:
 	[StockReagent](https://sift.net/container-ontology/container-ontology#StockReagent).
 7. Pipette 500.0 microliter of [Fluorescein](https://pubchem.ncbi.nlm.nih.gov/substance/329753341) into `Fluorescein calibrant`.
 8. Pipette 500.0 microliter of [Cascade Blue](https://pubchem.ncbi.nlm.nih.gov/substance/57269662) into `Cascade blue calibrant`.
@@ -46,7 +46,7 @@ Adapted from [https://dx.doi.org/10.17504/protocols.io.bht7j6rn](https://dx.doi.
 16. Vortex `Cascade blue calibrant`.
 17. Transfer 1.0 milliliter of `molecular grade H2O` sample to  stock reagent container `microspheres`. The resuspended `NanoCym 950 nm monodisperse silica nanoparticles` will have a final concentration of 3e9 microspheres/mL in `Water, sterile-filtered, BioReagent, suitable for cell culture`.
 18. Vortex `microspheres`.
-19. Provision a container named `calibration plate` such as: 
+19. Provision a container named `calibration plate` such as:
 	[Plate96Well](https://sift.net/container-ontology/container-ontology#Plate96Well).
 20. Transfer 100.0 microliter of `PBS` sample to wells A2:D12 of 96 well plate `calibration plate`.
 21. Transfer 100.0 microliter of `molecular grade H2O` sample to wells E2:H12 of 96 well plate `calibration plate`.
@@ -64,6 +64,13 @@ Adapted from [https://dx.doi.org/10.17504/protocols.io.bht7j6rn](https://dx.doi.
 <p align="center">Serial Dilution</p>
 
 31. Perform a series of 10 2-fold dilutions on wells B1:B11 of 96 well plate `calibration plate`. Start with B1 and end with a final volume of 200.0 microliter in B11.  For each 100.0 microliter transfer, pipette up and down 3X to ensure the dilution is mixed homogeneously.
+
+
+
+
+31. Perform a series of 10 2-fold dilutions on wells B1:B11 of 96 well plate `calibration plate`. Start with B1 and end with a final volume of 200.0 microliter in B11.  For each 100.0 microliter transfer, pipette up and down 3X to ensure the dilution is mixed homogeneously.
+
+
 32. Perform a series of 10 2-fold dilutions on wells C1:C11 of 96 well plate `calibration plate`. Start with C1 and end with a final volume of 200.0 microliter in C11.  For each 100.0 microliter transfer, pipette up and down 3X to ensure the dilution is mixed homogeneously.
 33. Perform a series of 10 2-fold dilutions on wells D1:D11 of 96 well plate `calibration plate`. Start with D1 and end with a final volume of 200.0 microliter in D11.  For each 100.0 microliter transfer, pipette up and down 3X to ensure the dilution is mixed homogeneously.
 34. Perform a series of 10 2-fold dilutions on wells E1:E11 of 96 well plate `calibration plate`. Start with E1 and end with a final volume of 200.0 microliter in E11.  For each 100.0 microliter transfer, pipette up and down 3X to ensure the dilution is mixed homogeneously.
