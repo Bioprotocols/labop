@@ -331,16 +331,10 @@ class ECLSpecialization(BehaviorSpecialization):
         destination_container = destination.container_type.lookup()
         destination_container = destination_container.name
 
-        sources = destination_coordinates[:-1]
-        destinations = destination_coordinates[1:]
-        start_well = destination_coordinates[0]
-        end_well = destination_coordinates[-1]
-        source_wells = (
-            f"Flatten[Transpose[AllWells[]]][{start_well} ;; {end_well} - 1]]"
-        )
-        destination_wells = (
-            f"Flatten[Transpose[AllWells[]]][{start_well} + 1 ;; {end_well}]]"
-        )
+        sources = ",".join(map(str, destination_coordinates[:-1]))
+        destinations = ",".join(map(str, destination_coordinates[1:]))
+        source_wells = f"Flatten[Transpose[AllWells[]]][{sources}]]"
+        destination_wells = f"Flatten[Transpose[AllWells[]]][{destinations}]]"
         self.script_steps += [
             f"""
 serialDilutionTransfers1 = MapThread[
@@ -431,15 +425,14 @@ def ecl_coordinates(samples: labop.SampleCollection, sample_format=Strings.XARRA
             samples.sample_coordinates(sample_format=sample_format, as_list=True),
             direction=Strings.COLUMN_DIRECTION,
         )
-        start = coordinates[0]
-        end = coordinates[-1]
 
         # Get destination container type
         samples = samples.source.lookup()
         container = samples.container_type.lookup()
         container_name = container.name if container.name else container.display_id
+        locations = ",".join(map(str, coordinates))
 
-        return f"""{{#, "{container_name}"}} & /@  Flatten[Transpose[AllWells[]]][[ {start} ;; {end}]]"""
+        return f"""{{#, "{container_name}"}} & /@  Flatten[Transpose[AllWells[]]][[ {locations}]]"""
     if type(samples) is labop.SampleArray:
         container = samples.container_type.lookup()
         container_name = container.name if container.name else container.display_id
