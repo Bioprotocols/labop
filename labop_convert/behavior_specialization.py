@@ -44,6 +44,9 @@ class BehaviorSpecialization(ABC):
         self.issues = []
         self.out_dir = None
 
+        # Mapped Subprotocols are behaviors that have a corresponding primitive in the target language.  The specialization will ignore any nodes executed within the subprotocol.
+        self.mapped_subprotocols = {}
+
         # This data field holds the results of the specialization
         self.data = []
 
@@ -79,6 +82,8 @@ class BehaviorSpecialization(ABC):
             node = record.node.lookup()
             if not isinstance(node, uml.CallBehaviorAction):
                 # raise BehaviorSpecializationException(f"Cannot handle node type: {type(node)}")
+                return
+            elif node.get_parent().identity in self.mapped_subprotocols:
                 return
 
             # Subprotocol specializations

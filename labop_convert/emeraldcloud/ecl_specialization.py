@@ -47,6 +47,7 @@ class ECLSpecialization(BehaviorSpecialization):
             filename += ".ecl"
         self.filename = filename
         self.sample_format = Strings.XARRAY
+        self.mapped_subprotocols = {"http://igem.org/engineering/Resuspend"}
 
         # Needed for using container ontology
         self.container_api_addl_conditions = "(cont:availableAt value <https://sift.net/container-ontology/strateos-catalog#Strateos>)"
@@ -137,11 +138,19 @@ class ECLSpecialization(BehaviorSpecialization):
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
         destination = parameter_value_map["destination"]["value"]
-        value = parameter_value_map["amount"]["value"].value
-        units = parameter_value_map["amount"]["value"].unit
-        units = tyto.OM.get_term_by_uri(units)
-        resource = parameter_value_map["resource"]["value"]
-        amount = parameter_value_map["amount"]["value"]
+        resource = source = self.resolutions[
+            parameter_value_map["resource"]["value"].identity
+        ]
+
+        amount = ecl_measure(parameter_value_map["amount"]["value"])
+
+        text = f"""Transfer[
+    Source -> {resource},
+    Destination -> {ecl_coordinates(destination)},
+    Amount -> {amount}
+    ]
+        """
+        self.script_steps += [text]
 
     def transfer_to(
         self, record: labop.ActivityNodeExecution, ex: labop.ProtocolExecution
@@ -322,16 +331,10 @@ class ECLSpecialization(BehaviorSpecialization):
         destination_container = destination.container_type.lookup()
         destination_container = destination_container.name
 
-        sources = destination_coordinates[:-1]
-        destinations = destination_coordinates[1:]
-        start_well = destination_coordinates[0]
-        end_well = destination_coordinates[-1]
-        source_wells = (
-            f"Flatten[Transpose[AllWells[]]][{start_well} ;; {end_well} - 1]]"
-        )
-        destination_wells = (
-            f"Flatten[Transpose[AllWells[]]][{start_well} + 1 ;; {end_well}]]"
-        )
+        sources = ",".join(map(str, destination_coordinates[:-1]))
+        destinations = ",".join(map(str, destination_coordinates[1:]))
+        source_wells = f"Flatten[Transpose[AllWells[]]][[{sources}]]"
+        destination_wells = f"Flatten[Transpose[AllWells[]]][[{destinations}]]"
         self.script_steps += [
             f"""MapThread[
    Transfer[
@@ -421,15 +424,14 @@ def ecl_coordinates(samples: labop.SampleCollection, sample_format=Strings.XARRA
             samples.sample_coordinates(sample_format=sample_format, as_list=True),
             direction=Strings.COLUMN_DIRECTION,
         )
-        start = coordinates[0]
-        end = coordinates[-1]
 
         # Get destination container type
         samples = samples.source.lookup()
         container = samples.container_type.lookup()
         container_name = container.name if container.name else container.display_id
+        locations = ",".join(map(str, coordinates))
 
-        return f"""{{#, "{container_name}"}} & /@  Flatten[Transpose[AllWells[]]][[ {start} ;; {end}]]"""
+        return f"""{{#, "{container_name}"}} & /@  Flatten[Transpose[AllWells[]]][[ {locations}]]"""
     if type(samples) is labop.SampleArray:
         container = samples.container_type.lookup()
         container_name = container.name if container.name else container.display_id
