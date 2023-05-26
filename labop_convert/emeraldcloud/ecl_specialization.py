@@ -143,14 +143,19 @@ class ECLSpecialization(BehaviorSpecialization):
             parameter_value_map["resource"]["value"].identity
         ]
 
-        amount = ecl_measure(parameter_value_map["amount"]["value"])
+        if type(destination) is labop.SampleMask:
+            dest_container = destination.source.lookup().container_type.lookup()
+            dest_wells = f"\n    DestinationWells -> {ecl_coordinates(destination)},"
+        else:
+            dest_container = destination.container_type.lookup()
+            dest_wells = ""
 
+        amount = ecl_measure(parameter_value_map["amount"]["value"])
         text = f"""Transfer[
-    Source -> {resource},
-    Destination -> {ecl_coordinates(destination)},
+    Source -> Model[Sample, StockSolution, {resource}],
+    Destination -> "{dest_container}",{dest_wells}
     Amount -> {amount}
-    ]
-        """
+    ]"""
         self.script_steps += [text]
 
     def transfer_to(
@@ -159,19 +164,28 @@ class ECLSpecialization(BehaviorSpecialization):
         results = {}
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
-        destination = parameter_value_map["destination"]["value"]
         source = parameter_value_map["source"]["value"]
-        if type(source) is labop.SampleMask:
-            source = source.source.lookup()
-        source = self.resolutions[
-            source.container_type.lookup().identity
-        ]  # Map to ECL reagent identifier
+        destination = parameter_value_map["destination"]["value"]
         amount = ecl_measure(parameter_value_map["amount"]["value"])
 
+        if type(source) is labop.SampleMask:
+            source_container = source.source.lookup().container_type.lookup()
+            source_wells = f"\n    SourceWells -> {ecl_coordinates(source)},"
+        else:
+            source_container = source.container_type.lookup()
+            source_wells = ""
+
+        if type(destination) is labop.SampleMask:
+            dest_container = destination.source.lookup().container_type.lookup()
+            dest_wells = f"\n    DestinationWells -> {ecl_coordinates(destination)},"
+        else:
+            dest_container = destination.container_type.lookup()
+            dest_wells = ""
+
         text = f"""Transfer[
-    Source -> Model[Sample, StockSolution, {source}],
-    Amount -> {amount},
-    Destination -> {ecl_coordinates(destination)}
+    Source -> "{source_container.name}",{source_wells}
+    Destination -> "{dest_container.name}",{dest_wells}
+    Amount -> {amount}
     ]"""
         self.script_steps += [text]
 
@@ -462,9 +476,5 @@ def ecl_coordinates(samples: labop.SampleCollection, sample_format=Strings.XARRA
         locations = ",".join(map(str, coordinates))
 
         return f"""{{#, "{container_name}"}} & /@  Flatten[Transpose[AllWells[]]][[ {locations}]]"""
-    if type(samples) is labop.SampleArray:
-        container = samples.container_type.lookup()
-        container_name = container.name if container.name else container.display_id
-        return f'"{container_name}"'
 
     raise TypeError()
