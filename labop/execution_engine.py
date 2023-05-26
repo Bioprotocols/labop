@@ -315,6 +315,11 @@ class ExecutionEngine(ABC):
             for n in updated_clusters
             if n.enabled(self, self.candidate_clusters[n.identity])
         ]
+
+        # clear candidate clusters for enabled nodes
+        for n in enabled_nodes:
+            self.candidate_clusters[n.identity] = []
+
         enabled_nodes.sort(
             key=lambda x: x.identity
         )  # Avoid any ordering non-determinism

@@ -107,7 +107,6 @@ class TestProtocolEndToEnd(unittest.TestCase):
                     f"target_{Strings.CONTAINER}",
                     f"target_{Strings.LOCATION}",
                 ),
-                attrs={"units": "uL"},
                 coords={
                     f"source_{Strings.CONTAINER}": [source_spec.name],
                     f"source_{Strings.LOCATION}": aliquot_ids,

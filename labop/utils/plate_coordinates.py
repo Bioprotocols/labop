@@ -7,6 +7,8 @@ from string import ascii_letters
 
 import numpy as np
 
+from labop.strings import Strings
+
 
 def get_sample_list(geometry="A1:H12"):
     rects = geometry.split(",")
@@ -139,7 +141,7 @@ def coordinate_rect_to_row_col_pairs(coords: str) -> list:
     raise Exception(f"Invalid coordinates: {coords}")
 
 
-def flatten_coordinates(coords: str):
+def flatten_coordinates(coords: str, direction=Strings.ROW_DIRECTION):
     """
     Convert a list strings, e.g. ["A1", "A2", ...]  or string representation of coordinate rectange, e.g., "A1:H12"  to a list of flat indices, e.g., (1, 2, ..., 96).
 
@@ -155,4 +157,11 @@ def flatten_coordinates(coords: str):
     """
 
     pairs = roboticize_2D(coords)
-    return [i_row * 12 + i_col + 1 for i_row, i_col in pairs]
+    if direction == Strings.ROW_DIRECTION:
+        return [i_row * 12 + i_col + 1 for i_row, i_col in pairs]
+    elif direction == Strings.COLUMN_DIRECTION:
+        return [i_row * 12 + i_col + 1 for i_row, i_col in pairs]
+    else:
+        raise Exception(
+            f"Don't know how to flatten coordinates in the direction: {direction}."
+        )

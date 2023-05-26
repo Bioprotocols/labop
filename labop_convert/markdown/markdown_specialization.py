@@ -1118,6 +1118,13 @@ class MarkdownSpecialization(BehaviorSpecialization):
         record: labop.ActivityNodeExecution,
         execution: labop.ProtocolExecution,
     ):
+        # FIXME:
+        # num transfers: from samplegraph
+        # fold-dilution: from samplegraph,  * need diluent *
+        # Start: param
+        # End: param
+        # final vol: sample graph
+
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
         samples = parameter_value_map["samples"]["value"]

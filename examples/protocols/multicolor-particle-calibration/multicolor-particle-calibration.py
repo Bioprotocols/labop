@@ -9,7 +9,10 @@ import subprocess
 import sys
 
 import sbol3
+from pint import Measurement
 from tyto import OM
+
+import labop
 
 NAMESPACE = "http://igem.org/engineering/"
 PROTOCOL_NAME = "interlab"
@@ -25,6 +28,24 @@ if not os.path.exists(OUT_DIR):
     os.mkdir(OUT_DIR)
 
 filename = "".join(__file__.split(".py")[0].split("/")[-1:])
+
+
+def generate_resuspend_subprotocol(doc: sbol3.Document):
+    subprotocol = labop.Protocol("Resuspend")
+    doc.add(subprotocol)
+    source = subprotocol.input_value("source", labop.SampleCollection)
+    destination = subprotocol.input_value("destination", labop.SampleCollection)
+    amount = subprotocol.input_value("amount", sbol3.Measure)
+    suspend_reagent = subprotocol.primitive_step(
+        "Transfer", source=source, destination=destination, amount=amount
+    )
+    vortex = subprotocol.primitive_step(
+        "Vortex",
+        samples=source,
+        duration=sbol3.Measure(30, OM.second),
+    )
+    subprotocol.order(vortex, subprotocol.final())
+    return subprotocol
 
 
 def generate_protocol():
@@ -93,6 +114,8 @@ Plate readers report fluorescence values in arbitrary units that vary widely fro
 Adapted from [https://dx.doi.org/10.17504/protocols.io.bht7j6rn](https://dx.doi.org/10.17504/protocols.io.bht7j6r) and [https://dx.doi.org/10.17504/protocols.io.6zrhf56](https://dx.doi.org/10.17504/protocols.io.6zrhf56)
     """
     doc.add(protocol)
+
+    resuspend_subprotocol = generate_resuspend_subprotocol(doc)
 
     # Provision an empty Microfuge tube in which to mix the standard solution
 
@@ -237,7 +260,7 @@ Adapted from [https://dx.doi.org/10.17504/protocols.io.bht7j6rn](https://dx.doi.
 
     ### Suspend calibrant dry reagents
     suspend_fluorescein = protocol.primitive_step(
-        "Transfer",
+        resuspend_subprotocol,
         source=pbs_container.output_pin("samples"),
         destination=fluorescein_standard_solution_container.output_pin("samples"),
         amount=sbol3.Measure(1, OM.millilitre),
@@ -247,52 +270,29 @@ Adapted from [https://dx.doi.org/10.17504/protocols.io.bht7j6rn](https://dx.doi.
     )
     suspend_fluorescein.description = f"The reconstituted `{fluorescein.name}` should have a final concentration of 10 uM in `{pbs.name}`."
 
-    vortex_fluorescein = protocol.primitive_step(
-        "Vortex",
-        samples=fluorescein_standard_solution_container.output_pin("samples"),
-        duration=sbol3.Measure(30, OM.second),
-    )
-
     suspend_sulforhodamine = protocol.primitive_step(
-        "Transfer",
+        resuspend_subprotocol,
         source=pbs_container.output_pin("samples"),
         destination=sulforhodamine_standard_solution_container.output_pin("samples"),
         amount=sbol3.Measure(1, OM.millilitre),
     )
     suspend_sulforhodamine.description = f"The reconstituted `{sulforhodamine.name}` standard will have a final concentration of 2 uM in `{pbs.name}`."
 
-    vortex_sulforhodamine = protocol.primitive_step(
-        "Vortex",
-        samples=sulforhodamine_standard_solution_container.output_pin("samples"),
-        duration=sbol3.Measure(30, OM.second),
-    )
-
     suspend_cascade_blue = protocol.primitive_step(
-        "Transfer",
+        resuspend_subprotocol,
         source=ddh2o_container.output_pin("samples"),
         destination=cascade_blue_standard_solution_container.output_pin("samples"),
         amount=sbol3.Measure(1, OM.millilitre),
     )
     suspend_cascade_blue.description = f"The reconstituted `{cascade_blue.name}` calibrant will have a final concentration of 10 uM in `{ddh2o.name}`."
 
-    vortex_cascade_blue = protocol.primitive_step(
-        "Vortex",
-        samples=cascade_blue_standard_solution_container.output_pin("samples"),
-        duration=sbol3.Measure(30, OM.second),
-    )
-
     suspend_silica_beads = protocol.primitive_step(
-        "Transfer",
+        resuspend_subprotocol,
         source=ddh2o_container.output_pin("samples"),
         destination=microsphere_standard_solution_container.output_pin("samples"),
         amount=sbol3.Measure(1, OM.millilitre),
     )
     suspend_silica_beads.description = f"The resuspended `{silica_beads.name}` will have a final concentration of 3e9 microspheres/mL in `{ddh2o.name}`."
-    vortex_microspheres = protocol.primitive_step(
-        "Vortex",
-        samples=microsphere_standard_solution_container.output_pin("samples"),
-        duration=sbol3.Measure(30, OM.second),
-    )
 
     # Transfer to plate
     calibration_plate = protocol.primitive_step(
@@ -485,7 +485,8 @@ Adapted from [https://dx.doi.org/10.17504/protocols.io.bht7j6rn](https://dx.doi.
     serial_dilution1 = protocol.primitive_step(
         "SerialDilution",
         samples=dilution_series1.output_pin("samples"),
-        amount=sbol3.Measure(200, OM.microlitre),
+        amount=sbol3.Measure(100, OM.microlitre),
+        direction=labop.Strings.ROW_DIRECTION,
     )
     serial_dilution1.description = "For each 100.0 microliter transfer, pipette up and down 3X to ensure the dilution is mixed homogeneously."
 
@@ -503,49 +504,56 @@ Adapted from [https://dx.doi.org/10.17504/protocols.io.bht7j6rn](https://dx.doi.
     serial_dilution2 = protocol.primitive_step(
         "SerialDilution",
         samples=dilution_series2.output_pin("samples"),
-        amount=sbol3.Measure(200, OM.microlitre),
+        amount=sbol3.Measure(100, OM.microlitre),
+        direction=labop.Strings.ROW_DIRECTION,
     )
     serial_dilution2.description = "For each 100.0 microliter transfer, pipette up and down 3X to ensure the dilution is mixed homogeneously."
 
     serial_dilution3 = protocol.primitive_step(
         "SerialDilution",
         samples=dilution_series3.output_pin("samples"),
-        amount=sbol3.Measure(200, OM.microlitre),
+        amount=sbol3.Measure(100, OM.microlitre),
+        direction=labop.Strings.ROW_DIRECTION,
     )
     serial_dilution3.description = "For each 100.0 microliter transfer, pipette up and down 3X to ensure the dilution is mixed homogeneously."
 
     serial_dilution4 = protocol.primitive_step(
         "SerialDilution",
         samples=dilution_series4.output_pin("samples"),
-        amount=sbol3.Measure(200, OM.microlitre),
+        amount=sbol3.Measure(100, OM.microlitre),
+        direction=labop.Strings.ROW_DIRECTION,
     )
     serial_dilution4.description = "For each 100.0 microliter transfer, pipette up and down 3X to ensure the dilution is mixed homogeneously."
 
     serial_dilution5 = protocol.primitive_step(
         "SerialDilution",
         samples=dilution_series5.output_pin("samples"),
-        amount=sbol3.Measure(200, OM.microlitre),
+        amount=sbol3.Measure(100, OM.microlitre),
+        direction=labop.Strings.ROW_DIRECTION,
     )
     serial_dilution5.description = "For each 100.0 microliter transfer, pipette up and down 3X to ensure the dilution is mixed homogeneously."
 
     serial_dilution6 = protocol.primitive_step(
         "SerialDilution",
         samples=dilution_series6.output_pin("samples"),
-        amount=sbol3.Measure(200, OM.microlitre),
+        amount=sbol3.Measure(100, OM.microlitre),
+        direction=labop.Strings.ROW_DIRECTION,
     )
     serial_dilution6.description = "For each 100.0 microliter transfer, pipette up and down 3X to ensure the dilution is mixed homogeneously."
 
     serial_dilution7 = protocol.primitive_step(
         "SerialDilution",
         samples=dilution_series7.output_pin("samples"),
-        amount=sbol3.Measure(200, OM.microlitre),
+        amount=sbol3.Measure(100, OM.microlitre),
+        direction=labop.Strings.ROW_DIRECTION,
     )
     serial_dilution7.description = "For each 100.0 microliter transfer, pipette up and down 3X to ensure the dilution is mixed homogeneously."
 
     serial_dilution8 = protocol.primitive_step(
         "SerialDilution",
         samples=dilution_series8.output_pin("samples"),
-        amount=sbol3.Measure(200, OM.microlitre),
+        amount=sbol3.Measure(100, OM.microlitre),
+        direction=labop.Strings.ROW_DIRECTION,
     )
     serial_dilution8.description = "For each 100.0 microliter transfer, pipette up and down 3X to ensure the dilution is mixed homogeneously."
 
@@ -1090,7 +1098,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "-g",
         "--generate-protocol",
-        default=False,
+        default=True,
         action="store_true",
         help=f"Generate the artifacts/{filename}-protocol.nt LabOP protocol file.",
     )
@@ -1126,7 +1134,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "-e",
         "--generate-emeraldcloud",
-        default=False,
+        default=True,
         action="store_true",
         help=f"Execute the protocol to generate the Emerald Cloud notebook at artifacts/{filename}-emeraldcloud.nb.",
     )

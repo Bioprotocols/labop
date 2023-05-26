@@ -174,7 +174,8 @@ transfer1 = protocol.primitive_step(
 blank_wells1 = protocol.primitive_step(
     "PlateCoordinates",
     source=calibration_plate.output_pin("samples"),
-    coordinates="B1:H1,A2:C2",
+    # coordinates="B1:H1,A2:C2",
+    coordinates="A2:A11",
 )
 
 transfer_blanks1 = protocol.primitive_step(
@@ -187,7 +188,8 @@ transfer_blanks1 = protocol.primitive_step(
 dilution_series1 = protocol.primitive_step(
     "PlateCoordinates",
     source=calibration_plate.output_pin("samples"),
-    coordinates="A1:H1,A2:C2",
+    # coordinates="A1:H1,A2:C2",
+    coordinates="A1:A11",
 )
 serial_dilution1 = protocol.primitive_step(
     "SerialDilution",
@@ -201,7 +203,8 @@ serial_dilution1.description = "For each 100.0 microliter transfer, pipette up a
 read_wells1 = protocol.primitive_step(
     "PlateCoordinates",
     source=calibration_plate.output_pin("samples"),
-    coordinates="A1:H1,A2:C2",
+    # coordinates="A1:H1,A2:C2",
+    coordinates="A1:A11",
 )
 
 measure_fluorescence1 = protocol.primitive_step(
