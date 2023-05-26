@@ -160,7 +160,7 @@ def flatten_coordinates(coords: str, direction=Strings.ROW_DIRECTION):
     if direction == Strings.ROW_DIRECTION:
         return [i_row * 12 + i_col + 1 for i_row, i_col in pairs]
     elif direction == Strings.COLUMN_DIRECTION:
-        return [i_row * 12 + i_col + 1 for i_row, i_col in pairs]
+        return [i_col * 8 + i_row + 1 for i_row, i_col in pairs]
     else:
         raise Exception(
             f"Don't know how to flatten coordinates in the direction: {direction}."
