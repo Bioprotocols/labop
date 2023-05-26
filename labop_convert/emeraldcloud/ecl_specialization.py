@@ -333,8 +333,8 @@ class ECLSpecialization(BehaviorSpecialization):
 
         sources = ",".join(map(str, destination_coordinates[:-1]))
         destinations = ",".join(map(str, destination_coordinates[1:]))
-        source_wells = f"Flatten[Transpose[AllWells[]]][{sources}]]"
-        destination_wells = f"Flatten[Transpose[AllWells[]]][{destinations}]]"
+        source_wells = f"Flatten[Transpose[AllWells[]]][[{sources}]]"
+        destination_wells = f"Flatten[Transpose[AllWells[]]][[{destinations}]]"
         self.script_steps += [
             f"""
 serialDilutionTransfers1 = MapThread[
