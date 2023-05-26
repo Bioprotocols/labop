@@ -70,6 +70,7 @@ class ECLSpecialization(BehaviorSpecialization):
             "https://bioprotocols.org/labop/primitives/sample_arrays/ConfigureRobot": self.configure_robot,
             "https://bioprotocols.org/labop/primitives/pcr/PCR": self.pcr,
             "https://bioprotocols.org/labop/primitives/liquid_handling/SerialDilution": self.serial_dilution,
+            "http://igem.org/engineering/Resuspend": self.resuspend,
         }
 
     def handle_process_failure(self, record, exception):
@@ -312,7 +313,8 @@ class ECLSpecialization(BehaviorSpecialization):
             destination_coordinates = flatten_coordinates(
                 destination.sample_coordinates(
                     sample_format=self.sample_format, as_list=True
-                )
+                ),
+                direction=Strings.COLUMN_DIRECTION,
             )
             destination = destination.source.lookup()
 
@@ -325,10 +327,10 @@ class ECLSpecialization(BehaviorSpecialization):
         start_well = destination_coordinates[0]
         end_well = destination_coordinates[-1]
         source_wells = (
-            f"Flatten[Transpose[AllWells[]]][{start_well} ;; {end_well} - 2]]"
+            f"Flatten[Transpose[AllWells[]]][{start_well} ;; {end_well} - 1]]"
         )
         destination_wells = (
-            f"Flatten[Transpose[AllWells[]]][{start_well} + 1 ;; {end_well} - 1]]"
+            f"Flatten[Transpose[AllWells[]]][{start_well} + 1 ;; {end_well}]]"
         )
         self.script_steps += [
             f"""
@@ -344,6 +346,47 @@ serialDilutionTransfers1 = MapThread[
      ] &,
    {{{source_wells},
      {destination_wells}}}]"""
+        ]
+
+    def resuspend(
+        self,
+        record: labop.ActivityNodeExecution,
+        execution: labop.ProtocolExecution,
+    ):
+        call = record.call.lookup()
+        parameter_value_map = call.parameter_value_map()
+
+        source = parameter_value_map["source"]["value"]
+        destination = parameter_value_map["destination"]["value"]
+        amount = ecl_measure(parameter_value_map["amount"]["value"])
+
+        if isinstance(source, labop.SampleMask):
+            source = source.source.lookup()
+        source_container = source.container_type.lookup()
+        source_container = source_container.name
+
+        if isinstance(destination, labop.SampleMask):
+            destination_coordinates = flatten_coordinates(
+                destination.sample_coordinates(
+                    sample_format=self.sample_format, as_list=True
+                ),
+                direction=Strings.COLUMN_DIRECTION,
+            )
+            destination = destination.source.lookup()
+
+        # Get destination container type
+        destination_container = destination.container_type.lookup()
+        destination_container = destination_container.name
+
+        self.script_steps += [
+            f"""
+   Resuspend[
+     Sample -> "{destination_container}",
+     Diluent -> "{source_container}",
+     Volume -> {amount},
+     DispenseNumberOfMixes -> 3,
+     DispenseMix -> True
+     ] """
         ]
 
 
@@ -376,7 +419,8 @@ def ecl_measure(measure: sbol3.Measure):
 def ecl_coordinates(samples: labop.SampleCollection, sample_format=Strings.XARRAY):
     if type(samples) is labop.SampleMask:
         coordinates = flatten_coordinates(
-            samples.sample_coordinates(sample_format=sample_format, as_list=True)
+            samples.sample_coordinates(sample_format=sample_format, as_list=True),
+            direction=Strings.COLUMN_DIRECTION,
         )
         start = coordinates[0]
         end = coordinates[-1]

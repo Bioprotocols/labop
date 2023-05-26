@@ -1193,19 +1193,24 @@ def activity_parameter_node_next_tokens_callback(
     node_outputs: Callable,
 ) -> List[labop.ActivityEdgeFlow]:
     if self.parameter.lookup().property_value.direction == uml.PARAMETER_IN:
-        try:
-            parameter_value = next(
-                pv.value
-                for pv in engine.ex.parameter_values
-                if pv.parameter == self.parameter
-            )
-        except StopIteration as e:
+        if len(source.incoming_flows) > 0:
+            parameter_value = source.incoming_flows[0].lookup().value
+        else:
             try:
-                parameter_value = self.parameter.lookup().property_value.default_value
-            except Exception as e:
-                raise Exception(
-                    f"ERROR: Could not find input parameter {self.parameter.lookup().property_value.name} value and/or no default_value."
+                parameter_value = next(
+                    pv.value
+                    for pv in engine.ex.parameter_values
+                    if pv.parameter == self.parameter
                 )
+            except StopIteration as e:
+                try:
+                    parameter_value = (
+                        self.parameter.lookup().property_value.default_value
+                    )
+                except Exception as e:
+                    raise Exception(
+                        f"ERROR: Could not find input parameter {self.parameter.lookup().property_value.name} value and/or no default_value."
+                    )
         edge_tokens = [
             labop.ActivityEdgeFlow(
                 edge=edge,
@@ -1446,9 +1451,9 @@ def input_pin_next_tokens_callback(
     out_edges: List[uml.ActivityEdge],
     node_outputs: Callable,
 ) -> List[labop.ActivityEdgeFlow]:
-    assert len(source.incoming_flows) == len(
-        engine.ex.protocol.lookup().incoming_edges(source.node.lookup())
-    )
+    # assert len(source.incoming_flows) == len(
+    #     engine.ex.protocol.lookup().incoming_edges(source.node.lookup())
+    # )
     incoming_flows = [f.lookup() for f in source.incoming_flows]
     pin_values = [
         uml.literal(value=incoming_flow.value, reference=True)

@@ -84,7 +84,7 @@ class BehaviorSpecialization(ABC):
             # Subprotocol specializations
             behavior = node.behavior.lookup()
             if isinstance(behavior, labop.Protocol):
-                return self._behavior_func_map[behavior.type_uri](record, execution)
+                return self._behavior_func_map[behavior.identity](record, execution)
 
             # Individual Primitive specializations
             elif str(node.behavior) not in self._behavior_func_map:

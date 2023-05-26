@@ -15,6 +15,7 @@ from container_api.client_api import matching_containers, strateos_id
 
 import labop
 import labop_convert.autoprotocol.plate_coordinates as pc
+from labop.strings import Strings
 from labop_convert.autoprotocol.strateos_api import StrateosAPI
 from labop_convert.behavior_specialization import BehaviorSpecialization, ContO
 
@@ -408,14 +409,14 @@ class AutoprotocolSpecialization(BehaviorSpecialization):
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
 
-        source = parameter_value_map["source"]["value"]
-        destination = parameter_value_map["destination"]["value"]
-        diluent = parameter_value_map["diluent"]["value"]
+        destination = parameter_value_map["samples"]["value"]
         amount = parameter_value_map["amount"]["value"]
-        dilution_factor = parameter_value_map["dilution_factor"]["value"]
-        xfer_vol = amount.value / dilution_factor
-        xfer_vol = Unit(xfer_vol, tyto.OM.get_term_by_uri(amount.unit))
-        series = parameter_value_map["series"]["value"]
+        direction = parameter_value_map["direction"]["value"]
+        xfer_vol = Unit(amount.value, tyto.OM.get_term_by_uri(amount.unit))
+
+        assert (
+            direction == Strings.ROW_DIRECTION
+        ), "The AutoprotocolSpecialization only supports serial dilution in the row direction."
         container = self.var_to_entity[destination.identity]
         coordinates = destination.get_coordinates()
         if len(coordinates) < 2:
