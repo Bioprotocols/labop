@@ -114,7 +114,7 @@ class ECLSpecialization(BehaviorSpecialization):
         container = ecl_container(selected_container_type)
 
         # SampleArray fields are initialized in primitive_execution.py
-        text = f"""{spec.display_id} = LabelContainer[
+        text = f"""LabelContainer[
     Label -> "{name}",
     Container -> {container}]"""
         self.script_steps += [text]
@@ -331,8 +331,7 @@ class ECLSpecialization(BehaviorSpecialization):
             f"Flatten[Transpose[AllWells[]]][{start_well} + 1 ;; {end_well} - 1]]"
         )
         self.script_steps += [
-            f"""
-serialDilutionTransfers1 = MapThread[
+            f"""MapThread[
    Transfer[
      Source -> "{source_container}",
      Destination -> "{destination_container}",
@@ -342,7 +341,7 @@ serialDilutionTransfers1 = MapThread[
      SlurryTransfer -> True,
      DispenseMix -> True
      ] &,
-   {{{source_wells},
+   [{{{source_wells},
      {destination_wells}}}]"""
         ]
 
