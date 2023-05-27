@@ -25,3 +25,4 @@ test/out
 out
 .coverage
 cov.xml
+**/sample_graph_*
