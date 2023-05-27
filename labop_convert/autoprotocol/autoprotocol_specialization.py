@@ -2,11 +2,12 @@ import json
 import logging
 from typing import Dict
 
+import coordinate_rect_to_row_col_pairs
 import sbol3
 import transcriptic
 import tyto
 from autoprotocol import container_type as ctype
-from autoprotocol.container import WellGroup
+from autoprotocol.container import Container, WellGroup
 from autoprotocol.instruction import Provision, Spectrophotometry
 from autoprotocol.protocol import Protocol
 from autoprotocol.unit import Unit
@@ -19,6 +20,17 @@ from labop_convert.behavior_specialization import BehaviorSpecialization
 
 l = logging.getLogger(__file__)
 l.setLevel(logging.ERROR)
+
+
+"""
+Autoprotocol specific extensions for Autoprotocol containers
+"""
+
+
+def coordinate_rect_to_well_group(container: Container, coordinates: str):
+    indices = coordinate_rect_to_row_col_pairs(coordinates)
+    wells = [container.well_from_coordinates(i, j) for i, j in indices]
+    return WellGroup(wells)
 
 
 class AutoprotocolSpecialization(BehaviorSpecialization):

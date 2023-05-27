@@ -2,7 +2,12 @@ from setuptools import setup
 
 test_deps = ["nbmake", "pytest-xdist", "pre-commit", "nbstripout"]
 notebook_deps = ["ipython", "ipywidgets"]
-extras = {"test": test_deps, "notebook": notebook_deps}
+autoprotocol_deps = ["autoprotocol", "transcriptic"]
+extras = {
+    "test": test_deps,
+    "notebook": notebook_deps,
+    "autoprotocol": autoprotocol_deps,
+}
 
 setup(
     name="labop",
@@ -18,8 +23,6 @@ setup(
         "tyto>=1.3",
         "numpy",
         "openpyxl",
-        "autoprotocol",
-        "transcriptic",
         "requests_html",
         "container-ontology @ https://github.com/rpgoldman/container-ontology/tarball/main",
         "xarray",
