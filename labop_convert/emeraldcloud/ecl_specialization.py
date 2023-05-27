@@ -258,7 +258,7 @@ class ECLSpecialization(BehaviorSpecialization):
         text = f"""FluorescenceIntensity[
       Sample -> "{container_name}",
       ExcitationWavelength -> {excitation},
-      EmissionWavelength -> {emission},
+      EmissionWavelength -> {emission}
       ]"""
         self.script_steps += [text]
 
@@ -377,8 +377,8 @@ class ECLSpecialization(BehaviorSpecialization):
 
         sources = ",".join(map(str, destination_coordinates[:-1]))
         destinations = ",".join(map(str, destination_coordinates[1:]))
-        source_wells = f"Flatten[Transpose[AllWells[]]][[ {sources} ]]"
-        destination_wells = f"Flatten[Transpose[AllWells[]]][[ {destinations} ]]"
+        source_wells = f"Flatten[Transpose[AllWells[]]][ {sources} ]"
+        destination_wells = f"Flatten[Transpose[AllWells[]]][ {destinations} ]"
         self.script_steps += [
             f"""MapThread[
    Transfer[
@@ -389,9 +389,9 @@ class ECLSpecialization(BehaviorSpecialization):
      Amount -> {amount},
      SlurryTransfer -> True,
      DispenseMix -> True
-     ] &,
-   [{{{source_wells},
-     {destination_wells}}}]]"""
+     ] &
+   [{source_wells},
+     {destination_wells}]]"""
         ]
 
     def resuspend(
@@ -475,6 +475,6 @@ def ecl_coordinates(samples: labop.SampleCollection, sample_format=Strings.XARRA
         container_name = container.name if container.name else container.display_id
         locations = ",".join(map(str, coordinates))
 
-        return f"""{{#, "{container_name}"}} & /@  Flatten[Transpose[AllWells[]]][[ {locations} ]]"""
+        return f"""{{#, "{container_name}"}} & /@  Flatten[Transpose[AllWells[]]][ {locations} ]"""
 
     raise TypeError()

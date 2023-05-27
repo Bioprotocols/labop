@@ -24,3 +24,4 @@ test/out
 .env
 out
 *.org
+**/sample_graph_**
