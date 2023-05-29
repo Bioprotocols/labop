@@ -10,15 +10,16 @@ import graphviz
 
 from . import inner
 from .literal_specification import LiteralSpecification
-from .utils import WellFormednessIssue, labop_hash, literal
+from .utils import WellFormednessIssue, WhereDefinedMixin, labop_hash, literal
 
 l = logging.getLogger(__file__)
 l.setLevel(logging.ERROR)
 
 
-class ActivityNode(inner.ActivityNode):
+class ActivityNode(inner.ActivityNode, WhereDefinedMixin):
     def __init__(self, *args, **kwargs):
-        super(ActivityNode, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
+        self._where_defined = self.get_where_defined()
 
     def to_dot(
         self,

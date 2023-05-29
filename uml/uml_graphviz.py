@@ -20,8 +20,10 @@ sbol3.Identified.dot_label = identified_dot_label  # Add to class via monkey pat
 def measure_str(self):
     if self.unit.startswith("http://www.ontology-of-units-of-measure.org"):
         unit = tyto.OM.get_term_by_uri(self.unit)
-    else:
+    elif "/" in self.unit:
         unit = self.unit.rsplit("/", maxsplit=1)[1]
+    else:
+        unit = ""
     return f"{self.value} {unit}"
 
 

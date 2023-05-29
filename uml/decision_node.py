@@ -21,6 +21,7 @@ from .utils import literal
 class DecisionNode(inner.DecisionNode, ControlNode):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self._where_defined = self.get_where_defined()
 
     def dot_attrs(self, incoming_edges: Dict["InputPin", List["ActivityEdge"]] = None):
         return {"label": "", "shape": "diamond"}

@@ -16,6 +16,7 @@ from .utils import WellFormednessError, WellFormednessIssue, literal
 class InputPin(inner.InputPin, Pin):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self._where_defined = self.get_where_defined()
 
     def dot_node_name(self):
         return self.name

@@ -231,7 +231,9 @@ overnight_culture = activity.primitive_step(
     growth_medium=lb_cam,
     volume=sbol3.Measure(5, OM.millilitre),  # Actually 5-10 ml in the written protocol
     duration=sbol3.Measure(16, OM.hour),  # Actually 16-18 hours
-    orbital_shake_speed=sbol3.Measure(220, None),  # No unit for RPM or inverse minutes
+    orbital_shake_speed=sbol3.Measure(
+        220, "None"
+    ),  # No unit for RPM or inverse minutes
     temperature=sbol3.Measure(37, OM.degree_Celsius),
     container=culture_container_day1.output_pin("samples"),
 )
@@ -298,7 +300,7 @@ baseline_absorbance.name = "baseline absorbance of culture (day 2)"
 
 # Every measurement primitive produces an output pin called `measurements` that must be designated as a protocol output
 activity.designate_output(
-    "measurements",
+    "baseline_absorbance_measurements",
     "http://bioprotocols.org/labop#SampleData",
     source=baseline_absorbance.output_pin("measurements"),
 )
@@ -324,7 +326,7 @@ dilution = activity.primitive_step(
     destination=conical_tube.output_pin("samples"),
     diluent=lb_cam,
     amount=sbol3.Measure(40, OM.millilitre),
-    target_od=sbol3.Measure(0.02, None),
+    target_od=sbol3.Measure(0.02, "None"),
     temperature=sbol3.Measure(4, OM.degree_Celsius),
 )  # Dilute to a target OD of 0.2, opaque container
 dilution.description = f"(This can be also performed on Ice)."
@@ -415,6 +417,7 @@ plate1 = activity.primitive_step(
 hold = activity.primitive_step("HoldOnIce", location=plate1.output_pin("samples"))
 
 plan = labop.SampleData(
+    from_samples=conical_tube.output_pin("samples"),
     values=quote(
         json.dumps(
             {
@@ -436,7 +439,7 @@ plan = labop.SampleData(
                 "16": "E10:H10",
             }
         )
-    )
+    ),
 )
 
 
@@ -482,12 +485,12 @@ fluorescence_plate1 = activity.primitive_step(
 fluorescence_plate1.name = "0 hr fluorescence timepoint"
 
 activity.designate_output(
-    "measurements",
+    "0_absorbance_measurements",
     "http://bioprotocols.org/labop#SampleData",
     source=absorbance_plate1.output_pin("measurements"),
 )
 activity.designate_output(
-    "measurements",
+    "0_fluorescence_measurements",
     "http://bioprotocols.org/labop#SampleData",
     source=fluorescence_plate1.output_pin("measurements"),
 )
@@ -512,7 +515,7 @@ incubate = activity.primitive_step(
     location=plate1.output_pin("samples"),
     duration=sbol3.Measure(6, OM.hour),
     temperature=sbol3.Measure(37, OM.degree_Celsius),
-    shakingFrequency=sbol3.Measure(220, None),
+    shakingFrequency=sbol3.Measure(220, "None"),
 )
 
 absorbance_plate1 = activity.primitive_step(
@@ -542,12 +545,12 @@ fluorescence_plate1 = activity.primitive_step(
 )
 fluorescence_plate1.name = "fluorescence timepoint"
 activity.designate_output(
-    "measurements",
+    "246_absorbance_measurements",
     "http://bioprotocols.org/labop#SampleData",
     source=absorbance_plate1.output_pin("measurements"),
 )
 activity.designate_output(
-    "measurements",
+    "246_fluorescence_measurements",
     "http://bioprotocols.org/labop#SampleData",
     source=fluorescence_plate1.output_pin("measurements"),
 )
@@ -558,7 +561,7 @@ incubate = activity.primitive_step(
     location=timepoint_subculture1.output_pin("samples"),
     duration=sbol3.Measure(2, OM.hour),
     temperature=sbol3.Measure(37, OM.degree_Celsius),
-    shakingFrequency=sbol3.Measure(220, None),
+    shakingFrequency=sbol3.Measure(220, "None"),
 )
 
 # Hold on ice to inhibit cell growth
@@ -573,7 +576,7 @@ incubate = activity.primitive_step(
     location=timepoint_subculture2.output_pin("samples"),
     duration=sbol3.Measure(4, OM.hour),
     temperature=sbol3.Measure(37, OM.degree_Celsius),
-    shakingFrequency=sbol3.Measure(220, None),
+    shakingFrequency=sbol3.Measure(220, "None"),
 )
 hold = activity.primitive_step(
     "HoldOnIce", location=timepoint_subculture2.output_pin("samples")
@@ -586,7 +589,7 @@ incubate = activity.primitive_step(
     location=timepoint_subculture3.output_pin("samples"),
     duration=sbol3.Measure(6, OM.hour),
     temperature=sbol3.Measure(37, OM.degree_Celsius),
-    shakingFrequency=sbol3.Measure(220, None),
+    shakingFrequency=sbol3.Measure(220, "None"),
 )
 hold = activity.primitive_step(
     "HoldOnIce", location=timepoint_subculture3.output_pin("samples")
@@ -605,6 +608,7 @@ plates234 = activity.primitive_step(
 )
 
 plan = labop.SampleData(
+    from_samples=timepoint_subculture1.output_pin("samples"),
     values=quote(
         json.dumps(
             {
@@ -626,7 +630,7 @@ plan = labop.SampleData(
                 "16": "E10:H10",
             }
         )
-    )
+    ),
 )
 
 spec.name = "Tubes 1, 2 and 3"
@@ -666,12 +670,12 @@ fluorescence_plate = activity.primitive_step(
 fluorescence_plate.name = f"fluorescence timepoint"
 
 activity.designate_output(
-    "measurements",
+    "plates234_absorbance_measurements",
     "http://bioprotocols.org/labop#SampleData",
     source=absorbance_plate.output_pin("measurements"),
 )
 activity.designate_output(
-    "measurements",
+    "plates234_fluorescence_measurements",
     "http://bioprotocols.org/labop#SampleData",
     source=fluorescence_plate.output_pin("measurements"),
 )

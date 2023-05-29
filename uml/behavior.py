@@ -8,13 +8,14 @@ from . import inner
 from .ordered_property_value import OrderedPropertyValue
 from .parameter import Parameter
 from .strings import PARAMETER_IN, PARAMETER_OUT
-from .utils import WellFormednessIssue, literal
+from .utils import WellFormednessIssue, WhereDefinedMixin, literal
 from .value_specification import ValueSpecification
 
 
-class Behavior(inner.Behavior):
+class Behavior(inner.Behavior, WhereDefinedMixin):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self._where_defined = self.get_where_defined()
 
     def add_parameter(
         self,
@@ -143,13 +144,13 @@ class Behavior(inner.Behavior):
     ) -> Iterable[Union[Parameter, OrderedPropertyValue]]:
         # return [p.property_value for p in self.parameters]
         assert not (input_only and output_only)
-        return (
+        return [
             (p if ordered else p.property_value)
             for p in self.parameters
             if (not input_only or p.property_value.direction == PARAMETER_IN)
             and (not output_only or p.property_value.direction == PARAMETER_OUT)
             and (not required or p.property_value.required())
-        )
+        ]
 
     def get_ordered_parameters(self) -> List[Parameter]:
         return self.parameters

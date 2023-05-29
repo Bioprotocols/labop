@@ -22,7 +22,7 @@ from uml import (
     ObjectNode,
     ValueSpecification,
 )
-from uml.utils import WellFormednessError, WellFormednessIssue
+from uml.utils import WellFormednessError, WellFormednessIssue, WhereDefinedMixin
 
 from .library import import_library
 from .primitive import Primitive
@@ -37,6 +37,8 @@ class Protocol(inner.Protocol, Activity):
         super().__init__(*args, **kwargs)
         self._initial = self.initial()
         self._final = self.final()
+        self.order(self._initial, self._final)
+        self._where_defined = self.get_where_defined()
 
     def create_protocol(display_id="demo_protocol", name="DemonstrationProtocol"):
         logger.info("Creating protocol")

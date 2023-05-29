@@ -144,18 +144,20 @@ class WellFormednessIssue:
         self.object = object
         self.description = description
         self.suggestion = suggestion
-        frameinfo = getframeinfo(currentframe().f_back.f_back)
-        self.location = f"{frameinfo.filename}:{frameinfo.lineno}"
+        self.location = object.where_defined()
         self.level = WellformednessLevels.ERROR
 
     def __str__(self):
         try:
-            object_str = str(self.object)
+            object_str = str(self.object.identity)
+            if self.object.name:
+                object_str += f' "{self.object.name}"'
         except Exception as e:
             object_str = (
                 f"Error converting object of type {type(self.object)} to string: {e}"
             )
-        return f"{self.level}({object_str})[{self.location}]: {self.description} [{self.suggestion}]"
+        location_str = "\n".join(self.location)
+        return f"{self.level}({object_str}): {self.description} [{self.suggestion}]\nOccurred at:\n{location_str}"
 
 
 class WellFormednessError(WellFormednessIssue):
@@ -189,3 +191,49 @@ class WellFormednessInfo(WellFormednessIssue):
     ):
         super().__init__(object, description, suggestion)
         self.level = WellformednessLevels.INFO
+
+
+class WhereDefinedMixin(object):
+    labop_packages = ["labop/labop", "labop/uml"]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+    def is_in_labop(self, cf):
+        frameinfo = getframeinfo(cf)
+        return any(p in frameinfo.filename for p in self.labop_packages)
+
+    def get_defn_stack(self, cf, last=False):
+        parent_frame_info = []
+        if cf.f_back:
+
+            if not last:
+                # looking for outer call still
+                # stop recursion after next frame if the current frame is in labop, but the next is not.
+                next_is_last = self.is_in_labop(cf) and not self.is_in_labop(cf.f_back)
+                parent_frame_info = self.get_defn_stack(cf.f_back, last=next_is_last)
+                return parent_frame_info
+            else:
+                # Candidate outer call, is outer if no further outer calls found
+                # Try to find another outer call
+                parent_frame_info = self.get_defn_stack(cf.f_back, last=False)
+                if parent_frame_info == []:
+                    # did not find outer call
+                    return [self.frameinfo(cf, last=last)]
+                else:
+                    # found an outer call
+                    return parent_frame_info
+        else:
+            if last:
+                return [self.frameinfo(cf, last=last)]
+            else:
+                return []
+
+    def frameinfo(self, cf, last=False):
+        frameinfo = getframeinfo(cf)
+        context = "\n" + "\n".join(frameinfo.code_context) if last else ""
+        return f"{frameinfo.filename}:{frameinfo.lineno}{context}"
+
+    def get_where_defined(self):
+        cf = currentframe()
+        return self.get_defn_stack(cf)

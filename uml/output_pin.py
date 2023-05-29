@@ -13,6 +13,7 @@ from .utils import literal
 class OutputPin(inner.OutputPin, Pin):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self._where_defined = self.get_where_defined()
 
     def get_value(
         self,

@@ -22,6 +22,7 @@ from .value_pin import ValuePin
 class Action(inner.Action, ExecutableNode):
     def __init__(self, *args, **kwargs):
         super(Action, self).__init__(*args, **kwargs)
+        self._where_defined = self.get_where_defined()
 
     def initialize_parameter_maps(self):
         self.pin_parameters = {}
@@ -182,6 +183,25 @@ class Action(inner.Action, ExecutableNode):
 
         required_parameters: List[Parameter] = []
         required_parameters += behavior.get_parameters(ordered=False, required=True)
+
+        all_parameters = behavior.get_parameters(ordered=False)
+
+        for pin in pins:
+            matching_parameter = None
+            for param in all_parameters:
+                if pin.name == param.name and (
+                    (param.is_input() and isinstance(pin, InputPin))
+                    or (param.is_output() and isinstance(pin, OutputPin))
+                ):
+                    matching_parameter = param
+                    break
+            if matching_parameter is None:
+                issues += [
+                    WellFormednessError(
+                        self,
+                        f"Action has a pin {pin.name} that does not correspond to a parameter.",
+                    )
+                ]
 
         for param in required_parameters:
             matching_pin = None

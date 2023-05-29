@@ -821,7 +821,7 @@ class MarkdownSpecialization(BehaviorSpecialization):
         duration = parameter_value_map["duration"]
         duration_scalar = duration.value
         duration_units = tyto.OM.get_term_by_uri(duration.unit)
-        orbital_shake_speed = parameter_value_map["orbital_shake_speed"]["value"]
+        orbital_shake_speed = parameter_value_map["orbital_shake_speed"]
         temperature = parameter_value_map["temperature"]
         temperature_scalar = temperature.value
         temperature_units = tyto.OM.get_term_by_uri(temperature.unit)

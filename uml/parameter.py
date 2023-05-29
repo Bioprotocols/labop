@@ -8,12 +8,18 @@ from typing import List
 from uml import PARAMETER_IN, PARAMETER_OUT
 
 from . import inner
-from .utils import WellFormednessInfo, WellFormednessIssue, labop_hash
+from .utils import (
+    WellFormednessInfo,
+    WellFormednessIssue,
+    WhereDefinedMixin,
+    labop_hash,
+)
 
 
-class Parameter(inner.Parameter):
+class Parameter(inner.Parameter, WhereDefinedMixin):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self._where_defined = self.get_where_defined()
 
     def __hash__(self) -> int:
         return labop_hash(self.identity)

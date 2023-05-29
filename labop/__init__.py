@@ -1,5 +1,5 @@
 import sbol3
-
+from typing import List
 from uml import assign_outer_class_builders
 import labop.inner as inner
 
@@ -68,6 +68,16 @@ def identified_get_toplevel(self):
 
 
 sbol3.Identified.get_toplevel = identified_get_toplevel
+
+
+def where_defined(self) -> List[str]:
+    if hasattr(self, "_where_defined"):
+        return self._where_defined
+    else:
+        return ["<location defined unknown>"]
+
+
+sbol3.Identified.where_defined = where_defined
 
 
 def __str__(self):

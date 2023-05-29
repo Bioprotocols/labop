@@ -13,12 +13,13 @@ from .input_pin import InputPin
 from .literal_null import LiteralNull
 from .output_pin import OutputPin
 from .pin import Pin
-from .utils import WellFormednessIssue
+from .utils import WellFormednessIssue, WhereDefinedMixin
 
 
-class ActivityEdge(inner.ActivityEdge):
+class ActivityEdge(inner.ActivityEdge, WhereDefinedMixin):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self._where_defined = self.get_where_defined()
 
     def get_source(self):
         return self.source.lookup() if self.source else self.source

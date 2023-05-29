@@ -76,6 +76,9 @@ class ExecutionContext(object):
             self.execution_trace.activity_call_edge.append(
                 ControlFlow(source=self.invoke_activity_node, target=self.final_node)
             )
+            self.execution_trace.activity_call_edge.append(
+                ControlFlow(source=self.initial_node, target=self.final_node)
+            )
 
             # self.invoke_activity_node.is_invocation = True
             # self.return_activity = CallBehaviorAction(

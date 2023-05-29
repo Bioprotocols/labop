@@ -71,11 +71,10 @@ class TestValidationErrorChecking(unittest.TestCase):
         # Validate the document, which should produce two errors
         print("Validating and writing protocol")
         v = doc.validate()
-        assert len(v) == 3, f"Expected 3 validation issues, but found {len(v)}"
+        assert len(v) == 2, f"Expected 2 validation issues, but found {len(v)}"
         expected = [
             "https://bbn.com/scratch/broken/ActivityParameterNode1: Too few values for property parameter. Expected 1, found 0",
             "https://bbn.com/scratch/broken/InitialNode1: InitialNode must have no incoming edges, but has 1",
-            "https://bbn.com/scratch/broken/FinalNode1: Node has no incoming edges, so cannot be executed",
         ]
         observed = [str(e) for e in v]
         assert observed == expected, f"Unexpected error content: {observed}"

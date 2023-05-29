@@ -18,6 +18,7 @@ class ActivityParameterNode(inner.ActivityParameterNode, ObjectNode):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         # self.name = self.parameter.name
+        self._where_defined = self.get_where_defined()
 
     def dot_attrs(self, incoming_edges: Dict["InputPin", List["ActivityEdge"]] = None):
         label = self.get_parameter().name
