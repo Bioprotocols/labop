@@ -174,11 +174,7 @@ class SampleArray(inner.SampleArray, SampleCollection):
         sample_array = deserialize_sample_format(self.initial_contents, parent=self)
         if sample_format == Strings.XARRAY:
             coords = sample_array.coords[Strings.SAMPLE].data.tolist()
-            plate_coords = get_sample_list("A1:H12")
-            if all([c in coords for c in plate_coords]):
-                return "A1:H12"
-            else:
-                return coords
+            return contiguous_coordinates(coords)
         else:
             return sample_array
 

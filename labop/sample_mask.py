@@ -68,7 +68,8 @@ class SampleMask(inner.SampleMask, SampleCollection):
         sample_array = self.to_masked_data_array()
 
         if sample_format == Strings.XARRAY:
-            return sample_array.coords[Strings.SAMPLE].data.tolist()
+            coords = sample_array.coords[Strings.SAMPLE].data.tolist()
+            return contiguous_coordinates(coords)
         else:
             return sample_array
 
