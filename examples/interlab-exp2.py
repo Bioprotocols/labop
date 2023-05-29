@@ -162,8 +162,24 @@ plasmids = [
 ]
 
 # Day 1: Transformation
+culture_plates = activity.primitive_step(
+    "CulturePlates",
+    quantity=len(plasmids),
+    specification=labop.ContainerSpec(
+        "transformant_strains",
+        name=f"transformant strains",
+        queryString="cont:PetriDish",
+        prefixMap={"cont": "https://sift.net/container-ontology/container-ontology#"},
+    ),
+    growth_medium=lb_cam,
+)
+
 transformation = activity.primitive_step(
-    f"Transform", host=dh5alpha, dna=plasmids, selection_medium=lb_cam
+    f"Transform",
+    host=dh5alpha,
+    dna=plasmids,
+    selection_medium=lb_cam,
+    destination=culture_plates.output_pin("samples"),
 )
 
 # Day 2: Pick colonies and culture overnight
@@ -279,6 +295,7 @@ dilution.description = " Use the provided Excel sheet to calculate this dilution
 embedded_image = activity.primitive_step(
     "EmbeddedImage",
     image="/Users/bbartley/Dev/git/sd2/labop/fig1_cell_calibration.png",
+    caption="Figure 1: Cell Calibration",
 )
 
 
@@ -376,6 +393,7 @@ plate_blanks.description = "These samples are blanks."
 embedded_image = activity.primitive_step(
     "EmbeddedImage",
     image="/Users/bbartley/Dev/git/sd2/labop/fig2_cell_calibration.png",
+    caption="Figure 2: Cell Calibration",
 )
 
 
