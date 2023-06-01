@@ -247,6 +247,7 @@ class ExecutionEngine(ABC):
                 self.tokens = [t for t in self.tokens if t not in tokens_removed]
 
                 new_tokens = new_tokens + tokens_added
+                self.tokens = self.tokens + tokens_added
                 record = self.ex.executions[-1]
                 self.post_process(record, new_tokens)
 
@@ -287,7 +288,7 @@ class ExecutionEngine(ABC):
                 else:
                     self.issues[self.ex.display_id].append(ExecutionError(e))
                     raise (e)
-        self.tokens = self.tokens + new_tokens
+        # self.tokens = self.tokens + new_tokens
         return self.executable_activity_nodes(new_tokens)
 
     def executable_activity_nodes(self, tokens_added) -> List[uml.ActivityNode]:

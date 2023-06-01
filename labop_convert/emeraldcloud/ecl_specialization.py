@@ -22,12 +22,16 @@ l.setLevel(logging.INFO)
 class ECLSpecialization(BehaviorSpecialization):
     MICROPLATE = "96 well microplate"
     MICROFUGE = "2 mL microfuge tube"
+    STOCK_REAGENT_2mL = "2mL stock reagent container"
+    STOCK_REAGENT_15mL = "15mL stock reagent container"
     STOCK_REAGENT = "stock reagent container"
     WASTE = "waste container"
     # Map terms in the Container ontology to OT2 API names
     LABWARE_MAP = {
         ContO[MICROPLATE]: "96-well Polystyrene Flat-Bottom Plate, Clear",
         ContO[MICROFUGE]: "2mL Tube",
+        ContO[STOCK_REAGENT_2mL]: "2mL Tube",
+        ContO[STOCK_REAGENT_15mL]: "15mL Tube",
         ContO[STOCK_REAGENT]: "2mL Tube",
         ContO[WASTE]: "2mL Tube",
     }
@@ -446,6 +450,15 @@ def ecl_container(container_type: tyto.URI):
     if container_type in ContO[ECLSpecialization.MICROFUGE].get_instances():
         container = ECLSpecialization.LABWARE_MAP[ContO[ECLSpecialization.MICROFUGE]]
         return f'Model[Container, Vessel, "{container}"]'
+    if container_type in ContO[ECLSpecialization.STOCK_REAGENT_15mL].get_instances():
+        container = ECLSpecialization.LABWARE_MAP[
+            ContO[ECLSpecialization.STOCK_REAGENT_15mL]
+        ]
+    if container_type in ContO[ECLSpecialization.STOCK_REAGENT_2mL].get_instances():
+        container = ECLSpecialization.LABWARE_MAP[
+            ContO[ECLSpecialization.STOCK_REAGENT_2mL]
+        ]
+        return f'Model[Container, Vessel, "{container}"]'
     raise Exception(
         f"Load failed. Container {container_type} is not supported labware."
     )
@@ -459,6 +472,11 @@ def ecl_measure(measure: sbol3.Measure):
         return text + " Nanometer"
     elif measure.unit == tyto.OM.milliliter:
         return text + " Milliliter"
+    elif measure.unit == tyto.OM.microgram:
+        return text + " Microgram"
+    elif measure.unit == tyto.OM.milligram:
+        return text + " Milligram"
+
     raise ValueError(tyto.OM.get_term_by_uri(measure.unit) + " is not a supported unit")
 
 

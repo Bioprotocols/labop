@@ -932,6 +932,15 @@ cont:StockReagent rdf:type owl:Class ;
                   rdfs:subClassOf cont:Container ;
                   rdfs:label "stock reagent container" .
 
+###  https://sift.net/container-ontology/container-ontology#StockReagent2mL
+cont:StockReagent2mL rdf:type owl:Class ;
+                  rdfs:subClassOf cont:Container ;
+                  rdfs:label "2mL stock reagent container" .
+
+###  https://sift.net/container-ontology/container-ontology#StockReagent15mL
+cont:StockReagent15mL rdf:type owl:Class ;
+                  rdfs:subClassOf cont:Container ;
+                  rdfs:label "15mL stock reagent container" .
 
 ###  https://sift.net/container-ontology/container-ontology#ThermoFisherCatalogEntry
 cont:ThermoFisherCatalogEntry rdf:type owl:Class ;
