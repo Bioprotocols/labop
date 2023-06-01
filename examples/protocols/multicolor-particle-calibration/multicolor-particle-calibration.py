@@ -993,30 +993,6 @@ def generate_emeraldcloud_specialization(protocol, doc):
         cascade_blue.identity: "1x PBS, 10uM Fluorescein",
         sulforhodamine.identity: "1x PBS, 10uM Fluorescein",
         silica_beads.identity: "Silica beads 2g/ml 950nm",
-        discard_container.input_pin("specification")
-        .value.value.lookup()
-        .identity: "2mL Tube",
-        fluorescein_standard_solution_container.input_pin("specification")
-        .value.value.lookup()
-        .identity: "1x PBS, 10uM Fluorescein",
-        sulforhodamine_standard_solution_container.input_pin("specification")
-        .value.value.lookup()
-        .identity: "1x PBS, 10uM Fluorescein",
-        cascade_blue_standard_solution_container.input_pin("specification")
-        .value.value.lookup()
-        .identity: "1x PBS, 10uM Fluorescein",
-        microsphere_standard_solution_container.input_pin("specification")
-        .value.value.lookup()
-        .identity: "Silica beads 2g/ml 950nm",
-        ddh2o_container.input_pin("specification")
-        .value.value.lookup()
-        .identity: "Nuclease-free Water",
-        pbs_container.input_pin("specification")
-        .value.value.lookup()
-        .identity: "1x PBS from 10X stock",
-        calibration_plate.input_pin("specification")
-        .value.value.lookup()
-        .identity: "96-well Polystyrene Flat-Bottom Plate, Clear",
     }
     ecl_specialization = ECLSpecialization(ecl_output, resolutions=resolutions)
 
