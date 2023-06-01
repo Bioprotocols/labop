@@ -807,6 +807,7 @@ uml.FlowFinalNode.execute_callback = flow_final_node_execute_callback
 
 def get_calling_behavior_execution(
     self: labop.ActivityNodeExecution,
+    engine: ExecutionEngine,
     visited: Set[labop.ActivityNodeExecution] = None,
 ) -> labop.ActivityNodeExecution:
     """Look for the InitialNode for the Activity including self and identify a Calling CallBehaviorExecution (if present)
@@ -818,37 +819,57 @@ def get_calling_behavior_execution(
         labop.CallBehaviorExecution: CallBehaviorExecution
     """
     node = self.node.lookup()
-    if visited is None:
-        visited = set({})
-    if isinstance(node, uml.InitialNode):
-        # Check if there is a CallBehaviorExecution incoming_flow
-        try:
-            caller = next(
-                n.lookup().token_source.lookup()
-                for n in self.incoming_flows
-                if isinstance(
-                    n.lookup().token_source.lookup(),
-                    labop.CallBehaviorExecution,
-                )
+    protocol = node.protocol()
+    initial = protocol.initial()
+    initial_execution = next(
+        e for e in reversed(engine.ex.executions) if e.node == initial.identity
+    )
+    incoming_initial_flows = initial_execution.incoming_flows
+    try:
+        caller = next(
+            n.lookup().token_source.lookup()
+            for n in reversed(incoming_initial_flows)
+            if isinstance(
+                n.lookup().token_source.lookup(),
+                labop.CallBehaviorExecution,
             )
-        except StopIteration:
-            return None
-        return caller
-    else:
-        for incoming_flow in self.incoming_flows:
-            parent_activity_node = incoming_flow.lookup().token_source.lookup()
-            if (
-                parent_activity_node
-                and (parent_activity_node not in visited)
-                and parent_activity_node.node.lookup().protocol() == node.protocol()
-            ):
-                visited.add(parent_activity_node)
-                calling_behavior_execution = (
-                    parent_activity_node.get_calling_behavior_execution(visited=visited)
-                )
-                if calling_behavior_execution:
-                    return calling_behavior_execution
+        )
+    except StopIteration:
         return None
+    return caller
+
+    # node = self.node.lookup()
+    # if visited is None:
+    #     visited = set({})
+    # if isinstance(node, uml.InitialNode):
+    #     # Check if there is a CallBehaviorExecution incoming_flow
+    #     try:
+    #         caller = next(
+    #             n.lookup().token_source.lookup()
+    #             for n in self.incoming_flows
+    #             if isinstance(
+    #                 n.lookup().token_source.lookup(),
+    #                 labop.CallBehaviorExecution,
+    #             )
+    #         )
+    #     except StopIteration:
+    #         return None
+    #     return caller
+    # else:
+    #     for incoming_flow in self.incoming_flows:
+    #         parent_activity_node = incoming_flow.lookup().token_source.lookup()
+    #         if (
+    #             parent_activity_node
+    #             and (parent_activity_node not in visited)
+    #             and parent_activity_node.node.lookup().protocol() == node.protocol()
+    #         ):
+    #             visited.add(parent_activity_node)
+    #             calling_behavior_execution = (
+    #                 parent_activity_node.get_calling_behavior_execution(visited=visited)
+    #             )
+    #             if calling_behavior_execution:
+    #                 return calling_behavior_execution
+    #     return None
 
 
 labop.ActivityNodeExecution.get_calling_behavior_execution = (
@@ -878,7 +899,7 @@ def call_behavior_execution_complete_subprotocol(
         t.token_source.lookup().node.lookup().parameter.lookup().property_value.name: t
         for t in engine.tokens
         if isinstance(t.token_source.lookup().node.lookup(), uml.ActivityParameterNode)
-        and self == t.token_source.lookup().get_calling_behavior_execution()
+        and self == t.token_source.lookup().get_calling_behavior_execution(engine)
     }
 
     # Out edges of calling behavior that need tokens corresponding to the
@@ -933,7 +954,7 @@ def final_node_next_tokens_callback(
     out_edges: List[uml.ActivityEdge],
     node_outputs: Callable,
 ) -> List[labop.ActivityEdgeFlow]:
-    calling_behavior_execution = source.get_calling_behavior_execution()
+    calling_behavior_execution = source.get_calling_behavior_execution(engine)
     if calling_behavior_execution:
         new_tokens = calling_behavior_execution.complete_subprotocol(engine)
         return new_tokens
@@ -1220,7 +1241,7 @@ def activity_parameter_node_next_tokens_callback(
             for edge in out_edges
         ]
     else:
-        calling_behavior_execution = source.get_calling_behavior_execution()
+        calling_behavior_execution = source.get_calling_behavior_execution(engine)
         if calling_behavior_execution:
             return_edge = uml.ObjectFlow(
                 source=self,
