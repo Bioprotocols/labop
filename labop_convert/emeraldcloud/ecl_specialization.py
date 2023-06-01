@@ -147,6 +147,7 @@ class ECLSpecialization(BehaviorSpecialization):
             parameter_value_map["resource"]["value"].identity
         ]
 
+        self.resolutions[destination.identity] = resource
         if type(destination) is labop.SampleMask:
             dest_container = destination.source.lookup().container_type.lookup()
             dest_wells = f"\n    DestinationWells -> {ecl_coordinates(destination)},"
@@ -174,6 +175,7 @@ class ECLSpecialization(BehaviorSpecialization):
 
         if type(source) is labop.SampleMask:
             source_container = source.source.lookup().container_type.lookup()
+
             source_wells = f"\n    SourceWells -> {ecl_coordinates(source)},"
         else:
             source_container = source.container_type.lookup()
@@ -186,8 +188,14 @@ class ECLSpecialization(BehaviorSpecialization):
             dest_container = destination.container_type.lookup()
             dest_wells = ""
 
+        if source_container.identity in self.resolutions:
+            resource = self.resolutions[source_container.identity]
+            resource = f"Model[StockSolution, {resource}]"
+        else:
+            resource = f'"{source_container.name}"'
+
         text = f"""Transfer[
-    Source -> "{source_container.name}",{source_wells}
+    Source -> {resource},{source_wells}
     Destination -> "{dest_container.name}",{dest_wells}
     Amount -> {amount}
     ]"""
