@@ -41,7 +41,10 @@ class ECLSpecialization(BehaviorSpecialization):
     }
 
     def __init__(
-        self, filename, resolutions: Dict[sbol3.Identified, str] = None
+        self,
+        filename,
+        resolutions: Dict[sbol3.Identified, str] = None,
+        create_stock_solutions=False,
     ) -> None:
         super().__init__()
         self.resolutions = resolutions if resolutions else {}
@@ -55,9 +58,10 @@ class ECLSpecialization(BehaviorSpecialization):
             filename += ".ecl"
         self.filename = filename
         self.sample_format = Strings.XARRAY
+        self.create_stock_solutions = create_stock_solutions
         self.mapped_subprotocols = {
-            # "http://igem.org/engineering/Resuspend"
-            "http://igem.org/engineering/PrepareSolution": self.prepare_solution
+            "http://igem.org/engineering/Resuspend": self.resuspend,
+            "http://igem.org/engineering/PrepareSolution": self.prepare_solution,
         }
         self.current_independent_subprotocol = None
 
@@ -92,10 +96,10 @@ class ECLSpecialization(BehaviorSpecialization):
             "https://bioprotocols.org/labop/primitives/liquid_handling/SerialDilution": self.serial_dilution,
             "https://bioprotocols.org/labop/primitives/spectrophotometry/MeasureFluorescence": self.measure_fluorescence,
             "http://igem.org/engineering/PrepareReagents": self.prepare_reagents,
-            # "http://igem.org/engineering/PrepareSolution": {
-            #     "start": self.prepare_solution,
-            #     "end": self.finalize_prepare_solution,
-            # },
+            "http://igem.org/engineering/PrepareSolution": {
+                "start": self.prepare_solution,
+                "end": self.finalize_prepare_solution,
+            },
         }
 
     def handle_process_failure(self, record, exception):
@@ -119,17 +123,21 @@ class ECLSpecialization(BehaviorSpecialization):
             self.data = self.script
 
     def _compile_script(self):
-        script = "\n".join(
-            [
-                f"""subprotocol_{k.replace(" ", "_")} = {v[0] + ",".join(v[1:-1])+v[-1]}"""
-                for k, v in self.independent_subprotocol_steps.items()
-            ]
-        )
-        script += "\n"
-        script += "protocol = RoboticSamplePreparation[\n"
-        self.script_steps = [f"  {step}" for step in self.script_steps]  # Indent
-        script += ",\n".join(self.script_steps)
-        script += "]"
+        if self.create_stock_solutions:
+            script = "\n".join(
+                [
+                    # f"""subprotocol_{k.replace(" ", "_")} = {v[0] + ",".join(v[1:-1])+v[-1]}"""
+                    f"""subprotocol_{k.replace(" ", "_")} = {",".join(v)}"""
+                    for k, v in self.independent_subprotocol_steps.items()
+                    if len([l for l in v if l != ""]) > 0
+                ]
+            )
+            script += "\n"
+        else:
+            script = "protocol = RoboticSamplePreparation[\n"
+            self.script_steps = [f"  {step}" for step in self.script_steps]  # Indent
+            script += ",\n".join(self.script_steps)
+            script += "]"
 
         return script
 
@@ -218,7 +226,9 @@ class ECLSpecialization(BehaviorSpecialization):
             dest_wells = None
 
         amount = ecl_measure(parameter_value_map["amount"]["value"])
-        text = ecl_transfer(source, dest_container, amount, dest_wells=dest_wells)
+        text = ecl_transfer(
+            source, f'"{dest_container}"', amount, dest_wells=dest_wells
+        )
 
         # if self.current_independent_subprotocol:
         #     self.independent_subprotocol_steps[self.current_independent_subprotocol] += [text]
@@ -257,7 +267,7 @@ class ECLSpecialization(BehaviorSpecialization):
 
         text = ecl_transfer(
             resource,
-            dest_container,
+            f'"{dest_container}"',
             amount,
             src_wells=source_wells,
             dest_wells=dest_wells,
@@ -308,7 +318,8 @@ class ECLSpecialization(BehaviorSpecialization):
       Wavelength -> {wavelength},
       PlateReaderMix -> True,
       PlateReaderMixRate -> 700 RPM,
-      BlankAbsorbance -> False
+      BlankAbsorbance -> False,
+      Instrument -> Model[Instrument, PlateReader, "CLARIOstar"]
       ]"""
         self.script_steps += [text]
 
@@ -337,7 +348,8 @@ class ECLSpecialization(BehaviorSpecialization):
         text = f"""FluorescenceIntensity[
       Sample -> "{container_name}",
       ExcitationWavelength -> {excitation},
-      EmissionWavelength -> {emission}
+      EmissionWavelength -> {emission},
+      Instrument -> Model[Instrument, PlateReader, "CLARIOstar"]
       ]"""
         self.script_steps += [text]
 
@@ -456,22 +468,26 @@ class ECLSpecialization(BehaviorSpecialization):
 
         sources = ",".join(map(str, destination_coordinates[:-1]))
         destinations = ",".join(map(str, destination_coordinates[1:]))
-        source_wells = f"Flatten[Transpose[AllWells[]]][[{{ {sources} }}]]"
-        destination_wells = f"Flatten[Transpose[AllWells[]]][[{{ {destinations} }}]]"
+        source_wells = sources
+        destination_wells = destinations
 
-        self.script_steps += ecl_transfer(
-            source_container,
-            destination_container,
-            amount,
-            src_wells=source_wells,
-            dest_wells=destination_wells,
-        )
+        self.script_steps += [
+            ecl_transfer(
+                f'"{source_container}"',
+                f'"{destination_container}"',
+                amount,
+                src_wells=source_wells,
+                dest_wells=destination_wells,
+            )
+        ]
 
-    #     def resuspend(
-    #         self,
-    #         record: labop.ActivityNodeExecution,
-    #         execution: labop.ProtocolExecution,
-    #     ):
+    def resuspend(
+        self,
+        record: labop.ActivityNodeExecution,
+        execution: labop.ProtocolExecution,
+    ):
+        pass
+
     #         call = record.call.lookup()
     #         parameter_value_map = call.parameter_value_map()
 
@@ -538,10 +554,23 @@ class ECLSpecialization(BehaviorSpecialization):
         components = (
             f"""{{{buffer_vol}, {resource}}}, {{{reagent_mass}, {reagent_resource}}}"""
         )
-        if "id:" in self.resolutions[spec]:
+        if self.create_stock_solutions:
             # Generate a stock solution recipe
             self.independent_subprotocol_steps[spec.name] = [
                 f"""ExperimentStockSolution[{{{components}}}, MixTime-> 30 Second]"""
+            ]
+        else:
+            self.independent_subprotocol_steps[spec.name] = [""]
+            container_types = self.resolve_container_spec(spec)
+            selected_container_type = self.check_lims_inventory(container_types)
+            container = ecl_container(selected_container_type)
+
+            self.script_steps += [
+                f"""LabelContainer[
+    Label -> "{spec.name}",
+    Container -> {container}]
+        """,
+                ecl_transfer(reagent_resource, f'"{spec.name}"', buffer_vol),
             ]
 
     def finalize_prepare_solution(
@@ -652,7 +681,7 @@ def ecl_transfer(
     dest_wells: str = None,
     options="SlurryTransfer -> True, DispenseMix -> True",
 ):
-    if src_wells and dest_wells:
+    if src_wells:
         src_id = "#1"
         dest_id = "#2"
     else:
@@ -660,32 +689,32 @@ def ecl_transfer(
 
     if dest_wells:
         dest_well_list = f"Flatten[Transpose[AllWells[]]][[{{{dest_wells}}}]]"
-        dest_well_attr = f"DestinationWell -> {dest_id},"
+        dest_well_attr = f"\n        DestinationWell -> {dest_id},"
     else:
-        dest_well_list = f""
+        dest_well_list = None
         dest_well_attr = f""
 
     if src_wells:
         src_well_list = f"Flatten[Transpose[AllWells[]]][[{{{src_wells}}}]]"
-        src_well_attr = f"SourceWell -> {src_id},"
+        src_well_attr = f"\n        SourceWell -> {src_id},"
     else:
-        src_well_list = f""
+        src_well_list = None
         src_well_attr = f""
 
     if src_wells or dest_wells:
         prefix = "Sequence@@MapThread["
-        well_mapping = ",".join([src_well_list, dest_well_list])
+        well_mapping = ",".join(
+            ([src_well_list] if src_well_list else [])
+            + ([dest_well_list] if dest_well_list else [])
+        )
         suffix = f" &,{{{well_mapping}}}]"
     else:
         prefix = ""
         suffix = ""
 
     return f"""
-    {prefix}Transfer[
-        Source -> {source},
-        {src_well_attr}
-        Destination -> {destination},
-        {dest_well_attr}
+  {prefix}Transfer[
+        Source -> {source},{src_well_attr}
+        Destination -> {destination},{dest_well_attr}
         Amount -> {amount},
-        {options}]{suffix},
-    """
+        {options}]{suffix}"""

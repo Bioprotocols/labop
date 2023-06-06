@@ -872,7 +872,7 @@ def generate_autoprotocol_specialization(protocol, doc):
             f.write(doc.write_string(sbol3.SORTED_NTRIPLES).strip())
 
 
-def generate_emeraldcloud_specialization(protocol, doc):
+def generate_emeraldcloud_specialization(protocol, doc, stock_solutions=None):
     blockPrint()
     import labop
     from labop.execution_engine import ExecutionEngine
@@ -904,20 +904,29 @@ def generate_emeraldcloud_specialization(protocol, doc):
     # pbs_container = [x for x in protocol.nodes if x.name == "pbs_container"][0]
     calibration_plate = [x for x in protocol.nodes if x.name == "calibration_plate"][0]
 
+    if stock_solutions:
+        microsphere_reagent_id = stock_solutions["microspheres"]
+        fluorescein_regagent_id = stock_solutions["fluorescein"]
+    else:
+        microsphere_reagent_id = (
+            """Model[Sample, "Silica Nanoparticle 950nm Nanocym"]"""
+        )
+        fluorescein_regagent_id = """Model[Sample, "Fluorescein, sodium salt"]"""
+
     resolutions = {
         ddh2o.identity: """Model[Sample, "Nuclease-free Water"]""",
         pbs.identity: """Model[Sample, StockSolution, "1x PBS from 10X stock"]""",
-        fluorescein.identity: """Model[Sample, "Fluorescein, sodium salt"]""",
-        silica_beads.identity: """Model[Sample, "Silica Nanoparticle 950nm Nanocym"]""",
+        fluorescein.identity: f"""{fluorescein_regagent_id}""",
+        silica_beads.identity: f"""{microsphere_reagent_id}""",
         discard_container.input_pin("specification")
         .value.value.lookup()
         .identity: """Model[Container, Vessel, "2mL Tube"]""",
         fluorescein_standard_solution_container.input_pin("specification")
         .value.value.lookup()
-        .identity: "Fluorescein calibrant",
+        .identity: '"Fluorescein calibrant"',
         microsphere_standard_solution_container.input_pin("specification")
         .value.value.lookup()
-        .identity: """id:E8zoYvzrm4dv""",
+        .identity: f'"microspheres"',
         # ddh2o_container.input_pin("specification")
         # .value.value.lookup()
         # .identity: "Nuclease-free Water",
@@ -928,7 +937,11 @@ def generate_emeraldcloud_specialization(protocol, doc):
         .value.value.lookup()
         .identity: """Model[Container, Plate, "96-well Polystyrene Flat-Bottom Plate, Clear"]""",
     }
-    ecl_specialization = ECLSpecialization(ecl_output, resolutions=resolutions)
+    ecl_specialization = ECLSpecialization(
+        ecl_output,
+        resolutions=resolutions,
+        create_stock_solutions=(stock_solutions is None),
+    )
 
     ee = ExecutionEngine(specializations=[ecl_specialization], failsafe=False)
     execution = ee.execute(
@@ -1008,7 +1021,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "-g",
         "--generate-protocol",
-        default=True,
+        default=False,
         action="store_true",
         help=f"Generate the artifacts/{filename}-protocol.nt LabOP protocol file.",
     )
@@ -1042,11 +1055,25 @@ if __name__ == "__main__":
         help=f"Submit the artifacts/{filename}-autoprotocol.json Autoprotocol file to the Strateos run queue.",
     )
     parser.add_argument(
-        "-e",
-        "--generate-emeraldcloud",
+        "-s",
+        "--generate-emeraldcloud-stock-solutions",
         default=True,
         action="store_true",
         help=f"Execute the protocol to generate the Emerald Cloud notebook at artifacts/{filename}-emeraldcloud.nb.",
+    )
+    parser.add_argument(
+        "-e",
+        "--generate-emeraldcloud",
+        default=False,
+        action="store_true",
+        help=f"Execute the protocol to generate the Emerald Cloud notebook at artifacts/{filename}-emeraldcloud.nb. ",
+    )
+    parser.add_argument(
+        "--ecl-microsphere-id",
+        nargs="?",
+        const='Model[Sample, StockSolution, "id:L8kPEjk1vmRP"]',
+        type=str,
+        help=f"Execute the protocol to generate the Emerald Cloud notebook at artifacts/{filename}-emeraldcloud.nb. Optionally specify an id for the microsphere reagent.  Only valid in conjunction with the -e flag.",
     )
     args = parser.parse_args()
 
@@ -1074,6 +1101,16 @@ if __name__ == "__main__":
         if proceed and proceed == "y":
             test_autoprotocol()
 
-    if args.generate_emeraldcloud:
+    if args.generate_emeraldcloud_stock_solutions:
         print("Generating EmeraldCloud ...")
         generate_emeraldcloud_specialization(*read_protocol())
+
+    if args.generate_emeraldcloud:
+        print("Generating EmeraldCloud ...")
+        generate_emeraldcloud_specialization(
+            *read_protocol(),
+            stock_solutions={
+                "microspheres": f'"{args.ecl_microsphere_id}"',
+                "fluorescein": """Model[Sample, StockSolution, "1x PBS, 10uM Fluorescein"]""",
+            },
+        )
