@@ -1142,7 +1142,7 @@
 <http://igem.org/engineering/ddH2O> <http://sbols.org/v3#name> "Water, sterile-filtered, BioReagent, suitable for cell culture" .
 <http://igem.org/engineering/ddH2O> <http://sbols.org/v3#type> <https://identifiers.org/pubchem.substance:24901740> .
 <http://igem.org/engineering/ddH2O> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://sbols.org/v3#Component> .
-<http://igem.org/engineering/ddh2o_container> <http://bioprotocols.org/labop#queryString> "cont:StockReagent15mL" .
+<http://igem.org/engineering/ddh2o_container> <http://bioprotocols.org/labop#queryString> "cont:StockReagent50mL" .
 <http://igem.org/engineering/ddh2o_container> <http://sbols.org/v3#displayId> "ddh2o_container" .
 <http://igem.org/engineering/ddh2o_container> <http://sbols.org/v3#hasNamespace> <http://igem.org/engineering/> .
 <http://igem.org/engineering/ddh2o_container> <http://sbols.org/v3#name> "molecular grade H2O" .
@@ -4327,7 +4327,7 @@
 <http://igem.org/engineering/pbs> <http://sbols.org/v3#name> "Phosphate Buffered Saline" .
 <http://igem.org/engineering/pbs> <http://sbols.org/v3#type> <https://pubchem.ncbi.nlm.nih.gov/compound/24978514> .
 <http://igem.org/engineering/pbs> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://sbols.org/v3#Component> .
-<http://igem.org/engineering/pbs_container> <http://bioprotocols.org/labop#queryString> "cont:StockReagent15mL" .
+<http://igem.org/engineering/pbs_container> <http://bioprotocols.org/labop#queryString> "cont:StockReagent50mL" .
 <http://igem.org/engineering/pbs_container> <http://sbols.org/v3#displayId> "pbs_container" .
 <http://igem.org/engineering/pbs_container> <http://sbols.org/v3#hasNamespace> <http://igem.org/engineering/> .
 <http://igem.org/engineering/pbs_container> <http://sbols.org/v3#name> "PBS" .
