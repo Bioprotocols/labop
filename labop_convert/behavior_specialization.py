@@ -77,7 +77,7 @@ class BehaviorSpecialization(ABC):
             ) as f:
                 f.write(self.data)
 
-    def process(self, record, execution: labop.ProtocolExecution):
+    def process(self, record, execution: labop.ProtocolExecution, timepoint="start"):
         try:
             node = record.node.lookup()
             if not isinstance(node, uml.CallBehaviorAction):
@@ -93,14 +93,10 @@ class BehaviorSpecialization(ABC):
                 and behavior.identity in self._behavior_func_map
             ):
                 if isinstance(self._behavior_func_map[behavior.identity], dict):
-                    if True:
-                        self._behavior_func_map[behavior.identity]["start"](
-                            record, execution
-                        )
-                    else:
-                        self._behavior_func_map[behavior.identity]["end"](
-                            record, execution
-                        )
+                    return self._behavior_func_map[behavior.identity][timepoint](
+                        record, execution
+                    )
+
                 else:
                     return self._behavior_func_map[behavior.identity](record, execution)
 

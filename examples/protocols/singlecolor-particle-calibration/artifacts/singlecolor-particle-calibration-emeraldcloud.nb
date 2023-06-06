@@ -1,3 +1,33 @@
+subprotocol_Fluorescein_calibrant = ExperimentStockSolution[{{1.5 * Milliliter, Model[StockSolution, "1x PBS from 10X stock""], 5.6441 * Microgram, Model[StockSolution, "10uM Fluorescein"]}}, ContainerOut-> Model[StockSolution, "Fluorescein calibrant"], Primitives-> {LabelContainer[
+    Label -> "Fluorescein calibrant",
+    Container -> Model[Container, Vessel, "2mL Tube"]],Transfer[
+    Source -> Model[Sample, StockSolution, 10uM Fluorescein],
+    Destination -> "Fluorescein calibrant",
+    Amount -> 5.6441 Microgram
+    ],Transfer[
+    Source -> "PBS",
+    Destination -> "Fluorescein calibrant",
+    Amount -> 1.5 Milliliter
+    ],Mix[
+      Sample -> "Fluorescein calibrant",
+      MixType -> Vortex,
+      Time -> (30.0 * Second)
+    ]}]
+subprotocol_microspheres = ExperimentStockSolution[{{1.5 * Milliliter, Model[StockSolution, "Nuclease-free Water""], 1.26 * Milligram, Model[StockSolution, "Silica Nanoparticle 950nm Nanocym"]}}, ContainerOut-> Model[StockSolution, "microspheres"], Primitives-> {LabelContainer[
+    Label -> "microspheres",
+    Container -> Model[Container, Vessel, "2mL Tube"]],Transfer[
+    Source -> Model[Sample, StockSolution, Silica Nanoparticle 950nm Nanocym],
+    Destination -> "microspheres",
+    Amount -> 1.26 Milligram
+    ],Transfer[
+    Source -> "molecular grade H2O",
+    Destination -> "microspheres",
+    Amount -> 1.5 Milliliter
+    ],Mix[
+      Sample -> "microspheres",
+      MixType -> Vortex,
+      Time -> (30.0 * Second)
+    ]}]
 protocol = RoboticSamplePreparation[
   LabelContainer[
     Label -> "molecular grade H2O",
@@ -15,38 +45,6 @@ protocol = RoboticSamplePreparation[
     Destination -> "PBS",
     Amount -> 12.0 Milliliter
     ],
-  LabelContainer[
-    Label -> "Fluorescein calibrant",
-    Container -> Model[Container, Vessel, "2mL Tube"]],
-  Transfer[
-    Source -> Model[Sample, StockSolution, 1x PBS, 10uM Fluorescein],
-    Destination -> "Fluorescein calibrant",
-    Amount -> 5.6441 Microgram
-    ],
-  
-   Resuspend[
-     Sample -> "Fluorescein calibrant",
-     Diluent -> "PBS",
-     Volume -> 1.5 Milliliter,
-     DispenseNumberOfMixes -> 3,
-     DispenseMix -> True
-     ] ,
-  LabelContainer[
-    Label -> "microspheres",
-    Container -> Model[Container, Vessel, "2mL Tube"]],
-  Transfer[
-    Source -> Model[Sample, StockSolution, Silica beads 2g/ml 950nm],
-    Destination -> "microspheres",
-    Amount -> 1.26 Milligram
-    ],
-  
-   Resuspend[
-     Sample -> "microspheres",
-     Diluent -> "molecular grade H2O",
-     Volume -> 1.5 Milliliter,
-     DispenseNumberOfMixes -> 3,
-     DispenseMix -> True
-     ] ,
   LabelContainer[
     Label -> "discard",
     Container -> Model[Container, Vessel, "2mL Tube"]],
@@ -66,49 +64,49 @@ protocol = RoboticSamplePreparation[
     Amount -> 100.0 Microliter
     ],
   Transfer[
-    Source -> "Fluorescein calibrant",
+    Source -> Model[StockSolution, Fluorescein calibrant],
     Destination -> "calibration plate",
     DestinationWells -> {#, "calibration plate"} & /@  Flatten[Transpose[AllWells[]]][ 1 ],
     Amount -> 200.0 Microliter
     ],
   Transfer[
-    Source -> "Fluorescein calibrant",
+    Source -> Model[StockSolution, Fluorescein calibrant],
     Destination -> "calibration plate",
     DestinationWells -> {#, "calibration plate"} & /@  Flatten[Transpose[AllWells[]]][ 2 ],
     Amount -> 200.0 Microliter
     ],
   Transfer[
-    Source -> "Fluorescein calibrant",
+    Source -> Model[StockSolution, Fluorescein calibrant],
     Destination -> "calibration plate",
     DestinationWells -> {#, "calibration plate"} & /@  Flatten[Transpose[AllWells[]]][ 3 ],
     Amount -> 200.0 Microliter
     ],
   Transfer[
-    Source -> "Fluorescein calibrant",
+    Source -> Model[StockSolution, Fluorescein calibrant],
     Destination -> "calibration plate",
     DestinationWells -> {#, "calibration plate"} & /@  Flatten[Transpose[AllWells[]]][ 4 ],
     Amount -> 200.0 Microliter
     ],
   Transfer[
-    Source -> "microspheres",
+    Source -> Model[StockSolution, microspheres],
     Destination -> "calibration plate",
     DestinationWells -> {#, "calibration plate"} & /@  Flatten[Transpose[AllWells[]]][ 5 ],
     Amount -> 200.0 Microliter
     ],
   Transfer[
-    Source -> "microspheres",
+    Source -> Model[StockSolution, microspheres],
     Destination -> "calibration plate",
     DestinationWells -> {#, "calibration plate"} & /@  Flatten[Transpose[AllWells[]]][ 6 ],
     Amount -> 200.0 Microliter
     ],
   Transfer[
-    Source -> "microspheres",
+    Source -> Model[StockSolution, microspheres],
     Destination -> "calibration plate",
     DestinationWells -> {#, "calibration plate"} & /@  Flatten[Transpose[AllWells[]]][ 7 ],
     Amount -> 200.0 Microliter
     ],
   Transfer[
-    Source -> "microspheres",
+    Source -> Model[StockSolution, microspheres],
     Destination -> "calibration plate",
     DestinationWells -> {#, "calibration plate"} & /@  Flatten[Transpose[AllWells[]]][ 8 ],
     Amount -> 200.0 Microliter
@@ -210,7 +208,7 @@ protocol = RoboticSamplePreparation[
    [Flatten[Transpose[AllWells[]]][ 8,16,24,32,40,48,56,64,72,80 ],
      Flatten[Transpose[AllWells[]]][ 16,24,32,40,48,56,64,72,80,88 ]]],
   Transfer[
-    Source -> "calibration plate",
+    Source -> Model[StockSolution, 96-well Polystyrene Flat-Bottom Plate, Clear],
     SourceWells -> {#, "calibration plate"} & /@  Flatten[Transpose[AllWells[]]][ 81,82,83,84,85,86,87,88 ],
     Destination -> "discard",
     Amount -> 100.0 Microliter

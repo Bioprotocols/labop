@@ -24,16 +24,20 @@ class ECLSpecialization(BehaviorSpecialization):
     MICROFUGE = "2 mL microfuge tube"
     STOCK_REAGENT_2mL = "2mL stock reagent container"
     STOCK_REAGENT_15mL = "15mL stock reagent container"
+    STOCK_REAGENT_50mL = "50mL stock reagent container"
     STOCK_REAGENT = "stock reagent container"
     WASTE = "waste container"
     # Map terms in the Container ontology to OT2 API names
     LABWARE_MAP = {
-        ContO[MICROPLATE]: "96-well Polystyrene Flat-Bottom Plate, Clear",
-        ContO[MICROFUGE]: "2mL Tube",
-        ContO[STOCK_REAGENT_2mL]: "2mL Tube",
-        ContO[STOCK_REAGENT_15mL]: "15mL Tube",
-        ContO[STOCK_REAGENT]: "2mL Tube",
-        ContO[WASTE]: "2mL Tube",
+        ContO[
+            MICROPLATE
+        ]: """Model[Container, Plate, "96-well Polystyrene Flat-Bottom Plate, Clear"]""",
+        ContO[MICROFUGE]: """Model[Container, Vessel, "2mL Tube"]""",
+        ContO[STOCK_REAGENT_2mL]: """Model[Container, Vessel, "2mL Tube"]""",
+        ContO[STOCK_REAGENT_15mL]: """Model[Container, Vessel, "15mL Tube"]""",
+        ContO[STOCK_REAGENT_50mL]: """Model[Container, Vessel, "50mL Tube"]""",
+        ContO[STOCK_REAGENT]: """Model[Container, Vessel, "2mL Tube"]""",
+        ContO[WASTE]: """Model[Container, Vessel, "2mL Tube"]""",
     }
 
     def __init__(
@@ -51,14 +55,17 @@ class ECLSpecialization(BehaviorSpecialization):
             filename += ".ecl"
         self.filename = filename
         self.sample_format = Strings.XARRAY
-        self.mapped_subprotocols = {}
+        self.mapped_subprotocols = {
+            # "http://igem.org/engineering/Resuspend"
+            "http://igem.org/engineering/PrepareSolution": self.prepare_solution
+        }
         self.current_independent_subprotocol = None
 
         # Independent subprotocols are output as a separate protocol, whose outputs are referenced by the main protocol.
         self.independent_subprotocols = {
             "http://igem.org/engineering/PrepareSolution",
         }
-        self.independent_protocol_steps = {}
+        self.independent_subprotocol_steps = {}
 
         # Needed for using container ontology
         self.container_api_addl_conditions = "(cont:availableAt value <https://sift.net/container-ontology/strateos-catalog#Strateos>)"
@@ -70,6 +77,7 @@ class ECLSpecialization(BehaviorSpecialization):
         """
         return {
             "https://bioprotocols.org/labop/primitives/sample_arrays/EmptyContainer": self.define_container,
+            "https://bioprotocols.org/labop/primitives/liquid_handling/Vortex": self.vortex,
             "https://bioprotocols.org/labop/primitives/liquid_handling/Provision": self.provision,
             "https://bioprotocols.org/labop/primitives/liquid_handling/Transfer": self.transfer_to,
             "https://bioprotocols.org/labop/primitives/liquid_handling/TransferByMap": self.transfer_by_map,
@@ -84,10 +92,10 @@ class ECLSpecialization(BehaviorSpecialization):
             "https://bioprotocols.org/labop/primitives/liquid_handling/SerialDilution": self.serial_dilution,
             "https://bioprotocols.org/labop/primitives/spectrophotometry/MeasureFluorescence": self.measure_fluorescence,
             "http://igem.org/engineering/PrepareReagents": self.prepare_reagents,
-            "http://igem.org/engineering/PrepareSolution": {
-                "start": self.prepare_solution,
-                "end": self.finalize_prepare_solution,
-            },
+            # "http://igem.org/engineering/PrepareSolution": {
+            #     "start": self.prepare_solution,
+            #     "end": self.finalize_prepare_solution,
+            # },
         }
 
     def handle_process_failure(self, record, exception):
@@ -111,17 +119,18 @@ class ECLSpecialization(BehaviorSpecialization):
             self.data = self.script
 
     def _compile_script(self):
-        script = "protocol = RoboticSamplePreparation[\n"
+        script = "\n".join(
+            [
+                f"""subprotocol_{k.replace(" ", "_")} = {v[0] + ",".join(v[1:-1])+v[-1]}"""
+                for k, v in self.independent_subprotocol_steps.items()
+            ]
+        )
+        script += "\n"
+        script += "protocol = RoboticSamplePreparation[\n"
         self.script_steps = [f"  {step}" for step in self.script_steps]  # Indent
         script += ",\n".join(self.script_steps)
         script += "]"
-        script += "\n"
-        script += "\n".join(
-            [
-                f"subprotocol_{k} = {v}"
-                for k, v in self.independent_protocol_steps.items()
-            ]
-        )
+
         return script
 
     def define_container(
@@ -143,8 +152,40 @@ class ECLSpecialization(BehaviorSpecialization):
     Label -> "{name}",
     Container -> {container}]"""
 
+        # if self.current_independent_subprotocol:
+        #     self.independent_subprotocol_steps[self.current_independent_subprotocol] += [text]
+        # else:
+        self.script_steps += [text]
+
+    def vortex(
+        self,
+        record: labop.ActivityNodeExecution,
+        execution: labop.ProtocolExecution,
+    ):
+        call = record.call.lookup()
+        parameter_value_map = call.parameter_value_map()
+        duration = None
+        if "duration" in parameter_value_map:
+            duration_measure = ecl_measure(
+                parameter_value_map["duration"]["value"], use_star=True
+            )
+        samples = parameter_value_map["samples"]["value"]
+        spec = samples.get_container_type()
+        if str(spec) in self.resolutions:
+            sample = self.resolutions[str(spec)]
+        else:
+            sample = str(spec)
+
+        text = f"""Mix[
+      Sample -> {sample},
+      MixType -> Vortex,
+      Time -> ({duration_measure})
+    ]"""
+
         if self.current_independent_subprotocol:
-            self.independent_subprotocols[self.current_independent_subprotocol] += text
+            self.independent_subprotocol_steps[
+                self.current_independent_subprotocol
+            ] += [text]
         else:
             self.script_steps += [text]
 
@@ -179,10 +220,13 @@ class ECLSpecialization(BehaviorSpecialization):
 
         amount = ecl_measure(parameter_value_map["amount"]["value"])
         text = f"""Transfer[
-    Source -> Model[StockSolution, {resource}],
+    Source -> {resource},
     Destination -> "{dest_container}",{dest_wells}
     Amount -> {amount}
     ]"""
+        # if self.current_independent_subprotocol:
+        #     self.independent_subprotocol_steps[self.current_independent_subprotocol] += [text]
+        # else:
         self.script_steps += [text]
 
     def transfer_to(
@@ -210,21 +254,20 @@ class ECLSpecialization(BehaviorSpecialization):
             dest_container = destination.container_type.lookup()
             dest_wells = ""
 
-        if source_container.identity in self.resolutions:
-            resource = self.resolutions[source_container.identity]
-            resource = f"Model[StockSolution, {resource}]"
-        else:
-            resource = f'"{source_container.name}"'
+        # if source_container.identity in self.resolutions:
+        #     resource = self.resolutions[source_container.identity]
+        # else:
+        resource = f'"{source_container.name}"'
 
         text = f"""Transfer[
     Source -> {resource},{source_wells}
     Destination -> "{dest_container.name}",{dest_wells}
     Amount -> {amount}
     ]"""
-        if self.current_independent_subprotocol:
-            self.independent_subprotocols[self.current_independent_subprotocol] += text
-        else:
-            self.script_steps += [text]
+        # if self.current_independent_subprotocol:
+        #     self.independent_subprotocol_steps[self.current_independent_subprotocol] += [text]
+        # else:
+        self.script_steps += [text]
 
     def transfer_by_map(
         self, record: labop.ActivityNodeExecution, ex: labop.ProtocolExecution
@@ -414,10 +457,10 @@ class ECLSpecialization(BehaviorSpecialization):
 
         sources = ",".join(map(str, destination_coordinates[:-1]))
         destinations = ",".join(map(str, destination_coordinates[1:]))
-        source_wells = f"Flatten[Transpose[AllWells[]]][ {sources} ]"
-        destination_wells = f"Flatten[Transpose[AllWells[]]][ {destinations} ]"
+        source_wells = f"Flatten[Transpose[AllWells[]]][[{{ {sources} }}]]"
+        destination_wells = f"Flatten[Transpose[AllWells[]]][[{{ {destinations} }}]]"
         self.script_steps += [
-            f"""MapThread[
+            f"""Sequence@@MapThread[
    Transfer[
      Source -> "{source_container}",
      Destination -> "{destination_container}",
@@ -426,9 +469,9 @@ class ECLSpecialization(BehaviorSpecialization):
      Amount -> {amount},
      SlurryTransfer -> True,
      DispenseMix -> True
-     ] &
-   [{source_wells},
-     {destination_wells}]]"""
+     ] &,
+   {{{source_wells},
+     {destination_wells}}}]"""
         ]
 
     #     def resuspend(
@@ -480,10 +523,33 @@ class ECLSpecialization(BehaviorSpecialization):
 
         spec = parameter_value_map["specification"]["value"]
         self.current_independent_subprotocol = spec.name
-        components = f""
-        self.independent_protocol_steps[
-            spec.name
-        ] = "ExperimentStockSolution[{components}, Primitives-> {"
+
+        buffer_container = parameter_value_map["buffer_container"]["value"]
+        if buffer_container.identity in self.resolutions:
+            resource = self.resolutions[buffer_container.identity]
+        else:
+            resource = f'"{buffer_container.name}"'
+        buffer_vol = ecl_measure(
+            parameter_value_map["buffer_volume"]["value"], use_star=True
+        )
+
+        reagent = parameter_value_map["reagent"]["value"]
+        if reagent.identity in self.resolutions:
+            reagent_resource = self.resolutions[reagent.identity]
+        else:
+            reagent_resource = f'"{reagent.name}"'
+        reagent_mass = ecl_measure(
+            parameter_value_map["reagent_mass"]["value"], use_star=True
+        )
+
+        components = (
+            f"""{{{buffer_vol}, {resource}}}, {{{reagent_mass}, {reagent_resource}}}"""
+        )
+        if "id:" in self.resolutions[spec]:
+            # Generate a stock solution recipe
+            self.independent_subprotocol_steps[spec.name] = [
+                f"""ExperimentStockSolution[{{{components}}}, MixTime-> 30 Second]"""
+            ]
 
     def finalize_prepare_solution(
         self, record: labop.ActivityNodeExecution, execution: labop.Protocol
@@ -492,58 +558,65 @@ class ECLSpecialization(BehaviorSpecialization):
         parameter_value_map = call.parameter_value_map()
         self.current_independent_subprotocol = None
         spec = parameter_value_map["specification"]["value"]
-        components = f""
-        self.independent_protocol_steps[spec.name] += "}]"
+        # self.independent_subprotocol_steps[spec.name] += ["}]"]
 
     def prepare_reagents(
         self,
         record: labop.ActivityNodeExecution,
         execution: labop.ProtocolExecution,
     ):
+        pass
 
-        self.independent_protocol_steps[spec.name] = ""
-        self.stock_solutions += """
+    #     self.stock_solutions += """
 
-    "1x PBS from 10X stock"
-    "Nuclease-free Water"
-    "1x PBS, 10uM Fluorescein"
+    # "1x PBS from 10X stock"
+    # "Nuclease-free Water"
+    # "1x PBS, 10uM Fluorescein"
 
-    ExperimentStockSolution[
-        Model[Sample, StockSolution, ""Silica beads 2.96mg/mL 950nm""],
-        Volume -> 2 Milliliter,
-        MixType -> Pipette,
-        MixTime -> Null,
-        ContainerOut -> Model[Container, Vessel, "2mL brown tube"]
-    ]
-        """
+    # ExperimentStockSolution[
+    #     Model[Sample, StockSolution, ""Silica beads 2.96mg/mL 950nm""],
+    #     Volume -> 2 Milliliter,
+    #     MixType -> Pipette,
+    #     MixTime -> Null,
+    #     ContainerOut -> Model[Container, Vessel, "2mL brown tube"]
+    # ]
+    #     """
 
 
 def ecl_container(container_type: tyto.URI):
     if container_type in ECLSpecialization.LABWARE_MAP:
         container = ECLSpecialization.LABWARE_MAP[container_type]
-        return f'Model[Container, Vessel, "{container}"]'
+        return container
+        # return f'Model[Container, Vessel, "{container}"]'
     if container_type in ContO[ECLSpecialization.MICROPLATE].get_instances():
         container = ECLSpecialization.LABWARE_MAP[ContO[ECLSpecialization.MICROPLATE]]
-        return f'Model[Container, Plate, "{container}"]'
+        return container
+        # return f'Model[Container, Plate, "{container}"]'
     if container_type in ContO[ECLSpecialization.MICROFUGE].get_instances():
         container = ECLSpecialization.LABWARE_MAP[ContO[ECLSpecialization.MICROFUGE]]
-        return f'Model[Container, Vessel, "{container}"]'
+        return container
+        # return f'Model[Container, Vessel, "{container}"]'
     if container_type in ContO[ECLSpecialization.STOCK_REAGENT_15mL].get_instances():
         container = ECLSpecialization.LABWARE_MAP[
             ContO[ECLSpecialization.STOCK_REAGENT_15mL]
+        ]
+    if container_type in ContO[ECLSpecialization.STOCK_REAGENT_50mL].get_instances():
+        container = ECLSpecialization.LABWARE_MAP[
+            ContO[ECLSpecialization.STOCK_REAGENT_50mL]
         ]
     if container_type in ContO[ECLSpecialization.STOCK_REAGENT_2mL].get_instances():
         container = ECLSpecialization.LABWARE_MAP[
             ContO[ECLSpecialization.STOCK_REAGENT_2mL]
         ]
-        return f'Model[Container, Vessel, "{container}"]'
+
+        # return f'Model[Container, Vessel, "{container}"]'
     raise Exception(
         f"Load failed. Container {container_type} is not supported labware."
     )
 
 
-def ecl_measure(measure: sbol3.Measure):
-    text = str(measure.value)
+def ecl_measure(measure: sbol3.Measure, use_star=False):
+    text = str(measure.value) + (" *" if use_star else "")
     if measure.unit == tyto.OM.microliter:
         return text + " Microliter"
     elif measure.unit == tyto.OM.nanometer:
@@ -554,6 +627,8 @@ def ecl_measure(measure: sbol3.Measure):
         return text + " Microgram"
     elif measure.unit == tyto.OM.milligram:
         return text + " Milligram"
+    elif measure.unit == tyto.OM.second:
+        return text + " Second"
 
     raise ValueError(tyto.OM.get_term_by_uri(measure.unit) + " is not a supported unit")
 
@@ -571,6 +646,6 @@ def ecl_coordinates(samples: labop.SampleCollection, sample_format=Strings.XARRA
         container_name = container.name if container.name else container.display_id
         locations = ",".join(map(str, coordinates))
 
-        return f"""{{#, "{container_name}"}} & /@  Flatten[Transpose[AllWells[]]][ {locations} ]"""
+        return f"""{{#, "{container_name}"}} & /@  Flatten[Transpose[AllWells[]]][[{ {locations} }]]"""
 
     raise TypeError()

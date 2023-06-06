@@ -939,6 +939,16 @@ def call_behavior_execution_complete_subprotocol(
     ]
     engine.blocked_nodes.remove(self)
 
+    for specialization in engine.specializations:
+        try:
+            specialization.process(self, engine.ex, timepoint="end")
+        except Exception as e:
+            if not engine.failsafe:
+                raise e
+            l.error(
+                f"Could Not Process {record.name if record.name else record.identity}: {e}"
+            )
+
     return new_tokens
 
 

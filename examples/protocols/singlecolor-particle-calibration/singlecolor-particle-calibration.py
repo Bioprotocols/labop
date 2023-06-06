@@ -42,7 +42,7 @@ def generate_resuspend_subprotocol(doc: sbol3.Document):
     )
     vortex = subprotocol.primitive_step(
         "Vortex",
-        samples=source,
+        samples=destination,
         duration=sbol3.Measure(30, OM.second),
     )
     subprotocol.order(vortex, subprotocol.final())
@@ -136,7 +136,7 @@ def generate_prepare_reagents_subprotocol(doc: sbol3.Document):
         specification=labop.ContainerSpec(
             "ddh2o_container",
             name="molecular grade H2O",
-            queryString="cont:StockReagent15mL",
+            queryString="cont:StockReagent50mL",
             prefixMap={
                 "cont": "https://sift.net/container-ontology/container-ontology#"
             },
@@ -162,7 +162,7 @@ def generate_prepare_reagents_subprotocol(doc: sbol3.Document):
         specification=labop.ContainerSpec(
             "pbs_container",
             name="PBS",
-            queryString="cont:StockReagent15mL",
+            queryString="cont:StockReagent50mL",
             prefixMap={
                 "cont": "https://sift.net/container-ontology/container-ontology#"
             },
@@ -905,19 +905,19 @@ def generate_emeraldcloud_specialization(protocol, doc):
     calibration_plate = [x for x in protocol.nodes if x.name == "calibration_plate"][0]
 
     resolutions = {
-        ddh2o.identity: "Nuclease-free Water",
-        pbs.identity: "1x PBS from 10X stock",
-        fluorescein.identity: "1x PBS, 10uM Fluorescein",
-        silica_beads.identity: "Silica beads 2g/ml 950nm",
+        ddh2o.identity: """Model[Sample, "Nuclease-free Water"]""",
+        pbs.identity: """Model[Sample, StockSolution, "1x PBS from 10X stock"]""",
+        fluorescein.identity: """Model[Sample, "Fluorescein, sodium salt"]""",
+        silica_beads.identity: """Model[Sample, "Silica Nanoparticle 950nm Nanocym"]""",
         discard_container.input_pin("specification")
         .value.value.lookup()
-        .identity: "2mL Tube",
+        .identity: """Model[Container, Vessel, "2mL Tube"]""",
         fluorescein_standard_solution_container.input_pin("specification")
         .value.value.lookup()
-        .identity: "1x PBS, 10uM Fluorescein",
+        .identity: "Fluorescein calibrant",
         microsphere_standard_solution_container.input_pin("specification")
         .value.value.lookup()
-        .identity: "Silica beads 2g/ml 950nm",
+        .identity: """id:E8zoYvzrm4dv""",
         # ddh2o_container.input_pin("specification")
         # .value.value.lookup()
         # .identity: "Nuclease-free Water",
@@ -926,7 +926,7 @@ def generate_emeraldcloud_specialization(protocol, doc):
         # .identity: "1x PBS from 10X stock",
         calibration_plate.input_pin("specification")
         .value.value.lookup()
-        .identity: "96-well Polystyrene Flat-Bottom Plate, Clear",
+        .identity: """Model[Container, Plate, "96-well Polystyrene Flat-Bottom Plate, Clear"]""",
     }
     ecl_specialization = ECLSpecialization(ecl_output, resolutions=resolutions)
 
