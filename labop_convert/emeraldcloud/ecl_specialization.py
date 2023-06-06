@@ -51,7 +51,11 @@ class ECLSpecialization(BehaviorSpecialization):
             filename += ".ecl"
         self.filename = filename
         self.sample_format = Strings.XARRAY
-        self.mapped_subprotocols = {"http://igem.org/engineering/Resuspend"}
+        self.mapped_subprotocols = {
+            "http://igem.org/engineering/Resuspend",
+            "http://igem.org/engineering/PrepareReagents",
+        }
+        self.stock_solutions = ""
 
         # Needed for using container ontology
         self.container_api_addl_conditions = "(cont:availableAt value <https://sift.net/container-ontology/strateos-catalog#Strateos>)"
@@ -77,6 +81,7 @@ class ECLSpecialization(BehaviorSpecialization):
             "https://bioprotocols.org/labop/primitives/liquid_handling/SerialDilution": self.serial_dilution,
             "http://igem.org/engineering/Resuspend": self.resuspend,
             "https://bioprotocols.org/labop/primitives/spectrophotometry/MeasureFluorescence": self.measure_fluorescence,
+            "http://igem.org/engineering/PrepareReagents": self.prepare_reagents,
         }
 
     def handle_process_failure(self, record, exception):
@@ -446,6 +451,26 @@ class ECLSpecialization(BehaviorSpecialization):
      DispenseMix -> True
      ] """
         ]
+
+    def prepare_reagents(
+        self,
+        record: labop.ActivityNodeExecution,
+        execution: labop.ProtocolExecution,
+    ):
+        self.stock_solutions += """
+
+    "1x PBS from 10X stock"
+    "Nuclease-free Water"
+    "1x PBS, 10uM Fluorescein"
+
+    ExperimentStockSolution[
+        Model[Sample, StockSolution, ""Silica beads 2.96mg/mL 950nm""],
+        Volume -> 2 Milliliter,
+        MixType -> Pipette,
+        MixTime -> Null,
+        ContainerOut -> Model[Container, Vessel, "2mL brown tube"]
+    ]
+        """
 
 
 def ecl_container(container_type: tyto.URI):

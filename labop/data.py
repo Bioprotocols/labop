@@ -296,7 +296,7 @@ def sample_array_from_container_spec(
     ):
         geometry = "A1:C8"
     elif (
-        container_type.queryString == "cont:StockReagent"
+        container_type.queryString.startswith("cont:StockReagent")
         or container_type.queryString == "cont:WasteContainer"
     ):
         geometry = "A1"
