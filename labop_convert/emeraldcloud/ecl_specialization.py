@@ -683,7 +683,7 @@ def ecl_transfer(
     return f"""
     {prefix}Transfer[
         Source -> {source},
-        {source_well_attr}
+        {src_well_attr}
         Destination -> {destination},
         {dest_well_attr}
         Amount -> {amount},
