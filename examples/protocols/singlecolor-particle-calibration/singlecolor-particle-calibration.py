@@ -653,6 +653,7 @@ Adapted from [https://dx.doi.org/10.17504/protocols.io.bht7j6rn](https://dx.doi.
     protocol.order(outnode, protocol.final())
 
     if REGENERATE_ARTIFACTS:
+        protocol.to_dot().render(os.path.join(OUT_DIR, filename))
         protocol_file = os.path.join(OUT_DIR, f"{filename}-protocol.nt")
         with open(protocol_file, "w") as f:
             print(f"Saving protocol [{protocol_file}].")
@@ -695,7 +696,7 @@ def generate_markdown_specialization(protocol, doc):
     from labop_convert import MarkdownSpecialization
 
     if REGENERATE_ARTIFACTS:
-        protocol.to_dot().render(os.path.join(OUT_DIR, filename))
+
         dataset_file = f"{filename}_template"  # name of xlsx
         md_file = filename + ".md"
     else:

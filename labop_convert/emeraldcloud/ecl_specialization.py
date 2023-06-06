@@ -51,11 +51,14 @@ class ECLSpecialization(BehaviorSpecialization):
             filename += ".ecl"
         self.filename = filename
         self.sample_format = Strings.XARRAY
-        self.mapped_subprotocols = {
-            "http://igem.org/engineering/Resuspend",
-            "http://igem.org/engineering/PrepareReagents",
+        self.mapped_subprotocols = {}
+        self.current_independent_subprotocol = None
+
+        # Independent subprotocols are output as a separate protocol, whose outputs are referenced by the main protocol.
+        self.independent_subprotocols = {
+            "http://igem.org/engineering/PrepareSolution",
         }
-        self.stock_solutions = ""
+        self.independent_protocol_steps = {}
 
         # Needed for using container ontology
         self.container_api_addl_conditions = "(cont:availableAt value <https://sift.net/container-ontology/strateos-catalog#Strateos>)"
@@ -79,9 +82,12 @@ class ECLSpecialization(BehaviorSpecialization):
             "https://bioprotocols.org/labop/primitives/sample_arrays/ConfigureRobot": self.configure_robot,
             "https://bioprotocols.org/labop/primitives/pcr/PCR": self.pcr,
             "https://bioprotocols.org/labop/primitives/liquid_handling/SerialDilution": self.serial_dilution,
-            "http://igem.org/engineering/Resuspend": self.resuspend,
             "https://bioprotocols.org/labop/primitives/spectrophotometry/MeasureFluorescence": self.measure_fluorescence,
             "http://igem.org/engineering/PrepareReagents": self.prepare_reagents,
+            "http://igem.org/engineering/PrepareSolution": {
+                "start": self.prepare_solution,
+                "end": self.finalize_prepare_solution,
+            },
         }
 
     def handle_process_failure(self, record, exception):
@@ -109,6 +115,13 @@ class ECLSpecialization(BehaviorSpecialization):
         self.script_steps = [f"  {step}" for step in self.script_steps]  # Indent
         script += ",\n".join(self.script_steps)
         script += "]"
+        script += "\n"
+        script += "\n".join(
+            [
+                f"subprotocol_{k} = {v}"
+                for k, v in self.independent_protocol_steps.items()
+            ]
+        )
         return script
 
     def define_container(
@@ -129,7 +142,11 @@ class ECLSpecialization(BehaviorSpecialization):
         text = f"""LabelContainer[
     Label -> "{name}",
     Container -> {container}]"""
-        self.script_steps += [text]
+
+        if self.current_independent_subprotocol:
+            self.independent_subprotocols[self.current_independent_subprotocol] += text
+        else:
+            self.script_steps += [text]
 
     def time_wait(
         self, record: labop.ActivityNodeExecution, ex: labop.ProtocolExecution
@@ -204,7 +221,10 @@ class ECLSpecialization(BehaviorSpecialization):
     Destination -> "{dest_container.name}",{dest_wells}
     Amount -> {amount}
     ]"""
-        self.script_steps += [text]
+        if self.current_independent_subprotocol:
+            self.independent_subprotocols[self.current_independent_subprotocol] += text
+        else:
+            self.script_steps += [text]
 
     def transfer_by_map(
         self, record: labop.ActivityNodeExecution, ex: labop.ProtocolExecution
@@ -411,52 +431,77 @@ class ECLSpecialization(BehaviorSpecialization):
      {destination_wells}]]"""
         ]
 
-    def resuspend(
-        self,
-        record: labop.ActivityNodeExecution,
-        execution: labop.ProtocolExecution,
+    #     def resuspend(
+    #         self,
+    #         record: labop.ActivityNodeExecution,
+    #         execution: labop.ProtocolExecution,
+    #     ):
+    #         call = record.call.lookup()
+    #         parameter_value_map = call.parameter_value_map()
+
+    #         source = parameter_value_map["source"]["value"]
+    #         destination = parameter_value_map["destination"]["value"]
+    #         amount = ecl_measure(parameter_value_map["amount"]["value"])
+
+    #         if isinstance(source, labop.SampleMask):
+    #             source = source.source.lookup()
+    #         source_container = source.container_type.lookup()
+    #         source_container = source_container.name
+
+    #         if isinstance(destination, labop.SampleMask):
+    #             destination_coordinates = flatten_coordinates(
+    #                 destination.sample_coordinates(
+    #                     sample_format=self.sample_format, as_list=True
+    #                 ),
+    #                 direction=Strings.COLUMN_DIRECTION,
+    #             )
+    #             destination = destination.source.lookup()
+
+    #         # Get destination container type
+    #         destination_container = destination.container_type.lookup()
+    #         destination_container = destination_container.name
+
+    #         self.script_steps += [
+    #             f"""
+    #    Resuspend[
+    #      Sample -> "{destination_container}",
+    #      Diluent -> "{source_container}",
+    #      Volume -> {amount},
+    #      DispenseNumberOfMixes -> 3,
+    #      DispenseMix -> True
+    #      ] """
+    #         ]
+
+    def prepare_solution(
+        self, record: labop.ActivityNodeExecution, execution: labop.Protocol
     ):
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
 
-        source = parameter_value_map["source"]["value"]
-        destination = parameter_value_map["destination"]["value"]
-        amount = ecl_measure(parameter_value_map["amount"]["value"])
+        spec = parameter_value_map["specification"]["value"]
+        self.current_independent_subprotocol = spec.name
+        components = f""
+        self.independent_protocol_steps[
+            spec.name
+        ] = "ExperimentStockSolution[{components}, Primitives-> {"
 
-        if isinstance(source, labop.SampleMask):
-            source = source.source.lookup()
-        source_container = source.container_type.lookup()
-        source_container = source_container.name
-
-        if isinstance(destination, labop.SampleMask):
-            destination_coordinates = flatten_coordinates(
-                destination.sample_coordinates(
-                    sample_format=self.sample_format, as_list=True
-                ),
-                direction=Strings.COLUMN_DIRECTION,
-            )
-            destination = destination.source.lookup()
-
-        # Get destination container type
-        destination_container = destination.container_type.lookup()
-        destination_container = destination_container.name
-
-        self.script_steps += [
-            f"""
-   Resuspend[
-     Sample -> "{destination_container}",
-     Diluent -> "{source_container}",
-     Volume -> {amount},
-     DispenseNumberOfMixes -> 3,
-     DispenseMix -> True
-     ] """
-        ]
+    def finalize_prepare_solution(
+        self, record: labop.ActivityNodeExecution, execution: labop.Protocol
+    ):
+        call = record.call.lookup()
+        parameter_value_map = call.parameter_value_map()
+        self.current_independent_subprotocol = None
+        spec = parameter_value_map["specification"]["value"]
+        components = f""
+        self.independent_protocol_steps[spec.name] += "}]"
 
     def prepare_reagents(
         self,
         record: labop.ActivityNodeExecution,
         execution: labop.ProtocolExecution,
     ):
+
+        self.independent_protocol_steps[spec.name] = ""
         self.stock_solutions += """
 
     "1x PBS from 10X stock"

@@ -92,7 +92,17 @@ class BehaviorSpecialization(ABC):
                 isinstance(behavior, labop.Protocol)
                 and behavior.identity in self._behavior_func_map
             ):
-                return self._behavior_func_map[behavior.identity](record, execution)
+                if isinstance(self._behavior_func_map[behavior.identity], dict):
+                    if True:
+                        self._behavior_func_map[behavior.identity]["start"](
+                            record, execution
+                        )
+                    else:
+                        self._behavior_func_map[behavior.identity]["end"](
+                            record, execution
+                        )
+                else:
+                    return self._behavior_func_map[behavior.identity](record, execution)
 
             # Individual Primitive specializations
             elif str(node.behavior) not in self._behavior_func_map:
