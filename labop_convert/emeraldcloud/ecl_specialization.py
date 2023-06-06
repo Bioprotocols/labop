@@ -212,18 +212,14 @@ class ECLSpecialization(BehaviorSpecialization):
 
         if type(destination) is labop.SampleMask:
             dest_container = destination.source.lookup().container_type.lookup()
-            dest_wells = f"\n    DestinationWells -> {ecl_coordinates(destination)},"
+            dest_wells = ecl_coordinates(destination)
         else:
             dest_container = destination.container_type.lookup()
-            dest_wells = ""
-        self.resolutions[dest_container.identity] = resource
+            dest_wells = None
 
         amount = ecl_measure(parameter_value_map["amount"]["value"])
-        text = f"""Transfer[
-    Source -> {resource},
-    Destination -> "{dest_container}",{dest_wells}
-    Amount -> {amount}
-    ]"""
+        text = ecl_transfer(source, dest_container, amount, dest_wells=dest_wells)
+
         # if self.current_independent_subprotocol:
         #     self.independent_subprotocol_steps[self.current_independent_subprotocol] += [text]
         # else:
@@ -242,28 +238,31 @@ class ECLSpecialization(BehaviorSpecialization):
         if type(source) is labop.SampleMask:
             source_container = source.source.lookup().container_type.lookup()
 
-            source_wells = f"\n    SourceWells -> {ecl_coordinates(source)},"
+            source_wells = ecl_coordinates(source)
         else:
             source_container = source.container_type.lookup()
-            source_wells = ""
+            source_wells = None
 
         if type(destination) is labop.SampleMask:
             dest_container = destination.source.lookup().container_type.lookup()
-            dest_wells = f"\n    DestinationWells -> {ecl_coordinates(destination)},"
+            dest_wells = ecl_coordinates(destination)
         else:
             dest_container = destination.container_type.lookup()
-            dest_wells = ""
+            dest_wells = None
 
         # if source_container.identity in self.resolutions:
         #     resource = self.resolutions[source_container.identity]
         # else:
         resource = f'"{source_container.name}"'
 
-        text = f"""Transfer[
-    Source -> {resource},{source_wells}
-    Destination -> "{dest_container.name}",{dest_wells}
-    Amount -> {amount}
-    ]"""
+        text = ecl_transfer(
+            resource,
+            dest_container,
+            amount,
+            src_wells=source_wells,
+            dest_wells=dest_wells,
+        )
+
         # if self.current_independent_subprotocol:
         #     self.independent_subprotocol_steps[self.current_independent_subprotocol] += [text]
         # else:
@@ -459,20 +458,14 @@ class ECLSpecialization(BehaviorSpecialization):
         destinations = ",".join(map(str, destination_coordinates[1:]))
         source_wells = f"Flatten[Transpose[AllWells[]]][[{{ {sources} }}]]"
         destination_wells = f"Flatten[Transpose[AllWells[]]][[{{ {destinations} }}]]"
-        self.script_steps += [
-            f"""Sequence@@MapThread[
-   Transfer[
-     Source -> "{source_container}",
-     Destination -> "{destination_container}",
-     SourceWell -> #1,
-     DestinationWell -> #2,
-     Amount -> {amount},
-     SlurryTransfer -> True,
-     DispenseMix -> True
-     ] &,
-   {{{source_wells},
-     {destination_wells}}}]"""
-        ]
+
+        self.script_steps += ecl_transfer(
+            source_container,
+            destination_container,
+            amount,
+            src_wells=source_wells,
+            dest_wells=destination_wells,
+        )
 
     #     def resuspend(
     #         self,
@@ -645,7 +638,54 @@ def ecl_coordinates(samples: labop.SampleCollection, sample_format=Strings.XARRA
         container = samples.container_type.lookup()
         container_name = container.name if container.name else container.display_id
         locations = ",".join(map(str, coordinates))
-
-        return f"""{{#, "{container_name}"}} & /@  Flatten[Transpose[AllWells[]]][[{ {locations} }]]"""
+        return locations
+        # return f"""{{#, "{container_name}"}} & /@  Flatten[Transpose[AllWells[]]][[{ {locations} }]]"""
 
     raise TypeError()
+
+
+def ecl_transfer(
+    source: str,
+    destination: str,
+    amount: str,
+    src_wells: str = None,
+    dest_wells: str = None,
+    options="SlurryTransfer -> True, DispenseMix -> True",
+):
+    if src_wells and dest_wells:
+        src_id = "#1"
+        dest_id = "#2"
+    else:
+        dest_id = "#1"
+
+    if dest_wells:
+        dest_well_list = f"Flatten[Transpose[AllWells[]]][[{{{dest_wells}}}]]"
+        dest_well_attr = f"DestinationWell -> {dest_id},"
+    else:
+        dest_well_list = f""
+        dest_well_attr = f""
+
+    if src_wells:
+        src_well_list = f"Flatten[Transpose[AllWells[]]][[{{{src_wells}}}]]"
+        src_well_attr = f"SourceWell -> {src_id},"
+    else:
+        src_well_list = f""
+        src_well_attr = f""
+
+    if src_wells or dest_wells:
+        prefix = "Sequence@@MapThread["
+        well_mapping = ",".join([src_well_list, dest_well_list])
+        suffix = f" &,{{{well_mapping}}}]"
+    else:
+        prefix = ""
+        suffix = ""
+
+    return f"""
+    {prefix}Transfer[
+        Source -> {source},
+        {source_well_attr}
+        Destination -> {destination},
+        {dest_well_attr}
+        Amount -> {amount},
+        {options}]{suffix},
+    """
