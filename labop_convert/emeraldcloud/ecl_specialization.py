@@ -534,8 +534,14 @@ class ECLSpecialization(BehaviorSpecialization):
         self.current_independent_subprotocol = spec.name
 
         buffer_container = parameter_value_map["buffer_container"]["value"]
-        if buffer_container.identity in self.resolutions:
+        buffer = parameter_value_map["buffer"]["value"]
+        if (
+            buffer_container.identity in self.resolutions
+            and not self.create_stock_solutions
+        ):
             resource = self.resolutions[buffer_container.identity]
+        elif buffer.identity in self.resolutions and self.create_stock_solutions:
+            resource = self.resolutions[buffer.identity]
         else:
             resource = f'"{buffer_container.name}"'
         buffer_vol = ecl_measure(
@@ -551,11 +557,9 @@ class ECLSpecialization(BehaviorSpecialization):
             parameter_value_map["reagent_mass"]["value"], use_star=True
         )
 
-        components = (
-            f"""{{{buffer_vol}, {resource}}}, {{{reagent_mass}, {reagent_resource}}}"""
-        )
         if self.create_stock_solutions:
             # Generate a stock solution recipe
+            components = f"""{{{buffer_vol}, {resource}}}, {{{reagent_mass}, {reagent_resource}}}"""
             self.independent_subprotocol_steps[spec.name] = [
                 f"""ExperimentStockSolution[{{{components}}}, MixTime-> 30 Second]"""
             ]

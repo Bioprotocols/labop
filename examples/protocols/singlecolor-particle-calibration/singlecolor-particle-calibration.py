@@ -12,9 +12,6 @@ import sbol3
 from pint import Measurement
 from tyto import OM
 
-import labop
-import uml
-
 NAMESPACE = "http://igem.org/engineering/"
 PROTOCOL_NAME = "interlab"
 PROTOCOL_LONG_NAME = "Multicolor fluorescence per bacterial particle calibration"
@@ -32,6 +29,8 @@ filename = "".join(__file__.split(".py")[0].split("/")[-1:])
 
 
 def generate_resuspend_subprotocol(doc: sbol3.Document):
+    import labop
+
     subprotocol = labop.Protocol("Resuspend")
     doc.add(subprotocol)
     source = subprotocol.input_value("source", labop.SampleCollection)
@@ -50,6 +49,8 @@ def generate_resuspend_subprotocol(doc: sbol3.Document):
 
 
 def generate_solution_subprotocol(doc: sbol3.Document):
+    import labop
+
     subprotocol = labop.Protocol("PrepareSolution")
     doc.add(subprotocol)
 
@@ -59,9 +60,7 @@ def generate_solution_subprotocol(doc: sbol3.Document):
 
     reagent_param = subprotocol.input_value("reagent", sbol3.Component)
     reagent_mass_param = subprotocol.input_value("reagent_mass", sbol3.Measure)
-    # buffer_param = subprotocol.input_value(
-    #     "buffer", sbol3.Component
-    # )
+    buffer_param = subprotocol.input_value("buffer", sbol3.Component)
     buffer_volume = subprotocol.input_value("buffer_volume", sbol3.Measure)
     buffer_container = subprotocol.input_value("buffer_container", labop.SampleArray)
     # target_concentration = subprotocol.input_value(
@@ -100,6 +99,8 @@ def generate_solution_subprotocol(doc: sbol3.Document):
 
 
 def generate_prepare_reagents_subprotocol(doc: sbol3.Document):
+    import labop
+
     # create the materials to be provisioned
     ddh2o = sbol3.Component(
         "ddH2O", "https://identifiers.org/pubchem.substance:24901740"
@@ -195,7 +196,7 @@ def generate_prepare_reagents_subprotocol(doc: sbol3.Document):
         ),
         reagent=fluorescein,
         reagent_mass=sbol3.Measure(5.6441, OM.microgram),
-        # buffer=pbs,
+        buffer=pbs,
         buffer_volume=sbol3.Measure(1.5, OM.millilitre),
         buffer_container=pbs_container.output_pin("samples"),
         # target_concentration=sbol3.Measure(10, OM.micromolar)
@@ -220,7 +221,7 @@ def generate_prepare_reagents_subprotocol(doc: sbol3.Document):
         ),
         reagent=silica_beads,
         reagent_mass=sbol3.Measure(1.26, OM.milligram),
-        # buffer=ddh2o,
+        buffer=ddh2o,
         buffer_volume=sbol3.Measure(1.5, OM.millilitre),
         buffer_container=ddh2o_container.output_pin("samples"),
         # target_concentration=sbol3.Measure(10, OM.micromolar)
@@ -843,7 +844,9 @@ def generate_autoprotocol_specialization(protocol, doc):
         autoprotocol_output, api, resolutions=resolutions
     )
 
-    ee = ExecutionEngine(specializations=[autoprotocol_specialization], failsafe=False)
+    ee = ExecutionEngine(
+        specializations=[autoprotocol_specialization], out_dir=OUT_DIR, failsafe=False
+    )
     execution = ee.execute(
         protocol,
         sbol3.Agent("test_agent"),
@@ -875,10 +878,9 @@ def generate_autoprotocol_specialization(protocol, doc):
 def generate_emeraldcloud_specialization(protocol, doc, stock_solutions=None):
     blockPrint()
     import labop
+    import uml
     from labop.execution_engine import ExecutionEngine
     from labop_convert.emeraldcloud.ecl_specialization import ECLSpecialization
-
-    ecl_output = os.path.join(OUT_DIR, f"{filename}-emeraldcloud.nb")
 
     ddh2o = doc.find(f"{NAMESPACE}ddH2O")
     pbs = doc.find(f"{NAMESPACE}pbs")
@@ -937,13 +939,22 @@ def generate_emeraldcloud_specialization(protocol, doc, stock_solutions=None):
         .value.value.lookup()
         .identity: """Model[Container, Plate, "96-well Polystyrene Flat-Bottom Plate, Clear"]""",
     }
+
+    if stock_solutions:
+        ecl_output = os.path.join(OUT_DIR, f"{filename}-emeraldcloud.nb")
+    else:
+        ecl_output = os.path.join(
+            OUT_DIR, f"{filename}-emeraldcloud-stock-solutions.nb"
+        )
     ecl_specialization = ECLSpecialization(
         ecl_output,
         resolutions=resolutions,
         create_stock_solutions=(stock_solutions is None),
     )
 
-    ee = ExecutionEngine(specializations=[ecl_specialization], failsafe=False)
+    ee = ExecutionEngine(
+        specializations=[ecl_specialization], out_dir=OUT_DIR, failsafe=False
+    )
     execution = ee.execute(
         protocol,
         sbol3.Agent("test_agent"),
@@ -955,12 +966,10 @@ def generate_emeraldcloud_specialization(protocol, doc, stock_solutions=None):
 
     print(f"Saving EmeraldCloud [{ecl_output}].")
 
-    print(f"Analyzing Protocol ...")
-
     if REGENERATE_ARTIFACTS:
         execution_filename = os.path.join(OUT_DIR, f"{filename}-execution.nt")
         print(f"Saving Execution Record [{execution_filename}]")
-        with open(filename, "w") as f:
+        with open(execution_filename, "w") as f:
             f.write(doc.write_string(sbol3.SORTED_NTRIPLES).strip())
 
 
@@ -1057,14 +1066,14 @@ if __name__ == "__main__":
     parser.add_argument(
         "-s",
         "--generate-emeraldcloud-stock-solutions",
-        default=True,
+        default=False,
         action="store_true",
         help=f"Execute the protocol to generate the Emerald Cloud notebook at artifacts/{filename}-emeraldcloud.nb.",
     )
     parser.add_argument(
         "-e",
         "--generate-emeraldcloud",
-        default=False,
+        default=True,
         action="store_true",
         help=f"Execute the protocol to generate the Emerald Cloud notebook at artifacts/{filename}-emeraldcloud.nb. ",
     )
@@ -1072,6 +1081,7 @@ if __name__ == "__main__":
         "--ecl-microsphere-id",
         nargs="?",
         const='Model[Sample, StockSolution, "id:L8kPEjk1vmRP"]',
+        default='Model[Sample, StockSolution, "id:L8kPEjk1vmRP"]',
         type=str,
         help=f"Execute the protocol to generate the Emerald Cloud notebook at artifacts/{filename}-emeraldcloud.nb. Optionally specify an id for the microsphere reagent.  Only valid in conjunction with the -e flag.",
     )
@@ -1102,7 +1112,7 @@ if __name__ == "__main__":
             test_autoprotocol()
 
     if args.generate_emeraldcloud_stock_solutions:
-        print("Generating EmeraldCloud ...")
+        print("Generating EmeraldCloud Stock Solution Recipes ...")
         generate_emeraldcloud_specialization(*read_protocol())
 
     if args.generate_emeraldcloud:
@@ -1110,7 +1120,7 @@ if __name__ == "__main__":
         generate_emeraldcloud_specialization(
             *read_protocol(),
             stock_solutions={
-                "microspheres": f'"{args.ecl_microsphere_id}"',
+                "microspheres": f"{args.ecl_microsphere_id}",
                 "fluorescein": """Model[Sample, StockSolution, "1x PBS, 10uM Fluorescein"]""",
             },
         )
