@@ -48,41 +48,91 @@ def generate_resuspend_subprotocol(doc: sbol3.Document):
     return subprotocol
 
 
-def generate_protocol():
+def generate_resuspend_subprotocol(doc: sbol3.Document):
     import labop
 
-    doc = sbol3.Document()
-    sbol3.set_namespace(NAMESPACE)
+    subprotocol = labop.Protocol("Resuspend")
+    doc.add(subprotocol)
+    source = subprotocol.input_value("source", labop.SampleCollection)
+    destination = subprotocol.input_value("destination", labop.SampleCollection)
+    amount = subprotocol.input_value("amount", sbol3.Measure)
+    suspend_reagent = subprotocol.primitive_step(
+        "Transfer", source=source, destination=destination, amount=amount
+    )
+    vortex = subprotocol.primitive_step(
+        "Vortex",
+        samples=destination,
+        duration=sbol3.Measure(30, OM.second),
+    )
+    subprotocol.order(vortex, subprotocol.final())
+    return subprotocol
 
-    #############################################
-    # Import the primitive libraries
-    # print("Importing libraries")
-    labop.import_library("liquid_handling")
-    # print("... Imported liquid handling")
-    labop.import_library("plate_handling")
-    # print("... Imported plate handling")
-    labop.import_library("spectrophotometry")
-    # print("... Imported spectrophotometry")
-    labop.import_library("sample_arrays")
-    # print("... Imported sample arrays")
 
-    # create the materials to be provisioned
+def generate_solution_subprotocol(doc: sbol3.Document):
+    import labop
+
+    resuspend_subprotocol = generate_resuspend_subprotocol(doc)
+
+    subprotocol = labop.Protocol("PrepareSolution")
+    doc.add(subprotocol)
+    container_spec_param = subprotocol.input_value("specification", labop.ContainerSpec)
+    reagent_param = subprotocol.input_value("reagent", sbol3.Component)
+    reagent_mass_param = subprotocol.input_value("reagent_mass", sbol3.Measure)
+    buffer_param = subprotocol.input_value("buffer", sbol3.Component)
+    buffer_volume = subprotocol.input_value("buffer_volume", sbol3.Measure)
+    buffer_container = subprotocol.input_value("buffer_container", labop.SampleArray)
+
+    # Provision an empty Microfuge tube in which to mix the standard solution
+    standard_solution_container = subprotocol.primitive_step(
+        "EmptyContainer", specification=container_spec_param
+    )
+    # standard_solution_container.name = solution_name
+
+    provision = subprotocol.primitive_step(
+        "Provision",
+        resource=reagent_param,
+        destination=standard_solution_container.output_pin("samples"),
+        amount=reagent_mass_param,
+    )
+    ### Suspend calibrant dry reagents
+    suspend_reagent = subprotocol.primitive_step(
+        resuspend_subprotocol,
+        source=buffer_container,
+        destination=standard_solution_container.output_pin("samples"),
+        amount=buffer_volume,
+    )
+    # suspend_reagent.description = f"The reconstituted `{reagent.name}` should have a final concentration of {target_concentration} in `{buffer.name}`."
+
+    subprotocol.designate_output(
+        "samples",
+        "http://bioprotocols.org/labop#SampleArray",
+        source=standard_solution_container.output_pin("samples"),
+    )
+    subprotocol.order(suspend_reagent, subprotocol.final())
+    return subprotocol
+
+
+def generate_prepare_reagents_subprotocol(doc: sbol3.Document):
+    import labop
+
+    solution_subprotocol = generate_solution_subprotocol(doc)
+
+    # Define buffers
     ddh2o = sbol3.Component(
         "ddH2O", "https://identifiers.org/pubchem.substance:24901740"
     )
     ddh2o.name = "Water, sterile-filtered, BioReagent, suitable for cell culture"
 
+    pbs = sbol3.Component("pbs", "https://pubchem.ncbi.nlm.nih.gov/compound/24978514")
+    pbs.name = "Phosphate Buffered Saline"
+
+    # Define calibrants
     silica_beads = sbol3.Component(
         "silica_beads",
         "https://nanocym.com/wp-content/uploads/2018/07/NanoCym-All-Datasheets-.pdf",
     )
     silica_beads.name = "NanoCym 950 nm monodisperse silica nanoparticles"
-    silica_beads.description = (
-        "3e9 NanoCym microspheres/mL ddH20"  # where does this go?
-    )
-
-    pbs = sbol3.Component("pbs", "https://pubchem.ncbi.nlm.nih.gov/compound/24978514")
-    pbs.name = "Phosphate Buffered Saline"
+    silica_beads.description = "3e9 NanoCym microspheres"  # where does this go?
 
     fluorescein = sbol3.Component(
         "fluorescein", "https://pubchem.ncbi.nlm.nih.gov/substance/329753341"
@@ -106,6 +156,190 @@ def generate_protocol():
     doc.add(cascade_blue)
     doc.add(sulforhodamine)
 
+    subprotocol = labop.Protocol("PrepareReagents")
+    doc.add(subprotocol)
+
+    # Provision containers for buffer solutions
+    ddh2o_container = subprotocol.primitive_step(
+        "EmptyContainer",
+        specification=labop.ContainerSpec(
+            "ddh2o_container",
+            name="molecular grade H2O",
+            queryString="cont:StockReagent50mL",
+            prefixMap={
+                "cont": "https://sift.net/container-ontology/container-ontology#"
+            },
+        ),
+    )
+    ddh2o_container.name = "ddh2o_container"
+
+    provision = subprotocol.primitive_step(
+        "Provision",
+        resource=ddh2o,
+        destination=ddh2o_container.output_pin("samples"),
+        amount=sbol3.Measure(12, OM.milliliter),
+    )
+
+    pbs_container = subprotocol.primitive_step(
+        "EmptyContainer",
+        specification=labop.ContainerSpec(
+            "pbs_container",
+            name="PBS",
+            queryString="cont:StockReagent50mL",
+            prefixMap={
+                "cont": "https://sift.net/container-ontology/container-ontology#"
+            },
+        ),
+    )
+    pbs_container.name = "pbs_container"
+
+    provision = subprotocol.primitive_step(
+        "Provision",
+        resource=pbs,
+        destination=pbs_container.output_pin("samples"),
+        amount=sbol3.Measure(12, OM.milliliter),
+    )
+
+    # Prepare calibrant solutions
+    fluorescein_solution_subprotocol = subprotocol.primitive_step(
+        solution_subprotocol,
+        specification=labop.ContainerSpec(
+            "fluroscein_calibrant",
+            name="Fluorescein calibrant",
+            queryString="cont:StockReagent",
+            prefixMap={
+                "cont": "https://sift.net/container-ontology/container-ontology#"
+            },
+        ),
+        reagent=fluorescein,
+        reagent_mass=sbol3.Measure(5.6441, OM.microgram),
+        buffer=pbs,
+        buffer_volume=sbol3.Measure(1.5, OM.millilitre),
+        buffer_container=pbs_container.output_pin("samples"),
+        # target_concentration=sbol3.Measure(10, OM.micromolar)
+    )
+    fluorescein_solution_subprotocol.name = "fluroscein_standard_solution_container"
+    fluorescein_solution_subprotocol.description = f"The reconstituted `{fluorescein.name}` should have a final concentration of 10 uM in `{pbs.name}`."
+
+    silica_beads_solution_subprotocol = subprotocol.primitive_step(
+        solution_subprotocol,
+        specification=labop.ContainerSpec(
+            "microspheres",
+            name="microspheres",
+            queryString="cont:StockReagent",
+            prefixMap={
+                "cont": "https://sift.net/container-ontology/container-ontology#"
+            },
+        ),
+        reagent=silica_beads,
+        reagent_mass=sbol3.Measure(1.26, OM.milligram),
+        buffer=ddh2o,
+        buffer_volume=sbol3.Measure(1.5, OM.millilitre),
+        buffer_container=ddh2o_container.output_pin("samples"),
+        # target_concentration=sbol3.Measure(10, OM.micromolar)
+    )
+    silica_beads_solution_subprotocol.name = "microsphere_standard_solution_container"
+    silica_beads_solution_subprotocol.description = f"The resuspended `{silica_beads.name}` will have a final concentration of 3e9 microspheres/mL in `{ddh2o.name}`."
+
+    cascade_blue_solution_subprotocol = subprotocol.primitive_step(
+        solution_subprotocol,
+        specification=labop.ContainerSpec(
+            "cascade_blue_container",
+            name="Cascade Blue calibrant",
+            queryString="cont:StockReagent",
+            prefixMap={
+                "cont": "https://sift.net/container-ontology/container-ontology#"
+            },
+        ),
+        reagent=cascade_blue,
+        reagent_mass=sbol3.Measure(7.2, OM.milligram),
+        buffer=ddh2o,
+        buffer_volume=sbol3.Measure(1.5, OM.millilitre),
+        buffer_container=ddh2o_container.output_pin("samples"),
+        # target_concentration=sbol3.Measure(10, OM.micromolar)
+    )
+    cascade_blue_solution_subprotocol.name = "cascade_blue_standard_solution_container"
+    cascade_blue_solution_subprotocol.description = f"The reconstituted `{cascade_blue.name}` calibrant will have a final concentration of 10 uM in `{ddh2o.name}`."
+
+    sulforhodamine_solution_subprotocol = subprotocol.primitive_step(
+        solution_subprotocol,
+        specification=labop.ContainerSpec(
+            "sulforhodamine_container",
+            name="Sulforhodamine calibrant",
+            queryString="cont:StockReagent15mL",
+            prefixMap={
+                "cont": "https://sift.net/container-ontology/container-ontology#"
+            },
+        ),
+        reagent=sulforhodamine,
+        reagent_mass=sbol3.Measure(3.6, OM.milligram),
+        buffer=pbs,
+        buffer_volume=sbol3.Measure(10.0, OM.millilitre),
+        buffer_container=pbs_container.output_pin("samples"),
+        # target_concentration=sbol3.Measure(10, OM.micromolar)
+    )
+    sulforhodamine_solution_subprotocol.name = (
+        "sulforhodamine_standard_solution_container"
+    )
+    sulforhodamine_solution_subprotocol.description = f"The reconstituted `{sulforhodamine.name}` standard will have a final concentration of 2 uM in `{pbs.name}`."
+
+    output1 = subprotocol.designate_output(
+        "ddh2o_container",
+        "http://bioprotocols.org/labop#SampleArray",
+        source=ddh2o_container.output_pin("samples"),
+    )
+
+    output2 = subprotocol.designate_output(
+        "pbs_container",
+        "http://bioprotocols.org/labop#SampleArray",
+        source=pbs_container.output_pin("samples"),
+    )
+
+    output3 = subprotocol.designate_output(
+        "fluorescein_standard_solution_container",
+        "http://bioprotocols.org/labop#SampleArray",
+        source=fluorescein_solution_subprotocol.output_pin("samples"),
+    )
+
+    output4 = subprotocol.designate_output(
+        "microsphere_standard_solution_container",
+        "http://bioprotocols.org/labop#SampleArray",
+        source=silica_beads_solution_subprotocol.output_pin("samples"),
+    )
+
+    output5 = subprotocol.designate_output(
+        "cascade_blue_standard_solution_container",
+        "http://bioprotocols.org/labop#SampleArray",
+        source=cascade_blue_solution_subprotocol.output_pin("samples"),
+    )
+
+    output6 = subprotocol.designate_output(
+        "sulforhodamine_standard_solution_container",
+        "http://bioprotocols.org/labop#SampleArray",
+        source=sulforhodamine_solution_subprotocol.output_pin("samples"),
+    )
+    subprotocol.order(sulforhodamine_solution_subprotocol, subprotocol.final())
+    return subprotocol
+
+
+def generate_protocol():
+    import labop
+
+    doc = sbol3.Document()
+    sbol3.set_namespace(NAMESPACE)
+
+    #############################################
+    # Import the primitive libraries
+    # print("Importing libraries")
+    labop.import_library("liquid_handling")
+    # print("... Imported liquid handling")
+    labop.import_library("plate_handling")
+    # print("... Imported plate handling")
+    labop.import_library("spectrophotometry")
+    # print("... Imported spectrophotometry")
+    labop.import_library("sample_arrays")
+    # print("... Imported sample arrays")
+
     protocol = labop.Protocol(PROTOCOL_NAME)
     protocol.name = PROTOCOL_LONG_NAME
     protocol.version = "1.2"
@@ -115,93 +349,24 @@ Adapted from [https://dx.doi.org/10.17504/protocols.io.bht7j6rn](https://dx.doi.
     """
     doc.add(protocol)
 
-    resuspend_subprotocol = generate_resuspend_subprotocol(doc)
+    prepare_reagents_subprotocol = generate_prepare_reagents_subprotocol(doc)
+    prepare_reagents = protocol.primitive_step(prepare_reagents_subprotocol)
+    prepare_reagents.name = "prepare_reagents"
 
-    # Provision an empty Microfuge tube in which to mix the standard solution
-
-    fluorescein_standard_solution_container = protocol.primitive_step(
-        "EmptyContainer",
-        specification=labop.ContainerSpec(
-            "fluroscein_calibrant",
-            name="Fluorescein calibrant",
-            queryString="cont:StockReagent",
-            prefixMap={
-                "cont": "https://sift.net/container-ontology/container-ontology#"
-            },
-        ),
+    pbs_container = prepare_reagents.output_pin("pbs_container")
+    ddh2o_container = prepare_reagents.output_pin("ddh2o_container")
+    fluorescein_standard_solution_container = prepare_reagents.output_pin(
+        "fluorescein_standard_solution_container"
     )
-    fluorescein_standard_solution_container.name = "fluroscein_calibrant"
-
-    sulforhodamine_standard_solution_container = protocol.primitive_step(
-        "EmptyContainer",
-        specification=labop.ContainerSpec(
-            "sulforhodamine_calibrant",
-            name="Sulforhodamine 101 calibrant",
-            queryString="cont:StockReagent",
-            prefixMap={
-                "cont": "https://sift.net/container-ontology/container-ontology#"
-            },
-        ),
-    )
-    sulforhodamine_standard_solution_container.name = (
-        "sulforhodamine_standard_solution_container"
-    )
-
-    cascade_blue_standard_solution_container = protocol.primitive_step(
-        "EmptyContainer",
-        specification=labop.ContainerSpec(
-            "cascade_blue_calibrant",
-            name="Cascade blue calibrant",
-            queryString="cont:StockReagent",
-            prefixMap={
-                "cont": "https://sift.net/container-ontology/container-ontology#"
-            },
-        ),
-    )
-    cascade_blue_standard_solution_container.name = (
-        "cascade_blue_standard_solution_container"
-    )
-
-    microsphere_standard_solution_container = protocol.primitive_step(
-        "EmptyContainer",
-        specification=labop.ContainerSpec(
-            "microspheres",
-            name="microspheres",
-            queryString="cont:StockReagent",
-            prefixMap={
-                "cont": "https://sift.net/container-ontology/container-ontology#"
-            },
-        ),
-    )
-    microsphere_standard_solution_container.name = (
+    microsphere_standard_solution_container = prepare_reagents.output_pin(
         "microsphere_standard_solution_container"
     )
-
-    ddh2o_container = protocol.primitive_step(
-        "EmptyContainer",
-        specification=labop.ContainerSpec(
-            "ddh2o_container",
-            name="molecular grade H2O",
-            queryString="cont:StockReagent",
-            prefixMap={
-                "cont": "https://sift.net/container-ontology/container-ontology#"
-            },
-        ),
+    cascade_blue_standard_solution_container = prepare_reagents.output_pin(
+        "cascade_blue_standard_solution_container"
     )
-    ddh2o_container.name = "ddh2o_container"
-
-    pbs_container = protocol.primitive_step(
-        "EmptyContainer",
-        specification=labop.ContainerSpec(
-            "pbs_container",
-            name="PBS",
-            queryString="cont:StockReagent",
-            prefixMap={
-                "cont": "https://sift.net/container-ontology/container-ontology#"
-            },
-        ),
+    sulforhodamine_standard_solution_container = prepare_reagents.output_pin(
+        "sulforhodamine_standard_solution_container"
     )
-    pbs_container.name = "pbs_container"
 
     discard_container = protocol.primitive_step(
         "EmptyContainer",
@@ -215,84 +380,6 @@ Adapted from [https://dx.doi.org/10.17504/protocols.io.bht7j6rn](https://dx.doi.
         ),
     )
     discard_container.name = "discard_container"
-
-    provision = protocol.primitive_step(
-        "Provision",
-        resource=ddh2o,
-        destination=ddh2o_container.output_pin("samples"),
-        amount=sbol3.Measure(12, OM.milliliter),
-    )
-
-    provision = protocol.primitive_step(
-        "Provision",
-        resource=pbs,
-        destination=pbs_container.output_pin("samples"),
-        amount=sbol3.Measure(12, OM.milliliter),
-    )
-
-    provision = protocol.primitive_step(
-        "Provision",
-        resource=fluorescein,
-        destination=fluorescein_standard_solution_container.output_pin("samples"),
-        amount=sbol3.Measure(500, OM.microliter),
-    )
-
-    provision = protocol.primitive_step(
-        "Provision",
-        resource=cascade_blue,
-        destination=cascade_blue_standard_solution_container.output_pin("samples"),
-        amount=sbol3.Measure(500, OM.microliter),
-    )
-
-    provision = protocol.primitive_step(
-        "Provision",
-        resource=sulforhodamine,
-        destination=sulforhodamine_standard_solution_container.output_pin("samples"),
-        amount=sbol3.Measure(500, OM.microliter),
-    )
-
-    provision = protocol.primitive_step(
-        "Provision",
-        resource=silica_beads,
-        destination=microsphere_standard_solution_container.output_pin("samples"),
-        amount=sbol3.Measure(500, OM.microliter),
-    )
-
-    ### Suspend calibrant dry reagents
-    suspend_fluorescein = protocol.primitive_step(
-        resuspend_subprotocol,
-        source=pbs_container.output_pin("samples"),
-        destination=fluorescein_standard_solution_container.output_pin("samples"),
-        amount=sbol3.Measure(1, OM.millilitre),
-    )
-    print(
-        f"The reconstituted `{fluorescein.name}` should have a final concentration of 10 uM in `{pbs.name}`."
-    )
-    suspend_fluorescein.description = f"The reconstituted `{fluorescein.name}` should have a final concentration of 10 uM in `{pbs.name}`."
-
-    suspend_sulforhodamine = protocol.primitive_step(
-        resuspend_subprotocol,
-        source=pbs_container.output_pin("samples"),
-        destination=sulforhodamine_standard_solution_container.output_pin("samples"),
-        amount=sbol3.Measure(1, OM.millilitre),
-    )
-    suspend_sulforhodamine.description = f"The reconstituted `{sulforhodamine.name}` standard will have a final concentration of 2 uM in `{pbs.name}`."
-
-    suspend_cascade_blue = protocol.primitive_step(
-        resuspend_subprotocol,
-        source=ddh2o_container.output_pin("samples"),
-        destination=cascade_blue_standard_solution_container.output_pin("samples"),
-        amount=sbol3.Measure(1, OM.millilitre),
-    )
-    suspend_cascade_blue.description = f"The reconstituted `{cascade_blue.name}` calibrant will have a final concentration of 10 uM in `{ddh2o.name}`."
-
-    suspend_silica_beads = protocol.primitive_step(
-        resuspend_subprotocol,
-        source=ddh2o_container.output_pin("samples"),
-        destination=microsphere_standard_solution_container.output_pin("samples"),
-        amount=sbol3.Measure(1, OM.millilitre),
-    )
-    suspend_silica_beads.description = f"The resuspended `{silica_beads.name}` will have a final concentration of 3e9 microspheres/mL in `{ddh2o.name}`."
 
     # Transfer to plate
     calibration_plate = protocol.primitive_step(
@@ -363,16 +450,17 @@ Adapted from [https://dx.doi.org/10.17504/protocols.io.bht7j6rn](https://dx.doi.
         source=calibration_plate.output_pin("samples"),
         coordinates="E2:H12",
     )
+
     transfer_blanks1 = protocol.primitive_step(
         "Transfer",
-        source=pbs_container.output_pin("samples"),
+        source=pbs_container,
         destination=blank_wells1.output_pin("samples"),
         amount=sbol3.Measure(100, OM.microlitre),
     )
 
     transfer_blanks2 = protocol.primitive_step(
         "Transfer",
-        source=ddh2o_container.output_pin("samples"),
+        source=ddh2o_container,
         destination=blank_wells2.output_pin("samples"),
         amount=sbol3.Measure(100, OM.microlitre),
     )
@@ -380,50 +468,50 @@ Adapted from [https://dx.doi.org/10.17504/protocols.io.bht7j6rn](https://dx.doi.
     ### Plate calibrants in first column
     transfer1 = protocol.primitive_step(
         "Transfer",
-        source=fluorescein_standard_solution_container.output_pin("samples"),
+        source=fluorescein_standard_solution_container,
         destination=fluorescein_wells_A1.output_pin("samples"),
         amount=sbol3.Measure(200, OM.microlitre),
     )
     transfer2 = protocol.primitive_step(
         "Transfer",
-        source=fluorescein_standard_solution_container.output_pin("samples"),
+        source=fluorescein_standard_solution_container,
         destination=fluorescein_wells_B1.output_pin("samples"),
         amount=sbol3.Measure(200, OM.microlitre),
     )
     transfer3 = protocol.primitive_step(
         "Transfer",
-        source=sulforhodamine_standard_solution_container.output_pin("samples"),
+        source=sulforhodamine_standard_solution_container,
         destination=sulforhodamine_wells_C1.output_pin("samples"),
         amount=sbol3.Measure(200, OM.microlitre),
     )
     transfer4 = protocol.primitive_step(
         "Transfer",
-        source=sulforhodamine_standard_solution_container.output_pin("samples"),
+        source=sulforhodamine_standard_solution_container,
         destination=sulforhodamine_wells_D1.output_pin("samples"),
         amount=sbol3.Measure(200, OM.microlitre),
     )
     transfer5 = protocol.primitive_step(
         "Transfer",
-        source=cascade_blue_standard_solution_container.output_pin("samples"),
+        source=cascade_blue_standard_solution_container,
         destination=cascade_blue_wells_E1.output_pin("samples"),
         amount=sbol3.Measure(200, OM.microlitre),
     )
     transfer6 = protocol.primitive_step(
         "Transfer",
-        source=cascade_blue_standard_solution_container.output_pin("samples"),
+        source=cascade_blue_standard_solution_container,
         destination=cascade_blue_wells_F1.output_pin("samples"),
         amount=sbol3.Measure(200, OM.microlitre),
     )
     transfer7 = protocol.primitive_step(
         "Transfer",
-        source=microsphere_standard_solution_container.output_pin("samples"),
+        source=microsphere_standard_solution_container,
         destination=silica_beads_wells_G1.output_pin("samples"),
         amount=sbol3.Measure(200, OM.microlitre),
     )
 
     transfer8 = protocol.primitive_step(
         "Transfer",
-        source=microsphere_standard_solution_container.output_pin("samples"),
+        source=microsphere_standard_solution_container,
         destination=silica_beads_wells_H1.output_pin("samples"),
         amount=sbol3.Measure(200, OM.microlitre),
     )
@@ -585,14 +673,14 @@ Adapted from [https://dx.doi.org/10.17504/protocols.io.bht7j6rn](https://dx.doi.
     )
     btv1 = protocol.primitive_step(
         "Transfer",
-        source=pbs_container.output_pin("samples"),
+        source=pbs_container,
         destination=samples_in_pbs.output_pin("samples"),
         amount=sbol3.Measure(100, OM.microlitre),
     )
     btv1.description = " This will bring all wells to volume 200 microliter."
     btv2 = protocol.primitive_step(
         "Transfer",
-        source=ddh2o_container.output_pin("samples"),
+        source=ddh2o_container,
         destination=samples_in_ddh2o.output_pin("samples"),
         amount=sbol3.Measure(100, OM.microlitre),
     )
@@ -951,7 +1039,7 @@ def generate_autoprotocol_specialization(protocol, doc):
             f.write(doc.write_string(sbol3.SORTED_NTRIPLES).strip())
 
 
-def generate_emeraldcloud_specialization(protocol, doc):
+def generate_emeraldcloud_specialization(protocol, doc, stock_solutions=None):
     blockPrint()
     import labop
     from labop.execution_engine import ExecutionEngine
@@ -965,27 +1053,6 @@ def generate_emeraldcloud_specialization(protocol, doc):
     cascade_blue = doc.find(f"{NAMESPACE}cascade_blue")
     sulforhodamine = doc.find(f"{NAMESPACE}sulforhodamine")
     silica_beads = doc.find(f"{NAMESPACE}silica_beads")
-    discard_container = [x for x in protocol.nodes if x.name == "discard_container"][0]
-    fluorescein_standard_solution_container = [
-        x for x in protocol.nodes if x.name == "fluroscein_calibrant"
-    ][0]
-    sulforhodamine_standard_solution_container = [
-        x
-        for x in protocol.nodes
-        if x.name == "sulforhodamine_standard_solution_container"
-    ][0]
-    cascade_blue_standard_solution_container = [
-        x
-        for x in protocol.nodes
-        if x.name == "cascade_blue_standard_solution_container"
-    ][0]
-    microsphere_standard_solution_container = [
-        x for x in protocol.nodes if x.name == "microsphere_standard_solution_container"
-    ][0]
-    ddh2o_container = [x for x in protocol.nodes if x.name == "ddh2o_container"][0]
-    pbs_container = [x for x in protocol.nodes if x.name == "pbs_container"][0]
-    calibration_plate = [x for x in protocol.nodes if x.name == "calibration_plate"][0]
-
     resolutions = {
         ddh2o.identity: "Nuclease-free Water",
         pbs.identity: "1x PBS from 10X stock",
@@ -994,7 +1061,18 @@ def generate_emeraldcloud_specialization(protocol, doc):
         sulforhodamine.identity: "1x PBS, 10uM Fluorescein",
         silica_beads.identity: "Silica beads 2g/ml 950nm",
     }
-    ecl_specialization = ECLSpecialization(ecl_output, resolutions=resolutions)
+
+    if stock_solutions:
+        ecl_output = os.path.join(OUT_DIR, f"{filename}-emeraldcloud.nb")
+    else:
+        ecl_output = os.path.join(
+            OUT_DIR, f"{filename}-emeraldcloud-stock-solutions.nb"
+        )
+    ecl_specialization = ECLSpecialization(
+        ecl_output,
+        resolutions=resolutions,
+        create_stock_solutions=(stock_solutions is None),
+    )
 
     ee = ExecutionEngine(specializations=[ecl_specialization], failsafe=False)
     execution = ee.execute(
