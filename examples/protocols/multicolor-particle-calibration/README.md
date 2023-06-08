@@ -18,6 +18,9 @@ out the need to regenerate it. If, however, the sequence of functions is customi
 not forget to regenerate the source.
 
 Outputs from the script will be generated in the `artifacts` directory.
+
+For more detail about this protocol and how it interfaces with absorbance and fluorescence datasets,
+see [this blog entry](https://bioprotocols.github.io/labop//2023/03/19/Labop-Datasets.html).
  
 # USAGE
 `multicolor-particle-calibration.py [-h] [-g] [-m] [-a] [-t] [-e]`
