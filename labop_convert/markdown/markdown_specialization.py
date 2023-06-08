@@ -42,7 +42,11 @@ ContainerOntology = tyto.Ontology(
 
 class MarkdownSpecialization(BehaviorSpecialization):
     def __init__(
-        self, out_file, sample_format=Strings.JSON, propagate_objects=False
+        self,
+        out_file,
+        sample_format=Strings.JSON,
+        propagate_objects=False,
+        output_subprotocol_inputs=False,
     ) -> None:
         super().__init__()
         self.out_file = out_file
@@ -51,6 +55,7 @@ class MarkdownSpecialization(BehaviorSpecialization):
         self.doc = None
         self.propagate_objects = propagate_objects
         self.sample_format = sample_format
+        self.output_subprotocol_inputs = output_subprotocol_inputs
 
     def initialize_protocol(self, execution: labop.ProtocolExecution, out_dir=None):
         super().initialize_protocol(execution, out_dir=out_dir)
@@ -130,8 +135,9 @@ class MarkdownSpecialization(BehaviorSpecialization):
                 markdown += self._parameter_value_markdown(i)
         for parameter in unbound_input_parameters:
             markdown += self._parameter_markdown(parameter)
-        for x in subprotocol_executions:
-            markdown += x.inputs
+        if self.output_subprotocol_inputs:
+            for x in subprotocol_executions:
+                markdown += x.inputs
         return markdown
 
     def _outputs_markdown(
@@ -160,14 +166,19 @@ class MarkdownSpecialization(BehaviorSpecialization):
         ]
         # This is a hack to avoid listing Components that are dynamically generated
         # during protocol execution, e.g., transformants
-        components = [
-            x for x in components if tyto.SBO.functional_entity not in x.types
-        ]
-        materials = {x.name: x for x in components}
-        markdown = "\n\n## Protocol Materials:\n"
-        markdown = ""
-        for name, material in materials.items():
-            markdown += f"* [{name}]({material.types[0]})\n"
+        try:
+            components = [
+                x for x in components if tyto.SBO.functional_entity not in x.types
+            ]
+
+            materials = {x.name: x for x in components}
+            markdown = "\n\n## Protocol Materials:\n"
+            markdown = ""
+            for name, material in materials.items():
+                markdown += f"* [{name}]({material.types[0]})\n"
+        except Exception as e:
+            components = ["Error: could not resolve SBO functional_entity"]
+            materials = {}
 
         # Compute container types and quantities
         document_objects = []
@@ -181,7 +192,10 @@ class MarkdownSpecialization(BehaviorSpecialization):
                 pin = cba.input_pin("specification")
             except:
                 continue
-            container_type = pin.value.value.lookup().queryString
+            try:
+                container_type = pin.value.value.lookup().queryString
+            except Exception as e:
+                container_type = str(e)
 
             try:
                 pin = cba.input_pin("quantity")
@@ -1130,44 +1144,46 @@ class MarkdownSpecialization(BehaviorSpecialization):
         samples = parameter_value_map["samples"]["value"]
         direction = parameter_value_map["direction"]["value"]
         amount = parameter_value_map["amount"]["value"]
-        return
-
-        source = parameter_value_map["source"]["value"]
-        destination = parameter_value_map["destination"]["value"]
         diluent = parameter_value_map["diluent"]["value"]
-        dilution_factor = parameter_value_map["dilution_factor"]["value"]
-        series = parameter_value_map["series"]["value"]
 
-        destination_coordinates = f"wells {destination.sample_coordinates(sample_format=self.sample_format)} of"
-        last_destination_coordinate = f"{destination.sample_coordinates(sample_format=self.sample_format, as_list=True)[-1]}"
-        if isinstance(destination, labop.SampleMask):
-            destination = destination.source.lookup()
-        source_coordinates = source.sample_coordinates(sample_format=self.sample_format)
-        if isinstance(source, labop.SampleMask):
-            source = source.source.lookup()
+        sample_array = samples.to_data_array()
+        dilution_factor = 2  # FIXME need to calculate from amount and sample graph
+        series = sample_array.sample_location.size - 1
 
-        # Get destination container type
-        container_spec = record.document.find(destination.container_type)
+        destination_coordinates = (
+            f"wells {samples.sample_coordinates(sample_format=self.sample_format)} of"
+        )
+        first_samples_coordinate = f"{samples.sample_coordinates(sample_format=self.sample_format, as_list=True)[0]}"
+        last_samples_coordinate = f"{samples.sample_coordinates(sample_format=self.sample_format, as_list=True)[-1]}"
+
+        samples_coordinates = samples.sample_coordinates(
+            sample_format=self.sample_format
+        )
+        if isinstance(samples, labop.SampleMask):
+            samples = samples.source.lookup()
+
+        # Get samples container type
+        container_spec = record.document.find(samples.container_type)
         container_class = (
             ContainerOntology.uri + "#" + container_spec.queryString.split(":")[-1]
         )
         container_str = ContainerOntology.get_term_by_uri(container_class)
 
         if self.propagate_objects:
-            # Update destination contents
-            destination.initial_contents = source.initial_contents
+            # Update samples contents
+            samples.initial_contents = samples.initial_contents
 
             # Get sample names
             sample_names = get_sample_names(
-                source,
+                samples,
                 error_msg="Dilute execution failed. All source Components must specify a name.",
-                coordinates=source_coordinates,
+                coordinates=samples_coordinates,
             )
         else:
-            sample_names = source_coordinates
-        text = f"Perform a series of {series} {dilution_factor}-fold dilutions on {destination_coordinates} {container_str} `{container_spec.name}`. Start with {sample_names} and end with a final volume of {measurement_to_text(amount)} in {last_destination_coordinate}. "
-        if len(sample_names) > 1 and not source_coordinates:
-            text += f" Repeat for the remaining {len(sample_names)-1} `{source.name}` samples."
+            sample_names = samples_coordinates
+        text = f"Perform a series of {series} {dilution_factor}-fold dilutions on {samples_coordinates} {container_str} `{container_spec.name}`. Start with {first_samples_coordinate} and end with a final excess volume of {measurement_to_text(amount)} in {last_samples_coordinate}. "
+        if len(sample_names) > 1 and not samples_coordinates:
+            text += f" Repeat for the remaining {len(sample_names)-1} `{sample.name}` samples."
         # repeat_for_remaining_samples(sample_names, repeat_msg='Repeat for the remaining cultures:')
         text = add_description(record, text)
         execution.markdown_steps += [text]

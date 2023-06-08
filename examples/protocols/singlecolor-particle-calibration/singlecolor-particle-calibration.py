@@ -483,6 +483,7 @@ Adapted from [https://dx.doi.org/10.17504/protocols.io.bht7j6rn](https://dx.doi.
         samples=dilution_series1.output_pin("samples"),
         amount=sbol3.Measure(100, OM.microlitre),
         direction=labop.Strings.ROW_DIRECTION,
+        diluent=doc.find("pbs"),
     )
     serial_dilution1.description = "For each 100.0 microliter transfer, pipette up and down 3X to ensure the dilution is mixed homogeneously."
 
@@ -502,6 +503,7 @@ Adapted from [https://dx.doi.org/10.17504/protocols.io.bht7j6rn](https://dx.doi.
         samples=dilution_series2.output_pin("samples"),
         amount=sbol3.Measure(100, OM.microlitre),
         direction=labop.Strings.ROW_DIRECTION,
+        diluent=doc.find("pbs"),
     )
     serial_dilution2.description = "For each 100.0 microliter transfer, pipette up and down 3X to ensure the dilution is mixed homogeneously."
 
@@ -510,6 +512,7 @@ Adapted from [https://dx.doi.org/10.17504/protocols.io.bht7j6rn](https://dx.doi.
         samples=dilution_series3.output_pin("samples"),
         amount=sbol3.Measure(100, OM.microlitre),
         direction=labop.Strings.ROW_DIRECTION,
+        diluent=doc.find("pbs"),
     )
     serial_dilution3.description = "For each 100.0 microliter transfer, pipette up and down 3X to ensure the dilution is mixed homogeneously."
 
@@ -518,6 +521,7 @@ Adapted from [https://dx.doi.org/10.17504/protocols.io.bht7j6rn](https://dx.doi.
         samples=dilution_series4.output_pin("samples"),
         amount=sbol3.Measure(100, OM.microlitre),
         direction=labop.Strings.ROW_DIRECTION,
+        diluent=doc.find("pbs"),
     )
     serial_dilution4.description = "For each 100.0 microliter transfer, pipette up and down 3X to ensure the dilution is mixed homogeneously."
 
@@ -526,6 +530,7 @@ Adapted from [https://dx.doi.org/10.17504/protocols.io.bht7j6rn](https://dx.doi.
         samples=dilution_series5.output_pin("samples"),
         amount=sbol3.Measure(100, OM.microlitre),
         direction=labop.Strings.ROW_DIRECTION,
+        diluent=doc.find("ddh2o"),
     )
     serial_dilution5.description = "For each 100.0 microliter transfer, pipette up and down 3X to ensure the dilution is mixed homogeneously."
 
@@ -534,6 +539,7 @@ Adapted from [https://dx.doi.org/10.17504/protocols.io.bht7j6rn](https://dx.doi.
         samples=dilution_series6.output_pin("samples"),
         amount=sbol3.Measure(100, OM.microlitre),
         direction=labop.Strings.ROW_DIRECTION,
+        diluent=doc.find("ddh2o"),
     )
     serial_dilution6.description = "For each 100.0 microliter transfer, pipette up and down 3X to ensure the dilution is mixed homogeneously."
 
@@ -542,6 +548,7 @@ Adapted from [https://dx.doi.org/10.17504/protocols.io.bht7j6rn](https://dx.doi.
         samples=dilution_series7.output_pin("samples"),
         amount=sbol3.Measure(100, OM.microlitre),
         direction=labop.Strings.ROW_DIRECTION,
+        diluent=doc.find("ddh2o"),
     )
     serial_dilution7.description = "For each 100.0 microliter transfer, pipette up and down 3X to ensure the dilution is mixed homogeneously."
 
@@ -550,6 +557,7 @@ Adapted from [https://dx.doi.org/10.17504/protocols.io.bht7j6rn](https://dx.doi.
         samples=dilution_series8.output_pin("samples"),
         amount=sbol3.Measure(100, OM.microlitre),
         direction=labop.Strings.ROW_DIRECTION,
+        diluent=doc.find("ddh2o"),
     )
     serial_dilution8.description = "For each 100.0 microliter transfer, pipette up and down 3X to ensure the dilution is mixed homogeneously."
 
@@ -1030,7 +1038,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "-g",
         "--generate-protocol",
-        default=False,
+        default=True,
         action="store_true",
         help=f"Generate the artifacts/{filename}-protocol.nt LabOP protocol file.",
     )
@@ -1044,7 +1052,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "-m",
         "--generate-markdown",
-        default=False,
+        default=True,
         action="store_true",
         help=f"Execute the protocol to generate the artifacts/{filename}.md Markdown specialization of the LabOP protocol.",
     )

@@ -23,7 +23,6 @@ RUN apt update && apt install -y --no-install-recommends \
     python3-venv \
     && rm -rf /var/lib/apt/lists/*
 
-
 WORKDIR /root
 SHELL ["/bin/bash", "-c"]
 RUN git clone \
@@ -35,5 +34,9 @@ RUN python -mvenv labop_venv
 RUN source labop_venv/bin/activate
 RUN pip install ./labop
 RUN pip install IPython
+RUN mkdir -p /root/home
+WORKDIR /root/home
 
-CMD [ "/root/labop_venv/bin/python /root/labop/examples/protocols/singlecolor-particle-calibration/singlecolor-particle-calibration.py" ]
+ENV PROTOCOL_SCRIPT ""
+
+CMD python ${PROTOCOL_SCRIPT}
