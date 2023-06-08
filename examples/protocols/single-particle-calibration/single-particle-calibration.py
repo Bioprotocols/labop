@@ -14,7 +14,7 @@ from tyto import OM
 
 NAMESPACE = "http://igem.org/engineering/"
 PROTOCOL_NAME = "interlab"
-PROTOCOL_LONG_NAME = "Multicolor fluorescence per bacterial particle calibration"
+PROTOCOL_LONG_NAME = "Fluorescence per bacterial particle calibration"
 
 if "unittest" in sys.modules:
     REGENERATE_ARTIFACTS = False
@@ -114,18 +114,8 @@ def generate_prepare_reagents_subprotocol(doc: sbol3.Document):
     silica_beads.name = "NanoCym 950 nm monodisperse silica nanoparticles"
     silica_beads.description = "3e9 NanoCym microspheres"  # where does this go?
 
-    pbs = sbol3.Component("pbs", "https://pubchem.ncbi.nlm.nih.gov/compound/24978514")
-    pbs.name = "Phosphate Buffered Saline"
-
-    fluorescein = sbol3.Component(
-        "fluorescein", "https://pubchem.ncbi.nlm.nih.gov/substance/329753341"
-    )
-    fluorescein.name = "Fluorescein"
-
     doc.add(ddh2o)
     doc.add(silica_beads)
-    doc.add(pbs)
-    doc.add(fluorescein)
 
     subprotocol = labop.Protocol("PrepareReagents")
     doc.add(subprotocol)
@@ -152,63 +142,6 @@ def generate_prepare_reagents_subprotocol(doc: sbol3.Document):
         amount=sbol3.Measure(12, OM.milliliter),
     )
 
-    output1 = subprotocol.designate_output(
-        "ddh2o_container",
-        "http://bioprotocols.org/labop#SampleArray",
-        source=ddh2o_container.output_pin("samples"),
-    )
-
-    pbs_container = subprotocol.primitive_step(
-        "EmptyContainer",
-        specification=labop.ContainerSpec(
-            "pbs_container",
-            name="PBS",
-            queryString="cont:StockReagent50mL",
-            prefixMap={
-                "cont": "https://sift.net/container-ontology/container-ontology#"
-            },
-        ),
-    )
-    pbs_container.name = "pbs_container"
-
-    provision = subprotocol.primitive_step(
-        "Provision",
-        resource=pbs,
-        destination=pbs_container.output_pin("samples"),
-        amount=sbol3.Measure(12, OM.milliliter),
-    )
-
-    output2 = subprotocol.designate_output(
-        "pbs_container",
-        "http://bioprotocols.org/labop#SampleArray",
-        source=pbs_container.output_pin("samples"),
-    )
-
-    fluorescein_solution_subprotocol = subprotocol.primitive_step(
-        solution_subprotocol,
-        specification=labop.ContainerSpec(
-            "fluroscein_calibrant",
-            name="Fluorescein calibrant",
-            queryString="cont:StockReagent",
-            prefixMap={
-                "cont": "https://sift.net/container-ontology/container-ontology#"
-            },
-        ),
-        reagent=fluorescein,
-        reagent_mass=sbol3.Measure(5.6441, OM.microgram),
-        buffer=pbs,
-        buffer_volume=sbol3.Measure(1.5, OM.millilitre),
-        buffer_container=pbs_container.output_pin("samples"),
-        # target_concentration=sbol3.Measure(10, OM.micromolar)
-    )
-    fluorescein_solution_subprotocol.name = "fluroscein_calibrant"
-
-    output3 = subprotocol.designate_output(
-        "fluorescein_standard_solution_container",
-        "http://bioprotocols.org/labop#SampleArray",
-        source=fluorescein_solution_subprotocol.output_pin("samples"),
-    )
-
     silica_beads_solution_subprotocol = subprotocol.primitive_step(
         solution_subprotocol,
         specification=labop.ContainerSpec(
@@ -220,9 +153,9 @@ def generate_prepare_reagents_subprotocol(doc: sbol3.Document):
             },
         ),
         reagent=silica_beads,
-        reagent_mass=sbol3.Measure(1.26, OM.milligram),
+        reagent_mass=sbol3.Measure(2, OM.gram),
         buffer=ddh2o,
-        buffer_volume=sbol3.Measure(1.5, OM.millilitre),
+        buffer_volume=sbol3.Measure(1, OM.millilitre),
         buffer_container=ddh2o_container.output_pin("samples"),
         # target_concentration=sbol3.Measure(10, OM.micromolar)
     )
@@ -260,7 +193,8 @@ def generate_protocol():
     protocol.version = "1.2"
     protocol.description = """
 Plate readers report fluorescence values in arbitrary units that vary widely from instrument to instrument. Therefore absolute fluorescence values cannot be directly compared from one instrument to another. In order to compare fluorescence output of biological devices, it is necessary to create a standard fluorescence curve. This variant of the protocol uses two replicates of three colors of dye, plus beads.
-Adapted from [https://dx.doi.org/10.17504/protocols.io.bht7j6rn](https://dx.doi.org/10.17504/protocols.io.bht7j6r) and [https://dx.doi.org/10.17504/protocols.io.6zrhf56](https://dx.doi.org/10.17504/protocols.io.6zrhf56)
+Adapted from [https://dx.doi.org/10.17504/protocols.io.bht7j6rn](https://dx.doi.org/10.17504/protocols.io.bht7j6r) and [https://dx.doi.org/10.17504/protocols.io.6zrhf56](https://dx.doi.org/10.17504/protocols.io.6zrhf56).
+    This protocol corresponds to ECL protocol "id:M8n3rxnBlZMM".
     """
     doc.add(protocol)
 
@@ -269,11 +203,8 @@ Adapted from [https://dx.doi.org/10.17504/protocols.io.bht7j6rn](https://dx.doi.
     prepare_reagents = protocol.primitive_step(prepare_reagents_subprotocol)
     prepare_reagents.name = "prepare_reagents"
 
-    pbs_container = prepare_reagents.output_pin("pbs_container")
     ddh2o_container = prepare_reagents.output_pin("ddh2o_container")
-    fluorescein_standard_solution_container = prepare_reagents.output_pin(
-        "fluorescein_standard_solution_container"
-    )
+
     microsphere_standard_solution_container = prepare_reagents.output_pin(
         "microsphere_standard_solution_container"
     )
@@ -305,171 +236,51 @@ Adapted from [https://dx.doi.org/10.17504/protocols.io.bht7j6rn](https://dx.doi.
     )
     calibration_plate.name = "calibration_plate"
 
-    fluorescein_wells_A1 = protocol.primitive_step(
+    silica_beads_wells_A1 = protocol.primitive_step(
         "PlateCoordinates",
         source=calibration_plate.output_pin("samples"),
         coordinates="A1",
-    )
-    fluorescein_wells_B1 = protocol.primitive_step(
-        "PlateCoordinates",
-        source=calibration_plate.output_pin("samples"),
-        coordinates="B1",
-    )
-    fluorescein_wells_C1 = protocol.primitive_step(
-        "PlateCoordinates",
-        source=calibration_plate.output_pin("samples"),
-        coordinates="C1",
-    )
-    fluorescein_wells_D1 = protocol.primitive_step(
-        "PlateCoordinates",
-        source=calibration_plate.output_pin("samples"),
-        coordinates="D1",
-    )
-
-    silica_beads_wells_E1 = protocol.primitive_step(
-        "PlateCoordinates",
-        source=calibration_plate.output_pin("samples"),
-        coordinates="E1",
-    )
-    silica_beads_wells_F1 = protocol.primitive_step(
-        "PlateCoordinates",
-        source=calibration_plate.output_pin("samples"),
-        coordinates="F1",
-    )
-
-    silica_beads_wells_G1 = protocol.primitive_step(
-        "PlateCoordinates",
-        source=calibration_plate.output_pin("samples"),
-        coordinates="G1",
-    )
-    silica_beads_wells_H1 = protocol.primitive_step(
-        "PlateCoordinates",
-        source=calibration_plate.output_pin("samples"),
-        coordinates="H1",
     )
 
     # Plate blanks
     blank_wells1 = protocol.primitive_step(
         "PlateCoordinates",
         source=calibration_plate.output_pin("samples"),
-        coordinates="A2:D12",
-    )
-    blank_wells2 = protocol.primitive_step(
-        "PlateCoordinates",
-        source=calibration_plate.output_pin("samples"),
-        coordinates="E2:H12",
-    )
-    transfer_blanks1 = protocol.primitive_step(
-        "Transfer",
-        source=pbs_container,
-        destination=blank_wells1.output_pin("samples"),
-        amount=sbol3.Measure(100, OM.microlitre),
+        coordinates="B1:H1,A2:C2",
     )
 
-    transfer_blanks2 = protocol.primitive_step(
+    # Plate blanks
+    water_wells1 = protocol.primitive_step(
+        "PlateCoordinates",
+        source=calibration_plate.output_pin("samples"),
+        coordinates="D2",
+    )
+
+    transfer_blanks1 = protocol.primitive_step(
         "Transfer",
         source=ddh2o_container,
-        destination=blank_wells2.output_pin("samples"),
+        destination=blank_wells1.output_pin("samples"),
         amount=sbol3.Measure(100, OM.microlitre),
     )
 
     ### Plate calibrants in first column
     transfer1 = protocol.primitive_step(
         "Transfer",
-        source=fluorescein_standard_solution_container,
-        destination=fluorescein_wells_A1.output_pin("samples"),
+        source=microsphere_standard_solution_container,
+        destination=silica_beads_wells_A1.output_pin("samples"),
         amount=sbol3.Measure(200, OM.microlitre),
     )
     transfer2 = protocol.primitive_step(
         "Transfer",
-        source=fluorescein_standard_solution_container,
-        destination=fluorescein_wells_B1.output_pin("samples"),
-        amount=sbol3.Measure(200, OM.microlitre),
-    )
-    transfer3 = protocol.primitive_step(
-        "Transfer",
-        source=fluorescein_standard_solution_container,
-        destination=fluorescein_wells_C1.output_pin("samples"),
-        amount=sbol3.Measure(200, OM.microlitre),
-    )
-    transfer4 = protocol.primitive_step(
-        "Transfer",
-        source=fluorescein_standard_solution_container,
-        destination=fluorescein_wells_D1.output_pin("samples"),
-        amount=sbol3.Measure(200, OM.microlitre),
-    )
-    transfer5 = protocol.primitive_step(
-        "Transfer",
         source=microsphere_standard_solution_container,
-        destination=silica_beads_wells_E1.output_pin("samples"),
-        amount=sbol3.Measure(200, OM.microlitre),
-    )
-    transfer6 = protocol.primitive_step(
-        "Transfer",
-        source=microsphere_standard_solution_container,
-        destination=silica_beads_wells_F1.output_pin("samples"),
-        amount=sbol3.Measure(200, OM.microlitre),
-    )
-    transfer7 = protocol.primitive_step(
-        "Transfer",
-        source=microsphere_standard_solution_container,
-        destination=silica_beads_wells_G1.output_pin("samples"),
-        amount=sbol3.Measure(200, OM.microlitre),
-    )
-
-    transfer8 = protocol.primitive_step(
-        "Transfer",
-        source=microsphere_standard_solution_container,
-        destination=silica_beads_wells_H1.output_pin("samples"),
-        amount=sbol3.Measure(200, OM.microlitre),
+        destination=water_wells1.output_pin("samples"),
+        amount=sbol3.Measure(100, OM.microlitre),
     )
 
     dilution_series1 = protocol.primitive_step(
         "PlateCoordinates",
         source=calibration_plate.output_pin("samples"),
-        coordinates="A1:A11",
-    )
-
-    dilution_series2 = protocol.primitive_step(
-        "PlateCoordinates",
-        source=calibration_plate.output_pin("samples"),
-        coordinates="B1:B11",
-    )
-
-    dilution_series3 = protocol.primitive_step(
-        "PlateCoordinates",
-        source=calibration_plate.output_pin("samples"),
-        coordinates="C1:C11",
-    )
-
-    dilution_series4 = protocol.primitive_step(
-        "PlateCoordinates",
-        source=calibration_plate.output_pin("samples"),
-        coordinates="D1:D11",
-    )
-
-    dilution_series5 = protocol.primitive_step(
-        "PlateCoordinates",
-        source=calibration_plate.output_pin("samples"),
-        coordinates="E1:E11",
-    )
-
-    dilution_series6 = protocol.primitive_step(
-        "PlateCoordinates",
-        source=calibration_plate.output_pin("samples"),
-        coordinates="F1:F11",
-    )
-
-    dilution_series7 = protocol.primitive_step(
-        "PlateCoordinates",
-        source=calibration_plate.output_pin("samples"),
-        coordinates="G1:G11",
-    )
-
-    dilution_series8 = protocol.primitive_step(
-        "PlateCoordinates",
-        source=calibration_plate.output_pin("samples"),
-        coordinates="H1:H11",
+        coordinates="A1:H1,A2:C2",
     )
 
     discard_coordinates = protocol.primitive_step(
@@ -482,8 +293,8 @@ Adapted from [https://dx.doi.org/10.17504/protocols.io.bht7j6rn](https://dx.doi.
         "SerialDilution",
         samples=dilution_series1.output_pin("samples"),
         amount=sbol3.Measure(100, OM.microlitre),
-        direction=labop.Strings.ROW_DIRECTION,
-        diluent=doc.find("pbs"),
+        direction=labop.Strings.COLUMN_DIRECTION,
+        diluent=doc.find("ddH2O"),
     )
     serial_dilution1.description = "For each 100.0 microliter transfer, pipette up and down 3X to ensure the dilution is mixed homogeneously."
 
@@ -498,73 +309,10 @@ Adapted from [https://dx.doi.org/10.17504/protocols.io.bht7j6rn](https://dx.doi.
         caption="Serial Dilution",
     )
 
-    serial_dilution2 = protocol.primitive_step(
-        "SerialDilution",
-        samples=dilution_series2.output_pin("samples"),
-        amount=sbol3.Measure(100, OM.microlitre),
-        direction=labop.Strings.ROW_DIRECTION,
-        diluent=doc.find("pbs"),
-    )
-    serial_dilution2.description = "For each 100.0 microliter transfer, pipette up and down 3X to ensure the dilution is mixed homogeneously."
-
-    serial_dilution3 = protocol.primitive_step(
-        "SerialDilution",
-        samples=dilution_series3.output_pin("samples"),
-        amount=sbol3.Measure(100, OM.microlitre),
-        direction=labop.Strings.ROW_DIRECTION,
-        diluent=doc.find("pbs"),
-    )
-    serial_dilution3.description = "For each 100.0 microliter transfer, pipette up and down 3X to ensure the dilution is mixed homogeneously."
-
-    serial_dilution4 = protocol.primitive_step(
-        "SerialDilution",
-        samples=dilution_series4.output_pin("samples"),
-        amount=sbol3.Measure(100, OM.microlitre),
-        direction=labop.Strings.ROW_DIRECTION,
-        diluent=doc.find("pbs"),
-    )
-    serial_dilution4.description = "For each 100.0 microliter transfer, pipette up and down 3X to ensure the dilution is mixed homogeneously."
-
-    serial_dilution5 = protocol.primitive_step(
-        "SerialDilution",
-        samples=dilution_series5.output_pin("samples"),
-        amount=sbol3.Measure(100, OM.microlitre),
-        direction=labop.Strings.ROW_DIRECTION,
-        diluent=doc.find("ddh2o"),
-    )
-    serial_dilution5.description = "For each 100.0 microliter transfer, pipette up and down 3X to ensure the dilution is mixed homogeneously."
-
-    serial_dilution6 = protocol.primitive_step(
-        "SerialDilution",
-        samples=dilution_series6.output_pin("samples"),
-        amount=sbol3.Measure(100, OM.microlitre),
-        direction=labop.Strings.ROW_DIRECTION,
-        diluent=doc.find("ddh2o"),
-    )
-    serial_dilution6.description = "For each 100.0 microliter transfer, pipette up and down 3X to ensure the dilution is mixed homogeneously."
-
-    serial_dilution7 = protocol.primitive_step(
-        "SerialDilution",
-        samples=dilution_series7.output_pin("samples"),
-        amount=sbol3.Measure(100, OM.microlitre),
-        direction=labop.Strings.ROW_DIRECTION,
-        diluent=doc.find("ddh2o"),
-    )
-    serial_dilution7.description = "For each 100.0 microliter transfer, pipette up and down 3X to ensure the dilution is mixed homogeneously."
-
-    serial_dilution8 = protocol.primitive_step(
-        "SerialDilution",
-        samples=dilution_series8.output_pin("samples"),
-        amount=sbol3.Measure(100, OM.microlitre),
-        direction=labop.Strings.ROW_DIRECTION,
-        diluent=doc.find("ddh2o"),
-    )
-    serial_dilution8.description = "For each 100.0 microliter transfer, pipette up and down 3X to ensure the dilution is mixed homogeneously."
-
     discard_wells = protocol.primitive_step(
         "PlateCoordinates",
         source=calibration_plate.output_pin("samples"),
-        coordinates="A11:H11",
+        coordinates="C2",
     )
 
     discard = protocol.primitive_step(
@@ -576,56 +324,16 @@ Adapted from [https://dx.doi.org/10.17504/protocols.io.bht7j6rn](https://dx.doi.
 
     discard.description = " This step ensures that all wells contain an equivalent volume. Be sure to change pipette tips for every well to avoid cross-contamination."
 
-    # Bring to volume of 200 ul
-    samples_in_pbs = protocol.primitive_step(
-        "PlateCoordinates",
-        source=calibration_plate.output_pin("samples"),
-        coordinates="A1:D12",
-    )
-    samples_in_ddh2o = protocol.primitive_step(
-        "PlateCoordinates",
-        source=calibration_plate.output_pin("samples"),
-        coordinates="E1:H12",
-    )
-    btv1 = protocol.primitive_step(
-        "Transfer",
-        source=pbs_container,
-        destination=samples_in_pbs.output_pin("samples"),
-        amount=sbol3.Measure(100, OM.microlitre),
-    )
-    btv1.description = " This will bring all wells to volume 200 microliter."
-    btv2 = protocol.primitive_step(
-        "Transfer",
-        source=ddh2o_container,
-        destination=samples_in_ddh2o.output_pin("samples"),
-        amount=sbol3.Measure(100, OM.microlitre),
-    )
-    btv2.description = " This will bring all wells to volume 200 microliter."
-
     # Perform measurements
     read_wells1 = protocol.primitive_step(
         "PlateCoordinates",
         source=calibration_plate.output_pin("samples"),
-        coordinates="A1:D12",
+        coordinates="A1:H1,A2:D2",
     )
-    read_wells4 = protocol.primitive_step(
-        "PlateCoordinates",
-        source=calibration_plate.output_pin("samples"),
-        coordinates="E1:H12",
-    )
-
-    measure_fluorescence1 = protocol.primitive_step(
-        "MeasureFluorescence",
-        samples=read_wells1.output_pin("samples"),
-        excitationWavelength=sbol3.Measure(488, OM.nanometer),
-        emissionWavelength=sbol3.Measure(530, OM.nanometer),
-        emissionBandpassWidth=sbol3.Measure(30, OM.nanometer),
-    )
-    measure_fluorescence1.name = "fluorescein and bead fluorescence"
 
     measure_absorbance = protocol.primitive_step(
         "MeasureAbsorbance",
-        samples=read_wells4.output_pin("samples"),
+        samples=read_wells1.output_pin("samples"),
         wavelength=sbol3.Measure(600, OM.nanometer),
     )
 
@@ -635,30 +343,16 @@ Adapted from [https://dx.doi.org/10.17504/protocols.io.bht7j6rn](https://dx.doi.
 
     meta1 = protocol.primitive_step(
         "JoinMetadata",
-        dataset=measure_fluorescence1.output_pin("measurements"),
-        metadata=compute_metadata.output_pin("metadata"),
-    )
-
-    meta4 = protocol.primitive_step(
-        "JoinMetadata",
         dataset=measure_absorbance.output_pin("measurements"),
         metadata=compute_metadata.output_pin("metadata"),
     )
 
-    final_dataset = protocol.primitive_step(
-        "JoinDatasets",
-        dataset=[
-            meta1.output_pin("enhanced_dataset"),
-            meta4.output_pin("enhanced_dataset"),
-        ],
-    )
     outnode = protocol.designate_output(
         "dataset",
         "http://bioprotocols.org/labop#Dataset",
-        source=final_dataset.output_pin("joint_dataset"),
+        source=meta1.output_pin("enhanced_dataset"),
     )
 
-    protocol.order(final_dataset, protocol.final())
     protocol.order(outnode, protocol.final())
 
     if REGENERATE_ARTIFACTS:
@@ -1052,7 +746,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "-m",
         "--generate-markdown",
-        default=False,
+        default=True,
         action="store_true",
         help=f"Execute the protocol to generate the artifacts/{filename}.md Markdown specialization of the LabOP protocol.",
     )

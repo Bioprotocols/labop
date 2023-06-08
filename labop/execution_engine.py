@@ -101,6 +101,9 @@ class ExecutionEngine(ABC):
 
             self.specializations = [DefaultBehaviorSpecialization()]
 
+        for specialization in specializations:
+            specialization.engine = self
+
     def next_id(self):
         next = self.exec_counter
         self.exec_counter += 1

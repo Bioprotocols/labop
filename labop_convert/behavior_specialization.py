@@ -43,6 +43,7 @@ class BehaviorSpecialization(ABC):
         self.execution = None
         self.issues = []
         self.out_dir = None
+        self.engine = None
 
         # Mapped Subprotocols are behaviors that have a corresponding primitive in the target language.  The specialization will ignore any nodes executed within the subprotocol.
         self.mapped_subprotocols = {}

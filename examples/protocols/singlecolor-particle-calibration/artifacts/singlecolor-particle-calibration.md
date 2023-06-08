@@ -7,15 +7,33 @@ Adapted from [https://dx.doi.org/10.17504/protocols.io.bht7j6rn](https://dx.doi.
 
 
 ## Protocol Inputs:
+* `specification`
+* `reagent`
+* `reagent_mass`
+* `buffer`
+* `buffer_volume`
+* `buffer_container`
 * `source`
 * `destination`
 * `amount`
+* `specification`
+* `reagent`
+* `reagent_mass`
+* `buffer`
+* `buffer_volume`
+* `buffer_container`
 * `source`
 * `destination`
 * `amount`
 
 
 ## Protocol Outputs:
+* `ddh2o_container`
+* `pbs_container`
+* `samples`
+* `fluorescein_standard_solution_container`
+* `samples`
+* `microsphere_standard_solution_container`
 * Dataset: [singlecolor-particle-calibration.xlsx](singlecolor-particle-calibration.xlsx)
 
 
@@ -24,30 +42,31 @@ Adapted from [https://dx.doi.org/10.17504/protocols.io.bht7j6rn](https://dx.doi.
 * [Fluorescein](https://pubchem.ncbi.nlm.nih.gov/substance/329753341)
 * [Phosphate Buffered Saline](https://pubchem.ncbi.nlm.nih.gov/compound/24978514)
 * [NanoCym 950 nm monodisperse silica nanoparticles](https://nanocym.com/wp-content/uploads/2018/07/NanoCym-All-Datasheets-.pdf)
-* stock reagent container (x 4)
+* stock reagent container (x 2)
+* 50mL stock reagent container (x 2)
 * 96 well microplate
 * waste container
 
 
 ## Protocol Steps:
-1. Provision a container named `Fluorescein calibrant` such as: 
+1. Provision a container named `molecular grade H2O` such as: 
+	[StockReagent50mL](https://sift.net/container-ontology/container-ontology#StockReagent50mL).
+2. Pipette 12.0 milliliter of [Water, sterile-filtered, BioReagent, suitable for cell culture](https://identifiers.org/pubchem.substance:24901740) into `molecular grade H2O`.
+3. Provision a container named `PBS` such as: 
+	[StockReagent50mL](https://sift.net/container-ontology/container-ontology#StockReagent50mL).
+4. Pipette 12.0 milliliter of [Phosphate Buffered Saline](https://pubchem.ncbi.nlm.nih.gov/compound/24978514) into `PBS`.
+5. Provision a container named `Fluorescein calibrant` such as: 
 	[StockReagent](https://sift.net/container-ontology/container-ontology#StockReagent).
-2. Provision a container named `microspheres` such as: 
+6. Pipette 5.6441 microgram of [Fluorescein](https://pubchem.ncbi.nlm.nih.gov/substance/329753341) into `Fluorescein calibrant`.
+7. Transfer 1.5 milliliter of `PBS` sample to  stock reagent container `Fluorescein calibrant`.
+8. Vortex `Fluorescein calibrant`.
+9. Provision a container named `microspheres` such as: 
 	[StockReagent](https://sift.net/container-ontology/container-ontology#StockReagent).
-3. Provision a container named `molecular grade H2O` such as: 
-	[StockReagent](https://sift.net/container-ontology/container-ontology#StockReagent).
-4. Provision a container named `PBS` such as: 
-	[StockReagent](https://sift.net/container-ontology/container-ontology#StockReagent).
-5. Provision a container named `discard` such as: 
+10. Pipette 1.26 milligram of [NanoCym 950 nm monodisperse silica nanoparticles](https://nanocym.com/wp-content/uploads/2018/07/NanoCym-All-Datasheets-.pdf) into `microspheres`.
+11. Transfer 1.5 milliliter of `molecular grade H2O` sample to  stock reagent container `microspheres`.
+12. Vortex `microspheres`.
+13. Provision a container named `discard` such as: 
 	[WasteContainer](https://sift.net/container-ontology/container-ontology#WasteContainer).
-6. Pipette 12.0 milliliter of [Water, sterile-filtered, BioReagent, suitable for cell culture](https://identifiers.org/pubchem.substance:24901740) into `molecular grade H2O`.
-7. Pipette 12.0 milliliter of [Phosphate Buffered Saline](https://pubchem.ncbi.nlm.nih.gov/compound/24978514) into `PBS`.
-8. Pipette 500.0 microliter of [Fluorescein](https://pubchem.ncbi.nlm.nih.gov/substance/329753341) into `Fluorescein calibrant`.
-9. Pipette 500.0 microliter of [NanoCym 950 nm monodisperse silica nanoparticles](https://nanocym.com/wp-content/uploads/2018/07/NanoCym-All-Datasheets-.pdf) into `microspheres`.
-10. Transfer 1.0 milliliter of `PBS` sample to  stock reagent container `Fluorescein calibrant`.
-11. Vortex `PBS`.
-12. Transfer 1.0 milliliter of `molecular grade H2O` sample to  stock reagent container `microspheres`.
-13. Vortex `molecular grade H2O`.
 14. Provision a container named `calibration plate` such as: 
 	[Corning96WellPlate360uLFlat](https://sift.net/container-ontology/container-ontology#Corning96WellPlate360uLFlat).
 15. Transfer 100.0 microliter of `PBS` sample to wells A2:D12 of 96 well microplate `calibration plate`.
@@ -60,18 +79,26 @@ Adapted from [https://dx.doi.org/10.17504/protocols.io.bht7j6rn](https://dx.doi.
 22. Transfer 200.0 microliter of `microspheres` sample to wells F1 of 96 well microplate `calibration plate`.
 23. Transfer 200.0 microliter of `microspheres` sample to wells G1 of 96 well microplate `calibration plate`.
 24. Transfer 200.0 microliter of `microspheres` sample to wells H1 of 96 well microplate `calibration plate`.
+25. Perform a series of 10 2-fold dilutions on A1:A11 96 well microplate `calibration plate`. Start with A1 and end with a final excess volume of 100.0 microliter in A11.  For each 100.0 microliter transfer, pipette up and down 3X to ensure the dilution is mixed homogeneously.
 
 ![](../figures/serial_dilution.png)
 <p align="center">Serial Dilution</p>
 
-25. Transfer 100.0 microliter of `calibration plate` sample to  waste container `discard`.  This step ensures that all wells contain an equivalent volume. Be sure to change pipette tips for every well to avoid cross-contamination.
-26. Transfer 100.0 microliter of `PBS` sample to wells A1:D12 of 96 well microplate `calibration plate`.  This will bring all wells to volume 200 microliter.
-27. Transfer 100.0 microliter of `molecular grade H2O` sample to wells E1:H12 of 96 well microplate `calibration plate`.  This will bring all wells to volume 200 microliter.
-28. Measure fluorescein and bead fluorescence of `calibration plate` with excitation wavelength of 488.0 nanometer and emission filter of 530.0 nanometer and 30.0 nanometer bandpass.
-29. Measure absorbance of `calibration plate` at 600.0 nanometer.
-30. Import data into the provided Excel file: Dataset: [singlecolor-particle-calibration.xlsx](singlecolor-particle-calibration.xlsx).
+26. Perform a series of 10 2-fold dilutions on B1:B11 96 well microplate `calibration plate`. Start with B1 and end with a final excess volume of 100.0 microliter in B11.  For each 100.0 microliter transfer, pipette up and down 3X to ensure the dilution is mixed homogeneously.
+27. Perform a series of 10 2-fold dilutions on C1:C11 96 well microplate `calibration plate`. Start with C1 and end with a final excess volume of 100.0 microliter in C11.  For each 100.0 microliter transfer, pipette up and down 3X to ensure the dilution is mixed homogeneously.
+28. Perform a series of 10 2-fold dilutions on D1:D11 96 well microplate `calibration plate`. Start with D1 and end with a final excess volume of 100.0 microliter in D11.  For each 100.0 microliter transfer, pipette up and down 3X to ensure the dilution is mixed homogeneously.
+29. Perform a series of 10 2-fold dilutions on E1:E11 96 well microplate `calibration plate`. Start with E1 and end with a final excess volume of 100.0 microliter in E11.  For each 100.0 microliter transfer, pipette up and down 3X to ensure the dilution is mixed homogeneously.
+30. Perform a series of 10 2-fold dilutions on F1:F11 96 well microplate `calibration plate`. Start with F1 and end with a final excess volume of 100.0 microliter in F11.  For each 100.0 microliter transfer, pipette up and down 3X to ensure the dilution is mixed homogeneously.
+31. Perform a series of 10 2-fold dilutions on G1:G11 96 well microplate `calibration plate`. Start with G1 and end with a final excess volume of 100.0 microliter in G11.  For each 100.0 microliter transfer, pipette up and down 3X to ensure the dilution is mixed homogeneously.
+32. Perform a series of 10 2-fold dilutions on H1:H11 96 well microplate `calibration plate`. Start with H1 and end with a final excess volume of 100.0 microliter in H11.  For each 100.0 microliter transfer, pipette up and down 3X to ensure the dilution is mixed homogeneously.
+33. Transfer 100.0 microliter of `calibration plate` sample to  waste container `discard`.  This step ensures that all wells contain an equivalent volume. Be sure to change pipette tips for every well to avoid cross-contamination.
+34. Transfer 100.0 microliter of `PBS` sample to wells A1:D12 of 96 well microplate `calibration plate`.  This will bring all wells to volume 200 microliter.
+35. Transfer 100.0 microliter of `molecular grade H2O` sample to wells E1:H12 of 96 well microplate `calibration plate`.  This will bring all wells to volume 200 microliter.
+36. Measure fluorescein and bead fluorescence of `calibration plate` with excitation wavelength of 488.0 nanometer and emission filter of 530.0 nanometer and 30.0 nanometer bandpass.
+37. Measure absorbance of `calibration plate` at 600.0 nanometer.
+38. Import data into the provided Excel file: `molecular grade H2O`, `PBS`, `Fluorescein calibrant`, `Fluorescein calibrant`, `microspheres`, `microspheres`, Dataset: [singlecolor-particle-calibration.xlsx](singlecolor-particle-calibration.xlsx).
 
 ---
-Timestamp: 2023-05-29 14:50:51.656504
-Protocol version: v1.0a2-198-g9358ea8
+Timestamp: 2023-06-08 11:04:00.010326
+Protocol version: v1.0a2-217-gb159177
 
