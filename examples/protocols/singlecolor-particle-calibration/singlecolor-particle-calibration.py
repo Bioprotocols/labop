@@ -530,7 +530,7 @@ Adapted from [https://dx.doi.org/10.17504/protocols.io.bht7j6rn](https://dx.doi.
         samples=dilution_series5.output_pin("samples"),
         amount=sbol3.Measure(100, OM.microlitre),
         direction=labop.Strings.ROW_DIRECTION,
-        diluent=doc.find("ddh2o"),
+        diluent=doc.find("ddH2O"),
     )
     serial_dilution5.description = "For each 100.0 microliter transfer, pipette up and down 3X to ensure the dilution is mixed homogeneously."
 
@@ -539,7 +539,7 @@ Adapted from [https://dx.doi.org/10.17504/protocols.io.bht7j6rn](https://dx.doi.
         samples=dilution_series6.output_pin("samples"),
         amount=sbol3.Measure(100, OM.microlitre),
         direction=labop.Strings.ROW_DIRECTION,
-        diluent=doc.find("ddh2o"),
+        diluent=doc.find("ddH2O"),
     )
     serial_dilution6.description = "For each 100.0 microliter transfer, pipette up and down 3X to ensure the dilution is mixed homogeneously."
 
@@ -548,7 +548,7 @@ Adapted from [https://dx.doi.org/10.17504/protocols.io.bht7j6rn](https://dx.doi.
         samples=dilution_series7.output_pin("samples"),
         amount=sbol3.Measure(100, OM.microlitre),
         direction=labop.Strings.ROW_DIRECTION,
-        diluent=doc.find("ddh2o"),
+        diluent=doc.find("ddH2O"),
     )
     serial_dilution7.description = "For each 100.0 microliter transfer, pipette up and down 3X to ensure the dilution is mixed homogeneously."
 
@@ -557,7 +557,7 @@ Adapted from [https://dx.doi.org/10.17504/protocols.io.bht7j6rn](https://dx.doi.
         samples=dilution_series8.output_pin("samples"),
         amount=sbol3.Measure(100, OM.microlitre),
         direction=labop.Strings.ROW_DIRECTION,
-        diluent=doc.find("ddh2o"),
+        diluent=doc.find("ddH2O"),
     )
     serial_dilution8.description = "For each 100.0 microliter transfer, pipette up and down 3X to ensure the dilution is mixed homogeneously."
 

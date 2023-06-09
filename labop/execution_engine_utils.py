@@ -1199,12 +1199,14 @@ def activity_parameter_node_execute_callback(
                 value = uml.literal(values[0], reference=True)
             elif len(values) == 0:
                 value = uml.literal(self.parameter.lookup().property_value.name)
-            engine.ex.parameter_values += [
-                labop.ParameterValue(
-                    parameter=self.parameter.lookup(),
-                    value=value,
-                )
-            ]
+            if self.get_parent() == engine.ex.protocol.lookup():
+                # Only store top-level parameter values
+                engine.ex.parameter_values += [
+                    labop.ParameterValue(
+                        parameter=self.parameter.lookup(),
+                        value=value,
+                    )
+                ]
         except Exception as e:
             if not engine.permissive:
                 raise ValueError(

@@ -142,6 +142,12 @@ def generate_prepare_reagents_subprotocol(doc: sbol3.Document):
         amount=sbol3.Measure(12, OM.milliliter),
     )
 
+    output1 = subprotocol.designate_output(
+        "ddh2o_container",
+        "http://bioprotocols.org/labop#SampleArray",
+        source=ddh2o_container.output_pin("samples"),
+    )
+
     silica_beads_solution_subprotocol = subprotocol.primitive_step(
         solution_subprotocol,
         specification=labop.ContainerSpec(
@@ -746,7 +752,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "-m",
         "--generate-markdown",
-        default=True,
+        default=False,
         action="store_true",
         help=f"Execute the protocol to generate the artifacts/{filename}.md Markdown specialization of the LabOP protocol.",
     )

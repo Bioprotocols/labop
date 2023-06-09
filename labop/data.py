@@ -720,7 +720,7 @@ def sample_data_update_data_sheet(
             try:
                 data_df = pd.read_excel(data_file_path, sheet_name=sheet_name)
                 # Assume that first column is the sample index
-                data_df = data_df.set_index(data_df.columns[0])
+                data_df = data_df.set_index([Strings.CONTAINER, Strings.LOCATION])
                 if sample_format == Strings.XARRAY:
                     # Convert pd.DataFrame into xr.DataArray
                     sample_data_array = xr.Dataset.from_dataframe(data_df)[
@@ -735,6 +735,10 @@ def sample_data_update_data_sheet(
                         or (sample_data_array == sample_array).all()
                     )
                     if changed:
+                        # reverse humanized coordinates
+                        sample_data_array = sample_data_array.assign_coords(
+                            self.to_data_array().coords
+                        )
                         sample_array = sample_data_array
                         self.values = labop.serialize_sample_format(sample_array)
 
@@ -752,7 +756,9 @@ def sample_data_update_data_sheet(
             with pd.ExcelWriter(
                 data_file_path, mode=mode, engine="openpyxl", **kwargs
             ) as writer:
-                sample_array.to_dataframe().to_excel(writer, sheet_name=sheet_name)
+                sample_array.to_dataframe().reset_index().to_excel(
+                    writer, sheet_name=sheet_name
+                )
 
 
 labop.SampleData.update_data_sheet = sample_data_update_data_sheet
@@ -902,7 +908,7 @@ def dataset_update_data_sheet(
                 if contents_df is not None
                 else meta_df
             )
-            all_df.to_excel(writer, sheet_name=sheet_name)
+            all_df.reset_index().to_excel(writer, sheet_name=sheet_name)
             # if Strings.CONTENTS in dataset:
             #     dataset.contents.to_dataset(
             #         Strings.REAGENT
