@@ -291,13 +291,19 @@ def sample_array_from_container_spec(
     sample_array = labop.SampleArray(container_type=container_type)
 
     if (
-        container_type.queryString
+        hasattr(container_type, "queryString")
+        and container_type.queryString is not None
+        and container_type.queryString
         == "cont:Opentrons24TubeRackwithEppendorf1.5mLSafe-LockSnapcap"
     ):
         geometry = "A1:C8"
     elif (
-        container_type.queryString.startswith("cont:StockReagent")
-        or container_type.queryString == "cont:WasteContainer"
+        hasattr(container_type, "queryString")
+        and container_type.queryString is not None
+        and (
+            container_type.queryString.startswith("cont:StockReagent")
+            or container_type.queryString == "cont:WasteContainer"
+        )
     ):
         geometry = "A1"
     else:
