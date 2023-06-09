@@ -28,13 +28,13 @@ Adapted from [https://dx.doi.org/10.17504/protocols.io.bht7j6rn](https://dx.doi.
 
 
 ## Protocol Outputs:
+* Dataset: [singlecolor-particle-calibration.xlsx](singlecolor-particle-calibration.xlsx)
 * `ddh2o_container`
 * `pbs_container`
 * `samples`
 * `fluorescein_standard_solution_container`
 * `samples`
 * `microsphere_standard_solution_container`
-* Dataset: [singlecolor-particle-calibration.xlsx](singlecolor-particle-calibration.xlsx)
 
 
 ## Protocol Materials:
@@ -42,8 +42,8 @@ Adapted from [https://dx.doi.org/10.17504/protocols.io.bht7j6rn](https://dx.doi.
 * [Fluorescein](https://pubchem.ncbi.nlm.nih.gov/substance/329753341)
 * [Phosphate Buffered Saline](https://pubchem.ncbi.nlm.nih.gov/compound/24978514)
 * [NanoCym 950 nm monodisperse silica nanoparticles](https://nanocym.com/wp-content/uploads/2018/07/NanoCym-All-Datasheets-.pdf)
-* stock reagent container (x 2)
 * 50mL stock reagent container (x 2)
+* stock reagent container (x 2)
 * 96 well microplate
 * waste container
 
@@ -96,9 +96,9 @@ Adapted from [https://dx.doi.org/10.17504/protocols.io.bht7j6rn](https://dx.doi.
 35. Transfer 100.0 microliter of `molecular grade H2O` sample to wells E1:H12 of 96 well microplate `calibration plate`.  This will bring all wells to volume 200 microliter.
 36. Measure fluorescein and bead fluorescence of `calibration plate` with excitation wavelength of 488.0 nanometer and emission filter of 530.0 nanometer and 30.0 nanometer bandpass.
 37. Measure absorbance of `calibration plate` at 600.0 nanometer.
-38. Import data into the provided Excel file: `molecular grade H2O`, `PBS`, `Fluorescein calibrant`, `Fluorescein calibrant`, `microspheres`, `microspheres`, Dataset: [singlecolor-particle-calibration.xlsx](singlecolor-particle-calibration.xlsx).
+38. Import data into the provided Excel file: Dataset: [singlecolor-particle-calibration.xlsx](singlecolor-particle-calibration.xlsx).
 
 ---
-Timestamp: 2023-06-08 11:04:00.010326
-Protocol version: v1.0a2-217-gb159177
+Timestamp: 2023-06-08 23:41:20.743422
+Protocol version: v1.0a2-221-gafe71b3
 
