@@ -612,7 +612,7 @@ class MarkdownSpecialization(BehaviorSpecialization):
             samples = samples.source.lookup()
 
         # Get the container specs
-        container_spec = record.document.find(samples.container_type)
+        container_spec = samples.get_container_type()
         container_class = (
             ContainerOntology.uri + "#" + container_spec.queryString.split(":")[-1]
         )
@@ -680,7 +680,7 @@ class MarkdownSpecialization(BehaviorSpecialization):
         # samples.initial_contents = quote(json.dumps(destination_contents))
 
         # Get destination container type
-        container_spec = record.document.find(destination.get_container_type())
+        container_spec = destination.get_container_type()
         container_class = (
             ContainerOntology.uri + "#" + container_spec.queryString.split(":")[-1]
         )
@@ -776,7 +776,7 @@ class MarkdownSpecialization(BehaviorSpecialization):
             source_container = None
 
         if destination:
-            container_spec = record.document.find(destination.container_type)
+            container_spec = destination.get_container_type()
             container_class = (
                 ContainerOntology.uri + "#" + container_spec.queryString.split(":")[-1]
             )
@@ -922,7 +922,7 @@ class MarkdownSpecialization(BehaviorSpecialization):
         destination.initial_contents = source.initial_contents
 
         # Get destination container type
-        container_spec = record.document.find(destination.container_type)
+        container_spec = destination.get_container_type()
         container_class = (
             ContainerOntology.uri + "#" + container_spec.queryString.split(":")[-1]
         )
@@ -965,7 +965,7 @@ class MarkdownSpecialization(BehaviorSpecialization):
         destination.initial_contents = source.initial_contents
 
         # Get destination container type
-        container_spec = record.document.find(destination.container_type)
+        container_spec = destination.get_container_type()
         container_class = (
             ContainerOntology.uri + "#" + container_spec.queryString.split(":")[-1]
         )
@@ -1058,7 +1058,7 @@ class MarkdownSpecialization(BehaviorSpecialization):
         series = parameter_value_map["series"]
 
         destination_coordinates = ""
-        if isinstance(destination, labop.SampleMask):
+        if isinstance(destination, SampleMask):
             destination_coordinates = f"wells {destination.sample_coordinates(sample_format=self.sample_format)} of"
             destination = destination.source.lookup()
         source_coordinates = source.sample_coordinates(sample_format=self.sample_format)
@@ -1066,7 +1066,7 @@ class MarkdownSpecialization(BehaviorSpecialization):
             source = source.source.lookup()
 
         # Get destination container type
-        container_spec = record.document.find(destination.container_type)
+        container_spec = destination.get_container_type()
         container_class = (
             ContainerOntology.uri + "#" + container_spec.queryString.split(":")[-1]
         )
@@ -1101,7 +1101,7 @@ class MarkdownSpecialization(BehaviorSpecialization):
         specification = parameter_value_map["specification"]
 
         # Get destination container type
-        container_spec = record.document.find(location.container_type)
+        container_spec = location.get_container_type()
         container_class = (
             ContainerOntology.uri + "#" + container_spec.queryString.split(":")[-1]
         )
@@ -1117,7 +1117,7 @@ class MarkdownSpecialization(BehaviorSpecialization):
         location = parameter_value_map["location"]
 
         # Get destination container type
-        container_spec = record.document.find(location.container_type)
+        container_spec = location.get_container_type()
         container_class = (
             ContainerOntology.uri + "#" + container_spec.queryString.split(":")[-1]
         )
@@ -1137,7 +1137,7 @@ class MarkdownSpecialization(BehaviorSpecialization):
         source_contents = read_sample_contents(source)
 
         # Get destination container type
-        container_spec = record.document.find(destination.container_type)
+        container_spec = destination.get_container_type()
         container_class = (
             ContainerOntology.uri + "#" + container_spec.queryString.split(":")[-1]
         )
@@ -1164,7 +1164,7 @@ class MarkdownSpecialization(BehaviorSpecialization):
         location = parameter_value_map["location"]
 
         # Get destination container type
-        container_spec = record.document.find(location.container_type)
+        container_spec = location.get_container_type()
         container_class = (
             ContainerOntology.uri + "#" + container_spec.queryString.split(":")[-1]
         )

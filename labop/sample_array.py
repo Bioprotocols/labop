@@ -15,7 +15,7 @@ from .data import deserialize_sample_format, serialize_sample_format
 from .sample_collection import SampleCollection
 from .sample_mask import SampleMask
 from .strings import Strings
-from .utils.plate_coordinates import get_sample_list
+from .utils.plate_coordinates import contiguous_coordinates, get_sample_list
 
 l = logging.Logger(__file__)
 l.setLevel(logging.INFO)
@@ -192,5 +192,5 @@ class SampleArray(inner.SampleArray, SampleCollection):
         """
         self.plot()
 
-    def get_container_type(self):
+    def get_container_type(self) -> ContainerSpec:
         return self.container_type.lookup()
