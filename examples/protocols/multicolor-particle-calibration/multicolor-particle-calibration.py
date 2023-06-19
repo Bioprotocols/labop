@@ -54,7 +54,7 @@ silica_beads = sbol3.Component(
 silica_beads.name = "NanoCym 950 nm monodisperse silica nanoparticles"
 silica_beads.description = "3e9 NanoCym microspheres/mL ddH20"  # where does this go?
 
-pbs = sbol3.Component("pbs", "https://pubchem.ncbi.nlm.nih.gov/substance/329753341")
+pbs = sbol3.Component("pbs", "https://pubchem.ncbi.nlm.nih.gov/compound/24978514")
 pbs.name = "Phosphate Buffered Saline"
 
 fluorescein = sbol3.Component(
@@ -63,12 +63,12 @@ fluorescein = sbol3.Component(
 fluorescein.name = "Fluorescein"
 
 cascade_blue = sbol3.Component(
-    "cascade_blue", "https://pubchem.ncbi.nlm.nih.gov/substance/329753341"
+    "cascade_blue", "https://pubchem.ncbi.nlm.nih.gov/substance/57269662"
 )
 cascade_blue.name = "Cascade Blue"
 
 sulforhodamine = sbol3.Component(
-    "sulforhodamine", "https://pubchem.ncbi.nlm.nih.gov/substance/329753341"
+    "sulforhodamine", "https://pubchem.ncbi.nlm.nih.gov/compound/139216224"
 )
 sulforhodamine.name = "Sulforhodamine"
 
