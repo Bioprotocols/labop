@@ -1,5 +1,6 @@
 import json
 import logging
+import uuid
 from typing import Dict
 
 import coordinate_rect_to_row_col_pairs
@@ -45,7 +46,7 @@ def coordinate_rect_to_well_group(container: Container, coordinates: str):
 
 
 # https://developers.strateos.com/docs/containers
-strateos_container_types = {
+STRATEOS_CONTAINER_TYPES = {
     ContO["96 well PCR plate"]: "96-pcr",
     ContO["96 well plate"]: "96-flat",
     #    "": "96-deep",
@@ -105,7 +106,7 @@ class AutoprotocolSpecialization(BehaviorSpecialization):
         if "container_id" in self.resolutions:
             container_id = self.resolutions["container_id"]
         else:
-            container_type = self.get_container_type_from_spec(spec)
+            container_type = self.get_strateos_container_type(spec)
             container_name = f"{self.execution.protocol.lookup().name} Container {samples_var.display_id}"
             container_id = self.create_new_container(container_name, container_type)
 
@@ -134,6 +135,11 @@ class AutoprotocolSpecialization(BehaviorSpecialization):
         return results
 
     def get_container_type_from_spec(self, spec):
+        # TODO: Deprecate this.  I could not confirm that it succesfully
+        # maps container ontology URIs to Strateos ID.  It also relies
+        # on methods in the container API that ought to be encapsulated
+        # here in the Autoprotocol specialization.  So I have replaced it
+        # with get_strateos_id and STRATEOS_CONTAINER_TYPES
         short_names = [
             v.shortname
             for v in [getattr(ctype, x) for x in dir(ctype)]
@@ -143,18 +149,13 @@ class AutoprotocolSpecialization(BehaviorSpecialization):
             possible_container_types = self.resolve_container_spec(
                 spec, addl_conditions=self.container_api_addl_conditions
             )
-            print("Possible container types: ", possible_container_types)
             possible_short_names = [strateos_id(x) for x in possible_container_types]
-            print("Possible short names: ", possible_short_names)
             matching_short_names = [x for x in short_names if x in possible_short_names]
             name_map = {
                 "96-ubottom-clear-tc": "96-flat",
                 "96-flat-clear-clear-tc": "96-flat",
             }
             mapped_names = [name_map[x] for x in matching_short_names]
-            print(mapped_names)
-            return mapped_names[0]
-            # return matching_short_names[0] # FIXME need some error handling here
 
         except Exception as e:
             l.warning(e)
@@ -162,16 +163,36 @@ class AutoprotocolSpecialization(BehaviorSpecialization):
             l.warning(f"Defaulting container to {container_type}")
             return container_type
 
+    def get_strateos_container_type(self, spec: labop.ContainerSpec):
+        """
+        Maps the Container Ontology to Strateos container IDs
+        """
+        possible_container_types = self.resolve_container_spec(
+            spec, addl_conditions=self.container_api_addl_conditions
+        )
+        container_type = possible_container_types[
+            0
+        ]  # TODO: what to do if more than one?
+
+        strateos_id = None
+        if "StockReagent" in container_type:  # TODO: replace this kludge
+            strateos_id = "micro-2.0"
+        elif not container_type.is_instance():
+            strateos_id = STRATEOS_CONTAINER_TYPES[container_type]
+        else:
+            # The container map only contains container classes, not
+            # instances. Currently tyto does not allow us to look up the
+            # class a container instance belongs to, so we have to
+            # infer this in the following roundabout way
+            for k, v in STRATEOS_CONTAINER_TYPES.items():
+                if container_type in k.get_instances():
+                    strateos_id = v
+                    break
+        if not strateos_id:
+            raise ValueError(f"No matching Strateos container for {container_type}")
+        return strateos_id
+
     def create_new_container(self, name, container_type):
-
-        # TODO: use strateos_container_type map
-        if "StockReagent" in container_type:
-            container_type = "micro-2.0"
-        elif container_type.is_instance(ContO.Plate96Well):
-            container_type = "96-flat"
-        elif container_type.is_instance(ContO.MicrofugeTube):
-            container_type = "micro-1.5"
-
         container_spec = {
             "name": name,
             "cont_type": container_type,  # resolve with spec here
@@ -180,9 +201,6 @@ class AutoprotocolSpecialization(BehaviorSpecialization):
         }
         container_ids = self.api.make_containers([container_spec])
         container_id = container_ids[name]
-        # tx = self.api.get_transcriptic_connection()
-        # container_id = tx.inventory("flat test")['results'][1]['id']
-        # container_id = "ct1g9q3bndujat5"
         return container_id
 
     def provision_container(
@@ -251,7 +269,7 @@ class AutoprotocolSpecialization(BehaviorSpecialization):
         l.debug(f"  wavelength: {wl.value} {wl_units}")
 
         self.protocol.spectrophotometry(
-            dataref="measurements",  # TODO: update this to measurements.identity
+            dataref=str(uuid.uuid5(uuid.NAMESPACE_URL, measurements.identity)),
             obj=container,
             groups=Spectrophotometry.builders.groups(
                 [
@@ -296,7 +314,7 @@ class AutoprotocolSpecialization(BehaviorSpecialization):
         container = wells[0].container
 
         self.protocol.spectrophotometry(
-            dataref="measurements",  # TODO: update this to measurements.identity
+            dataref=str(uuid.uuid5(uuid.NAMESPACE_URL, measurements.identity)),
             obj=container,
             groups=Spectrophotometry.builders.groups(
                 [
@@ -329,3 +347,22 @@ class AutoprotocolSpecialization(BehaviorSpecialization):
         self, record: labop.ActivityNodeExecution, execution: labop.ProtocolExecution
     ):
         pass
+
+
+def check_strateos_container_ids():
+    """
+    This method checks if the current map from Container Ontology to Strateos
+    container types is out of date. It could eventually be incorporated into
+    regression testing, but is otherwise included here as a developer utility
+    """
+    shortnames = [
+        v.shortname
+        for v in [getattr(ctype, x) for x in dir(ctype)]
+        if isinstance(v, ctype.ContainerType)
+    ]
+    unsupported_containers = [
+        name for name in shortnames if name not in STRATEOS_CONTAINER_TYPES.values()
+    ]
+    assert (
+        len(unsupported_containers) == 0
+    ), f"Found unsupported Strateos container types: {unsupported_containers})"

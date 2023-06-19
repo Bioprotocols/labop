@@ -159,8 +159,9 @@ class BehaviorSpecialization(ABC):
             f"Cannot resolve container specification using remote ontology server. Defaulting to static ontology copy"
         )
         container_uri = validate_spec_query(spec.queryString)
-        possible_container_types = container_uri.get_instances()
-        if not possible_container_types:
+        if container_uri.is_instance():
+            possible_container_types = container_uri.get_instances()
+        else:
             possible_container_types = [container_uri]
         return possible_container_types
 
