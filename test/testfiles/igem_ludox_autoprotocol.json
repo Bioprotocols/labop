@@ -6,19 +6,19 @@
       "measurement_mode": "volume",
       "to": [
         {
-          "well": "samples/0",
+          "well": "calibration plate/0",
           "volume": "100:microliter"
         },
         {
-          "well": "samples/12",
+          "well": "calibration plate/12",
           "volume": "100:microliter"
         },
         {
-          "well": "samples/24",
+          "well": "calibration plate/24",
           "volume": "100:microliter"
         },
         {
-          "well": "samples/36",
+          "well": "calibration plate/36",
           "volume": "100:microliter"
         }
       ]
@@ -29,19 +29,19 @@
       "measurement_mode": "volume",
       "to": [
         {
-          "well": "samples/1",
+          "well": "calibration plate/1",
           "volume": "100:microliter"
         },
         {
-          "well": "samples/13",
+          "well": "calibration plate/13",
           "volume": "100:microliter"
         },
         {
-          "well": "samples/25",
+          "well": "calibration plate/25",
           "volume": "100:microliter"
         },
         {
-          "well": "samples/37",
+          "well": "calibration plate/37",
           "volume": "100:microliter"
         }
       ]
@@ -49,20 +49,20 @@
     {
       "op": "spectrophotometry",
       "dataref": "measurements",
-      "object": "samples",
+      "object": "calibration plate",
       "groups": [
         {
           "mode": "absorbance",
           "mode_params": {
             "wells": [
-              "samples/0",
-              "samples/1",
-              "samples/12",
-              "samples/13",
-              "samples/24",
-              "samples/25",
-              "samples/36",
-              "samples/37"
+              "calibration plate/0",
+              "calibration plate/12",
+              "calibration plate/24",
+              "calibration plate/36",
+              "calibration plate/1",
+              "calibration plate/13",
+              "calibration plate/25",
+              "calibration plate/37"
             ],
             "wavelength": [
               "100:nanometer"
@@ -73,7 +73,7 @@
     }
   ],
   "refs": {
-    "samples": {
+    "calibration plate": {
       "id": "ct1g9qsg4wx6gcj",
       "discard": true
     }

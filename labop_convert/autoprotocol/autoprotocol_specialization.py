@@ -63,7 +63,9 @@ class AutoprotocolSpecialization(BehaviorSpecialization):
         with open(self.out_path, "w") as f:
             json.dump(self.protocol.as_dict(), f, indent=2)
 
-    def define_container(self, record: labop.ActivityNodeExecution):
+    def define_container(
+        self, record: labop.ActivityNodeExecution, execution: labop.ProtocolExecution
+    ):
         results = {}
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
@@ -143,8 +145,9 @@ class AutoprotocolSpecialization(BehaviorSpecialization):
         # container_id = "ct1g9q3bndujat5"
         return container_id
 
-    # def provision_container(self, wells: WellGroup, amounts = None, volumes = None, informatics = None) -> Provision:
-    def provision_container(self, record: labop.ActivityNodeExecution) -> Provision:
+    def provision_container(
+        self, record: labop.ActivityNodeExecution, execution: labop.ProtocolExecution
+    ) -> Provision:
         results = {}
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
@@ -167,7 +170,9 @@ class AutoprotocolSpecialization(BehaviorSpecialization):
         # self.unresolved_terms.append(resource_term)
         return results
 
-    def plate_coordinates(self, record: labop.ActivityNodeExecution) -> WellGroup:
+    def plate_coordinates(
+        self, record: labop.ActivityNodeExecution, execution: labop.ProtocolExecution
+    ) -> WellGroup:
         results = {}
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
@@ -184,7 +189,9 @@ class AutoprotocolSpecialization(BehaviorSpecialization):
         # results[outputs['samples']] = ('samples', pc.coordinate_rect_to_well_group(source, coords))
         return results
 
-    def measure_absorbance(self, record: labop.ActivityNodeExecution):
+    def measure_absorbance(
+        self, record: labop.ActivityNodeExecution, execution: labop.ProtocolExecution
+    ):
         results = {}
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
@@ -204,7 +211,7 @@ class AutoprotocolSpecialization(BehaviorSpecialization):
         l.debug(f"  wavelength: {wl.value} {wl_units}")
 
         self.protocol.spectrophotometry(
-            dataref=measurements,
+            dataref="measurements",  # TODO: update this to measurements.identity
             obj=container,
             groups=Spectrophotometry.builders.groups(
                 [
