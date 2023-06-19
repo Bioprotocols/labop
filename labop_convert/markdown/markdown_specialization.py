@@ -679,13 +679,13 @@ class MarkdownSpecialization(BehaviorSpecialization):
         if "dispenseVelocity" in parameter_value_map:
             dispense_velocity = parameter_value_map["dispenseVelocity"]
 
-        source_coordinates = ""
-        if isinstance(source, SampleMask):
-            source_coordinates = source.mask
-            source = source.source.lookup()
-        source_contents = read_sample_contents(source)
-        if source_coordinates:
-            source_contents = {source_coordinates: source_contents[source_coordinates]}
+        # source_coordinates = ""
+        # if isinstance(source, labop.SampleMask):
+        #     source_coordinates = source.mask
+        #     source = source.source.lookup()
+        # source_contents = read_sample_contents(source)
+        # if source_coordinates:
+        #     source_contents = {source_coordinates: source_contents[source_coordinates]}
 
         # All possible destination coordinates (including those not part of the transfer)
         all_destination_coordinates = (

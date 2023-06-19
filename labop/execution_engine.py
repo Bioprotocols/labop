@@ -109,6 +109,13 @@ class ExecutionEngine(ABC):
         self.data_id = 0
         self.data_id_map = {}
 
+        if self.specializations is None or (
+            isinstance(self.specializations, list) and len(self.specializations) == 0
+        ):
+            from labop_convert import DefaultBehaviorSpecialization
+
+            self.specializations = [DefaultBehaviorSpecialization()]
+
     def next_id(self):
         next = self.exec_counter
         self.exec_counter += 1
