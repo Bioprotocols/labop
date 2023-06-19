@@ -1096,7 +1096,7 @@ class MarkdownSpecialization(BehaviorSpecialization):
             )
         else:
             sample_names = source_coordinates
-        text = f"Perform a series of {series} {dilution_factor}-fold dilutions on {destination_coordinates} {container_str} `{container_spec.name}`. Start with {sample_names}, use `{diluent.name}` as the diluent, and end with a final volume of {measurement_to_text(amount)} in {last_destination_coordinate}. "
+        text = f"Perform a series of {series} {dilution_factor}-fold dilutions on {destination_coordinates} {container_str} `{container_spec.name}`. Start with {sample_names} and end with a final volume of {measurement_to_text(amount)} in {last_destination_coordinate}. "
         if len(sample_names) > 1 and not source_coordinates:
             text += f" Repeat for the remaining {len(sample_names)-1} `{source.name}` samples."
         # repeat_for_remaining_samples(sample_names, repeat_msg='Repeat for the remaining cultures:')
