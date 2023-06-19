@@ -334,7 +334,9 @@ class MarkdownSpecialization(BehaviorSpecialization):
         return f"Import data into the provided Excel file: {output_parameters}."
 
     def define_container(
-        self, record: ActivityNodeExecution, execution: ProtocolExecution
+        self,
+        record: labop.ActivityNodeExecution,
+        execution: labop.ProtocolExecution,
     ):
         results = {}
         call = record.call.lookup()
@@ -384,7 +386,9 @@ class MarkdownSpecialization(BehaviorSpecialization):
         return results
 
     def define_containers(
-        self, record: ActivityNodeExecution, execution: ProtocolExecution
+        self,
+        record: labop.ActivityNodeExecution,
+        execution: labop.ProtocolExecution,
     ):
         results = {}
         call = record.call.lookup()
@@ -432,7 +436,9 @@ class MarkdownSpecialization(BehaviorSpecialization):
             ]
 
     def provision_container(
-        self, record: ActivityNodeExecution, execution: ProtocolExecution
+        self,
+        record: labop.ActivityNodeExecution,
+        execution: labop.ProtocolExecution,
     ):
         results = {}
         call = record.call.lookup()
@@ -461,7 +467,9 @@ class MarkdownSpecialization(BehaviorSpecialization):
         return results
 
     def plate_coordinates(
-        self, record: ActivityNodeExecution, execution: ProtocolExecution
+        self,
+        record: labop.ActivityNodeExecution,
+        execution: labop.ProtocolExecution,
     ):
         results = {}
         call = record.call.lookup()
@@ -482,7 +490,9 @@ class MarkdownSpecialization(BehaviorSpecialization):
         return results
 
     def measure_absorbance(
-        self, record: ActivityNodeExecution, execution: ProtocolExecution
+        self,
+        record: labop.ActivityNodeExecution,
+        execution: labop.ProtocolExecution,
     ):
         results = {}
         call = record.call.lookup()
@@ -535,7 +545,9 @@ class MarkdownSpecialization(BehaviorSpecialization):
         execution.markdown_steps += [text]
 
     def measure_fluorescence(
-        self, record: ActivityNodeExecution, execution: ProtocolExecution
+        self,
+        record: labop.ActivityNodeExecution,
+        execution: labop.ProtocolExecution,
     ):
         results = {}
         call = record.call.lookup()
@@ -580,7 +592,11 @@ class MarkdownSpecialization(BehaviorSpecialization):
         # Add to markdown
         execution.markdown_steps += [text]
 
-    def vortex(self, record: ActivityNodeExecution, execution: ProtocolExecution):
+    def vortex(
+        self,
+        record: labop.ActivityNodeExecution,
+        execution: labop.ProtocolExecution,
+    ):
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
         duration = None
@@ -588,9 +604,7 @@ class MarkdownSpecialization(BehaviorSpecialization):
             duration_measure = parameter_value_map["duration"]
             duration_scalar = duration_measure.value
             duration_units = tyto.OM.get_term_by_uri(duration_measure.unit)
-        samples = parameter_value_map["samples"]
-        mixed_samples = parameter_value_map["mixed_samples"]
-        mixed_samples.name = samples.name
+        samples = parameter_value_map["samples"]["value"]
 
         # Add to markdown
         text = f"Vortex `{samples.name}`"
@@ -599,7 +613,11 @@ class MarkdownSpecialization(BehaviorSpecialization):
         text += "."
         execution.markdown_steps += [text]
 
-    def discard(self, record: ActivityNodeExecution, execution: ProtocolExecution):
+    def discard(
+        self,
+        record: labop.ActivityNodeExecution,
+        execution: labop.ProtocolExecution,
+    ):
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
 
@@ -624,7 +642,11 @@ class MarkdownSpecialization(BehaviorSpecialization):
         text = add_description(record, text)
         execution.markdown_steps += [text]
 
-    def transfer(self, record: ActivityNodeExecution, execution: ProtocolExecution):
+    def transfer(
+        self,
+        record: labop.ActivityNodeExecution,
+        execution: labop.ProtocolExecution,
+    ):
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
 
@@ -742,7 +764,9 @@ class MarkdownSpecialization(BehaviorSpecialization):
         execution.markdown_steps += [text]
 
     def transfer_by_map(
-        self, record: ActivityNodeExecution, execution: ProtocolExecution
+        self,
+        record: labop.ActivityNodeExecution,
+        execution: labop.ProtocolExecution,
     ):
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
@@ -820,7 +844,11 @@ class MarkdownSpecialization(BehaviorSpecialization):
 
         execution.markdown_steps += [text]
 
-    def culture(self, record: ActivityNodeExecution, execution: ProtocolExecution):
+    def culture(
+        self,
+        record: labop.ActivityNodeExecution,
+        execution: labop.ProtocolExecution,
+    ):
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
         inocula = parameter_value_map["inoculum"]
@@ -867,7 +895,11 @@ class MarkdownSpecialization(BehaviorSpecialization):
         container.initial_contents = write_sample_contents(inocula, replicates)
         execution.markdown_steps += [text]
 
-    def incubate(self, record: ActivityNodeExecution, execution: ProtocolExecution):
+    def incubate(
+        self,
+        record: labop.ActivityNodeExecution,
+        execution: labop.ProtocolExecution,
+    ):
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
 
@@ -887,7 +919,11 @@ class MarkdownSpecialization(BehaviorSpecialization):
 
         execution.markdown_steps += [text]
 
-    def hold(self, record: ActivityNodeExecution, execution: ProtocolExecution):
+    def hold(
+        self,
+        record: labop.ActivityNodeExecution,
+        execution: labop.ProtocolExecution,
+    ):
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
 
@@ -901,7 +937,11 @@ class MarkdownSpecialization(BehaviorSpecialization):
         text = add_description(record, text)
         execution.markdown_steps += [text]
 
-    def hold_on_ice(self, record: ActivityNodeExecution, execution: ProtocolExecution):
+    def hold_on_ice(
+        self,
+        record: labop.ActivityNodeExecution,
+        execution: labop.ProtocolExecution,
+    ):
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
 
@@ -915,7 +955,9 @@ class MarkdownSpecialization(BehaviorSpecialization):
         execution.markdown_steps += [text]
 
     def dilute_to_target_od(
-        self, record: ActivityNodeExecution, execution: ProtocolExecution
+        self,
+        record: labop.ActivityNodeExecution,
+        execution: labop.ProtocolExecution,
     ):
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
@@ -953,7 +995,11 @@ class MarkdownSpecialization(BehaviorSpecialization):
             text += f" Maintain at {measurement_to_text(temperature)} while performing dilutions."
         execution.markdown_steps += [text]
 
-    def dilute(self, record: ActivityNodeExecution, execution: ProtocolExecution):
+    def dilute(
+        self,
+        record: labop.ActivityNodeExecution,
+        execution: labop.ProtocolExecution,
+    ):
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
 
@@ -1000,7 +1046,11 @@ class MarkdownSpecialization(BehaviorSpecialization):
         text = add_description(record, text)
         execution.markdown_steps += [text]
 
-    def transform(self, record: ActivityNodeExecution, execution: ProtocolExecution):
+    def transform(
+        self,
+        record: labop.ActivityNodeExecution,
+        execution: labop.ProtocolExecution,
+    ):
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
         host = parameter_value_map["host"]
@@ -1056,7 +1106,9 @@ class MarkdownSpecialization(BehaviorSpecialization):
         execution.markdown_steps += [text]
 
     def serial_dilution(
-        self, record: ActivityNodeExecution, execution: ProtocolExecution
+        self,
+        record: labop.ActivityNodeExecution,
+        execution: labop.ProtocolExecution,
     ):
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
@@ -1104,7 +1156,9 @@ class MarkdownSpecialization(BehaviorSpecialization):
         execution.markdown_steps += [text]
 
     def evaporative_seal(
-        self, record: ActivityNodeExecution, execution: ProtocolExecution
+        self,
+        record: labop.ActivityNodeExecution,
+        execution: labop.ProtocolExecution,
     ):
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
@@ -1122,7 +1176,11 @@ class MarkdownSpecialization(BehaviorSpecialization):
         text = f"Cover `{location.name}` samples in {container_str} with your choice of material to prevent evaporation."
         execution.markdown_steps += [text]
 
-    def unseal(self, record: ActivityNodeExecution, execution: ProtocolExecution):
+    def unseal(
+        self,
+        record: labop.ActivityNodeExecution,
+        execution: labop.ProtocolExecution,
+    ):
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
 
@@ -1138,7 +1196,11 @@ class MarkdownSpecialization(BehaviorSpecialization):
         text = f"Remove the seal from {container_str} containing `{location.name}` samples."
         execution.markdown_steps += [text]
 
-    def pool_samples(self, record: ActivityNodeExecution, execution: ProtocolExecution):
+    def pool_samples(
+        self,
+        record: labop.ActivityNodeExecution,
+        execution: labop.ProtocolExecution,
+    ):
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
 
@@ -1169,7 +1231,11 @@ class MarkdownSpecialization(BehaviorSpecialization):
         text = f"Pool {measurement_to_text(volume)} from each of {n_replicates} replicate `{source.name}` samples into {container_str} `{container_spec.name}`."
         execution.markdown_steps += [text]
 
-    def quick_spin(self, record: ActivityNodeExecution, execution: ProtocolExecution):
+    def quick_spin(
+        self,
+        record: labop.ActivityNodeExecution,
+        execution: labop.ProtocolExecution,
+    ):
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
 
@@ -1187,12 +1253,16 @@ class MarkdownSpecialization(BehaviorSpecialization):
         execution.markdown_steps += [text]
 
     def subprotocol_specialization(
-        self, record: ActivityNodeExecution, execution: ProtocolExecution
+        self,
+        record: labop.ActivityNodeExecution,
+        execution: labop.ProtocolExecution,
     ):
         pass
 
     def embedded_image(
-        self, record: ActivityNodeExecution, execution: ProtocolExecution
+        self,
+        record: labop.ActivityNodeExecution,
+        execution: labop.ProtocolExecution,
     ):
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
@@ -1205,7 +1275,9 @@ class MarkdownSpecialization(BehaviorSpecialization):
         execution.markdown_steps[-1] += text
 
     def culture_plates(
-        self, record: ActivityNodeExecution, execution: ProtocolExecution
+        self,
+        record: labop.ActivityNodeExecution,
+        execution: labop.ProtocolExecution,
     ):
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
@@ -1226,7 +1298,9 @@ class MarkdownSpecialization(BehaviorSpecialization):
         ]
 
     def pick_colonies(
-        self, record: ActivityNodeExecution, execution: ProtocolExecution
+        self,
+        record: labop.ActivityNodeExecution,
+        execution: labop.ProtocolExecution,
     ):
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
@@ -1245,7 +1319,9 @@ class MarkdownSpecialization(BehaviorSpecialization):
         ]
 
     def excel_metadata(
-        self, record: ActivityNodeExecution, execution: ProtocolExecution
+        self,
+        record: labop.ActivityNodeExecution,
+        execution: labop.ProtocolExecution,
     ):
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
@@ -1258,7 +1334,9 @@ class MarkdownSpecialization(BehaviorSpecialization):
         metadata.for_samples = for_samples
 
     def join_metadata(
-        self, record: ActivityNodeExecution, execution: ProtocolExecution
+        self,
+        record: labop.ActivityNodeExecution,
+        execution: labop.ProtocolExecution,
     ):
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
@@ -1284,7 +1362,9 @@ def measurement_to_text(measure: sbol3.Measure):
 
 
 def get_sample_names(
-    inputs: Union[SampleArray, sbol3.Component], error_msg, coordinates=None
+    inputs: Union[labop.SampleArray, sbol3.Component],
+    error_msg,
+    coordinates=None,
 ) -> List[str]:
     # Since some behavior inputs may be specified as either a SampleArray or directly as a list
     # of Components, this provides a convenient way to unpack a list of sample names
@@ -1295,11 +1375,13 @@ def get_sample_names(
             if coordinates:
                 input_names = {inputs.document.find(initial_contents[coordinates]).name}
             else:
-                input_names = {
-                    inputs.document.find(c).name
-                    for c in initial_contents.values()
-                    if c is not None
-                }
+                for c in initial_contents:
+                    if c is not None:
+                        input_name = inputs.document.find(c)
+                        if input_name is not None:
+                            input_names.append(input_name)
+                        else:
+                            input_names.append(c)
     elif isinstance(inputs, Iterable):
         input_names = {i.name for i in inputs}
     else:

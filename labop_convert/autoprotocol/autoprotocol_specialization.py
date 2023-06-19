@@ -78,6 +78,7 @@ class AutoprotocolSpecialization(BehaviorSpecialization):
 
     def _init_behavior_func_map(self) -> dict:
         return {
+            # FIXME Do we need vortex?
             "https://bioprotocols.org/labop/primitives/sample_arrays/EmptyContainer": self.define_container,
             "https://bioprotocols.org/labop/primitives/liquid_handling/Provision": self.provision_container,
             "https://bioprotocols.org/labop/primitives/sample_arrays/PlateCoordinates": self.plate_coordinates,
@@ -96,7 +97,9 @@ class AutoprotocolSpecialization(BehaviorSpecialization):
             json.dump(self.protocol.as_dict(), f, indent=2)
 
     def define_container(
-        self, record: labop.ActivityNodeExecution, execution: labop.ProtocolExecution
+        self,
+        record: labop.ActivityNodeExecution,
+        execution: labop.ProtocolExecution,
     ):
         results = {}
         call = record.call.lookup()
@@ -105,15 +108,17 @@ class AutoprotocolSpecialization(BehaviorSpecialization):
         spec = parameter_value_map["specification"]["value"]
         samples_var = parameter_value_map["samples"]["value"]
 
+        spec_identity = record.node.lookup().input_pin("specification").identity
+
         if "container_id" in self.resolutions:
             container_id = self.resolutions["container_id"]
-        elif spec.identity in self.resolutions:
-            return
-        else:
+        elif spec_identity not in self.resolutions:
             container_type = self.get_strateos_container_type(spec)
             container_name = f"{self.execution.protocol.lookup().name} Container {samples_var.display_id}"
             container_id = self.create_new_container(container_name, container_type)
-            self.resolutions[spec.identity] = container_id
+            self.resolutions[spec_identity] = container_id
+        else:
+            container_id = self.resolutions[spec_identity]
 
         # container_id = tx.inventory("flat test")['results'][1]['id']
         # container_id = "ct1g9q3bndujat5"
@@ -213,7 +218,9 @@ class AutoprotocolSpecialization(BehaviorSpecialization):
         return container_id
 
     def provision_container(
-        self, record: labop.ActivityNodeExecution, execution: labop.ProtocolExecution
+        self,
+        record: labop.ActivityNodeExecution,
+        execution: labop.ProtocolExecution,
     ) -> Provision:
         results = {}
         call = record.call.lookup()
@@ -239,9 +246,10 @@ class AutoprotocolSpecialization(BehaviorSpecialization):
         return results
 
     def plate_coordinates(
-        self, record: labop.ActivityNodeExecution, execution: labop.ProtocolExecution
+        self,
+        record: labop.ActivityNodeExecution,
+        execution: labop.ProtocolExecution,
     ) -> WellGroup:
-
         # TODO: I think this can all be removed because it is now handled in primitive_execution.py
         results = {}
         call = record.call.lookup()
@@ -254,7 +262,9 @@ class AutoprotocolSpecialization(BehaviorSpecialization):
         self.var_to_entity[samples.identity] = container
 
     def measure_absorbance(
-        self, record: labop.ActivityNodeExecution, execution: labop.ProtocolExecution
+        self,
+        record: labop.ActivityNodeExecution,
+        execution: labop.ProtocolExecution,
     ):
         results = {}
         call = record.call.lookup()
@@ -296,7 +306,9 @@ class AutoprotocolSpecialization(BehaviorSpecialization):
         return results
 
     def measure_fluorescence(
-        self, record: labop.ActivityNodeExecution, execution: labop.ProtocolExecution
+        self,
+        record: labop.ActivityNodeExecution,
+        execution: labop.ProtocolExecution,
     ):
         results = {}
         call = record.call.lookup()
@@ -345,7 +357,9 @@ class AutoprotocolSpecialization(BehaviorSpecialization):
         return results
 
     def transfer(
-        self, record: labop.ActivityNodeExecution, execution: labop.ProtocolExecution
+        self,
+        record: labop.ActivityNodeExecution,
+        execution: labop.ProtocolExecution,
     ):
         results = {}
         call = record.call.lookup()
@@ -385,7 +399,9 @@ class AutoprotocolSpecialization(BehaviorSpecialization):
         )
 
     def serial_dilution(
-        self, record: labop.ActivityNodeExecution, execution: labop.ProtocolExecution
+        self,
+        record: labop.ActivityNodeExecution,
+        execution: labop.ProtocolExecution,
     ):
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
@@ -405,6 +421,7 @@ class AutoprotocolSpecialization(BehaviorSpecialization):
         for a, b in zip(coordinates[:-1], coordinates[1:]):
             a_wells = pc.coordinate_rect_to_well_group(container, a)
             b_wells = pc.coordinate_rect_to_well_group(container, b)
+            # FIXME Do we need to mix before transfer?
             self.protocol.transfer(source=a_wells, destination=b_wells, volume=xfer_vol)
 
 
