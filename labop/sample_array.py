@@ -145,6 +145,8 @@ class SampleArray(inner.SampleArray, SampleCollection):
             == "cont:Opentrons24TubeRackwithEppendorf1.5mLSafe-LockSnapcap"
         ):
             geometry = "A1:C8"
+        elif container_type.queryString == "cont:StockReagent":
+            geometry = "A1"
         else:
             geometry = "A1:H12"
 
