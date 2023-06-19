@@ -236,13 +236,10 @@ class Primitive(inner.Primitive, Behavior):
             and parameter.type == "http://bioprotocols.org/labop#SampleArray"
         ):
             # Make a SampleArray
-            if "sample_array" in input_map:
-                sample_array = input_map["sample_array"]
-            else:
-                spec = input_map["specification"]
-                sample_array = (
-                    input_map["sample_array"] if "sample_array" in input_map else None
-                )
+            spec = input_map["specification"]
+            sample_array = (
+                input_map["sample_array"] if "sample_array" in input_map else None
+            )
 
             if not sample_array:
                 sample_array = SampleArray.from_container_spec(
