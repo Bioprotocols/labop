@@ -84,8 +84,10 @@ def generate_protocol():
     protocol = labop.Protocol(PROTOCOL_NAME)
     protocol.name = "Multicolor fluorescence per bacterial particle calibration"
     protocol.version = "1.2"
-    protocol.description = """Plate readers report fluorescence values in arbitrary units that vary widely from instrument to instrument. Therefore absolute fluorescence values cannot be directly compared from one instrument to another. In order to compare fluorescence output of biological devices, it is necessary to create a standard fluorescence curve. This variant of the protocol uses two replicates of three colors of dye, plus beads.
-    Adapted from [https://dx.doi.org/10.17504/protocols.io.bht7j6rn](https://dx.doi.org/10.17504/protocols.io.bht7j6r) and [https://dx.doi.org/10.17504/protocols.io.6zrhf56](https://dx.doi.org/10.17504/protocols.io.6zrhf56)"""
+    protocol.description = """
+Plate readers report fluorescence values in arbitrary units that vary widely from instrument to instrument. Therefore absolute fluorescence values cannot be directly compared from one instrument to another. In order to compare fluorescence output of biological devices, it is necessary to create a standard fluorescence curve. This variant of the protocol uses two replicates of three colors of dye, plus beads.
+Adapted from [https://dx.doi.org/10.17504/protocols.io.bht7j6rn](https://dx.doi.org/10.17504/protocols.io.bht7j6r) and [https://dx.doi.org/10.17504/protocols.io.6zrhf56](https://dx.doi.org/10.17504/protocols.io.6zrhf56)
+    """
     doc.add(protocol)
 
     # Provision an empty Microfuge tube in which to mix the standard solution
@@ -209,7 +211,7 @@ def generate_protocol():
         destination=fluorescein_standard_solution_container.output_pin("samples"),
         amount=sbol3.Measure(1, OM.millilitre),
     )
-    suspend_fluorescein.description = f"The reconstituted `{fluorescein.name}` should have a final concentration of 10 uM in `{pbs.name}`"
+    suspend_fluorescein.description = f"The reconstituted `{fluorescein.name}` should have a final concentration of 10 uM in `{pbs.name}`."
 
     vortex_fluorescein = protocol.primitive_step(
         "Vortex",
@@ -223,7 +225,7 @@ def generate_protocol():
         destination=sulforhodamine_standard_solution_container.output_pin("samples"),
         amount=sbol3.Measure(1, OM.millilitre),
     )
-    suspend_sulforhodamine.description = f"The reconstituted `{sulforhodamine.name}` standard will have a final concentration of 2 uM in `{pbs.name}`"
+    suspend_sulforhodamine.description = f"The reconstituted `{sulforhodamine.name}` standard will have a final concentration of 2 uM in `{pbs.name}`."
 
     vortex_sulforhodamine = protocol.primitive_step(
         "Vortex",
@@ -320,12 +322,12 @@ def generate_protocol():
     blank_wells1 = protocol.primitive_step(
         "PlateCoordinates",
         source=calibration_plate.output_pin("samples"),
-        coordinates="A12:D12",
+        coordinates="A2:D12",
     )
     blank_wells2 = protocol.primitive_step(
         "PlateCoordinates",
         source=calibration_plate.output_pin("samples"),
-        coordinates="E12:H12",
+        coordinates="E2:H12",
     )
     transfer_blanks1 = protocol.primitive_step(
         "Transfer",
@@ -333,14 +335,13 @@ def generate_protocol():
         destination=blank_wells1.output_pin("samples"),
         amount=sbol3.Measure(100, OM.microlitre),
     )
-    transfer_blanks1.description = " These are blanks."
+
     transfer_blanks2 = protocol.primitive_step(
         "Transfer",
         source=ddh2o_container.output_pin("samples"),
         destination=blank_wells2.output_pin("samples"),
         amount=sbol3.Measure(100, OM.microlitre),
     )
-    transfer_blanks2.description = " These are blanks."
 
     ### Plate calibrants in first column
     transfer1 = protocol.primitive_step(
@@ -450,13 +451,14 @@ def generate_protocol():
         dilution_factor=2,
         series=10,
     )
-    serial_dilution1.description = " For each transfer, pipette up and down 3X to ensure the dilution is mixed homogeneously."
+    serial_dilution1.description = "For each 100.0 microliter transfer, pipette up and down 3X to ensure the dilution is mixed homogeneously."
 
     embedded_image = protocol.primitive_step(
         "EmbeddedImage",
         image=os.path.join(
             # os.path.dirname(os.path.realpath(__file__)),
-            ".." "figures",
+            "..",
+            "figures",
             "serial_dilution.png",
         ),
         caption="Serial Dilution",
@@ -471,7 +473,7 @@ def generate_protocol():
         dilution_factor=2,
         series=10,
     )
-    serial_dilution2.description = " For each transfer, pipette up and down 3X to ensure the dilution is mixed homogeneously."
+    serial_dilution2.description = "For each 100.0 microliter transfer, pipette up and down 3X to ensure the dilution is mixed homogeneously."
 
     serial_dilution3 = protocol.primitive_step(
         "SerialDilution",
@@ -482,7 +484,7 @@ def generate_protocol():
         dilution_factor=2,
         series=10,
     )
-    serial_dilution3.description = " For each transfer, pipette up and down 3X to ensure the dilution is mixed homogeneously."
+    serial_dilution3.description = "For each 100.0 microliter transfer, pipette up and down 3X to ensure the dilution is mixed homogeneously."
 
     serial_dilution4 = protocol.primitive_step(
         "SerialDilution",
@@ -493,7 +495,7 @@ def generate_protocol():
         dilution_factor=2,
         series=10,
     )
-    serial_dilution4.description = " For each transfer, pipette up and down 3X to ensure the dilution is mixed homogeneously."
+    serial_dilution4.description = "For each 100.0 microliter transfer, pipette up and down 3X to ensure the dilution is mixed homogeneously."
 
     serial_dilution5 = protocol.primitive_step(
         "SerialDilution",
@@ -504,7 +506,7 @@ def generate_protocol():
         dilution_factor=2,
         series=10,
     )
-    serial_dilution5.description = " For each transfer, pipette up and down 3X to ensure the dilution is mixed homogeneously."
+    serial_dilution5.description = "For each 100.0 microliter transfer, pipette up and down 3X to ensure the dilution is mixed homogeneously."
 
     serial_dilution6 = protocol.primitive_step(
         "SerialDilution",
@@ -515,7 +517,7 @@ def generate_protocol():
         dilution_factor=2,
         series=10,
     )
-    serial_dilution6.description = " For each transfer, pipette up and down 3X to ensure the dilution is mixed homogeneously."
+    serial_dilution6.description = "For each 100.0 microliter transfer, pipette up and down 3X to ensure the dilution is mixed homogeneously."
 
     serial_dilution7 = protocol.primitive_step(
         "SerialDilution",
@@ -526,7 +528,7 @@ def generate_protocol():
         dilution_factor=2,
         series=10,
     )
-    serial_dilution7.description = " For each transfer, pipette up and down 3X to ensure the dilution is mixed homogeneously."
+    serial_dilution7.description = "For each 100.0 microliter transfer, pipette up and down 3X to ensure the dilution is mixed homogeneously."
 
     serial_dilution8 = protocol.primitive_step(
         "SerialDilution",
@@ -537,7 +539,7 @@ def generate_protocol():
         dilution_factor=2,
         series=10,
     )
-    serial_dilution8.description = " For each transfer, pipette up and down 3X to ensure the dilution is mixed homogeneously."
+    serial_dilution8.description = "For each 100.0 microliter transfer, pipette up and down 3X to ensure the dilution is mixed homogeneously."
 
     discard_wells = protocol.primitive_step(
         "PlateCoordinates",
@@ -551,7 +553,7 @@ def generate_protocol():
         amount=sbol3.Measure(100, OM.microlitre),
     )
 
-    discard.description = " This step ensures that all wells contain an equivalent volume. Be sure to change pipette tips for every well to avoid cross-contamination"
+    discard.description = " This step ensures that all wells contain an equivalent volume. Be sure to change pipette tips for every well to avoid cross-contamination."
 
     # Bring to volume of 200 ul
     samples_in_pbs = protocol.primitive_step(
@@ -692,14 +694,15 @@ def generate_protocol():
     return protocol, doc
 
 
-def generate_markdown_specialization(doc, protocol):
+def generate_markdown_specialization(protocol, doc):
+    import labop
     from labop.execution_engine import ExecutionEngine
     from labop.strings import Strings
     from labop_convert import MarkdownSpecialization
 
     if REGENERATE_ARTIFACTS:
         protocol.to_dot().render(os.path.join(OUT_DIR, filename))
-        dataset_file = (f"{filename}_template",)  # name of xlsx
+        dataset_file = f"{filename}_template"  # name of xlsx
         md_file = filename + ".md"
     else:
         dataset_file = None
@@ -728,7 +731,8 @@ def generate_markdown_specialization(doc, protocol):
             f.write(doc.write_string(sbol3.SORTED_NTRIPLES).strip())
 
 
-def generate_autoprotocol_specialization(doc, protocol):
+def generate_autoprotocol_specialization(protocol, doc):
+    import labop
     from labop.execution_engine import ExecutionEngine
     from labop_convert.autoprotocol.autoprotocol_specialization import (
         AutoprotocolSpecialization,
@@ -845,14 +849,11 @@ if __name__ == "__main__":
     ):
         print("Generating Protocol ...")
         protocol, doc = generate_protocol()
-    else:
-        print("Reading Protocol from file ...")
-        protocol, doc = read_protocol()
 
     if args.generate_markdown:
         print("Generating Markdown ...")
-        generate_markdown_specialization(doc, protocol)
+        generate_markdown_specialization(*read_protocol())
 
     if args.generate_autoprotocol:
         print("Generating Autoprotocol")
-        generate_autoprotocol_specialization(doc, protocol)
+        generate_autoprotocol_specialization(*read_protocol())
