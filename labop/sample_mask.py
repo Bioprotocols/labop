@@ -65,12 +65,12 @@ class SampleMask(inner.SampleMask, SampleCollection):
         elif sample_format == "json":
             return json.loads(deserialize_sample_format(self.mask)).keys()
 
-    def sample_coordinates(self, sample_format=Strings.XARRAY):
+    def sample_coordinates(self, sample_format=Strings.XARRAY, as_list=False):
         sample_array = self.to_masked_data_array()
 
         if sample_format == Strings.XARRAY:
             coords = sample_array.coords[Strings.SAMPLE].data.tolist()
-            return contiguous_coordinates(coords)
+            return contiguous_coordinates(coords) if not as_list else coords
         else:
             return sample_array
 

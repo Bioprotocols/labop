@@ -170,11 +170,11 @@ class SampleArray(inner.SampleArray, SampleCollection):
             )
             return None
 
-    def sample_coordinates(self, sample_format=Strings.XARRAY):
+    def sample_coordinates(self, sample_format=Strings.XARRAY, as_list=False):
         sample_array = deserialize_sample_format(self.initial_contents, parent=self)
         if sample_format == Strings.XARRAY:
             coords = sample_array.coords[Strings.SAMPLE].data.tolist()
-            return contiguous_coordinates(coords)
+            return contiguous_coordinates(coords) if not as_list else coords
         else:
             return sample_array
 

@@ -288,12 +288,12 @@ digraph _root {
   <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="OutputPin1" border="1">samples</td><td> </td></tr></table></td></tr>
 </table>> fillcolor=white shape=none style=rounded]
 		interlab_CallBehaviorAction22 [label=<<table border="0" cellspacing="0">
-  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="InputPin1" border="1">source</td><td> </td><td port="ValuePin1" border="1">coordinates: A12:D12</td><td> </td><td> </td></tr></table></td></tr>
+  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="InputPin1" border="1">source</td><td> </td><td port="ValuePin1" border="1">coordinates: A2:D12</td><td> </td><td> </td></tr></table></td></tr>
   <tr><td port="node" bgcolor="white" border="1">PlateCoordinates</td></tr>
   <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="OutputPin1" border="1">samples</td><td> </td></tr></table></td></tr>
 </table>> fillcolor=white shape=none style=rounded]
 		interlab_CallBehaviorAction23 [label=<<table border="0" cellspacing="0">
-  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="InputPin1" border="1">source</td><td> </td><td port="ValuePin1" border="1">coordinates: E12:H12</td><td> </td><td> </td></tr></table></td></tr>
+  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="InputPin1" border="1">source</td><td> </td><td port="ValuePin1" border="1">coordinates: E2:H12</td><td> </td><td> </td></tr></table></td></tr>
   <tr><td port="node" bgcolor="white" border="1">PlateCoordinates</td></tr>
   <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="OutputPin1" border="1">samples</td><td> </td></tr></table></td></tr>
 </table>> fillcolor=white shape=none style=rounded]
