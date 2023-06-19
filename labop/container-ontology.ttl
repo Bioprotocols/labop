@@ -611,7 +611,8 @@ cont:Plate384Well rdf:type owl:Class ;
                                                            ) ;
                                         rdf:type owl:Class
                                       ] ;
-                  rdfs:subClassOf cont:Plate .
+                  rdfs:subClassOf cont:Plate ;
+                  rdfs:label "384 well plate".
 
 
 ###  https://sift.net/container-ontology/container-ontology#Plate96Well
@@ -1181,8 +1182,9 @@ cont:WellShape rdf:type owl:Class ;
 
 
 ###  https://sift.net/container-ontology/container-ontology#96WellPCRPlate
-<https://sift.net/container-ontology/container-ontology#96WellPCRPlate> rdf:type owl:Class ;
-                                                                        rdfs:subClassOf cont:Plate .
+cont:96WellPCRPlate rdf:type owl:Class ;
+                    rdfs:subClassOf cont:Plate ;
+                    rdfs:label "96 well PCR plate" .
 
 
 #################################################################

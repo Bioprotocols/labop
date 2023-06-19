@@ -91,9 +91,13 @@ class BehaviorSpecialization(ABC):
                 return self.handle(record, execution)
             return self._behavior_func_map[str(node.behavior)](record, execution)
         except Exception as e:
+            # l.warn(
+            #    f"{self.__class__} Could not process() ActivityNodeException: {record}: {e}"
+            # )
             l.warn(
-                f"{self.__class__} Could not process() ActivityNodeException: {record}: {e}"
+                f"{self.__class__} Could not process {node.behavior.split('#')[-1]}: {e}"
             )
+
             self.handle_process_failure(record, e)
 
     def handle_process_failure(self, record, e):
@@ -155,10 +159,9 @@ class BehaviorSpecialization(ABC):
             f"Cannot resolve container specification using remote ontology server. Defaulting to static ontology copy"
         )
         container_uri = validate_spec_query(spec.queryString)
-        if container_uri.is_instance():
+        possible_container_types = container_uri.get_instances()
+        if not possible_container_types:
             possible_container_types = [container_uri]
-        else:
-            possible_container_types = container_uri.get_instances()
         return possible_container_types
 
     def get_container_typename(self, container_uri: str) -> str:

@@ -9,8 +9,11 @@ from tyto import OM
 
 import labop
 from labop.execution_engine import ExecutionEngine
-from labop.strings import Strings
 from labop_convert import MarkdownSpecialization
+from labop_convert.autoprotocol.autoprotocol_specialization import (
+    AutoprotocolSpecialization,
+)
+from labop_convert.autoprotocol.strateos_api import StrateosAPI, StrateosConfig
 
 if "unittest" in sys.modules:
     REGENERATE_ARTIFACTS = False
@@ -622,19 +625,37 @@ else:
     dataset_file = None
     md_file = None
 
-ee = ExecutionEngine(
-    out_dir=OUT_DIR,
-    specializations=[MarkdownSpecialization(md_file, sample_format=Strings.XARRAY)],
-    failsafe=False,
-    sample_format="xarray",
-    dataset_file=dataset_file,
+# ee = ExecutionEngine(
+#    out_dir=OUT_DIR,
+#    specializations=[MarkdownSpecialization(md_file, sample_format=Strings.XARRAY)],
+#    failsafe=False,
+#    sample_format="xarray",
+#    dataset_file=dataset_file,
+# )
+
+#############################################
+# Autoprotocol and Strateos Configuration
+secrets_file = os.path.join(
+    os.path.dirname(os.path.realpath(__file__)),
+    "../../../secrets/strateos_secrets.json",
 )
+api = StrateosAPI(cfg=StrateosConfig.from_file(secrets_file))
+
+autoprotocol_output = os.path.join(OUT_DIR, "multicolor-particle-calibration.json")
+resolutions = {"container_id": "ct1g9qsg4wx6gcj"}
+autoprotocol_specialization = AutoprotocolSpecialization(autoprotocol_output, api)
+
+ee = ExecutionEngine(specializations=[autoprotocol_specialization], failsafe=False)
 execution = ee.execute(
     protocol,
     sbol3.Agent("test_agent"),
     id="test_execution",
     parameter_values=[],
 )
+
+st = api.get_strateos_connection()
+response = st.analyze_run(autoprotocol_specialization.protocol, test_mode=True)
+
 
 # print(execution.markdown)
 

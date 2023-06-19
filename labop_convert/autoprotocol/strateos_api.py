@@ -166,6 +166,8 @@ class StrateosAPI:
     def make_containers(self, containers, title="make_containers", test_mode=True):
         params = {"parameters": {"containers": containers}}
         # TODO verify this request then enable sending
+        print(json.dumps(params, indent=2))
+
         response = self.submit_to_strateos(
             self._protocol_make_containers, params, title
         )
