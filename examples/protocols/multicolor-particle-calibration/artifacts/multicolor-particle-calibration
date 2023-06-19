@@ -2,413 +2,382 @@ digraph _root {
 	compound=true
 	subgraph cluster_interlab {
 		graph [label="Multicolor fluorescence per bacterial particle calibration" shape=box]
-		interlab_InitialNode1 -> interlab_CallBehaviorAction1:"node" [color=blue]
-		interlab_CallBehaviorAction1:"node" -> interlab_CallBehaviorAction2:"node" [color=blue]
-		interlab_CallBehaviorAction2:"node" -> interlab_CallBehaviorAction3:"node" [color=blue]
-		interlab_CallBehaviorAction3:"node" -> interlab_CallBehaviorAction4:"node" [color=blue]
-		interlab_CallBehaviorAction4:"node" -> interlab_CallBehaviorAction5:"node" [color=blue]
-		interlab_CallBehaviorAction5:"node" -> interlab_CallBehaviorAction6:"node" [color=blue]
-		interlab_ForkNode1 -> interlab_CallBehaviorAction7:InputPin1 [color=black]
-		interlab_CallBehaviorAction6:"node" -> interlab_CallBehaviorAction7:"node" [color=blue]
-		interlab_ForkNode4 -> interlab_CallBehaviorAction8:InputPin1 [color=black]
-		interlab_CallBehaviorAction7:"node" -> interlab_CallBehaviorAction8:"node" [color=blue]
-		interlab_ForkNode2 -> interlab_CallBehaviorAction9:InputPin1 [color=black]
-		interlab_CallBehaviorAction8:"node" -> interlab_CallBehaviorAction9:"node" [color=blue]
-		interlab_ForkNode5 -> interlab_CallBehaviorAction10:InputPin1 [color=black]
-		interlab_CallBehaviorAction9:"node" -> interlab_CallBehaviorAction10:"node" [color=blue]
-		interlab_CallBehaviorAction1:OutputPin1 -> interlab_ForkNode1 [color=black]
-		interlab_ForkNode1 -> interlab_CallBehaviorAction11:InputPin2 [color=black]
-		interlab_ForkNode3 -> interlab_CallBehaviorAction11:InputPin1 [color=black]
-		interlab_CallBehaviorAction10:"node" -> interlab_CallBehaviorAction11:"node" [color=blue]
-		interlab_ForkNode1 -> interlab_CallBehaviorAction12:InputPin1 [color=black]
-		interlab_CallBehaviorAction11:"node" -> interlab_CallBehaviorAction12:"node" [color=blue]
-		interlab_CallBehaviorAction2:OutputPin1 -> interlab_ForkNode2 [color=black]
-		interlab_ForkNode2 -> interlab_CallBehaviorAction13:InputPin2 [color=black]
-		interlab_CallBehaviorAction6:OutputPin1 -> interlab_ForkNode3 [color=black]
-		interlab_ForkNode3 -> interlab_CallBehaviorAction13:InputPin1 [color=black]
-		interlab_CallBehaviorAction12:"node" -> interlab_CallBehaviorAction13:"node" [color=blue]
-		interlab_ForkNode2 -> interlab_CallBehaviorAction14:InputPin1 [color=black]
-		interlab_CallBehaviorAction13:"node" -> interlab_CallBehaviorAction14:"node" [color=blue]
-		interlab_CallBehaviorAction3:OutputPin1 -> interlab_ForkNode4 [color=black]
-		interlab_ForkNode4 -> interlab_CallBehaviorAction15:InputPin2 [color=black]
-		interlab_ForkNode6 -> interlab_CallBehaviorAction15:InputPin1 [color=black]
-		interlab_CallBehaviorAction14:"node" -> interlab_CallBehaviorAction15:"node" [color=blue]
-		interlab_ForkNode4 -> interlab_CallBehaviorAction16:InputPin1 [color=black]
-		interlab_CallBehaviorAction15:"node" -> interlab_CallBehaviorAction16:"node" [color=blue]
-		interlab_CallBehaviorAction4:OutputPin1 -> interlab_ForkNode5 [color=black]
-		interlab_ForkNode5 -> interlab_CallBehaviorAction17:InputPin2 [color=black]
-		interlab_CallBehaviorAction5:OutputPin1 -> interlab_ForkNode6 [color=black]
-		interlab_ForkNode6 -> interlab_CallBehaviorAction17:InputPin1 [color=black]
-		interlab_CallBehaviorAction16:"node" -> interlab_CallBehaviorAction17:"node" [color=blue]
-		interlab_ForkNode5 -> interlab_CallBehaviorAction18:InputPin1 [color=black]
-		interlab_CallBehaviorAction17:"node" -> interlab_CallBehaviorAction18:"node" [color=blue]
-		interlab_CallBehaviorAction18:"node" -> interlab_CallBehaviorAction19:"node" [color=blue]
-		interlab_ForkNode7 -> interlab_CallBehaviorAction20:InputPin1 [color=black]
-		interlab_CallBehaviorAction19:"node" -> interlab_CallBehaviorAction20:"node" [color=blue]
-		interlab_CallBehaviorAction19:OutputPin1 -> interlab_ForkNode7 [color=black]
-		interlab_ForkNode7 -> interlab_CallBehaviorAction21:InputPin1 [color=black]
-		interlab_CallBehaviorAction20:"node" -> interlab_CallBehaviorAction21:"node" [color=blue]
-		interlab_ForkNode7 -> interlab_CallBehaviorAction22:InputPin1 [color=black]
-		interlab_CallBehaviorAction21:"node" -> interlab_CallBehaviorAction22:"node" [color=blue]
-		interlab_ForkNode7 -> interlab_CallBehaviorAction23:InputPin1 [color=black]
-		interlab_CallBehaviorAction22:"node" -> interlab_CallBehaviorAction23:"node" [color=blue]
-		interlab_ForkNode7 -> interlab_CallBehaviorAction24:InputPin1 [color=black]
-		interlab_CallBehaviorAction23:"node" -> interlab_CallBehaviorAction24:"node" [color=blue]
-		interlab_ForkNode7 -> interlab_CallBehaviorAction25:InputPin1 [color=black]
-		interlab_CallBehaviorAction24:"node" -> interlab_CallBehaviorAction25:"node" [color=blue]
 		interlab_ForkNode7 -> interlab_CallBehaviorAction26:InputPin1 [color=black]
-		interlab_CallBehaviorAction25:"node" -> interlab_CallBehaviorAction26:"node" [color=blue]
-		interlab_ForkNode7 -> interlab_CallBehaviorAction27:InputPin1 [color=black]
-		interlab_CallBehaviorAction26:"node" -> interlab_CallBehaviorAction27:"node" [color=blue]
-		interlab_ForkNode7 -> interlab_CallBehaviorAction28:InputPin1 [color=black]
-		interlab_CallBehaviorAction27:"node" -> interlab_CallBehaviorAction28:"node" [color=blue]
-		interlab_ForkNode7 -> interlab_CallBehaviorAction29:InputPin1 [color=black]
-		interlab_CallBehaviorAction28:"node" -> interlab_CallBehaviorAction29:"node" [color=blue]
-		interlab_CallBehaviorAction28:OutputPin1 -> interlab_CallBehaviorAction30:InputPin2 [color=black]
-		interlab_ForkNode3 -> interlab_CallBehaviorAction30:InputPin1 [color=black]
-		interlab_CallBehaviorAction29:"node" -> interlab_CallBehaviorAction30:"node" [color=blue]
-		interlab_CallBehaviorAction29:OutputPin1 -> interlab_CallBehaviorAction31:InputPin2 [color=black]
-		interlab_ForkNode6 -> interlab_CallBehaviorAction31:InputPin1 [color=black]
-		interlab_CallBehaviorAction30:"node" -> interlab_CallBehaviorAction31:"node" [color=blue]
-		interlab_ForkNode8 -> interlab_CallBehaviorAction32:InputPin2 [color=black]
-		interlab_ForkNode1 -> interlab_CallBehaviorAction32:InputPin1 [color=black]
-		interlab_CallBehaviorAction31:"node" -> interlab_CallBehaviorAction32:"node" [color=blue]
-		interlab_ForkNode9 -> interlab_CallBehaviorAction33:InputPin2 [color=black]
-		interlab_ForkNode1 -> interlab_CallBehaviorAction33:InputPin1 [color=black]
-		interlab_CallBehaviorAction32:"node" -> interlab_CallBehaviorAction33:"node" [color=blue]
-		interlab_ForkNode10 -> interlab_CallBehaviorAction34:InputPin2 [color=black]
-		interlab_ForkNode2 -> interlab_CallBehaviorAction34:InputPin1 [color=black]
-		interlab_CallBehaviorAction33:"node" -> interlab_CallBehaviorAction34:"node" [color=blue]
-		interlab_ForkNode11 -> interlab_CallBehaviorAction35:InputPin2 [color=black]
-		interlab_ForkNode2 -> interlab_CallBehaviorAction35:InputPin1 [color=black]
-		interlab_CallBehaviorAction34:"node" -> interlab_CallBehaviorAction35:"node" [color=blue]
-		interlab_ForkNode12 -> interlab_CallBehaviorAction36:InputPin2 [color=black]
-		interlab_ForkNode4 -> interlab_CallBehaviorAction36:InputPin1 [color=black]
-		interlab_CallBehaviorAction35:"node" -> interlab_CallBehaviorAction36:"node" [color=blue]
-		interlab_ForkNode13 -> interlab_CallBehaviorAction37:InputPin2 [color=black]
-		interlab_ForkNode4 -> interlab_CallBehaviorAction37:InputPin1 [color=black]
-		interlab_CallBehaviorAction36:"node" -> interlab_CallBehaviorAction37:"node" [color=blue]
-		interlab_ForkNode14 -> interlab_CallBehaviorAction38:InputPin2 [color=black]
-		interlab_ForkNode5 -> interlab_CallBehaviorAction38:InputPin1 [color=black]
-		interlab_CallBehaviorAction37:"node" -> interlab_CallBehaviorAction38:"node" [color=blue]
-		interlab_ForkNode15 -> interlab_CallBehaviorAction39:InputPin2 [color=black]
-		interlab_ForkNode5 -> interlab_CallBehaviorAction39:InputPin1 [color=black]
-		interlab_CallBehaviorAction38:"node" -> interlab_CallBehaviorAction39:"node" [color=blue]
-		interlab_ForkNode7 -> interlab_CallBehaviorAction40:InputPin1 [color=black]
-		interlab_CallBehaviorAction39:"node" -> interlab_CallBehaviorAction40:"node" [color=blue]
 		interlab_ForkNode7 -> interlab_CallBehaviorAction41:InputPin1 [color=black]
-		interlab_CallBehaviorAction40:"node" -> interlab_CallBehaviorAction41:"node" [color=blue]
-		interlab_ForkNode7 -> interlab_CallBehaviorAction42:InputPin1 [color=black]
-		interlab_CallBehaviorAction41:"node" -> interlab_CallBehaviorAction42:"node" [color=blue]
-		interlab_ForkNode7 -> interlab_CallBehaviorAction43:InputPin1 [color=black]
-		interlab_CallBehaviorAction42:"node" -> interlab_CallBehaviorAction43:"node" [color=blue]
-		interlab_ForkNode7 -> interlab_CallBehaviorAction44:InputPin1 [color=black]
-		interlab_CallBehaviorAction43:"node" -> interlab_CallBehaviorAction44:"node" [color=blue]
-		interlab_ForkNode7 -> interlab_CallBehaviorAction45:InputPin1 [color=black]
-		interlab_CallBehaviorAction44:"node" -> interlab_CallBehaviorAction45:"node" [color=blue]
-		interlab_ForkNode7 -> interlab_CallBehaviorAction46:InputPin1 [color=black]
-		interlab_CallBehaviorAction45:"node" -> interlab_CallBehaviorAction46:"node" [color=blue]
-		interlab_ForkNode7 -> interlab_CallBehaviorAction47:InputPin1 [color=black]
-		interlab_CallBehaviorAction46:"node" -> interlab_CallBehaviorAction47:"node" [color=blue]
-		interlab_CallBehaviorAction40:OutputPin1 -> interlab_CallBehaviorAction48:InputPin2 [color=black]
-		interlab_CallBehaviorAction20:OutputPin1 -> interlab_ForkNode8 [color=black]
-		interlab_ForkNode8 -> interlab_CallBehaviorAction48:InputPin1 [color=black]
-		interlab_CallBehaviorAction47:"node" -> interlab_CallBehaviorAction48:"node" [color=blue]
-		interlab_CallBehaviorAction48:"node" -> interlab_CallBehaviorAction49:"node" [color=blue]
-		interlab_CallBehaviorAction41:OutputPin1 -> interlab_CallBehaviorAction50:InputPin2 [color=black]
-		interlab_CallBehaviorAction21:OutputPin1 -> interlab_ForkNode9 [color=black]
-		interlab_ForkNode9 -> interlab_CallBehaviorAction50:InputPin1 [color=black]
-		interlab_CallBehaviorAction49:"node" -> interlab_CallBehaviorAction50:"node" [color=blue]
-		interlab_CallBehaviorAction42:OutputPin1 -> interlab_CallBehaviorAction51:InputPin2 [color=black]
-		interlab_CallBehaviorAction22:OutputPin1 -> interlab_ForkNode10 [color=black]
+		interlab_CallBehaviorAction46:OutputPin1 -> interlab_CallBehaviorAction55:InputPin2 [color=black]
+		interlab_CallBehaviorAction8:"node" -> interlab_CallBehaviorAction9:"node" [color=blue]
+		interlab_CallBehaviorAction14:"node" -> interlab_CallBehaviorAction15:"node" [color=blue]
+		interlab_CallBehaviorAction63:OutputPin1 -> interlab_CallBehaviorAction67:InputPin1 [color=black]
+		interlab_ForkNode7 -> interlab_CallBehaviorAction65:InputPin1 [color=black]
+		interlab_CallBehaviorAction47:OutputPin1 -> interlab_CallBehaviorAction56:InputPin2 [color=black]
+		interlab_ForkNode7 -> interlab_CallBehaviorAction24:InputPin1 [color=black]
+		interlab_CallBehaviorAction24:"node" -> interlab_CallBehaviorAction25:"node" [color=blue]
+		interlab_ActivityParameterNode1 -> interlab_FinalNode1 [color=blue]
+		interlab_ForkNode16 -> interlab_CallBehaviorAction75:InputPin1 [color=black]
+		interlab_CallBehaviorAction59:"node" -> interlab_CallBehaviorAction60:"node" [color=blue]
+		interlab_ForkNode7 -> interlab_CallBehaviorAction40:InputPin1 [color=black]
+		interlab_ForkNode4 -> interlab_CallBehaviorAction16:InputPin1 [color=black]
+		interlab_CallBehaviorAction28:"node" -> interlab_CallBehaviorAction29:"node" [color=blue]
+		interlab_ForkNode3 -> interlab_CallBehaviorAction11:InputPin1 [color=black]
+		interlab_CallBehaviorAction20:"node" -> interlab_CallBehaviorAction21:"node" [color=blue]
+		interlab_CallBehaviorAction35:"node" -> interlab_CallBehaviorAction36:"node" [color=blue]
+		interlab_CallBehaviorAction55:"node" -> interlab_CallBehaviorAction56:"node" [color=blue]
+		interlab_CallBehaviorAction7:"node" -> interlab_CallBehaviorAction8:"node" [color=blue]
+		interlab_CallBehaviorAction6:"node" -> interlab_CallBehaviorAction7:"node" [color=blue]
+		interlab_CallBehaviorAction6:OutputPin1 -> interlab_ForkNode3 [color=black]
 		interlab_ForkNode10 -> interlab_CallBehaviorAction51:InputPin1 [color=black]
-		interlab_CallBehaviorAction50:"node" -> interlab_CallBehaviorAction51:"node" [color=blue]
-		interlab_CallBehaviorAction43:OutputPin1 -> interlab_CallBehaviorAction52:InputPin2 [color=black]
-		interlab_CallBehaviorAction23:OutputPin1 -> interlab_ForkNode11 [color=black]
-		interlab_ForkNode11 -> interlab_CallBehaviorAction52:InputPin1 [color=black]
-		interlab_CallBehaviorAction51:"node" -> interlab_CallBehaviorAction52:"node" [color=blue]
-		interlab_CallBehaviorAction44:OutputPin1 -> interlab_CallBehaviorAction53:InputPin2 [color=black]
-		interlab_CallBehaviorAction24:OutputPin1 -> interlab_ForkNode12 [color=black]
-		interlab_ForkNode12 -> interlab_CallBehaviorAction53:InputPin1 [color=black]
-		interlab_CallBehaviorAction52:"node" -> interlab_CallBehaviorAction53:"node" [color=blue]
+		interlab_CallBehaviorAction61:"node" -> interlab_CallBehaviorAction62:"node" [color=blue]
+		interlab_CallBehaviorAction40:OutputPin1 -> interlab_CallBehaviorAction48:InputPin2 [color=black]
+		interlab_CallBehaviorAction4:"node" -> interlab_CallBehaviorAction5:"node" [color=blue]
+		interlab_CallBehaviorAction21:"node" -> interlab_CallBehaviorAction22:"node" [color=blue]
+		interlab_CallBehaviorAction37:"node" -> interlab_CallBehaviorAction38:"node" [color=blue]
+		interlab_CallBehaviorAction60:"node" -> interlab_CallBehaviorAction61:"node" [color=blue]
+		interlab_ForkNode7 -> interlab_CallBehaviorAction60:InputPin1 [color=black]
+		interlab_ForkNode15 -> interlab_CallBehaviorAction39:InputPin2 [color=black]
+		interlab_ForkNode8 -> interlab_CallBehaviorAction48:InputPin1 [color=black]
+		interlab_CallBehaviorAction67:OutputPin1 -> interlab_CallBehaviorAction72:InputPin2 [color=black]
+		interlab_CallBehaviorAction45:"node" -> interlab_CallBehaviorAction46:"node" [color=blue]
+		interlab_CallBehaviorAction63:"node" -> interlab_CallBehaviorAction64:"node" [color=blue]
+		interlab_CallBehaviorAction32:"node" -> interlab_CallBehaviorAction33:"node" [color=blue]
+		interlab_ForkNode5 -> interlab_CallBehaviorAction10:InputPin1 [color=black]
+		interlab_ForkNode5 -> interlab_CallBehaviorAction38:InputPin1 [color=black]
+		interlab_CallBehaviorAction69:OutputPin1 -> interlab_CallBehaviorAction74:InputPin2 [color=black]
+		interlab_CallBehaviorAction49:"node" -> interlab_CallBehaviorAction50:"node" [color=blue]
+		interlab_ForkNode5 -> interlab_CallBehaviorAction17:InputPin2 [color=black]
+		interlab_ForkNode3 -> interlab_CallBehaviorAction13:InputPin1 [color=black]
+		interlab_InitialNode1 -> interlab_CallBehaviorAction1:"node" [color=blue]
+		interlab_CallBehaviorAction39:"node" -> interlab_CallBehaviorAction40:"node" [color=blue]
+		interlab_CallBehaviorAction66:OutputPin1 -> interlab_CallBehaviorAction70:InputPin1 [color=black]
+		interlab_CallBehaviorAction29:"node" -> interlab_CallBehaviorAction30:"node" [color=blue]
+		interlab_ForkNode12 -> interlab_CallBehaviorAction36:InputPin2 [color=black]
 		interlab_CallBehaviorAction45:OutputPin1 -> interlab_CallBehaviorAction54:InputPin2 [color=black]
-		interlab_CallBehaviorAction25:OutputPin1 -> interlab_ForkNode13 [color=black]
+		interlab_CallBehaviorAction26:OutputPin1 -> interlab_ForkNode14 [color=black]
+		interlab_CallBehaviorAction5:OutputPin1 -> interlab_ForkNode6 [color=black]
+		interlab_ForkNode15 -> interlab_CallBehaviorAction56:InputPin1 [color=black]
+		interlab_CallBehaviorAction23:OutputPin1 -> interlab_ForkNode11 [color=black]
+		interlab_CallBehaviorAction40:"node" -> interlab_CallBehaviorAction41:"node" [color=blue]
+		interlab_ForkNode13 -> interlab_CallBehaviorAction37:InputPin2 [color=black]
+		interlab_CallBehaviorAction52:"node" -> interlab_CallBehaviorAction53:"node" [color=blue]
+		interlab_CallBehaviorAction71:OutputPin1 -> interlab_ForkNode16 [color=black]
+		interlab_CallBehaviorAction4:OutputPin1 -> interlab_ForkNode5 [color=black]
+		interlab_ForkNode16 -> interlab_CallBehaviorAction74:InputPin1 [color=black]
+		interlab_CallBehaviorAction26:"node" -> interlab_CallBehaviorAction27:"node" [color=blue]
+		interlab_ForkNode11 -> interlab_CallBehaviorAction52:InputPin1 [color=black]
+		interlab_ForkNode2 -> interlab_CallBehaviorAction13:InputPin2 [color=black]
+		interlab_ForkNode6 -> interlab_CallBehaviorAction62:InputPin1 [color=black]
+		interlab_CallBehaviorAction50:"node" -> interlab_CallBehaviorAction51:"node" [color=blue]
+		interlab_CallBehaviorAction10:"node" -> interlab_CallBehaviorAction11:"node" [color=blue]
+		interlab_CallBehaviorAction58:"node" -> interlab_CallBehaviorAction59:"node" [color=blue]
+		interlab_ForkNode6 -> interlab_CallBehaviorAction31:InputPin1 [color=black]
+		interlab_ForkNode12 -> interlab_CallBehaviorAction53:InputPin1 [color=black]
+		interlab_ForkNode1 -> interlab_CallBehaviorAction12:InputPin1 [color=black]
+		interlab_ForkNode7 -> interlab_CallBehaviorAction25:InputPin1 [color=black]
+		interlab_ForkNode7 -> interlab_CallBehaviorAction46:InputPin1 [color=black]
+		interlab_ForkNode14 -> interlab_CallBehaviorAction55:InputPin1 [color=black]
+		interlab_CallBehaviorAction75:"node" -> interlab_CallBehaviorAction76:"node" [color=blue]
+		interlab_ForkNode9 -> interlab_CallBehaviorAction33:InputPin2 [color=black]
+		interlab_ForkNode1 -> interlab_CallBehaviorAction7:InputPin1 [color=black]
+		interlab_ForkNode4 -> interlab_CallBehaviorAction36:InputPin1 [color=black]
+		interlab_CallBehaviorAction11:"node" -> interlab_CallBehaviorAction12:"node" [color=blue]
+		interlab_ForkNode16 -> interlab_CallBehaviorAction73:InputPin1 [color=black]
+		interlab_CallBehaviorAction28:OutputPin1 -> interlab_CallBehaviorAction30:InputPin2 [color=black]
+		interlab_ForkNode7 -> interlab_CallBehaviorAction63:InputPin1 [color=black]
+		interlab_ForkNode7 -> interlab_CallBehaviorAction27:InputPin1 [color=black]
+		interlab_ForkNode7 -> interlab_CallBehaviorAction57:InputPin1 [color=black]
+		interlab_CallBehaviorAction20:OutputPin1 -> interlab_ForkNode8 [color=black]
+		interlab_CallBehaviorAction73:OutputPin1 -> interlab_CallBehaviorAction76:InputPin2 [color=black]
+		interlab_ForkNode7 -> interlab_CallBehaviorAction44:InputPin1 [color=black]
+		interlab_ForkNode10 -> interlab_CallBehaviorAction34:InputPin2 [color=black]
+		interlab_ForkNode4 -> interlab_CallBehaviorAction37:InputPin1 [color=black]
+		interlab_CallBehaviorAction73:"node" -> interlab_CallBehaviorAction74:"node" [color=blue]
+		interlab_CallBehaviorAction9:"node" -> interlab_CallBehaviorAction10:"node" [color=blue]
+		interlab_CallBehaviorAction34:"node" -> interlab_CallBehaviorAction35:"node" [color=blue]
+		interlab_CallBehaviorAction72:"node" -> interlab_CallBehaviorAction73:"node" [color=blue]
+		interlab_ForkNode7 -> interlab_CallBehaviorAction20:InputPin1 [color=black]
+		interlab_CallBehaviorAction65:"node" -> interlab_CallBehaviorAction66:"node" [color=blue]
+		interlab_ForkNode5 -> interlab_CallBehaviorAction18:InputPin1 [color=black]
+		interlab_ForkNode7 -> interlab_CallBehaviorAction47:InputPin1 [color=black]
+		interlab_ForkNode2 -> interlab_CallBehaviorAction34:InputPin1 [color=black]
+		interlab_CallBehaviorAction41:"node" -> interlab_CallBehaviorAction42:"node" [color=blue]
+		interlab_ForkNode8 -> interlab_CallBehaviorAction32:InputPin2 [color=black]
+		interlab_CallBehaviorAction64:OutputPin1 -> interlab_CallBehaviorAction68:InputPin1 [color=black]
+		interlab_CallBehaviorAction18:"node" -> interlab_CallBehaviorAction19:"node" [color=blue]
+		interlab_CallBehaviorAction2:OutputPin1 -> interlab_ForkNode2 [color=black]
+		interlab_CallBehaviorAction64:"node" -> interlab_CallBehaviorAction65:"node" [color=blue]
+		interlab_CallBehaviorAction42:OutputPin1 -> interlab_CallBehaviorAction51:InputPin2 [color=black]
+		interlab_ForkNode1 -> interlab_CallBehaviorAction33:InputPin1 [color=black]
+		interlab_CallBehaviorAction72:OutputPin1 -> interlab_CallBehaviorAction76:InputPin2 [color=black]
+		interlab_CallBehaviorAction22:OutputPin1 -> interlab_ForkNode10 [color=black]
+		interlab_CallBehaviorAction54:"node" -> interlab_CallBehaviorAction55:"node" [color=blue]
+		interlab_CallBehaviorAction27:OutputPin1 -> interlab_ForkNode15 [color=black]
+		interlab_CallBehaviorAction43:OutputPin1 -> interlab_CallBehaviorAction52:InputPin2 [color=black]
+		interlab_ForkNode6 -> interlab_CallBehaviorAction15:InputPin1 [color=black]
+		interlab_CallBehaviorAction30:"node" -> interlab_CallBehaviorAction31:"node" [color=blue]
+		interlab_ForkNode7 -> interlab_CallBehaviorAction22:InputPin1 [color=black]
+		interlab_ForkNode9 -> interlab_CallBehaviorAction50:InputPin1 [color=black]
+		interlab_ForkNode1 -> interlab_CallBehaviorAction11:InputPin2 [color=black]
+		interlab_CallBehaviorAction23:"node" -> interlab_CallBehaviorAction24:"node" [color=blue]
+		interlab_CallBehaviorAction12:"node" -> interlab_CallBehaviorAction13:"node" [color=blue]
+		interlab_CallBehaviorAction16:"node" -> interlab_CallBehaviorAction17:"node" [color=blue]
+		interlab_ForkNode14 -> interlab_CallBehaviorAction38:InputPin2 [color=black]
+		interlab_ForkNode4 -> interlab_CallBehaviorAction8:InputPin1 [color=black]
+		interlab_CallBehaviorAction74:"node" -> interlab_CallBehaviorAction75:"node" [color=blue]
+		interlab_CallBehaviorAction42:"node" -> interlab_CallBehaviorAction43:"node" [color=blue]
+		interlab_ForkNode2 -> interlab_CallBehaviorAction9:InputPin1 [color=black]
+		interlab_CallBehaviorAction25:"node" -> interlab_CallBehaviorAction26:"node" [color=blue]
+		interlab_ForkNode7 -> interlab_CallBehaviorAction23:InputPin1 [color=black]
+		interlab_CallBehaviorAction27:"node" -> interlab_CallBehaviorAction28:"node" [color=blue]
+		interlab_CallBehaviorAction3:"node" -> interlab_CallBehaviorAction4:"node" [color=blue]
+		interlab_CallBehaviorAction47:"node" -> interlab_CallBehaviorAction48:"node" [color=blue]
+		interlab_CallBehaviorAction5:"node" -> interlab_CallBehaviorAction6:"node" [color=blue]
+		interlab_ForkNode3 -> interlab_CallBehaviorAction30:InputPin1 [color=black]
+		interlab_ForkNode4 -> interlab_CallBehaviorAction15:InputPin2 [color=black]
+		interlab_CallBehaviorAction38:"node" -> interlab_CallBehaviorAction39:"node" [color=blue]
+		interlab_CallBehaviorAction22:"node" -> interlab_CallBehaviorAction23:"node" [color=blue]
+		interlab_ForkNode16 -> interlab_CallBehaviorAction72:InputPin1 [color=black]
+		interlab_CallBehaviorAction19:"node" -> interlab_CallBehaviorAction20:"node" [color=blue]
+		interlab_ForkNode7 -> interlab_CallBehaviorAction59:InputPin1 [color=black]
 		interlab_ForkNode13 -> interlab_CallBehaviorAction54:InputPin1 [color=black]
 		interlab_CallBehaviorAction53:"node" -> interlab_CallBehaviorAction54:"node" [color=blue]
-		interlab_CallBehaviorAction46:OutputPin1 -> interlab_CallBehaviorAction55:InputPin2 [color=black]
-		interlab_CallBehaviorAction26:OutputPin1 -> interlab_ForkNode14 [color=black]
-		interlab_ForkNode14 -> interlab_CallBehaviorAction55:InputPin1 [color=black]
-		interlab_CallBehaviorAction54:"node" -> interlab_CallBehaviorAction55:"node" [color=blue]
-		interlab_CallBehaviorAction47:OutputPin1 -> interlab_CallBehaviorAction56:InputPin2 [color=black]
-		interlab_CallBehaviorAction27:OutputPin1 -> interlab_ForkNode15 [color=black]
-		interlab_ForkNode15 -> interlab_CallBehaviorAction56:InputPin1 [color=black]
-		interlab_CallBehaviorAction55:"node" -> interlab_CallBehaviorAction56:"node" [color=blue]
-		interlab_ForkNode7 -> interlab_CallBehaviorAction57:InputPin1 [color=black]
-		interlab_CallBehaviorAction56:"node" -> interlab_CallBehaviorAction57:"node" [color=blue]
-		interlab_CallBehaviorAction57:OutputPin1 -> interlab_CallBehaviorAction58:InputPin1 [color=black]
-		interlab_CallBehaviorAction57:"node" -> interlab_CallBehaviorAction58:"node" [color=blue]
-		interlab_ForkNode7 -> interlab_CallBehaviorAction59:InputPin1 [color=black]
-		interlab_CallBehaviorAction58:"node" -> interlab_CallBehaviorAction59:"node" [color=blue]
-		interlab_ForkNode7 -> interlab_CallBehaviorAction60:InputPin1 [color=black]
-		interlab_CallBehaviorAction59:"node" -> interlab_CallBehaviorAction60:"node" [color=blue]
-		interlab_CallBehaviorAction59:OutputPin1 -> interlab_CallBehaviorAction61:InputPin2 [color=black]
-		interlab_ForkNode3 -> interlab_CallBehaviorAction61:InputPin1 [color=black]
-		interlab_CallBehaviorAction60:"node" -> interlab_CallBehaviorAction61:"node" [color=blue]
-		interlab_CallBehaviorAction60:OutputPin1 -> interlab_CallBehaviorAction62:InputPin2 [color=black]
-		interlab_ForkNode6 -> interlab_CallBehaviorAction62:InputPin1 [color=black]
-		interlab_CallBehaviorAction61:"node" -> interlab_CallBehaviorAction62:"node" [color=blue]
-		interlab_ForkNode7 -> interlab_CallBehaviorAction63:InputPin1 [color=black]
-		interlab_CallBehaviorAction62:"node" -> interlab_CallBehaviorAction63:"node" [color=blue]
+		interlab_CallBehaviorAction1:OutputPin1 -> interlab_ForkNode1 [color=black]
+		interlab_CallBehaviorAction29:OutputPin1 -> interlab_CallBehaviorAction31:InputPin2 [color=black]
 		interlab_ForkNode7 -> interlab_CallBehaviorAction64:InputPin1 [color=black]
-		interlab_CallBehaviorAction63:"node" -> interlab_CallBehaviorAction64:"node" [color=blue]
-		interlab_ForkNode7 -> interlab_CallBehaviorAction65:InputPin1 [color=black]
-		interlab_CallBehaviorAction64:"node" -> interlab_CallBehaviorAction65:"node" [color=blue]
-		interlab_ForkNode7 -> interlab_CallBehaviorAction66:InputPin1 [color=black]
-		interlab_CallBehaviorAction65:"node" -> interlab_CallBehaviorAction66:"node" [color=blue]
-		interlab_CallBehaviorAction63:OutputPin1 -> interlab_CallBehaviorAction67:InputPin1 [color=black]
-		interlab_CallBehaviorAction66:"node" -> interlab_CallBehaviorAction67:"node" [color=blue]
-		interlab_CallBehaviorAction64:OutputPin1 -> interlab_CallBehaviorAction68:InputPin1 [color=black]
+		interlab_CallBehaviorAction33:"node" -> interlab_CallBehaviorAction34:"node" [color=blue]
 		interlab_CallBehaviorAction67:"node" -> interlab_CallBehaviorAction68:"node" [color=blue]
-		interlab_CallBehaviorAction65:OutputPin1 -> interlab_CallBehaviorAction69:InputPin1 [color=black]
-		interlab_CallBehaviorAction68:"node" -> interlab_CallBehaviorAction69:"node" [color=blue]
-		interlab_CallBehaviorAction66:OutputPin1 -> interlab_CallBehaviorAction70:InputPin1 [color=black]
-		interlab_CallBehaviorAction69:"node" -> interlab_CallBehaviorAction70:"node" [color=blue]
+		interlab_CallBehaviorAction56:"node" -> interlab_CallBehaviorAction57:"node" [color=blue]
+		interlab_CallBehaviorAction60:OutputPin1 -> interlab_CallBehaviorAction62:InputPin2 [color=black]
+		interlab_CallBehaviorAction15:"node" -> interlab_CallBehaviorAction16:"node" [color=blue]
+		interlab_CallBehaviorAction43:"node" -> interlab_CallBehaviorAction44:"node" [color=blue]
+		interlab_CallBehaviorAction74:OutputPin1 -> interlab_CallBehaviorAction76:InputPin2 [color=black]
 		interlab_ForkNode7 -> interlab_CallBehaviorAction71:InputPin1 [color=black]
-		interlab_CallBehaviorAction70:"node" -> interlab_CallBehaviorAction71:"node" [color=blue]
-		interlab_CallBehaviorAction67:OutputPin1 -> interlab_CallBehaviorAction72:InputPin2 [color=black]
-		interlab_ForkNode16 -> interlab_CallBehaviorAction72:InputPin1 [color=black]
+		interlab_ForkNode7 -> interlab_CallBehaviorAction29:InputPin1 [color=black]
+		interlab_CallBehaviorAction66:"node" -> interlab_CallBehaviorAction67:"node" [color=blue]
+		interlab_CallBehaviorAction57:OutputPin1 -> interlab_CallBehaviorAction58:InputPin1 [color=black]
+		interlab_CallBehaviorAction62:"node" -> interlab_CallBehaviorAction63:"node" [color=blue]
+		interlab_CallBehaviorAction31:"node" -> interlab_CallBehaviorAction32:"node" [color=blue]
+		interlab_ForkNode1 -> interlab_CallBehaviorAction32:InputPin1 [color=black]
+		interlab_CallBehaviorAction57:"node" -> interlab_CallBehaviorAction58:"node" [color=blue]
+		interlab_CallBehaviorAction48:"node" -> interlab_CallBehaviorAction49:"node" [color=blue]
+		interlab_ForkNode2 -> interlab_CallBehaviorAction14:InputPin1 [color=black]
 		interlab_CallBehaviorAction71:"node" -> interlab_CallBehaviorAction72:"node" [color=blue]
 		interlab_CallBehaviorAction68:OutputPin1 -> interlab_CallBehaviorAction73:InputPin2 [color=black]
-		interlab_CallBehaviorAction71:OutputPin1 -> interlab_ForkNode16 [color=black]
-		interlab_ForkNode16 -> interlab_CallBehaviorAction73:InputPin1 [color=black]
-		interlab_CallBehaviorAction72:"node" -> interlab_CallBehaviorAction73:"node" [color=blue]
-		interlab_CallBehaviorAction69:OutputPin1 -> interlab_CallBehaviorAction74:InputPin2 [color=black]
-		interlab_ForkNode16 -> interlab_CallBehaviorAction74:InputPin1 [color=black]
-		interlab_CallBehaviorAction73:"node" -> interlab_CallBehaviorAction74:"node" [color=blue]
-		interlab_CallBehaviorAction70:OutputPin1 -> interlab_CallBehaviorAction75:InputPin2 [color=black]
-		interlab_ForkNode16 -> interlab_CallBehaviorAction75:InputPin1 [color=black]
-		interlab_CallBehaviorAction74:"node" -> interlab_CallBehaviorAction75:"node" [color=blue]
-		interlab_CallBehaviorAction72:OutputPin1 -> interlab_CallBehaviorAction76:InputPin2 [color=black]
-		interlab_CallBehaviorAction73:OutputPin1 -> interlab_CallBehaviorAction76:InputPin2 [color=black]
-		interlab_CallBehaviorAction74:OutputPin1 -> interlab_CallBehaviorAction76:InputPin2 [color=black]
-		interlab_CallBehaviorAction75:OutputPin1 -> interlab_CallBehaviorAction76:InputPin2 [color=black]
-		interlab_CallBehaviorAction75:"node" -> interlab_CallBehaviorAction76:"node" [color=blue]
+		interlab_CallBehaviorAction65:OutputPin1 -> interlab_CallBehaviorAction69:InputPin1 [color=black]
+		interlab_ForkNode7 -> interlab_CallBehaviorAction21:InputPin1 [color=black]
+		interlab_CallBehaviorAction13:"node" -> interlab_CallBehaviorAction14:"node" [color=blue]
+		interlab_CallBehaviorAction17:"node" -> interlab_CallBehaviorAction18:"node" [color=blue]
+		interlab_CallBehaviorAction41:OutputPin1 -> interlab_CallBehaviorAction50:InputPin2 [color=black]
+		interlab_CallBehaviorAction46:"node" -> interlab_CallBehaviorAction47:"node" [color=blue]
+		interlab_ForkNode11 -> interlab_CallBehaviorAction35:InputPin2 [color=black]
+		interlab_CallBehaviorAction1:"node" -> interlab_CallBehaviorAction2:"node" [color=blue]
 		interlab_CallBehaviorAction76:OutputPin1 -> interlab_ActivityParameterNode1 [color=black]
+		interlab_CallBehaviorAction2:"node" -> interlab_CallBehaviorAction3:"node" [color=blue]
+		interlab_CallBehaviorAction70:OutputPin1 -> interlab_CallBehaviorAction75:InputPin2 [color=black]
+		interlab_ForkNode7 -> interlab_CallBehaviorAction45:InputPin1 [color=black]
+		interlab_CallBehaviorAction70:"node" -> interlab_CallBehaviorAction71:"node" [color=blue]
+		interlab_CallBehaviorAction44:OutputPin1 -> interlab_CallBehaviorAction53:InputPin2 [color=black]
+		interlab_ForkNode7 -> interlab_CallBehaviorAction43:InputPin1 [color=black]
+		interlab_CallBehaviorAction25:OutputPin1 -> interlab_ForkNode13 [color=black]
+		interlab_CallBehaviorAction69:"node" -> interlab_CallBehaviorAction70:"node" [color=blue]
+		interlab_CallBehaviorAction44:"node" -> interlab_CallBehaviorAction45:"node" [color=blue]
+		interlab_ForkNode7 -> interlab_CallBehaviorAction66:InputPin1 [color=black]
+		interlab_ForkNode7 -> interlab_CallBehaviorAction42:InputPin1 [color=black]
+		interlab_CallBehaviorAction3:OutputPin1 -> interlab_ForkNode4 [color=black]
+		interlab_CallBehaviorAction21:OutputPin1 -> interlab_ForkNode9 [color=black]
+		interlab_ForkNode7 -> interlab_CallBehaviorAction28:InputPin1 [color=black]
+		interlab_ForkNode5 -> interlab_CallBehaviorAction39:InputPin1 [color=black]
+		interlab_CallBehaviorAction75:OutputPin1 -> interlab_CallBehaviorAction76:InputPin2 [color=black]
+		interlab_ForkNode3 -> interlab_CallBehaviorAction61:InputPin1 [color=black]
+		interlab_CallBehaviorAction19:OutputPin1 -> interlab_ForkNode7 [color=black]
+		interlab_CallBehaviorAction51:"node" -> interlab_CallBehaviorAction52:"node" [color=blue]
+		interlab_CallBehaviorAction68:"node" -> interlab_CallBehaviorAction69:"node" [color=blue]
+		interlab_ForkNode6 -> interlab_CallBehaviorAction17:InputPin1 [color=black]
 		interlab_CallBehaviorAction76:"node" -> interlab_FinalNode1 [color=blue]
-		interlab_ActivityParameterNode1 -> interlab_FinalNode1 [color=blue]
-		interlab_CallBehaviorAction1 [label=<<table border="0" cellspacing="0">
-  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="ValuePin1" border="1">specification: Fluorescein calibrant</td><td> </td><td> </td></tr></table></td></tr>
-  <tr><td port="node" bgcolor="white" border="1">EmptyContainer</td></tr>
+		interlab_CallBehaviorAction24:OutputPin1 -> interlab_ForkNode12 [color=black]
+		interlab_CallBehaviorAction36:"node" -> interlab_CallBehaviorAction37:"node" [color=blue]
+		interlab_ForkNode2 -> interlab_CallBehaviorAction35:InputPin1 [color=black]
+		interlab_CallBehaviorAction59:OutputPin1 -> interlab_CallBehaviorAction61:InputPin2 [color=black]
+		interlab_CallBehaviorAction45 [label=<<table border="0" cellspacing="0">
+  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="InputPin1" border="1">source</td><td> </td><td port="ValuePin1" border="1">coordinates: F1:F11</td><td> </td><td> </td></tr></table></td></tr>
+  <tr><td port="node" bgcolor="white" border="1">PlateCoordinates</td></tr>
   <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="OutputPin1" border="1">samples</td><td> </td></tr></table></td></tr>
 </table>> fillcolor=white shape=none style=rounded]
-		interlab_InitialNode1 [label="" fillcolor=black shape=circle style=filled]
-		interlab_CallBehaviorAction2 [label=<<table border="0" cellspacing="0">
-  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="ValuePin1" border="1">specification: Sulforhodamine 101 calibrant</td><td> </td><td> </td></tr></table></td></tr>
-  <tr><td port="node" bgcolor="white" border="1">EmptyContainer</td></tr>
-  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="OutputPin1" border="1">samples</td><td> </td></tr></table></td></tr>
-</table>> fillcolor=white shape=none style=rounded]
-		interlab_CallBehaviorAction3 [label=<<table border="0" cellspacing="0">
-  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="ValuePin1" border="1">specification: Cascade blue calibrant</td><td> </td><td> </td></tr></table></td></tr>
-  <tr><td port="node" bgcolor="white" border="1">EmptyContainer</td></tr>
-  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="OutputPin1" border="1">samples</td><td> </td></tr></table></td></tr>
-</table>> fillcolor=white shape=none style=rounded]
-		interlab_CallBehaviorAction4 [label=<<table border="0" cellspacing="0">
-  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="ValuePin1" border="1">specification: microspheres</td><td> </td><td> </td></tr></table></td></tr>
-  <tr><td port="node" bgcolor="white" border="1">EmptyContainer</td></tr>
-  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="OutputPin1" border="1">samples</td><td> </td></tr></table></td></tr>
-</table>> fillcolor=white shape=none style=rounded]
-		interlab_CallBehaviorAction5 [label=<<table border="0" cellspacing="0">
-  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="ValuePin1" border="1">specification: molecular grade H2O</td><td> </td><td> </td></tr></table></td></tr>
-  <tr><td port="node" bgcolor="white" border="1">EmptyContainer</td></tr>
-  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="OutputPin1" border="1">samples</td><td> </td></tr></table></td></tr>
-</table>> fillcolor=white shape=none style=rounded]
-		interlab_CallBehaviorAction6 [label=<<table border="0" cellspacing="0">
-  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="ValuePin1" border="1">specification: PBS</td><td> </td><td> </td></tr></table></td></tr>
-  <tr><td port="node" bgcolor="white" border="1">EmptyContainer</td></tr>
-  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="OutputPin1" border="1">samples</td><td> </td></tr></table></td></tr>
-</table>> fillcolor=white shape=none style=rounded]
-		interlab_CallBehaviorAction7 [label=<<table border="0" cellspacing="0">
-  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="ValuePin1" border="1">resource: Fluorescein</td><td> </td><td port="InputPin1" border="1">destination</td><td> </td><td port="ValuePin2" border="1">amount: 500.0 microliter</td><td> </td><td> </td></tr></table></td></tr>
-  <tr><td port="node" bgcolor="white" border="1">Provision</td></tr>
-</table>> fillcolor=white shape=none style=rounded]
-		interlab_CallBehaviorAction8 [label=<<table border="0" cellspacing="0">
-  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="ValuePin1" border="1">resource: Cascade Blue</td><td> </td><td port="InputPin1" border="1">destination</td><td> </td><td port="ValuePin2" border="1">amount: 500.0 microliter</td><td> </td><td> </td></tr></table></td></tr>
-  <tr><td port="node" bgcolor="white" border="1">Provision</td></tr>
-</table>> fillcolor=white shape=none style=rounded]
-		interlab_CallBehaviorAction9 [label=<<table border="0" cellspacing="0">
-  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="ValuePin1" border="1">resource: Sulforhodamine</td><td> </td><td port="InputPin1" border="1">destination</td><td> </td><td port="ValuePin2" border="1">amount: 500.0 microliter</td><td> </td><td> </td></tr></table></td></tr>
-  <tr><td port="node" bgcolor="white" border="1">Provision</td></tr>
-</table>> fillcolor=white shape=none style=rounded]
-		interlab_CallBehaviorAction10 [label=<<table border="0" cellspacing="0">
-  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="ValuePin1" border="1">resource: NanoCym 950 nm monodisperse silica nanoparticles</td><td> </td><td port="InputPin1" border="1">destination</td><td> </td><td port="ValuePin2" border="1">amount: 500.0 microliter</td><td> </td><td> </td></tr></table></td></tr>
-  <tr><td port="node" bgcolor="white" border="1">Provision</td></tr>
-</table>> fillcolor=white shape=none style=rounded]
-		interlab_CallBehaviorAction11 [label=<<table border="0" cellspacing="0">
-  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="InputPin1" border="1">source</td><td> </td><td port="InputPin2" border="1">destination</td><td> </td><td port="ValuePin1" border="1">amount: 1.0 milliliter</td><td> </td><td> </td></tr></table></td></tr>
+		interlab_CallBehaviorAction61 [label=<<table border="0" cellspacing="0">
+  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="ValuePin1" border="1">amount: 100.0 microliter</td><td> </td><td port="InputPin1" border="1">source</td><td> </td><td port="InputPin2" border="1">destination</td><td> </td><td> </td></tr></table></td></tr>
   <tr><td port="node" bgcolor="white" border="1">Transfer</td></tr>
-</table>> fillcolor=white shape=none style=rounded]
-		interlab_ForkNode1 [label="" fillcolor=black height=0.02 shape=rectangle style=filled]
-		interlab_CallBehaviorAction12 [label=<<table border="0" cellspacing="0">
-  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="InputPin1" border="1">samples</td><td> </td><td port="ValuePin1" border="1">duration: 30.0 second</td><td> </td><td> </td></tr></table></td></tr>
-  <tr><td port="node" bgcolor="white" border="1">Vortex</td></tr>
 </table>> fillcolor=white shape=none style=rounded]
 		interlab_CallBehaviorAction13 [label=<<table border="0" cellspacing="0">
-  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="InputPin1" border="1">source</td><td> </td><td port="InputPin2" border="1">destination</td><td> </td><td port="ValuePin1" border="1">amount: 1.0 milliliter</td><td> </td><td> </td></tr></table></td></tr>
+  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="ValuePin1" border="1">amount: 1.0 milliliter</td><td> </td><td port="InputPin1" border="1">source</td><td> </td><td port="InputPin2" border="1">destination</td><td> </td><td> </td></tr></table></td></tr>
   <tr><td port="node" bgcolor="white" border="1">Transfer</td></tr>
 </table>> fillcolor=white shape=none style=rounded]
-		interlab_ForkNode2 [label="" fillcolor=black height=0.02 shape=rectangle style=filled]
-		interlab_ForkNode3 [label="" fillcolor=black height=0.02 shape=rectangle style=filled]
-		interlab_CallBehaviorAction14 [label=<<table border="0" cellspacing="0">
-  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="InputPin1" border="1">samples</td><td> </td><td port="ValuePin1" border="1">duration: 30.0 second</td><td> </td><td> </td></tr></table></td></tr>
-  <tr><td port="node" bgcolor="white" border="1">Vortex</td></tr>
-</table>> fillcolor=white shape=none style=rounded]
-		interlab_CallBehaviorAction15 [label=<<table border="0" cellspacing="0">
-  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="InputPin1" border="1">source</td><td> </td><td port="InputPin2" border="1">destination</td><td> </td><td port="ValuePin1" border="1">amount: 1.0 milliliter</td><td> </td><td> </td></tr></table></td></tr>
+		interlab_CallBehaviorAction11 [label=<<table border="0" cellspacing="0">
+  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="ValuePin1" border="1">amount: 1.0 milliliter</td><td> </td><td port="InputPin2" border="1">destination</td><td> </td><td port="InputPin1" border="1">source</td><td> </td><td> </td></tr></table></td></tr>
   <tr><td port="node" bgcolor="white" border="1">Transfer</td></tr>
-</table>> fillcolor=white shape=none style=rounded]
-		interlab_ForkNode4 [label="" fillcolor=black height=0.02 shape=rectangle style=filled]
-		interlab_CallBehaviorAction16 [label=<<table border="0" cellspacing="0">
-  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="InputPin1" border="1">samples</td><td> </td><td port="ValuePin1" border="1">duration: 30.0 second</td><td> </td><td> </td></tr></table></td></tr>
-  <tr><td port="node" bgcolor="white" border="1">Vortex</td></tr>
-</table>> fillcolor=white shape=none style=rounded]
-		interlab_CallBehaviorAction17 [label=<<table border="0" cellspacing="0">
-  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="InputPin1" border="1">source</td><td> </td><td port="InputPin2" border="1">destination</td><td> </td><td port="ValuePin1" border="1">amount: 1.0 milliliter</td><td> </td><td> </td></tr></table></td></tr>
-  <tr><td port="node" bgcolor="white" border="1">Transfer</td></tr>
-</table>> fillcolor=white shape=none style=rounded]
-		interlab_ForkNode5 [label="" fillcolor=black height=0.02 shape=rectangle style=filled]
-		interlab_ForkNode6 [label="" fillcolor=black height=0.02 shape=rectangle style=filled]
-		interlab_CallBehaviorAction18 [label=<<table border="0" cellspacing="0">
-  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="InputPin1" border="1">samples</td><td> </td><td port="ValuePin1" border="1">duration: 30.0 second</td><td> </td><td> </td></tr></table></td></tr>
-  <tr><td port="node" bgcolor="white" border="1">Vortex</td></tr>
-</table>> fillcolor=white shape=none style=rounded]
-		interlab_CallBehaviorAction19 [label=<<table border="0" cellspacing="0">
-  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="ValuePin1" border="1">specification: calibration plate</td><td> </td><td> </td></tr></table></td></tr>
-  <tr><td port="node" bgcolor="white" border="1">EmptyContainer</td></tr>
-  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="OutputPin1" border="1">samples</td><td> </td></tr></table></td></tr>
-</table>> fillcolor=white shape=none style=rounded]
-		interlab_CallBehaviorAction20 [label=<<table border="0" cellspacing="0">
-  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="InputPin1" border="1">source</td><td> </td><td port="ValuePin1" border="1">coordinates: A1</td><td> </td><td> </td></tr></table></td></tr>
-  <tr><td port="node" bgcolor="white" border="1">PlateCoordinates</td></tr>
-  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="OutputPin1" border="1">samples</td><td> </td></tr></table></td></tr>
-</table>> fillcolor=white shape=none style=rounded]
-		interlab_CallBehaviorAction21 [label=<<table border="0" cellspacing="0">
-  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="InputPin1" border="1">source</td><td> </td><td port="ValuePin1" border="1">coordinates: B1</td><td> </td><td> </td></tr></table></td></tr>
-  <tr><td port="node" bgcolor="white" border="1">PlateCoordinates</td></tr>
-  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="OutputPin1" border="1">samples</td><td> </td></tr></table></td></tr>
-</table>> fillcolor=white shape=none style=rounded]
-		interlab_ForkNode7 [label="" fillcolor=black height=0.02 shape=rectangle style=filled]
-		interlab_CallBehaviorAction22 [label=<<table border="0" cellspacing="0">
-  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="InputPin1" border="1">source</td><td> </td><td port="ValuePin1" border="1">coordinates: C1</td><td> </td><td> </td></tr></table></td></tr>
-  <tr><td port="node" bgcolor="white" border="1">PlateCoordinates</td></tr>
-  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="OutputPin1" border="1">samples</td><td> </td></tr></table></td></tr>
-</table>> fillcolor=white shape=none style=rounded]
-		interlab_CallBehaviorAction23 [label=<<table border="0" cellspacing="0">
-  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="InputPin1" border="1">source</td><td> </td><td port="ValuePin1" border="1">coordinates: D1</td><td> </td><td> </td></tr></table></td></tr>
-  <tr><td port="node" bgcolor="white" border="1">PlateCoordinates</td></tr>
-  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="OutputPin1" border="1">samples</td><td> </td></tr></table></td></tr>
-</table>> fillcolor=white shape=none style=rounded]
-		interlab_CallBehaviorAction24 [label=<<table border="0" cellspacing="0">
-  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="InputPin1" border="1">source</td><td> </td><td port="ValuePin1" border="1">coordinates: E1</td><td> </td><td> </td></tr></table></td></tr>
-  <tr><td port="node" bgcolor="white" border="1">PlateCoordinates</td></tr>
-  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="OutputPin1" border="1">samples</td><td> </td></tr></table></td></tr>
-</table>> fillcolor=white shape=none style=rounded]
-		interlab_CallBehaviorAction25 [label=<<table border="0" cellspacing="0">
-  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="InputPin1" border="1">source</td><td> </td><td port="ValuePin1" border="1">coordinates: F1</td><td> </td><td> </td></tr></table></td></tr>
-  <tr><td port="node" bgcolor="white" border="1">PlateCoordinates</td></tr>
-  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="OutputPin1" border="1">samples</td><td> </td></tr></table></td></tr>
-</table>> fillcolor=white shape=none style=rounded]
-		interlab_CallBehaviorAction26 [label=<<table border="0" cellspacing="0">
-  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="InputPin1" border="1">source</td><td> </td><td port="ValuePin1" border="1">coordinates: G1</td><td> </td><td> </td></tr></table></td></tr>
-  <tr><td port="node" bgcolor="white" border="1">PlateCoordinates</td></tr>
-  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="OutputPin1" border="1">samples</td><td> </td></tr></table></td></tr>
-</table>> fillcolor=white shape=none style=rounded]
-		interlab_CallBehaviorAction27 [label=<<table border="0" cellspacing="0">
-  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="InputPin1" border="1">source</td><td> </td><td port="ValuePin1" border="1">coordinates: H1</td><td> </td><td> </td></tr></table></td></tr>
-  <tr><td port="node" bgcolor="white" border="1">PlateCoordinates</td></tr>
-  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="OutputPin1" border="1">samples</td><td> </td></tr></table></td></tr>
-</table>> fillcolor=white shape=none style=rounded]
-		interlab_CallBehaviorAction22 [label=<<table border="0" cellspacing="0">
-  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="InputPin1" border="1">source</td><td> </td><td port="ValuePin1" border="1">coordinates: A2:D12</td><td> </td><td> </td></tr></table></td></tr>
-  <tr><td port="node" bgcolor="white" border="1">PlateCoordinates</td></tr>
-  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="OutputPin1" border="1">samples</td><td> </td></tr></table></td></tr>
-</table>> fillcolor=white shape=none style=rounded]
-		interlab_CallBehaviorAction23 [label=<<table border="0" cellspacing="0">
-  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="InputPin1" border="1">source</td><td> </td><td port="ValuePin1" border="1">coordinates: E2:H12</td><td> </td><td> </td></tr></table></td></tr>
-  <tr><td port="node" bgcolor="white" border="1">PlateCoordinates</td></tr>
-  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="OutputPin1" border="1">samples</td><td> </td></tr></table></td></tr>
-</table>> fillcolor=white shape=none style=rounded]
-		interlab_CallBehaviorAction30 [label=<<table border="0" cellspacing="0">
-  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="InputPin1" border="1">source</td><td> </td><td port="InputPin2" border="1">destination</td><td> </td><td port="ValuePin1" border="1">amount: 100.0 microliter</td><td> </td><td> </td></tr></table></td></tr>
-  <tr><td port="node" bgcolor="white" border="1">Transfer</td></tr>
-</table>> fillcolor=white shape=none style=rounded]
-		interlab_CallBehaviorAction31 [label=<<table border="0" cellspacing="0">
-  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="InputPin1" border="1">source</td><td> </td><td port="InputPin2" border="1">destination</td><td> </td><td port="ValuePin1" border="1">amount: 100.0 microliter</td><td> </td><td> </td></tr></table></td></tr>
-  <tr><td port="node" bgcolor="white" border="1">Transfer</td></tr>
-</table>> fillcolor=white shape=none style=rounded]
-		interlab_CallBehaviorAction32 [label=<<table border="0" cellspacing="0">
-  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="InputPin1" border="1">source</td><td> </td><td port="InputPin2" border="1">destination</td><td> </td><td port="ValuePin1" border="1">amount: 200.0 microliter</td><td> </td><td> </td></tr></table></td></tr>
-  <tr><td port="node" bgcolor="white" border="1">Transfer</td></tr>
-</table>> fillcolor=white shape=none style=rounded]
-		interlab_CallBehaviorAction33 [label=<<table border="0" cellspacing="0">
-  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="InputPin1" border="1">source</td><td> </td><td port="InputPin2" border="1">destination</td><td> </td><td port="ValuePin1" border="1">amount: 200.0 microliter</td><td> </td><td> </td></tr></table></td></tr>
-  <tr><td port="node" bgcolor="white" border="1">Transfer</td></tr>
-</table>> fillcolor=white shape=none style=rounded]
-		interlab_CallBehaviorAction34 [label=<<table border="0" cellspacing="0">
-  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="InputPin1" border="1">source</td><td> </td><td port="InputPin2" border="1">destination</td><td> </td><td port="ValuePin1" border="1">amount: 200.0 microliter</td><td> </td><td> </td></tr></table></td></tr>
-  <tr><td port="node" bgcolor="white" border="1">Transfer</td></tr>
-</table>> fillcolor=white shape=none style=rounded]
-		interlab_CallBehaviorAction35 [label=<<table border="0" cellspacing="0">
-  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="InputPin1" border="1">source</td><td> </td><td port="InputPin2" border="1">destination</td><td> </td><td port="ValuePin1" border="1">amount: 200.0 microliter</td><td> </td><td> </td></tr></table></td></tr>
-  <tr><td port="node" bgcolor="white" border="1">Transfer</td></tr>
-</table>> fillcolor=white shape=none style=rounded]
-		interlab_CallBehaviorAction36 [label=<<table border="0" cellspacing="0">
-  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="InputPin1" border="1">source</td><td> </td><td port="InputPin2" border="1">destination</td><td> </td><td port="ValuePin1" border="1">amount: 200.0 microliter</td><td> </td><td> </td></tr></table></td></tr>
-  <tr><td port="node" bgcolor="white" border="1">Transfer</td></tr>
-</table>> fillcolor=white shape=none style=rounded]
-		interlab_CallBehaviorAction37 [label=<<table border="0" cellspacing="0">
-  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="InputPin1" border="1">source</td><td> </td><td port="InputPin2" border="1">destination</td><td> </td><td port="ValuePin1" border="1">amount: 200.0 microliter</td><td> </td><td> </td></tr></table></td></tr>
-  <tr><td port="node" bgcolor="white" border="1">Transfer</td></tr>
-</table>> fillcolor=white shape=none style=rounded]
-		interlab_CallBehaviorAction38 [label=<<table border="0" cellspacing="0">
-  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="InputPin1" border="1">source</td><td> </td><td port="InputPin2" border="1">destination</td><td> </td><td port="ValuePin1" border="1">amount: 200.0 microliter</td><td> </td><td> </td></tr></table></td></tr>
-  <tr><td port="node" bgcolor="white" border="1">Transfer</td></tr>
-</table>> fillcolor=white shape=none style=rounded]
-		interlab_CallBehaviorAction39 [label=<<table border="0" cellspacing="0">
-  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="InputPin1" border="1">source</td><td> </td><td port="InputPin2" border="1">destination</td><td> </td><td port="ValuePin1" border="1">amount: 200.0 microliter</td><td> </td><td> </td></tr></table></td></tr>
-  <tr><td port="node" bgcolor="white" border="1">Transfer</td></tr>
-</table>> fillcolor=white shape=none style=rounded]
-		interlab_CallBehaviorAction40 [label=<<table border="0" cellspacing="0">
-  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="InputPin1" border="1">source</td><td> </td><td port="ValuePin1" border="1">coordinates: A1:A11</td><td> </td><td> </td></tr></table></td></tr>
-  <tr><td port="node" bgcolor="white" border="1">PlateCoordinates</td></tr>
-  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="OutputPin1" border="1">samples</td><td> </td></tr></table></td></tr>
-</table>> fillcolor=white shape=none style=rounded]
-		interlab_CallBehaviorAction41 [label=<<table border="0" cellspacing="0">
-  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="InputPin1" border="1">source</td><td> </td><td port="ValuePin1" border="1">coordinates: B1:B11</td><td> </td><td> </td></tr></table></td></tr>
-  <tr><td port="node" bgcolor="white" border="1">PlateCoordinates</td></tr>
-  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="OutputPin1" border="1">samples</td><td> </td></tr></table></td></tr>
-</table>> fillcolor=white shape=none style=rounded]
-		interlab_CallBehaviorAction42 [label=<<table border="0" cellspacing="0">
-  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="InputPin1" border="1">source</td><td> </td><td port="ValuePin1" border="1">coordinates: C1:C11</td><td> </td><td> </td></tr></table></td></tr>
-  <tr><td port="node" bgcolor="white" border="1">PlateCoordinates</td></tr>
-  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="OutputPin1" border="1">samples</td><td> </td></tr></table></td></tr>
-</table>> fillcolor=white shape=none style=rounded]
-		interlab_CallBehaviorAction43 [label=<<table border="0" cellspacing="0">
-  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="InputPin1" border="1">source</td><td> </td><td port="ValuePin1" border="1">coordinates: D1:D11</td><td> </td><td> </td></tr></table></td></tr>
-  <tr><td port="node" bgcolor="white" border="1">PlateCoordinates</td></tr>
-  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="OutputPin1" border="1">samples</td><td> </td></tr></table></td></tr>
 </table>> fillcolor=white shape=none style=rounded]
 		interlab_CallBehaviorAction44 [label=<<table border="0" cellspacing="0">
   <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="InputPin1" border="1">source</td><td> </td><td port="ValuePin1" border="1">coordinates: E1:E11</td><td> </td><td> </td></tr></table></td></tr>
   <tr><td port="node" bgcolor="white" border="1">PlateCoordinates</td></tr>
   <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="OutputPin1" border="1">samples</td><td> </td></tr></table></td></tr>
 </table>> fillcolor=white shape=none style=rounded]
-		interlab_CallBehaviorAction45 [label=<<table border="0" cellspacing="0">
-  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="InputPin1" border="1">source</td><td> </td><td port="ValuePin1" border="1">coordinates: F1:F11</td><td> </td><td> </td></tr></table></td></tr>
+		interlab_CallBehaviorAction64 [label=<<table border="0" cellspacing="0">
+  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="ValuePin1" border="1">coordinates: C1:D12</td><td> </td><td port="InputPin1" border="1">source</td><td> </td><td> </td></tr></table></td></tr>
   <tr><td port="node" bgcolor="white" border="1">PlateCoordinates</td></tr>
   <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="OutputPin1" border="1">samples</td><td> </td></tr></table></td></tr>
 </table>> fillcolor=white shape=none style=rounded]
+		interlab_CallBehaviorAction68 [label=<<table border="0" cellspacing="0">
+  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="InputPin1" border="1">samples</td><td> </td><td port="ValuePin1" border="1">excitationWavelength: 561.0 nanometer</td><td> </td><td port="ValuePin2" border="1">emissionWavelength: 610.0 nanometer</td><td> </td><td port="ValuePin3" border="1">emissionBandpassWidth: 20.0 nanometer</td><td> </td><td> </td></tr></table></td></tr>
+  <tr><td port="node" bgcolor="white" border="1">MeasureFluorescence</td></tr>
+  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="OutputPin1" border="1">measurements</td><td> </td></tr></table></td></tr>
+</table>> fillcolor=white shape=none style=rounded]
+		interlab_CallBehaviorAction41 [label=<<table border="0" cellspacing="0">
+  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="InputPin1" border="1">source</td><td> </td><td port="ValuePin1" border="1">coordinates: B1:B11</td><td> </td><td> </td></tr></table></td></tr>
+  <tr><td port="node" bgcolor="white" border="1">PlateCoordinates</td></tr>
+  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="OutputPin1" border="1">samples</td><td> </td></tr></table></td></tr>
+</table>> fillcolor=white shape=none style=rounded]
+		interlab_CallBehaviorAction16 [label=<<table border="0" cellspacing="0">
+  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="ValuePin1" border="1">duration: 30.0 second</td><td> </td><td port="InputPin1" border="1">samples</td><td> </td><td> </td></tr></table></td></tr>
+  <tr><td port="node" bgcolor="white" border="1">Vortex</td></tr>
+</table>> fillcolor=white shape=none style=rounded]
+		interlab_ForkNode11 [label="" fillcolor=black height=0.02 shape=rectangle style=filled]
+		interlab_CallBehaviorAction54 [label=<<table border="0" cellspacing="0">
+  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="ValuePin2" border="1">diluent: Water, sterile-filtered, BioReagent, suitable for cell culture</td><td> </td><td port="ValuePin4" border="1">series: 10</td><td> </td><td port="InputPin1" border="1">source</td><td> </td><td port="ValuePin1" border="1">amount: 200.0 microliter</td><td> </td><td port="ValuePin3" border="1">dilution_factor: 2</td><td> </td><td port="InputPin2" border="1">destination</td><td> </td><td> </td></tr></table></td></tr>
+  <tr><td port="node" bgcolor="white" border="1">SerialDilution</td></tr>
+</table>> fillcolor=white shape=none style=rounded]
+		interlab_CallBehaviorAction23 [label=<<table border="0" cellspacing="0">
+  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="InputPin1" border="1">source</td><td> </td><td port="ValuePin1" border="1">coordinates: D1</td><td> </td><td> </td></tr></table></td></tr>
+  <tr><td port="node" bgcolor="white" border="1">PlateCoordinates</td></tr>
+  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="OutputPin1" border="1">samples</td><td> </td></tr></table></td></tr>
+</table>> fillcolor=white shape=none style=rounded]
+		interlab_CallBehaviorAction52 [label=<<table border="0" cellspacing="0">
+  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="InputPin2" border="1">destination</td><td> </td><td port="ValuePin4" border="1">series: 10</td><td> </td><td port="ValuePin2" border="1">diluent: Phosphate Buffered Saline</td><td> </td><td port="ValuePin1" border="1">amount: 200.0 microliter</td><td> </td><td port="ValuePin3" border="1">dilution_factor: 2</td><td> </td><td port="InputPin1" border="1">source</td><td> </td><td> </td></tr></table></td></tr>
+  <tr><td port="node" bgcolor="white" border="1">SerialDilution</td></tr>
+</table>> fillcolor=white shape=none style=rounded]
+		interlab_ForkNode1 [label="" fillcolor=black height=0.02 shape=rectangle style=filled]
+		interlab_ForkNode4 [label="" fillcolor=black height=0.02 shape=rectangle style=filled]
+		interlab_CallBehaviorAction71 [label=<<table border="0" cellspacing="0">
+  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="ValuePin1" border="1">filename: /Users/danbryce/Documents/sift/xplan/external/labop/examples/protocols/multicolor-particle-calibration/metadata/sample_metadata.xlsx</td><td> </td><td port="InputPin1" border="1">for_samples</td><td> </td><td> </td></tr></table></td></tr>
+  <tr><td port="node" bgcolor="white" border="1">ExcelMetadata</td></tr>
+  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="OutputPin1" border="1">metadata</td><td> </td></tr></table></td></tr>
+</table>> fillcolor=white shape=none style=rounded]
+		interlab_CallBehaviorAction10 [label=<<table border="0" cellspacing="0">
+  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="ValuePin2" border="1">amount: 500.0 microliter</td><td> </td><td port="InputPin1" border="1">destination</td><td> </td><td port="ValuePin1" border="1">resource: NanoCym 950 nm monodisperse silica nanoparticles</td><td> </td><td> </td></tr></table></td></tr>
+  <tr><td port="node" bgcolor="white" border="1">Provision</td></tr>
+</table>> fillcolor=white shape=none style=rounded]
+		interlab_CallBehaviorAction60 [label=<<table border="0" cellspacing="0">
+  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="InputPin1" border="1">source</td><td> </td><td port="ValuePin1" border="1">coordinates: E1:H12</td><td> </td><td> </td></tr></table></td></tr>
+  <tr><td port="node" bgcolor="white" border="1">PlateCoordinates</td></tr>
+  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="OutputPin1" border="1">samples</td><td> </td></tr></table></td></tr>
+</table>> fillcolor=white shape=none style=rounded]
+		interlab_ForkNode6 [label="" fillcolor=black height=0.02 shape=rectangle style=filled]
+		interlab_CallBehaviorAction40 [label=<<table border="0" cellspacing="0">
+  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="ValuePin1" border="1">coordinates: A1:A11</td><td> </td><td port="InputPin1" border="1">source</td><td> </td><td> </td></tr></table></td></tr>
+  <tr><td port="node" bgcolor="white" border="1">PlateCoordinates</td></tr>
+  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="OutputPin1" border="1">samples</td><td> </td></tr></table></td></tr>
+</table>> fillcolor=white shape=none style=rounded]
+		interlab_CallBehaviorAction56 [label=<<table border="0" cellspacing="0">
+  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="ValuePin2" border="1">diluent: Water, sterile-filtered, BioReagent, suitable for cell culture</td><td> </td><td port="ValuePin4" border="1">series: 10</td><td> </td><td port="InputPin2" border="1">destination</td><td> </td><td port="ValuePin3" border="1">dilution_factor: 2</td><td> </td><td port="InputPin1" border="1">source</td><td> </td><td port="ValuePin1" border="1">amount: 200.0 microliter</td><td> </td><td> </td></tr></table></td></tr>
+  <tr><td port="node" bgcolor="white" border="1">SerialDilution</td></tr>
+</table>> fillcolor=white shape=none style=rounded]
+		interlab_ForkNode16 [label="" fillcolor=black height=0.02 shape=rectangle style=filled]
+		interlab_CallBehaviorAction73 [label=<<table border="0" cellspacing="0">
+  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="InputPin1" border="1">metadata</td><td> </td><td port="InputPin2" border="1">dataset</td><td> </td><td> </td></tr></table></td></tr>
+  <tr><td port="node" bgcolor="white" border="1">JoinMetadata</td></tr>
+  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="OutputPin1" border="1">enhanced_dataset</td><td> </td></tr></table></td></tr>
+</table>> fillcolor=white shape=none style=rounded]
+		interlab_CallBehaviorAction28 [label=<<table border="0" cellspacing="0">
+  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="InputPin1" border="1">source</td><td> </td><td port="ValuePin1" border="1">coordinates: A2:D12</td><td> </td><td> </td></tr></table></td></tr>
+  <tr><td port="node" bgcolor="white" border="1">PlateCoordinates</td></tr>
+  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="OutputPin1" border="1">samples</td><td> </td></tr></table></td></tr>
+</table>> fillcolor=white shape=none style=rounded]
+		interlab_CallBehaviorAction51 [label=<<table border="0" cellspacing="0">
+  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="ValuePin4" border="1">series: 10</td><td> </td><td port="ValuePin2" border="1">diluent: Phosphate Buffered Saline</td><td> </td><td port="InputPin1" border="1">source</td><td> </td><td port="ValuePin1" border="1">amount: 200.0 microliter</td><td> </td><td port="InputPin2" border="1">destination</td><td> </td><td port="ValuePin3" border="1">dilution_factor: 2</td><td> </td><td> </td></tr></table></td></tr>
+  <tr><td port="node" bgcolor="white" border="1">SerialDilution</td></tr>
+</table>> fillcolor=white shape=none style=rounded]
+		interlab_CallBehaviorAction15 [label=<<table border="0" cellspacing="0">
+  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="ValuePin1" border="1">amount: 1.0 milliliter</td><td> </td><td port="InputPin1" border="1">source</td><td> </td><td port="InputPin2" border="1">destination</td><td> </td><td> </td></tr></table></td></tr>
+  <tr><td port="node" bgcolor="white" border="1">Transfer</td></tr>
+</table>> fillcolor=white shape=none style=rounded]
+		interlab_CallBehaviorAction74 [label=<<table border="0" cellspacing="0">
+  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="InputPin2" border="1">dataset</td><td> </td><td port="InputPin1" border="1">metadata</td><td> </td><td> </td></tr></table></td></tr>
+  <tr><td port="node" bgcolor="white" border="1">JoinMetadata</td></tr>
+  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="OutputPin1" border="1">enhanced_dataset</td><td> </td></tr></table></td></tr>
+</table>> fillcolor=white shape=none style=rounded]
+		interlab_CallBehaviorAction48 [label=<<table border="0" cellspacing="0">
+  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="ValuePin2" border="1">diluent: Phosphate Buffered Saline</td><td> </td><td port="InputPin1" border="1">source</td><td> </td><td port="ValuePin4" border="1">series: 10</td><td> </td><td port="InputPin2" border="1">destination</td><td> </td><td port="ValuePin1" border="1">amount: 200.0 microliter</td><td> </td><td port="ValuePin3" border="1">dilution_factor: 2</td><td> </td><td> </td></tr></table></td></tr>
+  <tr><td port="node" bgcolor="white" border="1">SerialDilution</td></tr>
+</table>> fillcolor=white shape=none style=rounded]
+		interlab_CallBehaviorAction18 [label=<<table border="0" cellspacing="0">
+  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="InputPin1" border="1">samples</td><td> </td><td port="ValuePin1" border="1">duration: 30.0 second</td><td> </td><td> </td></tr></table></td></tr>
+  <tr><td port="node" bgcolor="white" border="1">Vortex</td></tr>
+</table>> fillcolor=white shape=none style=rounded]
+		interlab_CallBehaviorAction27 [label=<<table border="0" cellspacing="0">
+  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="InputPin1" border="1">source</td><td> </td><td port="ValuePin1" border="1">coordinates: H1</td><td> </td><td> </td></tr></table></td></tr>
+  <tr><td port="node" bgcolor="white" border="1">PlateCoordinates</td></tr>
+  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="OutputPin1" border="1">samples</td><td> </td></tr></table></td></tr>
+</table>> fillcolor=white shape=none style=rounded]
+		interlab_CallBehaviorAction26 [label=<<table border="0" cellspacing="0">
+  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="ValuePin1" border="1">coordinates: G1</td><td> </td><td port="InputPin1" border="1">source</td><td> </td><td> </td></tr></table></td></tr>
+  <tr><td port="node" bgcolor="white" border="1">PlateCoordinates</td></tr>
+  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="OutputPin1" border="1">samples</td><td> </td></tr></table></td></tr>
+</table>> fillcolor=white shape=none style=rounded]
+		interlab_ForkNode12 [label="" fillcolor=black height=0.02 shape=rectangle style=filled]
+		interlab_CallBehaviorAction49 [label=<<table border="0" cellspacing="0">
+  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="ValuePin2" border="1">caption: Serial Dilution</td><td> </td><td port="ValuePin1" border="1">image: ../figures/serial_dilution.png</td><td> </td><td> </td></tr></table></td></tr>
+  <tr><td port="node" bgcolor="white" border="1">EmbeddedImage</td></tr>
+</table>> fillcolor=white shape=none style=rounded]
 		interlab_CallBehaviorAction46 [label=<<table border="0" cellspacing="0">
-  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="InputPin1" border="1">source</td><td> </td><td port="ValuePin1" border="1">coordinates: G1:G11</td><td> </td><td> </td></tr></table></td></tr>
+  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="ValuePin1" border="1">coordinates: G1:G11</td><td> </td><td port="InputPin1" border="1">source</td><td> </td><td> </td></tr></table></td></tr>
+  <tr><td port="node" bgcolor="white" border="1">PlateCoordinates</td></tr>
+  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="OutputPin1" border="1">samples</td><td> </td></tr></table></td></tr>
+</table>> fillcolor=white shape=none style=rounded]
+		interlab_InitialNode1 [label="" fillcolor=black shape=circle style=filled]
+		interlab_CallBehaviorAction57 [label=<<table border="0" cellspacing="0">
+  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="InputPin1" border="1">source</td><td> </td><td port="ValuePin1" border="1">coordinates: A11:H11</td><td> </td><td> </td></tr></table></td></tr>
+  <tr><td port="node" bgcolor="white" border="1">PlateCoordinates</td></tr>
+  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="OutputPin1" border="1">samples</td><td> </td></tr></table></td></tr>
+</table>> fillcolor=white shape=none style=rounded]
+		interlab_CallBehaviorAction17 [label=<<table border="0" cellspacing="0">
+  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="ValuePin1" border="1">amount: 1.0 milliliter</td><td> </td><td port="InputPin1" border="1">source</td><td> </td><td port="InputPin2" border="1">destination</td><td> </td><td> </td></tr></table></td></tr>
+  <tr><td port="node" bgcolor="white" border="1">Transfer</td></tr>
+</table>> fillcolor=white shape=none style=rounded]
+		interlab_CallBehaviorAction38 [label=<<table border="0" cellspacing="0">
+  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="ValuePin1" border="1">amount: 200.0 microliter</td><td> </td><td port="InputPin2" border="1">destination</td><td> </td><td port="InputPin1" border="1">source</td><td> </td><td> </td></tr></table></td></tr>
+  <tr><td port="node" bgcolor="white" border="1">Transfer</td></tr>
+</table>> fillcolor=white shape=none style=rounded]
+		interlab_CallBehaviorAction24 [label=<<table border="0" cellspacing="0">
+  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="InputPin1" border="1">source</td><td> </td><td port="ValuePin1" border="1">coordinates: E1</td><td> </td><td> </td></tr></table></td></tr>
+  <tr><td port="node" bgcolor="white" border="1">PlateCoordinates</td></tr>
+  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="OutputPin1" border="1">samples</td><td> </td></tr></table></td></tr>
+</table>> fillcolor=white shape=none style=rounded]
+		interlab_CallBehaviorAction53 [label=<<table border="0" cellspacing="0">
+  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="InputPin1" border="1">source</td><td> </td><td port="InputPin2" border="1">destination</td><td> </td><td port="ValuePin2" border="1">diluent: Water, sterile-filtered, BioReagent, suitable for cell culture</td><td> </td><td port="ValuePin3" border="1">dilution_factor: 2</td><td> </td><td port="ValuePin1" border="1">amount: 200.0 microliter</td><td> </td><td port="ValuePin4" border="1">series: 10</td><td> </td><td> </td></tr></table></td></tr>
+  <tr><td port="node" bgcolor="white" border="1">SerialDilution</td></tr>
+</table>> fillcolor=white shape=none style=rounded]
+		interlab_CallBehaviorAction70 [label=<<table border="0" cellspacing="0">
+  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="InputPin1" border="1">samples</td><td> </td><td port="ValuePin1" border="1">wavelength: 600.0 nanometer</td><td> </td><td> </td></tr></table></td></tr>
+  <tr><td port="node" bgcolor="white" border="1">MeasureAbsorbance</td></tr>
+  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="OutputPin1" border="1">measurements</td><td> </td></tr></table></td></tr>
+</table>> fillcolor=white shape=none style=rounded]
+		interlab_CallBehaviorAction5 [label=<<table border="0" cellspacing="0">
+  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="ValuePin1" border="1">specification: molecular grade H2O</td><td> </td><td> </td></tr></table></td></tr>
+  <tr><td port="node" bgcolor="white" border="1">EmptyContainer</td></tr>
+  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="OutputPin1" border="1">samples</td><td> </td></tr></table></td></tr>
+</table>> fillcolor=white shape=none style=rounded]
+		interlab_CallBehaviorAction21 [label=<<table border="0" cellspacing="0">
+  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="ValuePin1" border="1">coordinates: B1</td><td> </td><td port="InputPin1" border="1">source</td><td> </td><td> </td></tr></table></td></tr>
+  <tr><td port="node" bgcolor="white" border="1">PlateCoordinates</td></tr>
+  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="OutputPin1" border="1">samples</td><td> </td></tr></table></td></tr>
+</table>> fillcolor=white shape=none style=rounded]
+		interlab_CallBehaviorAction42 [label=<<table border="0" cellspacing="0">
+  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="ValuePin1" border="1">coordinates: C1:C11</td><td> </td><td port="InputPin1" border="1">source</td><td> </td><td> </td></tr></table></td></tr>
+  <tr><td port="node" bgcolor="white" border="1">PlateCoordinates</td></tr>
+  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="OutputPin1" border="1">samples</td><td> </td></tr></table></td></tr>
+</table>> fillcolor=white shape=none style=rounded]
+		interlab_CallBehaviorAction14 [label=<<table border="0" cellspacing="0">
+  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="InputPin1" border="1">samples</td><td> </td><td port="ValuePin1" border="1">duration: 30.0 second</td><td> </td><td> </td></tr></table></td></tr>
+  <tr><td port="node" bgcolor="white" border="1">Vortex</td></tr>
+</table>> fillcolor=white shape=none style=rounded]
+		interlab_CallBehaviorAction63 [label=<<table border="0" cellspacing="0">
+  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="InputPin1" border="1">source</td><td> </td><td port="ValuePin1" border="1">coordinates: A1:B12</td><td> </td><td> </td></tr></table></td></tr>
   <tr><td port="node" bgcolor="white" border="1">PlateCoordinates</td></tr>
   <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="OutputPin1" border="1">samples</td><td> </td></tr></table></td></tr>
 </table>> fillcolor=white shape=none style=rounded]
@@ -417,153 +386,180 @@ digraph _root {
   <tr><td port="node" bgcolor="white" border="1">PlateCoordinates</td></tr>
   <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="OutputPin1" border="1">samples</td><td> </td></tr></table></td></tr>
 </table>> fillcolor=white shape=none style=rounded]
-		interlab_CallBehaviorAction48 [label=<<table border="0" cellspacing="0">
-  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="InputPin1" border="1">source</td><td> </td><td port="InputPin2" border="1">destination</td><td> </td><td port="ValuePin1" border="1">amount: 200.0 microliter</td><td> </td><td port="ValuePin2" border="1">diluent: Phosphate Buffered Saline</td><td> </td><td port="ValuePin3" border="1">dilution_factor: 2</td><td> </td><td port="ValuePin4" border="1">series: 10</td><td> </td><td> </td></tr></table></td></tr>
-  <tr><td port="node" bgcolor="white" border="1">SerialDilution</td></tr>
+		interlab_CallBehaviorAction4 [label=<<table border="0" cellspacing="0">
+  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="ValuePin1" border="1">specification: microspheres</td><td> </td><td> </td></tr></table></td></tr>
+  <tr><td port="node" bgcolor="white" border="1">EmptyContainer</td></tr>
+  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="OutputPin1" border="1">samples</td><td> </td></tr></table></td></tr>
 </table>> fillcolor=white shape=none style=rounded]
-		interlab_ForkNode8 [label="" fillcolor=black height=0.02 shape=rectangle style=filled]
-		interlab_CallBehaviorAction49 [label=<<table border="0" cellspacing="0">
-  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="ValuePin1" border="1">image: ..figures/serial_dilution.png</td><td> </td><td port="ValuePin2" border="1">caption: Serial Dilution</td><td> </td><td> </td></tr></table></td></tr>
-  <tr><td port="node" bgcolor="white" border="1">EmbeddedImage</td></tr>
+		interlab_CallBehaviorAction36 [label=<<table border="0" cellspacing="0">
+  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="ValuePin1" border="1">amount: 200.0 microliter</td><td> </td><td port="InputPin2" border="1">destination</td><td> </td><td port="InputPin1" border="1">source</td><td> </td><td> </td></tr></table></td></tr>
+  <tr><td port="node" bgcolor="white" border="1">Transfer</td></tr>
 </table>> fillcolor=white shape=none style=rounded]
-		interlab_CallBehaviorAction50 [label=<<table border="0" cellspacing="0">
-  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="InputPin1" border="1">source</td><td> </td><td port="InputPin2" border="1">destination</td><td> </td><td port="ValuePin1" border="1">amount: 200.0 microliter</td><td> </td><td port="ValuePin2" border="1">diluent: Phosphate Buffered Saline</td><td> </td><td port="ValuePin3" border="1">dilution_factor: 2</td><td> </td><td port="ValuePin4" border="1">series: 10</td><td> </td><td> </td></tr></table></td></tr>
-  <tr><td port="node" bgcolor="white" border="1">SerialDilution</td></tr>
-</table>> fillcolor=white shape=none style=rounded]
-		interlab_ForkNode9 [label="" fillcolor=black height=0.02 shape=rectangle style=filled]
-		interlab_CallBehaviorAction51 [label=<<table border="0" cellspacing="0">
-  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="InputPin1" border="1">source</td><td> </td><td port="InputPin2" border="1">destination</td><td> </td><td port="ValuePin1" border="1">amount: 200.0 microliter</td><td> </td><td port="ValuePin2" border="1">diluent: Phosphate Buffered Saline</td><td> </td><td port="ValuePin3" border="1">dilution_factor: 2</td><td> </td><td port="ValuePin4" border="1">series: 10</td><td> </td><td> </td></tr></table></td></tr>
-  <tr><td port="node" bgcolor="white" border="1">SerialDilution</td></tr>
-</table>> fillcolor=white shape=none style=rounded]
-		interlab_ForkNode10 [label="" fillcolor=black height=0.02 shape=rectangle style=filled]
-		interlab_CallBehaviorAction43 [label=<<table border="0" cellspacing="0">
-  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="ValuePin1" border="1">image: ../figures/serial_dilution.png</td><td> </td><td port="ValuePin2" border="1">caption: Serial Dilution</td><td> </td><td> </td></tr></table></td></tr>
-  <tr><td port="node" bgcolor="white" border="1">EmbeddedImage</td></tr>
-</table>> fillcolor=white shape=none style=rounded]
-		interlab_CallBehaviorAction44 [label=<<table border="0" cellspacing="0">
-  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="InputPin1" border="1">source</td><td> </td><td port="InputPin2" border="1">destination</td><td> </td><td port="ValuePin1" border="1">amount: 200.0 microliter</td><td> </td><td port="ValuePin2" border="1">diluent: Phosphate Buffered Saline</td><td> </td><td port="ValuePin3" border="1">dilution_factor: 2</td><td> </td><td port="ValuePin4" border="1">series: 10</td><td> </td><td> </td></tr></table></td></tr>
-  <tr><td port="node" bgcolor="white" border="1">SerialDilution</td></tr>
-</table>> fillcolor=white shape=none style=rounded]
-		interlab_ForkNode11 [label="" fillcolor=black height=0.02 shape=rectangle style=filled]
-		interlab_CallBehaviorAction53 [label=<<table border="0" cellspacing="0">
-  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="InputPin1" border="1">source</td><td> </td><td port="InputPin2" border="1">destination</td><td> </td><td port="ValuePin1" border="1">amount: 200.0 microliter</td><td> </td><td port="ValuePin2" border="1">diluent: Water, sterile-filtered, BioReagent, suitable for cell culture</td><td> </td><td port="ValuePin3" border="1">dilution_factor: 2</td><td> </td><td port="ValuePin4" border="1">series: 10</td><td> </td><td> </td></tr></table></td></tr>
-  <tr><td port="node" bgcolor="white" border="1">SerialDilution</td></tr>
-</table>> fillcolor=white shape=none style=rounded]
-		interlab_ForkNode12 [label="" fillcolor=black height=0.02 shape=rectangle style=filled]
-		interlab_CallBehaviorAction54 [label=<<table border="0" cellspacing="0">
-  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="InputPin1" border="1">source</td><td> </td><td port="InputPin2" border="1">destination</td><td> </td><td port="ValuePin1" border="1">amount: 200.0 microliter</td><td> </td><td port="ValuePin2" border="1">diluent: Water, sterile-filtered, BioReagent, suitable for cell culture</td><td> </td><td port="ValuePin3" border="1">dilution_factor: 2</td><td> </td><td port="ValuePin4" border="1">series: 10</td><td> </td><td> </td></tr></table></td></tr>
-  <tr><td port="node" bgcolor="white" border="1">SerialDilution</td></tr>
-</table>> fillcolor=white shape=none style=rounded]
-		interlab_ForkNode13 [label="" fillcolor=black height=0.02 shape=rectangle style=filled]
-		interlab_CallBehaviorAction55 [label=<<table border="0" cellspacing="0">
-  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="InputPin1" border="1">source</td><td> </td><td port="InputPin2" border="1">destination</td><td> </td><td port="ValuePin1" border="1">amount: 200.0 microliter</td><td> </td><td port="ValuePin2" border="1">diluent: Water, sterile-filtered, BioReagent, suitable for cell culture</td><td> </td><td port="ValuePin3" border="1">dilution_factor: 2</td><td> </td><td port="ValuePin4" border="1">series: 10</td><td> </td><td> </td></tr></table></td></tr>
-  <tr><td port="node" bgcolor="white" border="1">SerialDilution</td></tr>
-</table>> fillcolor=white shape=none style=rounded]
-		interlab_ForkNode14 [label="" fillcolor=black height=0.02 shape=rectangle style=filled]
-		interlab_CallBehaviorAction56 [label=<<table border="0" cellspacing="0">
-  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="InputPin1" border="1">source</td><td> </td><td port="InputPin2" border="1">destination</td><td> </td><td port="ValuePin1" border="1">amount: 200.0 microliter</td><td> </td><td port="ValuePin2" border="1">diluent: Water, sterile-filtered, BioReagent, suitable for cell culture</td><td> </td><td port="ValuePin3" border="1">dilution_factor: 2</td><td> </td><td port="ValuePin4" border="1">series: 10</td><td> </td><td> </td></tr></table></td></tr>
-  <tr><td port="node" bgcolor="white" border="1">SerialDilution</td></tr>
-</table>> fillcolor=white shape=none style=rounded]
-		interlab_ForkNode15 [label="" fillcolor=black height=0.02 shape=rectangle style=filled]
-		interlab_CallBehaviorAction57 [label=<<table border="0" cellspacing="0">
-  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="InputPin1" border="1">source</td><td> </td><td port="ValuePin1" border="1">coordinates: A11:H11</td><td> </td><td> </td></tr></table></td></tr>
-  <tr><td port="node" bgcolor="white" border="1">PlateCoordinates</td></tr>
+		interlab_CallBehaviorAction6 [label=<<table border="0" cellspacing="0">
+  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="ValuePin1" border="1">specification: PBS</td><td> </td><td> </td></tr></table></td></tr>
+  <tr><td port="node" bgcolor="white" border="1">EmptyContainer</td></tr>
   <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="OutputPin1" border="1">samples</td><td> </td></tr></table></td></tr>
 </table>> fillcolor=white shape=none style=rounded]
 		interlab_CallBehaviorAction58 [label=<<table border="0" cellspacing="0">
-  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="InputPin1" border="1">samples</td><td> </td><td port="ValuePin1" border="1">amount: 100.0 microliter</td><td> </td><td> </td></tr></table></td></tr>
+  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="ValuePin1" border="1">amount: 100.0 microliter</td><td> </td><td port="InputPin1" border="1">samples</td><td> </td><td> </td></tr></table></td></tr>
   <tr><td port="node" bgcolor="white" border="1">Discard</td></tr>
 </table>> fillcolor=white shape=none style=rounded]
-		interlab_CallBehaviorAction59 [label=<<table border="0" cellspacing="0">
-  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="InputPin1" border="1">source</td><td> </td><td port="ValuePin1" border="1">coordinates: A1:D12</td><td> </td><td> </td></tr></table></td></tr>
-  <tr><td port="node" bgcolor="white" border="1">PlateCoordinates</td></tr>
-  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="OutputPin1" border="1">samples</td><td> </td></tr></table></td></tr>
-</table>> fillcolor=white shape=none style=rounded]
-		interlab_CallBehaviorAction60 [label=<<table border="0" cellspacing="0">
-  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="InputPin1" border="1">source</td><td> </td><td port="ValuePin1" border="1">coordinates: E1:H12</td><td> </td><td> </td></tr></table></td></tr>
-  <tr><td port="node" bgcolor="white" border="1">PlateCoordinates</td></tr>
-  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="OutputPin1" border="1">samples</td><td> </td></tr></table></td></tr>
-</table>> fillcolor=white shape=none style=rounded]
-		interlab_CallBehaviorAction61 [label=<<table border="0" cellspacing="0">
-  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="InputPin1" border="1">source</td><td> </td><td port="InputPin2" border="1">destination</td><td> </td><td port="ValuePin1" border="1">amount: 100.0 microliter</td><td> </td><td> </td></tr></table></td></tr>
-  <tr><td port="node" bgcolor="white" border="1">Transfer</td></tr>
-</table>> fillcolor=white shape=none style=rounded]
-		interlab_CallBehaviorAction62 [label=<<table border="0" cellspacing="0">
-  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="InputPin1" border="1">source</td><td> </td><td port="InputPin2" border="1">destination</td><td> </td><td port="ValuePin1" border="1">amount: 100.0 microliter</td><td> </td><td> </td></tr></table></td></tr>
-  <tr><td port="node" bgcolor="white" border="1">Transfer</td></tr>
-</table>> fillcolor=white shape=none style=rounded]
-		interlab_CallBehaviorAction63 [label=<<table border="0" cellspacing="0">
-  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="InputPin1" border="1">source</td><td> </td><td port="ValuePin1" border="1">coordinates: A1:B12</td><td> </td><td> </td></tr></table></td></tr>
-  <tr><td port="node" bgcolor="white" border="1">PlateCoordinates</td></tr>
-  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="OutputPin1" border="1">samples</td><td> </td></tr></table></td></tr>
-</table>> fillcolor=white shape=none style=rounded]
-		interlab_CallBehaviorAction64 [label=<<table border="0" cellspacing="0">
-  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="InputPin1" border="1">source</td><td> </td><td port="ValuePin1" border="1">coordinates: C1:D12</td><td> </td><td> </td></tr></table></td></tr>
-  <tr><td port="node" bgcolor="white" border="1">PlateCoordinates</td></tr>
-  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="OutputPin1" border="1">samples</td><td> </td></tr></table></td></tr>
-</table>> fillcolor=white shape=none style=rounded]
-		interlab_CallBehaviorAction65 [label=<<table border="0" cellspacing="0">
-  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="InputPin1" border="1">source</td><td> </td><td port="ValuePin1" border="1">coordinates: E1:F12</td><td> </td><td> </td></tr></table></td></tr>
-  <tr><td port="node" bgcolor="white" border="1">PlateCoordinates</td></tr>
-  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="OutputPin1" border="1">samples</td><td> </td></tr></table></td></tr>
-</table>> fillcolor=white shape=none style=rounded]
-		interlab_CallBehaviorAction66 [label=<<table border="0" cellspacing="0">
-  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="InputPin1" border="1">source</td><td> </td><td port="ValuePin1" border="1">coordinates: G1:H12</td><td> </td><td> </td></tr></table></td></tr>
-  <tr><td port="node" bgcolor="white" border="1">PlateCoordinates</td></tr>
-  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="OutputPin1" border="1">samples</td><td> </td></tr></table></td></tr>
-</table>> fillcolor=white shape=none style=rounded]
-		interlab_CallBehaviorAction67 [label=<<table border="0" cellspacing="0">
-  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="InputPin1" border="1">samples</td><td> </td><td port="ValuePin1" border="1">excitationWavelength: 488.0 nanometer</td><td> </td><td port="ValuePin2" border="1">emissionWavelength: 530.0 nanometer</td><td> </td><td port="ValuePin3" border="1">emissionBandpassWidth: 30.0 nanometer</td><td> </td><td> </td></tr></table></td></tr>
-  <tr><td port="node" bgcolor="white" border="1">MeasureFluorescence</td></tr>
-  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="OutputPin1" border="1">measurements</td><td> </td></tr></table></td></tr>
-</table>> fillcolor=white shape=none style=rounded]
-		interlab_CallBehaviorAction68 [label=<<table border="0" cellspacing="0">
-  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="InputPin1" border="1">samples</td><td> </td><td port="ValuePin1" border="1">excitationWavelength: 561.0 nanometer</td><td> </td><td port="ValuePin2" border="1">emissionWavelength: 610.0 nanometer</td><td> </td><td port="ValuePin3" border="1">emissionBandpassWidth: 20.0 nanometer</td><td> </td><td> </td></tr></table></td></tr>
-  <tr><td port="node" bgcolor="white" border="1">MeasureFluorescence</td></tr>
-  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="OutputPin1" border="1">measurements</td><td> </td></tr></table></td></tr>
-</table>> fillcolor=white shape=none style=rounded]
-		interlab_CallBehaviorAction69 [label=<<table border="0" cellspacing="0">
-  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="InputPin1" border="1">samples</td><td> </td><td port="ValuePin1" border="1">excitationWavelength: 405.0 nanometer</td><td> </td><td port="ValuePin2" border="1">emissionWavelength: 450.0 nanometer</td><td> </td><td port="ValuePin3" border="1">emissionBandpassWidth: 50.0 nanometer</td><td> </td><td> </td></tr></table></td></tr>
-  <tr><td port="node" bgcolor="white" border="1">MeasureFluorescence</td></tr>
-  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="OutputPin1" border="1">measurements</td><td> </td></tr></table></td></tr>
-</table>> fillcolor=white shape=none style=rounded]
-		interlab_CallBehaviorAction70 [label=<<table border="0" cellspacing="0">
-  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="InputPin1" border="1">samples</td><td> </td><td port="ValuePin1" border="1">wavelength: 600.0 nanometer</td><td> </td><td> </td></tr></table></td></tr>
-  <tr><td port="node" bgcolor="white" border="1">MeasureAbsorbance</td></tr>
-  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="OutputPin1" border="1">measurements</td><td> </td></tr></table></td></tr>
-</table>> fillcolor=white shape=none style=rounded]
-		interlab_CallBehaviorAction71 [label=<<table border="0" cellspacing="0">
-  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="ValuePin1" border="1">filename: /Users/bbartley/Dev/git/sd2/paml/examples/protocols/multicolor-particle-calibration/metadata/sample_metadata.xlsx</td><td> </td><td port="InputPin1" border="1">for_samples</td><td> </td><td> </td></tr></table></td></tr>
-  <tr><td port="node" bgcolor="white" border="1">ExcelMetadata</td></tr>
-  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="OutputPin1" border="1">metadata</td><td> </td></tr></table></td></tr>
-</table>> fillcolor=white shape=none style=rounded]
-		interlab_CallBehaviorAction72 [label=<<table border="0" cellspacing="0">
-  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="InputPin1" border="1">metadata</td><td> </td><td port="InputPin2" border="1">dataset</td><td> </td><td> </td></tr></table></td></tr>
-  <tr><td port="node" bgcolor="white" border="1">JoinMetadata</td></tr>
-  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="OutputPin1" border="1">enhanced_dataset</td><td> </td></tr></table></td></tr>
-</table>> fillcolor=white shape=none style=rounded]
-		interlab_CallBehaviorAction73 [label=<<table border="0" cellspacing="0">
-  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="InputPin1" border="1">metadata</td><td> </td><td port="InputPin2" border="1">dataset</td><td> </td><td> </td></tr></table></td></tr>
-  <tr><td port="node" bgcolor="white" border="1">JoinMetadata</td></tr>
-  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="OutputPin1" border="1">enhanced_dataset</td><td> </td></tr></table></td></tr>
-</table>> fillcolor=white shape=none style=rounded]
-		interlab_ForkNode16 [label="" fillcolor=black height=0.02 shape=rectangle style=filled]
-		interlab_CallBehaviorAction74 [label=<<table border="0" cellspacing="0">
-  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="InputPin1" border="1">metadata</td><td> </td><td port="InputPin2" border="1">dataset</td><td> </td><td> </td></tr></table></td></tr>
-  <tr><td port="node" bgcolor="white" border="1">JoinMetadata</td></tr>
-  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="OutputPin1" border="1">enhanced_dataset</td><td> </td></tr></table></td></tr>
-</table>> fillcolor=white shape=none style=rounded]
+		interlab_ForkNode5 [label="" fillcolor=black height=0.02 shape=rectangle style=filled]
+		interlab_FinalNode1 [label="" fillcolor=black shape=doublecircle style=filled]
 		interlab_CallBehaviorAction75 [label=<<table border="0" cellspacing="0">
   <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="InputPin1" border="1">metadata</td><td> </td><td port="InputPin2" border="1">dataset</td><td> </td><td> </td></tr></table></td></tr>
   <tr><td port="node" bgcolor="white" border="1">JoinMetadata</td></tr>
   <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="OutputPin1" border="1">enhanced_dataset</td><td> </td></tr></table></td></tr>
+</table>> fillcolor=white shape=none style=rounded]
+		interlab_ForkNode14 [label="" fillcolor=black height=0.02 shape=rectangle style=filled]
+		interlab_CallBehaviorAction34 [label=<<table border="0" cellspacing="0">
+  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="InputPin2" border="1">destination</td><td> </td><td port="InputPin1" border="1">source</td><td> </td><td port="ValuePin1" border="1">amount: 200.0 microliter</td><td> </td><td> </td></tr></table></td></tr>
+  <tr><td port="node" bgcolor="white" border="1">Transfer</td></tr>
 </table>> fillcolor=white shape=none style=rounded]
 		interlab_CallBehaviorAction76 [label=<<table border="0" cellspacing="0">
   <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="InputPin2" border="1">dataset</td><td> </td><td> </td></tr></table></td></tr>
   <tr><td port="node" bgcolor="white" border="1">JoinDatasets</td></tr>
   <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="OutputPin1" border="1">joint_dataset</td><td> </td></tr></table></td></tr>
 </table>> fillcolor=white shape=none style=rounded]
+		interlab_CallBehaviorAction8 [label=<<table border="0" cellspacing="0">
+  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="ValuePin2" border="1">amount: 500.0 microliter</td><td> </td><td port="InputPin1" border="1">destination</td><td> </td><td port="ValuePin1" border="1">resource: Cascade Blue</td><td> </td><td> </td></tr></table></td></tr>
+  <tr><td port="node" bgcolor="white" border="1">Provision</td></tr>
+</table>> fillcolor=white shape=none style=rounded]
+		interlab_CallBehaviorAction22 [label=<<table border="0" cellspacing="0">
+  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="InputPin1" border="1">source</td><td> </td><td port="ValuePin1" border="1">coordinates: C1</td><td> </td><td> </td></tr></table></td></tr>
+  <tr><td port="node" bgcolor="white" border="1">PlateCoordinates</td></tr>
+  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="OutputPin1" border="1">samples</td><td> </td></tr></table></td></tr>
+</table>> fillcolor=white shape=none style=rounded]
+		interlab_CallBehaviorAction12 [label=<<table border="0" cellspacing="0">
+  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="InputPin1" border="1">samples</td><td> </td><td port="ValuePin1" border="1">duration: 30.0 second</td><td> </td><td> </td></tr></table></td></tr>
+  <tr><td port="node" bgcolor="white" border="1">Vortex</td></tr>
+</table>> fillcolor=white shape=none style=rounded]
+		interlab_CallBehaviorAction39 [label=<<table border="0" cellspacing="0">
+  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="InputPin2" border="1">destination</td><td> </td><td port="ValuePin1" border="1">amount: 200.0 microliter</td><td> </td><td port="InputPin1" border="1">source</td><td> </td><td> </td></tr></table></td></tr>
+  <tr><td port="node" bgcolor="white" border="1">Transfer</td></tr>
+</table>> fillcolor=white shape=none style=rounded]
+		interlab_CallBehaviorAction66 [label=<<table border="0" cellspacing="0">
+  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="InputPin1" border="1">source</td><td> </td><td port="ValuePin1" border="1">coordinates: G1:H12</td><td> </td><td> </td></tr></table></td></tr>
+  <tr><td port="node" bgcolor="white" border="1">PlateCoordinates</td></tr>
+  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="OutputPin1" border="1">samples</td><td> </td></tr></table></td></tr>
+</table>> fillcolor=white shape=none style=rounded]
+		interlab_CallBehaviorAction32 [label=<<table border="0" cellspacing="0">
+  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="InputPin2" border="1">destination</td><td> </td><td port="ValuePin1" border="1">amount: 200.0 microliter</td><td> </td><td port="InputPin1" border="1">source</td><td> </td><td> </td></tr></table></td></tr>
+  <tr><td port="node" bgcolor="white" border="1">Transfer</td></tr>
+</table>> fillcolor=white shape=none style=rounded]
+		interlab_CallBehaviorAction7 [label=<<table border="0" cellspacing="0">
+  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="ValuePin2" border="1">amount: 500.0 microliter</td><td> </td><td port="InputPin1" border="1">destination</td><td> </td><td port="ValuePin1" border="1">resource: Fluorescein</td><td> </td><td> </td></tr></table></td></tr>
+  <tr><td port="node" bgcolor="white" border="1">Provision</td></tr>
+</table>> fillcolor=white shape=none style=rounded]
+		interlab_ForkNode10 [label="" fillcolor=black height=0.02 shape=rectangle style=filled]
+		interlab_ForkNode9 [label="" fillcolor=black height=0.02 shape=rectangle style=filled]
+		interlab_CallBehaviorAction59 [label=<<table border="0" cellspacing="0">
+  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="ValuePin1" border="1">coordinates: A1:D12</td><td> </td><td port="InputPin1" border="1">source</td><td> </td><td> </td></tr></table></td></tr>
+  <tr><td port="node" bgcolor="white" border="1">PlateCoordinates</td></tr>
+  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="OutputPin1" border="1">samples</td><td> </td></tr></table></td></tr>
+</table>> fillcolor=white shape=none style=rounded]
+		interlab_CallBehaviorAction43 [label=<<table border="0" cellspacing="0">
+  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="ValuePin1" border="1">coordinates: D1:D11</td><td> </td><td port="InputPin1" border="1">source</td><td> </td><td> </td></tr></table></td></tr>
+  <tr><td port="node" bgcolor="white" border="1">PlateCoordinates</td></tr>
+  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="OutputPin1" border="1">samples</td><td> </td></tr></table></td></tr>
+</table>> fillcolor=white shape=none style=rounded]
+		interlab_CallBehaviorAction69 [label=<<table border="0" cellspacing="0">
+  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="ValuePin1" border="1">excitationWavelength: 405.0 nanometer</td><td> </td><td port="ValuePin3" border="1">emissionBandpassWidth: 50.0 nanometer</td><td> </td><td port="InputPin1" border="1">samples</td><td> </td><td port="ValuePin2" border="1">emissionWavelength: 450.0 nanometer</td><td> </td><td> </td></tr></table></td></tr>
+  <tr><td port="node" bgcolor="white" border="1">MeasureFluorescence</td></tr>
+  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="OutputPin1" border="1">measurements</td><td> </td></tr></table></td></tr>
+</table>> fillcolor=white shape=none style=rounded]
+		interlab_CallBehaviorAction20 [label=<<table border="0" cellspacing="0">
+  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="InputPin1" border="1">source</td><td> </td><td port="ValuePin1" border="1">coordinates: A1</td><td> </td><td> </td></tr></table></td></tr>
+  <tr><td port="node" bgcolor="white" border="1">PlateCoordinates</td></tr>
+  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="OutputPin1" border="1">samples</td><td> </td></tr></table></td></tr>
+</table>> fillcolor=white shape=none style=rounded]
+		interlab_CallBehaviorAction37 [label=<<table border="0" cellspacing="0">
+  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="InputPin2" border="1">destination</td><td> </td><td port="InputPin1" border="1">source</td><td> </td><td port="ValuePin1" border="1">amount: 200.0 microliter</td><td> </td><td> </td></tr></table></td></tr>
+  <tr><td port="node" bgcolor="white" border="1">Transfer</td></tr>
+</table>> fillcolor=white shape=none style=rounded]
+		interlab_CallBehaviorAction65 [label=<<table border="0" cellspacing="0">
+  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="InputPin1" border="1">source</td><td> </td><td port="ValuePin1" border="1">coordinates: E1:F12</td><td> </td><td> </td></tr></table></td></tr>
+  <tr><td port="node" bgcolor="white" border="1">PlateCoordinates</td></tr>
+  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="OutputPin1" border="1">samples</td><td> </td></tr></table></td></tr>
+</table>> fillcolor=white shape=none style=rounded]
+		interlab_CallBehaviorAction50 [label=<<table border="0" cellspacing="0">
+  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="ValuePin1" border="1">amount: 200.0 microliter</td><td> </td><td port="InputPin1" border="1">source</td><td> </td><td port="ValuePin2" border="1">diluent: Phosphate Buffered Saline</td><td> </td><td port="ValuePin4" border="1">series: 10</td><td> </td><td port="InputPin2" border="1">destination</td><td> </td><td port="ValuePin3" border="1">dilution_factor: 2</td><td> </td><td> </td></tr></table></td></tr>
+  <tr><td port="node" bgcolor="white" border="1">SerialDilution</td></tr>
+</table>> fillcolor=white shape=none style=rounded]
+		interlab_CallBehaviorAction35 [label=<<table border="0" cellspacing="0">
+  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="ValuePin1" border="1">amount: 200.0 microliter</td><td> </td><td port="InputPin2" border="1">destination</td><td> </td><td port="InputPin1" border="1">source</td><td> </td><td> </td></tr></table></td></tr>
+  <tr><td port="node" bgcolor="white" border="1">Transfer</td></tr>
+</table>> fillcolor=white shape=none style=rounded]
+		interlab_ForkNode2 [label="" fillcolor=black height=0.02 shape=rectangle style=filled]
+		interlab_CallBehaviorAction62 [label=<<table border="0" cellspacing="0">
+  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="ValuePin1" border="1">amount: 100.0 microliter</td><td> </td><td port="InputPin2" border="1">destination</td><td> </td><td port="InputPin1" border="1">source</td><td> </td><td> </td></tr></table></td></tr>
+  <tr><td port="node" bgcolor="white" border="1">Transfer</td></tr>
+</table>> fillcolor=white shape=none style=rounded]
+		interlab_ForkNode7 [label="" fillcolor=black height=0.02 shape=rectangle style=filled]
+		interlab_CallBehaviorAction55 [label=<<table border="0" cellspacing="0">
+  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="InputPin2" border="1">destination</td><td> </td><td port="ValuePin4" border="1">series: 10</td><td> </td><td port="InputPin1" border="1">source</td><td> </td><td port="ValuePin2" border="1">diluent: Water, sterile-filtered, BioReagent, suitable for cell culture</td><td> </td><td port="ValuePin1" border="1">amount: 200.0 microliter</td><td> </td><td port="ValuePin3" border="1">dilution_factor: 2</td><td> </td><td> </td></tr></table></td></tr>
+  <tr><td port="node" bgcolor="white" border="1">SerialDilution</td></tr>
+</table>> fillcolor=white shape=none style=rounded]
+		interlab_CallBehaviorAction19 [label=<<table border="0" cellspacing="0">
+  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="ValuePin1" border="1">specification: calibration plate</td><td> </td><td> </td></tr></table></td></tr>
+  <tr><td port="node" bgcolor="white" border="1">EmptyContainer</td></tr>
+  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="OutputPin1" border="1">samples</td><td> </td></tr></table></td></tr>
+</table>> fillcolor=white shape=none style=rounded]
+		interlab_CallBehaviorAction29 [label=<<table border="0" cellspacing="0">
+  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="ValuePin1" border="1">coordinates: E2:H12</td><td> </td><td port="InputPin1" border="1">source</td><td> </td><td> </td></tr></table></td></tr>
+  <tr><td port="node" bgcolor="white" border="1">PlateCoordinates</td></tr>
+  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="OutputPin1" border="1">samples</td><td> </td></tr></table></td></tr>
+</table>> fillcolor=white shape=none style=rounded]
+		interlab_CallBehaviorAction33 [label=<<table border="0" cellspacing="0">
+  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="ValuePin1" border="1">amount: 200.0 microliter</td><td> </td><td port="InputPin1" border="1">source</td><td> </td><td port="InputPin2" border="1">destination</td><td> </td><td> </td></tr></table></td></tr>
+  <tr><td port="node" bgcolor="white" border="1">Transfer</td></tr>
+</table>> fillcolor=white shape=none style=rounded]
+		interlab_CallBehaviorAction72 [label=<<table border="0" cellspacing="0">
+  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="InputPin1" border="1">metadata</td><td> </td><td port="InputPin2" border="1">dataset</td><td> </td><td> </td></tr></table></td></tr>
+  <tr><td port="node" bgcolor="white" border="1">JoinMetadata</td></tr>
+  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="OutputPin1" border="1">enhanced_dataset</td><td> </td></tr></table></td></tr>
+</table>> fillcolor=white shape=none style=rounded]
 		interlab_ActivityParameterNode1 [label=dataset fillcolor=black peripheries=2 shape=rectangle]
-		interlab_FinalNode1 [label="" fillcolor=black shape=doublecircle style=filled]
+		interlab_CallBehaviorAction2 [label=<<table border="0" cellspacing="0">
+  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="ValuePin1" border="1">specification: Sulforhodamine 101 calibrant</td><td> </td><td> </td></tr></table></td></tr>
+  <tr><td port="node" bgcolor="white" border="1">EmptyContainer</td></tr>
+  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="OutputPin1" border="1">samples</td><td> </td></tr></table></td></tr>
+</table>> fillcolor=white shape=none style=rounded]
+		interlab_ForkNode15 [label="" fillcolor=black height=0.02 shape=rectangle style=filled]
+		interlab_ForkNode8 [label="" fillcolor=black height=0.02 shape=rectangle style=filled]
+		interlab_CallBehaviorAction31 [label=<<table border="0" cellspacing="0">
+  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="InputPin1" border="1">source</td><td> </td><td port="ValuePin1" border="1">amount: 100.0 microliter</td><td> </td><td port="InputPin2" border="1">destination</td><td> </td><td> </td></tr></table></td></tr>
+  <tr><td port="node" bgcolor="white" border="1">Transfer</td></tr>
+</table>> fillcolor=white shape=none style=rounded]
+		interlab_ForkNode3 [label="" fillcolor=black height=0.02 shape=rectangle style=filled]
+		interlab_CallBehaviorAction1 [label=<<table border="0" cellspacing="0">
+  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="ValuePin1" border="1">specification: Fluorescein calibrant</td><td> </td><td> </td></tr></table></td></tr>
+  <tr><td port="node" bgcolor="white" border="1">EmptyContainer</td></tr>
+  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="OutputPin1" border="1">samples</td><td> </td></tr></table></td></tr>
+</table>> fillcolor=white shape=none style=rounded]
+		interlab_CallBehaviorAction67 [label=<<table border="0" cellspacing="0">
+  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="ValuePin2" border="1">emissionWavelength: 530.0 nanometer</td><td> </td><td port="ValuePin3" border="1">emissionBandpassWidth: 30.0 nanometer</td><td> </td><td port="InputPin1" border="1">samples</td><td> </td><td port="ValuePin1" border="1">excitationWavelength: 488.0 nanometer</td><td> </td><td> </td></tr></table></td></tr>
+  <tr><td port="node" bgcolor="white" border="1">MeasureFluorescence</td></tr>
+  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="OutputPin1" border="1">measurements</td><td> </td></tr></table></td></tr>
+</table>> fillcolor=white shape=none style=rounded]
+		interlab_CallBehaviorAction9 [label=<<table border="0" cellspacing="0">
+  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="InputPin1" border="1">destination</td><td> </td><td port="ValuePin2" border="1">amount: 500.0 microliter</td><td> </td><td port="ValuePin1" border="1">resource: Sulforhodamine</td><td> </td><td> </td></tr></table></td></tr>
+  <tr><td port="node" bgcolor="white" border="1">Provision</td></tr>
+</table>> fillcolor=white shape=none style=rounded]
+		interlab_ForkNode13 [label="" fillcolor=black height=0.02 shape=rectangle style=filled]
+		interlab_CallBehaviorAction25 [label=<<table border="0" cellspacing="0">
+  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="InputPin1" border="1">source</td><td> </td><td port="ValuePin1" border="1">coordinates: F1</td><td> </td><td> </td></tr></table></td></tr>
+  <tr><td port="node" bgcolor="white" border="1">PlateCoordinates</td></tr>
+  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="OutputPin1" border="1">samples</td><td> </td></tr></table></td></tr>
+</table>> fillcolor=white shape=none style=rounded]
+		interlab_CallBehaviorAction30 [label=<<table border="0" cellspacing="0">
+  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="InputPin2" border="1">destination</td><td> </td><td port="ValuePin1" border="1">amount: 100.0 microliter</td><td> </td><td port="InputPin1" border="1">source</td><td> </td><td> </td></tr></table></td></tr>
+  <tr><td port="node" bgcolor="white" border="1">Transfer</td></tr>
+</table>> fillcolor=white shape=none style=rounded]
+		interlab_CallBehaviorAction3 [label=<<table border="0" cellspacing="0">
+  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="ValuePin1" border="1">specification: Cascade blue calibrant</td><td> </td><td> </td></tr></table></td></tr>
+  <tr><td port="node" bgcolor="white" border="1">EmptyContainer</td></tr>
+  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="OutputPin1" border="1">samples</td><td> </td></tr></table></td></tr>
+</table>> fillcolor=white shape=none style=rounded]
 	}
 }
