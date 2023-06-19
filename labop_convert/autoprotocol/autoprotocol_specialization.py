@@ -78,7 +78,7 @@ class AutoprotocolSpecialization(BehaviorSpecialization):
 
     def _init_behavior_func_map(self) -> dict:
         return {
-            # FIXME Do we need vortex?
+            "https://bioprotocols.org/labop/primitives/liquid_handling/Vortex": self.vortex,
             "https://bioprotocols.org/labop/primitives/sample_arrays/EmptyContainer": self.define_container,
             "https://bioprotocols.org/labop/primitives/liquid_handling/Provision": self.provision_container,
             "https://bioprotocols.org/labop/primitives/sample_arrays/PlateCoordinates": self.plate_coordinates,
@@ -356,6 +356,31 @@ class AutoprotocolSpecialization(BehaviorSpecialization):
         )
         return results
 
+    def vortex(
+        self,
+        record: labop.ActivityNodeExecution,
+        execution: labop.ProtocolExecution,
+    ):
+        mix_proportion = 0.5
+        num_pipette_mixes = 1
+
+        call = record.call.lookup()
+        parameter_value_map = call.parameter_value_map()
+
+        samples = parameter_value_map["samples"]["value"]
+        duration = measure_to_unit(parameter_value_map["duration"]["value"])
+
+        source_container = self.var_to_entity[samples.identity]
+        source_wells = pc.coordinate_rect_to_well_group(
+            source_container, samples.sample_coordinates()
+        )
+        mix_list = [s for s in source_wells for m in range(num_pipette_mixes)]
+        volumes = [s.volume * mix_proportion for s in mix_list]
+
+        instructions = self.protocol.transfer(
+            source=mix_list, destination=mix_list, volume=volumes
+        )
+
     def transfer(
         self,
         record: labop.ActivityNodeExecution,
@@ -418,10 +443,14 @@ class AutoprotocolSpecialization(BehaviorSpecialization):
         coordinates = destination.get_coordinates()
         if len(coordinates) < 2:
             raise ValueError("Serial dilution must have a series of 2 or more")
-        for a, b in zip(coordinates[:-1], coordinates[1:]):
+
+        # The first transfer is a self transfer that mixes the starting well
+        # Subsequent transfers will mix the destinations as part of the transfer
+        sources = coordinates[0:1] + coordinates[:-1]
+        destinations = coordinates[0:1] + coordinates[1:]
+        for a, b in zip(sources, destinations):
             a_wells = pc.coordinate_rect_to_well_group(container, a)
             b_wells = pc.coordinate_rect_to_well_group(container, b)
-            # FIXME Do we need to mix before transfer?
             self.protocol.transfer(source=a_wells, destination=b_wells, volume=xfer_vol)
 
 

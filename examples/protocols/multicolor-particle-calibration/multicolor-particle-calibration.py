@@ -35,15 +35,15 @@ def generate_protocol():
 
     #############################################
     # Import the primitive libraries
-    print("Importing libraries")
+    # print("Importing libraries")
     labop.import_library("liquid_handling")
-    print("... Imported liquid handling")
+    # print("... Imported liquid handling")
     labop.import_library("plate_handling")
-    print("... Imported plate handling")
+    # print("... Imported plate handling")
     labop.import_library("spectrophotometry")
-    print("... Imported spectrophotometry")
+    # print("... Imported spectrophotometry")
     labop.import_library("sample_arrays")
-    print("... Imported sample arrays")
+    # print("... Imported sample arrays")
 
     # create the materials to be provisioned
     ddh2o = sbol3.Component(
@@ -712,7 +712,9 @@ Adapted from [https://dx.doi.org/10.17504/protocols.io.bht7j6rn](https://dx.doi.
     protocol.order(outnode, protocol.final())
 
     if REGENERATE_ARTIFACTS:
-        with open(os.path.join(OUT_DIR, f"{filename}-protocol.nt"), "w") as f:
+        protocol_file = os.path.join(OUT_DIR, f"{filename}-protocol.nt")
+        with open(protocol_file, "w") as f:
+            print(f"Saving protocol [{protocol_file}].")
             f.write(doc.write_string(sbol3.SORTED_NTRIPLES).strip())
 
     return protocol, doc
@@ -769,6 +771,7 @@ def generate_markdown_specialization(protocol, doc):
 
 
 def generate_autoprotocol_specialization(protocol, doc):
+    blockPrint()
     import labop
     from labop.execution_engine import ExecutionEngine
     from labop_convert.autoprotocol.autoprotocol_specialization import (
@@ -792,6 +795,7 @@ def generate_autoprotocol_specialization(protocol, doc):
     cascade_blue = doc.find(f"{NAMESPACE}cascade_blue")
     sulforhodamine = doc.find(f"{NAMESPACE}sulforhodamine")
     silica_beads = doc.find(f"{NAMESPACE}silica_beads")
+    discard_container = [x for x in protocol.nodes if x.name == "discard_container"][0]
     fluorescein_standard_solution_container = [
         x for x in protocol.nodes if x.name == "fluroscein_calibrant"
     ][0]
@@ -812,28 +816,29 @@ def generate_autoprotocol_specialization(protocol, doc):
     pbs_container = [x for x in protocol.nodes if x.name == "pbs_container"][0]
     calibration_plate = [x for x in protocol.nodes if x.name == "calibration_plate"][0]
 
-    resolutions = {  # "container_id": "ct1g9qsg4wx6gcj",
+    resolutions = {
         ddh2o.identity: "rs1aquf68bkbz2",
         pbs.identity: "rs1aquf68bkbz2",
         fluorescein.identity: "rs194na2u3hfam",  # LUDOX
         cascade_blue.identity: "rs1b6z2vgatkq7",  # LUDOX
         sulforhodamine.identity: "rs1bga8d55vfz5",  # Texas Red
         silica_beads.identity: "rs1b6z2vgatkq7",  # LUDOX
+        discard_container.input_pin("specification").identity: "ct1awysukrf9dq8ryt",
         fluorescein_standard_solution_container.input_pin(
             "specification"
-        ).identity: "ct1awbeh9n35hw867n",
+        ).identity: "ct1awyw7ggr8vmkc9v",
         sulforhodamine_standard_solution_container.input_pin(
             "specification"
-        ).identity: "ct1awbeghzaznavfyb",
+        ).identity: "ct1awywckw2fh6uh3d",
         cascade_blue_standard_solution_container.input_pin(
             "specification"
-        ).identity: "ct1awbeftpscrjvcch",
+        ).identity: "ct1awywedd5gg2fz29",
         microsphere_standard_solution_container.input_pin(
             "specification"
-        ).identity: "ct1awbe3hh9ddj7jte",
-        ddh2o_container.input_pin("specification").identity: "ct1awbe2spkx94t9ep",
-        pbs_container.input_pin("specification").identity: "ct1awbe22wmsk84rvj",
-        calibration_plate.input_pin("specification").identity: "ct1awbe4fc822runu6",
+        ).identity: "ct1awywfwwbdwfvqpv",
+        ddh2o_container.input_pin("specification").identity: "ct1awywhcqqcy22jj2",
+        pbs_container.input_pin("specification").identity: "ct1awywjusyasfcfa7",
+        calibration_plate.input_pin("specification").identity: "ct1awywnhz89jfjsgt",
     }
     autoprotocol_specialization = AutoprotocolSpecialization(
         autoprotocol_output, api, resolutions=resolutions
@@ -847,6 +852,12 @@ def generate_autoprotocol_specialization(protocol, doc):
         parameter_values=[],
     )
 
+    enablePrint()
+
+    print(f"Saving Autoprotocol [{autoprotocol_output}].")
+
+    print(f"Analyzing Protocol ...")
+
     st = api.get_strateos_connection()
     response = st.analyze_run(autoprotocol_specialization.protocol, test_mode=True)
 
@@ -856,7 +867,9 @@ def generate_autoprotocol_specialization(protocol, doc):
     # execution.markdown = execution.markdown.replace(' microliter', 'uL')
 
     if REGENERATE_ARTIFACTS:
-        with open(os.path.join(OUT_DIR, f"{filename}-execution.nt"), "w") as f:
+        execution_filename = os.path.join(OUT_DIR, f"{filename}-execution.nt")
+        print(f"Saving Execution Record [{execution_filename}]")
+        with open(filename, "w") as f:
             f.write(doc.write_string(sbol3.SORTED_NTRIPLES).strip())
 
 
@@ -880,6 +893,14 @@ def test_autoprotocol():
         )
     print(f"Received response:\n{response}")
 
+    launch_confirmation = os.path.join(
+        OUT_DIR, f"{filename}-strateos-launch-confirmation.json"
+    )
+
+    with open(launch_confirmation, "w") as lconf:
+        print(f"Saving Launch Confirmation [{launch_confirmation}].")
+        lconf.write(json.dumps(response))
+
 
 def read_protocol(filename=os.path.join(OUT_DIR, f"{filename}-protocol.nt")):
     import labop
@@ -893,14 +914,46 @@ def read_protocol(filename=os.path.join(OUT_DIR, f"{filename}-protocol.nt")):
     return protocol, doc
 
 
+# Disable
+def blockPrint():
+    sys.stdout = open(os.devnull, "w")
+
+
+# Restore
+def enablePrint():
+    sys.stdout = sys.__stdout__
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("-g", "--generate-protocol", default=False, action="store_true")
-    parser.add_argument("-m", "--generate-markdown", default=False, action="store_true")
     parser.add_argument(
-        "-a", "--generate-autoprotocol", default=False, action="store_true"
+        "-g",
+        "--generate-protocol",
+        default=False,
+        action="store_true",
+        help=f"Generate the artifacts/{filename}-protocol.nt LabOP protocol file.",
     )
-    parser.add_argument("-t", "--test-autoprotocol", default=False, action="store_true")
+    parser.add_argument(
+        "-m",
+        "--generate-markdown",
+        default=False,
+        action="store_true",
+        help=f"Execute the protocol to generate the artifacts/{filename}.md Markdown specialization of the LabOP protocol.",
+    )
+    parser.add_argument(
+        "-a",
+        "--generate-autoprotocol",
+        default=False,
+        action="store_true",
+        help=f"Execute the protocol to generate the artifacts/{filename}-autoprotocol.json Autoprotocol specialization of the LabOP protocol.",
+    )
+    parser.add_argument(
+        "-t",
+        "--test-autoprotocol",
+        default=False,
+        action="store_true",
+        help=f"Submit the artifacts/{filename}-autoprotocol.json Autoprotocol file to the Strateos run queue.",
+    )
     args = parser.parse_args()
 
     if args.generate_protocol or not os.path.exists(
@@ -914,7 +967,7 @@ if __name__ == "__main__":
         generate_markdown_specialization(*read_protocol())
 
     if args.generate_autoprotocol:
-        print("Generating Autoprotocol")
+        print("Generating Autoprotocol ...")
         generate_autoprotocol_specialization(*read_protocol())
 
     if args.test_autoprotocol:

@@ -160,9 +160,9 @@ class BehaviorSpecialization(ABC):
         )
         container_uri = validate_spec_query(spec.queryString)
         if container_uri.is_instance():
-            possible_container_types = container_uri.get_instances()
-        else:
             possible_container_types = [container_uri]
+        else:
+            possible_container_types = container_uri.get_instances()
         return possible_container_types
 
     def get_container_typename(self, container_uri: str) -> str:
