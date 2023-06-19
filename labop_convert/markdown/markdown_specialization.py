@@ -335,8 +335,8 @@ class MarkdownSpecialization(BehaviorSpecialization):
 
     def define_container(
         self,
-        record: labop.ActivityNodeExecution,
-        execution: labop.ProtocolExecution,
+        record: ActivityNodeExecution,
+        execution: ProtocolExecution,
     ):
         results = {}
         call = record.call.lookup()
@@ -387,8 +387,8 @@ class MarkdownSpecialization(BehaviorSpecialization):
 
     def define_containers(
         self,
-        record: labop.ActivityNodeExecution,
-        execution: labop.ProtocolExecution,
+        record: ActivityNodeExecution,
+        execution: ProtocolExecution,
     ):
         results = {}
         call = record.call.lookup()
@@ -437,8 +437,8 @@ class MarkdownSpecialization(BehaviorSpecialization):
 
     def provision_container(
         self,
-        record: labop.ActivityNodeExecution,
-        execution: labop.ProtocolExecution,
+        record: ActivityNodeExecution,
+        execution: ProtocolExecution,
     ):
         results = {}
         call = record.call.lookup()
@@ -471,8 +471,8 @@ class MarkdownSpecialization(BehaviorSpecialization):
 
     def plate_coordinates(
         self,
-        record: labop.ActivityNodeExecution,
-        execution: labop.ProtocolExecution,
+        record: ActivityNodeExecution,
+        execution: ProtocolExecution,
     ):
         results = {}
         call = record.call.lookup()
@@ -494,8 +494,8 @@ class MarkdownSpecialization(BehaviorSpecialization):
 
     def measure_absorbance(
         self,
-        record: labop.ActivityNodeExecution,
-        execution: labop.ProtocolExecution,
+        record: ActivityNodeExecution,
+        execution: ProtocolExecution,
     ):
         results = {}
         call = record.call.lookup()
@@ -549,8 +549,8 @@ class MarkdownSpecialization(BehaviorSpecialization):
 
     def measure_fluorescence(
         self,
-        record: labop.ActivityNodeExecution,
-        execution: labop.ProtocolExecution,
+        record: ActivityNodeExecution,
+        execution: ProtocolExecution,
     ):
         results = {}
         call = record.call.lookup()
@@ -597,8 +597,8 @@ class MarkdownSpecialization(BehaviorSpecialization):
 
     def vortex(
         self,
-        record: labop.ActivityNodeExecution,
-        execution: labop.ProtocolExecution,
+        record: ActivityNodeExecution,
+        execution: ProtocolExecution,
     ):
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
@@ -618,8 +618,8 @@ class MarkdownSpecialization(BehaviorSpecialization):
 
     def discard(
         self,
-        record: labop.ActivityNodeExecution,
-        execution: labop.ProtocolExecution,
+        record: ActivityNodeExecution,
+        execution: ProtocolExecution,
     ):
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
@@ -647,8 +647,8 @@ class MarkdownSpecialization(BehaviorSpecialization):
 
     def transfer(
         self,
-        record: labop.ActivityNodeExecution,
-        execution: labop.ProtocolExecution,
+        record: ActivityNodeExecution,
+        execution: ProtocolExecution,
     ):
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
@@ -680,7 +680,7 @@ class MarkdownSpecialization(BehaviorSpecialization):
             dispense_velocity = parameter_value_map["dispenseVelocity"]
 
         # source_coordinates = ""
-        # if isinstance(source, labop.SampleMask):
+        # if isinstance(source, SampleMask):
         #     source_coordinates = source.mask
         #     source = source.source.lookup()
         source_contents = read_sample_contents(source)
@@ -699,12 +699,12 @@ class MarkdownSpecialization(BehaviorSpecialization):
             sample_format=self.sample_format
         )
         # All possible sourcv coordinates (including those not part of the transfer)
-        if isinstance(source, labop.SampleCollection):
+        if isinstance(source, SampleCollection):
             all_source_coordinates = (
                 source.source.lookup().sample_coordinates(
                     sample_format=self.sample_format
                 )
-                if isinstance(source, labop.SampleMask)
+                if isinstance(source, SampleMask)
                 else source.sample_coordinates(sample_format=self.sample_format)
             )
             source_coordinates = source.sample_coordinates(
@@ -786,8 +786,8 @@ class MarkdownSpecialization(BehaviorSpecialization):
 
     def transfer_by_map(
         self,
-        record: labop.ActivityNodeExecution,
-        execution: labop.ProtocolExecution,
+        record: ActivityNodeExecution,
+        execution: ProtocolExecution,
     ):
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
@@ -867,8 +867,8 @@ class MarkdownSpecialization(BehaviorSpecialization):
 
     def culture(
         self,
-        record: labop.ActivityNodeExecution,
-        execution: labop.ProtocolExecution,
+        record: ActivityNodeExecution,
+        execution: ProtocolExecution,
     ):
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
@@ -918,8 +918,8 @@ class MarkdownSpecialization(BehaviorSpecialization):
 
     def incubate(
         self,
-        record: labop.ActivityNodeExecution,
-        execution: labop.ProtocolExecution,
+        record: ActivityNodeExecution,
+        execution: ProtocolExecution,
     ):
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
@@ -942,8 +942,8 @@ class MarkdownSpecialization(BehaviorSpecialization):
 
     def hold(
         self,
-        record: labop.ActivityNodeExecution,
-        execution: labop.ProtocolExecution,
+        record: ActivityNodeExecution,
+        execution: ProtocolExecution,
     ):
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
@@ -960,8 +960,8 @@ class MarkdownSpecialization(BehaviorSpecialization):
 
     def hold_on_ice(
         self,
-        record: labop.ActivityNodeExecution,
-        execution: labop.ProtocolExecution,
+        record: ActivityNodeExecution,
+        execution: ProtocolExecution,
     ):
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
@@ -977,8 +977,8 @@ class MarkdownSpecialization(BehaviorSpecialization):
 
     def dilute_to_target_od(
         self,
-        record: labop.ActivityNodeExecution,
-        execution: labop.ProtocolExecution,
+        record: ActivityNodeExecution,
+        execution: ProtocolExecution,
     ):
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
@@ -1018,8 +1018,8 @@ class MarkdownSpecialization(BehaviorSpecialization):
 
     def dilute(
         self,
-        record: labop.ActivityNodeExecution,
-        execution: labop.ProtocolExecution,
+        record: ActivityNodeExecution,
+        execution: ProtocolExecution,
     ):
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
@@ -1069,8 +1069,8 @@ class MarkdownSpecialization(BehaviorSpecialization):
 
     def transform(
         self,
-        record: labop.ActivityNodeExecution,
-        execution: labop.ProtocolExecution,
+        record: ActivityNodeExecution,
+        execution: ProtocolExecution,
     ):
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
@@ -1128,8 +1128,8 @@ class MarkdownSpecialization(BehaviorSpecialization):
 
     def serial_dilution(
         self,
-        record: labop.ActivityNodeExecution,
-        execution: labop.ProtocolExecution,
+        record: ActivityNodeExecution,
+        execution: ProtocolExecution,
     ):
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
@@ -1178,8 +1178,8 @@ class MarkdownSpecialization(BehaviorSpecialization):
 
     def evaporative_seal(
         self,
-        record: labop.ActivityNodeExecution,
-        execution: labop.ProtocolExecution,
+        record: ActivityNodeExecution,
+        execution: ProtocolExecution,
     ):
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
@@ -1199,8 +1199,8 @@ class MarkdownSpecialization(BehaviorSpecialization):
 
     def unseal(
         self,
-        record: labop.ActivityNodeExecution,
-        execution: labop.ProtocolExecution,
+        record: ActivityNodeExecution,
+        execution: ProtocolExecution,
     ):
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
@@ -1219,8 +1219,8 @@ class MarkdownSpecialization(BehaviorSpecialization):
 
     def pool_samples(
         self,
-        record: labop.ActivityNodeExecution,
-        execution: labop.ProtocolExecution,
+        record: ActivityNodeExecution,
+        execution: ProtocolExecution,
     ):
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
@@ -1254,8 +1254,8 @@ class MarkdownSpecialization(BehaviorSpecialization):
 
     def quick_spin(
         self,
-        record: labop.ActivityNodeExecution,
-        execution: labop.ProtocolExecution,
+        record: ActivityNodeExecution,
+        execution: ProtocolExecution,
     ):
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
@@ -1275,15 +1275,15 @@ class MarkdownSpecialization(BehaviorSpecialization):
 
     def subprotocol_specialization(
         self,
-        record: labop.ActivityNodeExecution,
-        execution: labop.ProtocolExecution,
+        record: ActivityNodeExecution,
+        execution: ProtocolExecution,
     ):
         pass
 
     def embedded_image(
         self,
-        record: labop.ActivityNodeExecution,
-        execution: labop.ProtocolExecution,
+        record: ActivityNodeExecution,
+        execution: ProtocolExecution,
     ):
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
@@ -1297,8 +1297,8 @@ class MarkdownSpecialization(BehaviorSpecialization):
 
     def culture_plates(
         self,
-        record: labop.ActivityNodeExecution,
-        execution: labop.ProtocolExecution,
+        record: ActivityNodeExecution,
+        execution: ProtocolExecution,
     ):
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
@@ -1320,8 +1320,8 @@ class MarkdownSpecialization(BehaviorSpecialization):
 
     def pick_colonies(
         self,
-        record: labop.ActivityNodeExecution,
-        execution: labop.ProtocolExecution,
+        record: ActivityNodeExecution,
+        execution: ProtocolExecution,
     ):
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
@@ -1341,8 +1341,8 @@ class MarkdownSpecialization(BehaviorSpecialization):
 
     def excel_metadata(
         self,
-        record: labop.ActivityNodeExecution,
-        execution: labop.ProtocolExecution,
+        record: ActivityNodeExecution,
+        execution: ProtocolExecution,
     ):
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
@@ -1356,8 +1356,8 @@ class MarkdownSpecialization(BehaviorSpecialization):
 
     def join_metadata(
         self,
-        record: labop.ActivityNodeExecution,
-        execution: labop.ProtocolExecution,
+        record: ActivityNodeExecution,
+        execution: ProtocolExecution,
     ):
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
@@ -1383,7 +1383,7 @@ def measurement_to_text(measure: sbol3.Measure):
 
 
 def get_sample_names(
-    inputs: Union[labop.SampleArray, sbol3.Component],
+    inputs: Union[SampleArray, sbol3.Component],
     error_msg,
     coordinates=None,
 ) -> List[str]:
