@@ -702,12 +702,27 @@ api = StrateosAPI(cfg=StrateosConfig.from_file(secrets_file))
 
 autoprotocol_output = os.path.join(OUT_DIR, "multicolor-particle-calibration.json")
 resolutions = {  # "container_id": "ct1g9qsg4wx6gcj",
-    ddh2o.identity: "cmpl1fwyxm3vbej2k",
-    pbs.identity: "cmpl1fwyxm3vbej2k",
-    fluorescein.identity: "cmpl1fwyxm3vbej2k",
-    cascade_blue.identity: "cmpl1fwyxm3vbej2k",
-    sulforhodamine.identity: "cmpl1fwyxm3vbej2k",
-    silica_beads.identity: "cmpl1fwyxm3vbej2k",
+    ddh2o.identity: "rs1aquf68bkbz2",
+    pbs.identity: "rs1aquf68bkbz2",
+    fluorescein.identity: "rs194na2u3hfam",  # LUDOX
+    cascade_blue.identity: "rs1b6z2vgatkq7",  # LUDOX
+    sulforhodamine.identity: "rs1bga8d55vfz5",  # Texas Red
+    silica_beads.identity: "rs1b6z2vgatkq7",  # LUDOX
+    fluorescein_standard_solution_container.input_pin(
+        "specification"
+    ).identity: "ct1awbeh9n35hw867n",
+    sulforhodamine_standard_solution_container.input_pin(
+        "specification"
+    ).identity: "ct1awbeghzaznavfyb",
+    cascade_blue_standard_solution_container.input_pin(
+        "specification"
+    ).identity: "ct1awbeftpscrjvcch",
+    microsphere_standard_solution_container.input_pin(
+        "specification"
+    ).identity: "ct1awbe3hh9ddj7jte",
+    ddh2o_container.input_pin("specification").identity: "ct1awbe2spkx94t9ep",
+    pbs_container.input_pin("specification").identity: "ct1awbe22wmsk84rvj",
+    calibration_plate.input_pin("specification").identity: "ct1awbe4fc822runu6",
 }
 autoprotocol_specialization = AutoprotocolSpecialization(
     autoprotocol_output, api, resolutions=resolutions
@@ -724,8 +739,6 @@ execution = ee.execute(
 st = api.get_strateos_connection()
 response = st.analyze_run(autoprotocol_specialization.protocol, test_mode=True)
 
-
-# print(execution.markdown)
 
 # # Dress up the markdown to make it pretty and more readable
 # execution.markdown = execution.markdown.replace(' milliliter', 'mL')

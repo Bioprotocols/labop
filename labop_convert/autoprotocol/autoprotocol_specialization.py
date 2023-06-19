@@ -107,6 +107,8 @@ class AutoprotocolSpecialization(BehaviorSpecialization):
 
         if "container_id" in self.resolutions:
             container_id = self.resolutions["container_id"]
+        elif spec.identity in self.resolutions:
+            return
         else:
             container_type = self.get_strateos_container_type(spec)
             container_name = f"{self.execution.protocol.lookup().name} Container {samples_var.display_id}"
@@ -230,6 +232,7 @@ class AutoprotocolSpecialization(BehaviorSpecialization):
         wells = pc.coordinate_rect_to_well_group(
             container, destination.sample_coordinates()
         )
+
         [step] = self.protocol.provision(resource, wells, amounts=value)
         # resource_term = UnresolvedTerm(step, "resource_id", resource)
         # self.unresolved_terms.append(resource_term)
@@ -384,7 +387,25 @@ class AutoprotocolSpecialization(BehaviorSpecialization):
     def serial_dilution(
         self, record: labop.ActivityNodeExecution, execution: labop.ProtocolExecution
     ):
-        pass
+        call = record.call.lookup()
+        parameter_value_map = call.parameter_value_map()
+
+        source = parameter_value_map["source"]["value"]
+        destination = parameter_value_map["destination"]["value"]
+        diluent = parameter_value_map["diluent"]["value"]
+        amount = parameter_value_map["amount"]["value"]
+        dilution_factor = parameter_value_map["dilution_factor"]["value"]
+        xfer_vol = amount.value / dilution_factor
+        xfer_vol = Unit(xfer_vol, tyto.OM.get_term_by_uri(amount.unit))
+        series = parameter_value_map["series"]["value"]
+        container = self.var_to_entity[destination.identity]
+        coordinates = destination.get_coordinates()
+        if len(coordinates) < 2:
+            raise ValueError("Serial dilution must have a series of 2 or more")
+        for a, b in zip(coordinates[:-1], coordinates[1:]):
+            a_wells = pc.coordinate_rect_to_well_group(container, a)
+            b_wells = pc.coordinate_rect_to_well_group(container, b)
+            self.protocol.transfer(source=a_wells, destination=b_wells, volume=xfer_vol)
 
 
 def check_strateos_container_ids():
