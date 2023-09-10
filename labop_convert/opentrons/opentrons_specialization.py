@@ -21,7 +21,11 @@ from labop import (
     SampleMask,
     get_sample_list,
 )
-from labop_convert.behavior_specialization import DefaultBehaviorSpecialization
+from labop.utils.plate_coordinates import get_sample_list
+from labop_convert.behavior_specialization import (
+    BehaviorSpecialization,
+    DefaultBehaviorSpecialization,
+)
 from uml import CallBehaviorAction, ForkNode, InputPin, LiteralReference, ValuePin
 
 l = logging.getLogger(__file__)
@@ -81,8 +85,8 @@ LABWARE_MAP = {
         "Opentrons 24 Tube Rack with Eppendorf 1.5 mL Safe-Lock Snapcap"
     ]: "opentrons_24_tuberack_eppendorf_1.5ml_safelock_snapcap",
     ContO["Corning 96 Well Plate"]: "corning_96_wellplate_360ul_flat",
-    ContO["Bio-Rad 96 Well PCR Plate"]: "biorad_96_wellplate_200ul_pcr",
-    ContO["NEST 96 Well Plate"]: "nest_96_wellplate_200ul_flat",
+    ContO["Bio-Rad 96 Well Plate 200 µL PCR"]: "biorad_96_wellplate_200ul_pcr",
+    # ContO["NEST 96 Well Plate"]: "nest_96_wellplate_200ul_flat",
 }
 
 REVERSE_LABWARE_MAP = LABWARE_MAP.__class__(map(reversed, LABWARE_MAP.items()))
@@ -413,8 +417,8 @@ class OT2Specialization(DefaultBehaviorSpecialization):
 
         source_str = source.mask
         destination_str = destination.mask
-        for c_source in get_sample_list(source.mask):
-            for c_destination in get_sample_list(destination.mask):
+        for c_source in source.get_coordinates():
+            for c_destination in destination.get_coordinates():
                 self.script_steps += [
                     f"{pipette.display_id}.transfer({value}, {source_name}['{c_source}'], {destination_name}['{c_destination}'])  {comment}"
                 ]
@@ -721,9 +725,7 @@ class OT2Specialization(DefaultBehaviorSpecialization):
         for deck, rack in self.configuration.items():
             if type(rack) is not ContainerSpec:
                 continue
-            container_types = self.resolve_container_spec(rack)
-            selected_container_type = self.check_lims_inventory(container_types)
-            api_name = LABWARE_MAP[selected_container_type]
+            api_name = LABWARE_MAP[rack.queryString]
             if api_name in COMPATIBLE_TIPS[instrument.display_id]:
                 tiprack_selection = rack
                 break

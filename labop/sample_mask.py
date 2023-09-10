@@ -20,6 +20,9 @@ class SampleMask(inner.SampleMask, SampleCollection):
     def get_source(self):
         return self.source.lookup()
 
+    def new_sample_id(self) -> str:
+        return self.source.lookup().new_sample_id()
+
     def empty(self, sample_format=Strings.XARRAY):
         if sample_format == "xarray":
             source_samples = self.get_source()
@@ -35,11 +38,11 @@ class SampleMask(inner.SampleMask, SampleCollection):
             raise NotImplementedError()
         return mask_array
 
-    def to_data_array(self, sample_format=Strings.XARRAY):
+    def to_data_array(self, sample_format=Strings.XARRAY, order=Strings.ROW_DIRECTION):
         if not hasattr(self, "mask") or self.mask is None:
             sample_mask = self.empty(sample_format=sample_format)
         else:
-            sample_mask = deserialize_sample_format(self.mask, parent=self)
+            sample_mask = deserialize_sample_format(self.mask, parent=self, order=order)
         return sample_mask
 
     def to_masked_data_array(self, sample_format=Strings.XARRAY):
@@ -54,14 +57,13 @@ class SampleMask(inner.SampleMask, SampleCollection):
     ):
         mask = SampleMask(source=source)
         mask_array = source.mask(coordinates, sample_format=sample_format)
-        mask_array.name = mask.identity
         mask.mask = serialize_sample_format(mask_array)
         return mask
 
     def get_coordinates(self, sample_format=Strings.XARRAY):
         if sample_format == "xarray":
             mask = self.to_data_array()
-            return [c for c in mask[Strings.SAMPLE].data if mask.loc[c]]
+            return mask.location.data.tolist()
         elif sample_format == "json":
             return json.loads(deserialize_sample_format(self.mask)).keys()
 
@@ -69,7 +71,7 @@ class SampleMask(inner.SampleMask, SampleCollection):
         sample_array = self.to_masked_data_array()
 
         if sample_format == Strings.XARRAY:
-            coords = sample_array.coords[Strings.SAMPLE].data.tolist()
+            coords = sample_array.coords[Strings.LOCATION].data.tolist()
             return contiguous_coordinates(coords) if not as_list else coords
         else:
             return sample_array

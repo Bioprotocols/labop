@@ -12,7 +12,6 @@ from .behavior_execution import *
 from .call_behavior_execution import *
 from .protocol_execution import *
 
-
 from .primitive import *
 
 from .sample_map import *
@@ -89,3 +88,35 @@ for symbol in dir():
         symbol.__str__ = __str__
 
 assign_outer_class_builders(__name__)
+
+
+def init_logging_config() -> None:
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(asctime)s %(levelname)s %(name)s - %(message)s",
+        force=True,
+    )
+
+
+def init_logging() -> None:
+    # TODO: SBOLFactory permanently disables all DEBUG,INFO logging when it
+    # runs. This is a bug tracked in SynbioDex/sbol_factory#77. If that is fixed,
+    # this can be removed.
+    logging.disable(logging.NOTSET)
+
+    # Set the base logging level. We use force=True to override any other
+    # packages/places where a logger was created BEFORE setting this up, and may not
+    # have the necessary handlers configured to get stuff to print as a result.
+    try:
+        import coloredlogs
+
+        coloredlogs.install(
+            fmt="%(asctime)s %(levelname)s %(name)s - %(message)s",
+            level=logging.INFO,
+        )
+    except ModuleNotFoundError:
+        init_logging_config()
+
+
+# Initialize logging
+init_logging()

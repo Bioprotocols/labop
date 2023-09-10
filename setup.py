@@ -8,11 +8,11 @@ extras = {
     "notebook": notebook_deps,
     "autoprotocol": autoprotocol_deps,
 }
-
 setup(
     name="labop",
     description="Laboratory Open Procotol Language",
     version="1.0a2",
+    python_requires=">=3.8",
     install_requires=[
         "sbol3",
         "sparqlwrapper",
@@ -23,9 +23,10 @@ setup(
         "tyto>=1.3",
         "numpy",
         "openpyxl",
+        "pint>=0.18",
         "requests_html",
         "container-ontology @ https://github.com/rpgoldman/container-ontology/tarball/main",
-        "xarray",
+        "xarray>=0.20.2",
     ],
     tests_require=test_deps,
     extras_require=extras,
@@ -35,6 +36,7 @@ setup(
         "labop_convert.autoprotocol",
         "labop_convert.markdown",
         "labop_convert.opentrons",
+        "labop_convert.emeraldcloud",
         "labop.lib",
         "labop.inner",
         "labop.utils",

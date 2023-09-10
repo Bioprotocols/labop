@@ -1,4 +1,5 @@
 import datetime
+import hashlib
 import logging
 import os
 import uuid
@@ -7,9 +8,11 @@ from typing import Callable, Dict, List, Optional, Tuple, Union
 
 import pandas as pd
 import sbol3
+from numpy import record
 
 from labop.behavior_execution import BehaviorExecution
 from labop.execution_context import ExecutionContext
+from labop_convert.behavior_dynamics import SampleProvenanceObserver
 from uml import ActivityNode, CallBehaviorAction
 from uml.activity import Activity
 from uml.activity_edge import ActivityEdge
@@ -34,6 +37,14 @@ from .sample_data import SampleData
 
 l: logging.Logger = logging.getLogger(__file__)
 l.setLevel(logging.ERROR)
+
+UUID_SEED = "LabOP"
+m = hashlib.md5()
+
+
+def new_uuid():
+    m.update(UUID_SEED.encode("utf-8"))
+    return uuid.UUID(m.hexdigest())
 
 
 class ExecutionError(Exception):
@@ -61,6 +72,7 @@ class ExecutionEngine(ABC):
         sample_format: str = "xarray",
         out_dir: str = "out",
         dataset_file: str = None,  # type: ignore
+        track_samples=True,
     ):
         self.exec_counter = 0
         self.variable_counter = 0
@@ -108,6 +120,12 @@ class ExecutionEngine(ABC):
         self.dataset_file = dataset_file  # Write dataset specifications as template files used to fill in data
         self.data_id = 0
         self.data_id_map = {}
+        self.candidate_clusters = {}
+        self.track_samples = track_samples
+
+        self.prov_observer = (
+            SampleProvenanceObserver(self.out_dir) if self.track_samples else None
+        )
 
         if self.specializations is None or (
             isinstance(self.specializations, list) and len(self.specializations) == 0
@@ -115,6 +133,9 @@ class ExecutionEngine(ABC):
             from labop_convert import DefaultBehaviorSpecialization
 
             self.specializations = [DefaultBehaviorSpecialization()]
+
+        for specialization in specializations:
+            specialization.engine = self
 
     def next_id(self):
         next = self.exec_counter
@@ -155,7 +176,7 @@ class ExecutionEngine(ABC):
         self,
         protocol: Protocol,
         agent: sbol3.Agent,
-        id: str = uuid.uuid4(),
+        id: str = new_uuid(),
         parameter_values: List[ParameterValue] = {},
     ):
         # Record in the document containing the protocol
@@ -165,6 +186,8 @@ class ExecutionEngine(ABC):
         self.issues[id] = []
 
         if self.use_defined_primitives:
+            from labop.primitive_execution import initialize_primitive_compute_output
+
             # Define the compute_output function for known primitives
             Primitive.initialize_primitive_compute_output(doc)
 
@@ -206,7 +229,7 @@ class ExecutionEngine(ABC):
         protocol: Protocol,
         agent: sbol3.Agent,
         parameter_values: List[ParameterValue] = {},
-        id: str = uuid.uuid4(),
+        id: str = new_uuid(),
         start_time: datetime.datetime = None,
         execution_context=None,
     ) -> ProtocolExecution:
@@ -652,6 +675,11 @@ class ExecutionEngine(ABC):
             for n in updated_clusters
             if n.enabled(execution_context.incoming_edge_tokens[n], self)
         ]
+
+        # clear candidate clusters for enabled nodes
+        for n in enabled_nodes:
+            self.candidate_clusters[n.identity] = []
+
         enabled_nodes.sort(
             key=lambda x: x.identity
         )  # Avoid any ordering non-determinism
@@ -695,6 +723,10 @@ class ExecutionEngine(ABC):
                 l.error(
                     f"Could Not Process {record.name if record.name else record.identity}: {e}"
                 )
+        if self.track_samples and isinstance(
+            record.node.lookup(), uml.CallBehaviorAction
+        ):
+            self.prov_observer.update(record)
 
     def write_data_templates(
         self,
@@ -725,16 +757,16 @@ class ExecutionEngine(ABC):
 
         path = os.path.join(self.out_dir, f"{self.dataset_file}.xlsx")
 
+        for sd in sample_data:
+            sheet_name = f"{record.node.lookup().behavior.lookup().display_id}_data_{self.data_id}"
+            sd.update_data_sheet(path, sheet_name, sample_format=self.sample_format)
+            self.data_id += 1
+
         for dataset in datasets:
             sheet_name = f"{record.node.lookup().behavior.lookup().display_id}_dataset_{self.data_id}"
             dataset.update_data_sheet(
                 path, sheet_name, sample_format=self.sample_format
             )
-            self.data_id += 1
-
-        for sd in sample_data:
-            sheet_name = f"{record.node.lookup().behavior.lookup().display_id}_data_{self.data_id}"
-            sd.update_data_sheet(path, sheet_name, sample_format=self.sample_format)
             self.data_id += 1
 
 

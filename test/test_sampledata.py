@@ -16,7 +16,7 @@ import labop
 import uml
 from labop import Protocol
 from labop.execution_engine import ExecutionEngine
-from labop.utils.helpers import file_diff
+from labop.utils.helpers import file_diff, initialize_protocol
 from labop.utils.plate_coordinates import get_sample_list
 
 OUT_DIR = os.path.join(os.path.dirname(__file__), "out")

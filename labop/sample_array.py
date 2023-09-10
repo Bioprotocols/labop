@@ -39,18 +39,43 @@ class SampleArray(inner.SampleArray, SampleCollection):
             f"SampleArray does not contain initial contents named {sample_name}"
         )
 
+    def new_sample_id(self) -> str:
+        if not hasattr(self, "sample_counter"):
+            self.sample_counter = 0
+
+        id = self.sample_counter
+        self.sample_counter += 1
+        return f"{Strings.SAMPLE}_{self.name}_{id}"
+
     def empty(self, geometry=None, sample_format=Strings.XARRAY):
-        samples = get_sample_list(geometry) if geometry else []
+        locations = get_sample_list(geometry) if geometry else []
+        samples = [self.new_sample_id() for l in locations]
 
         if sample_format == Strings.XARRAY:
-            sample_array = xr.DataArray(
-                samples,
-                name=self.identity,
-                dims=(Strings.SAMPLE),
-                coords={Strings.SAMPLE: samples},
+            sample_array = xr.Dataset(
+                {
+                    Strings.CONTENTS: xr.DataArray(
+                        [[[]] * len(locations)],
+                        dims=(
+                            Strings.CONTAINER,
+                            Strings.LOCATION,
+                            Strings.REAGENT,
+                        ),
+                    ),
+                    Strings.SAMPLE_LOCATION: xr.DataArray(
+                        [samples],
+                        dims=(Strings.CONTAINER, Strings.LOCATION),
+                    ),
+                },
+                coords={
+                    Strings.SAMPLE: samples,
+                    Strings.REAGENT: [],
+                    Strings.CONTAINER: [self.container_type],
+                    Strings.LOCATION: locations,
+                },
             )
         elif sample_format == Strings.JSON:
-            sample_array = {s: None for s in samples}
+            sample_array = {s: None for s in locations}
         else:
             raise Exception(
                 f"Cannot initialize contents of sample_format: {sample_format}"
@@ -58,7 +83,7 @@ class SampleArray(inner.SampleArray, SampleCollection):
         self.initial_contents = serialize_sample_format(sample_array)
         return sample_array
 
-    def to_data_array(self, sample_format=Strings.XARRAY):
+    def to_data_array(self, sample_format=Strings.XARRAY, order=Strings.ROW_DIRECTION):
         if not hasattr(self, "initial_contents") or self.initial_contents is None:
             sample_array = self.empty(sample_format=sample_format)
         else:
@@ -77,16 +102,20 @@ class SampleArray(inner.SampleArray, SampleCollection):
                 masked_array = mask.to_data_array(sample_format=sample_format)
             else:
                 mask_coordinates = get_sample_list(mask)
-                mask_array = xr.DataArray(
-                    [
-                        m in mask_coordinates
-                        for m in initial_contents_array[Strings.SAMPLE].data
-                    ],
-                    name="mask",
-                    dims=("sample"),
-                    coords={"sample": initial_contents_array[Strings.SAMPLE].data},
+                # Mask the data variables
+                mask_array = initial_contents_array.where(
+                    initial_contents_array.location.isin(mask_coordinates),
+                    drop=True,
                 )
-                masked_array = initial_contents_array.where(mask_array, drop=True)
+                # Remove unused coordinates
+                masked_array = mask_array.assign_coords(
+                    {
+                        Strings.SAMPLE: mask_array.sample.where(
+                            mask_array.sample.isin(mask_array.sample_location),
+                            drop=True,
+                        )
+                    }
+                )
             return masked_array
         else:
             raise Exception(
@@ -120,7 +149,7 @@ class SampleArray(inner.SampleArray, SampleCollection):
             return self.to_dict(Strings.JSON).values()
         elif sample_format == Strings.XARRAY:
             initial_contents = self.to_data_array()
-            return [c for c in initial_contents[Strings.SAMPLE].data]
+            return [c for c in initial_contents[Strings.LOCATION].data]
         else:
             raise ValueError(f"Unsupported sample format: {self.sample_format}")
 
@@ -141,11 +170,20 @@ class SampleArray(inner.SampleArray, SampleCollection):
         sample_array = SampleArray(container_type=container_type)
 
         if (
-            container_type.queryString
+            hasattr(container_type, "queryString")
+            and container_type.queryString is not None
+            and container_type.queryString
             == "cont:Opentrons24TubeRackwithEppendorf1.5mLSafe-LockSnapcap"
         ):
             geometry = "A1:C8"
-        elif container_type.queryString == "cont:StockReagent":
+        elif (
+            hasattr(container_type, "queryString")
+            and container_type.queryString is not None
+            and (
+                container_type.queryString.startswith("cont:StockReagent")
+                or container_type.queryString == "cont:WasteContainer"
+            )
+        ):
             geometry = "A1"
         else:
             geometry = "A1:H12"
@@ -154,6 +192,7 @@ class SampleArray(inner.SampleArray, SampleCollection):
             geometry=geometry, sample_format=sample_format
         )
         sample_array.initial_contents = serialize_sample_format(initial_contents)
+        sample_array.container_type = container_type
         return sample_array
 
     def plot(self, out_dir="out"):
@@ -175,7 +214,7 @@ class SampleArray(inner.SampleArray, SampleCollection):
     def sample_coordinates(self, sample_format=Strings.XARRAY, as_list=False):
         sample_array = deserialize_sample_format(self.initial_contents, parent=self)
         if sample_format == Strings.XARRAY:
-            coords = sample_array.coords[Strings.SAMPLE].data.tolist()
+            coords = sample_array.coords[Strings.LOCATION].data.tolist()
             return contiguous_coordinates(coords) if not as_list else coords
         else:
             return sample_array
@@ -187,6 +226,14 @@ class SampleArray(inner.SampleArray, SampleCollection):
         :return: str
         """
         return f"SampleArray(name={self.name}, container_type={self.container_type}, initial_contents={self.initial_contents})"
+
+    def __repr__(self):
+        """
+        Create a human readable string for a SampleArray.
+        :param self:
+        :return: str
+        """
+        return self.__str__()
 
     def plot(self):
         """

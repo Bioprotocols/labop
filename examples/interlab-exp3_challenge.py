@@ -686,6 +686,7 @@ ee = ExecutionEngine(
     specializations=[MarkdownSpecialization("test_LUDOX_markdown.md")],
     failsafe=False,
     sample_format="json",
+    track_samples=False,
 )
 execution = ee.execute(activity, agent, id="test_execution", parameter_values=[])
 render_kit_coordinates_table(execution)

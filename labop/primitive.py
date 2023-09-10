@@ -314,7 +314,7 @@ class Primitive(inner.Primitive, Behavior):
             wl = input_map["wavelength"]
 
             measurements = LabInterface.measure_absorbance(
-                samples.get_coordinates(sample_format), wl.value, sample_format
+                samples, wl.value, sample_format
             )
             name = f"{self.display_id}.{parameter.name}.{get_short_uuid(call_behavior_execution_hash+hash(parameter))}"
             sample_data = SampleData(
@@ -339,7 +339,7 @@ class Primitive(inner.Primitive, Behavior):
             bandpass = input_map["emissionBandpassWidth"]
 
             measurements = LabInterface.measure_fluorescence(
-                samples.get_coordinates(sample_format),
+                samples,
                 exwl.value,
                 emwl.value,
                 bandpass.value,
@@ -404,17 +404,44 @@ class Primitive(inner.Primitive, Behavior):
             parameter.name == "metadata"
             and parameter.type == "http://bioprotocols.org/labop#SampleMetadata"
         ):
-            raise NotImplementedError(
-                f"Automatic metadata computation is not implemented yet."
+            for_samples = input_map["for_samples"]
+            metadata = labop.SampleMetadata.from_sample_graph(for_samples, engine)
+            return metadata
+
+    def transfer_by_map_compute_output(
+        self,
+        inputs,
+        parameter,
+        sample_format,
+    ):
+        if (
+            parameter.name == "sourceResult"
+            and parameter.type == "http://bioprotocols.org/labop#SampleCollection"
+        ):
+            source = input_map["source"]
+            target = input_map["destination"]
+            plan = input_map["plan"]
+            spec = source.container_type
+            contents = self.transfer_out(source, target, plan, sample_format)
+            name = f"{parameter.name}"
+            result = labop.SampleArray(
+                name=name, container_type=spec, contents=contents
             )
-            # input_map = input_parameter_map(inputs)
-            # for_samples = input_map["for_samples"]
-            # samples = for_samples.to_data_array()
-            # trajectory_graph.metadata(samples, tick)
-            # metadata = SampleMetadata.from_excel(
-            #     filename, for_samples, sample_format=sample_format
-            # )
-            # return metadata
+        elif (
+            parameter.name == "destinationResult"
+            and parameter.type == "http://bioprotocols.org/labop#SampleCollection"
+        ):
+            input_map = input_parameter_map(inputs)
+            source = input_map["source"]
+            target = input_map["destination"]
+            plan = input_map["plan"]
+            spec = source.container_type
+            contents = self.transfer_in(source, target, plan, sample_format)
+            name = f"{parameter.name}"
+            result = labop.SampleArray(
+                name=name, container_type=spec, contents=contents
+            )
+        return result
 
     primitive_to_output_function = {
         "EmptyContainer": empty_container_compute_output,
@@ -427,6 +454,7 @@ class Primitive(inner.Primitive, Behavior):
         "JoinMetadata": join_metadata_compute_output,
         "JoinDatasets": join_datasets_compute_output,
         "ExcelMetadata": excel_metadata_compute_output,
+        "ComputeMetadata": compute_metadata_compute_output,
     }
 
     def initialize_primitive_compute_output(doc: sbol3.Document):

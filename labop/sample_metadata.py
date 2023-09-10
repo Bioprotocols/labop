@@ -99,10 +99,8 @@ class SampleMetadata(inner.SampleMetadata):
 
             # Create new metadata for each input to primitive, aside from for_samples
             inputs_meta = {
-                k: xr.DataArray(
-                    [v.identity] * len(sample_array.coords[Strings.SAMPLE]),
-                    dims=Strings.SAMPLE,
-                    coords={Strings.SAMPLE: sample_array.coords[Strings.SAMPLE]},
+                k: sample_array.sample_location.where(
+                    sample_array.sample_location.isnull(), v.identity
                 )
                 for k, v in inputs.items()
                 if v != for_samples
@@ -127,3 +125,30 @@ class SampleMetadata(inner.SampleMetadata):
 
     def to_dataarray(self):
         return deserialize_sample_format(self.descriptions, parent=self)
+
+    def from_sample_graph(for_samples, engine, record_source=False):
+        metadata = labop.SampleMetadata(for_samples=for_samples)
+
+        if engine.sample_format == Strings.XARRAY:
+            # Convert pd.DataFrame into xr.DataArray
+            samples = for_samples.to_data_array()
+
+            # Get most current sample in each container/location apppearing in samples
+            metadata_array = engine.prov_observer.select_samples_from_graph(
+                samples
+            ).reset_coords(drop=True)
+            if record_source:
+                metadata_array = metadata_array.expand_dims(
+                    {"source": [metadata.identity]}
+                )  # Will be replaced when deserilialized by parent.identity
+            metadata.descriptions = serialize_sample_format(metadata_array)
+
+            # The metadata_array is now a 2D xr.DataArray with dimensions (sample, metadata)
+            # The sample coordinates are sample ids, and the metadata coordinates are metadata attributes
+            # The name is the identity of the labop.SampleMetadata holding the metadata_array
+        else:
+            raise NotImplementedError(
+                f"Cannot represent Excel SampleMetadata as sample_format: {sample_format}"
+            )
+
+        return metadata

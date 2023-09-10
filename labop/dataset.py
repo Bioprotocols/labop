@@ -73,8 +73,19 @@ class Dataset(inner.Dataset):
                 if var_obj is not None:
                     var_map[var] = str(var_obj.name)
                 values = dataset[var]
-                if values.dtype.str == "<U102" or values.dtype.str == "|O":
-                    unique_values = set(values.data.tolist())
+                if (
+                    values.dtype.str == "<U102"
+                    or values.dtype.str == "|O"
+                    or values.dtype.str == "<U95"
+                ):
+                    # unique_values = set(
+                    #     values.stack(i=values.coords._names)
+                    #     .dropna("i")
+                    #     .data.tolist()
+                    # )
+                    unique_values = np.unique(
+                        dataset[var].dropna(dim=Strings.LOCATION).data
+                    ).tolist()
                     for old in unique_values:
                         val_obj = self.document.find(old)
                         if val_obj is not None:
@@ -83,6 +94,13 @@ class Dataset(inner.Dataset):
                     dataset = dataset.assign({var: values})
 
             dataset = dataset.rename(var_map)
+            for c in dataset.coords._names:
+                unique_values = np.unique(dataset[c].data).tolist()
+                for old in unique_values:
+                    val_obj = self.document.find(old)
+                    if val_obj is not None:
+                        new = str(val_obj)
+                        dataset[c] = dataset[c].str.replace(old, str(new))
             return dataset
         else:
             return dataset
@@ -100,4 +118,61 @@ class Dataset(inner.Dataset):
             with pd.ExcelWriter(
                 data_file_path, mode=mode, engine="openpyxl", **kwargs
             ) as writer:
-                dataset.to_dataframe().to_excel(writer, sheet_name=sheet_name)
+                drop_list = [x for x in ["reagent", "sample", "node"] if x in dataset]
+                if "contents" in dataset:
+                    contents_df = (
+                        dataset.contents.to_dataset("reagent")
+                        .to_dataframe()
+                        .reset_index()
+                        .set_index(["container", "location"])
+                    )
+                    drop_list += ["contents"]
+                else:
+                    contents_df = None
+                if "sample_location" in dataset:
+                    sample_df = (
+                        dataset.sample_location.to_dataset()
+                        .to_dataframe()
+                        .reset_index()
+                        .set_index(["container", "location"])
+                    )
+                    drop_list += ["sample_location"]
+                else:
+                    sample_df = None
+                meta_df = (
+                    dataset.drop(drop_list)
+                    .to_dataframe()
+                    .reset_index()
+                    .set_index(["container", "location"])
+                )
+                all_df = (
+                    meta_df.join(
+                        (
+                            contents_df.join(
+                                sample_df,
+                                lsuffix="_contents",
+                                rsuffix="_sample",
+                            )
+                            if sample_df is not None
+                            else contents_df
+                        ),
+                        lsuffix="meta",
+                    )
+                    if contents_df is not None
+                    else meta_df
+                )
+                all_df.reset_index().to_excel(writer, sheet_name=sheet_name)
+                # if Strings.CONTENTS in dataset:
+                #     dataset.contents.to_dataset(
+                #         Strings.REAGENT
+                #     ).to_dataframe().reset_index().to_excel(
+                #         writer, sheet_name=sheet_name
+                #     )
+                # else:
+                #     dataset.to_array().transpose("container", "location", ...).drop(
+                #         ["reagent", "sample"]
+                #     ).to_dataset(
+                #         "variable", "contents"
+                #     ).to_dataframe().reset_index().to_excel(
+                #         writer, sheet_name=sheet_name
+                #     )

@@ -22,12 +22,8 @@ class SampleData(inner.SampleData):
         if sample_format == "xarray":
             from_samples = self.from_samples.lookup()
             sample_array = from_samples.to_data_array(sample_format=sample_format)
-            sample_data = xr.DataArray(
-                [nan] * len(sample_array[Strings.SAMPLE]),
-                name=self.identity,
-                dims=(Strings.SAMPLE),
-                coords={Strings.SAMPLE: sample_array.coords[Strings.SAMPLE].data},
-            )
+            sample_data = fs.sample_location.where(fs.sample_location.isnull(), nan)
+            sample_data.name = self.identity
             self.values = serialize_sample_format(sample_data)
         else:
             raise NotImplementedError()
@@ -87,7 +83,7 @@ class SampleData(inner.SampleData):
                 try:
                     data_df = pd.read_excel(data_file_path, sheet_name=sheet_name)
                     # Assume that first column is the sample index
-                    data_df = data_df.set_index(data_df.columns[0])
+                    data_df = data_df.set_index([Strings.CONTAINER, Strings.LOCATION])
                     if sample_format == Strings.XARRAY:
                         # Convert pd.DataFrame into xr.DataArray
                         sample_data_array = xr.Dataset.from_dataframe(data_df)[
@@ -102,6 +98,10 @@ class SampleData(inner.SampleData):
                             or (sample_data_array == sample_array).all()
                         )
                         if changed:
+                            # reverse humanized coordinates
+                            sample_data_array = sample_data_array.assign_coords(
+                                self.to_data_array().coords
+                            )
                             sample_array = sample_data_array
                             self.values = serialize_sample_format(sample_array)
 
@@ -119,7 +119,9 @@ class SampleData(inner.SampleData):
                 with pd.ExcelWriter(
                     data_file_path, mode=mode, engine="openpyxl", **kwargs
                 ) as writer:
-                    sample_array.to_dataframe().to_excel(writer, sheet_name=sheet_name)
+                    sample_array.to_dataframe().reset_index().to_excel(
+                        writer, sheet_name=sheet_name
+                    )
 
     def humanize(self, sample_format=Strings.XARRAY):
         # rename all dataset variables to human readible names
@@ -134,6 +136,7 @@ class SampleData(inner.SampleData):
             if var_obj is not None:
                 sample_array.name = str(var_obj.name)
 
+            # humanize the data
             if sample_array.dtype.str == "<U102" or sample_array.dtype.str == "|O":
                 unique_values = set(sample_array.data.tolist())
                 for old in unique_values:
@@ -141,6 +144,13 @@ class SampleData(inner.SampleData):
                     if val_obj is not None:
                         new = str(val_obj)
                         sample_array = sample_array.str.replace(old, str(new))
+                for c in sample_array.coords:
+                    unique_values = set(sample_array[c].data.tolist())
+                    for old in unique_values:
+                        val_obj = self.document.find(old)
+                        if val_obj is not None:
+                            new = str(val_obj)
+                            sample_array[c] = sample_array[c].str.replace(old, str(new))
             return sample_array
         else:
             return sample_array

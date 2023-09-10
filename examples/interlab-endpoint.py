@@ -628,6 +628,7 @@ agent = sbol3.Agent("test_agent")
 ee = ExecutionEngine(
     specializations=[MarkdownSpecialization("test_LUDOX_markdown.md")],
     failsafe=False,
+    track_samples=False,
     sample_format="json",
 )
 execution = ee.execute(activity, agent, id="test_execution", parameter_values=[])

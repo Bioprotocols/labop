@@ -1,0 +1,202 @@
+digraph _root {
+	compound=true
+	subgraph _root {
+		compound=true
+		subgraph _root {
+			compound=true
+			subgraph _root {
+				compound=true
+				subgraph cluster_Resuspend {
+					graph [shape=box]
+					Resuspend_ActivityParameterNode3 -> Resuspend_CallBehaviorAction1:InputPin6 [color=black]
+					Resuspend_ForkNode1 -> Resuspend_CallBehaviorAction1:InputPin2 [color=black]
+					Resuspend_ActivityParameterNode1 -> Resuspend_CallBehaviorAction1:InputPin1 [color=black]
+					Resuspend_InitialNode1 -> Resuspend_CallBehaviorAction1:"node" [color=blue]
+					Resuspend_ActivityParameterNode2 -> Resuspend_ForkNode1 [color=black]
+					Resuspend_ForkNode1 -> Resuspend_CallBehaviorAction2:InputPin1 [color=black]
+					Resuspend_CallBehaviorAction1:"node" -> Resuspend_CallBehaviorAction2:"node" [color=blue]
+					Resuspend_CallBehaviorAction2:"node" -> Resuspend_FinalNode1 [color=blue]
+					Resuspend_ActivityParameterNode1 [label=source fillcolor=black peripheries=2 shape=rectangle]
+					Resuspend_ActivityParameterNode2 [label=destination fillcolor=black peripheries=2 shape=rectangle]
+					Resuspend_ActivityParameterNode3 [label=amount fillcolor=black peripheries=2 shape=rectangle]
+					Resuspend_CallBehaviorAction1 [label=<<table border="0" cellspacing="0">
+  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="InputPin1" border="1">source</td><td> </td><td port="InputPin2" border="1">destination</td><td> </td><td port="InputPin6" border="1">amount</td><td> </td><td> </td></tr></table></td></tr>
+  <tr><td port="node" bgcolor="white" border="1">Transfer</td></tr>
+</table>> fillcolor=white shape=none style=rounded]
+					Resuspend_InitialNode1 [label="" fillcolor=black shape=circle style=filled]
+					Resuspend_CallBehaviorAction2 [label=<<table border="0" cellspacing="0">
+  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="InputPin1" border="1">samples</td><td> </td><td port="ValuePin1" border="1">duration: 30.0 second</td><td> </td><td> </td></tr></table></td></tr>
+  <tr><td port="node" bgcolor="white" border="1">Vortex</td></tr>
+</table>> fillcolor=white shape=none style=rounded]
+					Resuspend_ForkNode1 [label="" fillcolor=black height=0.02 shape=rectangle style=filled]
+					Resuspend_FinalNode1 [label="" fillcolor=black shape=doublecircle style=filled]
+				}
+			}
+			subgraph cluster_PrepareSolution {
+				graph [shape=box]
+				PrepareSolution_ActivityParameterNode1 -> PrepareSolution_CallBehaviorAction1:InputPin1 [color=black]
+				PrepareSolution_InitialNode1 -> PrepareSolution_CallBehaviorAction1:"node" [color=blue]
+				PrepareSolution_ActivityParameterNode3 -> PrepareSolution_CallBehaviorAction2:InputPin3 [color=black]
+				PrepareSolution_ForkNode1 -> PrepareSolution_CallBehaviorAction2:InputPin2 [color=black]
+				PrepareSolution_ActivityParameterNode2 -> PrepareSolution_CallBehaviorAction2:InputPin1 [color=black]
+				PrepareSolution_CallBehaviorAction1:"node" -> PrepareSolution_CallBehaviorAction2:"node" [color=blue]
+				PrepareSolution_ActivityParameterNode5 -> PrepareSolution_CallBehaviorAction3:InputPin3 [color=black]
+				PrepareSolution_CallBehaviorAction1:OutputPin1 -> PrepareSolution_ForkNode1 [color=black]
+				PrepareSolution_ForkNode1 -> PrepareSolution_CallBehaviorAction3:InputPin2 [color=black]
+				PrepareSolution_ActivityParameterNode6 -> PrepareSolution_CallBehaviorAction3:InputPin1 [color=black]
+				PrepareSolution_CallBehaviorAction2:"node" -> PrepareSolution_CallBehaviorAction3:"node" [color=blue]
+				PrepareSolution_ForkNode1 -> PrepareSolution_ActivityParameterNode7 [color=black]
+				PrepareSolution_CallBehaviorAction3:"node" -> PrepareSolution_FinalNode1 [color=blue]
+				PrepareSolution_ActivityParameterNode1 [label=specification fillcolor=black peripheries=2 shape=rectangle]
+				PrepareSolution_ActivityParameterNode2 [label=reagent fillcolor=black peripheries=2 shape=rectangle]
+				PrepareSolution_ActivityParameterNode3 [label=reagent_mass fillcolor=black peripheries=2 shape=rectangle]
+				PrepareSolution_ActivityParameterNode4 [label=buffer fillcolor=black peripheries=2 shape=rectangle]
+				PrepareSolution_ActivityParameterNode5 [label=buffer_volume fillcolor=black peripheries=2 shape=rectangle]
+				PrepareSolution_ActivityParameterNode6 [label=buffer_container fillcolor=black peripheries=2 shape=rectangle]
+				PrepareSolution_CallBehaviorAction1 [label=<<table border="0" cellspacing="0">
+  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="InputPin1" border="1">specification</td><td> </td><td> </td></tr></table></td></tr>
+  <tr><td port="node" bgcolor="white" border="1">EmptyContainer</td></tr>
+  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="OutputPin1" border="1">samples</td><td> </td></tr></table></td></tr>
+</table>> fillcolor=white shape=none style=rounded]
+				PrepareSolution_InitialNode1 [label="" fillcolor=black shape=circle style=filled]
+				PrepareSolution_CallBehaviorAction2 [label=<<table border="0" cellspacing="0">
+  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="InputPin1" border="1">resource</td><td> </td><td port="InputPin2" border="1">destination</td><td> </td><td port="InputPin3" border="1">amount</td><td> </td><td> </td></tr></table></td></tr>
+  <tr><td port="node" bgcolor="white" border="1">Provision</td></tr>
+</table>> fillcolor=white shape=none style=rounded]
+				PrepareSolution_CallBehaviorAction3 [label=<<table border="0" cellspacing="0">
+  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="InputPin1" border="1">source</td><td> </td><td port="InputPin2" border="1">destination</td><td> </td><td port="InputPin3" border="1">amount</td><td> </td><td> </td></tr></table></td></tr>
+  <tr><td port="node" bgcolor="white" border="1">Resuspend</td></tr>
+</table>> fillcolor=white shape=none style=rounded]
+				PrepareSolution_ForkNode1 [label="" fillcolor=black height=0.02 shape=rectangle style=filled]
+				PrepareSolution_ActivityParameterNode7 [label=samples fillcolor=black peripheries=2 shape=rectangle]
+				PrepareSolution_FinalNode1 [label="" fillcolor=black shape=doublecircle style=filled]
+			}
+		}
+		subgraph _root {
+			compound=true
+			subgraph _root {
+				compound=true
+				subgraph cluster_Resuspend {
+					graph [shape=box]
+					Resuspend_ActivityParameterNode3 -> Resuspend_CallBehaviorAction1:InputPin6 [color=black]
+					Resuspend_ForkNode1 -> Resuspend_CallBehaviorAction1:InputPin2 [color=black]
+					Resuspend_ActivityParameterNode1 -> Resuspend_CallBehaviorAction1:InputPin1 [color=black]
+					Resuspend_InitialNode1 -> Resuspend_CallBehaviorAction1:"node" [color=blue]
+					Resuspend_ActivityParameterNode2 -> Resuspend_ForkNode1 [color=black]
+					Resuspend_ForkNode1 -> Resuspend_CallBehaviorAction2:InputPin1 [color=black]
+					Resuspend_CallBehaviorAction1:"node" -> Resuspend_CallBehaviorAction2:"node" [color=blue]
+					Resuspend_CallBehaviorAction2:"node" -> Resuspend_FinalNode1 [color=blue]
+					Resuspend_ActivityParameterNode1 [label=source fillcolor=black peripheries=2 shape=rectangle]
+					Resuspend_ActivityParameterNode2 [label=destination fillcolor=black peripheries=2 shape=rectangle]
+					Resuspend_ActivityParameterNode3 [label=amount fillcolor=black peripheries=2 shape=rectangle]
+					Resuspend_CallBehaviorAction1 [label=<<table border="0" cellspacing="0">
+  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="InputPin1" border="1">source</td><td> </td><td port="InputPin2" border="1">destination</td><td> </td><td port="InputPin6" border="1">amount</td><td> </td><td> </td></tr></table></td></tr>
+  <tr><td port="node" bgcolor="white" border="1">Transfer</td></tr>
+</table>> fillcolor=white shape=none style=rounded]
+					Resuspend_InitialNode1 [label="" fillcolor=black shape=circle style=filled]
+					Resuspend_CallBehaviorAction2 [label=<<table border="0" cellspacing="0">
+  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="InputPin1" border="1">samples</td><td> </td><td port="ValuePin1" border="1">duration: 30.0 second</td><td> </td><td> </td></tr></table></td></tr>
+  <tr><td port="node" bgcolor="white" border="1">Vortex</td></tr>
+</table>> fillcolor=white shape=none style=rounded]
+					Resuspend_ForkNode1 [label="" fillcolor=black height=0.02 shape=rectangle style=filled]
+					Resuspend_FinalNode1 [label="" fillcolor=black shape=doublecircle style=filled]
+				}
+			}
+			subgraph cluster_PrepareSolution {
+				graph [shape=box]
+				PrepareSolution_ActivityParameterNode1 -> PrepareSolution_CallBehaviorAction1:InputPin1 [color=black]
+				PrepareSolution_InitialNode1 -> PrepareSolution_CallBehaviorAction1:"node" [color=blue]
+				PrepareSolution_ActivityParameterNode3 -> PrepareSolution_CallBehaviorAction2:InputPin3 [color=black]
+				PrepareSolution_ForkNode1 -> PrepareSolution_CallBehaviorAction2:InputPin2 [color=black]
+				PrepareSolution_ActivityParameterNode2 -> PrepareSolution_CallBehaviorAction2:InputPin1 [color=black]
+				PrepareSolution_CallBehaviorAction1:"node" -> PrepareSolution_CallBehaviorAction2:"node" [color=blue]
+				PrepareSolution_ActivityParameterNode5 -> PrepareSolution_CallBehaviorAction3:InputPin3 [color=black]
+				PrepareSolution_CallBehaviorAction1:OutputPin1 -> PrepareSolution_ForkNode1 [color=black]
+				PrepareSolution_ForkNode1 -> PrepareSolution_CallBehaviorAction3:InputPin2 [color=black]
+				PrepareSolution_ActivityParameterNode6 -> PrepareSolution_CallBehaviorAction3:InputPin1 [color=black]
+				PrepareSolution_CallBehaviorAction2:"node" -> PrepareSolution_CallBehaviorAction3:"node" [color=blue]
+				PrepareSolution_ForkNode1 -> PrepareSolution_ActivityParameterNode7 [color=black]
+				PrepareSolution_CallBehaviorAction3:"node" -> PrepareSolution_FinalNode1 [color=blue]
+				PrepareSolution_ActivityParameterNode1 [label=specification fillcolor=black peripheries=2 shape=rectangle]
+				PrepareSolution_ActivityParameterNode2 [label=reagent fillcolor=black peripheries=2 shape=rectangle]
+				PrepareSolution_ActivityParameterNode3 [label=reagent_mass fillcolor=black peripheries=2 shape=rectangle]
+				PrepareSolution_ActivityParameterNode4 [label=buffer fillcolor=black peripheries=2 shape=rectangle]
+				PrepareSolution_ActivityParameterNode5 [label=buffer_volume fillcolor=black peripheries=2 shape=rectangle]
+				PrepareSolution_ActivityParameterNode6 [label=buffer_container fillcolor=black peripheries=2 shape=rectangle]
+				PrepareSolution_CallBehaviorAction1 [label=<<table border="0" cellspacing="0">
+  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="InputPin1" border="1">specification</td><td> </td><td> </td></tr></table></td></tr>
+  <tr><td port="node" bgcolor="white" border="1">EmptyContainer</td></tr>
+  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="OutputPin1" border="1">samples</td><td> </td></tr></table></td></tr>
+</table>> fillcolor=white shape=none style=rounded]
+				PrepareSolution_InitialNode1 [label="" fillcolor=black shape=circle style=filled]
+				PrepareSolution_CallBehaviorAction2 [label=<<table border="0" cellspacing="0">
+  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="InputPin1" border="1">resource</td><td> </td><td port="InputPin2" border="1">destination</td><td> </td><td port="InputPin3" border="1">amount</td><td> </td><td> </td></tr></table></td></tr>
+  <tr><td port="node" bgcolor="white" border="1">Provision</td></tr>
+</table>> fillcolor=white shape=none style=rounded]
+				PrepareSolution_CallBehaviorAction3 [label=<<table border="0" cellspacing="0">
+  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="InputPin1" border="1">source</td><td> </td><td port="InputPin2" border="1">destination</td><td> </td><td port="InputPin3" border="1">amount</td><td> </td><td> </td></tr></table></td></tr>
+  <tr><td port="node" bgcolor="white" border="1">Resuspend</td></tr>
+</table>> fillcolor=white shape=none style=rounded]
+				PrepareSolution_ForkNode1 [label="" fillcolor=black height=0.02 shape=rectangle style=filled]
+				PrepareSolution_ActivityParameterNode7 [label=samples fillcolor=black peripheries=2 shape=rectangle]
+				PrepareSolution_FinalNode1 [label="" fillcolor=black shape=doublecircle style=filled]
+			}
+		}
+		subgraph cluster_PrepareReagents {
+			graph [shape=box]
+			PrepareReagents_InitialNode1 -> PrepareReagents_CallBehaviorAction1:"node" [color=blue]
+			PrepareReagents_ForkNode1 -> PrepareReagents_CallBehaviorAction2:InputPin1 [color=black]
+			PrepareReagents_CallBehaviorAction1:"node" -> PrepareReagents_CallBehaviorAction2:"node" [color=blue]
+			PrepareReagents_CallBehaviorAction1:OutputPin1 -> PrepareReagents_ForkNode1 [color=black]
+			PrepareReagents_ForkNode1 -> PrepareReagents_ActivityParameterNode1 [color=black]
+			PrepareReagents_CallBehaviorAction2:"node" -> PrepareReagents_CallBehaviorAction3:"node" [color=blue]
+			PrepareReagents_ForkNode2 -> PrepareReagents_CallBehaviorAction4:InputPin1 [color=black]
+			PrepareReagents_CallBehaviorAction3:"node" -> PrepareReagents_CallBehaviorAction4:"node" [color=blue]
+			PrepareReagents_CallBehaviorAction3:OutputPin1 -> PrepareReagents_ForkNode2 [color=black]
+			PrepareReagents_ForkNode2 -> PrepareReagents_ActivityParameterNode2 [color=black]
+			PrepareReagents_ForkNode2 -> PrepareReagents_CallBehaviorAction5:InputPin1 [color=black]
+			PrepareReagents_CallBehaviorAction4:"node" -> PrepareReagents_CallBehaviorAction5:"node" [color=blue]
+			PrepareReagents_CallBehaviorAction5:OutputPin1 -> PrepareReagents_ActivityParameterNode3 [color=black]
+			PrepareReagents_ForkNode1 -> PrepareReagents_CallBehaviorAction6:InputPin1 [color=black]
+			PrepareReagents_CallBehaviorAction5:"node" -> PrepareReagents_CallBehaviorAction6:"node" [color=blue]
+			PrepareReagents_CallBehaviorAction6:OutputPin1 -> PrepareReagents_ActivityParameterNode4 [color=black]
+			PrepareReagents_CallBehaviorAction6:"node" -> PrepareReagents_FinalNode1 [color=blue]
+			PrepareReagents_CallBehaviorAction1 [label=<<table border="0" cellspacing="0">
+  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="ValuePin1" border="1">specification: molecular grade H2O</td><td> </td><td> </td></tr></table></td></tr>
+  <tr><td port="node" bgcolor="white" border="1">EmptyContainer</td></tr>
+  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="OutputPin1" border="1">samples</td><td> </td></tr></table></td></tr>
+</table>> fillcolor=white shape=none style=rounded]
+			PrepareReagents_InitialNode1 [label="" fillcolor=black shape=circle style=filled]
+			PrepareReagents_CallBehaviorAction2 [label=<<table border="0" cellspacing="0">
+  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="ValuePin1" border="1">resource: Water, sterile-filtered, BioReagent, suitable for cell culture</td><td> </td><td port="InputPin1" border="1">destination</td><td> </td><td port="ValuePin2" border="1">amount: 12.0 milliliter</td><td> </td><td> </td></tr></table></td></tr>
+  <tr><td port="node" bgcolor="white" border="1">Provision</td></tr>
+</table>> fillcolor=white shape=none style=rounded]
+			PrepareReagents_ActivityParameterNode1 [label=ddh2o_container fillcolor=black peripheries=2 shape=rectangle]
+			PrepareReagents_ForkNode1 [label="" fillcolor=black height=0.02 shape=rectangle style=filled]
+			PrepareReagents_CallBehaviorAction3 [label=<<table border="0" cellspacing="0">
+  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="ValuePin1" border="1">specification: PBS</td><td> </td><td> </td></tr></table></td></tr>
+  <tr><td port="node" bgcolor="white" border="1">EmptyContainer</td></tr>
+  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="OutputPin1" border="1">samples</td><td> </td></tr></table></td></tr>
+</table>> fillcolor=white shape=none style=rounded]
+			PrepareReagents_CallBehaviorAction4 [label=<<table border="0" cellspacing="0">
+  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="ValuePin1" border="1">resource: Phosphate Buffered Saline</td><td> </td><td port="InputPin1" border="1">destination</td><td> </td><td port="ValuePin2" border="1">amount: 12.0 milliliter</td><td> </td><td> </td></tr></table></td></tr>
+  <tr><td port="node" bgcolor="white" border="1">Provision</td></tr>
+</table>> fillcolor=white shape=none style=rounded]
+			PrepareReagents_ActivityParameterNode2 [label=pbs_container fillcolor=black peripheries=2 shape=rectangle]
+			PrepareReagents_ForkNode2 [label="" fillcolor=black height=0.02 shape=rectangle style=filled]
+			PrepareReagents_CallBehaviorAction5 [label=<<table border="0" cellspacing="0">
+  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="ValuePin1" border="1">specification: Fluorescein calibrant</td><td> </td><td port="ValuePin2" border="1">reagent: Fluorescein</td><td> </td><td port="ValuePin3" border="1">reagent_mass: 5.6441 microgram</td><td> </td><td port="ValuePin4" border="1">buffer: Phosphate Buffered Saline</td><td> </td><td port="ValuePin5" border="1">buffer_volume: 1.5 milliliter</td><td> </td><td port="InputPin1" border="1">buffer_container</td><td> </td><td> </td></tr></table></td></tr>
+  <tr><td port="node" bgcolor="white" border="1">PrepareSolution</td></tr>
+  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="OutputPin1" border="1">samples</td><td> </td></tr></table></td></tr>
+</table>> fillcolor=white shape=none style=rounded]
+			PrepareReagents_ActivityParameterNode3 [label=fluorescein_standard_solution_container fillcolor=black peripheries=2 shape=rectangle]
+			PrepareReagents_CallBehaviorAction6 [label=<<table border="0" cellspacing="0">
+  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="ValuePin1" border="1">specification: microspheres</td><td> </td><td port="ValuePin2" border="1">reagent: NanoCym 950 nm monodisperse silica nanoparticles</td><td> </td><td port="ValuePin3" border="1">reagent_mass: 1.26 milligram</td><td> </td><td port="ValuePin4" border="1">buffer: Water, sterile-filtered, BioReagent, suitable for cell culture</td><td> </td><td port="ValuePin5" border="1">buffer_volume: 1.5 milliliter</td><td> </td><td port="InputPin1" border="1">buffer_container</td><td> </td><td> </td></tr></table></td></tr>
+  <tr><td port="node" bgcolor="white" border="1">PrepareSolution</td></tr>
+  <tr><td><table border="0" cellspacing="-2"><tr><td> </td><td port="OutputPin1" border="1">samples</td><td> </td></tr></table></td></tr>
+</table>> fillcolor=white shape=none style=rounded]
+			PrepareReagents_ActivityParameterNode4 [label=microsphere_standard_solution_container fillcolor=black peripheries=2 shape=rectangle]
+			PrepareReagents_FinalNode1 [label="" fillcolor=black shape=doublecircle style=filled]
+		}
+	}
+}

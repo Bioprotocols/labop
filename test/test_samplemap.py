@@ -1,34 +1,38 @@
+# Core packages
 import filecmp
 import logging
 import os
 import tempfile
 import unittest
 
+import sbol3
+import tyto
 import xarray as xr
 
 from labop import Protocol, Strings, serialize_sample_format
-from labop.utils.helpers import file_diff
-from labop_convert import DefaultBehaviorSpecialization
-
-xr.set_options(display_expand_data=False)
-
-import sbol3
-import tyto
-
-import labop
-import uml
+from labop.data import serialize_sample_format
 from labop.execution_engine import ExecutionEngine
+from labop.strings import Strings
+from labop.utils.helpers import file_diff
 from labop.utils.plate_coordinates import (
     coordinate_rect_to_row_col_pairs,
     coordinate_to_row_col,
     get_sample_list,
 )
+from labop_convert import DefaultBehaviorSpecialization
+from labop_convert.behavior_specialization import DefaultBehaviorSpecialization
+
+xr.set_options(display_expand_data=False)
+
+logger: logging.Logger = logging.getLogger("samplemap_protocol")
+
 
 OUT_DIR = os.path.join(os.path.dirname(__file__), "out")
 if not os.path.exists(OUT_DIR):
     os.mkdir(OUT_DIR)
 
 filename = "".join(__file__.split(".py")[0].split("/")[-1:])
+
 
 logger: logging.Logger = logging.Logger(__file__)
 logger.setLevel(logging.INFO)
@@ -68,91 +72,51 @@ class TestProtocolEndToEnd(unittest.TestCase):
         # Arbitrary volume to use in specifying the reagents in the container.
         default_volume = sbol3.Measure(600, tyto.OM.microliter)
 
-        source_array = labop.SampleArray(
-            name="source",
-            container_type=source_spec,
-            initial_contents=serialize_sample_format(
-                xr.DataArray(
-                    [
-                        [default_volume.value for reagent in reagents]
-                        for id in aliquot_ids
-                    ],
-                    name="source",
-                    dims=(Strings.SAMPLE, "contents"),
-                    attrs={"units": "uL"},
-                    coords={
-                        Strings.SAMPLE: aliquot_ids,
-                        "contents": [r.identity for r in reagents],
-                    },
-                )
-            ),
-        )
+        reagent_arrays = {
+            r: xr.DataArray(
+                [default_volume.value] * len(aliquot_ids), dims=(Strings.SAMPLE)
+            )
+            for r in reagents
+        }
 
         create_source = protocol.primitive_step(
             "EmptyContainer",
             specification=source_spec,
-            sample_array=source_array,
-        )
-
-        target_array = labop.SampleArray(
-            name="target",
-            container_type=target_spec,
-            initial_contents=serialize_sample_format(
-                xr.DataArray(
-                    [[0.0 for reagent in reagents] for id in aliquot_ids],
-                    name="target",
-                    dims=(Strings.SAMPLE, "contents"),
-                    attrs={"units": "uL"},
-                    coords={
-                        Strings.SAMPLE: aliquot_ids,
-                        "contents": [r.identity for r in reagents],
-                    },
-                )
-            ),
         )
 
         create_target = protocol.primitive_step(
             "EmptyContainer",
             specification=target_spec,
-            sample_array=target_array,
         )
 
         plan_mapping = serialize_sample_format(
             xr.DataArray(
                 [
                     [
-                        [
-                            [
-                                # f"{source_array}:{source_aliquot}->{target_array}:{target_aliquot}"
-                                # rand(0.0, 10.0)
-                                10.0
-                                for target_aliquot in aliquot_ids
-                            ]
-                            for target_array in [target_array.name]
-                        ]
+                        [[10.0 for target_aliquot in aliquot_ids]]
                         for source_aliquot in aliquot_ids
                     ]
-                    for source_array in [source_array.name]
                 ],
                 dims=(
-                    "source_array",
-                    "source_aliquot",
-                    "target_array",
-                    "target_aliquot",
+                    f"source_{Strings.CONTAINER}",
+                    f"source_{Strings.LOCATION}",
+                    f"target_{Strings.CONTAINER}",
+                    f"target_{Strings.LOCATION}",
                 ),
-                attrs={"units": "uL"},
                 coords={
-                    "source_array": [source_array.name],
-                    "source_aliquot": aliquot_ids,
-                    "target_array": [target_array.name],
-                    "target_aliquot": aliquot_ids,
+                    f"source_{Strings.CONTAINER}": [source_spec.name],
+                    f"source_{Strings.LOCATION}": aliquot_ids,
+                    f"target_{Strings.CONTAINER}": [target_spec.name],
+                    f"target_{Strings.LOCATION}": aliquot_ids,
                 },
             )
         )
 
         # The SampleMap specifies the sources and targets, along with the mappings.
         plan = labop.SampleMap(
-            sources=[source_array], targets=[target_array], values=plan_mapping
+            sources=[create_source.output_pin("samples")],
+            targets=[create_target.output_pin("samples")],
+            values=plan_mapping,
         )
 
         # The outputs of the create_source and create_target calls will be identical
@@ -189,6 +153,7 @@ class TestProtocolEndToEnd(unittest.TestCase):
         # where each timepoint is one second after the previous time point
         ee = ExecutionEngine(
             use_ordinal_time=True,
+            failsafe=False,
             out_dir=OUT_DIR,
             specializations=[
                 DefaultBehaviorSpecialization(),
@@ -208,7 +173,8 @@ class TestProtocolEndToEnd(unittest.TestCase):
         assert len(v) == 0, "".join(f"\n {e}" for e in v)
 
         temp_name = os.path.join(tempfile.gettempdir(), f"{filename}.nt")
-        doc.write(temp_name, sbol3.SORTED_NTRIPLES)
+        with open(temp_name, "w") as f:
+            f.write(doc.write_string(sbol3.SORTED_NTRIPLES).strip())
         print(f"Wrote file as {temp_name}")
 
         comparison_file = os.path.join(
@@ -216,13 +182,59 @@ class TestProtocolEndToEnd(unittest.TestCase):
             "testfiles",
             filename + ".nt",
         )
-        # doc.write(comparison_file, sbol3.SORTED_NTRIPLES)
+        # with open(comparison_file, "w") as f:
+        #     f.write(doc.write_string(sbol3.SORTED_NTRIPLES).strip())
         print(f"Comparing against {comparison_file}")
         diff = "".join(file_diff(comparison_file, temp_name))
         print(f"Difference:\n{diff}")
 
         assert filecmp.cmp(temp_name, comparison_file), "Files are not identical"
         print("File identical with test file")
+
+    def test_xarray_graph(self):
+        # Setup Nodes
+        current_samples = ["s1", "s2"]
+        next_samples = ["s3", "s4"]
+        current_vol = xr.DataArray(
+            [1.0, 3.0], dims=("volume"), coords={"volume": current_samples}
+        )
+        next_vol = xr.DataArray(
+            [2.0, 4.0], dims=("volume"), coords={"volume": next_samples}
+        )
+        all_vol = xr.concat([current_vol, next_vol], dim="volume")
+
+        # Setup Edges
+        edges = xr.DataArray(
+            [["s1", "s3"], ["s2", "s4"]],
+            dims=("edge", "node"),
+            coords={"node": ["source", "target"]},
+        )
+
+        # Make the graph
+        ds = xr.Dataset({"nodes": all_vol, "edges": edges})
+
+        # Extend the graph
+        new_nodes = xr.DataArray(
+            [4.0, 6.0], dims=("volume"), coords={"volume": ["s6", "s7"]}
+        )
+        new_edges = xr.DataArray(
+            [["s3", "s6"], ["s4", "s7"]],
+            dims=("edge", "node"),
+            coords={"node": ["source", "target"]},
+        )
+
+        nodes = xr.concat([ds.nodes, new_nodes], dim="volume")
+        edges = xr.concat([ds.edges, new_edges], dim="edge")
+
+        ds1 = xr.Dataset({"nodes": nodes, "edges": edges})
+
+        # Query the graph
+        t = ds1.edges.sel(node="target")
+        s = ds1.edges.sel(node="source")
+
+        # Get targets where the target is not in the sources
+        leaves = t.where(t.where(t.isin(s)).isnull(), drop=True)
+        pass
 
     def test_mask(self):
         self.assertNotEqual(
