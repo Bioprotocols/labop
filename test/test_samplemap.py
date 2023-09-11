@@ -9,8 +9,7 @@ import sbol3
 import tyto
 import xarray as xr
 
-from labop import Protocol, Strings, serialize_sample_format
-from labop.data import serialize_sample_format
+from labop import ContainerSpec, Protocol, SampleMap, Strings, serialize_sample_format
 from labop.execution_engine import ExecutionEngine
 from labop.strings import Strings
 from labop.utils.helpers import file_diff
@@ -62,10 +61,10 @@ class TestProtocolEndToEnd(unittest.TestCase):
         reagents = [reagent1, reagent2]
 
         # TODO ContainerSpec without parameters will refer to a logical container of unspecified size and geometry
-        source_spec = labop.ContainerSpec(
+        source_spec = ContainerSpec(
             "abstractPlateRequirement1", name="abstractPlateRequirement1"
         )
-        target_spec = labop.ContainerSpec(
+        target_spec = ContainerSpec(
             "abstractPlateRequirement2", name="abstractPlateRequirement2"
         )
 
@@ -113,7 +112,7 @@ class TestProtocolEndToEnd(unittest.TestCase):
         )
 
         # The SampleMap specifies the sources and targets, along with the mappings.
-        plan = labop.SampleMap(
+        plan = SampleMap(
             sources=[create_source.output_pin("samples")],
             targets=[create_target.output_pin("samples")],
             values=plan_mapping,

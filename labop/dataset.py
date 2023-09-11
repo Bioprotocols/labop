@@ -4,6 +4,7 @@ The Dataset class defines the functions corresponding to the dynamically generat
 
 import os
 
+import numpy as np
 import pandas as pd
 import xarray as xr
 

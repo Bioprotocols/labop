@@ -5,8 +5,7 @@ from abc import ABC
 
 import tyto
 
-from labop import ActivityNodeExecution, Protocol, ProtocolExecution
-from labop.data import new_sample_id
+from labop import Protocol, ProtocolExecution
 from uml import CallBehaviorAction
 
 l = logging.getLogger(__file__)
@@ -78,7 +77,7 @@ class BehaviorSpecialization(ABC):
             ) as f:
                 f.write(self.data)
 
-    def process(self, record, execution: labop.ProtocolExecution, timepoint="start"):
+    def process(self, record, execution: ProtocolExecution, timepoint="start"):
         try:
             node = record.node.lookup()
             if not isinstance(node, CallBehaviorAction):

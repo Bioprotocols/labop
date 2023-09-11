@@ -17,12 +17,7 @@ from tyto import OM
 # Project packages
 import uml
 from labop import ActivityNodeExecution, SampleArray, SampleCollection, SampleMap
-from labop.data import (
-    deserialize_sample_format,
-    sample_array_container_type,
-    serialize_sample_format,
-)
-from labop.primitive_execution import input_parameter_map
+from labop.data import deserialize_sample_format, serialize_sample_format
 from labop.strings import Strings
 
 
@@ -764,7 +759,7 @@ class EmptyContainerUpdater(BaseUpdater):
         # sample in the sample array.
 
         parameter_values = record.call.lookup().parameter_value_map()
-        samples = parameter_values["samples"]["value"]
+        samples = parameter_values["samples"]
 
         graph_addition = self.observer.time_stamp(samples.to_data_array())
 
@@ -789,15 +784,15 @@ class TransferByMapUpdater(BaseUpdater):
         #    next_source_contents:
 
         parameter_values = record.call.lookup().parameter_value_map()
-        # samples = parameter_values["samples"]["value"]
-        source_samples = parameter_values["source"]["value"]
+        # samples = parameter_values["samples"]
+        source_samples = parameter_values["source"]
         source_array = source_samples.to_data_array()
-        target_samples = parameter_values["destination"]["value"]
+        target_samples = parameter_values["destination"]
         target_array = target_samples.to_data_array()
-        source_name = parameter_values["source"]["value"].name
-        target_name = parameter_values["destination"]["value"].name
+        source_name = parameter_values["source"].name
+        target_name = parameter_values["destination"].name
 
-        transfer_plan = parameter_values["plan"]["value"].get_map()
+        transfer_plan = parameter_values["plan"].get_map()
 
         # Modify plan to refer to source_array and target_array
         source_containers = list(set(source_array[Strings.CONTAINER].data))
@@ -838,9 +833,9 @@ class ProvisionUpdater(BaseUpdater):
         # sample in the sample array.
 
         parameter_values = record.call.lookup().parameter_value_map()
-        resource = parameter_values["resource"]["value"]
-        amount = parameter_values["amount"]["value"]
-        destination = parameter_values["destination"]["value"]
+        resource = parameter_values["resource"]
+        amount = parameter_values["amount"]
+        destination = parameter_values["destination"]
         sample_array = self.observer.select_samples_from_graph(
             destination.to_data_array()
         )
@@ -939,9 +934,9 @@ class TransferUpdater(BaseUpdater):
         # sample in the sample array.
 
         parameter_values = record.call.lookup().parameter_value_map()
-        source = parameter_values["source"]["value"]
-        amount = parameter_values["amount"]["value"]
-        destination = parameter_values["destination"]["value"]
+        source = parameter_values["source"]
+        amount = parameter_values["amount"]
+        destination = parameter_values["destination"]
 
         standard_value, standard_units = self.observer.standardize(amount)
 
@@ -994,7 +989,7 @@ class VortexUpdater(BaseUpdater):
         # sample in the sample array.
 
         parameter_values = record.call.lookup().parameter_value_map()
-        samples = parameter_values["samples"]["value"]
+        samples = parameter_values["samples"]
 
         series_array = self.observer.select_samples_from_graph(
             samples.to_data_array(), graph=self.observer.graph
@@ -1019,9 +1014,9 @@ class SerialDilutionUpdater(BaseUpdater):
     def update(self, record: ActivityNodeExecution) -> xr.Dataset:
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
-        samples = parameter_value_map["samples"]["value"]
-        direction = parameter_value_map["direction"]["value"]
-        amount = parameter_value_map["amount"]["value"]
+        samples = parameter_value_map["samples"]
+        direction = parameter_value_map["direction"]
+        amount = parameter_value_map["amount"]
 
         sample_array = samples.to_data_array(order=direction)
         coordinates = sample_array.sample_location.stack(

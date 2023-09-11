@@ -12,6 +12,7 @@ from numpy import record
 
 from labop.behavior_execution import BehaviorExecution
 from labop.execution_context import ExecutionContext
+from labop.strings import Strings
 from labop_convert.behavior_dynamics import SampleProvenanceObserver
 from uml import ActivityNode, CallBehaviorAction
 from uml.activity import Activity
@@ -134,8 +135,18 @@ class ExecutionEngine(ABC):
 
             self.specializations = [DefaultBehaviorSpecialization()]
 
-        for specialization in specializations:
+        for specialization in self.specializations:
             specialization.engine = self
+
+        self.check_configuration()
+
+    def check_configuration(self):
+        # Ensure that when tracking samples, the sample format is XARRAY
+        if self.track_samples and self.sample_format != Strings.XARRAY:
+            l.warning(
+                f"Execution Engine is configured with 'track_samples=True', but the 'sample_format' {self.sample_format} is not supported.  Disabling 'track_samples'.  Try setting 'sample_format=\"XARRAY\"'."
+            )
+            self.track_samples = False
 
     def next_id(self):
         next = self.exec_counter
@@ -186,8 +197,6 @@ class ExecutionEngine(ABC):
         self.issues[id] = []
 
         if self.use_defined_primitives:
-            from labop.primitive_execution import initialize_primitive_compute_output
-
             # Define the compute_output function for known primitives
             Primitive.initialize_primitive_compute_output(doc)
 
@@ -723,9 +732,7 @@ class ExecutionEngine(ABC):
                 l.error(
                     f"Could Not Process {record.name if record.name else record.identity}: {e}"
                 )
-        if self.track_samples and isinstance(
-            record.node.lookup(), uml.CallBehaviorAction
-        ):
+        if self.track_samples and isinstance(record.node.lookup(), CallBehaviorAction):
             self.prov_observer.update(record)
 
     def write_data_templates(

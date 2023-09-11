@@ -494,12 +494,13 @@ class OT2Specialization(DefaultBehaviorSpecialization):
                 ]
 
     def plate_coordinates(self, record: ActivityNodeExecution, ex: ProtocolExecution):
-        call = record.get_call()
-        parameter_value_map = call.parameter_value_map()
-        source = parameter_value_map["source"]
-        coords = parameter_value_map["coordinates"]
-        samples = parameter_value_map["samples"]
-        samples.mask = coords
+        # call = record.get_call()
+        # parameter_value_map = call.parameter_value_map()
+        # source = parameter_value_map["source"]
+        # coords = parameter_value_map["coordinates"]
+        # samples = parameter_value_map["samples"]
+        # samples.mask = coords
+        pass
 
     def measure_absorbance(self, record: ActivityNodeExecution, ex: ProtocolExecution):
         call = record.get_call()

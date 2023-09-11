@@ -7,6 +7,7 @@ import labop.inner as inner
 from .utils import *
 from .parameter_value import *
 from .activity_node_execution import *
+from .sample_collection import *
 from .activity_edge_flow import *
 from .behavior_execution import *
 from .call_behavior_execution import *
@@ -17,7 +18,7 @@ from .primitive import *
 from .sample_map import *
 from .many_to_one_sample_map import *
 from .one_to_many_sample_map import *
-from .sample_maps import *
+from .sample_map import *
 
 from .protocol import *
 
@@ -29,7 +30,7 @@ from .lab_interface import *
 from .material import *
 from .primitive_array import *
 
-from .sample_collection import *
+
 from .sample_array import *
 from .sample_data import *
 
