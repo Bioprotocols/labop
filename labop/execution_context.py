@@ -146,15 +146,18 @@ class ExecutionContext(object):
 
                 # Now create pins for all the input values
                 for value in values:
+                    reference = False
                     if isinstance(value, sbol3.TopLevel) and not value.document:
                         activity.document.add(value)
+                    else:
+                        reference = True
                     value_pin = ValuePin(
-                        name=i.property_value.name,
-                        is_ordered=i.property_value.is_ordered,
-                        is_unique=i.property_value.is_unique,
-                        value=literal(value),
+                        name=i.name,
+                        is_ordered=i.is_ordered,
+                        is_unique=i.is_unique,
+                        value=literal(value, reference=reference),
                     )
-                    self.invoke_activity_node.get_inputs.append(value_pin)
+                    self.invoke_activity_node.get_inputs().append(value_pin)
                     self.call_pins.append(value_pin)  # FIXME remove?
 
                     # Connect to CallBehaviorAction

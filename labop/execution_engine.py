@@ -137,6 +137,7 @@ class ExecutionEngine(ABC):
 
         for specialization in self.specializations:
             specialization.engine = self
+            specialization.sample_format = self.sample_format
 
         self.check_configuration()
 
@@ -189,6 +190,7 @@ class ExecutionEngine(ABC):
         agent: sbol3.Agent,
         id: str = new_uuid(),
         parameter_values: List[ParameterValue] = {},
+        overwrite_execution: bool = False,
     ):
         # Record in the document containing the protocol
         doc = protocol.document
@@ -201,6 +203,9 @@ class ExecutionEngine(ABC):
             Primitive.initialize_primitive_compute_output(doc)
 
         # First, set up the record for the protocol and parameter values
+        if self.ex is not None and overwrite_execution:
+            del self.document.objects[self.document.objects.index(self.ex)]
+
         self.ex = ProtocolExecution(id, protocol=protocol)
         doc.add(self.ex)
 
@@ -219,7 +224,11 @@ class ExecutionEngine(ABC):
     ):
         self.ex.end_time = self.get_current_time()
 
-        self.ex.parameter_values += execution_context.get_parameter_values()
+        self.ex.parameter_values += [
+            pv
+            for pv in execution_context.get_parameter_values()
+            if pv not in self.ex.parameter_values
+        ]
 
         # A Protocol has completed normally if all of its required output parameters have values
         self.ex.completed_normally = set(
@@ -241,6 +250,7 @@ class ExecutionEngine(ABC):
         id: str = new_uuid(),
         start_time: datetime.datetime = None,
         execution_context=None,
+        overwrite_execution=False,  # When True, remove old execution if it exists
     ) -> ProtocolExecution:
         """Execute the given protocol against the provided parameters
 
@@ -256,11 +266,18 @@ class ExecutionEngine(ABC):
         -------
         ProtocolExecution containing a record of the execution
         """
+        protocol.remove_duplicates()  # FIXME needed because reading nt files with sbol3 results in duplicate initial and final nodes
         issues = protocol.is_well_formed()
         if len(issues) > 0:
             self.report_well_formedness_issues(issues)
 
-        self.initialize(protocol, agent, id, parameter_values)
+        self.initialize(
+            protocol,
+            agent,
+            id,
+            parameter_values=parameter_values,
+            overwrite_execution=overwrite_execution,
+        )
 
         if execution_context is None:
             execution_context = ExecutionContext(self.ex, protocol, parameter_values)

@@ -3,6 +3,7 @@ The Protocol class defines the functions corresponding to the dynamically genera
 """
 
 import logging
+from collections import Counter
 from typing import List, Tuple
 
 import sbol3
@@ -231,3 +232,24 @@ class Protocol(inner.Protocol, Activity):
             ]
 
         return issues
+
+    def remove_duplicates(self):
+        """
+        Remove duplicate nodes, preferring to remove those without edges
+        """
+        duplicates = {
+            n.identity: set({n1 for n1 in self.nodes if n1.identity == n.identity})
+            for n in self.nodes
+        }
+        for id, dup in duplicates.items():
+            if len(dup) > 1:
+                # Remove nodes that are not connected by an edge
+                targets = Counter(
+                    e.get_target() for e in self.edges if e.get_target() in dup
+                )
+                sources = Counter(
+                    e.get_source() for e in self.edges if e.get_source() in dup
+                )
+                dups_to_remove = [d for d in dup if targets[d] == 0 and sources[d] == 0]
+                for n in dups_to_remove:
+                    del self.nodes[self.nodes.index(n)]

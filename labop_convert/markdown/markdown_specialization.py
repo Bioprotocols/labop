@@ -473,7 +473,9 @@ class MarkdownSpecialization(DefaultBehaviorSpecialization):
         resource_str = f"[{resource.name}]({resource.types[0]})"
         destination_coordinates = ""
         if type(destination) == SampleMask:
-            destination_coordinates = f"({destination.mask})"
+            destination_coordinates = destination.sample_coordinates(
+                sample_format=self.sample_format
+            )
             destination = destination.source.lookup()
         destination_str_body = " ".join(
             [x for x in [destination.name, destination_coordinates] if x != ""]
