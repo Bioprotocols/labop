@@ -2,7 +2,7 @@
 The Material class defines the functions corresponding to the dynamically generated labop class Material
 """
 
-import labop.inner as inner
+from . import inner
 
 
 class Material(inner.Material):

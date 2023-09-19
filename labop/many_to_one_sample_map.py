@@ -4,8 +4,8 @@ The ManyToOneSampleMap class defines the functions corresponding to the dynamica
 
 import xarray as xr
 
-import labop.inner as inner
-from labop.sample_map import SampleMap
+from . import inner
+from .sample_map import SampleMap
 
 
 class ManyToOneSampleMap(inner.ManyToOneSampleMap, SampleMap):

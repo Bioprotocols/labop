@@ -3,8 +3,6 @@ import posixpath
 
 import sbol3
 
-from uml.utils import convert_to_outer_class
-
 loaded_libraries = {}
 
 

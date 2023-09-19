@@ -1,7 +1,7 @@
 import sbol3
 from typing import List
 from uml import assign_outer_class_builders
-import labop.inner as inner
+from . import inner
 
 
 from .utils import *

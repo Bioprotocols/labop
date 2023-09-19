@@ -1,5 +1,5 @@
 # import labop
-# from labop.lib.library_type_inference import primitive_type_inference_functions
+# from .lib.library_type_inference import primitive_type_inference_functions
 #
 # ##############################
 # # Class for carrying a typing process

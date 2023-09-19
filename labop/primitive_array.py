@@ -2,7 +2,7 @@
 The PrimitiveArray class defines the functions corresponding to the dynamically generated labop class PrimitiveArray
 """
 
-import labop.inner as inner
+from . import inner
 
 
 class PrimitiveArray(inner.PrimitiveArray):

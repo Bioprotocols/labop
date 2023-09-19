@@ -9,31 +9,27 @@ from typing import List
 import graphviz
 import sbol3
 
-import labop.inner as inner
-import uml
-from labop.execution_engine_utils import (
-    JSONProtocolExecutionExtractor,
-    ProtocolExecutionExtractor,
-)
 from uml import (
     PARAMETER_IN,
     PARAMETER_OUT,
     ActivityNode,
     ActivityParameterNode,
-    CallBehaviorAction,
     ControlFlow,
     ControlNode,
     DecisionNode,
-    FinalNode,
     InitialNode,
     InputPin,
-    LiteralReference,
     ObjectFlow,
     Pin,
 )
 
+from . import inner
 from .behavior_execution import BehaviorExecution
 from .call_behavior_execution import CallBehaviorExecution
+from .execution_engine_utils import (
+    JSONProtocolExecutionExtractor,
+    ProtocolExecutionExtractor,
+)
 from .material import Material
 from .protocol import Protocol
 from .sample_data import SampleData

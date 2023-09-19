@@ -4,28 +4,17 @@ The ActivityNodeExecution class defines the functions corresponding to the dynam
 
 from typing import Callable, List
 
-import sbol3
-
-from labop import inner
-from labop.behavior_execution import BehaviorExecution
 from uml import (
-    PARAMETER_OUT,
-    ActivityEdge,
     ActivityNode,
-    ActivityParameterNode,
     CallBehaviorAction,
-    ControlFlow,
     ForkNode,
-    InitialNode,
     InputPin,
-    LiteralSpecification,
-    ObjectFlow,
-    OutputPin,
     Parameter,
-    flow_final_node,
     labop_hash,
-    literal,
 )
+
+from . import inner
+from .call_behavior_execution import CallBehaviorExecution
 
 
 class ActivityNodeExecution(inner.ActivityNodeExecution):
@@ -111,7 +100,7 @@ class ActivityNodeExecution(inner.ActivityNodeExecution):
                 for n in reversed(incoming_initial_flows)
                 if isinstance(
                     n.lookup().token_source.lookup(),
-                    labop.CallBehaviorExecution,
+                    CallBehaviorExecution,
                 )
             )
         except StopIteration:

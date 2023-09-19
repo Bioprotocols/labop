@@ -8,9 +8,9 @@ from typing import Dict, List
 
 import sbol3
 
-import labop.inner as inner
 from uml import PARAMETER_IN, PARAMETER_OUT, Behavior, inner_to_outer
 
+from . import inner
 from .dataset import Dataset
 from .lab_interface import LabInterface
 from .library import loaded_libraries

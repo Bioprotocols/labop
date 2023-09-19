@@ -10,31 +10,28 @@ import pandas as pd
 import sbol3
 from numpy import record
 
-from labop.behavior_execution import BehaviorExecution
-from labop.execution_context import ExecutionContext
-from labop.strings import Strings
 from labop_convert.behavior_dynamics import SampleProvenanceObserver
 from uml import ActivityNode, CallBehaviorAction
 from uml.activity import Activity
 from uml.activity_edge import ActivityEdge
 from uml.activity_parameter_node import ActivityParameterNode
-from uml.control_flow import ControlFlow
-from uml.input_pin import InputPin
 from uml.object_flow import ObjectFlow
 from uml.output_pin import OutputPin
 from uml.pin import Pin
 from uml.utils import WellFormednessIssue, WellformednessLevels, literal
-from uml.value_pin import ValuePin
 
 from .activity_edge_flow import ActivityEdgeFlow
 from .activity_node_execution import ActivityNodeExecution
+from .behavior_execution import BehaviorExecution
 from .call_behavior_execution import CallBehaviorExecution
 from .dataset import Dataset
+from .execution_context import ExecutionContext
 from .parameter_value import ParameterValue
 from .primitive import Primitive
 from .protocol import Protocol
 from .protocol_execution import ProtocolExecution
 from .sample_data import SampleData
+from .strings import Strings
 
 l: logging.Logger = logging.getLogger(__file__)
 l.setLevel(logging.ERROR)
@@ -759,6 +756,7 @@ class ExecutionEngine(ABC):
     ):
         """
         Write a data template as an xlsx file if the record.node produces sample data (i.e., it has an output of type Dataset with a data attribute of type SampleData)
+
         Parameters
         ----------
         node : ActivityNodeExecution
