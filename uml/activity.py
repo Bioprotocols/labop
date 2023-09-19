@@ -660,3 +660,6 @@ class Activity(inner.Activity, Behavior):
             if (edge_type is None or isinstance(n, edge_type))
             and (name is None or n.name == name)
         ]
+
+    def auto_advance(self) -> bool:
+        return len(self.get_outputs()) == 0

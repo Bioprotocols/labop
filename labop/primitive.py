@@ -519,3 +519,9 @@ class Primitive(inner.Primitive, Behavior):
             ]
         )
         return f"step = protocol.primitive_step(\n\t'{self.display_id}',\n\t{args}\n\t)"
+
+    def auto_advance(self) -> bool:
+        return super(Behavior).auto_advance() or (
+            not hasattr(self.compute_output, "__func__")
+            or self.compute_output.__func__ != Primitive.compute_output
+        )

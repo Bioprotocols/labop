@@ -210,3 +210,14 @@ class ActivityNode(inner.ActivityNode, WhereDefinedMixin):
 
     def is_well_formed(self) -> List[WellFormednessIssue]:
         return []
+
+    def auto_advance(self) -> bool:
+        """
+        Is the node executable without additional manual input?
+
+        Returns
+        -------
+        bool
+            Whether the node can be automatically executed.
+        """
+        return True

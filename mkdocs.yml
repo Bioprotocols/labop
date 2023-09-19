@@ -17,6 +17,7 @@ plugins:
           docstring_style: google
 
 
+
 nav:
   - LabOP Docs: index.md
   - tutorials.md
@@ -35,9 +36,5 @@ nav:
         - Data: reference/labop/data.md
         - Execution: reference/labop/execution.md
         - Samples: reference/labop/samples.md
-        - Other:  reference/labop/other.md
     - LabOP Library: reference/library.md
-  #     - Containers:
-  #     - Time:
-  #     - Data:
   - explanation.md

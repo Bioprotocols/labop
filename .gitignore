@@ -39,3 +39,13 @@ site/pandoc/combined.pdf.md
 site/reference/index.html
 site/search/search_index.json
 site/tutorials/index.html
+site/reference/labop/data/index.html
+site/reference/labop/execution/index.html
+site/reference/labop/samples/index.html
+site/reference/labop/top/index.html
+site/reference/library/index.html
+site/reference/uml/activities/index.html
+site/reference/uml/behaviors/index.html
+site/reference/uml/literals/index.html
+site/reference/uml/time/index.html
+site/reference/uml/top/index.html

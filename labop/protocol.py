@@ -114,8 +114,9 @@ class Protocol(inner.Protocol, Activity):
         Returns a uml:DecisionNode and a set of edges connecting incoming and outgoing nodes.
 
         Args:
-            primary_incoming_source_node (uml:ActivityNode): primary incoming edge type (control or object) determines output edge types
-            decision_input_source_node (uml:ActivityNode, optional): Used to evaluate guards. Defaults to None.
+            primary_incoming_node (uml:ActivityNode): primary incoming edge type (control or object) determines output edge types
+            decision_input_behavior (uml.Behavior): Behavior computing decision predicate
+            decision_input_source (uml:ActivityNode, optional): Used to evaluate guards. Defaults to None.
             outgoing_targets (List[Tuple[ValueSpecification, ActivityNode]], optional): List of pairs of guards and nodes for outgoing edges. Defaults to None.
         """
 
@@ -252,3 +253,6 @@ class Protocol(inner.Protocol, Activity):
                 dups_to_remove = [d for d in dup if targets[d] == 0 and sources[d] == 0]
                 for n in dups_to_remove:
                     del self.nodes[self.nodes.index(n)]
+
+    def auto_advance(self):
+        return True
