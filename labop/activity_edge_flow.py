@@ -9,7 +9,6 @@ import sbol3
 from uml import CallBehaviorAction, InputPin, LiteralReference, Parameter
 
 from . import inner
-from .activity_node_execution import ActivityNodeExecution
 from .protocol import Protocol
 
 
@@ -84,7 +83,7 @@ class ActivityEdgeFlow(inner.ActivityEdgeFlow):
     def to_dot(
         self,
         dot: graphviz.Graph,
-        target_node_execution: ActivityNodeExecution,
+        target_node_execution: "ActivityNodeExecution",
         namespace,
         dest_parameter=None,
         out_dir=".",
