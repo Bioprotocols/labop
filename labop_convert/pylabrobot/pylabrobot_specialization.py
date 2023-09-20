@@ -17,7 +17,7 @@ l.setLevel(logging.ERROR)
 
 
 container_ontology_path = os.path.join(
-    os.path.dirname(os.path.realpath(__file__)), "../../labop/container-ontology.ttl"
+    os.path.dirname(os.path.realpath(__file__)), "container-ontology.ttl"
 )
 ContO = tyto.Ontology(
     path=container_ontology_path,
@@ -27,26 +27,6 @@ ContO = tyto.Ontology(
 # Map pylabrobot pipette names to compatible tipracks
 # left is for Pylabrobot names
 # right is for LabOp names(container ontology)
-COMPATIBLE_TIPS = {
-    "p20_single_gen2": ["opentrons_96_tiprack_10ul", "opentrons_96_filtertiprack_10ul"],
-    "p300_single_gen2": ["opentrons_96_tiprack_300ul"],
-    "p1000_single_gen2": [
-        "opentrons_96_tiprack_1000ul",
-        "opentrons_96_filtertiprack_1000ul",
-    ],
-    "p300_multi_gen2": [],
-    "p20_multi_gen2": [],
-    "p10_single": ["opentrons_96_tiprack_10ul", "opentrons_96_filtertiprack_10ul"],
-    "p10_multi": ["opentrons_96_tiprack_10ul", "opentrons_96_filtertiprack_10ul"],
-    "p50_single": [],
-    "p50_multi": [],
-    "p300_single": ["opentrons_96_tiprack_300ul"],
-    "p300_multi": [],
-    "p1000_single": [
-        "opentrons_96_tiprack_1000ul",
-        "opentrons_96_filtertiprack_1000ul",
-    ],
-}
 
 # Map terms in the Container ontology of pylabrobot and assign them to LabOP container onthology
 # its taking a LabOp term and making a correspondence to a Pylabrobot term
@@ -58,12 +38,12 @@ LABWARE_MAP = {
     # this is for TIP carriers (C:\Users\Luiza\pylabrobot\pylabrobot\resources\ml_star\tip_carriers.py)
     # HAMILTON ML star tip carriers
     ContO[
-        "ML STAR Tip carrier with 5 4ml tip with filter racks landscape"
+        "ML STAR Tip Carrier with 5 4ml tip with filter racks landscape"
     ]: "TIP_CAR_120BC_4mlTF_A00",
     ContO[
         "ML STAR Tip carrier with 5 5ml tip racks landscape"
     ]: "TIP_CAR_120BC_5mlT_A00",
-    #     ContO["ML STAR Tip carrier for 3 Racks with 96 Tips portrait [revision A00]"]: "TIP_CAR_288_A00",
+         ContO["Corning 96 Well Plate"]: "TIP_CAR_288_A00",
     #     ContO["ML STAR Tip carrier for 3 Racks with 96 Tips portrait [revision B00]"]: "TIP_CAR_288_B00",
     #     ContO["ML STAR Tip carrier for 3 Racks with 96 Tips portrait [revision C00]"]: "TIP_CAR_288_C00",
     #     ContO["ML STAR Tip carrier with 3 high volume tip with filter racks portrait [revision A00]"]: "TIP_CAR_288_HTF_A00",
@@ -110,12 +90,12 @@ LABWARE_MAP = {
     #     ContO["Corning Costar 10 ul plate [1536]"]: "Cos_1536_10ul",
     #     ContO["Corning Costar deep well plate [384]"]: "Cos_384_DW",
     #     ContO["Corning Costar PCR plate [384]"]: "Cos_384_PCR",
-    #     ContO["Corning Costar 1 mL deep well plate [96]"]: "Cos_96_DW_1mL",
+         ContO["Corning Costar 1 mL deep well plate with 96 wells"]: "Cos_96_DW_1mL",
     #     ContO["Corning Costar 2 mL deep well plate [96]"]: "Cos_96_DW_2mL",
     #     ContO["Corning Costar 500ul deep well plate [96]"]: "Cos_96_DW_500ul",
-    #     ContO["Corning Costar EZwash plate [96]"]: "Cos_96_EZWash",
-    #     ContO["Corning Costar FL plate [96]"]: "Cos_96_FL",
-    #     ContO["Corning Costar filter plate [96]"]: "Cos_96_Filter",
+         ContO["Corning Costar EZwash plate with 96 wells"]: "Cos_96_EZWash",
+         ContO["Corning 96 Well Plate 360 uL Flat"]: "Cos_96_FL",
+         ContO["Corning Costar filter plate with 96 wells"]: "Cos_96_Filter",
     #     ContO["Corning Costar Half area plate [96]"]: "Cos_96_HalfArea",
     #     ContO["Corning Costar filter plate [96]"]: "Cos_96_Filter",
     #     ContO["Corning Costar PCR plate [96]"]: "Cos_96_PCR",
@@ -128,7 +108,7 @@ LABWARE_MAP = {
     # #""" HAMILTON ML Star tips """
     #     ContO["Tip Rack 24x 4ml Tip with Filter landscape oriented"]: "FourmlTF_L",
     #     ContO["Tip Rack 24x 5ml Tip landscape oriented"]: "FivemlT_L",
-    #     ContO["Tip Rack with 96 1000ul High Volume Tip with filter"]: "HTF_L",
+         ContO["ML STAR Tip Rack with 96 1000ul High Volume Tip with filter"]: "HTF_L",
     #     ContO["Tip Rack with 96 1000ul High Volume Tip"]: "HT_L",
     #     ContO["Tip Rack with 96 10ul Low Volume Tip with filter"]: "LTF_L",
     #     ContO["Tip Rack with 96 10ul Low Volume Tip"]: "LT_L",
@@ -192,63 +172,65 @@ class PylabrobotSpecialization(BehaviorSpecialization):
             "https://bioprotocols.org/labop/primitives/sample_arrays/LoadContainerInRack": self.load_container_in_rack,
             "https://bioprotocols.org/labop/primitives/sample_arrays/LoadContainerOnInstrument": self.load_container_on_instrument,
             # "https://bioprotocols.org/labop/primitives/sample_arrays/LoadRackOnInstrument": self.load_racks,
-            "https://bioprotocols.org/labop/primitives/sample_arrays/ConfigureRobot": self.configure_robot,
-            "https://bioprotocols.org/labop/primitives/pcr/PCR": self.pcr,
+            #"https://bioprotocols.org/labop/primitives/sample_arrays/ConfigureRobot": self.configure_robot,
+            #"https://bioprotocols.org/labop/primitives/pcr/PCR": self.pcr,
+            "https://bioprotocols.org/labop/primitives/plate_handling/Filter": self.activate_airpump,
         }
 
-    def _materials(self):
-        protocol = self.execution.protocol.lookup()
+        #the protocol should have the namespace 
+#    def _materials(self):
+ #       protocol = self.execution.protocol.lookup()
 
-        materials = {
-            obj.name: obj
-            for obj in protocol.document.objects
-            if type(obj) is sbol3.Component
-        }
-        markdown = "\n\n## Protocol Materials:\n"
-        for name, material in materials.items():
-            markdown += f"* [{name}]({material.types[0]})\n"
+#        materials = {
+#            obj.name: obj
+#            for obj in protocol.document.objects
+#            if type(obj) is sbol3.Component
+#        }
+#        markdown = "\n\n## Protocol Materials:\n"
+#        for name, material in materials.items():
+#            markdown += f"* [{name}]({material.types[0]})\n"
 
         # Compute container types and quantities
-        document_objects = []
-        protocol.document.traverse(lambda obj: document_objects.append(obj))
-        call_behavior_actions = [
-            obj for obj in document_objects if type(obj) is uml.CallBehaviorAction
-        ]
-        containers = {}
-        for cba in call_behavior_actions:
-            input_names = [input.name for input in cba.inputs]
-            if "specification" in input_names:
-                container = cba.input_pin("specification").value.value.lookup()
-            elif "rack" in input_names:
-                container = cba.input_pin("rack").value.value.lookup()
-            elif (
-                "container" in input_names
-                and type(cba.input_pin("container")) is uml.ValuePin
-            ):
-                container = cba.input_pin("container").value.value.lookup()
-            else:
-                continue
-            container_type = container.queryString
-            container_name = container.name if container.name else "unnamed"
-            qty = cba.input_pin("quantity") if "quantity" in input_names else 1
+#        document_objects = []
+#        protocol.document.traverse(lambda obj: document_objects.append(obj))
+#        call_behavior_actions = [
+#            obj for obj in document_objects if type(obj) is uml.CallBehaviorAction
+#        ]
+#        containers = {}
+#        for cba in call_behavior_actions:
+#            input_names = [input.name for input in cba.inputs]
+#            if "specification" in input_names:
+#                container = cba.input_pin("specification").value.value.lookup()
+#            elif "rack" in input_names:
+#                container = cba.input_pin("rack").value.value.lookup()
+#            elif (
+#                "container" in input_names
+#                and type(cba.input_pin("container")) is uml.ValuePin
+#            ):
+#                container = cba.input_pin("container").value.value.lookup()
+ #           else:
+#                continue
+#            container_type = container.queryString
+##            container_name = container.name if container.name else "unnamed"
+ #           qty = cba.input_pin("quantity") if "quantity" in input_names else 1
 
-            if container_type not in containers:
-                containers[container_type] = {}
-            containers[container_type][container_name] = qty
+ #           if container_type not in containers:
+ #               containers[container_type] = {}
+ #           containers[container_type][container_name] = qty
 
-        for container_type, container_name_map in containers.items():
-            for container_name, qty in container_name_map.items():
-                container_str = ContO.get_term_by_uri(container_type)
-                if "TipRack" in container_type:
-                    text = f"* {container_str}"
-                elif container_name == "unnamed":
-                    text = f"* unnamed {container_str}"
-                else:
-                    text = f"* `{container_name}` ({container_str})"
-                if qty > 1:
-                    text += f" (x {qty})"
-                text += "\n"
-                markdown += text
+ #       for container_type, container_name_map in containers.items():
+ #           for container_name, qty in container_name_map.items():
+ #               container_str = ContO.get_term_by_uri(container_type)
+#                if "TipRack" in container_type:
+#                    text = f"* {container_str}"
+#                elif container_name == "unnamed":
+#                    text = f"* unnamed {container_str}"
+#                else:
+#                    text = f"* `{container_name}` ({container_str})"
+#                if qty > 1:
+#                    text += f" (x {qty})"
+#                text += "\n"
+#                markdown += text
 
     def handle_process_failure(self, record, exception):
         super().handle_process_failure(record, exception)
@@ -259,11 +241,27 @@ class PylabrobotSpecialization(BehaviorSpecialization):
         apilevel = self.apilevel
         self.markdown += f"# {protocol.name}\n"
         self.script += (
-            "from opentrons import protocol_api\n\n"
-            f"metadata = {{'apiLevel': '{apilevel}',\n"
-            f"            'description': '{protocol.description}',\n"
-            f"            'protocolName': '{protocol.name}'}} \n\n"
-            "def run(protocol: protocol_api.ProtocolContext):\n"
+           """import asyncio
+
+from pylabrobot.liquid_handling import LiquidHandler
+from pylabrobot.liquid_handling.backends.simulation.simulator_backend import (
+    SimulatorBackend,
+)
+from pylabrobot.resources import Cos_96_EZWash, Cos_96_PCR, HTF_L, Coordinate
+from pylabrobot.resources.hamilton import STARLetDeck
+from pylabrobot import MPE
+from pylabrobot import mpebackend
+
+
+backend = SimulatorBackend()
+deck = STARLetDeck()
+sb = SimulatorBackend(open_browser=False)
+lh = LiquidHandler(backend=sb, deck=STARLetDeck())
+
+
+async def LiquidHandler_setup():
+    await lh.setup()
+"""
         )
         self.data = []
 
@@ -298,7 +296,7 @@ class PylabrobotSpecialization(BehaviorSpecialization):
     ###################################################
     # see about def _tipracks object
     ##################################################
-    def _materials(self):
+    #def _materials(self):
         protocol = self.execution.protocol.lookup()
 
         materials = {
@@ -451,7 +449,7 @@ class PylabrobotSpecialization(BehaviorSpecialization):
         rack_str = f"`{rack.name}`" if rack.name else rack.queryString
         text = f"Fill {amount} of {resource.name} into {container_str} located in {coords} of {rack_str}"
         self.markdown_steps += [text]
-
+        #write pylabrobot correspondence
     # write correspondence for transfer primitive
     def transfer_to(
         self, record: labop.ActivityNodeExecution, ex: labop.ProtocolExecution
@@ -566,7 +564,7 @@ class PylabrobotSpecialization(BehaviorSpecialization):
         destination_str = destination.mask
         for c_source in source.get_coordinates():
             for c_destination in destination.get_coordinates():
-                self.script_steps += [
+                self.script_steps += [ # make it a list with 5 elements (pick up, aspirate, dispense, return tips)
                     f"{pipette.display_id}.transfer({value}, {source_name}['{c_source}'], {destination_name}['{c_destination}'])  {comment}"
                 ]
 
@@ -577,8 +575,8 @@ class PylabrobotSpecialization(BehaviorSpecialization):
         results = {}
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
-        destination = parameter_value_map["destination"]["value"]
-        source = parameter_value_map["source"]["value"]
+        destination = parameter_value_map["destination"]["value"] #those are gonna be sample arrays
+        source = parameter_value_map["source"]["value"]#those are gonna be sample arrays
         plan = parameter_value_map["plan"]["value"]
         temperature = parameter_value_map["temperature"]["value"]
         value = parameter_value_map["amount"]["value"].value
@@ -599,7 +597,7 @@ class PylabrobotSpecialization(BehaviorSpecialization):
         else:
             raise Exception(f'Invalid input pin "source" for Transfer.')
 
-        # Map the source container to a variable name in the OT2 api script
+        #############trace the source container to a variable name in the pylabrobot script######## 
         source_name = None
         for deck, labware in self.configuration.items():
             if labware == source_container:
@@ -635,14 +633,27 @@ class PylabrobotSpecialization(BehaviorSpecialization):
             )
         pipette = self.configuration["left"]
 
+        source.container_type
+        destination.container_type
+        source.container_type.lookup
+
+# make it a list with 5 elements (pick up, aspirate, dispense, return tips) this string when constructed will substitute variables declared by values on the protocol
         source_str = source.mask
         destination_str = destination.mask
         for c_source in get_sample_list(source.mask):
             for c_destination in get_sample_list(destination.mask):
-                self.script_steps += [
-                    f"{pipette.display_id}.transfer({value}, {source_name}['{c_source}'], {destination_name}['{c_destination}'])"
-                ]
-
+                self.script_steps += f"""async def liquid_handling_sequence():
+    await lh.pick_up_tips({primitive_tip_rack}[{source_str}])
+      lh
+    await lh.aspirate({source}[{source_str}],
+        vols={value},
+        flow_rates={100},
+        end_delay=0.5,
+        offsets=Coordinate(1, 2, 3))
+    await lh.dispense({destination}[{destination_str}], vols={value})
+    await lh.return_tips() """
+# take information present in the primitive and construct string to be 
+# make it a list with 5 elements (pick up, aspirate, dispense, return tips)
     def define_rack(
         self, record: labop.ActivityNodeExecution, ex: labop.ProtocolExecution
     ):
@@ -750,3 +761,32 @@ class PylabrobotSpecialization(BehaviorSpecialization):
             instrument.configuration = {}
             for c in get_sample_list(slots):
                 instrument.configuration[c] = container_spec
+
+    def activate_airpump(self, record: labop.ActivityNodeExecution, ex: labop.ProtocolExecution):
+
+       output_string = """ 
+       comPort = 12
+       BaudRate = 921600
+        SimulationMode = 0
+        options = 0
+        FilterHeight = 14.9
+        NozzleHeight = 14.9
+
+        ControlPoints = "pressure, 0, 5;pressure, 10, 5;pressure, 15, 5;pressure, 20, 5;pressure, 30, 5;pressure, 40, 5;pressure, 50, 5; pressure, 60, 5"
+        ReturnPlateToIntegrationArea = 1
+        WasteContainerID = 0
+        DisableVacuumCheck = 1
+
+
+
+        async def MPE_overpressure():
+        await MPE.mpe2_FilterPlatePlaced(MPE, 1, FilterHeight, NozzleHeight)
+        await MPE.mpe2_ProcessFilterToWasteContainer(MPE, 1, ControlPoints,ReturnPlateToIntegrationArea, WasteContainerID, DisableVacuumCheck)
+        await MPE.mpe2_FilterPlateRemoved(MPE, 1) 
+
+
+
+        asyncio .run(__init__())
+        asyncio .run(MPE_overpressure())"""        
+       self.script_steps += [output_string]
+
