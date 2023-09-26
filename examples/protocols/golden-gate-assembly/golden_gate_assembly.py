@@ -153,4 +153,4 @@ print(f"Wrote file as {temp_name}")
 # render and view the dot
 dot = activity.to_dot()
 dot.render(f"{activity.name}.gv")
-dot.view()
+# dot.view()

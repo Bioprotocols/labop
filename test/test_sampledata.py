@@ -32,7 +32,7 @@ else:
     TMPDIR = tempfile.gettempdir()
 
 protocol_def_file = os.path.join(
-    os.path.dirname(__file__), "../examples/LUDOX_protocol.py"
+    os.path.dirname(__file__), "../examples/protocols/ludox/LUDOX_protocol.py"
 )
 
 

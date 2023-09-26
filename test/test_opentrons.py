@@ -34,7 +34,10 @@ def load_protocol(protocol_def_fn, protocol_filename):
 
 
 CWD = os.path.split(os.path.realpath(__file__))[0]
-protocol_def_file = os.path.join(CWD, "../examples/opentrons_toy_protocol.py")
+protocol_def_file = os.path.join(
+    CWD,
+    "../examples/protocols/opentrons/opentrons-toy/opentrons_toy_protocol.py",
+)
 protocol_def = load_protocol("opentrons_toy_protocol", protocol_def_file)
 
 

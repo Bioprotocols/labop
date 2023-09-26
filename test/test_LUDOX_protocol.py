@@ -24,7 +24,7 @@ if not os.path.exists(OUT_DIR):
     os.mkdir(OUT_DIR)
 
 protocol_def_file = os.path.join(
-    os.path.dirname(__file__), "../examples/LUDOX_protocol.py"
+    os.path.dirname(__file__), "../examples/protocols/ludox/LUDOX_protocol.py"
 )
 
 

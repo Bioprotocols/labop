@@ -1,6 +1,4 @@
-import json
 import logging
-from typing import Tuple
 
 import rdflib as rdfl
 import sbol3
@@ -10,16 +8,24 @@ from sbol3 import Document
 import labop
 import uml
 from labop.execution_engine import ExecutionEngine
+from labop.protocol import Protocol
+from labop.strings import Strings
+from labop.utils.harness import (
+    ProtocolDiagram,
+    ProtocolExecutionDiagram,
+    ProtocolExecutionNTuples,
+    ProtocolHarness,
+    ProtocolNTuples,
+    ProtocolSampleTrace,
+    ProtocolSpecialization,
+)
+from labop_convert.markdown.markdown_specialization import MarkdownSpecialization
 from labop_convert.opentrons.opentrons_specialization import (
     REVERSE_LABWARE_MAP,
     OT2Specialization,
 )
 
 logger: logging.Logger = logging.Logger("OT2_demo")
-
-CONT_NS = rdfl.Namespace("https://sift.net/container-ontology/container-ontology#")
-OM_NS = rdfl.Namespace("http://www.ontology-of-units-of-measure.org/resource/om-2/")
-PREFIX_MAP = json.dumps({"cont": CONT_NS, "om": OM_NS})
 
 
 def prepare_document() -> Document:
@@ -55,7 +61,7 @@ def get_container(protocol: labop.Protocol, container_name: str, container_type:
         container_name.replace(" ", "_"),
         name=container_name,
         queryString=query_string,
-        prefixMap=PREFIX_MAP,
+        prefixMap=labop.constants.PREFIX_MAP,
     )
     plate = protocol.primitive_step("EmptyContainer", specification=plate_spec)
     return plate
@@ -67,20 +73,7 @@ def get_samples_from_coordinates(protocol, container, coordinates):
     ).output_pin("samples")
 
 
-def opentrons_toy_protocol() -> Tuple[labop.Protocol, Document]:
-    #############################################
-    # set up the document
-    doc: Document = prepare_document()
-
-    #############################################
-    # Import the primitive libraries
-    import_labop_libraries()
-
-    #############################################
-    # Create the protocol
-    protocol: labop.Protocol = create_protocol()
-    doc.add(protocol)
-
+def opentrons_toy_protocol(doc: sbol3.Document, protocol: Protocol) -> Protocol:
     # plate = protocol.load_labware('corning_96_wellplate_360ul_flat', location='1')
     create_plate = get_container(
         protocol, "sample plate", "corning_96_wellplate_360ul_flat"
@@ -130,4 +123,27 @@ def opentrons_toy_protocol() -> Tuple[labop.Protocol, Document]:
 
     protocol.order(transfer, protocol.final())
 
-    return protocol, doc
+    return protocol
+
+
+harness = ProtocolHarness(
+    entry_point=opentrons_toy_protocol,
+    artifacts=[
+        ProtocolSpecialization(
+            specialization=MarkdownSpecialization(
+                "opentrons_toy_protocol.md", sample_format=Strings.XARRAY
+            )
+        ),
+        ProtocolSpecialization(
+            specialization=OT2Specialization("opentrons_toy_protocol_labop.py")
+        ),
+    ],
+    namespace="https://labop.io/examples/protocols/opentrons/",
+    protocol_name="opentrons_toy",
+    protocol_long_name="OT2 simple toy demonstration",
+    protocol_version="1.0",
+    protocol_description="Example Opentrons Protocol as LabOP",
+)
+
+if __name__ == "__main__":
+    harness.run()

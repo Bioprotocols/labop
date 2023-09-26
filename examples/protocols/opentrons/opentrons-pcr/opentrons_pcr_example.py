@@ -1,5 +1,4 @@
 import csv
-import json
 
 import rdflib as rdfl
 import sbol3
@@ -7,6 +6,7 @@ import tyto
 
 import labop
 import uml
+from labop.constants import ddh2o, ludox
 from labop.execution_engine import ExecutionEngine
 from labop_convert.markdown.markdown_specialization import MarkdownSpecialization
 from labop_convert.opentrons.opentrons_specialization import OT2Specialization
@@ -123,19 +123,8 @@ activity = labop.Protocol("pcr_example")
 activity.name = "Opentrons PCR Demo"
 doc.add(activity)
 
-# create the materials to be provisioned
-CONT_NS = rdfl.Namespace("https://sift.net/container-ontology/container-ontology#")
-OM_NS = rdfl.Namespace("http://www.ontology-of-units-of-measure.org/resource/om-2/")
 
-PREFIX_MAP = json.dumps({"cont": CONT_NS, "om": OM_NS})
-
-
-ddh2o = sbol3.Component("ddH2O", "https://identifiers.org/pubchem.substance:24901740")
-ddh2o.name = "Water, sterile-filtered, BioReagent, suitable for cell culture"
 doc.add(ddh2o)
-
-ludox = sbol3.Component("LUDOX", "https://identifiers.org/pubchem.substance:24866361")
-ludox.name = "LUDOX(R) CL-X colloidal silica, 45 wt. % suspension in H2O"
 doc.add(ludox)
 
 p300 = sbol3.Agent("p300_single", name="P300 Single")
@@ -166,7 +155,7 @@ reagent_rack = labop.ContainerSpec(
     "reagent_rack",
     name="Tube rack for reagents",
     queryString="cont:Opentrons24TubeRackwithEppendorf1.5mLSafe-LockSnapcap",
-    prefixMap=PREFIX_MAP,
+    prefixMap=labop.constants.PREFIX_MAP,
 )
 rack = activity.primitive_step("EmptyRack", specification=reagent_rack)
 load_rack = activity.primitive_step(
@@ -178,7 +167,7 @@ primer_plate = labop.ContainerSpec(
     "primer_plate",
     name="primers in 96-well plate",
     queryString="cont:Corning96WellPlate360uLFlat",
-    prefixMap=PREFIX_MAP,
+    prefixMap=labop.constants.PREFIX_MAP,
 )
 load = activity.primitive_step(
     "LoadRackOnInstrument", rack=primer_plate, coordinates="3"
@@ -190,7 +179,7 @@ polymerase = labop.ContainerSpec(
     "polymerase",
     name="DNA Polymerase",
     queryString="cont:StockReagent",
-    prefixMap=PREFIX_MAP,
+    prefixMap=labop.constants.PREFIX_MAP,
 )
 load_reagents = activity.primitive_step(
     "LoadContainerInRack",
@@ -207,7 +196,7 @@ load_water = activity.primitive_step(
         "water",
         name="tube for water",
         queryString="cont:MicrofugeTube",
-        prefixMap=PREFIX_MAP,
+        prefixMap=labop.constants.PREFIX_MAP,
     ),
     coordinates="B1",
 )
@@ -228,7 +217,7 @@ for coordinate, template in templates.to_dict().items():
         template.display_id + "_container",
         name="container of " + template.name,
         queryString="cont:MicrofugeTube",
-        prefixMap=PREFIX_MAP,
+        prefixMap=labop.constants.PREFIX_MAP,
     )
     load_template = activity.primitive_step(
         "LoadContainerInRack",
@@ -243,7 +232,7 @@ pcr_plate = labop.ContainerSpec(
     "pcr_plate",
     name="PCR plate",
     queryString="cont:Biorad96WellPCRPlate",
-    prefixMap=PREFIX_MAP,
+    prefixMap=labop.constants.PREFIX_MAP,
 )
 load_pcr_plate_on_thermocycler = activity.primitive_step(
     "LoadContainerOnInstrument",

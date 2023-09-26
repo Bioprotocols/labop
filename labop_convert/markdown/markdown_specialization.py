@@ -754,7 +754,9 @@ class MarkdownSpecialization(DefaultBehaviorSpecialization):
         # Get destination container type
         container_spec = destination.get_container_type()
         container_class = (
-            ContainerOntology.uri + "#" + container_spec.queryString.split(":")[-1]
+            (ContainerOntology.uri + "#" + container_spec.queryString.split(":")[-1])
+            if not container_spec.queryString.startswith(ContainerOntology.uri)
+            else container_spec.queryString
         )
         container_str = ContainerOntology.get_term_by_uri(container_class)
 

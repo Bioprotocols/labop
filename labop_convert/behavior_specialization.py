@@ -2,6 +2,7 @@ import json
 import logging
 import os
 from abc import ABC
+from typing import Any, List
 
 import tyto
 
@@ -76,6 +77,10 @@ class BehaviorSpecialization(ABC):
                 "w",
             ) as f:
                 f.write(self.data)
+
+    def output(self) -> List[Any]:
+        results = self.data
+        return results
 
     def process(self, record, execution: ProtocolExecution, timepoint="start"):
         try:
