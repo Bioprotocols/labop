@@ -11,9 +11,20 @@ To join the Bioprotocols Working Group:
 
 # Leadership
 
-_Elected Term: August 24th, 2022 - August 23rd, 2023_
+_Elected Term: October 3rd, 2023 - October 3rd, 2024_
 
-**Chair:** [Dan Bryce (SIFT)](mailto:dbryce@sift.net)
+**Chair:** [Tim Fallon (UCSD)](mailto:tfallon@ucsd.edu)
+
+**Finance Committee:**
+- [Bryan Bartley (BBN)](mailto:Bryan.A.Bartley@rtx.com)
+- Luiza Hesketh (State University of Campinas, Brazil)
+- [Dan Bryce (SIFT)](mailto:dbryce@sift.net)
+
+---
+
+_Former Elected Term: August 24th, 2022 - October 3rd, 2023_
+
+Chair: [Dan Bryce (SIFT)](mailto:dbryce@sift.net)
 
 **Finance Committee:**
 
