@@ -71,7 +71,9 @@ class SampleProvenanceObserver:
             if new_nodes:
                 self.graph = self.update_graph(new_nodes)
                 self.to_dot().render(
-                    os.path.join(self.outdir, f"{self.name}_{self.exec_tick}")
+                    os.path.join(self.outdir, f"{self.name}_{self.exec_tick}"),
+                    cleanup=True,
+                    overwrite_source=True,
                 )
             self.exec_tick += 1
         else:

@@ -9,19 +9,10 @@ import subprocess
 import sys
 
 import sbol3
-from pint import Measurement
 from tyto import OM
 
 import labop
-from labop.utils.harness import (
-    ProtocolArtifact,
-    ProtocolDiagram,
-    ProtocolExecutionDiagram,
-    ProtocolHarness,
-    ProtocolNTuples,
-    ProtocolSampleTrace,
-    ProtocolSpecialization,
-)
+from labop.execution.harness import ProtocolHarness, ProtocolSpecialization
 from labop_convert.markdown.markdown_specialization import MarkdownSpecialization
 
 NAMESPACE = "http://igem.org/engineering/"
@@ -126,38 +117,14 @@ def generate_prepare_reagents_subprotocol(doc: sbol3.Document):
     import labop
 
     solution_subprotocol = generate_solution_subprotocol(doc)
-
-    # Define buffers
-    ddh2o = sbol3.Component(
-        "ddH2O", "https://identifiers.org/pubchem.substance:24901740"
+    from labop.constants import (
+        cascade_blue,
+        ddh2o,
+        fluorescein,
+        pbs,
+        silica_beads,
+        sulforhodamine,
     )
-    ddh2o.name = "Water, sterile-filtered, BioReagent, suitable for cell culture"
-
-    pbs = sbol3.Component("pbs", "https://pubchem.ncbi.nlm.nih.gov/compound/24978514")
-    pbs.name = "Phosphate Buffered Saline"
-
-    # Define calibrants
-    silica_beads = sbol3.Component(
-        "silica_beads",
-        "https://nanocym.com/wp-content/uploads/2018/07/NanoCym-All-Datasheets-.pdf",
-    )
-    silica_beads.name = "NanoCym 950 nm monodisperse silica nanoparticles"
-    silica_beads.description = "3e9 NanoCym microspheres"  # where does this go?
-
-    fluorescein = sbol3.Component(
-        "fluorescein", "https://pubchem.ncbi.nlm.nih.gov/substance/329753341"
-    )
-    fluorescein.name = "Fluorescein"
-
-    cascade_blue = sbol3.Component(
-        "cascade_blue", "https://pubchem.ncbi.nlm.nih.gov/substance/57269662"
-    )
-    cascade_blue.name = "Cascade Blue"
-
-    sulforhodamine = sbol3.Component(
-        "sulforhodamine", "https://pubchem.ncbi.nlm.nih.gov/compound/139216224"
-    )
-    sulforhodamine.name = "Sulforhodamine"
 
     doc.add(ddh2o)
     doc.add(silica_beads)
@@ -332,8 +299,9 @@ def generate_prepare_reagents_subprotocol(doc: sbol3.Document):
     return subprotocol
 
 
-def generate_protocol(doc: sbol3.Document, protocol: labop.Protocol):
+def generate_protocol(doc: sbol3.Document, protocol: labop.Protocol) -> labop.Protocol:
     import labop
+    from labop.constants import ddh2o, pbs
 
     prepare_reagents_subprotocol = generate_prepare_reagents_subprotocol(doc)
     prepare_reagents = protocol.primitive_step(prepare_reagents_subprotocol)
@@ -561,6 +529,8 @@ def generate_protocol(doc: sbol3.Document, protocol: labop.Protocol):
         samples=dilution_series1.output_pin("samples"),
         amount=sbol3.Measure(100, OM.microlitre),
         direction=labop.Strings.ROW_DIRECTION,
+        diluent=pbs,
+        dilution_factor=2,
     )
     serial_dilution1.description = "For each 100.0 microliter transfer, pipette up and down 3X to ensure the dilution is mixed homogeneously."
 
@@ -580,6 +550,8 @@ def generate_protocol(doc: sbol3.Document, protocol: labop.Protocol):
         samples=dilution_series2.output_pin("samples"),
         amount=sbol3.Measure(100, OM.microlitre),
         direction=labop.Strings.ROW_DIRECTION,
+        diluent=pbs,
+        dilution_factor=2,
     )
     serial_dilution2.description = "For each 100.0 microliter transfer, pipette up and down 3X to ensure the dilution is mixed homogeneously."
 
@@ -588,6 +560,8 @@ def generate_protocol(doc: sbol3.Document, protocol: labop.Protocol):
         samples=dilution_series3.output_pin("samples"),
         amount=sbol3.Measure(100, OM.microlitre),
         direction=labop.Strings.ROW_DIRECTION,
+        diluent=pbs,
+        dilution_factor=2,
     )
     serial_dilution3.description = "For each 100.0 microliter transfer, pipette up and down 3X to ensure the dilution is mixed homogeneously."
 
@@ -596,6 +570,8 @@ def generate_protocol(doc: sbol3.Document, protocol: labop.Protocol):
         samples=dilution_series4.output_pin("samples"),
         amount=sbol3.Measure(100, OM.microlitre),
         direction=labop.Strings.ROW_DIRECTION,
+        diluent=pbs,
+        dilution_factor=2,
     )
     serial_dilution4.description = "For each 100.0 microliter transfer, pipette up and down 3X to ensure the dilution is mixed homogeneously."
 
@@ -604,6 +580,8 @@ def generate_protocol(doc: sbol3.Document, protocol: labop.Protocol):
         samples=dilution_series5.output_pin("samples"),
         amount=sbol3.Measure(100, OM.microlitre),
         direction=labop.Strings.ROW_DIRECTION,
+        diluent=ddh2o,
+        dilution_factor=2,
     )
     serial_dilution5.description = "For each 100.0 microliter transfer, pipette up and down 3X to ensure the dilution is mixed homogeneously."
 
@@ -612,6 +590,8 @@ def generate_protocol(doc: sbol3.Document, protocol: labop.Protocol):
         samples=dilution_series6.output_pin("samples"),
         amount=sbol3.Measure(100, OM.microlitre),
         direction=labop.Strings.ROW_DIRECTION,
+        diluent=ddh2o,
+        dilution_factor=2,
     )
     serial_dilution6.description = "For each 100.0 microliter transfer, pipette up and down 3X to ensure the dilution is mixed homogeneously."
 
@@ -620,6 +600,8 @@ def generate_protocol(doc: sbol3.Document, protocol: labop.Protocol):
         samples=dilution_series7.output_pin("samples"),
         amount=sbol3.Measure(100, OM.microlitre),
         direction=labop.Strings.ROW_DIRECTION,
+        diluent=ddh2o,
+        dilution_factor=2,
     )
     serial_dilution7.description = "For each 100.0 microliter transfer, pipette up and down 3X to ensure the dilution is mixed homogeneously."
 
@@ -628,6 +610,8 @@ def generate_protocol(doc: sbol3.Document, protocol: labop.Protocol):
         samples=dilution_series8.output_pin("samples"),
         amount=sbol3.Measure(100, OM.microlitre),
         direction=labop.Strings.ROW_DIRECTION,
+        diluent=ddh2o,
+        dilution_factor=2,
     )
     serial_dilution8.description = "For each 100.0 microliter transfer, pipette up and down 3X to ensure the dilution is mixed homogeneously."
 
@@ -812,12 +796,12 @@ def generate_protocol(doc: sbol3.Document, protocol: labop.Protocol):
             print(f"Saving protocol [{protocol_file}].")
             f.write(doc.write_string(sbol3.SORTED_NTRIPLES).strip())
 
-    return protocol, doc
+    return protocol
 
 
 def compute_sample_trajectory(protocol, doc):
     import labop
-    from labop.execution_engine import ExecutionEngine
+    from labop.execution.execution_engine import ExecutionEngine
     from labop.strings import Strings
     from labop_convert import DefaultBehaviorSpecialization
 
@@ -844,7 +828,7 @@ def compute_sample_trajectory(protocol, doc):
 
 def generate_markdown_specialization(protocol, doc):
     import labop
-    from labop.execution_engine import ExecutionEngine
+    from labop.execution.execution_engine import ExecutionEngine
     from labop.strings import Strings
     from labop_convert import MarkdownSpecialization
 
@@ -894,7 +878,7 @@ def generate_markdown_specialization(protocol, doc):
 
 def generate_ecl_specialization(protocol, doc):
     import labop
-    from labop.execution_engine import ExecutionEngine
+    from labop.execution.execution_engine import ExecutionEngine
     from labop.strings import Strings
     from labop_convert import ECLSpecialization
 
@@ -925,7 +909,7 @@ def generate_ecl_specialization(protocol, doc):
 def generate_autoprotocol_specialization(protocol, doc):
     blockPrint()
     import labop
-    from labop.execution_engine import ExecutionEngine
+    from labop.execution.execution_engine import ExecutionEngine
     from labop_convert.autoprotocol.autoprotocol_specialization import (
         AutoprotocolSpecialization,
     )
@@ -1028,7 +1012,7 @@ def generate_autoprotocol_specialization(protocol, doc):
 def generate_emeraldcloud_specialization(protocol, doc, stock_solutions=None):
     blockPrint()
     import labop
-    from labop.execution_engine import ExecutionEngine
+    from labop.execution.execution_engine import ExecutionEngine
     from labop_convert.emeraldcloud.ecl_specialization import ECLSpecialization
 
     ecl_output = os.path.join(OUT_DIR, f"{filename}-emeraldcloud.nb")
@@ -1121,34 +1105,30 @@ def enablePrint():
     sys.stdout = sys.__stdout__
 
 
-harness = ProtocolHarness(
-    entry_point=generate_protocol,
-    artifacts=[
-        ProtocolNTuples(),
-        ProtocolDiagram(),
-        ProtocolExecutionDiagram(),
-        ProtocolSampleTrace(),
-        ProtocolSpecialization(specialization=MarkdownSpecialization()),
-    ],
-    namespace="http://igem.org/engineering/",
-    protocol_name="interlab",
-    protocol_long_name="Multicolor fluorescence per bacterial particle calibration",
-    protocol_version="1.2",
-    protocol_description="""
-Plate readers report fluorescence values in arbitrary units that vary widely from instrument to instrument. Therefore absolute fluorescence values cannot be directly compared from one instrument to another. In order to compare fluorescence output of biological devices, it is necessary to create a standard fluorescence curve. This variant of the protocol uses two replicates of three colors of dye, plus beads.
-Adapted from [https://dx.doi.org/10.17504/protocols.io.bht7j6rn](https://dx.doi.org/10.17504/protocols.io.bht7j6r) and [https://dx.doi.org/10.17504/protocols.io.6zrhf56](https://dx.doi.org/10.17504/protocols.io.6zrhf56)
-    """,
-    output_dir="".join(__file__.split(".py")[0].split("/")[-1:]),
-    libraries=[
-        "liquid_handling",
-        "plate_handling",
-        "spectrophotometry",
-        "sample_arrays",
-    ],
-)
-
-
 if __name__ == "__main__":
+    harness = ProtocolHarness(
+        entry_point=generate_protocol,
+        artifacts=[
+            ProtocolSpecialization(
+                specialization=MarkdownSpecialization(filename + ".md")
+            ),
+        ],
+        namespace="http://igem.org/engineering/",
+        protocol_name="interlab",
+        protocol_long_name="Multicolor fluorescence per bacterial particle calibration",
+        protocol_version="1.2",
+        protocol_description="""
+    Plate readers report fluorescence values in arbitrary units that vary widely from instrument to instrument. Therefore absolute fluorescence values cannot be directly compared from one instrument to another. In order to compare fluorescence output of biological devices, it is necessary to create a standard fluorescence curve. This variant of the protocol uses two replicates of three colors of dye, plus beads.
+    Adapted from [https://dx.doi.org/10.17504/protocols.io.bht7j6rn](https://dx.doi.org/10.17504/protocols.io.bht7j6r) and [https://dx.doi.org/10.17504/protocols.io.6zrhf56](https://dx.doi.org/10.17504/protocols.io.6zrhf56)
+        """,
+        output_dir="".join(__file__.split(".py")[0].split("/")[-1:]),
+        libraries=[
+            "liquid_handling",
+            "plate_handling",
+            "spectrophotometry",
+            "sample_arrays",
+        ],
+    )
     harness.run()
     parser = argparse.ArgumentParser()
     parser.add_argument(

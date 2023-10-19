@@ -7,6 +7,7 @@ import graphviz
 import sbol3
 
 from uml import CallBehaviorAction, InputPin, LiteralReference, Parameter
+from uml.activity_edge import ActivityEdge
 
 from . import inner
 from .protocol import Protocol
@@ -16,7 +17,7 @@ class ActivityEdgeFlow(inner.ActivityEdgeFlow):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-    def get_edge(self):
+    def get_edge(self) -> ActivityEdge:
         return self.edge.lookup()
 
     def get_value(self):

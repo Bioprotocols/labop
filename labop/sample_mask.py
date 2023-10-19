@@ -10,7 +10,7 @@ from . import inner
 from .data import deserialize_sample_format, serialize_sample_format
 from .sample_collection import SampleCollection
 from .strings import Strings
-from .utils import contiguous_coordinates
+from .utils.plate_coordinates import contiguous_coordinates
 
 
 class SampleMask(inner.SampleMask, SampleCollection):

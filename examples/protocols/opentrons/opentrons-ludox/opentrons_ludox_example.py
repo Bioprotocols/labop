@@ -2,10 +2,10 @@ import sbol3
 import tyto
 
 import labop
-from labop.constants import ddh2o, ludox
+from labop.constants import PREFIX_MAP, ddh2o, ludox
+from labop.execution.harness import ProtocolHarness, ProtocolSpecialization
 from labop.protocol import Protocol
 from labop.strings import Strings
-from labop.utils.harness import ProtocolHarness, ProtocolSpecialization
 from labop_convert.markdown.markdown_specialization import MarkdownSpecialization
 from labop_convert.opentrons.opentrons_specialization import OT2Specialization
 
@@ -27,30 +27,30 @@ def generate_protocol(doc: sbol3.Document, activity: Protocol) -> Protocol:
         "working_reagents_rack",
         name="rack for reagent aliquots",
         queryString="cont:Opentrons24TubeRackwithEppendorf1.5mLSafe-LockSnapcap",
-        prefixMap=labop.constants.PREFIX_MAP,
+        prefixMap=PREFIX_MAP,
     )
     spec_ludox_container = labop.ContainerSpec(
         "ludox_working_solution",
         name="tube for ludox working solution",
         queryString="cont:MicrofugeTube",
-        prefixMap=labop.constants.PREFIX_MAP,
+        prefixMap=PREFIX_MAP,
     )
     spec_water_container = labop.ContainerSpec(
         "water_stock",
         name="tube for water aliquot",
         queryString="cont:MicrofugeTube",
-        prefixMap=labop.constants.PREFIX_MAP,
+        prefixMap=PREFIX_MAP,
     )
     spec_plate = labop.ContainerSpec(
         "calibration_plate",
         name="calibration plate",
         queryString="cont:Corning96WellPlate360uLFlat",
-        prefixMap=labop.constants.PREFIX_MAP,
+        prefixMap=PREFIX_MAP,
     )
     spec_tiprack = labop.ContainerSpec(
         "tiprack",
         queryString="cont:Opentrons96TipRack300uL",
-        prefixMap=labop.constants.PREFIX_MAP,
+        prefixMap=PREFIX_MAP,
     )
     doc.add(spec_rack)
     doc.add(spec_ludox_container)
@@ -125,26 +125,25 @@ def generate_protocol(doc: sbol3.Document, activity: Protocol) -> Protocol:
     return activity
 
 
-harness = ProtocolHarness(
-    entry_point=generate_protocol,
-    artifacts=[
-        ProtocolSpecialization(
-            specialization=MarkdownSpecialization(
-                "opentrons_ludox_example_protocol.md",
-                sample_format=Strings.XARRAY,
-            )
-        ),
-        ProtocolSpecialization(
-            specialization=OT2Specialization("opentrons_ludox_example_labop.py")
-        ),
-    ],
-    namespace="https://labop.io/examples/protocols/opentrons/",
-    protocol_name="iGEM_LUDOX_OD_calibration_2018",
-    protocol_long_name="iGEM 2018 LUDOX OD calibration protocol for OT2",
-    protocol_version="1.0",
-    protocol_description="Test Execution",
-    agent=sbol3.Agent("ot2_machine", name="OT2 machine"),
-)
-
 if __name__ == "__main__":
+    harness = ProtocolHarness(
+        entry_point=generate_protocol,
+        artifacts=[
+            ProtocolSpecialization(
+                specialization=MarkdownSpecialization(
+                    "opentrons_ludox_example_protocol.md",
+                    sample_format=Strings.XARRAY,
+                )
+            ),
+            ProtocolSpecialization(
+                specialization=OT2Specialization("opentrons_ludox_example_labop.py")
+            ),
+        ],
+        namespace="https://labop.io/examples/protocols/opentrons/",
+        protocol_name="iGEM_LUDOX_OD_calibration_2018",
+        protocol_long_name="iGEM 2018 LUDOX OD calibration protocol for OT2",
+        protocol_version="1.0",
+        protocol_description="Test Execution",
+        agent=sbol3.Agent("ot2_machine", name="OT2 machine"),
+    )
     harness.run()

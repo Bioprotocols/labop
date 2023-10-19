@@ -18,7 +18,7 @@ from sbol3 import Document
 import examples.pH_calibration.ph_calibration_utils as util
 import labop
 import uml
-from labop.execution_engine import ExecutionEngine
+from labop.execution.execution_engine import ExecutionEngine
 
 logger: logging.Logger = logging.Logger("pH_calibration")
 
@@ -439,7 +439,10 @@ def main():
     ]
     try:
         execution = ee.execute(
-            new_protocol, agent, id="test_execution", parameter_values=parameter_values
+            new_protocol,
+            agent,
+            id="test_execution",
+            parameter_values=parameter_values,
         )
     except Exception as e:
         logger.exception(e)

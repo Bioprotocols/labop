@@ -1,9 +1,8 @@
 import logging
 
 from labop import ActivityEdgeFlow
+from labop.activity_node_execution import ActivityNodeExecution
 from uml import CallBehaviorAction, Pin
-
-from .activity_node_execution import ActivityNodeExecution
 
 l = logging.getLogger(__file__)
 l.setLevel(logging.ERROR)

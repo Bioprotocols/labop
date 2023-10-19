@@ -115,8 +115,8 @@ class Behavior(inner.Behavior, WhereDefinedMixin):
         else:
             return found[0]
 
-    def get_output(self, name) -> Parameter:
-        """Return a specific input Parameter for this Behavior
+    def get_output(self, name: str) -> Parameter:
+        """Return a specific output Parameter for this Behavior
 
         Note: assumes that type is all either in or out
         Returns
@@ -138,6 +138,26 @@ class Behavior(inner.Behavior, WhereDefinedMixin):
             )
         else:
             return found[0]
+
+    def get_outputs(
+        self, ordered=False, required=False
+    ) -> Iterable[Union[Parameter, OrderedPropertyValue]]:
+        return self.get_parameters(
+            ordered=ordered,
+            required=required,
+            input_only=False,
+            output_only=True,
+        )
+
+    def get_inputs(
+        self, ordered=False, required=False
+    ) -> Iterable[Union[Parameter, OrderedPropertyValue]]:
+        return self.get_parameters(
+            ordered=ordered,
+            required=required,
+            input_only=True,
+            output_only=False,
+        )
 
     def get_parameters(
         self, ordered=False, required=False, input_only=False, output_only=False

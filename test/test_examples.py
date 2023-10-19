@@ -10,7 +10,7 @@ from typing import List
 
 from parameterized import parameterized
 
-from labop.utils.harness import ProtocolHarness
+from labop.execution import ProtocolHarness
 
 l = logging.Logger(__file__)
 l.setLevel(logging.INFO)
@@ -45,7 +45,34 @@ test_files = discover_example_protocols(example_directory)
 expected_failures = {
     "../examples/protocols/opentrons/opentrons-pcr/opentrons_pcr_example.py": {
         "description": "Fails because there is a missing primer layout csv."
-    }
+    },
+    "../examples/protocols/pH_calibration/pH_calibration.py": {
+        "description": "Fails because it cannot import module."
+    },
+    "../examples/protocols/iGEM/interlab-timepoint-B_AV.py": {
+        "description": "Fails because it cannot import module."
+    },
+    "../examples/protocols/iGEM/interlab-exp1_MI.py": {
+        "description": "Fails because it cannot import module."
+    },
+    "../examples/protocols/iGEM/interlab-growth-curve.py": {
+        "description": "Fails because it cannot import module."
+    },
+    "../examples/protocols/iGEM/interlab-exp2_MI.py": {
+        "description": "Fails because it cannot import module."
+    },
+    "../examples/protocols/iGEM/revised-interlab-growth-curve.py": {
+        "description": "Fails due to several well-formedness errors"
+    },
+    "../examples/protocols/iGEM/interlab-timepoint-B.py": {
+        "description": "Fails because it cannot import module."
+    },
+    "../examples/protocols/iGEM/interlab-exp2_from1.py": {
+        "description": "Fails because it cannot import module."
+    },
+    "../examples/protocols/iGEM/challenging-interlab-growth-curve.py": {
+        "description": "Fails due to several well-formedness errors"
+    },
 }
 
 

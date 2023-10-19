@@ -2,6 +2,7 @@
 http://2018.igem.org/wiki/images/0/09/2018_InterLab_Plate_Reader_Protocol.pdf
 """
 import json
+import sys
 from urllib.parse import quote
 
 import sbol3
@@ -9,7 +10,7 @@ from tyto import OM
 
 import labop
 import uml
-from labop.execution_engine import ExecutionEngine
+from labop.execution.execution_engine import ExecutionEngine
 from labop_convert import MarkdownSpecialization
 
 if "unittest" in sys.modules:
@@ -134,6 +135,7 @@ culture_container_day1 = activity.primitive_step(
     "ContainerSet",
     quantity=2 * len(plasmids),
     specification=labop.ContainerSpec(
+        "culture_day_1",
         name=f"culture (day 1)",
         queryString="cont:CultureTube",
         prefixMap={"cont": "https://sift.net/container-ontology/container-ontology#"},
@@ -157,6 +159,7 @@ culture_container_day2 = activity.primitive_step(
     "ContainerSet",
     quantity=2 * len(plasmids),
     specification=labop.ContainerSpec(
+        "culture_day_2",
         name=f"culture (day 2)",
         queryString="cont:CultureTube",
         prefixMap={"cont": "https://sift.net/container-ontology/container-ontology#"},
@@ -180,6 +183,7 @@ timepoint_0hrs = activity.primitive_step(
     "ContainerSet",
     quantity=2 * len(plasmids),
     specification=labop.ContainerSpec(
+        "cultures_0_hr_timepoint",
         name="cultures (0 hr timepoint)",
         queryString="cont:MicrofugeTube",
         prefixMap={"cont": "https://sift.net/container-ontology/container-ontology#"},
@@ -213,6 +217,7 @@ conical_tube = activity.primitive_step(
     "ContainerSet",
     quantity=2 * len(plasmids),
     specification=labop.ContainerSpec(
+        "back_diluted_culture",
         name=f"back-diluted culture",
         queryString="cont:50mlConicalTube",
         prefixMap={"cont": "https://sift.net/container-ontology/container-ontology#"},
@@ -243,6 +248,7 @@ temporary = activity.primitive_step(
     "ContainerSet",
     quantity=2 * len(plasmids),
     specification=labop.ContainerSpec(
+        "back_diluted_culture_aliquots",
         name="back-diluted culture aliquots",
         queryString="cont:MicrofugeTube",
         prefixMap={"cont": "https://sift.net/container-ontology/container-ontology#"},
@@ -267,6 +273,7 @@ transfer = activity.primitive_step(
 plate1 = activity.primitive_step(
     "EmptyContainer",
     specification=labop.ContainerSpec(
+        "plate_1",
         name="plate 1",
         queryString="cont:Plate96Well",
         prefixMap={"cont": "https://sift.net/container-ontology/container-ontology#"},
@@ -333,9 +340,7 @@ embedded_image = activity.primitive_step(
 )
 
 # Cover plate
-seal = activity.primitive_step(
-    "EvaporativeSeal", location=plate1.output_pin("samples"), type="foo"
-)
+seal = activity.primitive_step("EvaporativeSeal", location=plate1.output_pin("samples"))
 
 
 # Possibly display map here
@@ -397,6 +402,7 @@ timepoint_6hrs = activity.primitive_step(
     "ContainerSet",
     quantity=len(plasmids) * 2,
     specification=labop.ContainerSpec(
+        "six_hr_timepoint",
         name=f"6hr timepoint",
         queryString="cont:MicrofugeTube",
         prefixMap={"cont": "https://sift.net/container-ontology/container-ontology#"},
@@ -406,6 +412,7 @@ timepoint_6hrs = activity.primitive_step(
 plate2 = activity.primitive_step(
     "EmptyContainer",
     specification=labop.ContainerSpec(
+        "plate_2",
         name="plate 2",
         queryString="cont:Plate96Well",
         prefixMap={"cont": "https://sift.net/container-ontology/container-ontology#"},
@@ -483,9 +490,7 @@ plate_blanks = activity.primitive_step(
 plate_blanks.description = "These are the blanks."
 
 # Cover plate
-seal = activity.primitive_step(
-    "EvaporativeSeal", location=plate1.output_pin("samples"), type="foo"
-)
+seal = activity.primitive_step("EvaporativeSeal", location=plate1.output_pin("samples"))
 
 
 # quick_spin = protocol.primitive_step('QuickSpin',

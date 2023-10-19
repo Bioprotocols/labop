@@ -37,3 +37,6 @@ class ObjectNode(inner.ObjectNode, ActivityNode):
         bool if self is enabled
         """
         return all([len(edge_values[e]) > 0 for e in edge_values]) or engine.permissive
+
+    def get_name(self) -> str:
+        return self.name if self.name else self.get_parameter().name

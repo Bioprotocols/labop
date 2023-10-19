@@ -9,7 +9,7 @@ from tyto import OM
 
 import labop
 import uml
-from labop.execution_engine import ExecutionEngine
+from labop.execution.execution_engine import ExecutionEngine
 from labop_convert.markdown.markdown_specialization import MarkdownSpecialization
 
 doc = sbol3.Document()
@@ -118,6 +118,7 @@ culture_container_day1 = activity.primitive_step(
     "ContainerSet",
     quantity=2 * len(plasmids),
     specification=labop.ContainerSpec(
+        "culture_day_1",
         name=f"culture (day 1)",
         queryString="cont:CultureTube",
         prefixMap={"cont": "https://sift.net/container-ontology/container-ontology#"},
@@ -141,6 +142,7 @@ culture_container_day2 = activity.primitive_step(
     "ContainerSet",
     quantity=2 * len(plasmids),
     specification=labop.ContainerSpec(
+        "culture_day_2",
         name=f"culture (day 2)",
         queryString="cont:CultureTube",
         prefixMap={"cont": "https://sift.net/container-ontology/container-ontology#"},
@@ -169,6 +171,7 @@ parent_conical_tube = activity.primitive_step(
     "ContainerSet",
     quantity=2 * len(plasmids),
     specification=labop.ContainerSpec(
+        "back_diluted_culture",
         name=f"back-diluted culture",
         queryString="cont:50mlConicalTube",
         prefixMap={"cont": "https://sift.net/container-ontology/container-ontology#"},
@@ -193,6 +196,7 @@ conical_tubes = activity.primitive_step(
     quantity=2 * len(plasmids),
     replicates=3,
     specification=labop.ContainerSpec(
+        "replicate_subcultures",
         name=f"replicate subcultures",
         queryString="cont:50mlConicalTube",
         prefixMap={"cont": "https://sift.net/container-ontology/container-ontology#"},
@@ -221,6 +225,7 @@ timepoint_0hrs = activity.primitive_step(
     "ContainerSet",
     quantity=2 * len(plasmids) * 3,
     specification=labop.ContainerSpec(
+        "cultures_0_hr_timepoint",
         name="cultures (0 hr timepoint)",
         queryString="cont:MicrofugeTube",
         prefixMap={"cont": "https://sift.net/container-ontology/container-ontology#"},
@@ -245,6 +250,7 @@ transfer = activity.primitive_step(
 plate1 = activity.primitive_step(
     "EmptyContainer",
     specification=labop.ContainerSpec(
+        "plate_1",
         name="plate 1",
         queryString="cont:Plate96Well",
         prefixMap={"cont": "https://sift.net/container-ontology/container-ontology#"},
@@ -253,6 +259,7 @@ plate1 = activity.primitive_step(
 plate2 = activity.primitive_step(
     "EmptyContainer",
     specification=labop.ContainerSpec(
+        "plate_2",
         name="plate 2",
         queryString="cont:Plate96Well",
         prefixMap={"cont": "https://sift.net/container-ontology/container-ontology#"},
@@ -261,6 +268,7 @@ plate2 = activity.primitive_step(
 plate3 = activity.primitive_step(
     "EmptyContainer",
     specification=labop.ContainerSpec(
+        "plate_3",
         name="plate 3",
         queryString="cont:Plate96Well",
         prefixMap={"cont": "https://sift.net/container-ontology/container-ontology#"},
@@ -436,15 +444,9 @@ fluorescence_0hrs_plate3 = activity.primitive_step(
 fluorescence_0hrs_plate3.name = "0 hr fluorescence timepoint"
 
 ## Cover plate
-seal = activity.primitive_step(
-    "EvaporativeSeal", location=plate1.output_pin("samples"), type="foo"
-)
-seal = activity.primitive_step(
-    "EvaporativeSeal", location=plate2.output_pin("samples"), type="foo"
-)
-seal = activity.primitive_step(
-    "EvaporativeSeal", location=plate3.output_pin("samples"), type="foo"
-)
+seal = activity.primitive_step("EvaporativeSeal", location=plate1.output_pin("samples"))
+seal = activity.primitive_step("EvaporativeSeal", location=plate2.output_pin("samples"))
+seal = activity.primitive_step("EvaporativeSeal", location=plate3.output_pin("samples"))
 
 
 ## Begin outgrowth
@@ -502,6 +504,7 @@ timepoint_2hrs = activity.primitive_step(
     "ContainerSet",
     quantity=2 * len(plasmids) * 3,
     specification=labop.ContainerSpec(
+        "cultures_2_hr_timepoint",
         name="cultures (0 hr timepoint)",
         queryString="cont:MicrofugeTube",
         prefixMap={"cont": "https://sift.net/container-ontology/container-ontology#"},
@@ -526,6 +529,7 @@ transfer = activity.primitive_step(
 plate4 = activity.primitive_step(
     "EmptyContainer",
     specification=labop.ContainerSpec(
+        "plate_4",
         name="plate 4",
         queryString="cont:Plate96Well",
         prefixMap={"cont": "https://sift.net/container-ontology/container-ontology#"},

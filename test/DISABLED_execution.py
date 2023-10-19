@@ -6,7 +6,7 @@ import sbol3
 import tyto
 
 import labop
-from labop.execution_engine import ExecutionEngine
+from labop.execution.execution_engine import ExecutionEngine
 
 l = logging.getLogger(__file__)
 l.setLevel(logging.ERROR)
@@ -64,7 +64,10 @@ class TestProtocolExecution(unittest.TestCase):
             )
         ]
         execution = ee.execute(
-            protocol, agent, id="test_execution", parameter_values=parameter_values
+            protocol,
+            agent,
+            id="test_execution",
+            parameter_values=parameter_values,
         )
 
         # dot = execution.to_dot()

@@ -21,3 +21,4 @@ container-ontology
 .coverage
 cov.xml
 site/*
+**/artifacts/*

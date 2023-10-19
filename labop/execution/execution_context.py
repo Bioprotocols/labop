@@ -2,6 +2,8 @@ from typing import Dict, Iterable, List, Optional
 
 import sbol3
 
+from labop.call_behavior_execution import CallBehaviorExecution
+from labop.parameter_value import ParameterValue
 from uml import (
     Action,
     Activity,
@@ -22,9 +24,6 @@ from uml.activity_edge import ActivityEdge
 from uml.behavior import Behavior
 from uml.final_node import FinalNode
 from uml.initial_node import InitialNode
-
-from .call_behavior_execution import CallBehaviorExecution
-from .parameter_value import ParameterValue
 
 
 class ExecutionContext(object):
@@ -211,7 +210,7 @@ class ExecutionContext(object):
                 )
             )
         except StopIteration:
-            raise Exception(f"Could not find invocation edge from {source}")
+            raise Exception(f"Could not find invocation edge from {source} to {target}")
 
     def get_nodes(self):
         nodes = []

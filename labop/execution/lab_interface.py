@@ -4,8 +4,8 @@ from urllib.parse import quote
 import xarray as xr
 from numpy import nan
 
-from .data import serialize_sample_format
-from .strings import Strings
+from ..data import serialize_sample_format
+from ..strings import Strings
 
 
 class LabInterface:
