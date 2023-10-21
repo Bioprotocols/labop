@@ -2,6 +2,7 @@ import datetime
 import hashlib
 import logging
 import os
+import types
 import uuid
 from abc import ABC
 from typing import Callable, Dict, List, Optional, Tuple, Union
@@ -23,16 +24,21 @@ from labop.protocol_execution import ProtocolExecution
 from labop.sample_data import SampleData
 from labop.strings import Strings
 from uml import ActivityNode, CallBehaviorAction
+from uml.action import Action
 from uml.activity import Activity
 from uml.activity_edge import ActivityEdge
 from uml.activity_parameter_node import ActivityParameterNode
+from uml.fork_node import ForkNode
+from uml.literal_specification import LiteralSpecification
 from uml.object_flow import ObjectFlow
 from uml.output_pin import OutputPin
+from uml.parameter import Parameter
 from uml.pin import Pin
 from uml.utils import WellFormednessIssue, WellformednessLevels, literal
 
 from .behavior_dynamics import SampleProvenanceObserver
 from .execution_context import ExecutionContext
+from .primitive_execution import primitive_to_output_function
 
 l: logging.Logger = logging.getLogger(__file__)
 l.setLevel(logging.ERROR)
@@ -182,6 +188,16 @@ class ExecutionEngine(ABC):
         cur_time = self.start_time + rel_start
         return cur_time if not as_string else str(cur_time)
 
+    def initialize_primitive_compute_output(self, doc: sbol3.Document):
+        for k, v in primitive_to_output_function.items():
+            try:
+                p = Primitive.get_primitive(doc, k, copy_to_doc=False)
+                p.compute_output = types.MethodType(v, p)
+            except Exception as e:
+                l.warning(
+                    f"Could not set compute_output() for primitive {k}, did you import the correct library?"
+                )
+
     def initialize(
         self,
         protocol: Protocol,
@@ -198,7 +214,7 @@ class ExecutionEngine(ABC):
 
         if self.use_defined_primitives:
             # Define the compute_output function for known primitives
-            Primitive.initialize_primitive_compute_output(doc)
+            self.initialize_primitive_compute_output(doc)
 
         # First, set up the record for the protocol and parameter values
         if self.ex is not None and overwrite_execution:
@@ -468,7 +484,8 @@ class ExecutionEngine(ABC):
                 ActivityEdgeFlow(
                     edge=edge,
                     token_source=record,
-                    value=node.get_value(
+                    value=self.get_value(
+                        node,
                         edge,
                         parameter_value_map,
                         node_outputs,
@@ -505,7 +522,8 @@ class ExecutionEngine(ABC):
                 ActivityEdgeFlow(
                     edge=edge,
                     token_source=record,
-                    value=node.get_value(
+                    value=self.get_value(
+                        node,
                         edge,
                         parameter_value_map,
                         node_outputs,
@@ -558,6 +576,178 @@ class ExecutionEngine(ABC):
                 ]
 
         return new_tokens
+
+    def get_value(
+        self,
+        node: ActivityNode,
+        edge: "ActivityEdge",
+        node_inputs: Dict[str, Union[List[LiteralSpecification], LiteralSpecification]],
+        node_outputs: Callable,
+        sample_format: str,
+        invocation_hash: int,
+    ):
+        value = ""
+        reference = False
+        from uml.control_flow import ControlFlow
+        from uml.object_flow import ObjectFlow
+
+        if isinstance(edge, ControlFlow):
+            value = ["uml.ControlFlow"]
+        elif isinstance(edge, ObjectFlow):
+            if isinstance(node, Pin):
+                value = self.get_pin_value(
+                    node,
+                    edge,
+                    node_inputs,
+                    node_outputs,
+                    sample_format,
+                    invocation_hash,
+                )
+            elif isinstance(node, ForkNode):
+                value = self.get_fork_node_value(
+                    node,
+                    edge,
+                    node_inputs,
+                    node_outputs,
+                    sample_format,
+                    invocation_hash,
+                )
+            elif isinstance(node, ActivityParameterNode):
+                value = self.get_activity_parameter_node_value(
+                    node,
+                    edge,
+                    node_inputs,
+                    node_outputs,
+                    sample_format,
+                    invocation_hash,
+                )
+            elif isinstance(node, Action):
+                value = self.get_action_value(
+                    node,
+                    edge,
+                    node_inputs,
+                    node_outputs,
+                    sample_format,
+                    invocation_hash,
+                )
+
+        reference = lambda v: (isinstance(v, sbol3.Identified) and v.identity != None)
+        if isinstance(value, list):
+            value = [literal(v, reference=reference(v)) for v in value]
+        else:
+            value = [literal(value, reference=reference(value))]
+        return value
+
+    # from OutputPin
+    def get_pin_value(
+        self,
+        node: "Pin",
+        edge: "ActivityEdge",
+        node_inputs: Dict[str, Union[List[LiteralSpecification], LiteralSpecification]],
+        node_outputs: Callable,
+        sample_format: str,
+        invocation_hash: int,
+    ):
+        value = node_inputs[node.name]
+        return value
+
+    # from ForkNode
+    def get_fork_node_value(
+        self,
+        node: "ForkNode",
+        edge: "ActivityEdge",
+        parameter_value_map: Dict[str, List[LiteralSpecification]],
+        node_outputs: Callable,
+        sample_format: str,
+        invocation_hash: int,
+    ):
+        value = next(iter(parameter_value_map.values()))
+        return value
+
+    # from ActivityParameterNode
+    def get_activity_parameter_node_value(
+        self,
+        node: ActivityParameterNode,
+        edge: "ActivityEdge",
+        parameter_value_map: Dict[str, List[LiteralSpecification]],
+        node_outputs: Callable,
+        sample_format: str,
+        invocation_hash: int,
+    ):
+        if node.is_output():
+            value = parameter_value_map[node.name]
+        else:
+            value = ""
+        return value
+
+    # from Action
+    def get_action_value(
+        self,
+        node: Action,
+        edge: "ActivityEdge",
+        parameter_value_map: Dict[str, List[LiteralSpecification]],
+        node_outputs: Callable,
+        sample_format: str,
+        invocation_hash: int,
+    ):
+        parameter = node.get_parameter(name=edge.get_target().name)
+        value = self.get_parameter_value(
+            node,
+            parameter,
+            parameter_value_map,
+            node_outputs,
+            sample_format,
+            invocation_hash,
+        )
+
+        return value
+
+    # from CBA
+    def get_call_behavior_action_value(
+        self,
+        node: CallBehaviorAction,
+        edge: "ActivityEdge",
+        parameter_value_map: Dict[str, List[LiteralSpecification]],
+        node_outputs: Callable,
+        sample_format: str,
+        invocation_hash: int,
+    ):
+        from .activity import Activity
+
+        if isinstance(node.get_behavior(), Activity):
+            # Activity Invocations do not send objects to their output pins
+            # The activity output parameters will send object to the output pins.
+            value = "uml.ControlFlow"
+            reference = False
+        else:
+            parameter = node.get_parameter(name=edge.get_target().name)
+            value = node_outputs(
+                parameter, parameter_value_map, sample_format, invocation_hash
+            )
+        return value
+
+    def get_parameter_value(
+        self,
+        call_behavior_action: CallBehaviorAction,
+        parameter: Parameter,
+        parameter_value_map: Dict[str, List[LiteralSpecification]],
+        node_outputs: Callable,
+        sample_format: str,
+        invocation_hash: int,
+    ):
+        if node_outputs:
+            value = node_outputs(self, parameter)
+        elif hasattr(call_behavior_action.get_behavior(), "compute_output"):
+            value = call_behavior_action.get_behavior().compute_output(
+                parameter_value_map,
+                parameter,
+                sample_format,
+                invocation_hash,
+                self,
+            )
+        else:
+            value = f"{parameter.name}"
+        return value
 
     def possible_calling_behaviors(self, node: ActivityNode):
         # Get all CallBehaviorAction nodes that correspond to a CallBehaviorExecution that supports the current execution of the ActivityNode

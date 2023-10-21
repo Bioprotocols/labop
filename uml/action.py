@@ -2,7 +2,7 @@
 The Action class defines the functions corresponding to the dynamically generated labop class Action
 """
 
-from typing import Callable, Dict, List
+from typing import Dict, List
 
 import sbol3
 
@@ -161,7 +161,7 @@ class Action(inner.Action, ExecutableNode):
             return next(iter(params))
         else:
             raise ValueError(
-                f"Invalid parameter {name} provided for Primitive {behavior.display_id}"
+                f"Invalid parameter {name} provided for Primitive {self.get_behavior().display_id}"
             )
 
     def is_well_formed(self) -> List[WellFormednessIssue]:
@@ -270,28 +270,3 @@ class Action(inner.Action, ExecutableNode):
 
         else:
             return control_tokens_present
-
-    def get_value(
-        self,
-        edge: "ActivityEdge",
-        parameter_value_map: Dict[str, List[LiteralSpecification]],
-        node_outputs: Callable,
-        sample_format: str,
-    ):
-        from .control_flow import ControlFlow
-        from .object_flow import ObjectFlow
-
-        value = ""
-        reference = False
-
-        if isinstance(edge, ControlFlow):
-            value = "uml.ControlFlow"
-        elif isinstance(edge, ObjectFlow):
-            parameter = self.get_parameter(name=edge.get_source().name)
-            value = self.get_parameter_value(
-                parameter, parameter_value_map, node_outputs, sample_format
-            )
-            reference = isinstance(value, sbol3.Identified) and value.identity != None
-
-        value = [literal(value, reference=reference)]
-        return value
