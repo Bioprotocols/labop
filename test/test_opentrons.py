@@ -7,10 +7,10 @@ from importlib.util import module_from_spec, spec_from_loader
 import sbol3
 
 import labop
-from build.lib.labop_convert.opentrons import opentrons_specialization
 from labop.execution.execution_engine import ExecutionEngine
 from labop.execution.harness import ProtocolSpecialization
 from labop.utils.helpers import file_diff
+from labop_convert.opentrons import opentrons_specialization
 from labop_convert.opentrons.opentrons_specialization import OT2Specialization
 
 # Save testfiles as artifacts when running in CI environment,
