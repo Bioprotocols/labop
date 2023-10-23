@@ -744,7 +744,7 @@ async def LiquidHandler_setup():
         container_types = self.resolve_container_spec(container_spec)
         selected_container_type = self.check_lims_inventory(container_types)
         container_api_name = LABWARE_MAP[selected_container_type]
-        container_str = get_container_name(container_spec)
+        container_str = self.get_container_name(container_spec)
 
         # TODO: need to specify instrument
         deck = self.get_instrument_deck(instrument)

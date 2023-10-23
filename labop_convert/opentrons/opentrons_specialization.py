@@ -771,24 +771,6 @@ class OT2Specialization(DefaultBehaviorSpecialization):
         ]
         self.script_steps += ["thermocycler_module.set_block_temperature(4)"]
 
-    def get_instrument_deck(self, instrument: sbol3.Agent) -> str:
-        for deck, agent in self.configuration.items():
-            if agent == instrument:
-                return deck
-        raise Exception(
-            f"{instrument.display_id} is not currently configured for this robot"
-        )
-
-
-def get_container_name(container: ContainerSpec):
-    if container.name:
-        return f"`{container.name}`"
-    try:
-        prefix, local = container.queryString.split(":")
-    except:
-        raise Exception(f"Container specification {container.queryString} is invalid.")
-    return ContO.get_term_by_uri(f"{ContO.uri}#{local}")
-
 
 def measurement_to_text(measure: sbol3.Measure):
     measurement_scalar = measure.value

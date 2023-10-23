@@ -43,6 +43,9 @@ def discover_example_protocols(example_directory: str) -> List[str]:
 example_directory = os.path.join(os.path.dirname(__file__), f"../examples/")
 test_files = discover_example_protocols(example_directory)
 expected_failures = {
+    "../examples/protocols/pcr_pylabrobot/pcr_pylabrobot.py": {
+        "description": "Fails because there is a missing primer layout csv."
+    },
     "../examples/protocols/opentrons/opentrons-pcr/opentrons_pcr_example.py": {
         "description": "Fails because there is a missing primer layout csv."
     },
