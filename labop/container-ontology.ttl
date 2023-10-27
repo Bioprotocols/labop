@@ -624,6 +624,22 @@ cont:Rack rdf:type owl:Class ;
           rdfs:subClassOf cont:LabEquipment .
 
 
+############################################################
+### CARRIERS
+############################################################
+
+###  https://sift.net/container-ontology/container-ontology#Thermocycler
+cont:TipCarrier rdf:type owl:Class ;
+                  rdfs:subClassOf cont:LabEquipment ;
+                  rdfs:label "TipCarrier" .
+
+
+###  https://sift.net/container-ontology/container-ontology#TipRack
+cont:PlateCarrier rdf:type owl:Class ;
+             rdfs:subClassOf cont:LabEquipment ;
+             rdfs:label "PlateCarrier" .
+
+
 ###  https://sift.net/container-ontology/container-ontology#SLAS-1-2004
 cont:SLAS-1-2004 rdf:type owl:Class ;
                  owl:equivalentClass [ owl:intersectionOf ( [ rdf:type owl:Restriction ;
@@ -1306,6 +1322,32 @@ cont:Opentrons96TipRack10uL rdf:type owl:NamedIndividual ,
 cont:Opentrons96TipRack300uL rdf:type owl:NamedIndividual ,
                                       cont:TipRack ;
                              rdfs:label "Opentrons 96 Tip Rack 300 µL" .
+
+##################################################################
+### HAMILTON LABWARE
+##################################################################
+
+###  https://github.com/PyLabRobot/pylabrobot/blob/main/pylabrobot/resources/corning_costar/plates.py
+cont:MLSTARTipCarrier4ml rdf:type owl:NamedIndividual ,
+                                      cont:TipCarrier ;
+                             rdfs:label "ML STAR Tip Carrier with 5 4ml tip with filter racks landscape" .
+
+###  https://github.com/PyLabRobot/pylabrobot/blob/main/pylabrobot/resources/corning_costar/plates.py
+cont:MLSTARTipCarrier5ml rdf:type owl:NamedIndividual ,
+                                      cont:TipCarrier ;
+                             rdfs:label "ML STAR Tip carrier with 5 5ml tip racks landscape" .
+
+###  https://github.com/PyLabRobot/pylabrobot/blob/main/pylabrobot/resources/corning_costar/plates.py
+cont:MLSTARTipCarrier3rackA rdf:type owl:NamedIndividual ,
+                                      cont:TipCarrier ;
+                             rdfs:label "ML STAR Tip carrier for 3 Racks with 96 Tips portrait revision A00" .
+
+###  https://github.com/PyLabRobot/pylabrobot/blob/main/pylabrobot/resources/corning_costar/plates.py
+cont:MLSTARTipCarrier3rackB rdf:type owl:NamedIndividual ,
+                                      cont:TipCarrier ;
+                             rdfs:label "ML STAR Tip carrier for 3 Racks with 96 Tips portrait revision B00" .
+
+
 
 
 ###  https://sift.net/container-ontology/container-ontology#PlateReader
