@@ -14,7 +14,6 @@ from uml import (
 )
 
 from . import inner
-from .call_behavior_execution import CallBehaviorExecution
 
 
 class ActivityNodeExecution(inner.ActivityNodeExecution):
@@ -87,6 +86,8 @@ class ActivityNodeExecution(inner.ActivityNodeExecution):
         Returns:
             CallBehaviorExecution: CallBehaviorExecution
         """
+        from .call_behavior_execution import CallBehaviorExecution
+
         node = self.node.lookup()
         protocol = node.protocol()
         initial = protocol.initial()

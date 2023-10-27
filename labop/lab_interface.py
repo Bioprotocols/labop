@@ -4,8 +4,6 @@ from urllib.parse import quote
 import xarray as xr
 from numpy import nan
 
-from labop import SampleCollection
-
 from .data import serialize_sample_format
 from .strings import Strings
 
@@ -13,7 +11,7 @@ from .strings import Strings
 class LabInterface:
     @staticmethod
     def measure_absorbance(
-        samples: SampleCollection, wavelength: float, sample_format: str
+        samples: "SampleCollection", wavelength: float, sample_format: str
     ) -> xr.DataArray:
         # Override this method to interface with laboratory plate reader API
         if sample_format == Strings.XARRAY:
@@ -30,7 +28,7 @@ class LabInterface:
 
     @staticmethod
     def measure_fluorescence(
-        samples: SampleCollection,
+        samples: "SampleCollection",
         excitation: float,
         emission: float,
         bandpass: float,

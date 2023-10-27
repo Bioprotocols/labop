@@ -177,6 +177,7 @@ class MarkdownSpecialization(DefaultBehaviorSpecialization):
     def _materials_markdown(self, protocol, subprotocol_executions):
         document_objects = protocol.document.objects
         # TODO: Use different criteria for compiling Materials list based on ValueSpecifications for ValuePins
+        markdown = ""
         components = [
             x for x in document_objects if isinstance(x, sbol3.component.Component)
         ]
