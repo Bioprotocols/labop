@@ -12,10 +12,10 @@ import sbol3
 import tyto
 import xarray as xr
 
-from labop import SampleMask
 from labop.data import deserialize_sample_format
 from labop.sample_array import SampleArray
 from labop.sample_collection import SampleCollection
+from labop.sample_mask import SampleMask
 from labop.strings import Strings
 from labop_convert.behavior_specialization import DefaultBehaviorSpecialization
 from uml import (

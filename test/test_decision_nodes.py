@@ -47,7 +47,7 @@ class TestProtocolEndToEnd(unittest.TestCase):
         doc.add(pH_meter_calibrated)
 
         def pH_meter_calibrated_compute_output(
-            inputs, parameter, sample_format, record_hash
+            inputs, parameter, sample_format, record_hash, engine
         ):
             return True
 

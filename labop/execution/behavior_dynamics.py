@@ -16,9 +16,13 @@ from tyto import OM
 
 # Project packages
 import uml
-from labop import ActivityNodeExecution, SampleArray, SampleCollection, SampleMap
 from labop.data import deserialize_sample_format, serialize_sample_format
 from labop.strings import Strings
+
+from ..activity_node_execution import ActivityNodeExecution
+from ..sample_array import SampleArray
+from ..sample_collection import SampleCollection
+from ..sample_map import SampleMap
 
 
 class SampleProvenanceObserver:

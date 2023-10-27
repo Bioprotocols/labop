@@ -315,7 +315,7 @@ execution = ee.execute(
     parameter_values=[],
 )
 
-execution.to_dot().view()
+# execution.to_dot().view()
 with open(os.path.join(OUT_DIR, f"{filename}.nt"), "w") as f:
     f.write(doc.write_string(sbol3.SORTED_NTRIPLES).strip())
 

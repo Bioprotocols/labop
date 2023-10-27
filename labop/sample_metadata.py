@@ -128,7 +128,7 @@ class SampleMetadata(inner.SampleMetadata):
         return deserialize_sample_format(self.descriptions, parent=self)
 
     def from_sample_graph(for_samples, engine, record_source=False):
-        metadata = labop.SampleMetadata(for_samples=for_samples)
+        metadata = SampleMetadata(for_samples=for_samples)
 
         if engine.sample_format == Strings.XARRAY:
             # Convert pd.DataFrame into xr.DataArray

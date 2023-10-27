@@ -2,7 +2,7 @@
 The InputPin class defines the functions corresponding to the dynamically generated labop class InputPin
 """
 
-from typing import Callable, Dict, List, Union
+from typing import Callable, Dict, List
 
 import sbol3
 
@@ -56,33 +56,6 @@ class InputPin(inner.InputPin, Pin):
         ]
         edge_tokens = [(None, source, pin_value) for pin_value in pin_values]
         return edge_tokens
-
-    def get_value(
-        self,
-        edge: "ActivityEdge",
-        node_inputs: Dict[str, Union[List[LiteralSpecification], LiteralSpecification]],
-        node_outputs: Callable,
-        sample_format: str,
-        invocation_hash: int,
-    ):
-        value = ""
-        reference = False
-        from .control_flow import ControlFlow
-        from .object_flow import ObjectFlow
-
-        if isinstance(edge, ControlFlow):
-            value = "uml.ControlFlow"
-        elif isinstance(edge, ObjectFlow):
-            value = node_inputs[self.name]
-            reference = True
-
-        if isinstance(value, list) or isinstance(
-            value, sbol3.ownedobject.OwnedObjectListProperty
-        ):
-            value = [literal(v, reference=reference) for v in value]
-        else:
-            value = [literal(value, reference=reference)]
-        return value
 
     def is_well_formed(self) -> List[WellFormednessIssue]:
         """

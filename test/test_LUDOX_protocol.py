@@ -27,7 +27,7 @@ class TestProtocolEndToEnd(unittest.TestCase):
     def test_create_protocol(self):
         harness = labop.execution.harness.ProtocolHarness(
             clean_output=True,
-            base_dir=os.path.dirname(__file__),
+            base_dir=os.path.join(os.path.dirname(__file__), "out"),
             entry_point=self.create_protocol,
             namespace="https://bbn.com/scratch/",
             protocol_name="iGEM_LUDOX_OD_calibration_2018",

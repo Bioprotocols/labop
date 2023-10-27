@@ -518,7 +518,9 @@ class ProtocolHarness:
 
         self.base_dir = kwargs["base_dir"] if "base_dir" in kwargs else "."
         self.output_dir = (
-            kwargs["output_dir"] if "output_dir" in kwargs else "artifacts"
+            kwargs["output_dir"]
+            if "output_dir" in kwargs
+            else f"{self.protocol_name}/artifacts"
         )
         self.full_output_dir = os.path.join(self.base_dir, self.output_dir)
 
@@ -610,7 +612,7 @@ class ProtocolHarness:
         self._results = {}
 
     def filename_prefix(self) -> str:
-        return self.entry_point.__name__
+        return self.protocol_name
 
     def dataset_filename(self) -> str:
         return self.filename_prefix() + ".data.xslx"
