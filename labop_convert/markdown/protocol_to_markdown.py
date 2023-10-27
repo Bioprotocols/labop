@@ -71,7 +71,6 @@ def reduce_range_set(ranges):
 class MarkdownConverter:
     def __init__(self, document: sbol3.Document):
         self.document = document
-        # self.protocol_typing = labop.type_inference.ProtocolTyping()
 
     def markdown_header(self, protocol):
         header = (

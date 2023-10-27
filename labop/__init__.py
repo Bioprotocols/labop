@@ -39,7 +39,6 @@ from .sample_metadata import *
 from .dataset import *
 
 from .strings import *
-from .type_inference import *
 from .library import *
 
 

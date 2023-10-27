@@ -314,22 +314,6 @@ labop:SampleMap a owl:Class ;
             owl:onProperty labop:sampleMapTargets ],
         sbol:Identified .
 
-labop:ManyToOneSampleMap a owl:Class ;
-    rdfs:comment """The ManyToOneSampleMap class is used to associate SampleCollections to a SampleCollection. It references
-        the ActivityNode objects that are sources or destination.""" ;
-    rdfs:subClassOf [ a owl:Restriction ;
-            owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
-            owl:onProperty labop:sampleMapTargets ],
-        labop:SampleMap .
-
-labop:OneToManySampleMap a owl:Class ;
-    rdfs:comment """The OneToManySampleMap class is used to associate a SampleCollection to SampleCollections. It references
-        the ActivityNode objects that are sources or destination.""" ;
-    rdfs:subClassOf [ a owl:Restriction ;
-            owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
-            owl:onProperty labop:sampleMapSources ],
-        labop:SampleMap .
-
 labop:sampleMapSources a owl:ObjectProperty ;
     rdfs:label "sources" ;
     rdfs:comment """The sources property indicates the SampleCollection that is a source in a SampleMap.""" ;

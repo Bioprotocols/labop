@@ -9,7 +9,7 @@ SHELL_GET_TARGET_ARCH := $(shell test ! -z $(TARGET_ARCH) && echo $(TARGET_ARCH)
 TARGET_TAG=$(TARGET_OS)-$(SHELL_GET_TARGET_ARCH)
 CONTAINER_NAME=labop
 TAGGED_NAME=$(CONTAINER_NAME):$(TARGET_TAG)
-REGISTRY_ROOT=danbryce
+REGISTRY_ROOT=ghcr.io/bioprotocols/labop
 
 docker:
 	DOCKER_BUILDKIT=1 docker buildx build \
