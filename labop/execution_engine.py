@@ -6,6 +6,7 @@ import uuid
 from abc import ABC
 from typing import Callable, Dict, List, Optional, Tuple, Union
 
+import graphviz
 import pandas as pd
 import sbol3
 from numpy import record
@@ -807,30 +808,15 @@ class ManualExecutionEngine(ExecutionEngine):
         return ready, choices, graph
 
     def advance(self, ready: List[ActivityNode]):
-        def auto_advance(r):
-            # If Node is a CallBehavior action, then:
-            if isinstance(r, CallBehaviorAction):
-                behavior = r.behavior.lookup()
-                return (  # It is a subprotocol
-                    isinstance(behavior, Protocol)
-                    or (len(list(behavior.get_outputs())) == 0)  # Has no output pins
-                    or (  # Overrides the (empty) default implementation of compute_output()
-                        not hasattr(behavior.compute_output, "__func__")
-                        or behavior.compute_output.__func__ != Primitive.compute_output
-                    )
-                )
-            else:
-                return True
-
-        auto_advance_nodes = [r for r in ready if auto_advance(r)]
+        auto_advance_nodes = [r for r in ready if r.auto_advance()]
 
         while len(auto_advance_nodes) > 0:
             ready = self.step(auto_advance_nodes)
-            auto_advance_nodes = [r for r in ready if auto_advance(r)]
+            auto_advance_nodes = [r for r in ready if r.auto_advance()]
 
         return self.executable_activity_nodes()
 
-    def ready_message(self, ready: List[ActivityNode]):
+    def ready_message(self, ready: List[ActivityNode]) -> str:
         msg = "Activities Ready to Execute:\n"
 
         def activity_name(a):
@@ -865,7 +851,9 @@ class ManualExecutionEngine(ExecutionEngine):
         )
         # return choices #f"{msg}{ready_nodes}"
 
-    def next(self, activity_node: ActivityNode, node_output: callable):
+    def next(
+        self, activity_node: ActivityNode, node_output: callable
+    ) -> Tuple[List[ActivityNode], str, graphviz.Graph]:
         """Execute a single ActivityNode using the node_output function to calculate its output pin values.
 
         Args:
@@ -873,7 +861,7 @@ class ManualExecutionEngine(ExecutionEngine):
             node_output (callable): function to calculate output pins
 
         Returns:
-            _type_: _description_
+            Tuple[List[ActivityNode], List[str], graphviz.Graph]: Summary of the next possible execution steps, including the executable ActivityNodes, Activities, and a graphical depiction of the execution state.
         """
         successors = self.step(
             [activity_node], node_outputs={activity_node: node_output}
@@ -882,7 +870,3 @@ class ManualExecutionEngine(ExecutionEngine):
         choices = self.ready_message(ready)
         graph = self.ex.to_dot(ready=ready, done=self.ex.backtrace()[0])
         return ready, choices, graph
-
-
-##################################
-# Helper utility functions

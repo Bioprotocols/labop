@@ -36,7 +36,7 @@ class SampleData(inner.SampleData):
             sample_data = deserialize_sample_format(self.values, parent=self)
         return sample_data
 
-    def from_table(self, table: List[List[Dict[str, str]]]):
+    def from_table(self, table: List[List[Dict[str, str]]]) -> "SampleData":
         """Convert from LabOPED table to SampleData
 
         Args:

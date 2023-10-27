@@ -77,7 +77,7 @@ class ActivityNodeExecution(inner.ActivityNodeExecution):
     def get_calling_behavior_execution(
         self,
         visited=None,
-    ):
+    ) -> "CallBehaviorExecution":
         """Look for the InitialNode for the Activity including self and identify a Calling CallBehaviorExecution (if present)
 
         Args:

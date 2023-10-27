@@ -161,3 +161,15 @@ class CallBehaviorAction(inner.CallBehaviorAction, CallAction):
         else:
             value = f"{parameter.name}"
         return value
+
+    def auto_advance(self):
+        """
+        Is the node executable without additional manual input?
+
+        Returns
+        -------
+        bool
+            Whether the node can be automatically executed.
+        """
+        behavior = self.get_behavior()
+        return behavior.auto_advance()
