@@ -1,24 +1,14 @@
 import logging
 
-import rdflib as rdfl
 import sbol3
 import tyto
 from sbol3 import Document
 
 import labop
-import uml
-from labop.execution_engine import ExecutionEngine
+from labop.constants import PREFIX_MAP
+from labop.execution import ProtocolHarness, ProtocolSpecialization
 from labop.protocol import Protocol
 from labop.strings import Strings
-from labop.utils.harness import (
-    ProtocolDiagram,
-    ProtocolExecutionDiagram,
-    ProtocolExecutionNTuples,
-    ProtocolHarness,
-    ProtocolNTuples,
-    ProtocolSampleTrace,
-    ProtocolSpecialization,
-)
 from labop_convert.markdown.markdown_specialization import MarkdownSpecialization
 from labop_convert.opentrons.opentrons_specialization import (
     REVERSE_LABWARE_MAP,
@@ -61,7 +51,7 @@ def get_container(protocol: labop.Protocol, container_name: str, container_type:
         container_name.replace(" ", "_"),
         name=container_name,
         queryString=query_string,
-        prefixMap=labop.constants.PREFIX_MAP,
+        prefixMap=PREFIX_MAP,
     )
     plate = protocol.primitive_step("EmptyContainer", specification=plate_spec)
     return plate
@@ -126,24 +116,23 @@ def opentrons_toy_protocol(doc: sbol3.Document, protocol: Protocol) -> Protocol:
     return protocol
 
 
-harness = ProtocolHarness(
-    entry_point=opentrons_toy_protocol,
-    artifacts=[
-        ProtocolSpecialization(
-            specialization=MarkdownSpecialization(
-                "opentrons_toy_protocol.md", sample_format=Strings.XARRAY
-            )
-        ),
-        ProtocolSpecialization(
-            specialization=OT2Specialization("opentrons_toy_protocol_labop.py")
-        ),
-    ],
-    namespace="https://labop.io/examples/protocols/opentrons/",
-    protocol_name="opentrons_toy",
-    protocol_long_name="OT2 simple toy demonstration",
-    protocol_version="1.0",
-    protocol_description="Example Opentrons Protocol as LabOP",
-)
-
 if __name__ == "__main__":
+    harness = ProtocolHarness(
+        entry_point=opentrons_toy_protocol,
+        artifacts=[
+            ProtocolSpecialization(
+                specialization=MarkdownSpecialization(
+                    "opentrons_toy_protocol.md", sample_format=Strings.XARRAY
+                )
+            ),
+            ProtocolSpecialization(
+                specialization=OT2Specialization("opentrons_toy_protocol_labop.py")
+            ),
+        ],
+        namespace="https://labop.io/examples/protocols/opentrons/",
+        protocol_name="opentrons_toy",
+        protocol_long_name="OT2 simple toy demonstration",
+        protocol_version="1.0",
+        protocol_description="Example Opentrons Protocol as LabOP",
+    )
     harness.run()

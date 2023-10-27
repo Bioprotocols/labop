@@ -11,7 +11,17 @@ import pandas as pd
 import sbol3
 from numpy import record
 
-from labop_convert.behavior_dynamics import SampleProvenanceObserver
+from labop.activity_edge_flow import ActivityEdgeFlow
+from labop.activity_node_execution import ActivityNodeExecution
+from labop.behavior_execution import BehaviorExecution
+from labop.call_behavior_execution import CallBehaviorExecution
+from labop.dataset import Dataset
+from labop.parameter_value import ParameterValue
+from labop.primitive import Primitive
+from labop.protocol import Protocol
+from labop.protocol_execution import ProtocolExecution
+from labop.sample_data import SampleData
+from labop.strings import Strings
 from uml import ActivityNode, CallBehaviorAction
 from uml.activity import Activity
 from uml.activity_edge import ActivityEdge
@@ -21,18 +31,8 @@ from uml.output_pin import OutputPin
 from uml.pin import Pin
 from uml.utils import WellFormednessIssue, WellformednessLevels, literal
 
-from .activity_edge_flow import ActivityEdgeFlow
-from .activity_node_execution import ActivityNodeExecution
-from .behavior_execution import BehaviorExecution
-from .call_behavior_execution import CallBehaviorExecution
-from .dataset import Dataset
+from .behavior_dynamics import SampleProvenanceObserver
 from .execution_context import ExecutionContext
-from .parameter_value import ParameterValue
-from .primitive import Primitive
-from .protocol import Protocol
-from .protocol_execution import ProtocolExecution
-from .sample_data import SampleData
-from .strings import Strings
 
 l: logging.Logger = logging.getLogger(__file__)
 l.setLevel(logging.ERROR)
@@ -534,9 +534,12 @@ class ExecutionEngine(ABC):
                     ActivityEdgeFlow(
                         edge=new_execution_context.get_invocation_edge(
                             token_consumed.get_edge().get_source(),
+                            activity_parameter_node,
                         ),
                         token_source=token_consumed.token_source,
-                        value=[literal(token_consumed.value, reference=True)],
+                        value=[
+                            literal(v, reference=True) for v in token_consumed.value
+                        ],
                     )
                     for token_consumed in record.get_incoming_flows()
                     if isinstance(token_consumed.get_edge().get_source(), Pin)

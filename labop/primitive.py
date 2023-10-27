@@ -12,7 +12,6 @@ from uml import PARAMETER_IN, PARAMETER_OUT, Behavior, inner_to_outer
 
 from . import inner
 from .dataset import Dataset
-from .lab_interface import LabInterface
 from .library import loaded_libraries
 from .sample_array import SampleArray
 from .sample_data import SampleData
@@ -136,7 +135,7 @@ class Primitive(inner.Primitive, Behavior):
         """
         Compute the value for parameter given the inputs. This default function will be overridden for specific primitives.
         :param self:
-        :param inputs: list of labop.ParameterValue
+        :param inputs: list of ParameterValue
         :param parameter: Parameter needing value
         :return: value
         """
@@ -312,6 +311,7 @@ class Primitive(inner.Primitive, Behavior):
         ):
             samples = input_map["samples"]
             wl = input_map["wavelength"]
+            from labop.execution.lab_interface import LabInterface
 
             measurements = LabInterface.measure_absorbance(
                 samples, wl.value, sample_format
@@ -337,6 +337,7 @@ class Primitive(inner.Primitive, Behavior):
             exwl = input_map["excitationWavelength"]
             emwl = input_map["emissionWavelength"]
             bandpass = input_map["emissionBandpassWidth"]
+            from labop.execution.lab_interface import LabInterface
 
             measurements = LabInterface.measure_fluorescence(
                 samples,
@@ -405,7 +406,7 @@ class Primitive(inner.Primitive, Behavior):
             and parameter.type == "http://bioprotocols.org/labop#SampleMetadata"
         ):
             for_samples = input_map["for_samples"]
-            metadata = labop.SampleMetadata.from_sample_graph(for_samples, engine)
+            metadata = SampleMetadata.from_sample_graph(for_samples, engine)
             return metadata
 
     def transfer_by_map_compute_output(
@@ -424,9 +425,7 @@ class Primitive(inner.Primitive, Behavior):
             spec = source.container_type
             contents = self.transfer_out(source, target, plan, sample_format)
             name = f"{parameter.name}"
-            result = labop.SampleArray(
-                name=name, container_type=spec, contents=contents
-            )
+            result = SampleArray(name=name, container_type=spec, contents=contents)
         elif (
             parameter.name == "destinationResult"
             and parameter.type == "http://bioprotocols.org/labop#SampleCollection"
@@ -438,9 +437,7 @@ class Primitive(inner.Primitive, Behavior):
             spec = source.container_type
             contents = self.transfer_in(source, target, plan, sample_format)
             name = f"{parameter.name}"
-            result = labop.SampleArray(
-                name=name, container_type=spec, contents=contents
-            )
+            result = SampleArray(name=name, container_type=spec, contents=contents)
         return result
 
     primitive_to_output_function = {

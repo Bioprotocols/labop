@@ -10,7 +10,7 @@ import tyto
 import xarray as xr
 
 from labop import ContainerSpec, Protocol, SampleMap, Strings, serialize_sample_format
-from labop.execution_engine import ExecutionEngine
+from labop.execution.execution_engine import ExecutionEngine
 from labop.strings import Strings
 from labop.utils.helpers import file_diff
 from labop.utils.plate_coordinates import (

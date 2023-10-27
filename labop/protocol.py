@@ -21,6 +21,7 @@ from uml import (
     ObjectNode,
     ValueSpecification,
 )
+from uml.call_behavior_action import CallBehaviorAction
 from uml.utils import WellFormednessError, WellFormednessIssue
 
 from . import inner
@@ -102,6 +103,22 @@ class Protocol(inner.Protocol, Activity):
         self.last_step = pe  # update the last step
         return pe
 
+    def make_decision_input_activity(
+        self,
+        decision_input_behavior: Behavior,
+        decision_input_source: ActivityNode = None,
+    ) -> CallBehaviorAction:
+        input_pin_map = (
+            {"decision_input": decision_input_source}
+            if decision_input_source is not None
+            else {}
+        )
+
+        decision_input = self.execute_primitive(
+            decision_input_behavior, **input_pin_map
+        )
+        return decision_input
+
     def make_decision_node(
         self,
         primary_incoming_node: ActivityNode,
@@ -121,37 +138,36 @@ class Protocol(inner.Protocol, Activity):
         """
 
         assert primary_incoming_node
-        primary_incoming_flow = (
-            ControlFlow(source=primary_incoming_node)
-            if isinstance(primary_incoming_node, ControlNode)
-            else ObjectFlow(source=primary_incoming_node)
-        )
-        self.edges.append(primary_incoming_flow)
 
-        decision_input = None
-
-        if decision_input_behavior:
-            input_pin_map = {}
-            decision_input_control = None
-            if decision_input_source:
-                input_pin_map["decision_input"] = decision_input_source
-            if primary_incoming_node:
-                if isinstance(primary_incoming_node, ObjectNode):
-                    input_pin_map["primary_input"] = primary_incoming_node
-                else:
-                    # Make a ControlFlow so that decision_input executes first
-                    decision_input_control = ControlFlow(source=primary_incoming_node)
-
-            decision_input = self.execute_primitive(
-                decision_input_behavior, **input_pin_map
+        decision_input = (
+            self.make_decision_input_activity(
+                decision_input_behavior,
+                decision_input_source=decision_input_source,
             )
-            if decision_input_control:
-                decision_input_control.target = decision_input
-                self.edges.append(decision_input_control)
+            if decision_input_behavior is not None
+            else None
+        )
 
+        # Link decision input flow
         decision_input_flow = None
-        if decision_input_source:
-            decision_input_flow = ObjectFlow(source=decision_input_source)
+
+        if decision_input:
+            # if decision_input_source is not None:
+            # # link decision_input_source to decision_input
+            # decision_input_flow = ObjectFlow(
+            #     source=decision_input_source, target=decision_input.input_pin("decision_input")
+            # )
+            # self.edges.append(decision_input_flow)
+
+            # Order decision input after primary incoming node
+            decision_input_control = ControlFlow(
+                source=primary_incoming_node, target=decision_input
+            )
+            self.edges.append(decision_input_control)
+        elif decision_input_source is not None:
+            decision_input_flow = ObjectFlow(
+                source=decision_input_source, target=decision
+            )
             self.edges.append(decision_input_flow)
 
         decision = DecisionNode(
@@ -161,15 +177,20 @@ class Protocol(inner.Protocol, Activity):
         self.nodes.append(decision)
 
         if decision_input:
-            # Flow that communicates the return value of the decision_input behavior execution to the decision
+            # Link Flow that communicates the return value of the decision_input behavior execution to the decision
             decision_input_to_decision_flow = ObjectFlow(
                 source=decision_input.output_pin("return"), target=decision
             )
             self.edges.append(decision_input_to_decision_flow)
 
-        primary_incoming_flow.target = decision
-        if decision_input_flow:
-            decision_input_flow.target = decision
+        # Control nodes and CallBehaviorAction nodes provide control flow.  ActivityParameterNode and Pins provide object flows
+        primary_incoming_flow = (
+            ControlFlow(source=primary_incoming_node, target=decision)
+            if isinstance(primary_incoming_node, ControlNode)
+            or isinstance(primary_incoming_node, CallBehaviorAction)
+            else ObjectFlow(source=primary_incoming_node)
+        )
+        self.edges.append(primary_incoming_flow)
 
         # Make edges for outgoing_targets
         if outgoing_targets:
@@ -256,3 +277,9 @@ class Protocol(inner.Protocol, Activity):
 
     def auto_advance(self):
         return True
+
+    def get_behaviors(self) -> List[Behavior]:
+        activities = [
+            n.get_behavior() for n in self.nodes if isinstance(n, ActivityNode)
+        ]
+        return activities

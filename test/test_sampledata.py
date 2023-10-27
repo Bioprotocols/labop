@@ -15,7 +15,7 @@ from tyto import OM
 import labop
 import uml
 from labop import Protocol
-from labop.execution_engine import ExecutionEngine
+from labop.execution.execution_engine import ExecutionEngine
 from labop.utils.helpers import file_diff
 from labop.utils.plate_coordinates import get_sample_list
 

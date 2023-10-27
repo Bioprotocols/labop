@@ -21,6 +21,9 @@ class ParameterValue(inner.ParameterValue):
     def get_parameter(self):
         return self.parameter.lookup().property_value
 
+    def get_name(self):
+        return self.get_parameter().name
+
     @staticmethod
     def parameter_value_map(
         parameter_values: List["ParameterValue"],

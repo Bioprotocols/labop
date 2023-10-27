@@ -106,7 +106,7 @@ class ECLSpecialization(BehaviorSpecialization):
         super().handle_process_failure(record, exception)
         self.script_steps.append(f"# Failure processing record: {record.identity}")
 
-    def on_begin(self, ex: labop.ProtocolExecution):
+    def on_begin(self, ex: "ProtocolExecution"):
         protocol = self.execution.protocol.lookup()
         self.data = []
 
@@ -142,13 +142,13 @@ class ECLSpecialization(BehaviorSpecialization):
         return script
 
     def define_container(
-        self, record: labop.ActivityNodeExecution, ex: labop.ProtocolExecution
+        self, record: "ActivityNodeExecution", ex: "ProtocolExecution"
     ):
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
 
-        spec = parameter_value_map["specification"]["value"]
-        samples = parameter_value_map["samples"]["value"]
+        spec = parameter_value_map["specification"]
+        samples = parameter_value_map["samples"]
 
         name = spec.name if spec.name else spec.display_id
         container_types = self.resolve_container_spec(spec)
@@ -167,17 +167,17 @@ class ECLSpecialization(BehaviorSpecialization):
 
     def vortex(
         self,
-        record: labop.ActivityNodeExecution,
-        execution: labop.ProtocolExecution,
+        record: "ActivityNodeExecution",
+        execution: "ProtocolExecution",
     ):
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
         duration = None
         if "duration" in parameter_value_map:
             duration_measure = ecl_measure(
-                parameter_value_map["duration"]["value"], use_star=True
+                parameter_value_map["duration"], use_star=True
             )
-        samples = parameter_value_map["samples"]["value"]
+        samples = parameter_value_map["samples"]
         spec = samples.get_container_type()
         if str(spec) in self.resolutions:
             sample = self.resolutions[str(spec)]
@@ -197,26 +197,20 @@ class ECLSpecialization(BehaviorSpecialization):
         else:
             self.script_steps += [text]
 
-    def time_wait(
-        self, record: labop.ActivityNodeExecution, ex: labop.ProtocolExecution
-    ):
+    def time_wait(self, record: "ActivityNodeExecution", ex: "ProtocolExecution"):
         results = {}
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
-        value = parameter_value_map["amount"]["value"].value
-        units = parameter_value_map["amount"]["value"].unit
+        value = parameter_value_map["amount"].value
+        units = parameter_value_map["amount"].unit
         self.script_steps += [f"time.sleep(value)"]
 
-    def provision(
-        self, record: labop.ActivityNodeExecution, ex: labop.ProtocolExecution
-    ):
+    def provision(self, record: "ActivityNodeExecution", ex: "ProtocolExecution"):
         results = {}
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
-        destination = parameter_value_map["destination"]["value"]
-        resource = source = self.resolutions[
-            parameter_value_map["resource"]["value"].identity
-        ]
+        destination = parameter_value_map["destination"]
+        resource = source = self.resolutions[parameter_value_map["resource"].identity]
 
         if type(destination) is labop.SampleMask:
             dest_container = destination.source.lookup().container_type.lookup()
@@ -225,7 +219,7 @@ class ECLSpecialization(BehaviorSpecialization):
             dest_container = destination.container_type.lookup()
             dest_wells = None
 
-        amount = ecl_measure(parameter_value_map["amount"]["value"])
+        amount = ecl_measure(parameter_value_map["amount"])
         text = ecl_transfer(
             source, f'"{dest_container}"', amount, dest_wells=dest_wells
         )
@@ -235,15 +229,13 @@ class ECLSpecialization(BehaviorSpecialization):
         # else:
         self.script_steps += [text]
 
-    def transfer_to(
-        self, record: labop.ActivityNodeExecution, ex: labop.ProtocolExecution
-    ):
+    def transfer_to(self, record: "ActivityNodeExecution", ex: "ProtocolExecution"):
         results = {}
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
-        source = parameter_value_map["source"]["value"]
-        destination = parameter_value_map["destination"]["value"]
-        amount = ecl_measure(parameter_value_map["amount"]["value"])
+        source = parameter_value_map["source"]
+        destination = parameter_value_map["destination"]
+        amount = ecl_measure(parameter_value_map["amount"])
 
         if type(source) is labop.SampleMask:
             source_container = source.source.lookup().container_type.lookup()
@@ -278,35 +270,33 @@ class ECLSpecialization(BehaviorSpecialization):
         # else:
         self.script_steps += [text]
 
-    def transfer_by_map(
-        self, record: labop.ActivityNodeExecution, ex: labop.ProtocolExecution
-    ):
+    def transfer_by_map(self, record: "ActivityNodeExecution", ex: "ProtocolExecution"):
         results = {}
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
-        destination = parameter_value_map["destination"]["value"]
-        source = parameter_value_map["source"]["value"]
-        plan = parameter_value_map["plan"]["value"]
-        temperature = parameter_value_map["temperature"]["value"]
-        value = parameter_value_map["amount"]["value"].value
+        destination = parameter_value_map["destination"]
+        source = parameter_value_map["source"]
+        plan = parameter_value_map["plan"]
+        temperature = parameter_value_map["temperature"]
+        value = parameter_value_map["amount"].value
 
     def plate_coordinates(
-        self, record: labop.ActivityNodeExecution, ex: labop.ProtocolExecution
+        self, record: "ActivityNodeExecution", ex: "ProtocolExecution"
     ):
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
-        source = parameter_value_map["source"]["value"]
-        coords = parameter_value_map["coordinates"]["value"]
-        samples = parameter_value_map["samples"]["value"]
+        source = parameter_value_map["source"]
+        coords = parameter_value_map["coordinates"]
+        samples = parameter_value_map["samples"]
 
     def measure_absorbance(
-        self, record: labop.ActivityNodeExecution, ex: labop.ProtocolExecution
+        self, record: "ActivityNodeExecution", ex: "ProtocolExecution"
     ):
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
 
-        wavelength = ecl_measure(parameter_value_map["wavelength"]["value"])
-        samples = parameter_value_map["samples"]["value"]
+        wavelength = ecl_measure(parameter_value_map["wavelength"])
+        samples = parameter_value_map["samples"]
 
         if type(samples) is labop.SampleMask:
             samples = samples.source.lookup()
@@ -324,21 +314,21 @@ class ECLSpecialization(BehaviorSpecialization):
         self.script_steps += [text]
 
     def measure_fluorescence(
-        self, record: labop.ActivityNodeExecution, ex: labop.ProtocolExecution
+        self, record: "ActivityNodeExecution", ex: "ProtocolExecution"
     ):
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
 
-        excitation = ecl_measure(parameter_value_map["excitationWavelength"]["value"])
-        emission = ecl_measure(parameter_value_map["emissionWavelength"]["value"])
-        bandpass = ecl_measure(parameter_value_map["emissionBandpassWidth"]["value"])
-        samples = parameter_value_map["samples"]["value"]
+        excitation = ecl_measure(parameter_value_map["excitationWavelength"])
+        emission = ecl_measure(parameter_value_map["emissionWavelength"])
+        bandpass = ecl_measure(parameter_value_map["emissionBandpassWidth"])
+        samples = parameter_value_map["samples"]
         timepoints = (
-            parameter_value_map["timepoints"]["value"]
+            parameter_value_map["timepoints"]
             if "timepoints" in parameter_value_map
             else None
         )
-        measurements = parameter_value_map["measurements"]["value"]
+        measurements = parameter_value_map["measurements"]
 
         if type(samples) is labop.SampleMask:
             samples = samples.source.lookup()
@@ -353,80 +343,70 @@ class ECLSpecialization(BehaviorSpecialization):
       ]"""
         self.script_steps += [text]
 
-    def define_rack(
-        self, record: labop.ActivityNodeExecution, ex: labop.ProtocolExecution
-    ):
+    def define_rack(self, record: "ActivityNodeExecution", ex: "ProtocolExecution"):
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
 
-        spec = parameter_value_map["specification"]["value"]
-        slots = parameter_value_map["slots"]["value"]
+        spec = parameter_value_map["specification"]
+        slots = parameter_value_map["slots"]
 
     def load_container_in_rack(
-        self, record: labop.ActivityNodeExecution, ex: labop.ProtocolExecution
+        self, record: "ActivityNodeExecution", ex: "ProtocolExecution"
     ):
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
         container: labop.ContainerSpec = parameter_value_map["container"]["value"]
         coords: str = (
-            parameter_value_map["coordinates"]["value"]
+            parameter_value_map["coordinates"]
             if "coordinates" in parameter_value_map
             else "A1"
         )
-        slots: labop.SampleCollection = parameter_value_map["slots"]["value"]
-        samples: labop.SampleMask = parameter_value_map["samples"]["value"]
+        slots: "SampleCollection" = parameter_value_map["slots"]
+        samples: labop.SampleMask = parameter_value_map["samples"]
 
     def load_container_on_instrument(
-        self, record: labop.ActivityNodeExecution, ex: labop.ProtocolExecution
+        self, record: "ActivityNodeExecution", ex: "ProtocolExecution"
     ):
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
-        container_spec: labop.ContainerSpec = parameter_value_map["specification"][
-            "value"
-        ]
+        container_spec: labop.ContainerSpec = parameter_value_map["specification"]
         slots: str = (
-            parameter_value_map["slots"]["value"]
-            if "slots" in parameter_value_map
-            else "A1"
+            parameter_value_map["slots"] if "slots" in parameter_value_map else "A1"
         )
-        instrument: sbol3.Agent = parameter_value_map["instrument"]["value"]
-        samples: labop.SampleArray = parameter_value_map["samples"]["value"]
+        instrument: sbol3.Agent = parameter_value_map["instrument"]
+        samples: labop.SampleArray = parameter_value_map["samples"]
 
-    def load_racks(
-        self, record: labop.ActivityNodeExecution, ex: labop.ProtocolExecution
-    ):
+    def load_racks(self, record: "ActivityNodeExecution", ex: "ProtocolExecution"):
         call = record.call.lookup()
         node = record.node.lookup()
         parameter_value_map = call.parameter_value_map()
         coords: str = (
-            parameter_value_map["coordinates"]["value"]
+            parameter_value_map["coordinates"]
             if "coordinates" in parameter_value_map
             else "1"
         )
-        rack: labop.ContainerSpec = parameter_value_map["rack"]["value"]
+        rack: labop.ContainerSpec = parameter_value_map["rack"]
 
-    def configure_robot(
-        self, record: labop.ActivityNodeExecution, ex: labop.ProtocolExecution
-    ):
+    def configure_robot(self, record: "ActivityNodeExecution", ex: "ProtocolExecution"):
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
-        instrument = parameter_value_map["instrument"]["value"]
-        mount = parameter_value_map["mount"]["value"]
+        instrument = parameter_value_map["instrument"]
+        mount = parameter_value_map["mount"]
 
     def pcr(
         self,
-        record: labop.ActivityNodeExecution,
-        execution: labop.ProtocolExecution,
+        record: "ActivityNodeExecution",
+        execution: "ProtocolExecution",
     ):
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
-        cycles = parameter_value_map["cycles"]["value"]
-        annealing_temp = parameter_value_map["annealing_temp"]["value"]
-        extension_temp = parameter_value_map["extension_temp"]["value"]
-        denaturation_temp = parameter_value_map["denaturation_temp"]["value"]
-        annealing_time = parameter_value_map["annealing_time"]["value"]
-        extension_time = parameter_value_map["extension_time"]["value"]
-        denaturation_time = parameter_value_map["denaturation_time"]["value"]
+        cycles = parameter_value_map["cycles"]
+        annealing_temp = parameter_value_map["annealing_temp"]
+        extension_temp = parameter_value_map["extension_temp"]
+        denaturation_temp = parameter_value_map["denaturation_temp"]
+        annealing_time = parameter_value_map["annealing_time"]
+        extension_time = parameter_value_map["extension_time"]
+        denaturation_time = parameter_value_map["denaturation_time"]
 
     def get_instrument_deck(self, instrument: sbol3.Agent) -> str:
         for deck, agent in self.configuration.items():
@@ -438,15 +418,15 @@ class ECLSpecialization(BehaviorSpecialization):
 
     def serial_dilution(
         self,
-        record: labop.ActivityNodeExecution,
-        execution: labop.ProtocolExecution,
+        record: "ActivityNodeExecution",
+        execution: "ProtocolExecution",
     ):
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
 
-        source = parameter_value_map["samples"]["value"]
-        destination = parameter_value_map["samples"]["value"]
-        amount = ecl_measure(parameter_value_map["amount"]["value"])
+        source = parameter_value_map["samples"]
+        destination = parameter_value_map["samples"]
+        amount = ecl_measure(parameter_value_map["amount"])
 
         if isinstance(source, labop.SampleMask):
             source = source.source.lookup()
@@ -483,17 +463,17 @@ class ECLSpecialization(BehaviorSpecialization):
 
     def resuspend(
         self,
-        record: labop.ActivityNodeExecution,
-        execution: labop.ProtocolExecution,
+        record: "ActivityNodeExecution",
+        execution: "ProtocolExecution",
     ):
         pass
 
     #         call = record.call.lookup()
     #         parameter_value_map = call.parameter_value_map()
 
-    #         source = parameter_value_map["source"]["value"]
-    #         destination = parameter_value_map["destination"]["value"]
-    #         amount = ecl_measure(parameter_value_map["amount"]["value"])
+    #         source = parameter_value_map["source"]
+    #         destination = parameter_value_map["destination"]
+    #         amount = ecl_measure(parameter_value_map["amount"])
 
     #         if isinstance(source, labop.SampleMask):
     #             source = source.source.lookup()
@@ -524,17 +504,15 @@ class ECLSpecialization(BehaviorSpecialization):
     #      ] """
     #         ]
 
-    def prepare_solution(
-        self, record: labop.ActivityNodeExecution, execution: labop.Protocol
-    ):
+    def prepare_solution(self, record: "ActivityNodeExecution", execution: "Protocol"):
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
 
-        spec = parameter_value_map["specification"]["value"]
+        spec = parameter_value_map["specification"]
         self.current_independent_subprotocol = spec.name
 
-        buffer_container = parameter_value_map["buffer_container"]["value"]
-        buffer = parameter_value_map["buffer"]["value"]
+        buffer_container = parameter_value_map["buffer_container"]
+        buffer = parameter_value_map["buffer"]
         if (
             buffer_container.identity in self.resolutions
             and not self.create_stock_solutions
@@ -544,18 +522,14 @@ class ECLSpecialization(BehaviorSpecialization):
             resource = self.resolutions[buffer.identity]
         else:
             resource = f'"{buffer_container.name}"'
-        buffer_vol = ecl_measure(
-            parameter_value_map["buffer_volume"]["value"], use_star=True
-        )
+        buffer_vol = ecl_measure(parameter_value_map["buffer_volume"], use_star=True)
 
-        reagent = parameter_value_map["reagent"]["value"]
+        reagent = parameter_value_map["reagent"]
         if reagent.identity in self.resolutions:
             reagent_resource = self.resolutions[reagent.identity]
         else:
             reagent_resource = f'"{reagent.name}"'
-        reagent_mass = ecl_measure(
-            parameter_value_map["reagent_mass"]["value"], use_star=True
-        )
+        reagent_mass = ecl_measure(parameter_value_map["reagent_mass"], use_star=True)
 
         if self.create_stock_solutions:
             # Generate a stock solution recipe
@@ -578,18 +552,18 @@ class ECLSpecialization(BehaviorSpecialization):
             ]
 
     def finalize_prepare_solution(
-        self, record: labop.ActivityNodeExecution, execution: labop.Protocol
+        self, record: "ActivityNodeExecution", execution: "Protocol"
     ):
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
         self.current_independent_subprotocol = None
-        spec = parameter_value_map["specification"]["value"]
+        spec = parameter_value_map["specification"]
         # self.independent_subprotocol_steps[spec.name] += ["}]"]
 
     def prepare_reagents(
         self,
-        record: labop.ActivityNodeExecution,
-        execution: labop.ProtocolExecution,
+        record: "ActivityNodeExecution",
+        execution: "ProtocolExecution",
     ):
         pass
 
@@ -659,7 +633,7 @@ def ecl_measure(measure: sbol3.Measure, use_star=False):
     raise ValueError(tyto.OM.get_term_by_uri(measure.unit) + " is not a supported unit")
 
 
-def ecl_coordinates(samples: labop.SampleCollection, sample_format=Strings.XARRAY):
+def ecl_coordinates(samples: "SampleCollection", sample_format=Strings.XARRAY):
     if type(samples) is labop.SampleMask:
         coordinates = flatten_coordinates(
             samples.sample_coordinates(sample_format=sample_format, as_list=True),

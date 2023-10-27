@@ -1,20 +1,22 @@
-import filecmp
 import logging
 import os
 import tempfile
 import unittest
-from importlib.machinery import SourceFileLoader
-from importlib.util import module_from_spec, spec_from_loader
 
 import sbol3
 
-from labop import ExecutionEngine, Primitive, Protocol, SampleData
-from labop.utils.helpers import file_diff
+# from labop.utils.helpers import file_diff
+import labop
+from labop.execution.harness import (
+    ProtocolExecutionRubric,
+    ProtocolHarness,
+    ProtocolLoader,
+)
 from uml import ActivityParameterNode, CallBehaviorAction, InputPin
 
-OUT_DIR = os.path.join(os.path.dirname(__file__), "out")
-if not os.path.exists(OUT_DIR):
-    os.mkdir(OUT_DIR)
+# OUT_DIR = os.path.join(os.path.dirname(__file__), "out")
+# if not os.path.exists(OUT_DIR):
+#     os.mkdir(OUT_DIR)
 
 # Save testfiles as artifacts when running in CI environment,
 # else save them to a local temp directory
@@ -29,32 +31,15 @@ protocol_def_file = os.path.join(
 )
 
 
-def load_ludox_protocol(protocol_filename):
-    loader = SourceFileLoader("ludox_protocol", protocol_filename)
-    spec = spec_from_loader(loader.name, loader)
-    module = module_from_spec(spec)
-    loader.exec_module(module)
-    return module
-
-
-protocol_def = load_ludox_protocol(protocol_def_file)
-
-
 class TestProtocolEndToEnd(unittest.TestCase):
-    def test_create_protocol(self):
-        protocol: Protocol
-        doc: sbol3.Document
+    def create_protocol(self, doc: sbol3.Document, protocol: labop.Protocol):
         logger = logging.getLogger("decision_protocol")
         logger.setLevel(logging.INFO)
-        doc = sbol3.Document()
-        sbol3.set_namespace("https://bbn.com/scratch/")
-        protocol = Protocol("decision_node_test")
-        doc.add(protocol)
 
         initial = protocol.initial()
         final = protocol.final()
 
-        pH_meter_calibrated = Primitive("pHMeterCalibrated")
+        pH_meter_calibrated = labop.Primitive("pHMeterCalibrated")
         pH_meter_calibrated.description = "Determine if the pH Meter is calibrated."
         pH_meter_calibrated.add_output(
             "return", "http://www.w3.org/2001/XMLSchema#boolean"
@@ -78,52 +63,23 @@ class TestProtocolEndToEnd(unittest.TestCase):
             ],
         )
 
-        agent = sbol3.Agent("test_agent")
-        ee = ExecutionEngine(
-            out_dir=OUT_DIR, use_ordinal_time=True, use_defined_primitives=False
-        )
-        parameter_values = []
-        execution = ee.execute(
-            protocol,
-            agent,
-            id="test_execution",
-            parameter_values=parameter_values,
-        )
+        return protocol
 
-        ########################################
-        # Validate and write the document
-        print("Validating and writing protocol")
-        v = doc.validate()
-        assert len(v) == 0, "".join(f"\n {e}" for e in v)
-
-        temp_name = os.path.join(TMPDIR, "decision_node_test.nt")
-        doc.write(temp_name, sbol3.SORTED_NTRIPLES)
-        print(f"Wrote file as {temp_name}")
-
-        comparison_file = os.path.join(
-            os.path.dirname(os.path.realpath(__file__)),
-            "testfiles",
-            "decision_node_test.nt",
-        )
-        doc.write(comparison_file, sbol3.SORTED_NTRIPLES)
-        print(f"Comparing against {comparison_file}")
-        diff = "".join(file_diff(comparison_file, temp_name))
-        # print(f"Difference: {diff}")
-        assert filecmp.cmp(temp_name, comparison_file), "Files are not identical"
-        print("File identical with test file")
-
-    def test_ludox_calibration_decision(self):
-        protocol: Protocol
-        doc: sbol3.Document
+    def generate_ludox_calibration_decision(
+        self, doc: sbol3.Document, protocol: labop.Protocol
+    ) -> labop.Protocol:
         logger = logging.getLogger("LUDOX_decision_protocol")
         logger.setLevel(logging.INFO)
-        protocol, doc = protocol_def.ludox_protocol()
 
-        measurment_is_nominal = Primitive("measurementNominal")
+        protocol = ProtocolLoader(
+            protocol_def_file, "ludox_protocol"
+        ).generate_protocol(doc, protocol)
+
+        measurment_is_nominal = labop.Primitive("measurementNominal")
         measurment_is_nominal.description = (
             "Determine if the measurments are acceptable."
         )
-        measurment_is_nominal.add_input("decision_input", SampleData)
+        measurment_is_nominal.add_input("decision_input", labop.SampleData)
         measurment_is_nominal.add_output(
             "return", "http://www.w3.org/2001/XMLSchema#boolean"
         )
@@ -188,16 +144,86 @@ class TestProtocolEndToEnd(unittest.TestCase):
             sbol3.OM_MEASURE,
             measure2.output_pin("measurements"),
         )
+
+        # primary incoming node is a measurement primitive (because its not a control node, the primary incoming edge is an object flow)
+        # The protocol is getting two object edges into the decision node (from the measurement and its output pin).  There should not be an object edge from the measurement.  The outputs are object flows, but are used as control flows.
         decision = protocol.make_decision_node(
+            # The first parameter is the primary_incoming activity passing control flow through the decision
             measure,  # .output_pin("measurements"),  # primary_incoming
+            # The decision input behavior is the behavior used to select the flow of the decision node
             decision_input_behavior=measurment_is_nominal,
+            # The decision input source determines the object flow that influences the decision input behavior output
             decision_input_source=measure.output_pin("measurements"),
             outgoing_targets=[
                 (True, protocol.final()),
                 (False, measure2),
             ],
         )
-        # protocol.to_dot().view()
+        return protocol
+
+    def test_create_protocol(self):
+        namespace = "https://bbn.com/scratch/"
+        harness = ProtocolHarness(
+            clean_output=True,
+            base_dir=os.path.join(
+                os.path.dirname(__file__), "out", "out_create_protocol"
+            ),
+            namespace=namespace,
+            execution_id="test_execution",
+            protocol_name="decision_node_test",
+            protocol_long_name=None,
+            protocol_description=None,
+            entry_point=self.create_protocol,
+            agent="test_agent",
+            execution_kwargs={
+                "use_ordinal_time": True,
+                "use_defined_primitives": False,
+            },
+            artifacts=[
+                ProtocolExecutionRubric(
+                    filename=os.path.join(
+                        os.path.dirname(os.path.realpath(__file__)),
+                        "testfiles",
+                        "decision_node_test.nt",
+                    ),
+                    overwrite_rubric=True,  # Used to update rubric
+                )
+            ],
+        )
+        harness.run(verbose=True)
+
+        assert len(harness.errors()) == 0, harness.artifacts_results_summary(
+            verbose=True
+        )
+
+        # execution_artifact = harness.execution_artifact()
+        # protocol_artifact = execution_artifact.protocol_artifact
+
+        # agent = sbol3.Agent("test_agent")
+        # ee = ExecutionEngine(
+        #     out_dir=OUT_DIR, use_ordinal_time=True, use_defined_primitives=False
+        # )
+        # parameter_values = []
+        # execution = ee.execute(
+        #     protocol,
+        #     agent,
+        #     id="test_execution",
+        #     parameter_values=parameter_values,
+        # )
+
+    def test_ludox_calibration_decision(self):
+        harness = ProtocolHarness(
+            clean_output=True,
+            base_dir=os.path.join(
+                os.path.dirname(__file__), "out", "out_calibration_decision"
+            ),
+            entry_point=self.generate_ludox_calibration_decision,
+            artifacts=[],
+        )
+        harness.run()
+        assert len(harness.errors()) == 0, harness.artifacts_results_summary(
+            verbose=True
+        )
 
 
 if __name__ == "__main__":

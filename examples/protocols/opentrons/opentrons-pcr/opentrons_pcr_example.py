@@ -6,9 +6,8 @@ import tyto
 
 import labop
 import uml
-from labop.constants import ddh2o, ludox
-from labop.execution_engine import ExecutionEngine
-from labop_convert.markdown.markdown_specialization import MarkdownSpecialization
+from labop.constants import PREFIX_MAP, ddh2o, ludox
+from labop.execution.execution_engine import ExecutionEngine
 from labop_convert.opentrons.opentrons_specialization import OT2Specialization
 
 # Dev Note: This is a test of the initial version of the OT2 specialization. Any specs shown here can be changed in the future. Use at your own risk. Here be dragons.
@@ -155,7 +154,7 @@ reagent_rack = labop.ContainerSpec(
     "reagent_rack",
     name="Tube rack for reagents",
     queryString="cont:Opentrons24TubeRackwithEppendorf1.5mLSafe-LockSnapcap",
-    prefixMap=labop.constants.PREFIX_MAP,
+    prefixMap=PREFIX_MAP,
 )
 rack = activity.primitive_step("EmptyRack", specification=reagent_rack)
 load_rack = activity.primitive_step(
@@ -167,7 +166,7 @@ primer_plate = labop.ContainerSpec(
     "primer_plate",
     name="primers in 96-well plate",
     queryString="cont:Corning96WellPlate360uLFlat",
-    prefixMap=labop.constants.PREFIX_MAP,
+    prefixMap=PREFIX_MAP,
 )
 load = activity.primitive_step(
     "LoadRackOnInstrument", rack=primer_plate, coordinates="3"
@@ -179,7 +178,7 @@ polymerase = labop.ContainerSpec(
     "polymerase",
     name="DNA Polymerase",
     queryString="cont:StockReagent",
-    prefixMap=labop.constants.PREFIX_MAP,
+    prefixMap=PREFIX_MAP,
 )
 load_reagents = activity.primitive_step(
     "LoadContainerInRack",
@@ -196,7 +195,7 @@ load_water = activity.primitive_step(
         "water",
         name="tube for water",
         queryString="cont:MicrofugeTube",
-        prefixMap=labop.constants.PREFIX_MAP,
+        prefixMap=PREFIX_MAP,
     ),
     coordinates="B1",
 )
@@ -217,7 +216,7 @@ for coordinate, template in templates.to_dict().items():
         template.display_id + "_container",
         name="container of " + template.name,
         queryString="cont:MicrofugeTube",
-        prefixMap=labop.constants.PREFIX_MAP,
+        prefixMap=PREFIX_MAP,
     )
     load_template = activity.primitive_step(
         "LoadContainerInRack",
@@ -232,7 +231,7 @@ pcr_plate = labop.ContainerSpec(
     "pcr_plate",
     name="PCR plate",
     queryString="cont:Biorad96WellPCRPlate",
-    prefixMap=labop.constants.PREFIX_MAP,
+    prefixMap=PREFIX_MAP,
 )
 load_pcr_plate_on_thermocycler = activity.primitive_step(
     "LoadContainerOnInstrument",

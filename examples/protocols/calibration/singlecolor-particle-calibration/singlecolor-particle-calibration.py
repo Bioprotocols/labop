@@ -673,7 +673,7 @@ Adapted from [https://dx.doi.org/10.17504/protocols.io.bht7j6rn](https://dx.doi.
 
 def compute_sample_trajectory(protocol, doc):
     import labop
-    from labop.execution_engine import ExecutionEngine
+    from labop.execution.execution_engine import ExecutionEngine
     from labop.strings import Strings
     from labop_convert import DefaultBehaviorSpecialization
 
@@ -700,12 +700,11 @@ def compute_sample_trajectory(protocol, doc):
 
 def generate_markdown_specialization(protocol, doc):
     import labop
-    from labop.execution_engine import ExecutionEngine
+    from labop.execution.execution_engine import ExecutionEngine
     from labop.strings import Strings
     from labop_convert import MarkdownSpecialization
 
     if REGENERATE_ARTIFACTS:
-
         dataset_file = f"{filename}_template"  # name of xlsx
         md_file = filename + ".md"
     else:
@@ -750,7 +749,7 @@ def generate_markdown_specialization(protocol, doc):
 
 def generate_ecl_specialization(protocol, doc):
     import labop
-    from labop.execution_engine import ExecutionEngine
+    from labop.execution.execution_engine import ExecutionEngine
     from labop.strings import Strings
     from labop_convert import ECLSpecialization
 
@@ -781,7 +780,7 @@ def generate_ecl_specialization(protocol, doc):
 def generate_autoprotocol_specialization(protocol, doc):
     blockPrint()
     import labop
-    from labop.execution_engine import ExecutionEngine
+    from labop.execution.execution_engine import ExecutionEngine
     from labop_convert.autoprotocol.autoprotocol_specialization import (
         AutoprotocolSpecialization,
     )
@@ -853,7 +852,9 @@ def generate_autoprotocol_specialization(protocol, doc):
     )
 
     ee = ExecutionEngine(
-        specializations=[autoprotocol_specialization], out_dir=OUT_DIR, failsafe=False
+        specializations=[autoprotocol_specialization],
+        out_dir=OUT_DIR,
+        failsafe=False,
     )
     execution = ee.execute(
         protocol,
@@ -887,7 +888,7 @@ def generate_emeraldcloud_specialization(protocol, doc, stock_solutions=None):
     blockPrint()
     import labop
     import uml
-    from labop.execution_engine import ExecutionEngine
+    from labop.execution.execution_engine import ExecutionEngine
     from labop_convert.emeraldcloud.ecl_specialization import ECLSpecialization
 
     ddh2o = doc.find(f"{NAMESPACE}ddH2O")

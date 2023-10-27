@@ -1,5 +1,3 @@
-import filecmp
-import logging
 import os
 import tempfile
 import unittest
@@ -9,7 +7,9 @@ from importlib.util import module_from_spec, spec_from_loader
 import sbol3
 
 import labop
-from labop.execution_engine import ExecutionEngine
+from build.lib.labop_convert.opentrons import opentrons_specialization
+from labop.execution.execution_engine import ExecutionEngine
+from labop.execution.harness import ProtocolSpecialization
 from labop.utils.helpers import file_diff
 from labop_convert.opentrons.opentrons_specialization import OT2Specialization
 
@@ -42,64 +42,49 @@ protocol_def = load_protocol("opentrons_toy_protocol", protocol_def_file)
 
 
 class TestProtocolEndToEnd(unittest.TestCase):
+    def create_protocol(
+        self, doc: sbol3.Document, protocol: labop.Protocol
+    ) -> labop.Protocol:
+        protocol = labop.execution.harness.ProtocolLoader(
+            protocol_def_file, "opentrons_toy_protocol"
+        ).generate_protocol(doc, protocol)
+        return protocol
+
     def test_create_protocol(self):
-        protocol: labop.Protocol
-        doc: sbol3.Document
-        logger = logging.getLogger("opentrons_toy_protocol")
-        logger.setLevel(logging.INFO)
-        protocol, doc = protocol_def.opentrons_toy_protocol()
-
-        protocol.to_dot().render(
-            filename=os.path.join(OUT_DIR, protocol.display_name), format="png"
+        harness = labop.execution.harness.ProtocolHarness(
+            clean_output=True,
+            base_dir=os.path.dirname(__file__),
+            entry_point=self.create_protocol,
+            agent="ot2_machine",
+            execution_id="test_execution_1",
+            namespace="https://labop.io/scratch/",
+            protocol_name="OT2_demo",
+            protocol_long_name="OT2 demo",
+            protocol_description="Example Opentrons Protocol as LabOP",
+            execution_kwargs={
+                "use_ordinal_time": True,
+                "failsafe": False,
+            },
+            artifacts=[
+                ProtocolSpecialization(
+                    specialization=OT2Specialization("opentrons_toy")
+                ),
+                labop.execution.harness.ProtocolExecutionRubric(
+                    filename=os.path.join(
+                        os.path.dirname(os.path.realpath(__file__)),
+                        "testfiles",
+                        "opentrons_toy.nt",
+                    ),
+                    # overwrite_rubric=True,  # Used to update rubric
+                ),
+            ],
         )
 
-        agent = sbol3.Agent("ot2_machine", name="OT2 machine")
+        harness.run(verbose=True)
 
-        # Execute the protocol
-        # In order to get repeatable timings, we use ordinal time in the test
-        # where each timepoint is one second after the previous time point
-        ee = ExecutionEngine(
-            use_ordinal_time=True,
-            specializations=[OT2Specialization(os.path.join(OUT_DIR, "opentrons_toy"))],
-            failsafe=False,
+        assert len(harness.errors()) == 0, harness.artifacts_results_summary(
+            verbose=True
         )
-        parameter_values = []
-        execution = ee.execute(
-            protocol,
-            agent,
-            id="test_execution_1",
-            parameter_values=parameter_values,
-        )
-
-        ########################################
-        # Validate and write the document
-
-        print("Validating and writing protocol")
-        v = doc.validate()
-        assert len(v) == 0, "".join(f"\n {e}" for e in v)
-
-        nt_file = "opentrons_toy.nt"
-        temp_name = os.path.join(TMPDIR, nt_file)
-
-        # At some point, rdflib began inserting an extra newline into
-        # N-triple serializations, which breaks file comparison.
-        # Here we strip extraneous newlines, to maintain reverse compatibility
-        with open(temp_name, "w") as f:
-            f.write(doc.write_string(sbol3.SORTED_NTRIPLES).strip())
-        print(f"Wrote file as {temp_name}")
-
-        comparison_file = os.path.join(
-            os.path.dirname(os.path.realpath(__file__)),
-            "testfiles",
-            nt_file,
-        )
-        # with open(comparison_file, "w") as f:
-        #     f.write(doc.write_string(sbol3.SORTED_NTRIPLES).strip())
-        print(f"Comparing against {comparison_file}")
-        diff = "".join(file_diff(comparison_file, temp_name))
-        print(f"Difference:\n{diff}")
-        assert filecmp.cmp(temp_name, comparison_file), "Files are not identical"
-        print("File identical with test file")
 
 
 if __name__ == "__main__":

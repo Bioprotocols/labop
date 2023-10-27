@@ -16,7 +16,7 @@ from tyto import OM
 
 import labop
 from labop import SampleArray, SampleMask
-from labop.execution_engine import ExecutionEngine
+from labop.execution.execution_engine import ExecutionEngine
 from labop.strings import Strings
 from labop_convert.emeraldcloud.ecl_specialization import ECLSpecialization
 from labop_convert.markdown.markdown_specialization import MarkdownSpecialization
@@ -196,6 +196,7 @@ serial_dilution1 = protocol.primitive_step(
     samples=dilution_series1.output_pin("samples"),
     direction=labop.Strings.COLUMN_DIRECTION,
     amount=sbol3.Measure(100, OM.microlitre),
+    diluent=pbs,
 )
 serial_dilution1.description = "For each 100.0 microliter transfer, pipette up and down 3X to ensure the dilution is mixed homogeneously."
 

@@ -4,8 +4,8 @@
 ::: labop.data
 ::: labop.lab_interface
 ::: labop.library
-::: labop.execution_engine
-::: labop.execution_engine_utils
+::: labop.execution.execution_engine
+::: labop.execution.execution_engine_utils
 ::: labop.execution_context
 ::: uml.uml_graphviz
 ::: uml.utils

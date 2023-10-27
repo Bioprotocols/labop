@@ -9,7 +9,7 @@ from tyto import OM
 
 import labop
 import uml
-from labop.execution_engine import ExecutionEngine
+from labop.execution.execution_engine import ExecutionEngine
 from labop_convert.markdown.markdown_specialization import MarkdownSpecialization
 
 doc = sbol3.Document()

@@ -89,6 +89,7 @@ p.add_input("samples", "http://bioprotocols.org/labop#SampleCollection")
 p.add_input("direction", "http://bioprotocols.org/uml#ValueSpecification")
 p.add_input("diluent", sbol3.SBOL_COMPONENT)
 p.add_input("amount", sbol3.OM_MEASURE)  # Must be volume
+p.add_input("dilution_factor", sbol3.OM_MEASURE, optional=True)
 doc.add(p)
 
 
