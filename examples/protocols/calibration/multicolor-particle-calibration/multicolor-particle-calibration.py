@@ -13,6 +13,16 @@ from pint import Measurement
 from tyto import OM
 
 import labop
+from labop.utils.harness import (
+    ProtocolArtifact,
+    ProtocolDiagram,
+    ProtocolExecutionDiagram,
+    ProtocolHarness,
+    ProtocolNTuples,
+    ProtocolSampleTrace,
+    ProtocolSpecialization,
+)
+from labop_convert.markdown.markdown_specialization import MarkdownSpecialization
 
 NAMESPACE = "http://igem.org/engineering/"
 PROTOCOL_NAME = "interlab"
@@ -322,32 +332,8 @@ def generate_prepare_reagents_subprotocol(doc: sbol3.Document):
     return subprotocol
 
 
-def generate_protocol():
+def generate_protocol(doc: sbol3.Document, protocol: labop.Protocol):
     import labop
-
-    doc = sbol3.Document()
-    sbol3.set_namespace(NAMESPACE)
-
-    #############################################
-    # Import the primitive libraries
-    # print("Importing libraries")
-    labop.import_library("liquid_handling")
-    # print("... Imported liquid handling")
-    labop.import_library("plate_handling")
-    # print("... Imported plate handling")
-    labop.import_library("spectrophotometry")
-    # print("... Imported spectrophotometry")
-    labop.import_library("sample_arrays")
-    # print("... Imported sample arrays")
-
-    protocol = labop.Protocol(PROTOCOL_NAME)
-    protocol.name = PROTOCOL_LONG_NAME
-    protocol.version = "1.2"
-    protocol.description = """
-Plate readers report fluorescence values in arbitrary units that vary widely from instrument to instrument. Therefore absolute fluorescence values cannot be directly compared from one instrument to another. In order to compare fluorescence output of biological devices, it is necessary to create a standard fluorescence curve. This variant of the protocol uses two replicates of three colors of dye, plus beads.
-Adapted from [https://dx.doi.org/10.17504/protocols.io.bht7j6rn](https://dx.doi.org/10.17504/protocols.io.bht7j6r) and [https://dx.doi.org/10.17504/protocols.io.6zrhf56](https://dx.doi.org/10.17504/protocols.io.6zrhf56)
-    """
-    doc.add(protocol)
 
     prepare_reagents_subprotocol = generate_prepare_reagents_subprotocol(doc)
     prepare_reagents = protocol.primitive_step(prepare_reagents_subprotocol)
@@ -1124,18 +1110,6 @@ def test_autoprotocol():
         lconf.write(json.dumps(response))
 
 
-def read_protocol(filename=os.path.join(OUT_DIR, f"{filename}-protocol.nt")):
-    import labop
-
-    doc = sbol3.Document()
-    sbol3.set_namespace(NAMESPACE)
-
-    doc.read(filename, "nt")
-    protocol = doc.find(f"{NAMESPACE}{PROTOCOL_NAME}")
-
-    return protocol, doc
-
-
 # Disable
 def blockPrint():
     pass
@@ -1147,7 +1121,35 @@ def enablePrint():
     sys.stdout = sys.__stdout__
 
 
+harness = ProtocolHarness(
+    entry_point=generate_protocol,
+    artifacts=[
+        ProtocolNTuples(),
+        ProtocolDiagram(),
+        ProtocolExecutionDiagram(),
+        ProtocolSampleTrace(),
+        ProtocolSpecialization(specialization=MarkdownSpecialization()),
+    ],
+    namespace="http://igem.org/engineering/",
+    protocol_name="interlab",
+    protocol_long_name="Multicolor fluorescence per bacterial particle calibration",
+    protocol_version="1.2",
+    protocol_description="""
+Plate readers report fluorescence values in arbitrary units that vary widely from instrument to instrument. Therefore absolute fluorescence values cannot be directly compared from one instrument to another. In order to compare fluorescence output of biological devices, it is necessary to create a standard fluorescence curve. This variant of the protocol uses two replicates of three colors of dye, plus beads.
+Adapted from [https://dx.doi.org/10.17504/protocols.io.bht7j6rn](https://dx.doi.org/10.17504/protocols.io.bht7j6r) and [https://dx.doi.org/10.17504/protocols.io.6zrhf56](https://dx.doi.org/10.17504/protocols.io.6zrhf56)
+    """,
+    output_dir="".join(__file__.split(".py")[0].split("/")[-1:]),
+    libraries=[
+        "liquid_handling",
+        "plate_handling",
+        "spectrophotometry",
+        "sample_arrays",
+    ],
+)
+
+
 if __name__ == "__main__":
+    harness.run()
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "-g",

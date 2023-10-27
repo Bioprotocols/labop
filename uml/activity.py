@@ -395,7 +395,12 @@ class Activity(inner.Activity, Behavior):
         multi_targets = {
             n: c
             for n, c in source_counts.items()
-            if c > 1 and not (isinstance(n, ForkNode) or isinstance(n, DecisionNode))
+            if c > 1
+            and not (
+                isinstance(n, ForkNode)
+                or isinstance(n, DecisionNode)
+                or isinstance(n, CallBehaviorAction)
+            )
         }
         for n, c in multi_targets.items():
             report.addWarning(

@@ -206,7 +206,6 @@ class WhereDefinedMixin(object):
     def get_defn_stack(self, cf, last=False):
         parent_frame_info = []
         if cf.f_back:
-
             if not last:
                 # looking for outer call still
                 # stop recursion after next frame if the current frame is in labop, but the next is not.
@@ -231,7 +230,10 @@ class WhereDefinedMixin(object):
 
     def frameinfo(self, cf, last=False):
         frameinfo = getframeinfo(cf)
-        context = "\n" + "\n".join(frameinfo.code_context) if last else ""
+        if frameinfo.code_context is not None:
+            context = "\n" + "\n".join(frameinfo.code_context) if last else ""
+        else:
+            context = ""
         return f"{frameinfo.filename}:{frameinfo.lineno}{context}"
 
     def get_where_defined(self):

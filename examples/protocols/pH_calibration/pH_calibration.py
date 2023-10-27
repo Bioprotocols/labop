@@ -22,8 +22,6 @@ from labop.execution_engine import ExecutionEngine
 
 logger: logging.Logger = logging.Logger("pH_calibration")
 
-CONT_NS = rdfl.Namespace("https://sift.net/container-ontology/container-ontology#")
-OM_NS = rdfl.Namespace("http://www.ontology-of-units-of-measure.org/resource/om-2/")
 
 LIBRARY_NAME = "pH_calibration"
 DOCSTRING = "This protocol implements a pH calibration protocol with decision nodes."

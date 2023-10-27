@@ -1,172 +1,150 @@
-import json
-
-import rdflib as rdfl
 import sbol3
 import tyto
 
 import labop
-import uml
-from labop.execution_engine import ExecutionEngine
+from labop.constants import ddh2o, ludox
+from labop.protocol import Protocol
+from labop.strings import Strings
+from labop.utils.harness import ProtocolHarness, ProtocolSpecialization
+from labop_convert.markdown.markdown_specialization import MarkdownSpecialization
 from labop_convert.opentrons.opentrons_specialization import OT2Specialization
 
 # Dev Note: This is a test of the initial version of the OT2 specialization. Any specs shown here can be changed in the future. Use at your own risk. Here be dragons.
 
 
-#############################################
-# set up the document
-print("Setting up document")
-doc = sbol3.Document()
-sbol3.set_namespace("https://bbn.com/scratch/")
+def generate_protocol(doc: sbol3.Document, activity: Protocol) -> Protocol:
+    # create the materials to be provisioned
 
-#############################################
-# Import the primitive libraries
-print("Importing libraries")
-labop.import_library("liquid_handling")
-print("... Imported liquid handling")
-labop.import_library("plate_handling")
-print("... Imported plate handling")
-labop.import_library("spectrophotometry")
-print("... Imported spectrophotometry")
-labop.import_library("sample_arrays")
-print("... Imported sample arrays")
+    doc.add(ddh2o)
+    doc.add(ludox)
 
+    p300 = sbol3.Agent("p300_single", name="P300 Single")
+    doc.add(p300)
+    load = activity.primitive_step("ConfigureInstrument", instrument=p300, mount="left")
 
-# Example of how to generate a template for a new protocol step
+    # Define labware
+    spec_rack = labop.ContainerSpec(
+        "working_reagents_rack",
+        name="rack for reagent aliquots",
+        queryString="cont:Opentrons24TubeRackwithEppendorf1.5mLSafe-LockSnapcap",
+        prefixMap=labop.constants.PREFIX_MAP,
+    )
+    spec_ludox_container = labop.ContainerSpec(
+        "ludox_working_solution",
+        name="tube for ludox working solution",
+        queryString="cont:MicrofugeTube",
+        prefixMap=labop.constants.PREFIX_MAP,
+    )
+    spec_water_container = labop.ContainerSpec(
+        "water_stock",
+        name="tube for water aliquot",
+        queryString="cont:MicrofugeTube",
+        prefixMap=labop.constants.PREFIX_MAP,
+    )
+    spec_plate = labop.ContainerSpec(
+        "calibration_plate",
+        name="calibration plate",
+        queryString="cont:Corning96WellPlate360uLFlat",
+        prefixMap=labop.constants.PREFIX_MAP,
+    )
+    spec_tiprack = labop.ContainerSpec(
+        "tiprack",
+        queryString="cont:Opentrons96TipRack300uL",
+        prefixMap=labop.constants.PREFIX_MAP,
+    )
+    doc.add(spec_rack)
+    doc.add(spec_ludox_container)
+    doc.add(spec_water_container)
+    doc.add(spec_plate)
+    doc.add(spec_tiprack)
 
-# print(primitives["https://bioprotocols.org/labop/primitives/liquid_handling/Dispense"].template())
+    # Load OT2 instrument with labware
+    load = activity.primitive_step(
+        "LoadRackOnInstrument", rack=spec_rack, coordinates="1"
+    )
+    load = activity.primitive_step(
+        "LoadRackOnInstrument", rack=spec_tiprack, coordinates="2"
+    )
+    load = activity.primitive_step(
+        "LoadRackOnInstrument", rack=spec_plate, coordinates="3"
+    )
 
-activity = labop.Protocol("iGEM_LUDOX_OD_calibration_2018")
-activity.name = "iGEM 2018 LUDOX OD calibration protocol for OT2"
-activity.description = """
-Test Execution
-"""
-doc.add(activity)
+    # Set up reagents
+    rack = activity.primitive_step("EmptyRack", specification=spec_rack)
+    load_rack1 = activity.primitive_step(
+        "LoadContainerInRack",
+        slots=rack.output_pin("slots"),
+        container=spec_ludox_container,
+        coordinates="A1",
+    )
+    load_rack2 = activity.primitive_step(
+        "LoadContainerInRack",
+        slots=rack.output_pin("slots"),
+        container=spec_water_container,
+        coordinates="A2",
+    )
+    provision = activity.primitive_step(
+        "Provision",
+        resource=ludox,
+        destination=load_rack1.output_pin("samples"),
+        amount=sbol3.Measure(500, tyto.OM.microliter),
+    )
+    provision = activity.primitive_step(
+        "Provision",
+        resource=ddh2o,
+        destination=load_rack2.output_pin("samples"),
+        amount=sbol3.Measure(500, tyto.OM.microliter),
+    )
 
-# create the materials to be provisioned
-CONT_NS = rdfl.Namespace("https://sift.net/container-ontology/container-ontology#")
-OM_NS = rdfl.Namespace("http://www.ontology-of-units-of-measure.org/resource/om-2/")
+    # Set up target samples
+    plate = activity.primitive_step("EmptyContainer", specification=spec_plate)
+    water_samples = activity.primitive_step(
+        "PlateCoordinates",
+        source=plate.output_pin("samples"),
+        coordinates="A1:D1",
+    )
+    ludox_samples = activity.primitive_step(
+        "PlateCoordinates",
+        source=plate.output_pin("samples"),
+        coordinates="A2:D2",
+    )
 
-PREFIX_MAP = json.dumps({"cont": CONT_NS, "om": OM_NS})
+    transfer = activity.primitive_step(
+        "Transfer",
+        source=load_rack1.output_pin("samples"),
+        destination=water_samples.output_pin("samples"),
+        amount=sbol3.Measure(100, tyto.OM.microliter),
+    )
+    transfer = activity.primitive_step(
+        "Transfer",
+        source=load_rack1.output_pin("samples"),
+        destination=ludox_samples.output_pin("samples"),
+        amount=sbol3.Measure(100, tyto.OM.microliter),
+    )
 
-
-ddh2o = sbol3.Component("ddH2O", "https://identifiers.org/pubchem.substance:24901740")
-ddh2o.name = "Water, sterile-filtered, BioReagent, suitable for cell culture"
-doc.add(ddh2o)
-
-ludox = sbol3.Component("LUDOX", "https://identifiers.org/pubchem.substance:24866361")
-ludox.name = "LUDOX(R) CL-X colloidal silica, 45 wt. % suspension in H2O"
-doc.add(ludox)
-
-p300 = sbol3.Agent("p300_single", name="P300 Single")
-doc.add(p300)
-load = activity.primitive_step("ConfigureInstrument", instrument=p300, mount="left")
-
-# Define labware
-spec_rack = labop.ContainerSpec(
-    "working_reagents_rack",
-    name="rack for reagent aliquots",
-    queryString="cont:Opentrons24TubeRackwithEppendorf1.5mLSafe-LockSnapcap",
-    prefixMap=PREFIX_MAP,
-)
-spec_ludox_container = labop.ContainerSpec(
-    "ludox_working_solution",
-    name="tube for ludox working solution",
-    queryString="cont:MicrofugeTube",
-    prefixMap=PREFIX_MAP,
-)
-spec_water_container = labop.ContainerSpec(
-    "water_stock",
-    name="tube for water aliquot",
-    queryString="cont:MicrofugeTube",
-    prefixMap=PREFIX_MAP,
-)
-spec_plate = labop.ContainerSpec(
-    "calibration_plate",
-    name="calibration plate",
-    queryString="cont:Corning96WellPlate360uLFlat",
-    prefixMap=PREFIX_MAP,
-)
-spec_tiprack = labop.ContainerSpec(
-    "tiprack", queryString="cont:Opentrons96TipRack300uL", prefixMap=PREFIX_MAP
-)
-doc.add(spec_rack)
-doc.add(spec_ludox_container)
-doc.add(spec_water_container)
-doc.add(spec_plate)
-doc.add(spec_tiprack)
-
-# Load OT2 instrument with labware
-load = activity.primitive_step("LoadRackOnInstrument", rack=spec_rack, coordinates="1")
-load = activity.primitive_step(
-    "LoadRackOnInstrument", rack=spec_tiprack, coordinates="2"
-)
-load = activity.primitive_step("LoadRackOnInstrument", rack=spec_plate, coordinates="3")
-
-
-# Set up reagents
-rack = activity.primitive_step("EmptyRack", specification=spec_rack)
-load_rack1 = activity.primitive_step(
-    "LoadContainerInRack",
-    slots=rack.output_pin("slots"),
-    container=spec_ludox_container,
-    coordinates="A1",
-)
-load_rack2 = activity.primitive_step(
-    "LoadContainerInRack",
-    slots=rack.output_pin("slots"),
-    container=spec_water_container,
-    coordinates="A2",
-)
-provision = activity.primitive_step(
-    "Provision",
-    resource=ludox,
-    destination=load_rack1.output_pin("samples"),
-    amount=sbol3.Measure(500, tyto.OM.microliter),
-)
-provision = activity.primitive_step(
-    "Provision",
-    resource=ddh2o,
-    destination=load_rack2.output_pin("samples"),
-    amount=sbol3.Measure(500, tyto.OM.microliter),
-)
+    return activity
 
 
-# Set up target samples
-plate = activity.primitive_step("EmptyContainer", specification=spec_plate)
-water_samples = activity.primitive_step(
-    "PlateCoordinates", source=plate.output_pin("samples"), coordinates="A1:D1"
-)
-ludox_samples = activity.primitive_step(
-    "PlateCoordinates", source=plate.output_pin("samples"), coordinates="A2:D2"
-)
-
-
-transfer = activity.primitive_step(
-    "Transfer",
-    source=load_rack1.output_pin("samples"),
-    destination=water_samples.output_pin("samples"),
-    amount=sbol3.Measure(100, tyto.OM.microliter),
-)
-transfer = activity.primitive_step(
-    "Transfer",
-    source=load_rack1.output_pin("samples"),
-    destination=ludox_samples.output_pin("samples"),
-    amount=sbol3.Measure(100, tyto.OM.microliter),
+harness = ProtocolHarness(
+    entry_point=generate_protocol,
+    artifacts=[
+        ProtocolSpecialization(
+            specialization=MarkdownSpecialization(
+                "opentrons_ludox_example_protocol.md",
+                sample_format=Strings.XARRAY,
+            )
+        ),
+        ProtocolSpecialization(
+            specialization=OT2Specialization("opentrons_ludox_example_labop.py")
+        ),
+    ],
+    namespace="https://labop.io/examples/protocols/opentrons/",
+    protocol_name="iGEM_LUDOX_OD_calibration_2018",
+    protocol_long_name="iGEM 2018 LUDOX OD calibration protocol for OT2",
+    protocol_version="1.0",
+    protocol_description="Test Execution",
+    agent=sbol3.Agent("ot2_machine", name="OT2 machine"),
 )
 
-
-filename = "ot2_ludox_labop"
-agent = sbol3.Agent("ot2_machine", name="OT2 machine")
-ee = ExecutionEngine(specializations=[OT2Specialization(filename)])
-parameter_values = []
-execution = ee.execute(activity, agent, id="test_execution")
-
-# v = doc.validate()
-# assert len(v) == 0, "".join(f'\n {e}' for e in v)
-
-doc.write("foo.ttl", file_format="ttl")
-
-# render and view the dot
-# dot = protocol.to_dot()
-# dot.render(f'{protocol.name}.gv')
-# dot.view()
+if __name__ == "__main__":
+    harness.run()

@@ -1,6 +1,12 @@
 from setuptools import setup
 
-test_deps = ["nbmake", "pytest-xdist", "pre-commit", "nbstripout"]
+test_deps = [
+    "nbmake",
+    "pytest-xdist",
+    "pre-commit",
+    "nbstripout",
+    "parameterized",
+]
 notebook_deps = ["ipython", "ipywidgets"]
 autoprotocol_deps = ["autoprotocol", "transcriptic"]
 extras = {

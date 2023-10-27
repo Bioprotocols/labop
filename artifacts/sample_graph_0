@@ -1,0 +1,487 @@
+strict digraph sample_graph {
+	graph [label=SampleGraph rankdir=TB]
+	node [ordering=out]
+	subgraph cluster_plateRequirement {
+		graph [label=plateRequirement]
+		subgraph cluster_plateRequirement_A1 {
+			graph [label=plateRequirement_A1]
+			sample_None_0 [label="sample_None_0 @0
+empty contents"]
+		}
+		subgraph cluster_plateRequirement_A2 {
+			graph [label=plateRequirement_A2]
+			sample_None_8 [label="sample_None_8 @0
+empty contents"]
+		}
+		subgraph cluster_plateRequirement_A3 {
+			graph [label=plateRequirement_A3]
+			sample_None_16 [label="sample_None_16 @0
+empty contents"]
+		}
+		subgraph cluster_plateRequirement_A4 {
+			graph [label=plateRequirement_A4]
+			sample_None_24 [label="sample_None_24 @0
+empty contents"]
+		}
+		subgraph cluster_plateRequirement_A5 {
+			graph [label=plateRequirement_A5]
+			sample_None_32 [label="sample_None_32 @0
+empty contents"]
+		}
+		subgraph cluster_plateRequirement_A6 {
+			graph [label=plateRequirement_A6]
+			sample_None_40 [label="sample_None_40 @0
+empty contents"]
+		}
+		subgraph cluster_plateRequirement_A7 {
+			graph [label=plateRequirement_A7]
+			sample_None_48 [label="sample_None_48 @0
+empty contents"]
+		}
+		subgraph cluster_plateRequirement_A8 {
+			graph [label=plateRequirement_A8]
+			sample_None_56 [label="sample_None_56 @0
+empty contents"]
+		}
+		subgraph cluster_plateRequirement_A9 {
+			graph [label=plateRequirement_A9]
+			sample_None_64 [label="sample_None_64 @0
+empty contents"]
+		}
+		subgraph cluster_plateRequirement_A10 {
+			graph [label=plateRequirement_A10]
+			sample_None_72 [label="sample_None_72 @0
+empty contents"]
+		}
+		subgraph cluster_plateRequirement_A11 {
+			graph [label=plateRequirement_A11]
+			sample_None_80 [label="sample_None_80 @0
+empty contents"]
+		}
+		subgraph cluster_plateRequirement_A12 {
+			graph [label=plateRequirement_A12]
+			sample_None_88 [label="sample_None_88 @0
+empty contents"]
+		}
+		subgraph cluster_plateRequirement_B1 {
+			graph [label=plateRequirement_B1]
+			sample_None_1 [label="sample_None_1 @0
+empty contents"]
+		}
+		subgraph cluster_plateRequirement_B2 {
+			graph [label=plateRequirement_B2]
+			sample_None_9 [label="sample_None_9 @0
+empty contents"]
+		}
+		subgraph cluster_plateRequirement_B3 {
+			graph [label=plateRequirement_B3]
+			sample_None_17 [label="sample_None_17 @0
+empty contents"]
+		}
+		subgraph cluster_plateRequirement_B4 {
+			graph [label=plateRequirement_B4]
+			sample_None_25 [label="sample_None_25 @0
+empty contents"]
+		}
+		subgraph cluster_plateRequirement_B5 {
+			graph [label=plateRequirement_B5]
+			sample_None_33 [label="sample_None_33 @0
+empty contents"]
+		}
+		subgraph cluster_plateRequirement_B6 {
+			graph [label=plateRequirement_B6]
+			sample_None_41 [label="sample_None_41 @0
+empty contents"]
+		}
+		subgraph cluster_plateRequirement_B7 {
+			graph [label=plateRequirement_B7]
+			sample_None_49 [label="sample_None_49 @0
+empty contents"]
+		}
+		subgraph cluster_plateRequirement_B8 {
+			graph [label=plateRequirement_B8]
+			sample_None_57 [label="sample_None_57 @0
+empty contents"]
+		}
+		subgraph cluster_plateRequirement_B9 {
+			graph [label=plateRequirement_B9]
+			sample_None_65 [label="sample_None_65 @0
+empty contents"]
+		}
+		subgraph cluster_plateRequirement_B10 {
+			graph [label=plateRequirement_B10]
+			sample_None_73 [label="sample_None_73 @0
+empty contents"]
+		}
+		subgraph cluster_plateRequirement_B11 {
+			graph [label=plateRequirement_B11]
+			sample_None_81 [label="sample_None_81 @0
+empty contents"]
+		}
+		subgraph cluster_plateRequirement_B12 {
+			graph [label=plateRequirement_B12]
+			sample_None_89 [label="sample_None_89 @0
+empty contents"]
+		}
+		subgraph cluster_plateRequirement_C1 {
+			graph [label=plateRequirement_C1]
+			sample_None_2 [label="sample_None_2 @0
+empty contents"]
+		}
+		subgraph cluster_plateRequirement_C2 {
+			graph [label=plateRequirement_C2]
+			sample_None_10 [label="sample_None_10 @0
+empty contents"]
+		}
+		subgraph cluster_plateRequirement_C3 {
+			graph [label=plateRequirement_C3]
+			sample_None_18 [label="sample_None_18 @0
+empty contents"]
+		}
+		subgraph cluster_plateRequirement_C4 {
+			graph [label=plateRequirement_C4]
+			sample_None_26 [label="sample_None_26 @0
+empty contents"]
+		}
+		subgraph cluster_plateRequirement_C5 {
+			graph [label=plateRequirement_C5]
+			sample_None_34 [label="sample_None_34 @0
+empty contents"]
+		}
+		subgraph cluster_plateRequirement_C6 {
+			graph [label=plateRequirement_C6]
+			sample_None_42 [label="sample_None_42 @0
+empty contents"]
+		}
+		subgraph cluster_plateRequirement_C7 {
+			graph [label=plateRequirement_C7]
+			sample_None_50 [label="sample_None_50 @0
+empty contents"]
+		}
+		subgraph cluster_plateRequirement_C8 {
+			graph [label=plateRequirement_C8]
+			sample_None_58 [label="sample_None_58 @0
+empty contents"]
+		}
+		subgraph cluster_plateRequirement_C9 {
+			graph [label=plateRequirement_C9]
+			sample_None_66 [label="sample_None_66 @0
+empty contents"]
+		}
+		subgraph cluster_plateRequirement_C10 {
+			graph [label=plateRequirement_C10]
+			sample_None_74 [label="sample_None_74 @0
+empty contents"]
+		}
+		subgraph cluster_plateRequirement_C11 {
+			graph [label=plateRequirement_C11]
+			sample_None_82 [label="sample_None_82 @0
+empty contents"]
+		}
+		subgraph cluster_plateRequirement_C12 {
+			graph [label=plateRequirement_C12]
+			sample_None_90 [label="sample_None_90 @0
+empty contents"]
+		}
+		subgraph cluster_plateRequirement_D1 {
+			graph [label=plateRequirement_D1]
+			sample_None_3 [label="sample_None_3 @0
+empty contents"]
+		}
+		subgraph cluster_plateRequirement_D2 {
+			graph [label=plateRequirement_D2]
+			sample_None_11 [label="sample_None_11 @0
+empty contents"]
+		}
+		subgraph cluster_plateRequirement_D3 {
+			graph [label=plateRequirement_D3]
+			sample_None_19 [label="sample_None_19 @0
+empty contents"]
+		}
+		subgraph cluster_plateRequirement_D4 {
+			graph [label=plateRequirement_D4]
+			sample_None_27 [label="sample_None_27 @0
+empty contents"]
+		}
+		subgraph cluster_plateRequirement_D5 {
+			graph [label=plateRequirement_D5]
+			sample_None_35 [label="sample_None_35 @0
+empty contents"]
+		}
+		subgraph cluster_plateRequirement_D6 {
+			graph [label=plateRequirement_D6]
+			sample_None_43 [label="sample_None_43 @0
+empty contents"]
+		}
+		subgraph cluster_plateRequirement_D7 {
+			graph [label=plateRequirement_D7]
+			sample_None_51 [label="sample_None_51 @0
+empty contents"]
+		}
+		subgraph cluster_plateRequirement_D8 {
+			graph [label=plateRequirement_D8]
+			sample_None_59 [label="sample_None_59 @0
+empty contents"]
+		}
+		subgraph cluster_plateRequirement_D9 {
+			graph [label=plateRequirement_D9]
+			sample_None_67 [label="sample_None_67 @0
+empty contents"]
+		}
+		subgraph cluster_plateRequirement_D10 {
+			graph [label=plateRequirement_D10]
+			sample_None_75 [label="sample_None_75 @0
+empty contents"]
+		}
+		subgraph cluster_plateRequirement_D11 {
+			graph [label=plateRequirement_D11]
+			sample_None_83 [label="sample_None_83 @0
+empty contents"]
+		}
+		subgraph cluster_plateRequirement_D12 {
+			graph [label=plateRequirement_D12]
+			sample_None_91 [label="sample_None_91 @0
+empty contents"]
+		}
+		subgraph cluster_plateRequirement_E1 {
+			graph [label=plateRequirement_E1]
+			sample_None_4 [label="sample_None_4 @0
+empty contents"]
+		}
+		subgraph cluster_plateRequirement_E2 {
+			graph [label=plateRequirement_E2]
+			sample_None_12 [label="sample_None_12 @0
+empty contents"]
+		}
+		subgraph cluster_plateRequirement_E3 {
+			graph [label=plateRequirement_E3]
+			sample_None_20 [label="sample_None_20 @0
+empty contents"]
+		}
+		subgraph cluster_plateRequirement_E4 {
+			graph [label=plateRequirement_E4]
+			sample_None_28 [label="sample_None_28 @0
+empty contents"]
+		}
+		subgraph cluster_plateRequirement_E5 {
+			graph [label=plateRequirement_E5]
+			sample_None_36 [label="sample_None_36 @0
+empty contents"]
+		}
+		subgraph cluster_plateRequirement_E6 {
+			graph [label=plateRequirement_E6]
+			sample_None_44 [label="sample_None_44 @0
+empty contents"]
+		}
+		subgraph cluster_plateRequirement_E7 {
+			graph [label=plateRequirement_E7]
+			sample_None_52 [label="sample_None_52 @0
+empty contents"]
+		}
+		subgraph cluster_plateRequirement_E8 {
+			graph [label=plateRequirement_E8]
+			sample_None_60 [label="sample_None_60 @0
+empty contents"]
+		}
+		subgraph cluster_plateRequirement_E9 {
+			graph [label=plateRequirement_E9]
+			sample_None_68 [label="sample_None_68 @0
+empty contents"]
+		}
+		subgraph cluster_plateRequirement_E10 {
+			graph [label=plateRequirement_E10]
+			sample_None_76 [label="sample_None_76 @0
+empty contents"]
+		}
+		subgraph cluster_plateRequirement_E11 {
+			graph [label=plateRequirement_E11]
+			sample_None_84 [label="sample_None_84 @0
+empty contents"]
+		}
+		subgraph cluster_plateRequirement_E12 {
+			graph [label=plateRequirement_E12]
+			sample_None_92 [label="sample_None_92 @0
+empty contents"]
+		}
+		subgraph cluster_plateRequirement_F1 {
+			graph [label=plateRequirement_F1]
+			sample_None_5 [label="sample_None_5 @0
+empty contents"]
+		}
+		subgraph cluster_plateRequirement_F2 {
+			graph [label=plateRequirement_F2]
+			sample_None_13 [label="sample_None_13 @0
+empty contents"]
+		}
+		subgraph cluster_plateRequirement_F3 {
+			graph [label=plateRequirement_F3]
+			sample_None_21 [label="sample_None_21 @0
+empty contents"]
+		}
+		subgraph cluster_plateRequirement_F4 {
+			graph [label=plateRequirement_F4]
+			sample_None_29 [label="sample_None_29 @0
+empty contents"]
+		}
+		subgraph cluster_plateRequirement_F5 {
+			graph [label=plateRequirement_F5]
+			sample_None_37 [label="sample_None_37 @0
+empty contents"]
+		}
+		subgraph cluster_plateRequirement_F6 {
+			graph [label=plateRequirement_F6]
+			sample_None_45 [label="sample_None_45 @0
+empty contents"]
+		}
+		subgraph cluster_plateRequirement_F7 {
+			graph [label=plateRequirement_F7]
+			sample_None_53 [label="sample_None_53 @0
+empty contents"]
+		}
+		subgraph cluster_plateRequirement_F8 {
+			graph [label=plateRequirement_F8]
+			sample_None_61 [label="sample_None_61 @0
+empty contents"]
+		}
+		subgraph cluster_plateRequirement_F9 {
+			graph [label=plateRequirement_F9]
+			sample_None_69 [label="sample_None_69 @0
+empty contents"]
+		}
+		subgraph cluster_plateRequirement_F10 {
+			graph [label=plateRequirement_F10]
+			sample_None_77 [label="sample_None_77 @0
+empty contents"]
+		}
+		subgraph cluster_plateRequirement_F11 {
+			graph [label=plateRequirement_F11]
+			sample_None_85 [label="sample_None_85 @0
+empty contents"]
+		}
+		subgraph cluster_plateRequirement_F12 {
+			graph [label=plateRequirement_F12]
+			sample_None_93 [label="sample_None_93 @0
+empty contents"]
+		}
+		subgraph cluster_plateRequirement_G1 {
+			graph [label=plateRequirement_G1]
+			sample_None_6 [label="sample_None_6 @0
+empty contents"]
+		}
+		subgraph cluster_plateRequirement_G2 {
+			graph [label=plateRequirement_G2]
+			sample_None_14 [label="sample_None_14 @0
+empty contents"]
+		}
+		subgraph cluster_plateRequirement_G3 {
+			graph [label=plateRequirement_G3]
+			sample_None_22 [label="sample_None_22 @0
+empty contents"]
+		}
+		subgraph cluster_plateRequirement_G4 {
+			graph [label=plateRequirement_G4]
+			sample_None_30 [label="sample_None_30 @0
+empty contents"]
+		}
+		subgraph cluster_plateRequirement_G5 {
+			graph [label=plateRequirement_G5]
+			sample_None_38 [label="sample_None_38 @0
+empty contents"]
+		}
+		subgraph cluster_plateRequirement_G6 {
+			graph [label=plateRequirement_G6]
+			sample_None_46 [label="sample_None_46 @0
+empty contents"]
+		}
+		subgraph cluster_plateRequirement_G7 {
+			graph [label=plateRequirement_G7]
+			sample_None_54 [label="sample_None_54 @0
+empty contents"]
+		}
+		subgraph cluster_plateRequirement_G8 {
+			graph [label=plateRequirement_G8]
+			sample_None_62 [label="sample_None_62 @0
+empty contents"]
+		}
+		subgraph cluster_plateRequirement_G9 {
+			graph [label=plateRequirement_G9]
+			sample_None_70 [label="sample_None_70 @0
+empty contents"]
+		}
+		subgraph cluster_plateRequirement_G10 {
+			graph [label=plateRequirement_G10]
+			sample_None_78 [label="sample_None_78 @0
+empty contents"]
+		}
+		subgraph cluster_plateRequirement_G11 {
+			graph [label=plateRequirement_G11]
+			sample_None_86 [label="sample_None_86 @0
+empty contents"]
+		}
+		subgraph cluster_plateRequirement_G12 {
+			graph [label=plateRequirement_G12]
+			sample_None_94 [label="sample_None_94 @0
+empty contents"]
+		}
+		subgraph cluster_plateRequirement_H1 {
+			graph [label=plateRequirement_H1]
+			sample_None_7 [label="sample_None_7 @0
+empty contents"]
+		}
+		subgraph cluster_plateRequirement_H2 {
+			graph [label=plateRequirement_H2]
+			sample_None_15 [label="sample_None_15 @0
+empty contents"]
+		}
+		subgraph cluster_plateRequirement_H3 {
+			graph [label=plateRequirement_H3]
+			sample_None_23 [label="sample_None_23 @0
+empty contents"]
+		}
+		subgraph cluster_plateRequirement_H4 {
+			graph [label=plateRequirement_H4]
+			sample_None_31 [label="sample_None_31 @0
+empty contents"]
+		}
+		subgraph cluster_plateRequirement_H5 {
+			graph [label=plateRequirement_H5]
+			sample_None_39 [label="sample_None_39 @0
+empty contents"]
+		}
+		subgraph cluster_plateRequirement_H6 {
+			graph [label=plateRequirement_H6]
+			sample_None_47 [label="sample_None_47 @0
+empty contents"]
+		}
+		subgraph cluster_plateRequirement_H7 {
+			graph [label=plateRequirement_H7]
+			sample_None_55 [label="sample_None_55 @0
+empty contents"]
+		}
+		subgraph cluster_plateRequirement_H8 {
+			graph [label=plateRequirement_H8]
+			sample_None_63 [label="sample_None_63 @0
+empty contents"]
+		}
+		subgraph cluster_plateRequirement_H9 {
+			graph [label=plateRequirement_H9]
+			sample_None_71 [label="sample_None_71 @0
+empty contents"]
+		}
+		subgraph cluster_plateRequirement_H10 {
+			graph [label=plateRequirement_H10]
+			sample_None_79 [label="sample_None_79 @0
+empty contents"]
+		}
+		subgraph cluster_plateRequirement_H11 {
+			graph [label=plateRequirement_H11]
+			sample_None_87 [label="sample_None_87 @0
+empty contents"]
+		}
+		subgraph cluster_plateRequirement_H12 {
+			graph [label=plateRequirement_H12]
+			sample_None_95 [label="sample_None_95 @0
+empty contents"]
+		}
+	}
+}
