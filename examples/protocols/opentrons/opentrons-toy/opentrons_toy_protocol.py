@@ -5,7 +5,6 @@ import tyto
 from sbol3 import Document
 
 import labop
-from labop.constants import PREFIX_MAP
 from labop.execution import ProtocolHarness, ProtocolSpecialization
 from labop.protocol import Protocol
 from labop.strings import Strings
@@ -46,6 +45,8 @@ def create_protocol() -> labop.Protocol:
 
 
 def get_container(protocol: labop.Protocol, container_name: str, container_type: str):
+    from labop.constants import PREFIX_MAP
+
     query_string = REVERSE_LABWARE_MAP[container_type]
     plate_spec = labop.ContainerSpec(
         container_name.replace(" ", "_"),

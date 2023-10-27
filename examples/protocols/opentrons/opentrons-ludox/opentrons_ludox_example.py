@@ -2,7 +2,6 @@ import sbol3
 import tyto
 
 import labop
-from labop.constants import PREFIX_MAP, ddh2o, ludox
 from labop.execution.harness import ProtocolHarness, ProtocolSpecialization
 from labop.protocol import Protocol
 from labop.strings import Strings
@@ -14,6 +13,7 @@ from labop_convert.opentrons.opentrons_specialization import OT2Specialization
 
 def generate_protocol(doc: sbol3.Document, activity: Protocol) -> Protocol:
     # create the materials to be provisioned
+    from labop.constants import PREFIX_MAP, ddh2o, ludox
 
     doc.add(ddh2o)
     doc.add(ludox)

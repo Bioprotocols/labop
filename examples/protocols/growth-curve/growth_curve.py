@@ -2,13 +2,14 @@ import sbol3
 import tyto
 
 import labop
-from labop.constants import rpm
 from labop.execution.harness import ProtocolHarness, ProtocolSpecialization
 from labop.strings import Strings
 from labop_convert.markdown.markdown_specialization import MarkdownSpecialization
 
 
 def generate_protocol(doc, protocol: labop.Protocol) -> labop.Protocol:
+    from labop.constants import rpm
+
     doc.add(rpm)
     #############################################
     # Create the protocols
