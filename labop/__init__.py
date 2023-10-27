@@ -16,8 +16,6 @@ from .protocol_execution import *
 from .primitive import *
 
 from .sample_map import *
-from .many_to_one_sample_map import *
-from .one_to_many_sample_map import *
 from .sample_map import *
 
 from .protocol import *
