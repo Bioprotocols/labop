@@ -2,13 +2,14 @@ import filecmp
 import os
 import tempfile
 import unittest
+from ast import Expression
 
 import sbol3
 import tyto
 
 import labop
 import labop_time as labopt
-import uml
+from uml import Duration, DurationObservation, Expression
 
 # from labop_check.labop_check import check_doc, get_minimum_duration
 
@@ -94,6 +95,7 @@ class TestTime(unittest.TestCase):
         # Create the Protocol
         print("Creating Protocol")
         protocol = labop.Protocol("test_protocol")
+        protocol.order(protocol.initial(), protocol.final())
 
         # Protocol starts at time zero
         start = labopt.startTime(protocol, 0, units=tyto.OM.hour)
@@ -174,7 +176,8 @@ class TestTime(unittest.TestCase):
         # actual steps of the protocol
         # get a plate
         plate = protocol.primitive_step(
-            "EmptyContainer", specification=tyto.NCIT.get_uri_by_term("Microplate")
+            "EmptyContainer",
+            specification=tyto.NCIT.get_uri_by_term("Microplate"),
         )  # replace with container ontology
 
         # put ludox and water in selected wells
@@ -283,14 +286,14 @@ class TestTime(unittest.TestCase):
 
         # expression e1: 60s * duration(a1)
         a1 = labop.Primitive("a1")
-        d1 = uml.Duration(observation=uml.DurationObservation(event=[a1]))
+        d1 = Duration(observation=DurationObservation(event=[a1]))
         m1 = labopt.TimeMeasure(expr=sbol3.Measure(60, tyto.OM.second))
-        e1 = uml.Expression(symbol="*", is_ordered=False, operand=[m1, d1])
+        e1 = Expression(symbol="*", is_ordered=False, operand=[m1, d1])
         # doc.add(e1)
 
         # expression lt1: e1 < e2
         e2 = labopt.TimeMeasure(expr=sbol3.Measure(120, tyto.OM.second))
-        lt1 = uml.Expression(symbol="<", is_ordered=True, operand=[e1, e2])
+        lt1 = Expression(symbol="<", is_ordered=True, operand=[e1, e2])
         # doc.add(lt1)
 
         # c1: Not(lt1)

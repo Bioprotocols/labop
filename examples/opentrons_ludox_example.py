@@ -35,12 +35,12 @@ print("... Imported sample arrays")
 
 # print(primitives["https://bioprotocols.org/labop/primitives/liquid_handling/Dispense"].template())
 
-protocol = labop.Protocol("iGEM_LUDOX_OD_calibration_2018")
-protocol.name = "iGEM 2018 LUDOX OD calibration protocol for OT2"
-protocol.description = """
+activity = labop.Protocol("iGEM_LUDOX_OD_calibration_2018")
+activity.name = "iGEM 2018 LUDOX OD calibration protocol for OT2"
+activity.description = """
 Test Execution
 """
-doc.add(protocol)
+doc.add(activity)
 
 # create the materials to be provisioned
 CONT_NS = rdfl.Namespace("https://sift.net/container-ontology/container-ontology#")
@@ -59,7 +59,7 @@ doc.add(ludox)
 
 p300 = sbol3.Agent("p300_single", name="P300 Single")
 doc.add(p300)
-load = protocol.primitive_step("ConfigureInstrument", instrument=p300, mount="left")
+load = activity.primitive_step("ConfigureInstrument", instrument=p300, mount="left")
 
 # Define labware
 spec_rack = labop.ContainerSpec(
@@ -96,34 +96,34 @@ doc.add(spec_plate)
 doc.add(spec_tiprack)
 
 # Load OT2 instrument with labware
-load = protocol.primitive_step("LoadRackOnInstrument", rack=spec_rack, coordinates="1")
-load = protocol.primitive_step(
+load = activity.primitive_step("LoadRackOnInstrument", rack=spec_rack, coordinates="1")
+load = activity.primitive_step(
     "LoadRackOnInstrument", rack=spec_tiprack, coordinates="2"
 )
-load = protocol.primitive_step("LoadRackOnInstrument", rack=spec_plate, coordinates="3")
+load = activity.primitive_step("LoadRackOnInstrument", rack=spec_plate, coordinates="3")
 
 
 # Set up reagents
-rack = protocol.primitive_step("EmptyRack", specification=spec_rack)
-load_rack1 = protocol.primitive_step(
+rack = activity.primitive_step("EmptyRack", specification=spec_rack)
+load_rack1 = activity.primitive_step(
     "LoadContainerInRack",
     slots=rack.output_pin("slots"),
     container=spec_ludox_container,
     coordinates="A1",
 )
-load_rack2 = protocol.primitive_step(
+load_rack2 = activity.primitive_step(
     "LoadContainerInRack",
     slots=rack.output_pin("slots"),
     container=spec_water_container,
     coordinates="A2",
 )
-provision = protocol.primitive_step(
+provision = activity.primitive_step(
     "Provision",
     resource=ludox,
     destination=load_rack1.output_pin("samples"),
     amount=sbol3.Measure(500, tyto.OM.microliter),
 )
-provision = protocol.primitive_step(
+provision = activity.primitive_step(
     "Provision",
     resource=ddh2o,
     destination=load_rack2.output_pin("samples"),
@@ -132,22 +132,22 @@ provision = protocol.primitive_step(
 
 
 # Set up target samples
-plate = protocol.primitive_step("EmptyContainer", specification=spec_plate)
-water_samples = protocol.primitive_step(
+plate = activity.primitive_step("EmptyContainer", specification=spec_plate)
+water_samples = activity.primitive_step(
     "PlateCoordinates", source=plate.output_pin("samples"), coordinates="A1:D1"
 )
-ludox_samples = protocol.primitive_step(
+ludox_samples = activity.primitive_step(
     "PlateCoordinates", source=plate.output_pin("samples"), coordinates="A2:D2"
 )
 
 
-transfer = protocol.primitive_step(
+transfer = activity.primitive_step(
     "Transfer",
     source=load_rack1.output_pin("samples"),
     destination=water_samples.output_pin("samples"),
     amount=sbol3.Measure(100, tyto.OM.microliter),
 )
-transfer = protocol.primitive_step(
+transfer = activity.primitive_step(
     "Transfer",
     source=load_rack1.output_pin("samples"),
     destination=ludox_samples.output_pin("samples"),
@@ -159,7 +159,7 @@ filename = "ot2_ludox_labop"
 agent = sbol3.Agent("ot2_machine", name="OT2 machine")
 ee = ExecutionEngine(specializations=[OT2Specialization(filename)])
 parameter_values = []
-execution = ee.execute(protocol, agent, id="test_execution")
+execution = ee.execute(activity, agent, id="test_execution")
 
 # v = doc.validate()
 # assert len(v) == 0, "".join(f'\n {e}' for e in v)

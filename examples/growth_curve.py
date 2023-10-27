@@ -204,12 +204,12 @@ print("Overnight measurement sub-protocol construction complete")
 
 print("Making protocol")
 
-protocol = labop.Protocol("GrowthCurve", name="SD2 Yeast growth curve protocol")
-protocol.description = """
+activity = labop.Protocol("GrowthCurve", name="SD2 Yeast growth curve protocol")
+activity.description = """
 Protocol from SD2 Yeast States working group for studying growth curves:
 Grow up cells and read with plate reader at n-hour intervals
 """
-doc.add(protocol)
+doc.add(activity)
 
 # Create the materials to be provisioned
 PBS = sbol3.Component("PBS", "https://identifiers.org/pubchem.compound:24978514")
@@ -221,10 +221,12 @@ doc.add(PBS)
 SC_media = sbol3.Component("SC_Media", "TBD", name="Synthetic Complete Media")
 doc.add(SC_media)
 SC_plus_dox = sbol3.Component(
-    "SC_Media_plus_dox", "TBD", name="Synthetic Complete Media plus 40nM Doxycycline"
+    "SC_Media_plus_dox",
+    "TBD",
+    name="Synthetic Complete Media plus 40nM Doxycycline",
 )
 doc.add(SC_plus_dox)
-protocol.material += {PBS, SC_media, SC_plus_dox}
+activity.material += {PBS, SC_media, SC_plus_dox}
 
 ## create the containers
 # provisioning sources
@@ -235,19 +237,29 @@ sc_source = labop.Container(
 om_source = labop.Container(name="Overnight SC Media Source", type=tyto.NCIT.Bottle)
 # plates for the general protocol
 overnight_plate = labop.Container(
-    name="Overnight Growth Plate", type=tyto.NCIT.Microplate, max_coordinate="H12"
+    name="Overnight Growth Plate",
+    type=tyto.NCIT.Microplate,
+    max_coordinate="H12",
 )
 overnight_od_plate = labop.Container(
-    name="Overnight Growth Plate", type=tyto.NCIT.Microplate, max_coordinate="H12"
+    name="Overnight Growth Plate",
+    type=tyto.NCIT.Microplate,
+    max_coordinate="H12",
 )
 growth_plate = labop.Container(
     name="Growth Curve Plate", type=tyto.NCIT.Microplate, max_coordinate="H12"
 )
-protocol.locations = {pbs_source, sc_source, om_source, overnight_plate, growth_plate}
+activity.locations = {
+    pbs_source,
+    sc_source,
+    om_source,
+    overnight_plate,
+    growth_plate,
+}
 
 # One input: a microplate full of strains
 # TODO: change this to allow alternative places
-strain_plate = protocol.add_input(
+strain_plate = activity.add_input(
     name="strain_plate",
     description="Plate of strains to grow",
     type="http://bioprotocols.org/labop#LocatedSamples",
@@ -257,94 +269,100 @@ strain_plate = protocol.add_input(
 print("Constructing protocol steps")
 
 # set up the sources
-p_pbs = protocol.execute_primitive(
+p_pbs = activity.execute_primitive(
     "Provision",
     resource=PBS,
     destination=pbs_source,
     amount=sbol3.Measure(117760, tyto.OM.microliter),
 )
-protocol.add_flow(protocol.initial(), p_pbs)  # start with provisioning
-p_om = protocol.execute_primitive(
+activity.add_flow(activity.initial(), p_pbs)  # start with provisioning
+p_om = activity.execute_primitive(
     "Provision",
     resource=SC_media,
     destination=om_source,
     amount=sbol3.Measure(98, tyto.OM.milliliter),
 )
-protocol.add_flow(protocol.initial(), p_om)  # start with provisioning
-p_scm = protocol.execute_primitive(
+activity.add_flow(activity.initial(), p_om)  # start with provisioning
+p_scm = activity.execute_primitive(
     "Provision",
     resource=SC_plus_dox,
     destination=sc_source,
     amount=sbol3.Measure(117200, tyto.OM.microliter),
 )
-protocol.add_flow(protocol.initial(), p_scm)  # start with provisioning
+activity.add_flow(activity.initial(), p_scm)  # start with provisioning
 
 # prep the overnight culture, then seal away the source plate again
-s_d = protocol.execute_primitive(
+s_d = activity.execute_primitive(
     "Dispense",
     source=p_om.output_pin("samples"),
     destination=overnight_plate,
     amount=sbol3.Measure(500, tyto.OM.microliter),
 )
-s_u = protocol.execute_primitive("Unseal", location=strain_plate)
-s_t = protocol.execute_primitive(
+s_u = activity.execute_primitive("Unseal", location=strain_plate)
+s_t = activity.execute_primitive(
     "TransferInto",
     source=strain_plate,
     destination=s_d.output_pin("samples"),
     amount=sbol3.Measure(5, tyto.OM.microliter),
     mixCycles=sbol3.Measure(10, tyto.OM.number),
 )
-s_s = protocol.execute_primitive(
-    "Seal", location=strain_plate, type="http://autoprotocol.org/lids/breathable"
+s_s = activity.execute_primitive(
+    "Seal",
+    location=strain_plate,
+    type="http://autoprotocol.org/lids/breathable",
 )  # need to turn this into a proper ontology
-protocol.add_flow(s_u, s_t)  # transfer can't happen until strain plate is unsealed ...
-protocol.add_flow(s_t, s_s)  # ... and must complete before we re-seal it
+activity.add_flow(s_u, s_t)  # transfer can't happen until strain plate is unsealed ...
+activity.add_flow(s_t, s_s)  # ... and must complete before we re-seal it
 
 # run the overnight culture
 overnight_samples = s_t.output_pin("samples")
-s_s = protocol.execute_primitive(
-    "Seal", location=overnight_samples, type="http://autoprotocol.org/lids/breathable"
+s_s = activity.execute_primitive(
+    "Seal",
+    location=overnight_samples,
+    type="http://autoprotocol.org/lids/breathable",
 )  # need to turn this into a proper ontology
-s_i = protocol.execute_primitive(
+s_i = activity.execute_primitive(
     "Incubate",
     location=overnight_samples,
     temperature=sbol3.Measure(30, tyto.OM.get_uri_by_term("degree Celsius")),
     duration=sbol3.Measure(16, tyto.OM.hour),
     shakingFrequency=sbol3.Measure(350, rpm.identity),
 )
-protocol.add_flow(s_t, s_s)  # sealing after transfer
-protocol.add_flow(s_s, s_i)  # incubation after sealing
+activity.add_flow(s_t, s_s)  # sealing after transfer
+activity.add_flow(s_s, s_i)  # incubation after sealing
 
 # Check the OD after running overnight; note that this is NOT the same measurement process as for the during-growth measurements
-s_u = protocol.execute_primitive(
+s_u = activity.execute_primitive(
     "Unseal", location=overnight_samples
 )  # added because using the subprotocol leaves a sealed plate
-protocol.add_flow(s_i, s_u)  # growth plate after measurement
-s_m = protocol.execute_subprotocol(overnight_od_measure, samples=overnight_samples)
-protocol.add_flow(s_u, s_m)  # measurement after incubation and unsealing
+activity.add_flow(s_i, s_u)  # growth plate after measurement
+s_m = activity.execute_subprotocol(overnight_od_measure, samples=overnight_samples)
+activity.add_flow(s_u, s_m)  # measurement after incubation and unsealing
 
 # Set up the growth plate
-s_d = protocol.execute_primitive(
+s_d = activity.execute_primitive(
     "Dispense",
     source=p_scm.output_pin("samples"),
     destination=growth_plate,
     amount=sbol3.Measure(700, tyto.OM.microliter),
 )
-s_t = protocol.execute_primitive(
+s_t = activity.execute_primitive(
     doc.find("TransferInto"),
     source=overnight_samples,
     destination=s_d.output_pin("samples"),
     amount=sbol3.Measure(2, tyto.OM.microliter),
     mixCycles=sbol3.Measure(10, tyto.OM.number),
 )
-s_s = protocol.execute_primitive(
-    "Seal", location=overnight_samples, type="http://autoprotocol.org/lids/breathable"
+s_s = activity.execute_primitive(
+    "Seal",
+    location=overnight_samples,
+    type="http://autoprotocol.org/lids/breathable",
 )  # need to turn this into a proper ontology
-protocol.add_flow(
+activity.add_flow(
     s_u, s_t
 )  # transfer can't happen until overnight plate is unsealed ...
-protocol.add_flow(s_t, s_s)  # ... and must complete before we re-seal it
-protocol.add_flow(s_m, s_s)  # ... as must its measurement
+activity.add_flow(s_t, s_s)  # ... and must complete before we re-seal it
+activity.add_flow(s_m, s_s)  # ... as must its measurement
 
 # run the step-by-step culture
 growth_samples = s_t.output_pin("samples")
@@ -353,22 +371,24 @@ last_round = None
 sample_hours = [1, 3, 6, 9, 18, 21, 24]
 for i in range(0, len(sample_hours)):
     incubation_hours = sample_hours[i] - (sample_hours[i - 1] if i > 0 else 0)
-    s_i = protocol.execute_primitive(
+    s_i = activity.execute_primitive(
         "Incubate",
         location=growth_samples,
         temperature=sbol3.Measure(30, tyto.OM.get_uri_by_term("degree Celsius")),
         duration=sbol3.Measure(incubation_hours, tyto.OM.hour),
         shakingFrequency=sbol3.Measure(350, rpm.identity),
     )
-    s_m = protocol.execute_subprotocol(
-        split_and_measure, samples=growth_samples, pbs=p_pbs.output_pin("samples")
+    s_m = activity.execute_subprotocol(
+        split_and_measure,
+        samples=growth_samples,
+        pbs=p_pbs.output_pin("samples"),
     )
     if last_round:
-        protocol.add_flow(last_round, s_i)  # measurement after incubation
-    protocol.add_flow(s_i, s_m)  # measurement after incubation
+        activity.add_flow(last_round, s_i)  # measurement after incubation
+    activity.add_flow(s_i, s_m)  # measurement after incubation
     last_round = s_m
 
-protocol.add_flow(last_round, protocol.final())
+activity.add_flow(last_round, activity.final())
 
 print("Protocol construction complete")
 

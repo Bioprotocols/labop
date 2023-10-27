@@ -1,0 +1,283 @@
+protocol = RoboticSamplePreparation[
+  LabelContainer[
+    Label -> "Fluorescein calibrant",
+    Container -> Model[Container, Vessel, "2mL Tube"]],
+  LabelContainer[
+    Label -> "Sulforhodamine 101 calibrant",
+    Container -> Model[Container, Vessel, "2mL Tube"]],
+  LabelContainer[
+    Label -> "Cascade blue calibrant",
+    Container -> Model[Container, Vessel, "2mL Tube"]],
+  LabelContainer[
+    Label -> "microspheres",
+    Container -> Model[Container, Vessel, "2mL Tube"]],
+  LabelContainer[
+    Label -> "molecular grade H2O",
+    Container -> Model[Container, Vessel, "2mL Tube"]],
+  LabelContainer[
+    Label -> "PBS",
+    Container -> Model[Container, Vessel, "2mL Tube"]],
+  LabelContainer[
+    Label -> "discard",
+    Container -> Model[Container, Vessel, "2mL Tube"]],
+  Transfer[
+    Source -> Model[Sample, StockSolution, Nuclease-free Water],
+    Destination -> "molecular grade H2O",
+    Amount -> 12.0 Milliliter
+    ],
+  Transfer[
+    Source -> Model[Sample, StockSolution, 1x PBS from 10X stock],
+    Destination -> "PBS",
+    Amount -> 12.0 Milliliter
+    ],
+  Transfer[
+    Source -> Model[Sample, StockSolution, 1x PBS, 10uM Fluorescein],
+    Destination -> "Fluorescein calibrant",
+    Amount -> 500.0 Microliter
+    ],
+  Transfer[
+    Source -> Model[Sample, StockSolution, 1x PBS, 10uM Fluorescein],
+    Destination -> "Cascade blue calibrant",
+    Amount -> 500.0 Microliter
+    ],
+  Transfer[
+    Source -> Model[Sample, StockSolution, 1x PBS, 10uM Fluorescein],
+    Destination -> "Sulforhodamine 101 calibrant",
+    Amount -> 500.0 Microliter
+    ],
+  Transfer[
+    Source -> Model[Sample, StockSolution, Silica beads 2g/ml 950nm],
+    Destination -> "microspheres",
+    Amount -> 500.0 Microliter
+    ],
+  
+   Resuspend[
+     Sample -> "Fluorescein calibrant",
+     Diluent -> "PBS",
+     Volume -> 1.0 Milliliter,
+     DispenseNumberOfMixes -> 3,
+     DispenseMix -> True
+     ] ,
+  
+   Resuspend[
+     Sample -> "Sulforhodamine 101 calibrant",
+     Diluent -> "PBS",
+     Volume -> 1.0 Milliliter,
+     DispenseNumberOfMixes -> 3,
+     DispenseMix -> True
+     ] ,
+  
+   Resuspend[
+     Sample -> "Cascade blue calibrant",
+     Diluent -> "molecular grade H2O",
+     Volume -> 1.0 Milliliter,
+     DispenseNumberOfMixes -> 3,
+     DispenseMix -> True
+     ] ,
+  
+   Resuspend[
+     Sample -> "microspheres",
+     Diluent -> "molecular grade H2O",
+     Volume -> 1.0 Milliliter,
+     DispenseNumberOfMixes -> 3,
+     DispenseMix -> True
+     ] ,
+  LabelContainer[
+    Label -> "calibration plate",
+    Container -> Model[Container, Plate, "96-well Polystyrene Flat-Bottom Plate, Clear"]],
+  Transfer[
+    Source -> "PBS",
+    Destination -> "calibration plate",
+    DestinationWells -> {#, "calibration plate"} & /@  Flatten[Transpose[AllWells[]]][ 9,17,25,33,41,49,57,65,73,81,89,10,18,26,34,42,50,58,66,74,82,90,11,19,27,35,43,51,59,67,75,83,91,12,20,28,36,44,52,60,68,76,84,92 ],
+    Amount -> 100.0 Microliter
+    ],
+  Transfer[
+    Source -> "molecular grade H2O",
+    Destination -> "calibration plate",
+    DestinationWells -> {#, "calibration plate"} & /@  Flatten[Transpose[AllWells[]]][ 13,21,29,37,45,53,61,69,77,85,93,14,22,30,38,46,54,62,70,78,86,94,15,23,31,39,47,55,63,71,79,87,95,16,24,32,40,48,56,64,72,80,88,96 ],
+    Amount -> 100.0 Microliter
+    ],
+  Transfer[
+    Source -> "Fluorescein calibrant",
+    Destination -> "calibration plate",
+    DestinationWells -> {#, "calibration plate"} & /@  Flatten[Transpose[AllWells[]]][ 1 ],
+    Amount -> 200.0 Microliter
+    ],
+  Transfer[
+    Source -> "Fluorescein calibrant",
+    Destination -> "calibration plate",
+    DestinationWells -> {#, "calibration plate"} & /@  Flatten[Transpose[AllWells[]]][ 2 ],
+    Amount -> 200.0 Microliter
+    ],
+  Transfer[
+    Source -> "Sulforhodamine 101 calibrant",
+    Destination -> "calibration plate",
+    DestinationWells -> {#, "calibration plate"} & /@  Flatten[Transpose[AllWells[]]][ 3 ],
+    Amount -> 200.0 Microliter
+    ],
+  Transfer[
+    Source -> "Sulforhodamine 101 calibrant",
+    Destination -> "calibration plate",
+    DestinationWells -> {#, "calibration plate"} & /@  Flatten[Transpose[AllWells[]]][ 4 ],
+    Amount -> 200.0 Microliter
+    ],
+  Transfer[
+    Source -> "Cascade blue calibrant",
+    Destination -> "calibration plate",
+    DestinationWells -> {#, "calibration plate"} & /@  Flatten[Transpose[AllWells[]]][ 5 ],
+    Amount -> 200.0 Microliter
+    ],
+  Transfer[
+    Source -> "Cascade blue calibrant",
+    Destination -> "calibration plate",
+    DestinationWells -> {#, "calibration plate"} & /@  Flatten[Transpose[AllWells[]]][ 6 ],
+    Amount -> 200.0 Microliter
+    ],
+  Transfer[
+    Source -> "microspheres",
+    Destination -> "calibration plate",
+    DestinationWells -> {#, "calibration plate"} & /@  Flatten[Transpose[AllWells[]]][ 7 ],
+    Amount -> 200.0 Microliter
+    ],
+  Transfer[
+    Source -> "microspheres",
+    Destination -> "calibration plate",
+    DestinationWells -> {#, "calibration plate"} & /@  Flatten[Transpose[AllWells[]]][ 8 ],
+    Amount -> 200.0 Microliter
+    ],
+  MapThread[
+   Transfer[
+     Source -> "calibration plate",
+     Destination -> "calibration plate",
+     SourceWell -> #1,
+     DestinationWell -> #2,
+     Amount -> 100.0 Microliter,
+     SlurryTransfer -> True,
+     DispenseMix -> True
+     ] &
+   [Flatten[Transpose[AllWells[]]][ 1,9,17,25,33,41,49,57,65,73 ],
+     Flatten[Transpose[AllWells[]]][ 9,17,25,33,41,49,57,65,73,81 ]]],
+  MapThread[
+   Transfer[
+     Source -> "calibration plate",
+     Destination -> "calibration plate",
+     SourceWell -> #1,
+     DestinationWell -> #2,
+     Amount -> 100.0 Microliter,
+     SlurryTransfer -> True,
+     DispenseMix -> True
+     ] &
+   [Flatten[Transpose[AllWells[]]][ 2,10,18,26,34,42,50,58,66,74 ],
+     Flatten[Transpose[AllWells[]]][ 10,18,26,34,42,50,58,66,74,82 ]]],
+  MapThread[
+   Transfer[
+     Source -> "calibration plate",
+     Destination -> "calibration plate",
+     SourceWell -> #1,
+     DestinationWell -> #2,
+     Amount -> 100.0 Microliter,
+     SlurryTransfer -> True,
+     DispenseMix -> True
+     ] &
+   [Flatten[Transpose[AllWells[]]][ 3,11,19,27,35,43,51,59,67,75 ],
+     Flatten[Transpose[AllWells[]]][ 11,19,27,35,43,51,59,67,75,83 ]]],
+  MapThread[
+   Transfer[
+     Source -> "calibration plate",
+     Destination -> "calibration plate",
+     SourceWell -> #1,
+     DestinationWell -> #2,
+     Amount -> 100.0 Microliter,
+     SlurryTransfer -> True,
+     DispenseMix -> True
+     ] &
+   [Flatten[Transpose[AllWells[]]][ 4,12,20,28,36,44,52,60,68,76 ],
+     Flatten[Transpose[AllWells[]]][ 12,20,28,36,44,52,60,68,76,84 ]]],
+  MapThread[
+   Transfer[
+     Source -> "calibration plate",
+     Destination -> "calibration plate",
+     SourceWell -> #1,
+     DestinationWell -> #2,
+     Amount -> 100.0 Microliter,
+     SlurryTransfer -> True,
+     DispenseMix -> True
+     ] &
+   [Flatten[Transpose[AllWells[]]][ 5,13,21,29,37,45,53,61,69,77 ],
+     Flatten[Transpose[AllWells[]]][ 13,21,29,37,45,53,61,69,77,85 ]]],
+  MapThread[
+   Transfer[
+     Source -> "calibration plate",
+     Destination -> "calibration plate",
+     SourceWell -> #1,
+     DestinationWell -> #2,
+     Amount -> 100.0 Microliter,
+     SlurryTransfer -> True,
+     DispenseMix -> True
+     ] &
+   [Flatten[Transpose[AllWells[]]][ 6,14,22,30,38,46,54,62,70,78 ],
+     Flatten[Transpose[AllWells[]]][ 14,22,30,38,46,54,62,70,78,86 ]]],
+  MapThread[
+   Transfer[
+     Source -> "calibration plate",
+     Destination -> "calibration plate",
+     SourceWell -> #1,
+     DestinationWell -> #2,
+     Amount -> 100.0 Microliter,
+     SlurryTransfer -> True,
+     DispenseMix -> True
+     ] &
+   [Flatten[Transpose[AllWells[]]][ 7,15,23,31,39,47,55,63,71,79 ],
+     Flatten[Transpose[AllWells[]]][ 15,23,31,39,47,55,63,71,79,87 ]]],
+  MapThread[
+   Transfer[
+     Source -> "calibration plate",
+     Destination -> "calibration plate",
+     SourceWell -> #1,
+     DestinationWell -> #2,
+     Amount -> 100.0 Microliter,
+     SlurryTransfer -> True,
+     DispenseMix -> True
+     ] &
+   [Flatten[Transpose[AllWells[]]][ 8,16,24,32,40,48,56,64,72,80 ],
+     Flatten[Transpose[AllWells[]]][ 16,24,32,40,48,56,64,72,80,88 ]]],
+  Transfer[
+    Source -> "calibration plate",
+    SourceWells -> {#, "calibration plate"} & /@  Flatten[Transpose[AllWells[]]][ 81,82,83,84,85,86,87,88 ],
+    Destination -> "discard",
+    Amount -> 100.0 Microliter
+    ],
+  Transfer[
+    Source -> "PBS",
+    Destination -> "calibration plate",
+    DestinationWells -> {#, "calibration plate"} & /@  Flatten[Transpose[AllWells[]]][ 1,9,17,25,33,41,49,57,65,73,81,89,2,10,18,26,34,42,50,58,66,74,82,90,3,11,19,27,35,43,51,59,67,75,83,91,4,12,20,28,36,44,52,60,68,76,84,92 ],
+    Amount -> 100.0 Microliter
+    ],
+  Transfer[
+    Source -> "molecular grade H2O",
+    Destination -> "calibration plate",
+    DestinationWells -> {#, "calibration plate"} & /@  Flatten[Transpose[AllWells[]]][ 5,13,21,29,37,45,53,61,69,77,85,93,6,14,22,30,38,46,54,62,70,78,86,94,7,15,23,31,39,47,55,63,71,79,87,95,8,16,24,32,40,48,56,64,72,80,88,96 ],
+    Amount -> 100.0 Microliter
+    ],
+  FluorescenceIntensity[
+      Sample -> "calibration plate",
+      ExcitationWavelength -> 488.0 Nanometer,
+      EmissionWavelength -> 530.0 Nanometer
+      ],
+  FluorescenceIntensity[
+      Sample -> "calibration plate",
+      ExcitationWavelength -> 561.0 Nanometer,
+      EmissionWavelength -> 610.0 Nanometer
+      ],
+  FluorescenceIntensity[
+      Sample -> "calibration plate",
+      ExcitationWavelength -> 405.0 Nanometer,
+      EmissionWavelength -> 450.0 Nanometer
+      ],
+  AbsorbanceIntensity[
+      Sample -> "calibration plate",
+      Wavelength -> 600.0 Nanometer,
+      PlateReaderMix -> True,
+      PlateReaderMixRate -> 700 RPM,
+      BlankAbsorbance -> False
+      ]]

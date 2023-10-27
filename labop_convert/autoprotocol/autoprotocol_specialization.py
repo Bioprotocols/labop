@@ -3,23 +3,42 @@ import logging
 import uuid
 from typing import Dict
 
+import coordinate_rect_to_row_col_pairs
 import sbol3
 import transcriptic
 import tyto
 from autoprotocol import container_type as ctype
-from autoprotocol.container import WellGroup
+from autoprotocol.container import Container, WellGroup
 from autoprotocol.instruction import Provision, Spectrophotometry
 from autoprotocol.protocol import Protocol
 from autoprotocol.unit import Unit
 from container_api.client_api import matching_containers, strateos_id
 
 import labop
-import labop_convert.autoprotocol.plate_coordinates as pc
+import labop.utils.plate_coordinates as pc
+from labop.strings import Strings
 from labop_convert.autoprotocol.strateos_api import StrateosAPI
 from labop_convert.behavior_specialization import BehaviorSpecialization, ContO
 
 l = logging.getLogger(__file__)
 l.setLevel(logging.ERROR)
+
+
+"""
+Autoprotocol specific extensions for Autoprotocol containers
+"""
+
+
+def coordinate_rect_to_well_group(container: Container, coordinates: str):
+    indices = coordinate_rect_to_row_col_pairs(coordinates)
+    wells = []
+
+    for i, j in indices:
+        well = container.well_from_coordinates(i, j)
+        wells.append(well)
+    # wells = [container.well_from_coordinates(i, j) for i, j in indices]
+
+    return WellGroup(wells)
 
 
 # https://developers.strateos.com/docs/containers
@@ -408,14 +427,14 @@ class AutoprotocolSpecialization(BehaviorSpecialization):
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
 
-        source = parameter_value_map["source"]["value"]
-        destination = parameter_value_map["destination"]["value"]
-        diluent = parameter_value_map["diluent"]["value"]
+        destination = parameter_value_map["samples"]["value"]
         amount = parameter_value_map["amount"]["value"]
-        dilution_factor = parameter_value_map["dilution_factor"]["value"]
-        xfer_vol = amount.value / dilution_factor
-        xfer_vol = Unit(xfer_vol, tyto.OM.get_term_by_uri(amount.unit))
-        series = parameter_value_map["series"]["value"]
+        direction = parameter_value_map["direction"]["value"]
+        xfer_vol = Unit(amount.value, tyto.OM.get_term_by_uri(amount.unit))
+
+        assert (
+            direction == Strings.ROW_DIRECTION
+        ), "The AutoprotocolSpecialization only supports serial dilution in the row direction."
         container = self.var_to_entity[destination.identity]
         coordinates = destination.get_coordinates()
         if len(coordinates) < 2:

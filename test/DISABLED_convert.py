@@ -6,14 +6,13 @@ import unittest
 import sbol3
 import tyto
 
-import labop
-import uml
-from labop.execution_engine import ExecutionEngine
-from labop_convert import MarkdownSpecialization
+from labop import ExecutionEngine, ParameterValue
+from labop_convert import MarkdownSpecialization, OpentronsSpecialization
 from labop_convert.autoprotocol.autoprotocol_specialization import (
     AutoprotocolSpecialization,
 )
 from labop_convert.autoprotocol.strateos_api import StrateosAPI, StrateosConfig
+from uml import LiteralIdentified
 
 
 class TestConvert(unittest.TestCase):
@@ -25,18 +24,19 @@ class TestConvert(unittest.TestCase):
         ee = ExecutionEngine(specializations=specializations)
         agent = sbol3.Agent("test_agent")
         parameter_values = [
-            labop.ParameterValue(
+            ParameterValue(
                 parameter=protocol.get_input("wavelength"),
-                value=uml.LiteralIdentified(
-                    value=sbol3.Measure(100, tyto.OM.nanometer)
-                ),
+                value=LiteralIdentified(value=sbol3.Measure(100, tyto.OM.nanometer)),
             )
         ]
 
         #############################################
         # Execute Protocol and Convert
         execution = ee.execute(
-            protocol, agent, id="test_execution", parameter_values=parameter_values
+            protocol,
+            agent,
+            id="test_execution",
+            parameter_values=parameter_values,
         )
 
     # unittest.skip(
@@ -58,7 +58,6 @@ class TestConvert(unittest.TestCase):
         )
         doc.read(protocol_file, "nt")
         protocol = doc.find("https://bbn.com/scratch/iGEM_LUDOX_OD_calibration_2018")
-
         #############################################
         # Autoprotocol and Strateos Configuration
         autoprotocol_output = os.path.join(
@@ -85,18 +84,19 @@ class TestConvert(unittest.TestCase):
         )
         agent = sbol3.Agent("test_agent")
         parameter_values = [
-            labop.ParameterValue(
+            ParameterValue(
                 parameter=protocol.get_input("wavelength"),
-                value=uml.LiteralIdentified(
-                    value=sbol3.Measure(100, tyto.OM.nanometer)
-                ),
+                value=LiteralIdentified(value=sbol3.Measure(100, tyto.OM.nanometer)),
             )
         ]
 
         #############################################
         # Execute Protocol and Convert
         execution = ee.execute(
-            protocol, agent, id="test_execution", parameter_values=parameter_values
+            protocol,
+            agent,
+            id="test_execution",
+            parameter_values=parameter_values,
         )
 
         #############################################
@@ -141,7 +141,7 @@ class TestConvert(unittest.TestCase):
         markdown_output = os.path.join(tempfile.gettempdir(), "igem_ludox_markdown.md")
         markdown_specialization = MarkdownSpecialization(markdown_output)
 
-        self._run_execution(doc, [autoprotocol_specialization, markdown_specialization])
+        self._run_execution(doc, [markdown_specialization])
 
         #############################################
         # Check outputs match
@@ -192,18 +192,19 @@ class TestConvert(unittest.TestCase):
         ee = ExecutionEngine(specializations=[opentrons_specialization])
         agent = sbol3.Agent("test_agent")
         parameter_values = [
-            labop.ParameterValue(
+            ParameterValue(
                 parameter=protocol.get_input("wavelength"),
-                value=uml.LiteralIdentified(
-                    value=sbol3.Measure(100, tyto.OM.nanometer)
-                ),
+                value=LiteralIdentified(value=sbol3.Measure(100, tyto.OM.nanometer)),
             )
         ]
 
         #############################################
         # Execute Protocol and Convert
         execution = ee.execute(
-            protocol, agent, id="test_execution", parameter_values=parameter_values
+            protocol,
+            agent,
+            id="test_execution",
+            parameter_values=parameter_values,
         )
 
         #############################################
@@ -211,7 +212,9 @@ class TestConvert(unittest.TestCase):
 
         # Check Opentrons output
         opentrons_comparison_file = os.path.join(
-            os.path.dirname(os.path.realpath(__file__)), "testfiles", "ludox_ot2.py"
+            os.path.dirname(os.path.realpath(__file__)),
+            "testfiles",
+            "ludox_ot2.py",
         )
         # Uncomment next two lines to write the rubric file (Careful!)
         # with open(opentrons_comparison_file, "w") as out_file, open(opentrons_output) as in_file:

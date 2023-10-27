@@ -4,11 +4,10 @@ import sbol3
 import tyto
 
 import labop
-import uml
 from labop.execution_engine import ExecutionEngine
-from labop.primitive_execution import initialize_primitive_compute_output
 from labop_convert import MarkdownSpecialization
 from labop_convert.behavior_specialization import DefaultBehaviorSpecialization
+from uml import LiteralReference
 
 PARAMETER_IN = "http://bioprotocols.org/uml#in"
 PARAMETER_OUT = "http://bioprotocols.org/uml#out"
@@ -20,9 +19,10 @@ labop.import_library("spectrophotometry")
 
 class TestProtocolOutputs(unittest.TestCase):
     def setUp(self):
-        doc = sbol3.Document()
-        protocol = labop.Protocol("foo")
-        doc.add(protocol)
+        protocol_name = "test_protocol"
+        protocol, doc = labop.Protocol.initialize_protocol(
+            display_id=protocol_name, name=protocol_name
+        )
 
         plate_spec = labop.ContainerSpec(
             "my_absorbance_measurement_plate",
@@ -34,7 +34,9 @@ class TestProtocolOutputs(unittest.TestCase):
         )
         plate = protocol.primitive_step("EmptyContainer", specification=plate_spec)
         target_wells = protocol.primitive_step(
-            "PlateCoordinates", source=plate.output_pin("samples"), coordinates=f"A1"
+            "PlateCoordinates",
+            source=plate.output_pin("samples"),
+            coordinates=f"A1",
         )
         measure_absorbance = protocol.primitive_step(
             "MeasureAbsorbance",
@@ -67,7 +69,7 @@ class TestProtocolOutputs(unittest.TestCase):
         )
         ex = ee.execute(self.protocol, agent, id="test_execution", parameter_values=[])
 
-        self.assertTrue(isinstance(ex.parameter_values[0].value, uml.LiteralReference))
+        self.assertTrue(isinstance(ex.parameter_values[0].value, LiteralReference))
         self.assertTrue(
             isinstance(ex.parameter_values[0].value.value.lookup(), labop.Dataset)
         )

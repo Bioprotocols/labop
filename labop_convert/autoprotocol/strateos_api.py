@@ -216,7 +216,9 @@ class StrateosAPI:
         request_response = {}
         try:
             req_title = "{}_{}_{}".format(
-                datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%ST%f"), title, protocol.name
+                datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%ST%f"),
+                title,
+                protocol.name,
             )
 
             # req_title = "{}-{}".format(
@@ -244,9 +246,16 @@ class StrateosAPI:
         params_dict["launch_request"]["test_mode"] = test_mode
 
         with open(
-            os.path.join(self.out_dir, "launch_request_{}.json".format(local_name)), "w"
+            os.path.join(self.out_dir, "launch_request_{}.json".format(local_name)),
+            "w",
         ) as lr:
-            json.dump(params_dict, lr, sort_keys=True, indent=2, separators=(",", ": "))
+            json.dump(
+                params_dict,
+                lr,
+                sort_keys=True,
+                indent=2,
+                separators=(",", ": "),
+            )
         return json.dumps(params_dict)
 
     # @retry(stop=stop_after_delay(70), wait=wait_exponential(multiplier=1, max=16))

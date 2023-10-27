@@ -12,10 +12,26 @@ import sbol3
 import tyto
 import xarray as xr
 
-import labop
-import uml
-from labop.strings import Strings
-from labop_convert.behavior_specialization import BehaviorSpecialization
+from labop import (
+    ActivityNodeExecution,
+    ContainerSpec,
+    Dataset,
+    ParameterValue,
+    ProtocolExecution,
+    SampleArray,
+    SampleCollection,
+    SampleMask,
+    Strings,
+    deserialize_sample_format,
+)
+from labop_convert.behavior_specialization import DefaultBehaviorSpecialization
+from uml import (
+    PARAMETER_IN,
+    PARAMETER_OUT,
+    CallBehaviorAction,
+    LiteralSpecification,
+    Parameter,
+)
 
 from .protocol_to_markdown import MarkdownConverter
 
@@ -40,17 +56,24 @@ ContainerOntology = tyto.Ontology(
 )
 
 
-class MarkdownSpecialization(BehaviorSpecialization):
-    def __init__(self, out_file, sample_format=Strings.JSON) -> None:
+class MarkdownSpecialization(DefaultBehaviorSpecialization):
+    def __init__(
+        self,
+        out_file,
+        sample_format=Strings.JSON,
+        propagate_objects=False,
+        output_subprotocol_inputs=False,
+    ) -> None:
         super().__init__()
         self.out_file = out_file
         self.var_to_entity = {}
         self.markdown_converter = None
         self.doc = None
-        self.propagate_objects = False
+        self.propagate_objects = propagate_objects
         self.sample_format = sample_format
+        self.output_subprotocol_inputs = output_subprotocol_inputs
 
-    def initialize_protocol(self, execution: labop.ProtocolExecution, out_dir=None):
+    def initialize_protocol(self, execution: ProtocolExecution, out_dir=None):
         super().initialize_protocol(execution, out_dir=out_dir)
         print(f"Initializing execution {execution.display_id}")
         # Defines sections of the markdown document
@@ -124,12 +147,13 @@ class MarkdownSpecialization(BehaviorSpecialization):
         markdown = ""
         for i in parameter_values:
             parameter = i.parameter.lookup()
-            if parameter.property_value.direction == uml.PARAMETER_IN:
+            if parameter.property_value.direction == PARAMETER_IN:
                 markdown += self._parameter_value_markdown(i)
         for parameter in unbound_input_parameters:
             markdown += self._parameter_markdown(parameter)
-        for x in subprotocol_executions:
-            markdown += x.inputs
+        if self.output_subprotocol_inputs:
+            for x in subprotocol_executions:
+                markdown += x.inputs
         return markdown
 
     def _outputs_markdown(
@@ -142,7 +166,7 @@ class MarkdownSpecialization(BehaviorSpecialization):
         markdown = ""
         for i in parameter_values:
             parameter = i.parameter.lookup()
-            if parameter.property_value.direction == uml.PARAMETER_OUT:
+            if parameter.property_value.direction == PARAMETER_OUT:
                 markdown += self._parameter_value_markdown(i, True)
         for parameter in unbound_output_parameters:
             markdown += self._parameter_markdown(parameter)
@@ -158,20 +182,25 @@ class MarkdownSpecialization(BehaviorSpecialization):
         ]
         # This is a hack to avoid listing Components that are dynamically generated
         # during protocol execution, e.g., transformants
-        components = [
-            x for x in components if tyto.SBO.functional_entity not in x.types
-        ]
-        materials = {x.name: x for x in components}
-        markdown = "\n\n## Protocol Materials:\n"
-        markdown = ""
-        for name, material in materials.items():
-            markdown += f"* [{name}]({material.types[0]})\n"
+        try:
+            components = [
+                x for x in components if tyto.SBO.functional_entity not in x.types
+            ]
+
+            materials = {x.name: x for x in components}
+            markdown = "\n\n## Protocol Materials:\n"
+            markdown = ""
+            for name, material in materials.items():
+                markdown += f"* [{name}]({material.types[0]})\n"
+        except Exception as e:
+            components = ["Error: could not resolve SBO functional_entity"]
+            materials = {}
 
         # Compute container types and quantities
         document_objects = []
         protocol.document.traverse(lambda obj: document_objects.append(obj))
         call_behavior_actions = [
-            obj for obj in document_objects if type(obj) is uml.CallBehaviorAction
+            obj for obj in document_objects if type(obj) is CallBehaviorAction
         ]
         containers = {}
         for cba in call_behavior_actions:
@@ -179,7 +208,10 @@ class MarkdownSpecialization(BehaviorSpecialization):
                 pin = cba.input_pin("specification")
             except:
                 continue
-            container_type = pin.value.value.lookup().queryString
+            try:
+                container_type = pin.value.value.lookup().queryString
+            except Exception as e:
+                container_type = str(e)
 
             try:
                 pin = cba.input_pin("quantity")
@@ -210,12 +242,13 @@ class MarkdownSpecialization(BehaviorSpecialization):
             markdown += x.materials
         return markdown
 
-    def _parameter_value_markdown(self, pv: labop.ParameterValue, is_output=False):
+    def _parameter_value_markdown(self, pv: ParameterValue, is_output=False):
         parameter = pv.parameter.lookup().property_value
-        value = resolve_value(pv.value)
+        value = pv.value
         if isinstance(value, sbol3.Measure):
             value = measurement_to_text(value)
-        elif isinstance(value, labop.Dataset):
+        elif isinstance(value, Dataset):
+            value = value.get_value()
             value = self.dataset_to_text(value)
             return f"* {value}\n"
         elif isinstance(value, sbol3.Identified):
@@ -225,12 +258,10 @@ class MarkdownSpecialization(BehaviorSpecialization):
         else:
             return f"* `{parameter.name}` = {value}\n"
 
-    def _parameter_markdown(self, p: uml.Parameter):
+    def _parameter_markdown(self, p: Parameter):
         return f"* `{p.name}`\n"
 
-    def _steps_markdown(
-        self, execution: labop.ProtocolExecution, subprotocol_executions
-    ):
+    def _steps_markdown(self, execution: ProtocolExecution, subprotocol_executions):
         markdown = "\n\n## Steps\n"
         markdown = ""
         for x in subprotocol_executions:
@@ -240,7 +271,7 @@ class MarkdownSpecialization(BehaviorSpecialization):
             markdown += str(i + 1) + ". " + step + "\n"
         return markdown
 
-    def on_end(self, execution: labop.ProtocolExecution):
+    def on_end(self, execution: ProtocolExecution):
         protocol = execution.protocol.lookup()
         subprotocol_executions = execution.get_subprotocol_executions()
         execution.header += self._header_markdown(protocol)
@@ -302,30 +333,32 @@ class MarkdownSpecialization(BehaviorSpecialization):
 
         self.data = execution.markdown
 
-    def reporting_step(self, execution: labop.ProtocolExecution):
+    def reporting_step(self, execution: ProtocolExecution):
         output_parameters = []
         for i in execution.parameter_values:
             parameter = i.parameter.lookup()
-            value = resolve_value(i.value)
+            value = i.value
+            if isinstance(value, LiteralSpecification):
+                value = value.get_value()
             if isinstance(value, sbol3.Identified) and value.name:
                 value = f"`{value.name}`"
-            elif isinstance(value, labop.Dataset):
+            elif isinstance(value, Dataset):
                 value = self.dataset_to_text(value)
-            if parameter.property_value.direction == uml.PARAMETER_OUT:
+            if parameter.property_value.direction == PARAMETER_OUT:
                 output_parameters.append(f"{value}")
         output_parameters = ", ".join(output_parameters)
         return f"Import data into the provided Excel file: {output_parameters}."
 
     def define_container(
         self,
-        record: labop.ActivityNodeExecution,
-        execution: labop.ProtocolExecution,
+        record: ActivityNodeExecution,
+        execution: ProtocolExecution,
     ):
         results = {}
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
 
-        spec = parameter_value_map["specification"]["value"]
+        spec = parameter_value_map["specification"]
         # samples_var = parameter_value_map["samples"]['value']
 
         ## Define a container
@@ -370,18 +403,18 @@ class MarkdownSpecialization(BehaviorSpecialization):
 
     def define_containers(
         self,
-        record: labop.ActivityNodeExecution,
-        execution: labop.ProtocolExecution,
+        record: ActivityNodeExecution,
+        execution: ProtocolExecution,
     ):
         results = {}
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
 
-        containers = parameter_value_map["specification"]["value"]
-        samples = parameter_value_map["samples"]["value"]
-        quantity = parameter_value_map["quantity"]["value"]
+        containers = parameter_value_map["specification"]
+        samples = parameter_value_map["samples"]
+        quantity = parameter_value_map["quantity"]
         replicates = (
-            parameter_value_map["replicates"]["value"]
+            parameter_value_map["replicates"]
             if "replicates" in parameter_value_map
             else 1
         )
@@ -391,7 +424,7 @@ class MarkdownSpecialization(BehaviorSpecialization):
         # primitive_execution.py
         samples.initial_contents = quote(json.dumps({}))
         samples.format = "json"
-        assert type(containers) is labop.ContainerSpec
+        assert type(containers) is ContainerSpec
         try:
             # Assume that a simple container class is specified, rather
             # than container properties.  Then use tyto to get the
@@ -420,18 +453,18 @@ class MarkdownSpecialization(BehaviorSpecialization):
 
     def provision_container(
         self,
-        record: labop.ActivityNodeExecution,
-        execution: labop.ProtocolExecution,
+        record: ActivityNodeExecution,
+        execution: ProtocolExecution,
     ):
         results = {}
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
 
-        destination = parameter_value_map["destination"]["value"]
-        value = parameter_value_map["amount"]["value"].value
-        units = parameter_value_map["amount"]["value"].unit
+        destination = parameter_value_map["destination"]
+        value = parameter_value_map["amount"].value
+        units = parameter_value_map["amount"].unit
         units = tyto.OM.get_term_by_uri(units)
-        resource = parameter_value_map["resource"]["value"]
+        resource = parameter_value_map["resource"]
         l.debug(f"provision_container:")
         l.debug(f" destination: {destination}")
         l.debug(f" amount: {value} {units}")
@@ -439,8 +472,10 @@ class MarkdownSpecialization(BehaviorSpecialization):
 
         resource_str = f"[{resource.name}]({resource.types[0]})"
         destination_coordinates = ""
-        if type(destination) == labop.SampleMask:
-            destination_coordinates = f"({destination.mask})"
+        if type(destination) == SampleMask:
+            destination_coordinates = destination.sample_coordinates(
+                sample_format=self.sample_format
+            )
             destination = destination.source.lookup()
         destination_str_body = " ".join(
             [x for x in [destination.name, destination_coordinates] if x != ""]
@@ -454,21 +489,21 @@ class MarkdownSpecialization(BehaviorSpecialization):
 
     def plate_coordinates(
         self,
-        record: labop.ActivityNodeExecution,
-        execution: labop.ProtocolExecution,
+        record: ActivityNodeExecution,
+        execution: ProtocolExecution,
     ):
         results = {}
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
 
-        source = parameter_value_map["source"]["value"]
+        source = parameter_value_map["source"]
         # container = self.var_to_entity[source]
-        coords = parameter_value_map["coordinates"]["value"]
-        samples = parameter_value_map["samples"]["value"]
+        coords = parameter_value_map["coordinates"]
+        samples = parameter_value_map["samples"]
         samples.name = source.name
         samples.initial_contents = source.initial_contents
 
-        self.var_to_entity[parameter_value_map["samples"]["value"]] = coords
+        self.var_to_entity[parameter_value_map["samples"]] = coords
         l.debug(f"plate_coordinates:")
         l.debug(f"  source: {source}")
         l.debug(f"  coordinates: {coords}")
@@ -477,19 +512,19 @@ class MarkdownSpecialization(BehaviorSpecialization):
 
     def measure_absorbance(
         self,
-        record: labop.ActivityNodeExecution,
-        execution: labop.ProtocolExecution,
+        record: ActivityNodeExecution,
+        execution: ProtocolExecution,
     ):
         results = {}
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
 
-        wl = parameter_value_map["wavelength"]["value"]
+        wl = parameter_value_map["wavelength"]
         wl_units = tyto.OM.get_term_by_uri(wl.unit)
-        samples = parameter_value_map["samples"]["value"]
-        measurements = parameter_value_map["measurements"]["value"]
+        samples = parameter_value_map["samples"]
+        measurements = parameter_value_map["measurements"]
         timepoints = (
-            parameter_value_map["timepoints"]["value"]
+            parameter_value_map["timepoints"]
             if "timepoints" in parameter_value_map
             else None
         )
@@ -501,7 +536,7 @@ class MarkdownSpecialization(BehaviorSpecialization):
 
         # Lookup sample container to get the container name, and use that
         # as the sample label
-        if isinstance(samples, labop.SampleMask):
+        if isinstance(samples, SampleMask):
             # SampleMasks are generated by the PlateCoordinates primitive
             # and we have to dereference the source to get the actual
             # SampleArray
@@ -532,27 +567,27 @@ class MarkdownSpecialization(BehaviorSpecialization):
 
     def measure_fluorescence(
         self,
-        record: labop.ActivityNodeExecution,
-        execution: labop.ProtocolExecution,
+        record: ActivityNodeExecution,
+        execution: ProtocolExecution,
     ):
         results = {}
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
 
-        excitation = parameter_value_map["excitationWavelength"]["value"]
-        emission = parameter_value_map["emissionWavelength"]["value"]
-        bandpass = parameter_value_map["emissionBandpassWidth"]["value"]
-        samples = parameter_value_map["samples"]["value"]
+        excitation = parameter_value_map["excitationWavelength"]
+        emission = parameter_value_map["emissionWavelength"]
+        bandpass = parameter_value_map["emissionBandpassWidth"]
+        samples = parameter_value_map["samples"]
         timepoints = (
-            parameter_value_map["timepoints"]["value"]
+            parameter_value_map["timepoints"]
             if "timepoints" in parameter_value_map
             else None
         )
-        measurements = parameter_value_map["measurements"]["value"]
+        measurements = parameter_value_map["measurements"]
 
         # Lookup sample container to get the container name, and use that
         # as the sample label
-        if isinstance(samples, labop.SampleMask):
+        if isinstance(samples, SampleMask):
             samples = samples.source.lookup()
         samples_str = record.document.find(samples.container_type).name
 
@@ -580,14 +615,14 @@ class MarkdownSpecialization(BehaviorSpecialization):
 
     def vortex(
         self,
-        record: labop.ActivityNodeExecution,
-        execution: labop.ProtocolExecution,
+        record: ActivityNodeExecution,
+        execution: ProtocolExecution,
     ):
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
         duration = None
         if "duration" in parameter_value_map:
-            duration_measure = parameter_value_map["duration"]["value"]
+            duration_measure = parameter_value_map["duration"]
             duration_scalar = duration_measure.value
             duration_units = tyto.OM.get_term_by_uri(duration_measure.unit)
         samples = parameter_value_map["samples"]["value"]
@@ -601,23 +636,23 @@ class MarkdownSpecialization(BehaviorSpecialization):
 
     def discard(
         self,
-        record: labop.ActivityNodeExecution,
-        execution: labop.ProtocolExecution,
+        record: ActivityNodeExecution,
+        execution: ProtocolExecution,
     ):
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
 
-        samples = parameter_value_map["samples"]["value"]
-        amount = parameter_value_map["amount"]["value"]
+        samples = parameter_value_map["samples"]
+        amount = parameter_value_map["amount"]
 
         # Get coordinates if this is a plate
         coordinates = ""
-        if isinstance(samples, labop.SampleMask):
+        if isinstance(samples, SampleMask):
             coordinates = f"wells {samples.sample_coordinates(sample_format=self.sample_format)} of "
             samples = samples.source.lookup()
 
         # Get the container specs
-        container_spec = record.document.find(samples.container_type)
+        container_spec = samples.get_container_type()
         container_class = (
             ContainerOntology.uri + "#" + container_spec.queryString.split(":")[-1]
         )
@@ -630,42 +665,40 @@ class MarkdownSpecialization(BehaviorSpecialization):
 
     def transfer(
         self,
-        record: labop.ActivityNodeExecution,
-        execution: labop.ProtocolExecution,
+        record: ActivityNodeExecution,
+        execution: ProtocolExecution,
     ):
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
 
-        source = parameter_value_map["source"]["value"]
-        destination = parameter_value_map["destination"]["value"]
+        source = parameter_value_map["source"]
+        destination = parameter_value_map["destination"]
         samples = (
-            parameter_value_map["samples"]["value"]
-            if "samples" in parameter_value_map
-            else None
+            parameter_value_map["samples"] if "samples" in parameter_value_map else None
         )
         destination_coordinates = (
-            parameter_value_map["coordinates"]["value"]
+            parameter_value_map["coordinates"]
             if "coordinates" in parameter_value_map
             else None
         )
         replicates = (
-            parameter_value_map["replicates"]["value"]
+            parameter_value_map["replicates"]
             if "replicates" in parameter_value_map
             else 1
         )
         temperature = (
-            parameter_value_map["temperature"]["value"]
+            parameter_value_map["temperature"]
             if "temperature" in parameter_value_map
             else None
         )
-        amount_measure = parameter_value_map["amount"]["value"]
+        amount_measure = parameter_value_map["amount"]
         amount_scalar = amount_measure.value
         amount_units = tyto.OM.get_term_by_uri(amount_measure.unit)
         if "dispenseVelocity" in parameter_value_map:
-            dispense_velocity = parameter_value_map["dispenseVelocity"]["value"]
+            dispense_velocity = parameter_value_map["dispenseVelocity"]
 
         # source_coordinates = ""
-        # if isinstance(source, labop.SampleMask):
+        # if isinstance(source, SampleMask):
         #     source_coordinates = source.mask
         #     source = source.source.lookup()
         source_contents = read_sample_contents(source)
@@ -677,19 +710,19 @@ class MarkdownSpecialization(BehaviorSpecialization):
             destination.source.lookup().sample_coordinates(
                 sample_format=self.sample_format
             )
-            if isinstance(destination, labop.SampleMask)
+            if isinstance(destination, SampleMask)
             else destination.sample_coordinates(sample_format=self.sample_format)
         )
         destination_coordinates = destination.sample_coordinates(
             sample_format=self.sample_format
         )
         # All possible sourcv coordinates (including those not part of the transfer)
-        if isinstance(source, labop.SampleCollection):
+        if isinstance(source, SampleCollection):
             all_source_coordinates = (
                 source.source.lookup().sample_coordinates(
                     sample_format=self.sample_format
                 )
-                if isinstance(source, labop.SampleMask)
+                if isinstance(source, SampleMask)
                 else source.sample_coordinates(sample_format=self.sample_format)
             )
             source_coordinates = source.sample_coordinates(
@@ -718,7 +751,7 @@ class MarkdownSpecialization(BehaviorSpecialization):
         # samples.initial_contents = quote(json.dumps(destination_contents))
 
         # Get destination container type
-        container_spec = record.document.find(destination.get_container_type())
+        container_spec = destination.get_container_type()
         container_class = (
             ContainerOntology.uri + "#" + container_spec.queryString.split(":")[-1]
         )
@@ -728,8 +761,8 @@ class MarkdownSpecialization(BehaviorSpecialization):
 
         if self.propagate_objects:
             ## Propagate source details to destination
-            if isinstance(destination, labop.SampleArray):
-                if isinstance(source, labop.SampleArray):
+            if isinstance(destination, SampleArray):
+                if isinstance(source, SampleArray):
                     # Do a complete transfer of all source contents
                     destination.initial_contents = write_sample_contents(
                         source, replicates=replicates
@@ -771,25 +804,25 @@ class MarkdownSpecialization(BehaviorSpecialization):
 
     def transfer_by_map(
         self,
-        record: labop.ActivityNodeExecution,
-        execution: labop.ProtocolExecution,
+        record: ActivityNodeExecution,
+        execution: ProtocolExecution,
     ):
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
 
-        source = parameter_value_map["source"]["value"]
-        destination = parameter_value_map["destination"]["value"]
+        source = parameter_value_map["source"]
+        destination = parameter_value_map["destination"]
         temperature = (
-            parameter_value_map["temperature"]["value"]
+            parameter_value_map["temperature"]
             if "temperature" in parameter_value_map
             else None
         )
-        amount_measure = parameter_value_map["amount"]["value"]
+        amount_measure = parameter_value_map["amount"]
         amount_scalar = amount_measure.value
         amount_units = tyto.OM.get_term_by_uri(amount_measure.unit)
         if "dispenseVelocity" in parameter_value_map:
-            dispense_velocity = parameter_value_map["dispenseVelocity"]["value"]
-        plan = parameter_value_map["plan"]["value"]
+            dispense_velocity = parameter_value_map["dispenseVelocity"]
+        plan = parameter_value_map["plan"]
         if plan:
             map = json.loads(unquote(plan.values))
 
@@ -817,7 +850,7 @@ class MarkdownSpecialization(BehaviorSpecialization):
             source_container = None
 
         if destination:
-            container_spec = record.document.find(destination.container_type)
+            container_spec = destination.get_container_type()
             container_class = (
                 ContainerOntology.uri + "#" + container_spec.queryString.split(":")[-1]
             )
@@ -852,29 +885,29 @@ class MarkdownSpecialization(BehaviorSpecialization):
 
     def culture(
         self,
-        record: labop.ActivityNodeExecution,
-        execution: labop.ProtocolExecution,
+        record: ActivityNodeExecution,
+        execution: ProtocolExecution,
     ):
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
-        inocula = parameter_value_map["inoculum"]["value"]
-        growth_medium = parameter_value_map["growth_medium"]["value"]
-        volume = parameter_value_map["volume"]["value"]
+        inocula = parameter_value_map["inoculum"]
+        growth_medium = parameter_value_map["growth_medium"]
+        volume = parameter_value_map["volume"]
         volume_scalar = volume.value
         volume_units = tyto.OM.get_term_by_uri(volume.unit)
-        duration = parameter_value_map["duration"]["value"]
+        duration = parameter_value_map["duration"]
         duration_scalar = duration.value
         duration_units = tyto.OM.get_term_by_uri(duration.unit)
-        orbital_shake_speed = parameter_value_map["orbital_shake_speed"]["value"]
-        temperature = parameter_value_map["temperature"]["value"]
+        orbital_shake_speed = parameter_value_map["orbital_shake_speed"]
+        temperature = parameter_value_map["temperature"]
         temperature_scalar = temperature.value
         temperature_units = tyto.OM.get_term_by_uri(temperature.unit)
         replicates = (
-            parameter_value_map["replicates"]["value"]
+            parameter_value_map["replicates"]
             if "replicates" in parameter_value_map
             else 1
         )
-        container = parameter_value_map["container"]["value"]
+        container = parameter_value_map["container"]
 
         # Generate markdown
         container_str = record.document.find(container.container_type).name
@@ -903,16 +936,16 @@ class MarkdownSpecialization(BehaviorSpecialization):
 
     def incubate(
         self,
-        record: labop.ActivityNodeExecution,
-        execution: labop.ProtocolExecution,
+        record: ActivityNodeExecution,
+        execution: ProtocolExecution,
     ):
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
 
-        location = parameter_value_map["location"]["value"]
-        duration = parameter_value_map["duration"]["value"]
-        shakingFrequency = parameter_value_map["shakingFrequency"]["value"]
-        temperature = parameter_value_map["temperature"]["value"]
+        location = parameter_value_map["location"]
+        duration = parameter_value_map["duration"]
+        shakingFrequency = parameter_value_map["shakingFrequency"]
+        temperature = parameter_value_map["temperature"]
 
         sample_names = get_sample_names(
             location,
@@ -927,14 +960,14 @@ class MarkdownSpecialization(BehaviorSpecialization):
 
     def hold(
         self,
-        record: labop.ActivityNodeExecution,
-        execution: labop.ProtocolExecution,
+        record: ActivityNodeExecution,
+        execution: ProtocolExecution,
     ):
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
 
-        location = parameter_value_map["location"]["value"]
-        temperature = parameter_value_map["temperature"]["value"]
+        location = parameter_value_map["location"]
+        temperature = parameter_value_map["temperature"]
 
         if len(read_sample_contents(location)) > 1:
             text = f"Hold all `{location.name}` samples at {measurement_to_text(temperature)}."
@@ -945,13 +978,13 @@ class MarkdownSpecialization(BehaviorSpecialization):
 
     def hold_on_ice(
         self,
-        record: labop.ActivityNodeExecution,
-        execution: labop.ProtocolExecution,
+        record: ActivityNodeExecution,
+        execution: ProtocolExecution,
     ):
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
 
-        location = parameter_value_map["location"]["value"]
+        location = parameter_value_map["location"]
 
         if len(read_sample_contents(location)) > 1:
             text = f"Hold all `{location.name}` samples on ice."
@@ -962,26 +995,26 @@ class MarkdownSpecialization(BehaviorSpecialization):
 
     def dilute_to_target_od(
         self,
-        record: labop.ActivityNodeExecution,
-        execution: labop.ProtocolExecution,
+        record: ActivityNodeExecution,
+        execution: ProtocolExecution,
     ):
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
 
-        source = parameter_value_map["source"]["value"]
-        destination = parameter_value_map["destination"]["value"]
-        diluent = parameter_value_map["diluent"]["value"]
-        amount = parameter_value_map["amount"]["value"]
-        target_od = parameter_value_map["target_od"]["value"]
+        source = parameter_value_map["source"]
+        destination = parameter_value_map["destination"]
+        diluent = parameter_value_map["diluent"]
+        amount = parameter_value_map["amount"]
+        target_od = parameter_value_map["target_od"]
         temperature = (
-            parameter_value_map["temperature"]["value"]
+            parameter_value_map["temperature"]
             if "temperature" in parameter_value_map
             else None
         )
         destination.initial_contents = source.initial_contents
 
         # Get destination container type
-        container_spec = record.document.find(destination.container_type)
+        container_spec = destination.get_container_type()
         container_class = (
             ContainerOntology.uri + "#" + container_spec.queryString.split(":")[-1]
         )
@@ -1003,24 +1036,24 @@ class MarkdownSpecialization(BehaviorSpecialization):
 
     def dilute(
         self,
-        record: labop.ActivityNodeExecution,
-        execution: labop.ProtocolExecution,
+        record: ActivityNodeExecution,
+        execution: ProtocolExecution,
     ):
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
 
-        source = parameter_value_map["source"]["value"]
-        destination = parameter_value_map["destination"]["value"]
-        diluent = parameter_value_map["diluent"]["value"]
-        amount = parameter_value_map["amount"]["value"]
+        source = parameter_value_map["source"]
+        destination = parameter_value_map["destination"]
+        diluent = parameter_value_map["diluent"]
+        amount = parameter_value_map["amount"]
         replicates = (
-            parameter_value_map["replicates"]["value"]
+            parameter_value_map["replicates"]
             if "replicates" in parameter_value_map
             else 1
         )
-        dilution_factor = parameter_value_map["dilution_factor"]["value"]
+        dilution_factor = parameter_value_map["dilution_factor"]
         temperature = (
-            parameter_value_map["temperature"]["value"]
+            parameter_value_map["temperature"]
             if "temperature" in parameter_value_map
             else None
         )
@@ -1028,7 +1061,7 @@ class MarkdownSpecialization(BehaviorSpecialization):
         destination.initial_contents = source.initial_contents
 
         # Get destination container type
-        container_spec = record.document.find(destination.container_type)
+        container_spec = destination.get_container_type()
         container_class = (
             ContainerOntology.uri + "#" + container_spec.queryString.split(":")[-1]
         )
@@ -1054,18 +1087,18 @@ class MarkdownSpecialization(BehaviorSpecialization):
 
     def transform(
         self,
-        record: labop.ActivityNodeExecution,
-        execution: labop.ProtocolExecution,
+        record: ActivityNodeExecution,
+        execution: ProtocolExecution,
     ):
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
-        host = parameter_value_map["host"]["value"]
-        dna = parameter_value_map["dna"]["value"]
-        medium = parameter_value_map["selection_medium"]["value"]
-        destination = parameter_value_map["destination"]["value"]
-        transformants = parameter_value_map["transformants"]["value"]
+        host = parameter_value_map["host"]
+        dna = parameter_value_map["dna"]
+        medium = parameter_value_map["selection_medium"]
+        destination = parameter_value_map["destination"]
+        transformants = parameter_value_map["transformants"]
         if "amount" in parameter_value_map:
-            amount_measure = parameter_value_map["amount"]["value"]
+            amount_measure = parameter_value_map["amount"]
             amount_scalar = amount_measure.value
             amount_units = tyto.OM.get_term_by_uri(amount_measure.unit)
 
@@ -1113,67 +1146,78 @@ class MarkdownSpecialization(BehaviorSpecialization):
 
     def serial_dilution(
         self,
-        record: labop.ActivityNodeExecution,
-        execution: labop.ProtocolExecution,
+        record: ActivityNodeExecution,
+        execution: ProtocolExecution,
     ):
+        # FIXME:
+        # num transfers: from samplegraph
+        # fold-dilution: from samplegraph,  * need diluent *
+        # Start: param
+        # End: param
+        # final vol: sample graph
+
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
-
-        source = parameter_value_map["source"]["value"]
-        destination = parameter_value_map["destination"]["value"]
-        diluent = parameter_value_map["diluent"]["value"]
+        samples = parameter_value_map["samples"]["value"]
+        direction = parameter_value_map["direction"]["value"]
         amount = parameter_value_map["amount"]["value"]
-        dilution_factor = parameter_value_map["dilution_factor"]["value"]
-        series = parameter_value_map["series"]["value"]
+        diluent = parameter_value_map["diluent"]["value"]
 
-        destination_coordinates = ""
-        if isinstance(destination, labop.SampleMask):
-            destination_coordinates = f"wells {destination.sample_coordinates(sample_format=self.sample_format)} of"
-            last_destination_coordinate = f"{destination.sample_coordinates(sample_format=self.sample_format, as_list=True)[-1]}"
-            destination = destination.source.lookup()
-        source_coordinates = source.sample_coordinates(sample_format=self.sample_format)
-        if isinstance(source, labop.SampleMask):
-            source = source.source.lookup()
+        sample_array = samples.to_data_array()
+        dilution_factor = 2  # FIXME need to calculate from amount and sample graph
+        series = sample_array.sample_location.size - 1
 
-        # Get destination container type
-        container_spec = record.document.find(destination.container_type)
+        destination_coordinates = (
+            f"wells {samples.sample_coordinates(sample_format=self.sample_format)} of"
+        )
+        first_samples_coordinate = f"{samples.sample_coordinates(sample_format=self.sample_format, as_list=True)[0]}"
+        last_samples_coordinate = f"{samples.sample_coordinates(sample_format=self.sample_format, as_list=True)[-1]}"
+
+        samples_coordinates = samples.sample_coordinates(
+            sample_format=self.sample_format
+        )
+        if isinstance(samples, labop.SampleMask):
+            samples = samples.source.lookup()
+
+        # Get samples container type
+        container_spec = record.document.find(samples.container_type)
         container_class = (
             ContainerOntology.uri + "#" + container_spec.queryString.split(":")[-1]
         )
         container_str = ContainerOntology.get_term_by_uri(container_class)
 
         if self.propagate_objects:
-            # Update destination contents
-            destination.initial_contents = source.initial_contents
+            # Update samples contents
+            samples.initial_contents = samples.initial_contents
 
             # Get sample names
             sample_names = get_sample_names(
-                source,
+                samples,
                 error_msg="Dilute execution failed. All source Components must specify a name.",
-                coordinates=source_coordinates,
+                coordinates=samples_coordinates,
             )
         else:
-            sample_names = source_coordinates
-        text = f"Perform a series of {series} {dilution_factor}-fold dilutions on {destination_coordinates} {container_str} `{container_spec.name}`. Start with {sample_names} and end with a final volume of {measurement_to_text(amount)} in {last_destination_coordinate}. "
-        if len(sample_names) > 1 and not source_coordinates:
-            text += f" Repeat for the remaining {len(sample_names)-1} `{source.name}` samples."
+            sample_names = samples_coordinates
+        text = f"Perform a series of {series} {dilution_factor}-fold dilutions on {samples_coordinates} {container_str} `{container_spec.name}`. Start with {first_samples_coordinate} and end with a final excess volume of {measurement_to_text(amount)} in {last_samples_coordinate}. "
+        if len(sample_names) > 1 and not samples_coordinates:
+            text += f" Repeat for the remaining {len(sample_names)-1} `{sample.name}` samples."
         # repeat_for_remaining_samples(sample_names, repeat_msg='Repeat for the remaining cultures:')
         text = add_description(record, text)
         execution.markdown_steps += [text]
 
     def evaporative_seal(
         self,
-        record: labop.ActivityNodeExecution,
-        execution: labop.ProtocolExecution,
+        record: ActivityNodeExecution,
+        execution: ProtocolExecution,
     ):
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
 
-        location = parameter_value_map["location"]["value"]
-        specification = parameter_value_map["specification"]["value"]
+        location = parameter_value_map["location"]
+        specification = parameter_value_map["specification"]
 
         # Get destination container type
-        container_spec = record.document.find(location.container_type)
+        container_spec = location.get_container_type()
         container_class = (
             ContainerOntology.uri + "#" + container_spec.queryString.split(":")[-1]
         )
@@ -1184,16 +1228,16 @@ class MarkdownSpecialization(BehaviorSpecialization):
 
     def unseal(
         self,
-        record: labop.ActivityNodeExecution,
-        execution: labop.ProtocolExecution,
+        record: ActivityNodeExecution,
+        execution: ProtocolExecution,
     ):
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
 
-        location = parameter_value_map["location"]["value"]
+        location = parameter_value_map["location"]
 
         # Get destination container type
-        container_spec = record.document.find(location.container_type)
+        container_spec = location.get_container_type()
         container_class = (
             ContainerOntology.uri + "#" + container_spec.queryString.split(":")[-1]
         )
@@ -1204,20 +1248,20 @@ class MarkdownSpecialization(BehaviorSpecialization):
 
     def pool_samples(
         self,
-        record: labop.ActivityNodeExecution,
-        execution: labop.ProtocolExecution,
+        record: ActivityNodeExecution,
+        execution: ProtocolExecution,
     ):
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
 
-        source = parameter_value_map["source"]["value"]
-        samples = parameter_value_map["samples"]["value"]
-        destination = parameter_value_map["destination"]["value"]
-        volume = parameter_value_map["volume"]["value"]
+        source = parameter_value_map["source"]
+        samples = parameter_value_map["samples"]
+        destination = parameter_value_map["destination"]
+        volume = parameter_value_map["volume"]
         source_contents = read_sample_contents(source)
 
         # Get destination container type
-        container_spec = record.document.find(destination.container_type)
+        container_spec = destination.get_container_type()
         container_class = (
             ContainerOntology.uri + "#" + container_spec.queryString.split(":")[-1]
         )
@@ -1239,16 +1283,16 @@ class MarkdownSpecialization(BehaviorSpecialization):
 
     def quick_spin(
         self,
-        record: labop.ActivityNodeExecution,
-        execution: labop.ProtocolExecution,
+        record: ActivityNodeExecution,
+        execution: ProtocolExecution,
     ):
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
 
-        location = parameter_value_map["location"]["value"]
+        location = parameter_value_map["location"]
 
         # Get destination container type
-        container_spec = record.document.find(location.container_type)
+        container_spec = location.get_container_type()
         container_class = (
             ContainerOntology.uri + "#" + container_spec.queryString.split(":")[-1]
         )
@@ -1260,21 +1304,21 @@ class MarkdownSpecialization(BehaviorSpecialization):
 
     def subprotocol_specialization(
         self,
-        record: labop.ActivityNodeExecution,
-        execution: labop.ProtocolExecution,
+        record: ActivityNodeExecution,
+        execution: ProtocolExecution,
     ):
         pass
 
     def embedded_image(
         self,
-        record: labop.ActivityNodeExecution,
-        execution: labop.ProtocolExecution,
+        record: ActivityNodeExecution,
+        execution: ProtocolExecution,
     ):
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
 
-        image = parameter_value_map["image"]["value"]
-        caption = parameter_value_map["caption"]["value"]
+        image = parameter_value_map["image"]
+        caption = parameter_value_map["caption"]
 
         text = f'\n\n![]({image})\n<p align="center">{caption}</p>\n'
 
@@ -1282,15 +1326,15 @@ class MarkdownSpecialization(BehaviorSpecialization):
 
     def culture_plates(
         self,
-        record: labop.ActivityNodeExecution,
-        execution: labop.ProtocolExecution,
+        record: ActivityNodeExecution,
+        execution: ProtocolExecution,
     ):
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
-        container = parameter_value_map["specification"]["value"]
-        quantity = parameter_value_map["quantity"]["value"]
-        growth_medium = parameter_value_map["growth_medium"]["value"]
-        samples = parameter_value_map["samples"]["value"]
+        container = parameter_value_map["specification"]
+        quantity = parameter_value_map["quantity"]
+        growth_medium = parameter_value_map["growth_medium"]
+        samples = parameter_value_map["samples"]
 
         # Get destination container type
         container_uri = (
@@ -1305,15 +1349,15 @@ class MarkdownSpecialization(BehaviorSpecialization):
 
     def pick_colonies(
         self,
-        record: labop.ActivityNodeExecution,
-        execution: labop.ProtocolExecution,
+        record: ActivityNodeExecution,
+        execution: ProtocolExecution,
     ):
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
-        colonies = parameter_value_map["colonies"]["value"]
-        quantity = parameter_value_map["quantity"]["value"]
-        replicates = parameter_value_map["replicates"]["value"]
-        samples = parameter_value_map["samples"]["value"]
+        colonies = parameter_value_map["colonies"]
+        quantity = parameter_value_map["quantity"]
+        replicates = parameter_value_map["replicates"]
+        samples = parameter_value_map["samples"]
 
         # Copy input SampleArray properties to output
         # TODO: maybe this should be abstracted out into a convenience method
@@ -1326,14 +1370,14 @@ class MarkdownSpecialization(BehaviorSpecialization):
 
     def excel_metadata(
         self,
-        record: labop.ActivityNodeExecution,
-        execution: labop.ProtocolExecution,
+        record: ActivityNodeExecution,
+        execution: ProtocolExecution,
     ):
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
-        filename = parameter_value_map["filename"]["value"]
-        for_samples = parameter_value_map["for_samples"]["value"]
-        metadata = parameter_value_map["metadata"]["value"]
+        filename = parameter_value_map["filename"]
+        for_samples = parameter_value_map["for_samples"]
+        metadata = parameter_value_map["metadata"]
         df = pd.read_excel(filename, index_col=0, header=0)
         x = xr.Dataset.from_dataframe(df)
         metadata.descriptions = json.dumps(x.to_dict())
@@ -1341,16 +1385,16 @@ class MarkdownSpecialization(BehaviorSpecialization):
 
     def join_metadata(
         self,
-        record: labop.ActivityNodeExecution,
-        execution: labop.ProtocolExecution,
+        record: ActivityNodeExecution,
+        execution: ProtocolExecution,
     ):
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
-        metadata = parameter_value_map["metadata"]["value"]
-        dataset = parameter_value_map["dataset"]["value"]
-        enhanced_dataset = parameter_value_map["enhanced_dataset"]["value"]
+        metadata = parameter_value_map["metadata"]
+        dataset = parameter_value_map["dataset"]
+        enhanced_dataset = parameter_value_map["enhanced_dataset"]
 
-    def dataset_to_text(self, dataset: labop.Dataset):
+    def dataset_to_text(self, dataset: Dataset):
         # Assumes that the data file is the same name as the markdown file, aside from the extension
         if self.out_file:
             xlsx_file = self.out_file.split(".")[0] + ".xlsx"
@@ -1368,14 +1412,14 @@ def measurement_to_text(measure: sbol3.Measure):
 
 
 def get_sample_names(
-    inputs: Union[labop.SampleArray, sbol3.Component],
+    inputs: Union[SampleArray, sbol3.Component],
     error_msg,
     coordinates=None,
 ) -> List[str]:
     # Since some behavior inputs may be specified as either a SampleArray or directly as a list
     # of Components, this provides a convenient way to unpack a list of sample names
     input_names = []
-    if isinstance(inputs, labop.SampleArray):
+    if isinstance(inputs, SampleArray):
         if inputs.initial_contents:
             initial_contents = read_sample_contents(inputs)
             if coordinates:
@@ -1411,10 +1455,10 @@ def repeat_for_remaining_samples(names: List[str], repeat_msg: str):
         return f" {repeat_msg} {remaining}."
 
 
-def get_sample_label(sample: labop.SampleCollection) -> str:
+def get_sample_label(sample: SampleCollection, record: ActivityNodeExecution) -> str:
     # Lookup sample container to get the container name, and use that
     # as the sample label
-    if isinstance(sample, labop.SampleMask):
+    if isinstance(sample, SampleMask):
         sample = sample.source.lookup()
     return record.document.find(sample.container_type).name
 
@@ -1422,7 +1466,7 @@ def get_sample_label(sample: labop.SampleCollection) -> str:
 def write_sample_contents(
     sample_array: Union[dict, List[sbol3.Component]], replicates=1
 ) -> str:
-    if isinstance(sample_array, labop.SampleArray):
+    if isinstance(sample_array, SampleArray):
         old_contents = read_sample_contents(sample_array)
         initial_contents = []
         for r in range(replicates):
@@ -1437,19 +1481,15 @@ def write_sample_contents(
     return quote(json.dumps(initial_contents))
 
 
-def read_sample_contents(
-    sample_array: Union[sbol3.Component, labop.SampleArray]
-) -> dict:
-    if not isinstance(sample_array, labop.SampleArray):
+def read_sample_contents(sample_array: Union[sbol3.Component, SampleArray]) -> dict:
+    if not isinstance(sample_array, SampleArray):
         return {"1": sample_array.identity}
     if sample_array.initial_contents == "https://github.com/synbiodex/pysbol3#missing":
         return {}
     if not sample_array.initial_contents:
         return {}
     # De-serialize the initial_contents field of a SampleArray
-    contents = labop.deserialize_sample_format(
-        sample_array.initial_contents, sample_array
-    )
+    contents = deserialize_sample_format(sample_array.initial_contents, sample_array)
     if isinstance(contents, xr.DataArray):
         contents = contents[Strings.SAMPLE].data.tolist()
     return contents
@@ -1460,14 +1500,3 @@ def add_description(record, text):
     if description:
         text += f" {description}"
     return text
-
-
-def resolve_value(v):
-    if not isinstance(v, uml.LiteralReference):
-        return v.value
-    else:
-        resolved = v.value.lookup()
-        if isinstance(resolved, uml.LiteralSpecification):
-            return resolved.value
-        else:
-            return resolved

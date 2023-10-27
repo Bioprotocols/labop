@@ -8,9 +8,9 @@ from importlib.util import module_from_spec, spec_from_loader
 
 import sbol3
 
-import labop
-import uml
-from labop.execution_engine import ExecutionEngine
+from labop import ExecutionEngine, Primitive, Protocol, SampleData
+from labop.utils.helpers import file_diff
+from uml import ActivityParameterNode, CallBehaviorAction, InputPin
 
 OUT_DIR = os.path.join(os.path.dirname(__file__), "out")
 if not os.path.exists(OUT_DIR):
@@ -42,26 +42,28 @@ protocol_def = load_ludox_protocol(protocol_def_file)
 
 class TestProtocolEndToEnd(unittest.TestCase):
     def test_create_protocol(self):
-        protocol: labop.Protocol
+        protocol: Protocol
         doc: sbol3.Document
         logger = logging.getLogger("decision_protocol")
         logger.setLevel(logging.INFO)
         doc = sbol3.Document()
         sbol3.set_namespace("https://bbn.com/scratch/")
-        protocol = labop.Protocol("decision_node_test")
+        protocol = Protocol("decision_node_test")
         doc.add(protocol)
 
         initial = protocol.initial()
         final = protocol.final()
 
-        pH_meter_calibrated = labop.Primitive("pHMeterCalibrated")
+        pH_meter_calibrated = Primitive("pHMeterCalibrated")
         pH_meter_calibrated.description = "Determine if the pH Meter is calibrated."
         pH_meter_calibrated.add_output(
             "return", "http://www.w3.org/2001/XMLSchema#boolean"
         )
         doc.add(pH_meter_calibrated)
 
-        def pH_meter_calibrated_compute_output(inputs, parameter, sample_format):
+        def pH_meter_calibrated_compute_output(
+            inputs, parameter, sample_format, record_hash
+        ):
             return True
 
         pH_meter_calibrated.compute_output = pH_meter_calibrated_compute_output
@@ -103,29 +105,33 @@ class TestProtocolEndToEnd(unittest.TestCase):
             "testfiles",
             "decision_node_test.nt",
         )
-        # doc.write(comparison_file, sbol3.SORTED_NTRIPLES)
+        doc.write(comparison_file, sbol3.SORTED_NTRIPLES)
         print(f"Comparing against {comparison_file}")
+        diff = "".join(file_diff(comparison_file, temp_name))
+        # print(f"Difference: {diff}")
         assert filecmp.cmp(temp_name, comparison_file), "Files are not identical"
         print("File identical with test file")
 
     def test_ludox_calibration_decision(self):
-        protocol: labop.Protocol
+        protocol: Protocol
         doc: sbol3.Document
         logger = logging.getLogger("LUDOX_decision_protocol")
         logger.setLevel(logging.INFO)
         protocol, doc = protocol_def.ludox_protocol()
 
-        measurment_is_nominal = labop.Primitive("measurementNominal")
+        measurment_is_nominal = Primitive("measurementNominal")
         measurment_is_nominal.description = (
             "Determine if the measurments are acceptable."
         )
-        measurment_is_nominal.add_input("decision_input", labop.SampleData)
+        measurment_is_nominal.add_input("decision_input", SampleData)
         measurment_is_nominal.add_output(
             "return", "http://www.w3.org/2001/XMLSchema#boolean"
         )
         doc.add(measurment_is_nominal)
 
-        def measurement_is_nominal_compute_output(inputs, parameter, sample_format):
+        def measurement_is_nominal_compute_output(
+            inputs, parameter, sample_format, record_hash
+        ):
             return True
 
         measurment_is_nominal.compute_output = measurement_is_nominal_compute_output
@@ -136,7 +142,7 @@ class TestProtocolEndToEnd(unittest.TestCase):
                     [
                         n
                         for n in protocol.nodes
-                        if isinstance(n, uml.CallBehaviorAction)
+                        if isinstance(n, CallBehaviorAction)
                         and n.behavior
                         == "https://bioprotocols.org/labop/primitives/spectrophotometry/MeasureAbsorbance"
                     ]
@@ -148,21 +154,17 @@ class TestProtocolEndToEnd(unittest.TestCase):
             measurement_samples = next(
                 iter(
                     [
-                        e.source.lookup()
+                        e.get_source()
                         for e in protocol.edges
                         if measure.identity in e.target
-                        and isinstance(e.target.lookup(), uml.InputPin)
-                        and e.target.lookup().name == "samples"
+                        and isinstance(e.get_target(), InputPin)
+                        and e.get_target().name == "samples"
                     ]
                 )
             )
             wavelength_param = next(
                 iter(
-                    [
-                        n
-                        for n in protocol.nodes
-                        if isinstance(n, uml.ActivityParameterNode)
-                    ]
+                    [n for n in protocol.nodes if isinstance(n, ActivityParameterNode)]
                 )
             )
         except StopIteration as e:

@@ -1,0 +1,2 @@
+subprotocol_Fluorescein_calibrant = ExperimentStockSolution[{{1.5 * Milliliter, Model[Sample, StockSolution, "1x PBS from 10X stock"]}, {5.6441 * Microgram, Model[Sample, "Fluorescein, sodium salt"]}}, MixTime-> 30 Second]
+subprotocol_microspheres = ExperimentStockSolution[{{1.5 * Milliliter, Model[Sample, "Nuclease-free Water"]}, {1.26 * Milligram, Model[Sample, "Silica Nanoparticle 950nm Nanocym"]}}, MixTime-> 30 Second]

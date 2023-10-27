@@ -1,27 +1,24 @@
 import json
-from typing import List
 from urllib.parse import quote, unquote
 
 import xarray as xr
 from numpy import nan
 
+from labop import SampleCollection
+from labop.data import serialize_sample_format
 from labop.strings import Strings
 
 
 class LabInterface:
     @staticmethod
     def measure_absorbance(
-        coordinates: List[str], wavelength: float, sample_format: str
+        samples: SampleCollection, wavelength: float, sample_format: str
     ) -> xr.DataArray:
         # Override this method to interface with laboratory plate reader API
         if sample_format == Strings.XARRAY:
-            measurements = xr.DataArray(
-                [nan for c in coordinates],
-                name=Strings.DATA,
-                dims=(Strings.SAMPLE),
-                coords={Strings.SAMPLE: coordinates},
-            )
-            measurements = quote(json.dumps(measurements.to_dict()))
+            s = samples.to_data_array()
+            measurements = s.sample_location.where(s.sample_location.isnull(), nan)
+            measurements = serialize_sample_format(measurements)
         elif sample_format == Strings.JSON:
             measurements = quote(json.dumps({}))
         else:
@@ -32,7 +29,7 @@ class LabInterface:
 
     @staticmethod
     def measure_fluorescence(
-        coordinates: List[str],
+        samples: SampleCollection,
         excitation: float,
         emission: float,
         bandpass: float,
@@ -40,13 +37,9 @@ class LabInterface:
     ) -> xr.DataArray:
         # Override this method to interface with laboratory plate reader API
         if sample_format == Strings.XARRAY:
-            measurements = xr.DataArray(
-                [nan for c in coordinates],
-                name=Strings.DATA,
-                dims=(Strings.SAMPLE),
-                coords={Strings.SAMPLE: coordinates},
-            )
-            measurements = quote(json.dumps(measurements.to_dict()))
+            s = samples.to_data_array()
+            measurements = s.sample_location.where(s.sample_location.isnull(), nan)
+            measurements = serialize_sample_format(measurements)
         elif sample_format == Strings.JSON:
             measurements = quote(json.dumps({}))
         else:

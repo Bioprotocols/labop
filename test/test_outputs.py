@@ -5,10 +5,10 @@ import sbol3
 import tyto
 
 import labop
-import uml
 from labop.execution_engine import ExecutionEngine
 from labop_convert import MarkdownSpecialization
 from labop_convert.behavior_specialization import DefaultBehaviorSpecialization
+from uml import LiteralReference
 
 OUT_DIR = os.path.join(os.path.dirname(__file__), "out")
 if not os.path.exists(OUT_DIR):
@@ -24,9 +24,7 @@ labop.import_library("spectrophotometry")
 
 class TestProtocolOutputs(unittest.TestCase):
     def setUp(self):
-        doc = sbol3.Document()
-        protocol = labop.Protocol("foo")
-        doc.add(protocol)
+        protocol, doc = labop.Protocol.initialize_protocol()
 
         plate = protocol.primitive_step(
             "EmptyContainer",
@@ -68,7 +66,7 @@ class TestProtocolOutputs(unittest.TestCase):
         # with a specialized compute_output method
         self.protocol.designate_output(
             "measurements",
-            "http://bioprotocols.org/labop#SampleData",
+            "http://bioprotocols.org/labop#Dataset",
             source=self.output,
         )
 
@@ -79,7 +77,7 @@ class TestProtocolOutputs(unittest.TestCase):
         )
         ex = ee.execute(self.protocol, agent, id="test_execution", parameter_values=[])
 
-        self.assertTrue(isinstance(ex.parameter_values[0].value, uml.LiteralReference))
+        self.assertTrue(isinstance(ex.parameter_values[0].value, LiteralReference))
         self.assertTrue(
             isinstance(ex.parameter_values[0].value.value.lookup(), labop.Dataset)
         )
@@ -100,7 +98,7 @@ class TestProtocolOutputs(unittest.TestCase):
         )
         self.protocol.designate_output(
             "measurements",
-            "http://bioprotocols.org/labop#SampleData",
+            "http://bioprotocols.org/labop#Dataset",
             source=self.output,
         )
 
@@ -115,7 +113,7 @@ class TestProtocolOutputs(unittest.TestCase):
             parameter_values=[],
         )
 
-        self.assertTrue(ex.parameter_values[1].value.value.lookup(), sbol3.Component)
+        self.assertTrue(ex.parameter_values[1].value.get_value(), sbol3.Component)
 
 
 if __name__ == "__main__":

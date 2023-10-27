@@ -79,7 +79,7 @@ PLATE_SPECIFICATION = """cont:ClearPlate and
  (cont:wellVolume some
     ((om:hasUnit value om:microlitre) and
      (om:hasNumericalValue only xsd:decimal[>= "200"^^xsd:decimal])))"""
-PLATE_SPECIFICATION = "cont:Plate96Well"
+
 PREFIX_MAP = json.dumps({"cont": CONT_NS, "om": OM_NS})
 
 

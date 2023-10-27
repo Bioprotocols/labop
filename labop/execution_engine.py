@@ -1,25 +1,51 @@
 import datetime
+import hashlib
 import logging
 import os
 import uuid
 from abc import ABC
-from typing import Callable, Dict, List, Union
-from urllib.parse import quote, unquote
+from typing import Callable, Dict, List, Optional, Tuple, Union
 
-import graphviz
 import pandas as pd
 import sbol3
-import xarray as xr
+from numpy import record
 
-import labop
-import uml
-from labop.primitive_execution import initialize_primitive_compute_output
+from labop.behavior_execution import BehaviorExecution
+from labop.execution_context import ExecutionContext
+from labop.strings import Strings
+from labop_convert.behavior_dynamics import SampleProvenanceObserver
+from uml import ActivityNode, CallBehaviorAction
+from uml.activity import Activity
+from uml.activity_edge import ActivityEdge
+from uml.activity_parameter_node import ActivityParameterNode
+from uml.control_flow import ControlFlow
+from uml.input_pin import InputPin
+from uml.object_flow import ObjectFlow
+from uml.output_pin import OutputPin
+from uml.pin import Pin
+from uml.utils import WellFormednessIssue, WellformednessLevels, literal
+from uml.value_pin import ValuePin
 
-l = logging.getLogger(__file__)
+from .activity_edge_flow import ActivityEdgeFlow
+from .activity_node_execution import ActivityNodeExecution
+from .call_behavior_execution import CallBehaviorExecution
+from .dataset import Dataset
+from .parameter_value import ParameterValue
+from .primitive import Primitive
+from .protocol import Protocol
+from .protocol_execution import ProtocolExecution
+from .sample_data import SampleData
+
+l: logging.Logger = logging.getLogger(__file__)
 l.setLevel(logging.ERROR)
 
+UUID_SEED = "LabOP"
+m = hashlib.md5()
 
-failsafe = True  # When set to True, a protocol execution will proceed through to the end, even if a CallBehaviorAction raises an exception.  Set to False for debugging
+
+def new_uuid():
+    m.update(UUID_SEED.encode("utf-8"))
+    return uuid.UUID(m.hexdigest())
 
 
 class ExecutionError(Exception):
@@ -32,24 +58,40 @@ class ExecutionWarning(Exception):
 
 class ExecutionEngine(ABC):
     """Base class for implementing and recording a LabOP executions.
-    This class can handle common UML activities and the propagation of tokens, but does not execute primitives.
-    It needs to be extended with specific implementations that have that capability.
+    This class can handle common UML activities and the propagation of tokens,
+    but does not execute primitives. It needs to be extended with specific
+    implementations that have that capability.
     """
 
     def __init__(
         self,
-        specializations: List["BehaviorSpecialization"] = [],
-        use_ordinal_time=False,
-        failsafe=True,
-        permissive=False,
-        use_defined_primitives=True,
-        sample_format="xarray",
-        out_dir="out",
-        dataset_file=None,
+        specializations: Optional[List["BehaviorSpecialization"]] = None,
+        use_ordinal_time: bool = False,
+        failsafe: bool = True,
+        permissive: bool = False,
+        use_defined_primitives: bool = True,
+        sample_format: str = "xarray",
+        out_dir: str = "out",
+        dataset_file: str = None,  # type: ignore
+        track_samples=True,
     ):
         self.exec_counter = 0
         self.variable_counter = 0
+
+        # Remove circular import with labop_convert
         self.specializations = specializations
+        from labop_convert import DefaultBehaviorSpecialization
+
+        if self.specializations is None:
+            self.specializations = []
+        if not any(
+            [
+                s
+                for s in self.specializations
+                if isinstance(s, DefaultBehaviorSpecialization)
+            ]
+        ):
+            self.specializations += [DefaultBehaviorSpecialization()]
 
         # The EE uses a configurable start_time as the reference time.
         # Because the start_time is not always the actual time, then
@@ -62,9 +104,12 @@ class ExecutionEngine(ABC):
         self.ordinal_time = None
         self.current_node = None
         self.blocked_nodes = set({})
-        self.tokens = []  # no tokens to start
+
         self.ex = None
         self.is_asynchronous = True
+
+        # When set to True, a protocol execution will proceed through to the end, even
+        # if a CallBehaviorAction raises an exception.  Set to False for debugging
         self.failsafe = failsafe
         self.permissive = permissive  # Allow execution to follow control flow even if objects not present.
         self.use_defined_primitives = use_defined_primitives  # used the compute_output definitions to compute primitive outputs
@@ -77,6 +122,11 @@ class ExecutionEngine(ABC):
         self.data_id = 0
         self.data_id_map = {}
         self.candidate_clusters = {}
+        self.track_samples = track_samples
+
+        self.prov_observer = (
+            SampleProvenanceObserver(self.out_dir) if self.track_samples else None
+        )
 
         if self.specializations is None or (
             isinstance(self.specializations, list) and len(self.specializations) == 0
@@ -84,6 +134,20 @@ class ExecutionEngine(ABC):
             from labop_convert import DefaultBehaviorSpecialization
 
             self.specializations = [DefaultBehaviorSpecialization()]
+
+        for specialization in self.specializations:
+            specialization.engine = self
+            specialization.sample_format = self.sample_format
+
+        self.check_configuration()
+
+    def check_configuration(self):
+        # Ensure that when tracking samples, the sample format is XARRAY
+        if self.track_samples and self.sample_format != Strings.XARRAY:
+            l.warning(
+                f"Execution Engine is configured with 'track_samples=True', but the 'sample_format' {self.sample_format} is not supported.  Disabling 'track_samples'.  Try setting 'sample_format=\"XARRAY\"'."
+            )
+            self.track_samples = False
 
     def next_id(self):
         next = self.exec_counter
@@ -106,7 +170,7 @@ class ExecutionEngine(ABC):
             start_time = start_time if start_time else datetime.datetime.now()
             self.start_time = start_time
 
-    def get_current_time(self, as_string=False):
+    def get_current_time(self, as_string: bool = False):
         if self.use_ordinal_time:
             now = self.ordinal_time
             self.ordinal_time += datetime.timedelta(seconds=1)
@@ -122,10 +186,11 @@ class ExecutionEngine(ABC):
 
     def initialize(
         self,
-        protocol: labop.Protocol,
+        protocol: Protocol,
         agent: sbol3.Agent,
-        id: str = uuid.uuid4(),
-        parameter_values: List[labop.ParameterValue] = {},
+        id: str = new_uuid(),
+        parameter_values: List[ParameterValue] = {},
+        overwrite_execution: bool = False,
     ):
         # Record in the document containing the protocol
         doc = protocol.document
@@ -135,10 +200,13 @@ class ExecutionEngine(ABC):
 
         if self.use_defined_primitives:
             # Define the compute_output function for known primitives
-            initialize_primitive_compute_output(doc)
+            Primitive.initialize_primitive_compute_output(doc)
 
         # First, set up the record for the protocol and parameter values
-        self.ex = labop.ProtocolExecution(id, protocol=protocol)
+        if self.ex is not None and overwrite_execution:
+            del self.document.objects[self.document.objects.index(self.ex)]
+
+        self.ex = ProtocolExecution(id, protocol=protocol)
         doc.add(self.ex)
 
         self.ex.association.append(sbol3.Association(agent=agent, plan=protocol))
@@ -151,14 +219,21 @@ class ExecutionEngine(ABC):
 
     def finalize(
         self,
-        protocol: labop.Protocol,
+        protocol: Protocol,
+        execution_context: ExecutionContext,
     ):
         self.ex.end_time = self.get_current_time()
 
+        self.ex.parameter_values += [
+            pv
+            for pv in execution_context.get_parameter_values()
+            if pv not in self.ex.parameter_values
+        ]
+
         # A Protocol has completed normally if all of its required output parameters have values
-        self.ex.completed_normally = set(protocol.get_required_inputs()).issubset(
-            set([p.parameter.lookup() for p in self.ex.parameter_values])
-        )
+        self.ex.completed_normally = set(
+            protocol.get_parameters(required=True, input_only=True)
+        ).issubset(set([p.get_parameter() for p in self.ex.parameter_values]))
 
         # aggregate consumed material records from all behaviors executed within, mark end time, and return
         self.ex.aggregate_child_materials()
@@ -169,12 +244,14 @@ class ExecutionEngine(ABC):
 
     def execute(
         self,
-        protocol: labop.Protocol,
+        protocol: Protocol,
         agent: sbol3.Agent,
-        parameter_values: List[labop.ParameterValue] = {},
-        id: str = uuid.uuid4(),
+        parameter_values: List[ParameterValue] = {},
+        id: str = new_uuid(),
         start_time: datetime.datetime = None,
-    ) -> labop.ProtocolExecution:
+        execution_context=None,
+        overwrite_execution=False,  # When True, remove old execution if it exists
+    ) -> ProtocolExecution:
         """Execute the given protocol against the provided parameters
 
         Parameters
@@ -189,90 +266,416 @@ class ExecutionEngine(ABC):
         -------
         ProtocolExecution containing a record of the execution
         """
+        protocol.remove_duplicates()  # FIXME needed because reading nt files with sbol3 results in duplicate initial and final nodes
+        issues = protocol.is_well_formed()
+        if len(issues) > 0:
+            self.report_well_formedness_issues(issues)
 
-        self.initialize(protocol, agent, id, parameter_values)
-        self.run(protocol, start_time=start_time)
-        self.finalize(protocol)
+        self.initialize(
+            protocol,
+            agent,
+            id,
+            parameter_values=parameter_values,
+            overwrite_execution=overwrite_execution,
+        )
+
+        if execution_context is None:
+            execution_context = ExecutionContext(self.ex, protocol, parameter_values)
+
+        self.run(execution_context, start_time=start_time)
+        self.finalize(protocol, execution_context)
 
         return self.ex
 
-    def run(self, protocol: labop.Protocol, start_time: datetime.datetime = None):
+    def report_well_formedness_issues(self, issues: List[WellFormednessIssue]):
+        infos = [issue for issue in issues if issue.level == WellformednessLevels.INFO]
+        warnings = [
+            issue for issue in issues if issue.level == WellformednessLevels.WARNING
+        ]
+        errors = [
+            issue for issue in issues if issue.level == WellformednessLevels.ERROR
+        ]
+
+        infos_str = (
+            "\nInfo:\n" + "\n".join(["- " + str(i) for i in infos])
+            if len(infos) > 0
+            else ""
+        )
+        warnings_str = (
+            "\nWarnings:\n" + "\n".join(["- " + str(w) for w in warnings])
+            if len(warnings) > 0
+            else ""
+        )
+        errors_str = (
+            "\nErrors:\n" + "\n".join(["- " + str(e) for e in errors])
+            if len(errors) > 0
+            else ""
+        )
+
+        report_str = f"The protocol has the following well formedness issues.{infos_str}{warnings_str}{errors_str}"
+
+        if len(errors) > 0:
+            raise ValueError(
+                f"Could not execute protocol because it has well formedness errors.\n{report_str}"
+            )
+        else:
+            print(report_str)
+
+    def run(
+        self,
+        execution_context: ExecutionContext,
+        start_time: datetime.datetime = None,
+    ):
         self.init_time(start_time)
         self.ex.start_time = (
             self.start_time
         )  # TODO: remove str wrapper after sbol_factory #22 fixed
 
-        ready = protocol.initiating_nodes()
+        execution_contexts = [execution_context]
 
         # Iteratively execute all unblocked activities until no more tokens can progress
-        while ready:
-            ready = self.step(ready)
-        return ready
+        while any([c.ready for c in execution_contexts]):
+            execution_contexts = self.step(execution_contexts)
+        return execution_contexts
 
     def step(
         self,
-        ready: List[uml.ActivityNode],
-        node_outputs: Dict[uml.ActivityNode, Callable] = {},
+        active_contexts: List[ExecutionContext],
+        node_outputs: Dict[ActivityNode, Callable] = {},
     ):
-        non_call_nodes = [
-            node for node in ready if not isinstance(node, uml.CallBehaviorAction)
-        ]
-        new_tokens = []
-        # prefer executing non_call_nodes first
-        for node in non_call_nodes + [n for n in ready if n not in non_call_nodes]:
-            self.current_node = node
-            try:
-                tokens_added, tokens_removed = node.execute(
-                    self,
-                    node_outputs=(node_outputs[node] if node in node_outputs else None),
+        new_execution_contexts = []
+        new_tokens = {}
+        for ec in active_contexts:
+            new_tokens[ec] = [] if ec not in new_tokens else new_tokens[ec]
+            non_call_nodes = [
+                node for node in ec.ready if not isinstance(node, CallBehaviorAction)
+            ]
+
+            # prefer executing non_call_nodes first
+            for node in non_call_nodes + [
+                n for n in ec.ready if n not in non_call_nodes
+            ]:
+                self.current_node = node
+                try:
+                    (
+                        tokens_created,
+                        tokens_consumed,
+                        new_execution_context,
+                    ) = self.execute_node(ec, node, node_outputs)
+
+                    ec.tokens = [t for t in ec.tokens if t not in tokens_consumed[ec]]
+
+                    # new_execution_context will have tokens and ready nodes initialized
+                    if (new_execution_context is not None) and not (
+                        new_execution_context in active_contexts
+                    ):
+                        new_execution_contexts.append(new_execution_context)
+                        new_tokens[new_execution_context] = []
+
+                    for ec1, tokens in tokens_created.items():
+                        new_tokens[ec1] += tokens
+
+                except Exception as e:
+                    if self.permissive:
+                        self.issues[self.ex.display_id].append(ExecutionWarning(e))
+                    else:
+                        self.issues[self.ex.display_id].append(ExecutionError(e))
+                        raise (e)
+        active_contexts += new_execution_contexts
+        for ec in active_contexts:
+            ec.tokens += new_tokens[ec]
+            ec.ready = self.executable_activity_nodes(ec, new_tokens[ec])
+
+        return (
+            active_contexts  # FIXME need to filter contexts that are no longer active
+        )
+
+    def execute_node(
+        self,
+        execution_context: ExecutionContext,
+        node: ActivityNode,
+        node_outputs: Dict[ActivityNode, Callable] = {},
+    ) -> Tuple[
+        Dict[ExecutionContext, List[ActivityEdgeFlow]],
+        Dict[ExecutionContext, List[ActivityEdgeFlow]],
+        ExecutionContext,
+    ]:
+        # Process inputs
+        supporting_tokens: Dict[
+            ActivityEdge, List[ActivityEdgeFlow]
+        ] = execution_context.incoming_edge_tokens[node]
+
+        tokens_consumed: Dict[
+            ExecutionContext, List[ActivityEdgeFlow]
+        ] = self.consume_tokens(execution_context, node, supporting_tokens)
+
+        # Create execution record
+        record = self.create_record(node, tokens_consumed[execution_context])
+        self.ex.executions.append(record)
+
+        # from ActivityNode.execute()
+        tokens_created: Dict[
+            ExecutionContext, List[ActivityEdgeFlow]
+        ] = self.next_tokens(execution_context, record, node_outputs)
+
+        for _, created in tokens_created.items():
+            self.ex.flows += created
+
+        # from ActivityNode.next_tokens()
+        all_tokens_created = [t for _, ts in tokens_created.items() for t in ts]
+        record.check_next_tokens(
+            all_tokens_created,
+            node_outputs,
+            self.sample_format,
+            self.permissive,
+        )
+
+        # Side Effects / Bookkeeping
+        self.post_process(execution_context, record, tokens_created[execution_context])
+
+        new_ecs = [ec for ec in tokens_created.keys() if ec != execution_context]
+        if new_ecs is not None and len(new_ecs) == 1:
+            new_execution_context = next(iter(new_ecs))
+        elif new_ecs is not None and len(new_ecs) > 1:
+            raise Exception(
+                f"Executing {node}, resulted in {len(new_ecs)} new execution context(s)."
+            )
+        else:
+            new_execution_context = None
+
+        return tokens_created, tokens_consumed, new_execution_context
+
+    def next_tokens(
+        self,
+        execution_context: ExecutionContext,
+        record: ActivityNodeExecution,
+        node_outputs: Callable,
+    ) -> Dict[ExecutionContext, List[ActivityEdgeFlow]]:
+        # next_tokens_callback cases
+        # ActivityNode: get_value(edge)
+        # ActivityParameterNode: parameter-value token, input/output edges, get_value()
+        # CallBehaviorAction call_subprotocol or super()
+        # DecisionNode: handle input cases to pick output
+        # FinalNode: handle end of protocol and return
+        # ForkNode: handle in ActivityNode? copy/ref tokens
+        # InputPin: handle case with no edge between pin and CallBehaviorAction
+        # Process outputs
+        node = record.get_node()
+        outgoing_edges = execution_context.outgoing_edges(node)
+        outgoing_edges.sort(key=lambda x: x.identity)
+        parameter_value_map = record.parameter_value_map()
+        invocation_hash = hash(record)
+        new_tokens: Dict[ExecutionContext, List[ActivityEdgeFlow]] = {
+            execution_context: [
+                ActivityEdgeFlow(
+                    edge=edge,
+                    token_source=record,
+                    value=node.get_value(
+                        edge,
+                        parameter_value_map,
+                        node_outputs,
+                        self.sample_format,
+                        invocation_hash,
+                    ),
                 )
-                self.tokens = [t for t in self.tokens if t not in tokens_removed]
+                for edge in outgoing_edges
+                if edge.get_target() in execution_context.nodes
+                # Do not create normal object flow for CBA to output pins
+                and (
+                    not isinstance(edge.get_target(), OutputPin)
+                    # not isinstance(node, CallBehaviorAction)
+                    or not isinstance(node.get_behavior(), Activity)
+                )
+            ]
+        }
+        # If CallBehaviorAction.behavior is an Activity, then the output parameters will define the values of the CallBehaviorAction output pins.  Any tokens flowing to the output pins from the CallBehaviorAction will be control tokens instead of object tokens.  This code below adds these control tokens.
+        new_tokens[execution_context] += [
+            ActivityEdgeFlow(
+                edge=edge,
+                token_source=record,
+                value=[literal("uml.ControlFlow")],
+            )
+            for edge in outgoing_edges
+            if edge.get_target() in execution_context.nodes
+            and isinstance(edge, ObjectFlow)
+            and isinstance(node, CallBehaviorAction)
+            and isinstance(node.get_behavior(), Activity)
+        ]
+        if execution_context.parent_context:
+            # Handle return values
+            parent_tokens = [
+                ActivityEdgeFlow(
+                    edge=edge,
+                    token_source=record,
+                    value=node.get_value(
+                        edge,
+                        parameter_value_map,
+                        node_outputs,
+                        self.sample_format,
+                        invocation_hash,
+                    ),
+                )
+                for edge in outgoing_edges
+                if execution_context.parent_context
+                and edge.get_target() in execution_context.parent_context.nodes
+            ]
+            if len(parent_tokens) > 0:
+                new_tokens[execution_context.parent_context] = parent_tokens
 
-                new_tokens = new_tokens + tokens_added
-                record = self.ex.executions[-1]
-                self.post_process(record, new_tokens)
+        if isinstance(node, CallBehaviorAction):
+            # FIXME add output tokens to call
+            behavior = node.get_behavior()
+            if isinstance(behavior, Activity):
+                new_execution_context = execution_context.invoke_activity(record)
 
-            except Exception as e:
-                # Consume the tokens used by the node that caused the exception
-                # Produce control tokens
-                # incoming_flows = [
-                #     t for t in self.tokens if node == t.get_target()
-                # ]
-                # exec = labop.CallBehaviorExecution(
-                #     node=node, incoming_flows=incoming_flows
-                # )
-                # self.ex.document.add(exec)
-                # self.ex.executions.append(exec)
-                # control_edges = [
-                #     edge
-                #     for edge in self.ex.protocol.lookup().edges
-                #     if (
-                #         node.identity == edge.source
-                #         or node.identity
-                #         == edge.source.lookup().get_parent().identity
-                #     )
-                #     and (isinstance(edge, uml.ControlFlow))
-                # ]
+                # Create tokens that cross from parent to child context.
+                # Tokens include:
+                #  - parent input/value pin to child activity parameter node
+                #  - parent call_behavior_action to child initial
+                new_tokens[new_execution_context] = [
+                    ActivityEdgeFlow(
+                        edge=new_execution_context.get_invocation_edge(
+                            token_consumed.get_edge().get_source(),
+                        ),
+                        token_source=token_consumed.token_source,
+                        value=[literal(token_consumed.value, reference=True)],
+                    )
+                    for token_consumed in record.get_incoming_flows()
+                    if isinstance(token_consumed.get_edge().get_source(), Pin)
+                    for activity_parameter_node in behavior.get_nodes(
+                        name=token_consumed.get_edge().get_source().name,
+                        node_type=ActivityParameterNode,
+                    )
+                ] + [
+                    ActivityEdgeFlow(
+                        edge=new_execution_context.get_invocation_edge(
+                            node, behavior.initial()
+                        ),
+                        token_source=record,
+                        value=[literal("uml.ControlFlow", reference=True)],
+                    )
+                ]
 
-                # self.tokens = [
-                #     t for t in self.tokens if t.get_target() != node
-                # ] + [
-                #     labop.ActivityEdgeFlow(
-                #         token_source=exec,
-                #         edge=edge,
-                #         value=uml.literal("uml.ControlFlow"),
-                #     )
-                #     for edge in control_edges
-                # ]
-                if self.permissive:
-                    self.issues[self.ex.display_id].append(ExecutionWarning(e))
-                else:
-                    self.issues[self.ex.display_id].append(ExecutionError(e))
-                    raise (e)
-        self.tokens = self.tokens + new_tokens
-        return self.executable_activity_nodes(new_tokens)
+        return new_tokens
 
-    def executable_activity_nodes(self, tokens_added) -> List[uml.ActivityNode]:
+    def possible_calling_behaviors(self, node: ActivityNode):
+        # Get all CallBehaviorAction nodes that correspond to a CallBehaviorExecution that supports the current execution of the ActivityNode
+        tokens_supporting_node = [
+            t for t in self.tokens if t.edge in self.incoming_edge_tokens[node]
+        ]
+        records = set(
+            [t.source.get_calling_behavior_execution() for t in tokens_supporting_node]
+        )
+        nodes = set({record.node for record in records})
+        return nodes
+
+    def create_record(
+        self,
+        node: ActivityNode,
+        consumed_tokens: List[ActivityEdgeFlow],
+    ) -> ActivityNodeExecution:
+        if isinstance(node, CallBehaviorAction):
+            call = BehaviorExecution(
+                f"execute_{self.next_id()}",
+                parameter_values=self.record_parameter_values(node, consumed_tokens),
+                completed_normally=True,
+                start_time=self.get_current_time(),  # TODO: remove str wrapper after sbol_factory #22 fixed
+                end_time=self.get_current_time(),  # TODO: remove str wrapper after sbol_factory #22 fixed
+                consumed_material=[],
+            )  # FIXME handle materials
+            record = CallBehaviorExecution(
+                node=node, incoming_flows=consumed_tokens, call=call
+            )
+            self.ex.document.add(call)
+        else:
+            record = ActivityNodeExecution(node=node, incoming_flows=consumed_tokens)
+        return record
+
+    def record_parameter_values(
+        self,
+        node: CallBehaviorAction,
+        inputs: Dict[ExecutionContext, List[ActivityEdgeFlow]],
+    ) -> List[ParameterValue]:
+        # Get the parameter values from input tokens for input pins
+        input_pin_values = {
+            token.get_source()
+            .get_node()
+            .identity: [
+                literal(v.get_value(), reference=True) for v in token.get_value()
+            ]
+            for token in inputs
+        }
+        # Get Input value pins
+        value_pin_values = {}
+
+        # Validate Pin values, see #130
+        # Although enabled_activity_node method also validates Pin values,
+        # it only checks required Pins.  This check is necessary to check optional Pins.
+        for pin in node.get_inputs():
+            if hasattr(pin, "value"):
+                if pin.value is None:
+                    raise ValueError(
+                        f"{self.behavior.lookup().display_id} Action has no ValueSpecification for Pin {pin.name}"
+                    )
+                value_pin_values[pin.identity] = [pin.value]
+            # Check that pin corresponds to an input parameter.  Will cause Exception if does not exist.
+            parameter = node.get_parameter(name=pin.name)
+
+        # Convert References
+        value_pin_values = {
+            k: [literal(value=val.get_value(), reference=True)]
+            for k, v in value_pin_values.items()
+            for val in v
+        }
+        pin_values = {**input_pin_values, **value_pin_values}  # merge the dicts
+
+        parameter_values = [
+            ParameterValue(
+                parameter=node.get_parameter(name=pin.name, ordered=True),
+                value=value,
+            )
+            for pin in node.get_inputs()
+            if pin.identity in pin_values
+            for value in pin_values[pin.identity]
+        ]
+        return parameter_values
+
+    def consume_tokens(
+        self,
+        execution_context: ExecutionContext,
+        node: ActivityNode,
+        supporting_tokens: Dict[ActivityEdge, List[ActivityEdgeFlow]],
+    ) -> Dict[ExecutionContext, List[ActivityEdgeFlow]]:
+        ec_consumed_tokens = []
+        for edge, tokens in supporting_tokens.items():
+            source = edge.get_source()
+            target = edge.get_target()
+            try:
+                token = next(iter(tokens))
+                ec_consumed_tokens.append(token)
+            except StopIteration:
+                if source.required():
+                    msg = f"Could not find a required token for source: {source.name}"
+                    if self.permissive:
+                        raise ExecutionWarning(msg)
+                    else:
+                        raise ExecutionError(msg)
+
+        consumed_tokens = {execution_context: ec_consumed_tokens}
+        # Remove values on edges
+        execution_context.incoming_edge_tokens[node] = {
+            edge: [
+                v
+                for v in execution_context.incoming_edge_tokens[node][edge]
+                if v not in consumed_tokens[execution_context]
+            ]
+            for edge in execution_context.incoming_edge_tokens[node]
+        }
+        return consumed_tokens
+
+    def executable_activity_nodes(
+        self, execution_context, tokens_added
+    ) -> List[ActivityNode]:
         """Find all of the activity nodes that are ready to be run given the current set of tokens
         Note that this will NOT identify activities with no in-flows: those are only set up as initiating nodes
 
@@ -287,16 +690,22 @@ class ExecutionEngine(ABC):
         updated_clusters = set({})
         for t in tokens_added:
             target = t.get_target()
-            self.candidate_clusters[target.identity] = self.candidate_clusters.get(
-                target.identity, []
-            ) + [t]
+            execution_context.incoming_edge_tokens[target][t.get_edge()].append(t)
+            execution_context.candidate_clusters[
+                target.identity
+            ] = execution_context.candidate_clusters.get(target.identity, []) + [t]
             updated_clusters.add(target)
 
         enabled_nodes = [
             n
             for n in updated_clusters
-            if n.enabled(self, self.candidate_clusters[n.identity])
+            if n.enabled(execution_context.incoming_edge_tokens[n], self)
         ]
+
+        # clear candidate clusters for enabled nodes
+        for n in enabled_nodes:
+            self.candidate_clusters[n.identity] = []
+
         enabled_nodes.sort(
             key=lambda x: x.identity
         )  # Avoid any ordering non-determinism
@@ -305,41 +714,77 @@ class ExecutionEngine(ABC):
 
     def post_process(
         self,
-        record: labop.ActivityNodeExecution,
-        new_tokens: List[labop.ActivityEdgeFlow],
+        execution_context: ExecutionContext,
+        record: ActivityNodeExecution,
+        new_tokens: List[ActivityEdgeFlow],
     ):
+        node = record.get_node()
+        if isinstance(node, ActivityParameterNode) and node.get_parameter().is_output():
+            value = record.get_incoming_flows()[0].value
+            execution_context.parameter_values += [
+                ParameterValue(
+                    parameter=node.get_parameter(ordered=True),
+                    value=literal(v, reference=True),
+                )
+                for v in value
+            ]
+        # elif isinstance(node, CallBehaviorAction):
+        #     # Add outputs to the call
+        #     call: BehaviorExecution = record.get_call()
+        #     call.parameter_values += [
+        #         t.get_value()
+        #         for t in new_tokens
+        #         if isinstance(t.get_edge(), ObjectFlow)
+        #     ]
+
         if self.dataset_file is not None:
             self.write_data_templates(record, new_tokens)
 
+        for specialization in self.specializations:
+            try:
+                specialization.process(record, self.ex)
+            except Exception as e:
+                if not self.failsafe:
+                    raise e
+                l.error(
+                    f"Could Not Process {record.name if record.name else record.identity}: {e}"
+                )
+        if self.track_samples and isinstance(record.node.lookup(), CallBehaviorAction):
+            self.prov_observer.update(record)
+
     def write_data_templates(
         self,
-        record: labop.ActivityNodeExecution,
-        new_tokens: List[labop.ActivityEdgeFlow],
+        record: ActivityNodeExecution,
+        new_tokens: List[ActivityEdgeFlow],
     ):
         """
-        Write a data template as an xlsx file if the record.node produces sample data (i.e., it has an output of type labop.Dataset with a data attribute of type labop.SampleData)
+        Write a data template as an xlsx file if the record.node produces sample data (i.e., it has an output of type Dataset with a data attribute of type SampleData)
         Parameters
         ----------
-        node : labop.ActivityNodeExecution
+        node : ActivityNodeExecution
             ActivityNodeExecution that produces SampleData
         """
-        if not isinstance(record, labop.CallBehaviorExecution):
+        if not isinstance(record, CallBehaviorExecution):
             return
 
-        # Find all labop.Dataset objects produced by record
+        # Find all Dataset objects produced by record
         datasets = [
-            token.value.get_value()
+            val.get_value()
             for token in new_tokens
+            for val in token.get_value()
             if token.token_source == record.identity
-            and isinstance(token.value.get_value(), labop.Dataset)
+            and isinstance(val.get_value(), Dataset)
         ]
         sample_data = [
-            dataset.data
-            for dataset in datasets
-            if isinstance(dataset.data, labop.SampleData)
+            dataset.data for dataset in datasets if isinstance(dataset.data, SampleData)
         ]
 
         path = os.path.join(self.out_dir, f"{self.dataset_file}.xlsx")
+
+        for sd in sample_data:
+            sheet_name = f"{record.node.lookup().behavior.lookup().display_id}_data_{self.data_id}"
+            sd.update_data_sheet(path, sheet_name, sample_format=self.sample_format)
+            self.data_id += 1
 
         for dataset in datasets:
             sheet_name = f"{record.node.lookup().behavior.lookup().display_id}_dataset_{self.data_id}"
@@ -348,14 +793,9 @@ class ExecutionEngine(ABC):
             )
             self.data_id += 1
 
-        for sd in sample_data:
-            sheet_name = f"{record.node.lookup().behavior.lookup().display_id}_data_{self.data_id}"
-            sd.update_data_sheet(path, sheet_name, sample_format=self.sample_format)
-            self.data_id += 1
-
 
 class ManualExecutionEngine(ExecutionEngine):
-    def run(self, protocol: labop.Protocol, start_time: datetime.datetime = None):
+    def run(self, protocol: Protocol, start_time: datetime.datetime = None):
         self.init_time(start_time)
         self.ex.start_time = (
             self.start_time
@@ -368,18 +808,17 @@ class ManualExecutionEngine(ExecutionEngine):
         )
         return ready, choices, graph
 
-    def advance(self, ready: List[uml.ActivityNode]):
+    def advance(self, ready: List[ActivityNode]):
         def auto_advance(r):
             # If Node is a CallBehavior action, then:
-            if isinstance(r, uml.CallBehaviorAction):
+            if isinstance(r, CallBehaviorAction):
                 behavior = r.behavior.lookup()
                 return (  # It is a subprotocol
-                    isinstance(behavior, labop.Protocol)
+                    isinstance(behavior, Protocol)
                     or (len(list(behavior.get_outputs())) == 0)  # Has no output pins
                     or (  # Overrides the (empty) default implementation of compute_output()
                         not hasattr(behavior.compute_output, "__func__")
-                        or behavior.compute_output.__func__
-                        != labop.primitive_execution.primitive_compute_output
+                        or behavior.compute_output.__func__ != Primitive.compute_output
                     )
                 )
             else:
@@ -393,7 +832,7 @@ class ManualExecutionEngine(ExecutionEngine):
 
         return self.executable_activity_nodes()
 
-    def ready_message(self, ready: List[uml.ActivityNode]):
+    def ready_message(self, ready: List[ActivityNode]):
         msg = "Activities Ready to Execute:\n"
 
         def activity_name(a):
@@ -408,7 +847,7 @@ class ManualExecutionEngine(ExecutionEngine):
         activities = [activity_name(r.protocol()) for r in ready]
         behaviors = [
             behavior_name(r.behavior.lookup())
-            if isinstance(r, uml.CallBehaviorAction)
+            if isinstance(r, CallBehaviorAction)
             else decision_name(r)
             for r in ready
         ]
@@ -428,11 +867,11 @@ class ManualExecutionEngine(ExecutionEngine):
         )
         # return choices #f"{msg}{ready_nodes}"
 
-    def next(self, activity_node: uml.ActivityNode, node_output: callable):
+    def next(self, activity_node: ActivityNode, node_output: callable):
         """Execute a single ActivityNode using the node_output function to calculate its output pin values.
 
         Args:
-            activity_node (uml.ActivityNode): node to execute
+            activity_node (ActivityNode): node to execute
             node_output (callable): function to calculate output pins
 
         Returns:
@@ -449,213 +888,3 @@ class ManualExecutionEngine(ExecutionEngine):
 
 ##################################
 # Helper utility functions
-
-
-def sum_measures(measure_list):
-    """Add a list of measures and return a fresh measure
-    Note: requires that all have the same unit and types
-
-    Parameters
-    ----------
-    measure_list of SBOL Measure objects
-
-    Returns
-    -------
-    New Measure object with the sum of input measure amounts
-    """
-    prototype = measure_list[0]
-    if not all(
-        m.types == prototype.types and m.unit == prototype.unit for m in measure_list
-    ):
-        raise ValueError(
-            f"Can only merge measures with identical units and types: {([m.value, m.unit, m.types] for m in measure_list)}"
-        )
-    total = sum(m.value for m in measure_list)
-    return sbol3.Measure(value=total, unit=prototype.unit, types=prototype.types)
-
-
-def protocol_execution_aggregate_child_materials(self):
-    """Merge the consumed material from children, adding a fresh Material for each to this record.
-
-    Parameters
-    ----------
-    self: ProtocolExecution object
-    """
-    child_materials = [
-        e.call.consumed_material
-        for e in self.executions
-        if isinstance(e, labop.CallBehaviorExecution)
-        and hasattr(e.call, "consumed_material")
-    ]
-    specifications = {m.specification for m in child_materials}
-    self.consumed_material = (
-        labop.Material(
-            s,
-            sum_measures([m.amount for m in child_materials if m.specification == s]),
-        )
-        for s in specifications
-    )
-
-
-labop.ProtocolExecution.aggregate_child_materials = (
-    protocol_execution_aggregate_child_materials
-)
-
-
-def protocol_execution_to_dot(
-    self,
-    execution_engine=None,
-    ready: List[uml.ActivityNode] = [],
-    done=set([]),
-    out_dir="out",
-):
-    """
-    Create a dot graph that illustrates edge values appearing the execution of the protocol.
-    :param self:
-    :return: graphviz.Digraph
-    """
-    dot = graphviz.Digraph(
-        comment=self.protocol,
-        strict=True,
-        graph_attr={"rankdir": "TB", "concentrate": "true"},
-        node_attr={"ordering": "out"},
-    )
-
-    def _make_object_edge(dot, incoming_flow, target, dest_parameter=None):
-        flow_source = incoming_flow.lookup().token_source.lookup()
-        source = incoming_flow.lookup().edge.lookup().source.lookup()
-        value = incoming_flow.lookup().value.get_value()
-        is_ref = isinstance(incoming_flow.lookup().value, uml.LiteralReference)
-        # value = value.value.lookup() if isinstance(value, uml.LiteralReference) else value.value
-
-        if isinstance(source, uml.Pin):
-            src_parameter = (
-                source.get_parent().pin_parameter(source.name).property_value
-            )
-            src_var = src_parameter.name
-        else:
-            src_var = ""
-
-        dest_var = dest_parameter.name if dest_parameter else ""
-
-        source_id = source.dot_label(parent_identity=self.protocol)
-        if isinstance(source, uml.CallBehaviorAction):
-            source_id = f"{source_id}:node"
-        target_id = target.dot_label(parent_identity=self.protocol)
-        if isinstance(target, uml.CallBehaviorAction):
-            target_id = f"{target_id}:node"
-
-        if isinstance(value, sbol3.Identified):
-            edge_label = value.display_id  # value.identity
-        else:
-            edge_label = f"{value}"
-
-        if False and hasattr(value, "to_dot") and not is_ref:
-            # Make node for value and connect to source
-            value_node_id = value.to_dot(dot, out_dir=out_dir)
-            dot.edge(source_id, value_node_id)
-
-        edge_index = incoming_flow.split("ActivityEdgeFlow")[-1]
-
-        edge_label = f"{edge_index}: {edge_label}"
-
-        attrs = {"color": "orange"}
-        dot.edge(target_id, source_id, edge_label, _attributes=attrs)
-
-    dot = graphviz.Digraph(
-        name=f"cluster_{self.identity}", graph_attr={"label": self.identity}
-    )
-
-    # Protocol graph
-    protocol_graph = self.protocol.lookup().to_dot(ready=ready, done=done)
-    dot.subgraph(protocol_graph)
-
-    if execution_engine and execution_engine.current_node:
-        current_node_id = execution_engine.current_node.dot_label(
-            parent_identity=self.protocol
-        )
-        current_node_id = f"{current_node_id}:node"
-        dot.edge(
-            current_node_id,
-            current_node_id,
-            _attributes={
-                "tailport": "w",
-                "headport": "w",
-                "taillabel": "current_node",
-                "color": "red",
-            },
-        )
-
-    # Execution graph
-    for execution in self.executions:
-        exec_target = execution.node.lookup()
-        execution_label = ""
-
-        # Make a self loop that includes the and start and end time.
-        if isinstance(execution, labop.CallBehaviorExecution):
-            time_format = "%H:%M:%S"
-            start_time = datetime.datetime.strftime(
-                execution.call.lookup().start_time, time_format
-            )
-            end_time = datetime.datetime.strftime(
-                execution.call.lookup().end_time, time_format
-            )
-            if start_time == end_time:
-                execution_label += f"[{start_time}]"
-            else:
-                execution_label += f"[{start_time},\n  {end_time}]"
-            target_id = exec_target.dot_label(parent_identity=self.protocol)
-            target_id = f"{target_id}:node"
-            dot.edge(
-                target_id,
-                target_id,
-                _attributes={
-                    "tailport": "w",
-                    "headport": "w",
-                    "taillabel": execution_label,
-                    "color": "invis",
-                },
-            )
-
-        for incoming_flow in execution.incoming_flows:
-            # Executable Nodes have incoming flow from their input pins and ControlFlows
-            flow_source = incoming_flow.lookup().token_source.lookup()
-            exec_source = flow_source.node.lookup()
-            edge_ref = incoming_flow.lookup().edge
-            if edge_ref and isinstance(edge_ref.lookup(), uml.ObjectFlow):
-                if isinstance(exec_target, uml.ActivityParameterNode):
-                    # ActivityParameterNodes are ObjectNodes that have a parameter
-                    _make_object_edge(
-                        dot,
-                        incoming_flow,
-                        exec_target,
-                        dest_parameter=exec_target.parameter.lookup(),
-                    )
-                elif isinstance(exec_target, uml.ControlNode):
-                    # This in an object flow into the node itself, which happens for ControlNodes
-                    _make_object_edge(dot, incoming_flow, exec_target)
-            elif isinstance(exec_source, uml.Pin):
-                # This incoming_flow is from an input pin, and need the flow into the pin
-                for into_pin_flow in flow_source.incoming_flows:
-                    # source = src_to_pin_edge.source.lookup()
-                    # target = src_to_pin_edge.target.lookup()
-                    dest_parameter = exec_target.pin_parameter(
-                        exec_source.name
-                    ).property_value
-                    _make_object_edge(
-                        dot,
-                        into_pin_flow,
-                        into_pin_flow.lookup().edge.lookup().target.lookup(),
-                        dest_parameter=dest_parameter,
-                    )
-            elif (
-                isinstance(exec_source, uml.DecisionNode)
-                and edge_ref
-                and isinstance(edge_ref.lookup(), uml.ControlFlow)
-            ):
-                _make_object_edge(dot, incoming_flow, exec_target)
-
-    return dot
-
-
-labop.ProtocolExecution.to_dot = protocol_execution_to_dot
