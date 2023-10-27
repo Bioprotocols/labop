@@ -1,4 +1,4 @@
-from setuptools import setup
+from setuptools import find_packages, setup
 
 test_deps = [
     "nbmake",
@@ -36,22 +36,7 @@ setup(
     ],
     tests_require=test_deps,
     extras_require=extras,
-    packages=[
-        "labop",
-        "labop_convert",
-        "labop_convert.autoprotocol",
-        "labop_convert.markdown",
-        "labop_convert.opentrons",
-        "labop_convert.emeraldcloud",
-        "labop.lib",
-        "labop.inner",
-        "labop.utils",
-        "labop_time",
-        "uml",
-        "uml.inner",
-        "examples",
-        "owl_rdf_utils",
-    ],
+    packages=find_packages(".", exclude=["*attic", "examples"]),
     package_data={
         "labop": ["inner/labop.ttl", "lib/*.ttl", "container-ontology.ttl"],
         "labop_convert": ["markdown/template.xlsx"],
