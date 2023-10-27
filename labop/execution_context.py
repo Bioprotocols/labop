@@ -2,8 +2,6 @@ from typing import Dict, Iterable, List, Optional
 
 import sbol3
 
-from labop import parameter_value
-from labop.call_behavior_execution import CallBehaviorExecution
 from uml import (
     Action,
     Activity,
@@ -25,6 +23,7 @@ from uml.behavior import Behavior
 from uml.final_node import FinalNode
 from uml.initial_node import InitialNode
 
+from .call_behavior_execution import CallBehaviorExecution
 from .parameter_value import ParameterValue
 
 

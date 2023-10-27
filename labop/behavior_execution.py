@@ -4,12 +4,9 @@ The BehaviorExecution class defines the functions corresponding to the dynamical
 
 from typing import Dict, List, Union
 
-import sbol3
-
-import labop.inner as inner
 from uml import Activity, LiteralSpecification
 
-from . import ParameterValue
+from . import ParameterValue, inner
 
 
 class BehaviorExecution(inner.BehaviorExecution, Activity):

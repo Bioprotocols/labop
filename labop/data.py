@@ -12,7 +12,7 @@ from urllib.parse import quote, unquote
 import sbol3
 import xarray as xr
 
-from labop.strings import Strings
+from .strings import Strings
 
 l = logging.getLogger(__file__)
 l.setLevel(logging.ERROR)

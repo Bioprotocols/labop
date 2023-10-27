@@ -27,3 +27,15 @@ out
 cov.xml
 *.org
 **/sample_graph_**
+site/404.html
+site/index.html
+site/objects.inv
+site/sitemap.xml
+site/sitemap.xml.gz
+site/explanation/index.html
+site/how-to-guides/index.html
+site/pandoc/combined.pdf
+site/pandoc/combined.pdf.md
+site/reference/index.html
+site/search/search_index.json
+site/tutorials/index.html

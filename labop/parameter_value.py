@@ -6,8 +6,9 @@ from typing import Dict, List, Union
 
 import sbol3
 
-import labop.inner as inner
 from uml import LiteralSpecification, labop_hash
+
+from . import inner
 
 
 class ParameterValue(inner.ParameterValue):

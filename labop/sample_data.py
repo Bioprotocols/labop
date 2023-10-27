@@ -9,9 +9,9 @@ import pandas as pd
 import xarray as xr
 from numpy import nan
 
-import labop.inner as inner
-from labop.data import deserialize_sample_format, serialize_sample_format
-from labop.strings import Strings
+from . import inner
+from .data import deserialize_sample_format, serialize_sample_format
+from .strings import Strings
 
 
 class SampleData(inner.SampleData):

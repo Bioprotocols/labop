@@ -8,10 +8,8 @@ from typing import List, Tuple
 
 import sbol3
 
-import labop.inner as inner
 from uml import (
     Activity,
-    ActivityEdge,
     ActivityNode,
     Behavior,
     ControlFlow,
@@ -23,8 +21,9 @@ from uml import (
     ObjectNode,
     ValueSpecification,
 )
-from uml.utils import WellFormednessError, WellFormednessIssue, WhereDefinedMixin
+from uml.utils import WellFormednessError, WellFormednessIssue
 
+from . import inner
 from .library import import_library
 from .primitive import Primitive
 from .utils.helpers import prepare_document

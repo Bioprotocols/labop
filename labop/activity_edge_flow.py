@@ -6,10 +6,10 @@ The ActivityEdgeFlow class defines the functions corresponding to the dynamicall
 import graphviz
 import sbol3
 
-from labop import inner
-from labop.activity_node_execution import ActivityNodeExecution
 from uml import CallBehaviorAction, InputPin, LiteralReference, Parameter
 
+from . import inner
+from .activity_node_execution import ActivityNodeExecution
 from .protocol import Protocol
 
 

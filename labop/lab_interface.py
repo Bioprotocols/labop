@@ -1,12 +1,13 @@
 import json
-from urllib.parse import quote, unquote
+from urllib.parse import quote
 
 import xarray as xr
 from numpy import nan
 
 from labop import SampleCollection
-from labop.data import serialize_sample_format
-from labop.strings import Strings
+
+from .data import serialize_sample_format
+from .strings import Strings
 
 
 class LabInterface:

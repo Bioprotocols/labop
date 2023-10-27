@@ -11,11 +11,12 @@ import sbol3
 import xarray as xr
 from openpyxl import load_workbook
 
-import labop.inner as inner
-from labop.data import deserialize_sample_format, serialize_sample_format
-from labop.sample_collection import SampleCollection
-from labop.strings import Strings
 from uml.behavior import Behavior
+
+from . import inner
+from .data import deserialize_sample_format, serialize_sample_format
+from .sample_collection import SampleCollection
+from .strings import Strings
 
 
 class SampleMetadata(inner.SampleMetadata):

@@ -8,8 +8,7 @@ import os
 
 import xarray as xr
 
-import labop.inner as inner
-
+from . import inner
 from .container_spec import ContainerSpec
 from .data import deserialize_sample_format, serialize_sample_format
 from .sample_collection import SampleCollection

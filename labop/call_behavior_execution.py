@@ -4,12 +4,10 @@ The CallBehaviorExecution class defines the functions corresponding to the dynam
 
 from typing import Callable, List, Union
 
-from labop import inner
 from uml import (
     PARAMETER_IN,
     PARAMETER_OUT,
     Action,
-    ActivityParameterNode,
     Behavior,
     CallBehaviorAction,
     ObjectFlow,
@@ -20,6 +18,7 @@ from uml import (
 from uml.ordered_property_value import OrderedPropertyValue
 from uml.output_pin import OutputPin
 
+from . import inner
 from .activity_edge_flow import ActivityEdgeFlow
 from .activity_node_execution import ActivityNodeExecution
 from .behavior_execution import BehaviorExecution
