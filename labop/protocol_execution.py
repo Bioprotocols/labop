@@ -9,29 +9,21 @@ from typing import List
 import graphviz
 import sbol3
 
-import labop.inner as inner
-import uml
-from labop.execution_engine_utils import (
-    JSONProtocolExecutionExtractor,
-    ProtocolExecutionExtractor,
-)
 from uml import (
     PARAMETER_IN,
     PARAMETER_OUT,
     ActivityNode,
     ActivityParameterNode,
-    CallBehaviorAction,
     ControlFlow,
     ControlNode,
     DecisionNode,
-    FinalNode,
     InitialNode,
     InputPin,
-    LiteralReference,
     ObjectFlow,
     Pin,
 )
 
+from . import inner
 from .behavior_execution import BehaviorExecution
 from .call_behavior_execution import CallBehaviorExecution
 from .material import Material
@@ -42,6 +34,9 @@ from .sample_data import SampleData
 class ProtocolExecution(inner.ProtocolExecution, BehaviorExecution):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+
+    def get_protocol(self) -> Protocol:
+        return self.protocol.lookup()
 
     def get_ordered_executions(self):
         protocol = self.protocol.lookup()
@@ -345,8 +340,15 @@ class ProtocolExecution(inner.ProtocolExecution, BehaviorExecution):
     def backtrace(
         self,
         stack=None,
-        extractor: ProtocolExecutionExtractor = JSONProtocolExecutionExtractor(),
+        extractor: "ProtocolExecutionExtractor" = None,
     ):
+        from labop.execution.execution_engine_utils import (
+            JSONProtocolExecutionExtractor,
+        )
+
+        if extractor is None:
+            extractor = JSONProtocolExecutionExtractor()
+
         stack = self.executions if stack is None else stack
         if len(stack) == 0:
             return set([]), []
@@ -362,6 +364,10 @@ class ProtocolExecution(inner.ProtocolExecution, BehaviorExecution):
         """
         Convert Protocol Execution to JSON
         """
+        from labop.execution.execution_engine_utils import (
+            JSONProtocolExecutionExtractor,
+        )
+
         p_json = self.backtrace(extractor=JSONProtocolExecutionExtractor())[1]
         return json.dumps(p_json)
 

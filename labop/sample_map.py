@@ -2,8 +2,8 @@
 The SampleMap class defines the functions corresponding to the dynamically generated labop class SampleMap
 """
 
-import labop.inner as inner
-from labop.data import deserialize_sample_format, serialize_sample_format
+from . import inner
+from .data import deserialize_sample_format, serialize_sample_format
 
 
 class SampleMap(inner.SampleMap):

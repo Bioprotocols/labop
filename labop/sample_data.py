@@ -9,9 +9,9 @@ import pandas as pd
 import xarray as xr
 from numpy import nan
 
-import labop.inner as inner
-from labop.data import deserialize_sample_format, serialize_sample_format
-from labop.strings import Strings
+from . import inner
+from .data import deserialize_sample_format, serialize_sample_format
+from .strings import Strings
 
 
 class SampleData(inner.SampleData):
@@ -36,7 +36,7 @@ class SampleData(inner.SampleData):
             sample_data = deserialize_sample_format(self.values, parent=self)
         return sample_data
 
-    def from_table(self, table: List[List[Dict[str, str]]]):
+    def from_table(self, table: List[List[Dict[str, str]]]) -> "SampleData":
         """Convert from LabOPED table to SampleData
 
         Args:

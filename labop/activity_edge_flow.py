@@ -6,10 +6,10 @@ The ActivityEdgeFlow class defines the functions corresponding to the dynamicall
 import graphviz
 import sbol3
 
-from labop import inner
-from labop.activity_node_execution import ActivityNodeExecution
 from uml import CallBehaviorAction, InputPin, LiteralReference, Parameter
+from uml.activity_edge import ActivityEdge
 
+from . import inner
 from .protocol import Protocol
 
 
@@ -17,7 +17,7 @@ class ActivityEdgeFlow(inner.ActivityEdgeFlow):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-    def get_edge(self):
+    def get_edge(self) -> ActivityEdge:
         return self.edge.lookup()
 
     def get_value(self):
@@ -84,7 +84,7 @@ class ActivityEdgeFlow(inner.ActivityEdgeFlow):
     def to_dot(
         self,
         dot: graphviz.Graph,
-        target_node_execution: ActivityNodeExecution,
+        target_node_execution: "ActivityNodeExecution",
         namespace,
         dest_parameter=None,
         out_dir=".",

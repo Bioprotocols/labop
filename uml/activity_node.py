@@ -186,27 +186,16 @@ class ActivityNode(inner.ActivityNode, WhereDefinedMixin):
             edge_tokens[edge] = edge_value
         return edge_tokens
 
-    def get_value(
-        self,
-        edge: "ActivityEdge",
-        parameter_value_map: Dict[str, List[LiteralSpecification]],
-        node_outputs: Callable,
-        sample_format: str,
-        invocation_hash: int,
-    ):
-        from .control_flow import ControlFlow
-        from .object_flow import ObjectFlow
-
-        value = ""
-        reference = False
-
-        if isinstance(edge, ControlFlow):
-            value = "uml.ControlFlow"
-        elif isinstance(edge, ObjectFlow):
-            raise Exception("ActivityNode cannot get_value of outgoing ObjectFlow")
-
-        value = [literal(value, reference=reference)]
-        return value
-
     def is_well_formed(self) -> List[WellFormednessIssue]:
         return []
+
+    def auto_advance(self) -> bool:
+        """
+        Is the node executable without additional manual input?
+
+        Returns
+        -------
+        bool
+            Whether the node can be automatically executed.
+        """
+        return True

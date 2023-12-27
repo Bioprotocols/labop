@@ -1,13 +1,10 @@
+import os
 import unittest
 
 import sbol3
-import tyto
 
 import labop
-import uml
-from labop.execution_engine import ExecutionEngine
-from labop_convert import MarkdownSpecialization
-from labop_convert.behavior_specialization import DefaultBehaviorSpecialization
+from labop.execution.execution_engine import ExecutionEngine
 
 PARAMETER_IN = "http://bioprotocols.org/uml#in"
 PARAMETER_OUT = "http://bioprotocols.org/uml#out"
@@ -69,7 +66,10 @@ class TestProtocolInputs(unittest.TestCase):
             container = parameter_value_map["specification"]
             samples = parameter_value_map["samples"]
 
-        ee = ExecutionEngine()
+        if not os.path.exists("out"):
+            os.makedirs("out", exist_ok=True)
+
+        ee = ExecutionEngine(out_dir="out")
         ee.specializations[0]._behavior_func_map[p.identity] = lambda record, ex: None
         ex = ee.execute(
             protocol,

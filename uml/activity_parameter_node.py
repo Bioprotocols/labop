@@ -36,18 +36,6 @@ class ActivityParameterNode(inner.ActivityParameterNode, ObjectNode):
     def is_input(self):
         return self.get_parameter().is_input()
 
-    # def get_value(self) -> Dict[Parameter, LiteralSpecification]:
-    #     values = [
-    #         i.value.get_value()
-    #         for i in self.incoming_flows
-    #         if isinstance(i.edge.lookup(), ObjectFlow)
-    #     ]
-    #     assert len(values) < 2, "ActivityParameterNode has too many incoming values"
-    #     if len(values) == 1:
-    #         return values[0]
-    #     else:
-    #         return None
-
     def next_tokens_callback(
         self,
         node_inputs: Dict["ActivityEdge", LiteralSpecification],
@@ -101,24 +89,3 @@ class ActivityParameterNode(inner.ActivityParameterNode, ObjectNode):
             else:
                 edge_tokens = []
         return edge_tokens
-
-    def get_value(
-        self,
-        edge: "ActivityEdge",
-        parameter_value_map: Dict[str, List[LiteralSpecification]],
-        node_outputs: Callable,
-        sample_format: str,
-        invocation_hash: int,
-    ):
-        value = ""
-        reference = False
-
-        if isinstance(edge, ControlFlow):
-            value = "uml.ControlFlow"
-        elif isinstance(edge, ObjectFlow):
-            if self.is_output():
-                value = parameter_value_map[self.name]
-                reference = True
-
-        value = [literal(value, reference=reference)]
-        return value

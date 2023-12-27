@@ -27,3 +27,16 @@ run: docker
 		-v $$PWD:/root/home:Z \
 		-e "PROTOCOL_SCRIPT=${PROTOCOL_SCRIPT}" \
 		${TAGGED_NAME}
+
+spec:
+	python doc/generate_specification_content.py
+
+lib-docs:
+	mkdocs build
+
+test:
+	pytest test
+	pytest --nbmake --overwrite -n=auto "notebooks/labop_demo.ipynb" "notebooks/markdown.ipynb"
+
+format:
+	pre-commit

@@ -1,13 +1,14 @@
+import os
 import unittest
 
 import sbol3
 import tyto
 
 import labop
-from labop.execution_engine import ExecutionEngine
-from labop_convert import MarkdownSpecialization
-from labop_convert.behavior_specialization import DefaultBehaviorSpecialization
-from uml import LiteralReference
+import labop_convert
+import uml
+from labop.execution.harness import ProtocolExecutionNTuples
+from labop.protocol_execution import ProtocolExecution
 
 PARAMETER_IN = "http://bioprotocols.org/uml#in"
 PARAMETER_OUT = "http://bioprotocols.org/uml#out"
@@ -18,12 +19,9 @@ labop.import_library("spectrophotometry")
 
 
 class TestProtocolOutputs(unittest.TestCase):
-    def setUp(self):
-        protocol_name = "test_protocol"
-        protocol, doc = labop.Protocol.initialize_protocol(
-            display_id=protocol_name, name=protocol_name
-        )
-
+    def generate_protocol(
+        self, doc: sbol3.Document, protocol: labop.Protocol
+    ) -> labop.Protocol:
         plate_spec = labop.ContainerSpec(
             "my_absorbance_measurement_plate",
             name="my absorbance measurement plate",
@@ -47,6 +45,13 @@ class TestProtocolOutputs(unittest.TestCase):
         self.protocol = protocol
         self.output = measure_absorbance.output_pin("measurements")
 
+        self.protocol.designate_output(
+            "measurements",
+            "http://bioprotocols.org/labop#SampleData",
+            source=self.output,
+        )
+        return protocol
+
     # @unittest.expectedFailure
     # def test_protocol_outputs_not_designated(self):
     #    # TODO: catch output parameters that aren't explicitly designated
@@ -57,19 +62,22 @@ class TestProtocolOutputs(unittest.TestCase):
 
     def test_protocol_outputs(self):
         # This test confirms generation of designated output objects
-        self.protocol.designate_output(
-            "measurements",
-            "http://bioprotocols.org/labop#SampleData",
-            source=self.output,
+        harness = labop.execution.harness.ProtocolHarness(
+            base_dir=os.path.join(os.path.dirname(__file__), "out"),
+            entry_point=self.generate_protocol,
+            artifacts=[
+                labop.execution.harness.ProtocolSpecialization(
+                    specialization=labop_convert.MarkdownSpecialization(
+                        "test_LUDOX_markdown.md"
+                    )
+                )
+            ],
         )
+        harness.run()
 
-        agent = sbol3.Agent("test_agent")
-        ee = ExecutionEngine(
-            specializations=[MarkdownSpecialization("test_LUDOX_markdown.md")]
-        )
-        ex = ee.execute(self.protocol, agent, id="test_execution", parameter_values=[])
-
-        self.assertTrue(isinstance(ex.parameter_values[0].value, LiteralReference))
+        execution_artifacts = harness.artifacts_of_type(ProtocolExecutionNTuples)
+        ex = next(iter(execution_artifacts)).execution
+        self.assertTrue(isinstance(ex.parameter_values[0].value, uml.LiteralReference))
         self.assertTrue(
             isinstance(ex.parameter_values[0].value.value.lookup(), labop.Dataset)
         )

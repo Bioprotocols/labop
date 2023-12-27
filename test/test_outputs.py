@@ -5,7 +5,7 @@ import sbol3
 import tyto
 
 import labop
-from labop.execution_engine import ExecutionEngine
+from labop.execution.execution_engine import ExecutionEngine
 from labop_convert import MarkdownSpecialization
 from labop_convert.behavior_specialization import DefaultBehaviorSpecialization
 from uml import LiteralReference

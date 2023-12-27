@@ -2,7 +2,7 @@
 The SBOLFactory class defines the functions corresponding to the dynamically generated labop class SBOLFactory
 """
 
-import labop.inner as inner
+from . import inner
 
 
 class SBOLFactory(inner.SBOLFactory):

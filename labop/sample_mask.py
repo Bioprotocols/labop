@@ -6,11 +6,11 @@ import json
 
 import xarray as xr
 
-import labop.inner as inner
-from labop.data import deserialize_sample_format, serialize_sample_format
-from labop.sample_collection import SampleCollection
-from labop.strings import Strings
-from labop.utils import contiguous_coordinates
+from . import inner
+from .data import deserialize_sample_format, serialize_sample_format
+from .sample_collection import SampleCollection
+from .strings import Strings
+from .utils.plate_coordinates import contiguous_coordinates
 
 
 class SampleMask(inner.SampleMask, SampleCollection):
@@ -100,3 +100,11 @@ class SampleMask(inner.SampleMask, SampleCollection):
 
     def get_container_type(self):
         return self.get_source().get_container_type()
+
+
+if __name__ == "__main__":
+    import doctest
+
+    doctest.testmod(
+        # extraglobs={"my_literal_specification": LiteralSpecification()}
+    )

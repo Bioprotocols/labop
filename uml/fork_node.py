@@ -79,32 +79,3 @@ class ForkNode(inner.ForkNode, ControlNode):
             for edge in out_edges
         ]
         return edge_tokens
-
-    def get_value(
-        self,
-        edge: "ActivityEdge",
-        parameter_value_map: Dict[str, List[LiteralSpecification]],
-        node_outputs: Callable,
-        sample_format: str,
-        invocation_hash: int,
-    ):
-        if isinstance(edge, ControlFlow):
-            return ActivityNode.get_value(
-                self,
-                edge,
-                parameter_value_map,
-                node_outputs,
-                sample_format,
-                invocation_hash,
-            )
-        elif isinstance(edge, ObjectFlow):
-            value = next(iter(parameter_value_map.values()))
-            reference = True
-
-        if isinstance(value, list) or isinstance(
-            value, sbol3.ownedobject.OwnedObjectListProperty
-        ):
-            value = [literal(v, reference=reference) for v in value]
-        else:
-            value = [literal(value, reference=reference)]
-        return value

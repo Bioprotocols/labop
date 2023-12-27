@@ -12,11 +12,11 @@ print(
 dirname = os.path.dirname(__file__)
 
 # UML Spec
-UML_TTL = os.path.join(dirname, "../uml/uml.ttl")
+UML_TTL = os.path.join(dirname, "../uml/inner/uml.ttl")
 UML_NAMESPACE = "http://bioprotocols.org/uml#"
 
 # LabOP Spec
-LabOP_TTL = os.path.join(dirname, "../labop/labop.ttl")
+LabOP_TTL = os.path.join(dirname, "../labop/inner/labop.ttl")
 LabOP_NAMESPACE = "http://bioprotocols.org/labop#"
 
 # Output location
@@ -37,7 +37,8 @@ def generate_spec(spec_file, spec_name, spec_namespace):
     if not os.path.exists(SPEC_OUT):
         os.mkdir(SPEC_OUT)
     copy(
-        f"{spec_name}DataModel.tex", os.path.join(SPEC_OUT, f"{spec_name}DataModel.tex")
+        f"{spec_name}DataModel.tex",
+        os.path.join(SPEC_OUT, f"{spec_name}DataModel.tex"),
     )
     os.remove(f"{spec_name}DataModel.tex")
     Path(os.path.join(SPEC_OUT, f"{spec_name}_classes/")).mkdir(

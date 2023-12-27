@@ -1,17 +1,16 @@
 import sbol3
 from typing import List
 from uml import assign_outer_class_builders
-import labop.inner as inner
+from . import inner
 
 
-from .utils import *
 from .parameter_value import *
-from .activity_node_execution import *
 from .sample_collection import *
 from .activity_edge_flow import *
 from .behavior_execution import *
 from .call_behavior_execution import *
 from .protocol_execution import *
+from .activity_node_execution import *
 
 from .primitive import *
 
@@ -22,9 +21,7 @@ from .protocol import *
 
 from .container_spec import *
 from .data import *
-from .execution_engine import *
-from .execution_engine_utils import *
-from .lab_interface import *
+from .execution import *
 from .material import *
 from .primitive_array import *
 
@@ -38,6 +35,12 @@ from .dataset import *
 
 from .strings import *
 from .library import *
+
+
+from .execution import *
+from .utils import *
+
+# from .constants import *
 
 
 #########################################

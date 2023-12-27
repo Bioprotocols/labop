@@ -6,8 +6,9 @@ from typing import Dict, List, Union
 
 import sbol3
 
-import labop.inner as inner
 from uml import LiteralSpecification, labop_hash
+
+from . import inner
 
 
 class ParameterValue(inner.ParameterValue):
@@ -19,6 +20,9 @@ class ParameterValue(inner.ParameterValue):
 
     def get_parameter(self):
         return self.parameter.lookup().property_value
+
+    def get_name(self):
+        return self.get_parameter().name
 
     @staticmethod
     def parameter_value_map(

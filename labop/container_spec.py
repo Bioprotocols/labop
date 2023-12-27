@@ -2,7 +2,7 @@
 The ContainerSpec class defines the functions corresponding to the dynamically generated labop class ContainerSpec
 """
 
-import labop.inner as inner
+from . import inner
 
 
 class ContainerSpec(inner.ContainerSpec):

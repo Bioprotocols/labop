@@ -395,7 +395,12 @@ class Activity(inner.Activity, Behavior):
         multi_targets = {
             n: c
             for n, c in source_counts.items()
-            if c > 1 and not (isinstance(n, ForkNode) or isinstance(n, DecisionNode))
+            if c > 1
+            and not (
+                isinstance(n, ForkNode)
+                or isinstance(n, DecisionNode)
+                or isinstance(n, CallBehaviorAction)
+            )
         }
         for n, c in multi_targets.items():
             report.addWarning(
@@ -660,3 +665,6 @@ class Activity(inner.Activity, Behavior):
             if (edge_type is None or isinstance(n, edge_type))
             and (name is None or n.name == name)
         ]
+
+    def auto_advance(self) -> bool:
+        return len(self.get_outputs()) == 0

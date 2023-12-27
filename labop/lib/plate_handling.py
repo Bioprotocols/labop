@@ -28,6 +28,13 @@ p.add_input(
 )  # e.g., breathable vs. non-breathable
 doc.add(p)
 
+
+p = labop.Primitive("Filter")
+p.description = "Activate vacuum pump to perform filtering in a plate"
+p.add_input("location", "http://bioprotocols.org/labop#SampleArray")
+doc.add(p)
+
+
 p = labop.Primitive("EvaporativeSeal")
 p.description = "Seal a collection of samples using a user-selected method in order to prevent evaporation"
 p.add_input("location", "http://bioprotocols.org/labop#SampleArray")

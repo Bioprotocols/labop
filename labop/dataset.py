@@ -8,8 +8,7 @@ import numpy as np
 import pandas as pd
 import xarray as xr
 
-import labop.inner as inner
-
+from . import inner
 from .data import sort_samples
 from .strings import Strings
 

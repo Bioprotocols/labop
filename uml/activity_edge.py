@@ -7,6 +7,8 @@ from typing import List
 
 import graphviz
 
+from uml.activity_node import ActivityNode
+
 from . import inner
 from .action import Action
 from .input_pin import InputPin
@@ -21,10 +23,10 @@ class ActivityEdge(inner.ActivityEdge, WhereDefinedMixin):
         super().__init__(*args, **kwargs)
         self._where_defined = self.get_where_defined()
 
-    def get_source(self):
+    def get_source(self) -> ActivityNode:
         return self.source.lookup() if self.source else self.source
 
-    def get_target(self):
+    def get_target(self) -> ActivityNode:
         return self.target.lookup() if self.target else self.target
 
     def gv_sanitize(self, id: str):
@@ -58,7 +60,7 @@ class ActivityEdge(inner.ActivityEdge, WhereDefinedMixin):
         source = self.get_source()
         target = self.get_target()
         src_id = source.label(namespace=namespace)
-        dest_id = self.get_target().label(namespace=namespace)
+        dest_id = target.label(namespace=namespace)
         edge_id = self.label()  # edge.identity.replace(":", "_")
         if isinstance(target, CallBehaviorAction):
             dest_id = f"{dest_id}:node"

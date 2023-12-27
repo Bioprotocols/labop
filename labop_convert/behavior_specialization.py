@@ -2,10 +2,10 @@ import json
 import logging
 import os
 from abc import ABC
+from typing import Any, List
 
 import tyto
 
-from labop import Protocol, ProtocolExecution
 from uml import CallBehaviorAction
 
 l = logging.getLogger(__file__)
@@ -77,13 +77,19 @@ class BehaviorSpecialization(ABC):
             ) as f:
                 f.write(self.data)
 
-    def process(self, record, execution: ProtocolExecution, timepoint="start"):
+    def output(self) -> List[Any]:
+        results = self.data
+        return results
+
+    def process(self, record, execution: "ProtocolExecution", timepoint="start"):
         try:
             node = record.node.lookup()
             if not isinstance(node, CallBehaviorAction):
                 return  # raise BehaviorSpecializationException(f"Cannot handle node type: {type(node)}")
             elif node.get_parent().identity in self.mapped_subprotocols:
                 return
+
+            from labop import Protocol
 
             # Subprotocol specializations
             behavior = node.behavior.lookup()

@@ -4,12 +4,10 @@ The CallBehaviorExecution class defines the functions corresponding to the dynam
 
 from typing import Callable, List, Union
 
-from labop import inner
 from uml import (
     PARAMETER_IN,
     PARAMETER_OUT,
     Action,
-    ActivityParameterNode,
     Behavior,
     CallBehaviorAction,
     ObjectFlow,
@@ -20,6 +18,7 @@ from uml import (
 from uml.ordered_property_value import OrderedPropertyValue
 from uml.output_pin import OutputPin
 
+from . import inner
 from .activity_edge_flow import ActivityEdgeFlow
 from .activity_node_execution import ActivityNodeExecution
 from .behavior_execution import BehaviorExecution
@@ -124,14 +123,18 @@ class CallBehaviorExecution(inner.CallBehaviorExecution, ActivityNodeExecution):
         for token in tokens:
             edge = token.get_edge()
             if isinstance(edge, ObjectFlow):
-                target: OutputPin = edge.get_target()  # target is an OutputPin
-                call.parameter_values += [
-                    ParameterValue(
-                        parameter=self.get_parameter(name=target.name, ordered=True),
-                        value=literal(v.get_value(), reference=True),
-                    )
-                    for v in token.get_value()
-                ]
+                target = edge.get_target()
+                # only want output pin tokens.  It is possible that the target is a subprotocol ActivityParameterNode.
+                if isinstance(target, OutputPin):
+                    for v in token.get_value():
+                        call.parameter_values.append(
+                            ParameterValue(
+                                parameter=self.get_parameter(
+                                    name=target.get_name(), ordered=True
+                                ),
+                                value=literal(v.get_value(), reference=True),
+                            )
+                        )
 
         ### Check that the same parameter names are sane:
         # 1. unbounded parameters can appear 0+ times
@@ -140,7 +143,7 @@ class CallBehaviorExecution(inner.CallBehaviorExecution, ActivityNodeExecution):
 
         pin_sets = {}
         for pv in call.parameter_values:
-            name = pv.get_parameter().name
+            name = pv.get_name()
             value = pv.value.get_value() if pv.value else None
             if name not in pin_sets:
                 pin_sets[name] = []

@@ -1,22 +1,11 @@
-import filecmp
 import logging
 import os
-import tempfile
 import unittest
-from importlib.machinery import SourceFileLoader
-from importlib.util import module_from_spec, spec_from_loader
-
-import sbol3
 
 import labop
-from labop.utils.helpers import file_diff
 
-# Save testfiles as artifacts when running in CI environment,
-# else save them to a local temp directory
-if "GH_TMPDIR" in os.environ:
-    TMPDIR = os.environ["GH_TMPDIR"]
-else:
-    TMPDIR = tempfile.gettempdir()
+logger = logging.getLogger("LUDOX_protocol")
+logger.setLevel(logging.INFO)
 
 
 OUT_DIR = os.path.join(os.path.dirname(__file__), "out")
@@ -24,56 +13,54 @@ if not os.path.exists(OUT_DIR):
     os.mkdir(OUT_DIR)
 
 protocol_def_file = os.path.join(
-    os.path.dirname(__file__), "../examples/LUDOX_protocol.py"
+    os.path.dirname(__file__), "../examples/protocols/ludox/LUDOX_protocol.py"
 )
 
 
-def load_ludox_protocol(protocol_filename):
-    loader = SourceFileLoader("ludox_protocol", protocol_filename)
-    spec = spec_from_loader(loader.name, loader)
-    module = module_from_spec(spec)
-    loader.exec_module(module)
-    return module
-
-
-protocol_def = load_ludox_protocol(protocol_def_file)
-
-
 class TestProtocolEndToEnd(unittest.TestCase):
+    def create_protocol(self, doc, protocol: labop.Protocol) -> labop.Protocol:
+        protocol = labop.execution.harness.ProtocolLoader(
+            protocol_def_file, "ludox_protocol"
+        ).generate_protocol(doc, protocol)
+        return protocol
+
     def test_create_protocol(self):
-        protocol: labop.Protocol
-        doc: sbol3.Document
-        logger = logging.getLogger("LUDOX_protocol")
-        logger.setLevel(logging.INFO)
-        protocol, doc = protocol_def.ludox_protocol()
-
-        ########################################
-        # Validate and write the document
-        print("Validating and writing protocol")
-        v = doc.validate()
-        assert len(v) == 0, "".join(f"\n {e}" for e in v)
-
-        temp_name = os.path.join(TMPDIR, "igem_ludox_test.nt")
-
-        # At some point, rdflib began inserting an extra newline into
-        # N-triple serializations, which breaks file comparison.
-        # Here we strip extraneous newlines, to maintain reverse compatibility
-        with open(temp_name, "w") as f:
-            f.write(doc.write_string(sbol3.SORTED_NTRIPLES).strip())
-        print(f"Wrote file as {temp_name}")
-
-        comparison_file = os.path.join(
-            os.path.dirname(os.path.realpath(__file__)),
-            "testfiles",
-            "igem_ludox_test.nt",
+        harness = labop.execution.harness.ProtocolHarness(
+            clean_output=True,
+            base_dir=os.path.join(os.path.dirname(__file__), "out"),
+            entry_point=self.create_protocol,
+            namespace="https://bbn.com/scratch/",
+            protocol_name="iGEM_LUDOX_OD_calibration_2018",
+            protocol_long_name="iGEM 2018 LUDOX OD calibration protocol",
+            protocol_version="1.0",
+            protocol_description="""
+With this protocol you will use LUDOX CL-X (a 45% colloidal silica suspension) as a single point reference to
+obtain a conversion factor to transform absorbance (OD600) data from your plate reader into a comparable
+OD600 measurement as would be obtained in a spectrophotometer. This conversion is necessary because plate
+reader measurements of absorbance are volume dependent; the depth of the fluid in the well defines the path
+length of the light passing through the sample, which can vary slightly from well to well. In a standard
+spectrophotometer, the path length is fixed and is defined by the width of the cuvette, which is constant.
+Therefore this conversion calculation can transform OD600 measurements from a plate reader (i.e. absorbance
+at 600 nm, the basic output of most instruments) into comparable OD600 measurements. The LUDOX solution
+is only weakly scattering and so will give a low absorbance value.
+        """,
+            artifacts=[
+                labop.execution.harness.ProtocolRubric(
+                    filename=os.path.join(
+                        os.path.dirname(os.path.realpath(__file__)),
+                        "testfiles",
+                        "igem_ludox_test.nt",
+                    ),
+                    # overwrite_rubric=True,  # Used to update rubric
+                )
+            ],
         )
-        # with open(comparison_file, "w") as f:
-        #     f.write(doc.write_string(sbol3.SORTED_NTRIPLES).strip())
-        print(f"Comparing against {comparison_file}")
-        diff = "".join(file_diff(comparison_file, temp_name))
-        print(f"Difference: {diff}")
-        assert filecmp.cmp(temp_name, comparison_file), "Files are not identical"
-        print("File identical with test file")
+
+        harness.run(verbose=True)
+
+        assert len(harness.errors()) == 0, harness.artifacts_results_summary(
+            verbose=True
+        )
 
 
 if __name__ == "__main__":

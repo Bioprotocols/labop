@@ -1,0 +1,40 @@
+site_name: LabOP Docs
+
+theme:
+  name: "material"
+
+plugins:
+- search
+# - pandoc:
+#     combined: true
+- mkdocstrings:
+    handlers:
+      python:
+        paths: [uml]
+        options:
+          # show_submodules: true
+          allow_inspection: false
+          docstring_style: google
+
+
+
+nav:
+  - LabOP Docs: index.md
+  - tutorials.md
+  - How-To Guides: how-to-guides.md
+  - Reference:
+    - Data Model:
+      - UML:
+        - Top-Level: reference/uml/top.md
+        - Literals: reference/uml/literals.md
+        - Activities: reference/uml/activities.md
+        - Behaviors: reference/uml/behaviors.md
+        - Time: reference/uml/time.md
+        - Literals: reference/uml/literals.md
+      - LabOP:
+        - Top-Level:  reference/labop/top.md
+        - Data: reference/labop/data.md
+        - Execution: reference/labop/execution.md
+        - Samples: reference/labop/samples.md
+    - LabOP Library: reference/library.md
+  - explanation.md

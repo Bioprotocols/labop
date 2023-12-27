@@ -3,7 +3,7 @@ The CallBehaviorAction class defines the functions corresponding to the
 dynamically generated labop class CallBehaviorAction
 """
 
-from typing import Callable, Dict, List
+from typing import List
 
 import graphviz
 import sbol3
@@ -98,66 +98,14 @@ class CallBehaviorAction(inner.CallBehaviorAction, CallAction):
         shape = "none"
         return {"label": label, "shape": shape, "style": "rounded"}
 
-    def get_value(
-        self,
-        edge: "ActivityEdge",
-        parameter_value_map: Dict[str, List[LiteralSpecification]],
-        node_outputs: Callable,
-        sample_format: str,
-        invocation_hash: int,
-    ):
-        from .activity import Activity
+    def auto_advance(self):
+        """
+        Is the node executable without additional manual input?
 
-        if isinstance(edge, ControlFlow):
-            return ActivityNode.get_value(
-                self,
-                edge,
-                parameter_value_map,
-                node_outputs,
-                sample_format,
-                invocation_hash,
-            )
-        elif isinstance(edge, ObjectFlow):
-            if isinstance(self.get_behavior(), Activity):
-                # Activity Invocations do not send objects to their output pins
-                # The activity output parameters will send object to the output pins.
-                value = "uml.ControlFlow"
-                reference = False
-            else:
-                parameter = self.get_parameter(name=edge.get_target().name)
-                value = self.get_parameter_value(
-                    parameter,
-                    parameter_value_map,
-                    node_outputs,
-                    sample_format,
-                    invocation_hash,
-                )
-
-                reference = (
-                    isinstance(value, sbol3.Identified) and value.identity != None
-                )
-        if isinstance(value, list) or isinstance(
-            value, sbol3.ownedobject.OwnedObjectListProperty
-        ):
-            value = [literal(v, reference=reference) for v in value]
-        else:
-            value = [literal(value, reference=reference)]
-        return value
-
-    def get_parameter_value(
-        self,
-        parameter: Parameter,
-        parameter_value_map: Dict[str, List[LiteralSpecification]],
-        node_outputs: Callable,
-        sample_format: str,
-        invocation_hash: int,
-    ):
-        if node_outputs:
-            value = node_outputs(self, parameter)
-        elif hasattr(self.get_behavior(), "compute_output"):
-            value = self.get_behavior().compute_output(
-                parameter_value_map, parameter, sample_format, invocation_hash
-            )
-        else:
-            value = f"{parameter.name}"
-        return value
+        Returns
+        -------
+        bool
+            Whether the node can be automatically executed.
+        """
+        behavior = self.get_behavior()
+        return behavior.auto_advance()

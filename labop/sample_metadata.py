@@ -11,11 +11,12 @@ import sbol3
 import xarray as xr
 from openpyxl import load_workbook
 
-import labop.inner as inner
-from labop.data import deserialize_sample_format, serialize_sample_format
-from labop.sample_collection import SampleCollection
-from labop.strings import Strings
 from uml.behavior import Behavior
+
+from . import inner
+from .data import deserialize_sample_format, serialize_sample_format
+from .sample_collection import SampleCollection
+from .strings import Strings
 
 
 class SampleMetadata(inner.SampleMetadata):
@@ -127,7 +128,7 @@ class SampleMetadata(inner.SampleMetadata):
         return deserialize_sample_format(self.descriptions, parent=self)
 
     def from_sample_graph(for_samples, engine, record_source=False):
-        metadata = labop.SampleMetadata(for_samples=for_samples)
+        metadata = SampleMetadata(for_samples=for_samples)
 
         if engine.sample_format == Strings.XARRAY:
             # Convert pd.DataFrame into xr.DataArray
