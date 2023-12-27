@@ -517,7 +517,7 @@ async def LiquidHandler_setup():
                 upstream_map["source"]["parameter"].property_value
             )  # EmptyContainer
             parameter_value_map = upstream_execution.call.lookup().parameter_value_map()
-            destination_container = parameter_value_map["specification"]["value"]
+            destination_container = parameter_value_map["specification"]
 
         elif behavior_type == "LoadContainerOnInstrument":
             upstream_map = upstream_execution.call.lookup().parameter_value_map()
@@ -526,7 +526,7 @@ async def LiquidHandler_setup():
                 upstream_map["container"]["parameter"].property_value
             )  # EmptyContainer
             parameter_value_map = upstream_execution.call.lookup().parameter_value_map()
-            destination_container = parameter_value_map["specification"]["value"]
+            destination_container = parameter_value_map["specification"]
 
         else:
             raise Exception(f'Invalid input pin "destination" for Transfer.')
@@ -573,12 +573,10 @@ async def LiquidHandler_setup():
         results = {}
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
-        destination = parameter_value_map["destination"][
-            "value"
+        destination = parameter_value_map[
+            "destination"
         ]  # those are gonna be sample arrays
-        source = parameter_value_map["source"][
-            "value"
-        ]  # those are gonna be sample arrays
+        source = parameter_value_map["source"]  # those are gonna be sample arrays
         plan = parameter_value_map["plan"]
         temperature = parameter_value_map["temperature"]
         value = parameter_value_map["amount"].value
@@ -617,7 +615,7 @@ async def LiquidHandler_setup():
                 "source", upstream_execution
             )  # EmptyContainer
             parameter_value_map = upstream_execution.call.lookup().parameter_value_map()
-            destination_container = parameter_value_map["specification"]["value"]
+            destination_container = parameter_value_map["specification"]
         else:
             raise Exception(f'Invalid input pin "destination" for Transfer.')
         destination_name = None
@@ -681,7 +679,7 @@ async def LiquidHandler_setup():
     ):
         call = record.call.lookup()
         parameter_value_map = call.parameter_value_map()
-        container: labop.ContainerSpec = parameter_value_map["container"]["value"]
+        container: labop.ContainerSpec = parameter_value_map["container"]
         coords: str = (
             parameter_value_map["coordinates"]
             if "coordinates" in parameter_value_map
@@ -744,7 +742,7 @@ async def LiquidHandler_setup():
         container_types = self.resolve_container_spec(container_spec)
         selected_container_type = self.check_lims_inventory(container_types)
         container_api_name = LABWARE_MAP[selected_container_type]
-        container_str = get_container_name(container_spec)
+        container_str = self.get_container_name(container_spec)
 
         # TODO: need to specify instrument
         deck = self.get_instrument_deck(instrument)

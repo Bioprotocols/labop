@@ -4,8 +4,10 @@ import os
 from abc import ABC
 from typing import Any, List
 
+import sbol3
 import tyto
 
+from labop import ContainerSpec
 from uml import CallBehaviorAction
 
 l = logging.getLogger(__file__)
@@ -49,6 +51,9 @@ class BehaviorSpecialization(ABC):
 
         # This data field holds the results of the specialization
         self.data = []
+
+        # Used by some specializations to map agents to instruments
+        self.configuraiton = {}
 
     def initialize_protocol(self, execution: "ProtocolExecution", out_dir=None):
         self.execution = execution
@@ -193,6 +198,25 @@ class BehaviorSpecialization(ABC):
     def check_lims_inventory(self, matching_containers: list) -> str:
         # Override this method to interface with laboratory lims system
         return matching_containers[0]
+
+    def get_container_name(self, container: ContainerSpec):
+        if container.name:
+            return f"`{container.name}`"
+        try:
+            prefix, local = container.queryString.split(":")
+        except:
+            raise Exception(
+                f"Container specification {container.queryString} is invalid."
+            )
+        return ContO.get_term_by_uri(f"{ContO.uri}#{local}")
+
+    def get_instrument_deck(self, instrument: sbol3.Agent) -> str:
+        for deck, agent in self.configuration.items():
+            if agent == instrument:
+                return deck
+        raise Exception(
+            f"{instrument.display_id} is not currently configured for this robot"
+        )
 
 
 class DefaultBehaviorSpecialization(BehaviorSpecialization):

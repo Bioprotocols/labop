@@ -552,7 +552,7 @@ class OT2Specialization(DefaultBehaviorSpecialization):
         # TODO: validate coordinates for the given container spec
         samples.source = slots
         samples.mask = coords
-        container_str = get_container_name(container)
+        container_str = self.get_container_name(container)
 
         rack_str = ""
         try:
@@ -565,7 +565,7 @@ class OT2Specialization(DefaultBehaviorSpecialization):
                 .input_pin("specification")
                 .value.value.lookup()
             )
-            rack_str = get_container_name(rack)
+            rack_str = self.get_container_name(rack)
         except Exception as e:
             print(e)
 
@@ -603,7 +603,7 @@ class OT2Specialization(DefaultBehaviorSpecialization):
         container_types = self.resolve_container_spec(container_spec)
         selected_container_type = self.check_lims_inventory(container_types)
         container_api_name = LABWARE_MAP[selected_container_type]
-        container_str = get_container_name(container_spec)
+        container_str = self.get_container_name(container_spec)
 
         # TODO: need to specify instrument
         deck = self.get_instrument_deck(instrument)
@@ -648,7 +648,7 @@ class OT2Specialization(DefaultBehaviorSpecialization):
         self.script_steps += [
             f"labware{coords} = protocol.load_labware('{api_name}', '{coords}')"
         ]
-        rack_str = get_container_name(rack)
+        rack_str = self.get_container_name(rack)
         self.markdown_steps += [f"Load {rack_str} in Deck {coords} of OT2 instrument"]
 
         # If the loaded labware is a tiprack, check if any compatible pipettes
@@ -770,24 +770,6 @@ class OT2Specialization(DefaultBehaviorSpecialization):
             f"thermocycler_module.execute_profile(steps=profile, repetitions={cycles})"
         ]
         self.script_steps += ["thermocycler_module.set_block_temperature(4)"]
-
-    def get_instrument_deck(self, instrument: sbol3.Agent) -> str:
-        for deck, agent in self.configuration.items():
-            if agent == instrument:
-                return deck
-        raise Exception(
-            f"{instrument.display_id} is not currently configured for this robot"
-        )
-
-
-def get_container_name(container: ContainerSpec):
-    if container.name:
-        return f"`{container.name}`"
-    try:
-        prefix, local = container.queryString.split(":")
-    except:
-        raise Exception(f"Container specification {container.queryString} is invalid.")
-    return ContO.get_term_by_uri(f"{ContO.uri}#{local}")
 
 
 def measurement_to_text(measure: sbol3.Measure):
