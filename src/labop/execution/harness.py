@@ -21,7 +21,6 @@ from labop.utils.helpers import file_diff, prepare_document
 from labop_convert import BehaviorSpecialization
 
 l = logging.Logger(__file__)
-l.setLevel(logging.INFO)
 ConsoleOutputHandler = logging.StreamHandler()
 l.addHandler(ConsoleOutputHandler)
 
@@ -132,32 +131,38 @@ class ProtocolNTuples(ProtocolArtifact):
             l.info(f"Bypassing Protocol Generation, looking for existing .nt file ...")
             if os.path.exists(self.cached_protocol_file):
                 l.info(f"Found .nt file: {self.cached_protocol_file}")
-                self.read_protocol()
-
-        self.filename = (
-            os.path.join(
-                harness.full_output_dir,
-                self.ntuples_filename(harness.filename_prefix()),
+                try:
+                    self.read_protocol()
+                    self.status = ProtocolArtifactStatus.PASS
+                    self.results["protocol"]["validation"] = ProtocolArtifactStatus.PASS
+                except Exception as e:
+                    self.status = ProtocolArtifactStatus.FAIL
+                    self.results["exception"] = str(e)
+        else:
+            self.filename = (
+                os.path.join(
+                    harness.full_output_dir,
+                    self.ntuples_filename(harness.filename_prefix()),
+                )
+                if self.filename is None
+                else self.filename
             )
-            if self.filename is None
-            else self.filename
-        )
-        try:
-            self.generate_protocol(harness)
+            try:
+                self.generate_protocol(harness)
 
-            assert self._protocol is not None, f"Protocol was not generated ... "
+                assert self._protocol is not None, f"Protocol was not generated ... "
 
-            # with open(self.filename, "w") as f:
-            l.info(f"Saving protocol [{self.filename}].")
-            # f.write(self._doc.write_string(sbol3.SORTED_NTRIPLES).strip())
-            self.results["nt_filename"] = self.filename
-            # self._doc.write(self.filename, sbol3.SORTED_NTRIPLES)
-            with open(self.filename, "w") as f:
-                f.write(self._doc.write_string(sbol3.SORTED_NTRIPLES).strip())
+                # with open(self.filename, "w") as f:
+                l.info(f"Saving protocol [{self.filename}].")
+                # f.write(self._doc.write_string(sbol3.SORTED_NTRIPLES).strip())
+                self.results["nt_filename"] = self.filename
+                # self._doc.write(self.filename, sbol3.SORTED_NTRIPLES)
+                with open(self.filename, "w") as f:
+                    f.write(self._doc.write_string(sbol3.SORTED_NTRIPLES).strip())
 
-        except Exception as e:
-            self.status = ProtocolArtifactStatus.FAIL
-            self.results["exception"] = str(e)
+            except Exception as e:
+                self.status = ProtocolArtifactStatus.FAIL
+                self.results["exception"] = str(e)
 
 
 class ProtocolDownstreamArtifact(ProtocolArtifact):
@@ -193,9 +198,11 @@ class ProtocolDiagram(ProtocolDownstreamArtifact):
             else self.filename
         )
         try:
+
             self.protocol().to_dot().render(
                 self.filename, cleanup=True, overwrite_source=True
             )
+            l.info(f"Saved protocol diagram: {self.filename}.pdf")
             self.results["filename"] = self.filename
             self.status = ProtocolArtifactStatus.PASS
         except Exception as e:
@@ -526,7 +533,7 @@ class ProtocolHarness:
 
         # Store outputs in full_output_dir
         os.makedirs(self.full_output_dir, exist_ok=True)
-        l.info(f"Writing protocol artifacts to: {self.full_output_dir}")
+        l.debug(f"Writing protocol artifacts to: {self.full_output_dir}")
 
         self.entry_point = kwargs["entry_point"]
         self.artifacts = kwargs["artifacts"] if "artifacts" in kwargs else []
@@ -676,7 +683,8 @@ class ProtocolHarness:
                     os.unlink(os.path.join(root, f))
                 for d in dirs:
                     shutil.rmtree(os.path.join(root, d))
-        l.info(self.artifacts_summary(verbose=verbose))
+        if verbose:
+            l.info(self.artifacts_summary(verbose=verbose))
 
     def errors(self) -> List[ProtocolArtifact]:
         return [
@@ -699,9 +707,9 @@ class ProtocolHarness:
                 a.generate_artifact(self)
 
     def finalize(self, verbose=False):
-        summary = self.artifacts_results_summary(verbose=verbose)
-
-        l.info(summary)
+        if verbose:
+            summary = self.artifacts_results_summary(verbose=verbose)
+            l.info(summary)
         results_file = os.path.join(self.full_output_dir, "harness.out")
         with open(results_file, "w") as f:
             f.write(self.artifacts_results_summary(verbose=True))

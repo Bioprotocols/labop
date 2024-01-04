@@ -156,7 +156,7 @@ class ExecutionEngine(ABC):
     def next_id(self):
         next = self.exec_counter
         self.exec_counter += 1
-        return next
+        return f"{self.ex.display_id}_{next}"
 
     def next_variable(self):
         variable = f"var_{self.variable_counter}"

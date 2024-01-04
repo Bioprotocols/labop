@@ -36,12 +36,18 @@ setup(
     ],
     tests_require=test_deps,
     extras_require=extras,
-    packages=find_packages(".", exclude=["*attic", "examples"]),
+    packages=find_packages("src", exclude=["*attic", "examples"]),
     package_data={
         "labop": ["inner/labop.ttl", "lib/*.ttl", "container-ontology.ttl"],
         "labop_convert": ["markdown/template.xlsx"],
         "uml": ["inner/uml.ttl"],
         "labop_time": ["labop_time.ttl"],
     },
+    package_dir={"": "src"},
     include_package_data=True,
+    entry_points={
+        "console_scripts": [
+            "labop=labop_cli.commands:main",
+        ],
+    },
 )
