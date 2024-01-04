@@ -33,6 +33,7 @@ setup(
         "requests_html",
         "container-ontology @ https://github.com/rpgoldman/container-ontology/tarball/main",
         "xarray>=0.20.2",
+        "owl_rdf_utils",
     ],
     tests_require=test_deps,
     extras_require=extras,

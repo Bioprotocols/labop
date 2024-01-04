@@ -3,16 +3,25 @@ Laboratory Open Procotol Language (LabOP) is a representation designed to simpli
 
 # Installation
 
-The LabOP package is available by PyPI:
+Install LabOP by cloning this repository and using pip:
 
-```
-pip3 install labop
+```bash
+git clone https://github.com/Bioprotocols/labop.git
+cd labop
+pip install .
 ```
 
 LabOP visualizations currently depend on the `graphviz` application. To install graphviz, run (per https://github.com/ts-graphviz/setup-graphviz):
 * Mac: `brew install graphviz`
 * Linux: `apt-get install graphviz libgraphviz-dev pkg-config`
 * Windows: `choco install graphviz`
+
+# Quickstart
+
+LabOP includes a CLI for managing projects.  The CLI includes the commands:
+
+```bash
+```
 
 # API
 
